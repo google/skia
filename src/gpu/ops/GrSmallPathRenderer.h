@@ -33,8 +33,12 @@ public:
     // the list of active OnFlushBackkbackObjects in an freeGpuResources call (i.e., we accept the
     // default retainOnFreeGpuResources implementation).
 
-    void preFlush(GrOnFlushResourceProvider*, const uint32_t*, int,
-                  SkTArray<sk_sp<GrRenderTargetContext>>*) override {}
+    void preFlush(GrOnFlushResourceProvider* onFlushResourceProvider, const uint32_t*, int,
+                  SkTArray<sk_sp<GrRenderTargetContext>>*) override {
+        if (fAtlas) {
+            fAtlas->instantiate(onFlushResourceProvider);
+        }
+    }
 
     void postFlush(GrDeferredUploadToken startTokenForNextFlush,
                    const uint32_t* opListIDs, int numOpListIDs) override {

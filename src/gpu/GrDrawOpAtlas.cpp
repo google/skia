@@ -9,12 +9,30 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrOnFlushResourceProvider.h"
 #include "GrOpFlushState.h"
 #include "GrRectanizer.h"
 #include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
 #include "GrTracing.h"
+
+// When proxy allocation is deferred until flush time the proxies acting as atlases require
+// special handling. This is because the usage that can be determined from the ops themselves
+// isn't sufficient. Independent of the ops there will be ASAP and inline uploads to the
+// atlases. Extending the usage interval of any op that uses an atlas to the start of the
+// flush (as is done for proxies that are used for sw-generated masks) also won't work because
+// the atlas persists even beyond the last use in an op - for a given flush. Given this, atlases
+// must explicitly manage the lifetime of their backing proxies via the onFlushCallback system
+// (which calls this method).
+void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvider) {
+    for (int i = 0; i < GrDrawOpAtlas::kMaxMultitexturePages; ++i) {
+        if (fProxies[i] && !fProxies[i]->priv().isInstantiated()) {
+            // If instantiation fails we expect the ops that rely on the atlas to be dropped
+            onFlushResourceProvider->instatiateProxy(fProxies[i].get());
+        }
+    }
+}
 
 std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig config, int width,
                                                    int height, int numPlotsX, int numPlotsY,
