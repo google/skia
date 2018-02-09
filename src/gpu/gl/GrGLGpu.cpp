@@ -662,7 +662,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
 
 bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                                    int width, int height,
-                                   GrPixelConfig srcConfig,
+                                   GrPixelConfig srcConfig, GrSRGBConversion srgbConversion,
                                    DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
     if (SkToBool(dstSurface->asRenderTarget())) {
@@ -764,12 +764,12 @@ static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surfac
 
 bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
                             int left, int top, int width, int height,
-                            GrPixelConfig config,
+                            GrPixelConfig dstConfig, GrSRGBConversion srgbConversion,
                             const GrMipLevel texels[],
                             int mipLevelCount) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
-    if (!check_write_and_transfer_input(glTex, surface, config)) {
+    if (!check_write_and_transfer_input(glTex, surface, dstConfig)) {
         return false;
     }
 
@@ -778,7 +778,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
 
     return this->uploadTexData(glTex->config(), glTex->width(), glTex->height(),
                                origin, glTex->target(), kWrite_UploadType,
-                               left, top, width, height, config, texels, mipLevelCount);
+                               left, top, width, height, dstConfig, texels, mipLevelCount);
 }
 
 // For GL_[UN]PACK_ALIGNMENT.
@@ -813,12 +813,16 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
 
 bool GrGLGpu::onTransferPixels(GrTexture* texture,
                                int left, int top, int width, int height,
-                               GrPixelConfig config, GrBuffer* transferBuffer,
+                               GrPixelConfig config, GrSRGBConversion srgbConversion,
+                               GrBuffer* transferBuffer,
                                size_t offset, size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
     GrPixelConfig texConfig = glTex->config();
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
 
+    if (GrSRGBConversion::kNone != srgbConversion) {
+        return false;
+    }
     if (!check_write_and_transfer_input(glTex, texture, config)) {
         return false;
     }

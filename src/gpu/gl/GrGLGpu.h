@@ -63,16 +63,6 @@ public:
     void generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs, GrGLTexture* texture,
                          GrSurfaceOrigin textureOrigin);
 
-    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
-                             int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
-                             ReadPixelTempDrawInfo*) override;
-
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
-                              int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override;
-
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
     void bindVertexArray(GrGLuint id) {
@@ -240,21 +230,30 @@ private:
     // variations above, depending on whether the surface is a render target or not.
     bool readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig);
 
+    bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin,
+                             int width, int height, size_t rowBytes,
+                             GrPixelConfig, GrSRGBConversion, DrawPreference*,
+                             ReadPixelTempDrawInfo*) override;
+
+    bool onGetWritePixelsInfo(GrSurface*, GrSurfaceOrigin,
+                              int width, int height,
+                              GrPixelConfig, GrSRGBConversion, DrawPreference*,
+                              WritePixelTempDrawInfo*) override;
+
     bool onReadPixels(GrSurface*, GrSurfaceOrigin,
                       int left, int top,
                       int width, int height,
                       GrPixelConfig,
-                      void* buffer,
-                      size_t rowBytes) override;
+                      void* buffer, size_t rowBytes) override;
 
     bool onWritePixels(GrSurface*, GrSurfaceOrigin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config,
-                       const GrMipLevel texels[], int mipLevelCount) override;
+                       GrPixelConfig,
+                       const GrMipLevel[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrPixelConfig, GrBuffer*,
                           size_t offset, size_t rowBytes) override;
 
     // Before calling any variation of TexImage, TexSubImage, etc..., call this to ensure that the

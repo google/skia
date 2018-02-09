@@ -338,13 +338,15 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
 ////////////////////////////////////////////////////////////////////////////////
 bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                                    int width, int height,
-                                   GrPixelConfig srcConfig, DrawPreference* drawPreference,
+                                   GrPixelConfig srcConfig, GrSRGBConversion srgbConversion,
+                                   DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
     GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
 
-    // Start off assuming no swizzling
+    // Start off assuming no conversions
     tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
     tempDrawInfo->fWriteConfig = srcConfig;
+    tempDrawInfo->fShaderSRGBConversion = GrSRGBConversion::kNone;
 
     // These settings we will always want if a temp draw is performed. Initially set the config
     // to srcConfig, though that may be modified if we decide to do a R/B swap
@@ -355,6 +357,43 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
+    // Vulkan doesn't do srgb conversions when writing pixels. We will have to have a draw.
+    switch (srgbConversion) {
+        case GrSRGBConversion::kNone:
+            break;
+        case GrSRGBConversion::kLinearToSRGB:
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+            SkASSERT(!GrPixelConfigIsSRGB(srcConfig));
+            if (!GrPixelConfigIsSRGB(dstSurface->config())) {
+                // Since the dst is not an sRGB format we need to make the conversion happen during
+                // the draw, either using texture sampler or in the shader.
+                switch (tempDrawInfo->fTempSurfaceDesc.fConfig) {
+                    case kRGBA_8888_GrPixelConfig:
+                        if (this->caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+                            tempDrawInfo->fTempSurfaceDesc.fConfig = kSRGBA_8888_GrPixelConfig;
+                        } else {
+                            tempDrawInfo->fShaderSRGBConversion = GrSRGBConversion::kLinearToSRGB;
+                        }
+                        break;
+                    case kBGRA_8888_GrPixelConfig:
+                        if (this->caps()->isConfigTexturable(kSBGRA_8888_GrPixelConfig)) {
+                            tempDrawInfo->fTempSurfaceDesc.fConfig = kSBGRA_8888_GrPixelConfig;
+                        } else {
+                            tempDrawInfo->fShaderSRGBConversion = GrSRGBConversion::kLinearToSRGB;
+                        }
+                        break;
+                    default:
+                        tempDrawInfo->fShaderSRGBConversion = GrSRGBConversion::kLinearToSRGB;
+                        break;
+                }
+            }
+            return true;
+        case GrSRGBConversion::kSRGBToLinear:
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+            SkASSERT(!GrPixelConfigIsSRGB(dstSurface->config()));
+            SkASSERT(GrPixelConfigIsSRGB(srcConfig));
+            return true;
+    }
     if (dstSurface->config() == srcConfig) {
         // We only support writing pixels to textures. Forcing a draw lets us write to pure RTs.
         if (!dstSurface->asTexture()) {
@@ -394,11 +433,6 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
         return false;
     }
 
-    // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
-        return false;
-    }
-
     bool success = false;
     bool linearTiling = vkTex->isLinearTiled();
     if (linearTiling) {
@@ -433,7 +467,8 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
 
 bool GrVkGpu::onTransferPixels(GrTexture* texture,
                                int left, int top, int width, int height,
-                               GrPixelConfig config, GrBuffer* transferBuffer,
+                               GrPixelConfig config, GrSRGBConversion srgbConversion,
+                               GrBuffer* transferBuffer,
                                size_t bufferOffset, size_t rowBytes) {
     // Vulkan only supports 4-byte aligned offsets
     if (SkToBool(bufferOffset & 0x2)) {
@@ -449,7 +484,7 @@ bool GrVkGpu::onTransferPixels(GrTexture* texture,
     }
 
     // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(texture->config()) != GrPixelConfigIsSRGB(config)) {
+    if (GrSRGBConversion::kNone != srgbConversion) {
         return false;
     }
 
@@ -1881,7 +1916,9 @@ void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const
 
 bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                                   int width, int height, size_t rowBytes,
-                                  GrPixelConfig readConfig, DrawPreference* drawPreference,
+                                  GrPixelConfig dstConfig,
+                                  GrSRGBConversion srgbConversion,
+                                  DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
     // These settings we will always want if a temp draw is performed.
     tempDrawInfo->fTempSurfaceDesc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -1891,35 +1928,69 @@ bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
     tempDrawInfo->fTempSurfaceFit = SkBackingFit::kApprox;
 
-    // For now assume no swizzling, we may change that below.
+    // For now assume no conversions, we may change that below.
     tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
+    tempDrawInfo->fTempSurfaceDesc.fConfig = dstConfig;
+    tempDrawInfo->fReadConfig = dstConfig;
+    tempDrawInfo->fShaderSRGBConversion = GrSRGBConversion::kNone;
 
-    // Depends on why we need/want a temp draw. Start off assuming no change, the surface we read
-    // from will be srcConfig and we will read readConfig pixels from it.
-    // Note that if we require a draw and return a non-renderable format for the temp surface the
-    // base class will fail for us.
-    tempDrawInfo->fTempSurfaceDesc.fConfig = srcSurface->config();
-    tempDrawInfo->fReadConfig = readConfig;
+    // Vulkan doesn't do srgb conversions when reading pixels. We will have to have a draw.
+    switch (srgbConversion) {
+        case GrSRGBConversion::kNone:
+            break;
+        case GrSRGBConversion::kLinearToSRGB:
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+            SkASSERT(!GrPixelConfigIsSRGB(srcSurface->config()));
+            SkASSERT(GrPixelConfigIsSRGB(dstConfig));
+            return true;
+        case GrSRGBConversion::kSRGBToLinear:
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+            SkASSERT(!GrPixelConfigIsSRGB(dstConfig));
+            if (!GrPixelConfigIsSRGB(srcSurface->config())) {
+                // Since the dst is not an sRGB format we need to make the conversion happen during
+                // the draw, either using texture sampler or in the shader.
+                switch (tempDrawInfo->fTempSurfaceDesc.fConfig) {
+                    case kRGBA_8888_GrPixelConfig:
+                        if (this->caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+                            tempDrawInfo->fTempSurfaceDesc.fConfig = kSRGBA_8888_GrPixelConfig;
+                        } else {
+                            tempDrawInfo->fShaderSRGBConversion = GrSRGBConversion::kLinearToSRGB;
+                        }
+                        break;
+                    case kBGRA_8888_GrPixelConfig:
+                        if (this->caps()->isConfigTexturable(kSBGRA_8888_GrPixelConfig)) {
+                            tempDrawInfo->fTempSurfaceDesc.fConfig = kSBGRA_8888_GrPixelConfig;
+                        } else {
+                            tempDrawInfo->fShaderSRGBConversion = GrSRGBConversion::kLinearToSRGB;
+                        }
+                        break;
+                    default:
+                        tempDrawInfo->fShaderSRGBConversion = GrSRGBConversion::kLinearToSRGB;
+                        break;
+                }
+            }
+            return true;
+    }
 
-    if (srcSurface->config() == readConfig) {
+    if (srcSurface->config() == dstConfig) {
         return true;
     }
 
     // Any config change requires a draw
     ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
-    tempDrawInfo->fReadConfig = readConfig;
+    tempDrawInfo->fTempSurfaceDesc.fConfig = dstConfig;
+    tempDrawInfo->fReadConfig = dstConfig;
 
     return true;
 }
 
 bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                            int left, int top, int width, int height,
-                           GrPixelConfig config,
+                           GrPixelConfig dstConfig, GrSRGBConversion srgbConversion,
                            void* buffer,
                            size_t rowBytes) {
     VkFormat pixelFormat;
-    if (!GrPixelConfigToVkFormat(config, &pixelFormat)) {
+    if (!GrPixelConfigToVkFormat(dstConfig, &pixelFormat)) {
         return false;
     }
 
@@ -1954,7 +2025,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                           VK_PIPELINE_STAGE_TRANSFER_BIT,
                           false);
 
-    size_t bpp = GrBytesPerPixel(config);
+    size_t bpp = GrBytesPerPixel(dstConfig);
     size_t tightRowBytes = bpp * width;
     bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 

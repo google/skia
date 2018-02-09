@@ -64,23 +64,6 @@ public:
         kSkip_SyncQueue
     };
 
-    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
-                             int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
-                             ReadPixelTempDrawInfo*) override;
-
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
-                              int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override;
-
-    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                       GrSurface* src, GrSurfaceOrigin srcOrigin,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-
-    void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
-                                 int* effectiveSampleCnt, SamplePattern*) override;
-
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
@@ -193,20 +176,38 @@ private:
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
                              const void* data) override;
 
-    bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
+    bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin,
+                             int width, int height, size_t rowBytes,
+                             GrPixelConfig, GrSRGBConversion, DrawPreference*,
+                             ReadPixelTempDrawInfo*) override;
+
+    bool onGetWritePixelsInfo(GrSurface*, GrSurfaceOrigin,
+                              int width, int height,
+                              GrPixelConfig, GrSRGBConversion, DrawPreference*,
+                              WritePixelTempDrawInfo*) override;
+
+    bool onReadPixels(GrSurface*surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
                       GrPixelConfig,
                       void* buffer,
                       size_t rowBytes) override;
 
-    bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
+    bool onWritePixels(GrSurface*, GrSurfaceOrigin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, const GrMipLevel texels[], int mipLevelCount) override;
+                       GrPixelConfig, const GrMipLevel[],
+                       int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrPixelConfig, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override;
+
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                       GrSurface* src, GrSurfaceOrigin srcOrigin,
+                       const SkIRect& srcRect, const SkIPoint& dstPoint) override;
+
+    void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override;
 
     void onFinishFlush(bool insertedSemaphores) override;
 

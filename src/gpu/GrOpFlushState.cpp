@@ -81,11 +81,13 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
     GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* dstProxy, int left, int top,
                                                      int width, int height, GrPixelConfig srcConfig,
                                                      const void* buffer, size_t rowBytes) {
+        // We don't allow srgb conversions in via op flush state uploads.
+        static constexpr auto kSRGBConversion = GrSRGBConversion::kNone;
         GrSurface* dstSurface = dstProxy->priv().peekSurface();
         GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
         GrGpu::WritePixelTempDrawInfo tempInfo;
         if (!fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(),
-                                      width, height, srcConfig,
+                                      width, height, srcConfig, kSRGBConversion,
                                       &drawPreference, &tempInfo)) {
             return false;
         }
@@ -93,6 +95,12 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
             return this->fGpu->writePixels(dstSurface, dstProxy->origin(),
                                            left, top, width, height,
                                            srcConfig, buffer, rowBytes);
+        }
+        // Since we actually perform a copy and not a draw we cannot handle any swizzle or shader
+        // srgb conversions.
+        SkASSERT(tempInfo.fShaderSRGBConversion == kSRGBConversion);
+        if (tempInfo.fSwizzle != GrSwizzle::RGBA()) {
+            return false;
         }
         GrSurfaceDesc desc;
         desc.fOrigin = dstProxy->origin();

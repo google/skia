@@ -1023,6 +1023,80 @@ static inline GrSLPrecision GrSLSamplerPrecision(GrPixelConfig config) {
     return kHigh_GrSLPrecision;
 }
 
+#include "SkColorSpace.h"
+
+/**
+ * Refers to the gamma of GPU buffer as it will be implicitly converted in shaders, blending, etc.
+ */
+enum class GrSRGBEncoded : bool { kNo = false, kYes = true };
+
+/**
+ * Describes whether data encoding should be converted to/from linear/srgb when copied.
+ */
+enum class GrSRGBConversion {
+    kNone,
+    kSRGBToLinear,
+    kLinearToSRGB,
+};
+
+static inline GrSRGBConversion GrDetermineWritePixelsSRGBConversion(GrPixelConfig srcConfig,
+                                                                    const SkColorSpace* srcColorSpace,
+                                                                    GrSRGBEncoded dstSRGBEncoded,
+                                                                    const SkColorSpace* dstColorSpace) {
+    // When the destination has no color space or it has a ~sRGB gamma but isn't sRGB encoded
+    // (because of caps) then we act in "legacy" mode where no conversions are performed.
+    if (!dstColorSpace || (dstColorSpace->gammaCloseToSRGB() &&
+                           GrSRGBEncoded::kNo == dstSRGBEncoded)) {
+        return GrSRGBConversion::kNone;
+    }
+    // Similarly, if the src was sRGB gamma and 8888 but we didn't choose a sRGB config we must be
+    // in legacy mode. For now, anyway.
+    if (srcColorSpace && srcColorSpace->gammaCloseToSRGB() && !GrPixelConfigIsSRGB(srcConfig) &&
+        GrPixelConfigIs8888Unorm(srcConfig)) {
+        return GrSRGBConversion::kNone;
+    }
+
+    bool srcColorSpaceIsSRGB = srcColorSpace && srcColorSpace->gammaCloseToSRGB();
+    bool dstColorSpaceIsSRGB = dstColorSpace->gammaCloseToSRGB();
+
+    // For now we are assuming that if color space of the dst does not have sRGB gamma then the
+    // texture format is not sRGB encoded and vice versa. Note that we already checked for "legacy"
+    // mode being forced on by caps above. This may change in the future.
+    SkASSERT(dstColorSpaceIsSRGB == (GrSRGBEncoded::kYes == dstSRGBEncoded));
+
+    // Similarly we are assuming that if the color space of the src does not have sRGB gamma then
+    // the CPU pixels don't have a sRGB pixel config. This will become moot soon as we will not
+    // be using GrPixelConfig to describe CPU pixel allocations.
+//    SkASSERT(!(!dstColorSpaceIsSRGB && GrPixelConfigIsSRGB(srcConfig)));
+
+    if (srcColorSpaceIsSRGB == dstColorSpaceIsSRGB) {
+        // They are either both sRGB encoded or neither is.
+        return GrSRGBConversion::kNone;
+    }
+    if (srcColorSpaceIsSRGB) {
+        // We are going from SRGB to nonSRGB. Because of the above checks we know that the dst has
+        // a non-SRGB color space and is not sRGB encoded. Convert the src to linear.
+        return GrSRGBConversion::kSRGBToLinear;
+    }
+    // The dst is sRGB gamme and the src is not. As we already asserted that the dst must be
+    // encoded in this case.
+    return GrSRGBConversion::kLinearToSRGB;
+}
+
+static inline GrSRGBConversion GrDetermineReadPixelsSRGBConversion(GrSRGBEncoded srcSRGBEncoded,
+                                                                   const SkColorSpace* srcColorSpace,
+                                                                   GrPixelConfig dstConfig,
+                                                                   const SkColorSpace* dstColorSpace) {
+    // This is symmetrical with WritePixels.
+    switch (GrDetermineWritePixelsSRGBConversion(dstConfig, dstColorSpace, srcSRGBEncoded,
+                                                 srcColorSpace)) {
+        case GrSRGBConversion::kNone: return GrSRGBConversion::kNone;
+        case GrSRGBConversion::kLinearToSRGB: return GrSRGBConversion::kSRGBToLinear;
+        case GrSRGBConversion::kSRGBToLinear: return GrSRGBConversion::kLinearToSRGB;
+    }
+    return GrSRGBConversion::kNone;
+}
+
 static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig config) {
     return GrPixelConfigIsFloatingPoint(config) ? GrPixelConfigIsClamped::kNo
                                                 : GrPixelConfigIsClamped::kYes;
