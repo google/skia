@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa313322_a4fdd147",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-02-09T17:48:20Z",
+      "side": 1,
+      "message": "nit: as a convenience thing could you echo that a specific variable is that missing. \nAlternatively or in addition it would also be helpful if the header contained \nbriefly what environment variables this script expects. \nThat defines the interface and saves a user the hassle of parsing through the script.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 31
+      },
+      "revId": "130b7002407c00533c4f59a8a6336633533c2d7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
