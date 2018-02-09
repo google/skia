@@ -79,6 +79,19 @@ static SkColorType stored_to_live(unsigned stored) {
     return kUnknown_SkColorType;
 }
 
+bool SkColorTypeIsAlwaysOpaque(SkColorType ct) {
+    switch (ct) {
+        case kRGB_565_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kRGB_101010x_SkColorType:
+        case kGray_8_SkColorType:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 int SkImageInfo::bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
