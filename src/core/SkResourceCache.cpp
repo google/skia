@@ -32,12 +32,6 @@ DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage)
 void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataSize) {
     SkASSERT(SkAlign4(dataSize) == dataSize);
 
-    // fCount32 and fHash are not hashed
-    static const int kUnhashedLocal32s = 2; // fCache32 + fHash
-    static const int kSharedIDLocal32s = 2; // fSharedID_lo + fSharedID_hi
-    static const int kHashedLocal32s = kSharedIDLocal32s + (sizeof(fNamespace) >> 2);
-    static const int kLocal32s = kUnhashedLocal32s + kHashedLocal32s;
-
     static_assert(sizeof(Key) == (kLocal32s << 2), "unaccounted_key_locals");
     static_assert(sizeof(Key) == offsetof(Key, fNamespace) + sizeof(fNamespace),
                  "namespace_field_must_be_last");
@@ -50,6 +44,23 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataS
     fHash = SkOpts::hash(this->as32() + kUnhashedLocal32s,
                          (fCount32 - kUnhashedLocal32s) << 2);
 }
+
+#if SK_SUPPORT_GPU
+GrUniqueKey SkResourceCache::Key::asGrUniqueKey(GrUniqueKey::Domain domain) const {
+    GrUniqueKey key;
+    {
+        const auto keySize = fCount32 - kUnhashedLocal32s;
+        GrUniqueKey::Builder builder(&key, domain, keySize);
+
+        const auto* data = this->as32();
+        for (int i = 0; i < keySize; ++i) {
+            builder[i] = data[kUnhashedLocal32s + i];
+        }
+    }
+
+    return key;
+}
+#endif
 
 #include "SkTHash.h"
 

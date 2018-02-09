@@ -12,6 +12,10 @@
 #include "SkMessageBus.h"
 #include "SkTDArray.h"
 
+#if SK_SUPPORT_GPU
+#include "GrResourceKey.h"
+#endif
+
 class SkCachedData;
 class SkDiscardableMemory;
 class SkTraceMemoryDump;
@@ -59,6 +63,10 @@ public:
             return true;
         }
 
+#if SK_SUPPORT_GPU
+        GrUniqueKey asGrUniqueKey(GrUniqueKey::Domain) const;
+#endif
+
     private:
         int32_t  fCount32;   // local + user contents count32
         uint32_t fHash;
@@ -67,6 +75,12 @@ public:
         uint32_t fSharedID_hi;
         void*    fNamespace; // A unique namespace tag. This is hashed.
         /* uint32_t fContents32[] */
+
+        // fCount32 and fHash are not hashed
+        static constexpr int kUnhashedLocal32s = 2; // fCache32 + fHash
+        static constexpr int kSharedIDLocal32s = 2; // fSharedID_lo + fSharedID_hi
+        static constexpr int kHashedLocal32s   = kSharedIDLocal32s + (sizeof(fNamespace) >> 2);
+        static constexpr int kLocal32s         = kUnhashedLocal32s + kHashedLocal32s;
 
         const uint32_t* as32() const { return (const uint32_t*)this; }
     };
