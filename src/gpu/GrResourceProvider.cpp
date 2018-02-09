@@ -30,11 +30,6 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
 
 const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
 
-// Turn on/off the explicit distribution of GPU resources at flush time
-#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-   #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-#endif
-
 #ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
 static const bool kDefaultExplicitlyAllocateGPUResources = false;
 #else
