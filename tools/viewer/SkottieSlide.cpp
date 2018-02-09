@@ -16,8 +16,9 @@ SkottieSlide::SkottieSlide(const SkString& name, const SkString& path)
     fName = name;
 }
 
-void SkottieSlide::load(SkScalar, SkScalar) {
+void SkottieSlide::load(SkScalar w, SkScalar h) {
     fAnimation  = skottie::Animation::MakeFromFile(fPath.c_str());
+    fWinSize    = SkSize::Make(w, h);
     fTimeBase   = 0; // force a time reset
 
     if (fAnimation) {
@@ -37,13 +38,14 @@ void SkottieSlide::unload() {
 }
 
 SkISize SkottieSlide::getDimensions() const {
-    return fAnimation? fAnimation->size().toCeil() : SkISize::Make(0, 0);
+    // We always scale to fill the window.
+    return fWinSize.toCeil();
 }
 
 void SkottieSlide::draw(SkCanvas* canvas) {
     if (fAnimation) {
         SkAutoCanvasRestore acr(canvas, true);
-        const SkRect dstR = SkRect::Make(canvas->imageInfo().bounds());
+        const auto dstR = SkRect::MakeSize(fWinSize);
         fAnimation->render(canvas, &dstR);
     }
 }
