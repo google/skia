@@ -94,6 +94,11 @@ enum SkColorType {
 SK_API int SkColorTypeBytesPerPixel(SkColorType ct);
 
 /**
+ *  Returns true iff the colortype is always considered opaque (i.e. does not store alpha).
+ */
+SK_API bool SkColorTypeIsAlwaysOpaque(SkColorType ct);
+
+/**
  *  Tries to validate the colortype, alphatype pair. In all cases if it returns true, it
  *  will set canonical to the "canonical" answer if it is non-null, and ignore the parameter if
  *  it is set to null.
@@ -110,8 +115,8 @@ SK_API int SkColorTypeBytesPerPixel(SkColorType ct);
  *  one of them (e.g. kUnknown_SkAlphaType is not valid for any colortype except
  *  kUnknown_SkColorType), then the function returns false, and canonical's value is undefined.
  */
-bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
-                                  SkAlphaType* canonical = nullptr);
+SK_API bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
+                                         SkAlphaType* canonical = nullptr);
 
 
 ///////////////////////////////////////////////////////////////////////////////
