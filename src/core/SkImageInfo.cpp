@@ -5,10 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageInfo.h"
+#include "SkImageInfoPriv.h"
 #include "SkSafeMath.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
+
+int SkColorTypeBytesPerPixel(SkColorType ct) {
+    switch (ct) {
+        case kUnknown_SkColorType:      return 0;
+        case kAlpha_8_SkColorType:      return 1;
+        case kRGB_565_SkColorType:      return 2;
+        case kARGB_4444_SkColorType:    return 2;
+        case kRGBA_8888_SkColorType:    return 4;
+        case kBGRA_8888_SkColorType:    return 4;
+        case kRGB_888x_SkColorType:     return 4;
+        case kRGBA_1010102_SkColorType: return 4;
+        case kRGB_101010x_SkColorType:  return 4;
+        case kGray_8_SkColorType:       return 1;
+        case kRGBA_F16_SkColorType:     return 8;
+    }
+    return 0;
+}
 
 // These values must be constant over revisions, though they can be renamed to reflect if/when
 // they are deprecated.
@@ -63,6 +80,16 @@ static SkColorType stored_to_live(unsigned stored) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+int SkImageInfo::bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
+
+int SkImageInfo::shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
+
+size_t SkImageInfo::computeOffset(int x, int y, size_t rowBytes) const {
+    SkASSERT((unsigned)x < (unsigned)fWidth);
+    SkASSERT((unsigned)y < (unsigned)fHeight);
+    return SkColorTypeComputeOffset(fColorType, x, y, rowBytes);
+}
 
 size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
     if (0 == fHeight) {

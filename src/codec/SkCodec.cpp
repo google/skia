@@ -214,7 +214,7 @@ static void zero_rect(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
         return;
     }
     const auto info = dstInfo.makeWH(frameRect.width(), frameRect.height());
-    const size_t bpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
+    const size_t bpp = dstInfo.bytesPerPixel();
     const size_t offset = frameRect.x() * bpp + frameRect.y() * rowBytes;
     auto* eraseDst = SkTAddOffset<void>(pixels, offset);
     SkSampler::Fill(info, eraseDst, rowBytes, 0, SkCodec::kNo_ZeroInitialized);

@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkImageGenerator.h"
+#include "SkImageInfoPriv.h"
 #include "Test.h"
 
 static bool gMyFactoryWasCalled;

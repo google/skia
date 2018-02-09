@@ -13,6 +13,7 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
 #include "SkImage.h"
+#include "SkImageInfoPriv.h"
 #include "SkPictureRecorder.h"
 
 static void clamp_if_necessary(const SkImageInfo& info, void* pixels) {

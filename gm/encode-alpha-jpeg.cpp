@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkImage.h"
+#include "SkImageInfoPriv.h"
 #include "SkJpegEncoder.h"
 
 #include "Resources.h"

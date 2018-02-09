@@ -617,7 +617,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     const bool needsSrgbToLinear = dstInfo.gammaCloseToSRGB() &&
             options.fPremulBehavior == SkTransferFunctionBehavior::kRespect;
 
-    const size_t dstBpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
+    const size_t dstBpp = dstInfo.bytesPerPixel();
     dst = SkTAddOffset<void>(dst, dstBpp * dstX + rowBytes * dstY);
     const size_t srcRowBytes = config.output.u.RGBA.stride;
 
