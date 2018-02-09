@@ -562,7 +562,7 @@ static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkG
         // We may need to resolve the texture first if it is also a render target
         GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
         if (texRT) {
-            gpu->onResolveRenderTarget(texRT, sampler.proxy()->origin());
+            gpu->onResolveRenderTarget(texRT);
         }
 
         // Check if we need to regenerate any mip maps

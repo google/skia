@@ -1851,7 +1851,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, nullptr, pipeline.getDisableOutputConversionToSRGB());
+    this->flushRenderTarget(glRT, pipeline.getDisableOutputConversionToSRGB());
 
     return true;
 }
@@ -1987,7 +1987,11 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color,
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
-    this->flushRenderTarget(glRT, clip.scissorEnabled() ? &clip.scissorRect() : nullptr);
+    if (clip.scissorEnabled()) {
+        this->flushRenderTarget(glRT, origin, clip.scissorRect());
+    } else {
+        this->flushRenderTarget(glRT);
+    }
     this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
     this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
 
@@ -2015,7 +2019,7 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     SkASSERT(sb);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-    this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
+    this->flushRenderTargetNoColorWrites(glRT);
 
     this->disableScissor();
     this->disableWindowRectangles();
@@ -2063,7 +2067,7 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
         value = 0;
     }
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-    this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
+    this->flushRenderTargetNoColorWrites(glRT);
 
     this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
     this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
@@ -2112,7 +2116,7 @@ bool GrGLGpu::readPixelsSupported(GrRenderTarget* target, GrPixelConfig readConf
     }
 #endif
     auto bindRenderTarget = [this, target]() -> bool {
-        this->flushRenderTarget(static_cast<GrGLRenderTarget*>(target), &SkIRect::EmptyIRect());
+        this->flushRenderTargetNoColorWrites(static_cast<GrGLRenderTarget*>(target));
         return true;
     };
     auto unbindRenderTarget = []{};
@@ -2138,7 +2142,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
                 return false;
             }
             GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(temp->asRenderTarget());
-            this->flushRenderTarget(glrt, &SkIRect::EmptyIRect());
+            this->flushRenderTargetNoColorWrites(glrt);
             return true;
         } else if (this->glCaps().canConfigBeFBOColorAttachment(rtConfig)) {
             desc.fOrigin = kTopLeft_GrSurfaceOrigin;
@@ -2380,10 +2384,10 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
             case GrGLRenderTarget::kCantResolve_ResolveType:
                 return false;
             case GrGLRenderTarget::kAutoResolves_ResolveType:
-                this->flushRenderTarget(renderTarget, &SkIRect::EmptyIRect());
+                this->flushRenderTargetNoColorWrites(renderTarget);
                 break;
             case GrGLRenderTarget::kCanResolve_ResolveType:
-                this->onResolveRenderTarget(renderTarget, origin);
+                this->onResolveRenderTarget(renderTarget);
                 // we don't track the state of the READ FBO ID.
                 fStats.incRenderTargetBinds();
                 GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID()));
@@ -2496,9 +2500,19 @@ GrGpuTextureCommandBuffer* GrGLGpu::createCommandBuffer(GrTexture* texture,
     return new GrGLGpuTextureCommandBuffer(this, texture, origin);
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds, bool disableSRGB) {
-    SkASSERT(target);
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, GrSurfaceOrigin origin,
+                                const SkIRect& bounds, bool disableSRGB) {
+    this->flushRenderTargetNoColorWrites(target, disableSRGB);
+    this->didWriteToSurface(target, origin, &bounds);
+}
 
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, bool disableSRGB) {
+    this->flushRenderTargetNoColorWrites(target, disableSRGB);
+    this->didWriteToSurface(target, kTopLeft_GrSurfaceOrigin, nullptr);
+}
+
+void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool disableSRGB) {
+    SkASSERT(target);
     GrGpuResource::UniqueID rtID = target->uniqueID();
     if (fHWBoundRenderTargetUniqueID != rtID) {
         fStats.incRenderTargetBinds();
@@ -2523,8 +2537,6 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds,
     if (this->glCaps().srgbWriteControl()) {
         this->flushFramebufferSRGB(GrPixelConfigIsSRGB(target->config()) && !disableSRGB);
     }
-
-    this->didWriteToSurface(target, bounds);
 }
 
 void GrGLGpu::flushFramebufferSRGB(bool enable) {
@@ -2705,7 +2717,7 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc
     fStats.incNumDraws();
 }
 
-void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin origin) {
+void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     if (rt->needsResolve()) {
         // Some extensions automatically resolves the texture when it is read.
@@ -2721,12 +2733,14 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin orig
             fHWBoundRenderTargetUniqueID.makeInvalid();
             const GrGLIRect& vp = rt->getViewport();
             const SkIRect dirtyRect = rt->getResolveRect();
-
+            // The dirty rect tracked on the RT is always stored in the native coordinates of the
+            // surface. Choose kTopLeft so no adjustments are made
+            static constexpr auto kDirtyRectOrigin = kTopLeft_GrSurfaceOrigin;
             if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
                 // Apple's extension uses the scissor as the blit bounds.
                 GrScissorState scissorState;
                 scissorState.set(dirtyRect);
-                this->flushScissor(scissorState, vp, origin);
+                this->flushScissor(scissorState, vp, kDirtyRectOrigin);
                 this->disableWindowRectangles();
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
@@ -2739,7 +2753,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin orig
                     t = target->height();
                 } else {
                     GrGLIRect rect;
-                    rect.setRelativeTo(vp, dirtyRect, origin);
+                    rect.setRelativeTo(vp, dirtyRect, kDirtyRectOrigin);
                     l = rect.fLeft;
                     b = rect.fBottom;
                     r = rect.fLeft + rect.fWidth;
@@ -3039,7 +3053,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, bool 
     // out of the "last != next" check.
     GrGLRenderTarget* texRT = static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
     if (texRT) {
-        this->onResolveRenderTarget(texRT, textureOrigin);
+        this->onResolveRenderTarget(texRT);
     }
 
     GrGpuResource::UniqueID textureID = texture->uniqueID();
@@ -3212,7 +3226,7 @@ void GrGLGpu::generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs
     // from the rt it will still be the last bound texture, but it needs resolving.
     GrGLRenderTarget* texRT = static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
     if (texRT) {
-        this->onResolveRenderTarget(texRT, textureOrigin);
+        this->onResolveRenderTarget(texRT);
     }
 
     GrGLenum target = texture->target();
@@ -3872,7 +3886,7 @@ void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencil
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt->asRenderTarget());
-    this->flushRenderTarget(glRT, nullptr);
+    this->flushRenderTarget(glRT);
 
     GL_CALL(UseProgram(fStencilClipClearProgram));
     fHWProgramID = fStencilClipClearProgram;
@@ -4015,7 +4029,7 @@ void GrGLGpu::clearColorAsDraw(const GrFixedClip& clip, GrGLfloat r, GrGLfloat g
 
     GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
     this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, dst);
-    this->didWriteToSurface(dst, clip.scissorEnabled() ? &clip.scissorRect() : nullptr);
+    this->didWriteToSurface(dst, origin, clip.scissorEnabled() ? &clip.scissorRect() : nullptr);
 }
 
 bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
@@ -4101,7 +4115,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 
     GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
     this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, dst);
-    this->didWriteToSurface(dst, &dstRect);
+    this->didWriteToSurface(dst, dstOrigin, &dstRect);
 
     return true;
 }
@@ -4135,7 +4149,7 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurfaceOrigin dstOr
     this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, src);
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
-    this->didWriteToSurface(dst, &dstRect);
+    this->didWriteToSurface(dst, dstOrigin, &dstRect);
 }
 
 bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOrigin,
@@ -4188,7 +4202,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOr
                             GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
     this->unbindTextureFBOForPixelOps(GR_GL_DRAW_FRAMEBUFFER, dst);
     this->unbindTextureFBOForPixelOps(GR_GL_READ_FRAMEBUFFER, src);
-    this->didWriteToSurface(dst, &dstRect);
+    this->didWriteToSurface(dst, dstOrigin, &dstRect);
     return true;
 }
 
@@ -4349,7 +4363,7 @@ void GrGLGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin rtOrig
 
     this->flushStencil(stencil);
     this->flushHWAAState(rt, true, !stencil.isDisabled());
-    this->flushRenderTarget(static_cast<GrGLRenderTarget*>(rt), &SkIRect::EmptyIRect());
+    this->flushRenderTargetNoColorWrites(static_cast<GrGLRenderTarget*>(rt));
 
     if (0 != this->caps()->maxRasterSamples()) {
         GR_GL_GetIntegerv(this->glInterface(), GR_GL_EFFECTIVE_RASTER_SAMPLES, effectiveSampleCnt);
