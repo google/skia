@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f4b96db_7d2f5de8",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-09T13:35:40Z",
+      "side": 1,
+      "message": "Hey, this still must be a bug, right?  One of the things holding up the Chrome roll is a warning-as-error pointing out you\u0027ve assigned x \u003d x.",
+      "revId": "54d9c889fb6aca043a7b005d61de4e0e65a3ae53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
