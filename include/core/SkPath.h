@@ -126,7 +126,7 @@ public:
 
     /** Interpolate between paths with SkPoint array of equal size.
         Copy verb array and weights to out, and set out SkPoint array to a weighted
-        average of this SkPoint array and ending SkPoint array, using the formula: (this->points * weight) + ending->points * (1 - weight).
+        average of this SkPoint array and ending SkPoint array, using the formula: (Path Point * weight) + ending Point * (1 - weight).
 
         weight is most useful when between zero (ending SkPoint array) and
         one (this Point_Array); will work with values outside of this
@@ -145,9 +145,8 @@ public:
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    /** To be deprecated; only valid for Android framework.
-
-        @return  true if SkPath has one owner
+    /** To be deprecated soon.
+        Only valid for Android framework.
     */
     bool unique() const { return fPathRef->unique(); }
 #endif
@@ -272,7 +271,8 @@ public:
         return kConvex_Convexity == this->getConvexity();
     }
 
-    /** Deprecated. Use setConvexity().
+    /** Deprecated.
+        Use setConvexity().
     */
     SK_ATTR_DEPRECATED("use setConvexity")
     void setIsConvex(bool isConvex) {
@@ -1637,12 +1637,14 @@ public:
     */
     size_t readFromMemory(const void* buffer, size_t length);
 
-    /** Returns a non-zero, globally unique value. A different value is returned
+    /** (see skbug.com/1762)
+        Returns a non-zero, globally unique value. A different value is returned
         if verb array, SkPoint array, or conic weight changes.
 
         Setting SkPath::FillType does not change generation id.
 
         Each time the path is modified, a different generation id will be returned.
+        SkPath::FillType does affect generation id on Android framework.
 
         @return  non-zero, globally unique value
     */

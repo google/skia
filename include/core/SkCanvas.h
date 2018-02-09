@@ -75,19 +75,19 @@ public:
         SkCanvas is returned if all parameters are valid.
         Valid parameters include:
         info dimensions are zero or positive;
-        info contains SkColorType and SkAlphaType supported by raster surface;
+        info contains color type and alpha type supported by raster surface;
         pixels is not nullptr;
-        rowBytes is zero or large enough to contain info width pixels of SkColorType.
+        rowBytes is zero or large enough to contain info width pixels of color type.
 
         Pass zero for rowBytes to compute rowBytes from info width and size of pixel.
         If rowBytes is greater than zero, it must be equal to or greater than
-        info width times bytes required for SkColorType.
+        info width times bytes required for color type.
 
         Pixel buffer size should be info height times computed rowBytes.
         Pixels are not initialized.
         To access pixels after drawing, call flush() or peekPixels().
 
-        @param info      width, height, SkColorType, SkAlphaType, SkColorSpace, of raster surface;
+        @param info      width, height, color type, alpha type, SkColorSpace, of raster surface;
                          width, or height, or both, may be zero
         @param pixels    pointer to destination pixels buffer
         @param rowBytes  interval from one SkSurface row to the next, or zero
@@ -101,8 +101,8 @@ public:
 
     /** Allocates raster SkCanvas specified by inline image specification. Subsequent SkCanvas
         calls draw into pixels.
-        SkColorType is set to kN32_SkColorType.
-        SkAlphaType is set to kPremul_SkAlphaType.
+        color type is set to kN32_SkColorType.
+        alpha type is set to kPremul_SkAlphaType.
         To access pixels after drawing, call flush() or peekPixels().
 
         SkCanvas is returned if all parameters are valid.
@@ -113,7 +113,7 @@ public:
 
         Pass zero for rowBytes to compute rowBytes from width and size of pixel.
         If rowBytes is greater than zero, it must be equal to or greater than
-        width times bytes required for SkColorType.
+        width times bytes required for color type.
 
         Pixel buffer size should be height times rowBytes.
 
@@ -153,11 +153,7 @@ public:
     */
     SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr);
 
-    /** Construct a canvas that draws into device.
-        Used by child classes of SkCanvas.
-
-        @param device  specifies a device for the canvas to draw into
-        @return        SkCanvas that can be used to draw into device
+    /** To be deprecated soon.
     */
     explicit SkCanvas(SkBaseDevice* device);
 
@@ -169,7 +165,7 @@ public:
 
         May be deprecated in the future.
 
-        @param bitmap  width, height, SkColorType, SkAlphaType, and pixel
+        @param bitmap  width, height, color type, alpha type, and pixel
                        storage of raster surface
         @return        SkCanvas that can be used to draw into bitmap
     */
@@ -195,7 +191,7 @@ public:
         bitmap is copied so that subsequently editing bitmap will not affect
         constructed SkCanvas.
 
-        @param bitmap  width, height, SkColorType, SkAlphaType,
+        @param bitmap  width, height, color type, alpha type,
                        and pixel storage of raster surface
         @param props   order and orientation of RGB striping; and whether to use
                        device independent fonts
@@ -203,8 +199,8 @@ public:
     */
     SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props);
 
-    /** Draw saved layers, if any.
-        Free up resources used by SkCanvas.
+    /** Draws saved layers, if any.
+        Frees up resources used by SkCanvas.
     */
     virtual ~SkCanvas();
 
@@ -215,10 +211,10 @@ public:
     */
     SkMetaData& getMetaData();
 
-    /** Returns SkImageInfo for SkCanvas. If SkCanvas is not associated with raster surface or
-        GPU surface, returned SkColorType is set to kUnknown_SkColorType.
+    /** Returns SkYUVColorSpace for SkCanvas. If SkCanvas is not associated with raster surface or
+        GPU surface, returned color type is set to kUnknown_SkColorType.
 
-        @return  dimensions and SkColorType of SkCanvas
+        @return  dimensions and color type of SkCanvas
     */
     SkImageInfo imageInfo() const;
 
@@ -252,7 +248,7 @@ public:
         If props is nullptr, matches SkSurfaceProps in SkCanvas. If props is nullptr and SkCanvas
         does not have SkSurfaceProps, creates SkSurface with default SkSurfaceProps.
 
-        @param info   width, height, SkColorType, SkAlphaType, and SkColorSpace
+        @param info   width, height, color type, alpha type, and SkColorSpace
         @param props  SkSurfaceProps to match; may be nullptr to match SkCanvas
         @return       SkSurface matching info and props, or nullptr if no match is available
     */
@@ -264,14 +260,14 @@ public:
     */
     virtual GrContext* getGrContext();
 
-    /** Returns the pixel base address, SkImageInfo, rowBytes, and origin if the pixels
+    /** Returns the pixel base address, SkYUVColorSpace, rowBytes, and origin if the pixels
         can be read directly. The returned address is only valid
         while SkCanvas is in scope and unchanged. Any SkCanvas call or SkSurface call
         may invalidate the returned address and other returned values.
 
         If pixels are inaccessible, info, rowBytes, and origin are unchanged.
 
-        @param info      storage for writable pixels' SkImageInfo; may be nullptr
+        @param info      storage for writable pixels' SkYUVColorSpace; may be nullptr
         @param rowBytes  storage for writable pixels' row bytes; may be nullptr
         @param origin    storage for SkCanvas top layer origin, its top-left corner;
                          may be nullptr
@@ -320,7 +316,7 @@ public:
 
         The destination pixel storage must be allocated by the caller.
 
-        Pixel values are converted only if SkColorType and SkAlphaType
+        Pixel values are converted only if color type and alpha type
         do not match. Only pixels within both source and destination rectangles
         are copied. dstPixels contents outside SkRect intersection are unchanged.
 
@@ -332,7 +328,7 @@ public:
         - SkCanvas pixels are not readable; for instance, SkCanvas is document-based.
         - dstRowBytes is too small to contain one row of pixels.
 
-        @param dstInfo      width, height, SkColorType, and SkAlphaType of dstPixels
+        @param dstInfo      width, height, color type, and alpha type of dstPixels
         @param dstPixels    storage for pixels; dstInfo.height() times dstRowBytes, or larger
         @param dstRowBytes  size of one destination row; dstInfo.width() times pixel size, or larger
         @param srcX         offset into readable pixels in x; may be negative
@@ -357,7 +353,7 @@ public:
 
         Caller must allocate pixel storage in pixmap if needed.
 
-        Pixel values are converted only if SkColorType and SkAlphaType
+        Pixel values are converted only if color type and alpha type
         do not match. Only pixels within both source and destination rects
         are copied. pixmap pixels contents outside SkRect intersection are unchanged.
 
@@ -392,7 +388,7 @@ public:
 
         Caller must allocate pixel storage in bitmap if needed.
 
-        SkBitmap values are converted only if SkColorType and SkAlphaType
+        SkBitmap values are converted only if color type and alpha type
         do not match. Only pixels within both source and destination rectangles
         are copied. SkBitmap pixels outside SkRect intersection are unchanged.
 
@@ -425,7 +421,7 @@ public:
         returned by SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility
         class like SkDumpCanvas.
 
-        Pixel values are converted only if SkColorType and SkAlphaType
+        Pixel values are converted only if color type and alpha type
         do not match. Only pixels within both source and destination rectangles
         are copied. SkCanvas pixels outside SkRect intersection are unchanged.
 
@@ -434,12 +430,12 @@ public:
 
         Does not copy, and returns false if:
         - Source and destination rectangles do not intersect.
-        - pixels could not be converted to this->imageInfo().colorType() or
-        this->imageInfo().alphaType().
+        - pixels could not be converted to SkCanvas imageInfo().colorType() or
+        imageInfo().alphaType().
         - SkCanvas pixels are not writable; for instance, SkCanvas is document-based.
         - rowBytes is too small to contain one row of pixels.
 
-        @param info      width, height, SkColorType, and SkAlphaType of pixels
+        @param info      width, height, color type, and alpha type of pixels
         @param pixels    pixels to copy, of size info.height() times rowBytes, or larger
         @param rowBytes  size of one row of pixels; info.width() times pixel size, or larger
         @param x         offset into SkCanvas writable pixels in x; may be negative
@@ -462,7 +458,7 @@ public:
         returned by SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility
         class like SkDumpCanvas.
 
-        Pixel values are converted only if SkColorType and SkAlphaType
+        Pixel values are converted only if color type and alpha type
         do not match. Only pixels within both source and destination rectangles
         are copied. SkCanvas pixels outside SkRect intersection are unchanged.
 
@@ -472,8 +468,8 @@ public:
         Does not copy, and returns false if:
         - Source and destination rectangles do not intersect.
         - bitmap does not have allocated pixels.
-        - bitmap pixels could not be converted to this->imageInfo().colorType() or
-        this->imageInfo().alphaType().
+        - bitmap pixels could not be converted to SkCanvas imageInfo().colorType() or
+        imageInfo().alphaType().
         - SkCanvas pixels are not writable; for instance, SkCanvas is document based.
         - bitmap pixels are inaccessible; for instance, bitmap wraps a texture.
 
@@ -614,7 +610,7 @@ public:
         kInitWithPrevious_SaveLayerFlag       = 1 << 2,
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-        /** to be deprecated: bug.skia.org/2440 */
+        /** To be deprecated soon. */
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
 #endif
     };
@@ -2365,7 +2361,7 @@ public:
     */
     void drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y);
 
-    /** Associate SkRect on SkCanvas when an annotation; a key-value pair, where the key is
+    /** Associate SkRect on SkCanvas with an annotation; a key-value pair, where the key is
         a null-terminated utf8 string, and optional value is stored as SkData.
 
         Only some canvas implementations, such as recording to SkPicture, or drawing to
@@ -2394,11 +2390,11 @@ public:
     //////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-    /** Legacy call to be deprecated.
+    /** To be deprecated soon.
     */
     SkDrawFilter* getDrawFilter() const;
 
-    /** Legacy call to be deprecated.
+    /** To be deprecated soon.
     */
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter);
 #endif
@@ -2774,7 +2770,7 @@ private:
 class SkAutoCanvasRestore : SkNoncopyable {
 public:
 
-    /** Preserves SkCanvas save count. Optionally saves SkCanvas clip and SkMatrix.
+    /** Preserves SkCanvas save count. Optionally saves SkCanvas clip and SkCanvas matrix.
 
         @param canvas  SkCanvas to guard
         @param doSave  call SkCanvas::save()

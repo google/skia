@@ -1550,7 +1550,7 @@ public:
 
         @param a  SkMatrix to compare
         @param b  SkMatrix to compare
-        @return   true if m and SkMatrix are numerically equal
+        @return   true if SkMatrix a and SkMatrix b are numerically equal
     */
     friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b);
 
@@ -1560,7 +1560,7 @@ public:
 
         @param a  SkMatrix to compare
         @param b  SkMatrix to compare
-        @return   true if m and SkMatrix are numerically not equal
+        @return   true if SkMatrix a and SkMatrix b are numerically not equal
     */
     friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b) {
         return !(a == b);
