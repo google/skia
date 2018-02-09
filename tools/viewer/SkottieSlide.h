@@ -31,6 +31,7 @@ public:
 private:
     SkString                            fPath;
     std::unique_ptr<skottie::Animation> fAnimation;
+    SkSize                              fWinSize = SkSize::MakeEmpty();
     SkMSec                              fTimeBase  = 0;
     bool                                fShowAnimationInval = false;
 
