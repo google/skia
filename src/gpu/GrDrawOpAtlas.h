@@ -14,6 +14,7 @@
 
 #include "ops/GrDrawOp.h"
 
+class GrOnFlushResourceProvider;
 class GrRectanizer;
 
 struct GrDrawOpAtlasConfig {
@@ -221,6 +222,8 @@ public:
     static uint32_t GetPageIndexFromID(AtlasID id) {
         return id & 0xff;
     }
+
+    void instantiate(GrOnFlushResourceProvider*);
 
 private:
     uint32_t maxPages() const {

@@ -82,6 +82,12 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     return renderTargetContext;
 }
 
+bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
+    auto resourceProvider = fDrawingMgr->getContext()->contextPriv().resourceProvider();
+
+    return proxy->instantiate(resourceProvider);
+}
+
 sk_sp<GrBuffer> GrOnFlushResourceProvider::makeBuffer(GrBufferType intendedType, size_t size,
                                                       const void* data) {
     auto resourceProvider = fDrawingMgr->getContext()->contextPriv().resourceProvider();
