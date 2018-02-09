@@ -168,6 +168,30 @@
     },
     {
       "key": {
+        "uuid": "66694067_770f6545",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-09T19:22:42Z",
+      "side": 1,
+      "message": "Ha - I fell behind on the comments. In the opList world we are not splitting the opLists based on these limits. For the opList implementation I intend to add partial flushing of opLists at flush time.\n\nIn the flushState world I think we will need to actually run the allocation algorithm to insert the intermediate flushes.",
+      "parentUuid": "d0349f17_8a21edba",
+      "range": {
+        "startLine": 442,
+        "startChar": 6,
+        "endLine": 445,
+        "endChar": 87
+      },
+      "revId": "1a90e58fa2525c496034cad1d6fc40e1777a7b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c31e4315_e9b690db",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 1
