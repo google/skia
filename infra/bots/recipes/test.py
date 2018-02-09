@@ -659,7 +659,6 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'xfermodeimagefilter'])
     match.append('~ApplyGamma')
     match.append('~ComposedImageFilterBounds_Gpu')
-    match.append('~DeferredTextureImage')
     match.append('~GrMeshTest')
     match.append('~ImageFilterFailAffectsTransparentBlack_Gpu')
     match.append('~ImageFilterZeroBlurSigma_Gpu')
