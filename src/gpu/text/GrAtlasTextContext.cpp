@@ -527,7 +527,6 @@ void GrAtlasTextContext::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     if (!glyph) {
         return;
     }
-    glyph->fTooLargeForAtlas = glyph->fTooLargeForAtlas;
 
     SkASSERT(skGlyph.fWidth == glyph->width());
     SkASSERT(skGlyph.fHeight == glyph->height());
