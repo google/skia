@@ -63,7 +63,7 @@ public:
     void generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs, GrGLTexture* texture,
                          GrSurfaceOrigin textureOrigin);
 
-    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+    bool onGetReadPixelsInfo(GrSurface* srcSurface,
                              int readWidth, int readHeight, size_t rowBytes,
                              GrPixelConfig readConfig, DrawPreference*,
                              ReadPixelTempDrawInfo*) override;
@@ -240,7 +240,7 @@ private:
     // variations above, depending on whether the surface is a render target or not.
     bool readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig);
 
-    bool onReadPixels(GrSurface*, GrSurfaceOrigin,
+    bool onReadPixels(GrSurface*,
                       int left, int top,
                       int width, int height,
                       GrPixelConfig,

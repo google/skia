@@ -492,7 +492,7 @@ bool GrVkGpu::onTransferPixels(GrTexture* texture,
     return true;
 }
 
-void GrVkGpu::resolveImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+void GrVkGpu::resolveImage(GrSurface* dst,
                            GrVkRenderTarget* src, GrSurfaceOrigin srcOrigin,
                            const SkIRect& srcRect, const SkIPoint& dstPoint) {
     SkASSERT(dst);
@@ -505,13 +505,6 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     // Flip rect if necessary
     SkIRect srcVkRect = srcRect;
     int32_t dstY = dstPoint.fY;
-
-    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
-        SkASSERT(kBottomLeft_GrSurfaceOrigin == dstOrigin);
-        srcVkRect.fTop = src->height() - srcRect.fBottom;
-        srcVkRect.fBottom = src->height() - srcRect.fTop;
-        dstY = dst->height() - dstPoint.fY - srcVkRect.height();
-    }
 
     VkImageResolve resolveInfo;
     resolveInfo.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
@@ -1879,7 +1872,7 @@ void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const
     *effectiveSampleCnt = rt->numStencilSamples();
 }
 
-bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface,
                                   int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
@@ -1913,7 +1906,7 @@ bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
     return true;
 }
 
-bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
+bool GrVkGpu::onReadPixels(GrSurface* surface,
                            int left, int top, int width, int height,
                            GrPixelConfig config,
                            void* buffer,
@@ -1933,7 +1926,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
             case GrVkRenderTarget::kAutoResolves_ResolveType:
                 break;
             case GrVkRenderTarget::kCanResolve_ResolveType:
-                this->internalResolveRenderTarget(rt, origin, false);
+                this->internalResolveRenderTarget(rt, false);
                 break;
             default:
                 SK_ABORT("Unknown resolve type");
@@ -1956,7 +1949,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
 
     size_t bpp = GrBytesPerPixel(config);
     size_t tightRowBytes = bpp * width;
-    bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 
     VkBufferImageCopy region;
     memset(&region, 0, sizeof(VkBufferImageCopy));
@@ -1964,16 +1956,9 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
     bool copyFromOrigin = this->vkCaps().mustDoCopiesFromOrigin();
     if (copyFromOrigin) {
         region.imageOffset = { 0, 0, 0 };
-        region.imageExtent = { (uint32_t)(left + width),
-                               (uint32_t)(flipY ? surface->height() - top : top + height),
-                               1
-                             };
+        region.imageExtent = { (uint32_t)(left + width), (uint32_t)(top + height), 1 };
     } else {
-        VkOffset3D offset = {
-            left,
-            flipY ? surface->height() - top - height : top,
-            0
-        };
+        VkOffset3D offset = { left, top, 0 };
         region.imageOffset = offset;
         region.imageExtent = { (uint32_t)width, (uint32_t)height, 1 };
     }
@@ -2016,17 +2001,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
         mappedMemory = (char*)mappedMemory + transBufferRowBytes * skipRows + bpp * left;
     }
 
-    if (flipY) {
-        const char* srcRow = reinterpret_cast<const char*>(mappedMemory);
-        char* dstRow = reinterpret_cast<char*>(buffer)+(height - 1) * rowBytes;
-        for (int y = 0; y < height; y++) {
-            memcpy(dstRow, srcRow, tightRowBytes);
-            srcRow += transBufferRowBytes;
-            dstRow -= rowBytes;
-        }
-    } else {
-        SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, height);
-    }
+    SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, height);
 
     transferBuffer->unmap();
     transferBuffer->unref();

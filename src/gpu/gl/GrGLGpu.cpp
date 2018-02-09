@@ -767,6 +767,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
                             GrPixelConfig config,
                             const GrMipLevel texels[],
                             int mipLevelCount) {
+    SkASSERT(origin == kTopLeft_GrSurfaceOrigin);
     GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
     if (!check_write_and_transfer_input(glTex, surface, config)) {
@@ -2181,9 +2182,9 @@ static bool requires_srgb_conversion(GrPixelConfig a, GrPixelConfig b) {
     return false;
 }
 
-bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface,
                                   int width, int height, size_t rowBytes,
-                                  GrPixelConfig readConfig, DrawPreference* drawPreference,
+                                  GrPixelConfig dstConfig, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
     GrPixelConfig srcConfig = srcSurface->config();
 
@@ -2199,32 +2200,32 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
     tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
 
     // Depends on why we need/want a temp draw. Start off assuming no change, the surface we read
-    // from will be srcConfig and we will read readConfig pixels from it.
+    // from will be srcConfig and we will read dstConfig pixels from it.
     // Note that if we require a draw and return a non-renderable format for the temp surface the
     // base class will fail for us.
     tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
-    tempDrawInfo->fReadConfig = readConfig;
+    tempDrawInfo->fReadConfig = dstConfig;
 
-    if (requires_srgb_conversion(srcConfig, readConfig)) {
-        if (!this->readPixelsSupported(readConfig, readConfig)) {
+    if (requires_srgb_conversion(srcConfig, dstConfig)) {
+        if (!this->readPixelsSupported(dstConfig, dstConfig)) {
             return false;
         }
         // Draw to do srgb to linear conversion or vice versa.
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
-        tempDrawInfo->fReadConfig = readConfig;
+        tempDrawInfo->fTempSurfaceDesc.fConfig = dstConfig;
+        tempDrawInfo->fReadConfig = dstConfig;
         return true;
     }
 
-    if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig &&
+    if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == dstConfig &&
         this->readPixelsSupported(kBGRA_8888_GrPixelConfig, kBGRA_8888_GrPixelConfig)) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kBGRA_8888_GrPixelConfig;
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
         tempDrawInfo->fReadConfig = kBGRA_8888_GrPixelConfig;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     } else if (this->glCaps().rgbaToBgraReadbackConversionsAreSlow() &&
-               GrBytesPerPixel(readConfig) == 4 &&
-               GrPixelConfigSwapRAndB(readConfig) == srcConfig &&
+               GrBytesPerPixel(dstConfig) == 4 &&
+               GrPixelConfigSwapRAndB(dstConfig) == srcConfig &&
                this->readPixelsSupported(srcSurface, srcConfig)) {
         // Mesa 3D takes a slow path on when reading back BGRA from an RGBA surface and vice-versa.
         // Better to do a draw with a R/B swap and then read as the original config.
@@ -2232,8 +2233,8 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
         tempDrawInfo->fReadConfig = srcConfig;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
-    } else if (!this->readPixelsSupported(srcSurface, readConfig)) {
-        if (readConfig == kBGRA_8888_GrPixelConfig &&
+    } else if (!this->readPixelsSupported(srcSurface, dstConfig)) {
+        if (dstConfig == kBGRA_8888_GrPixelConfig &&
             this->glCaps().canConfigBeFBOColorAttachment(kRGBA_8888_GrPixelConfig) &&
             this->readPixelsSupported(kRGBA_8888_GrPixelConfig, kRGBA_8888_GrPixelConfig)) {
             // We're trying to read BGRA but it's not supported. If RGBA is renderable and
@@ -2243,7 +2244,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
             tempDrawInfo->fReadConfig = kRGBA_8888_GrPixelConfig;
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        } else if (readConfig == kSBGRA_8888_GrPixelConfig &&
+        } else if (dstConfig == kSBGRA_8888_GrPixelConfig &&
             this->glCaps().canConfigBeFBOColorAttachment(kSRGBA_8888_GrPixelConfig) &&
             this->readPixelsSupported(kSRGBA_8888_GrPixelConfig, kSRGBA_8888_GrPixelConfig)) {
             // We're trying to read sBGRA but it's not supported. If sRGBA is renderable and
@@ -2253,7 +2254,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
             tempDrawInfo->fReadConfig = kSRGBA_8888_GrPixelConfig;
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        } else if (readConfig == kAlpha_8_GrPixelConfig) {
+        } else if (dstConfig == kAlpha_8_GrPixelConfig) {
             // onReadPixels implements a fallback for cases where we are want to read kAlpha_8,
             // it's unsupported, but 32bit RGBA reads are supported.
             // Don't attempt to do any srgb conversions since we only care about alpha.
@@ -2275,38 +2276,30 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
                 SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == srcConfig);
                 SkASSERT(tempDrawInfo->fReadConfig == kAlpha_8_GrPixelConfig);
             }
-        } else if (readConfig == kRGBA_half_GrPixelConfig &&
+        } else if (dstConfig == kRGBA_half_GrPixelConfig &&
                    this->readPixelsSupported(srcSurface, kRGBA_float_GrPixelConfig)) {
             // If reading in half float format is not supported, then read in float format.
             return true;
-        } else if (this->glCaps().canConfigBeFBOColorAttachment(readConfig) &&
-                   this->readPixelsSupported(readConfig, readConfig)) {
+        } else if (this->glCaps().canConfigBeFBOColorAttachment(dstConfig) &&
+                   this->readPixelsSupported(dstConfig, dstConfig)) {
             // Do a draw to convert from the src config to the read config.
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-            tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
-            tempDrawInfo->fReadConfig = readConfig;
+            tempDrawInfo->fTempSurfaceDesc.fConfig = dstConfig;
+            tempDrawInfo->fReadConfig = dstConfig;
         } else {
             return false;
         }
     }
-
-    if ((srcSurface->asRenderTarget() || this->glCaps().canConfigBeFBOColorAttachment(srcConfig)) &&
-        read_pixels_pays_for_y_flip(srcOrigin, this->glCaps(), width, height, readConfig,
-                                    rowBytes)) {
-        ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
-    }
-
-    return true;
+   return true;
 }
 
-bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
+bool GrGLGpu::onReadPixels(GrSurface* surface,
                            int left, int top,
                            int width, int height,
                            GrPixelConfig config,
                            void* buffer,
                            size_t rowBytes) {
     SkASSERT(surface);
-
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (!renderTarget && !this->glCaps().canConfigBeFBOColorAttachment(surface->config())) {
         return false;
@@ -2328,7 +2321,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
         if (kAlpha_8_GrPixelConfig == config &&
             this->readPixelsSupported(surface, tempConfig)) {
             std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
-            if (this->onReadPixels(surface, origin, left, top, width, height,
+            if (this->onReadPixels(surface, left, top, width, height,
                                    tempConfig, temp.get(), width*4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
                 for (int j = 0; j < height; ++j) {
@@ -2345,7 +2338,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
         if (kRGBA_half_GrPixelConfig == config &&
             this->readPixelsSupported(surface, kRGBA_float_GrPixelConfig)) {
             std::unique_ptr<float[]> temp(new float[width * height * 4]);
-            if (this->onReadPixels(surface, origin, left, top, width, height,
+            if (this->onReadPixels(surface, left, top, width, height,
                                    kRGBA_float_GrPixelConfig, temp.get(),
                                    width*sizeof(float)*4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
@@ -2371,7 +2364,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                                             &externalType)) {
         return false;
     }
-    bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 
     GrGLIRect glvp;
     if (renderTarget) {
@@ -2383,7 +2375,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                 this->flushRenderTarget(renderTarget, &SkIRect::EmptyIRect());
                 break;
             case GrGLRenderTarget::kCanResolve_ResolveType:
-                this->onResolveRenderTarget(renderTarget, origin);
+                this->onResolveRenderTarget(renderTarget);
                 // we don't track the state of the READ FBO ID.
                 fStats.incRenderTargetBinds();
                 GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID()));

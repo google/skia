@@ -685,8 +685,9 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GrGpu::DrawPreference drawPreference = unpremulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                          : GrGpu::kNoDraw_DrawPreference;
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
-                                           dstConfig, &drawPreference, &tempDrawInfo)) {
+    GrGpu::ReadPixelsResult gpuResult = fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
+                                               dstConfig, &drawPreference, &tempDrawInfo);
+    if (GrGpu::ReadPixelsResult::kFailed == gpuResult) {
         return false;
     }
 
@@ -748,9 +749,18 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         return false;
     }
 
+    if (unpremul) {
+        SkColorType dstColorType;
+        if (!GrPixelConfigToColorType(dstConfig, &dstColorType) ||
+            4 != SkColorTypeBytesPerPixel(dstColorType)) {
+            return false;
+        }
+    }
+
     if (GrGpu::kRequireDraw_DrawPreference == drawPreference && !didTempDraw) {
         return false;
     }
+
     GrPixelConfig configToRead = dstConfig;
     if (didTempDraw) {
         this->flushSurfaceWrites(proxyToRead.get());
@@ -763,25 +773,34 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
 
     GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
 
-    if (!fContext->fGpu->readPixels(surfaceToRead, proxyToRead->origin(),
-                                    left, top, width, height, configToRead, buffer, rowBytes)) {
+    if (!fContext->fGpu->readPixels(surfaceToRead, left, top, width, height, configToRead, buffer,
+                                    rowBytes)) {
         return false;
     }
 
-    // Perform umpremul conversion if we weren't able to perform it as a draw.
+    // TODO: Combine both of below loops or use raster to do both?
+    // Perform umpremul conversion or flippage if we weren't able to perform it as a draw.
     if (unpremul) {
-        SkColorType colorType;
-        if (!GrPixelConfigToColorType(dstConfig, &colorType) ||
-            4 != SkColorTypeBytesPerPixel(colorType))
-        {
-            return false;
-        }
-
         for (int y = 0; y < height; y++) {
             SkUnpremultiplyRow<false>((uint32_t*) buffer, (const uint32_t*) buffer, width);
             buffer = SkTAddOffset<void>(buffer, rowBytes);
         }
     }
+    if (gpuResult == GrGpu::ReadPixelsResult::kSuccessFlipped) {
+        size_t tightRowBytes = GrBytesPerPixel(dstConfig) * width;
+        SkAutoSMalloc<256>  scratch(tightRowBytes);
+        const int halfY = height / 2;
+        char* top = reinterpret_cast<char*>(buffer);
+        char* bottom = top + (height - 1) * rowBytes;
+        for (int y = 0; y < halfY; y++) {
+            memcpy(scratch.get(), top, tightRowBytes);
+            memcpy(top, bottom, tightRowBytes);
+            memcpy(bottom, scratch.get(), tightRowBytes);
+            top += rowBytes;
+            bottom -= rowBytes;
+        }
+    }
+
     return true;
 }
 

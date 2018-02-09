@@ -25,24 +25,9 @@ public:
 
     ~GrMockGpu() override {}
 
-    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
-                             int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
+    bool onGetReadPixelsInfo(GrSurface*, int width, int height, size_t rowBytes,
+                             GrPixelConfig, DrawPreference*,
                              ReadPixelTempDrawInfo*) override { return true; }
-
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
-                              int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override { return true; }
-
-    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                       GrSurface* src, GrSurfaceOrigin srcOrigin,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint) override { return true; }
-
-    void onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const GrStencilSettings&,
-                                 int* effectiveSampleCnt, SamplePattern*) override {
-        *effectiveSampleCnt = rt->numStencilSamples();
-    }
 
     GrGpuRTCommandBuffer* createCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin,
@@ -99,11 +84,13 @@ private:
     GrBuffer* onCreateBuffer(size_t sizeInBytes, GrBufferType, GrAccessPattern,
                              const void*) override;
 
-    bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
-                      int left, int top, int width, int height,
-                      GrPixelConfig,
-                      void* buffer,
-                      size_t rowBytes) override {
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
+                              int width, int height,
+                              GrPixelConfig srcConfig, DrawPreference*,
+                              WritePixelTempDrawInfo*) override { return true; }
+
+    bool onReadPixels(GrSurface*, int left, int top, int width, int height,
+                      GrPixelConfig, void* buffer, size_t rowBytes) override {
         return true;
     }
 
@@ -119,6 +106,15 @@ private:
                           GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override {
         return true;
+    }
+
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                       GrSurface* src, GrSurfaceOrigin srcOrigin,
+                       const SkIRect& srcRect, const SkIPoint& dstPoint) override { return true; }
+
+    void onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override {
+        *effectiveSampleCnt = rt->numStencilSamples();
     }
 
     void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin) override { return; }

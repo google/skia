@@ -151,6 +151,12 @@ public:
      */
     void resolveRenderTarget(GrRenderTarget*, GrSurfaceOrigin);
 
+    enum class ReadPixelsResult {
+        kSuccess,
+        kSuccessFlipped,
+        kFailed
+    };
+
     /** Info struct returned by getReadPixelsInfo about performing intermediate draws before
         reading pixels for performance or correctness. */
     struct ReadPixelTempDrawInfo {
@@ -199,9 +205,9 @@ public:
      * that would allow a successful readPixels call. The passed width, height, and rowBytes,
      * must be non-zero and already reflect clipping to the src bounds.
      */
-    bool getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
-                           int readWidth, int readHeight, size_t rowBytes,
-                           GrPixelConfig readConfig, DrawPreference*, ReadPixelTempDrawInfo*);
+    ReadPixelsResult getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+                                       int readWidth, int readHeight, size_t rowBytes,
+                                       GrPixelConfig readConfig, DrawPreference*, ReadPixelTempDrawInfo*);
 
     /** Info struct returned by getWritePixelsInfo about performing an intermediate draw in order
         to write pixels to a GrSurface for either performance or correctness reasons. */
@@ -241,14 +247,10 @@ public:
      * @param buffer        memory to read the rectangle into.
      * @param rowBytes      the number of bytes between consecutive rows. Zero
      *                      means rows are tightly packed.
-     * @param invertY       buffer should be populated bottom-to-top as opposed
-     *                      to top-to-bottom (skia's usual order)
      *
-     * @return true if the read succeeded, false if not. The read can fail
-     *              because of a unsupported pixel config or because no render
-     *              target is currently set.
+     * @return true if the read succeeded, false if not.
      */
-    bool readPixels(GrSurface* surface, GrSurfaceOrigin,
+    bool readPixels(GrSurface* surface,
                     int left, int top, int width, int height,
                     GrPixelConfig config, void* buffer, size_t rowBytes);
 
@@ -566,7 +568,7 @@ private:
         return false;
     }
 
-    virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+    virtual bool onGetReadPixelsInfo(GrSurface* srcSurface,
                                      int readWidth, int readHeight,
                                      size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,
                                      ReadPixelTempDrawInfo*) = 0;
@@ -576,7 +578,7 @@ private:
                                       WritePixelTempDrawInfo*) = 0;
 
     // overridden by backend-specific derived class to perform the surface read
-    virtual bool onReadPixels(GrSurface*, GrSurfaceOrigin,
+    virtual bool onReadPixels(GrSurface*,
                               int left, int top,
                               int width, int height,
                               GrPixelConfig,

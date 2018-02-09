@@ -193,7 +193,7 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
 }
 
-bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+GrGpu::ReadPixelsResult GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                               int width, int height, size_t rowBytes,
                               GrPixelConfig readConfig, DrawPreference* drawPreference,
                               ReadPixelTempDrawInfo* tempDrawInfo) {
@@ -205,12 +205,12 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
     // We currently do not support reading into the packed formats 565 or 4444 as they are not
     // required to have read back support on all devices and backends.
     if (kRGB_565_GrPixelConfig == readConfig || kRGBA_4444_GrPixelConfig == readConfig) {
-        return false;
+        return ReadPixelsResult::kFailed;
     }
 
-   if (!this->onGetReadPixelsInfo(srcSurface, srcOrigin, width, height, rowBytes, readConfig,
+   if (!this->onGetReadPixelsInfo(srcSurface, width, height, rowBytes, readConfig,
                                   drawPreference, tempDrawInfo)) {
-        return false;
+        return ReadPixelsResult::kFailed;
     }
 
     // Check to see if we're going to request that the caller draw when drawing is not possible.
@@ -218,12 +218,20 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
         !this->caps()->isConfigRenderable(tempDrawInfo->fTempSurfaceDesc.fConfig)) {
         // If we don't have a fallback to a straight read then fail.
         if (kRequireDraw_DrawPreference == *drawPreference) {
-            return false;
+            return ReadPixelsResult::kFailed;
         }
         *drawPreference = kNoDraw_DrawPreference;
     }
 
-    return true;
+    if (srcOrigin == kBottomLeft_GrSurfaceOrigin) {
+        if (srcSurface->asTexture()) {
+            *drawPreference = kRequireDraw_DrawPreference;
+        } else {
+            return ReadPixelsResult::kSuccessFlipped;
+        }
+    }
+
+    return ReadPixelsResult::kSuccess;
 }
 bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                                int width, int height,
@@ -252,13 +260,13 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
     return true;
 }
 
-bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin,
+bool GrGpu::readPixels(GrSurface* surface,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, void* buffer,
+                       GrPixelConfig dstConfig, void* buffer,
                        size_t rowBytes) {
     SkASSERT(surface);
 
-    size_t bpp = GrBytesPerPixel(config);
+    size_t bpp = GrBytesPerPixel(dstConfig);
     if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp,
                                               &left, &top, &width, &height,
                                               &buffer,
@@ -268,10 +276,8 @@ bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin,
 
     this->handleDirtyContext();
 
-    return this->onReadPixels(surface, origin,
-                              left, top, width, height,
-                              config, buffer,
-                              rowBytes);
+    return this->onReadPixels(surface, left, top, width, height,
+                              dstConfig, buffer, rowBytes);
 }
 
 bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin,
