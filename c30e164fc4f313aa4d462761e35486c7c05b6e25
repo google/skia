@@ -22,6 +22,30 @@
       "revId": "c30e164fc4f313aa4d462761e35486c7c05b6e25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9556828_c274b625",
+        "filename": "site/user/api/METADATA",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-02-09T15:01:19Z",
+      "side": 1,
+      "message": "Can all the SkCanvas documentation be adjacent?\n\nAt the moment it doesn\u0027t even matter because the markdown parser doesn\u0027t actually seem to do what it says, and currently sorts these to the bottom of the list anyway. I\u0027ll go chck why that is.",
+      "parentUuid": "c8646582_d34e7890",
+      "range": {
+        "startLine": 6,
+        "startChar": 5,
+        "endLine": 6,
+        "endChar": 22
+      },
+      "revId": "c30e164fc4f313aa4d462761e35486c7c05b6e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
