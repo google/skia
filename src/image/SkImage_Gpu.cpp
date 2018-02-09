@@ -39,6 +39,7 @@
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
+#include "SkTraceEvent.h"
 
 SkImage_Gpu::SkImage_Gpu(GrContext* context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy,
@@ -637,8 +638,16 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkP
         bmp.installPixels(pixmap);
         proxy = proxyProvider->createMipMapProxyFromBitmap(bmp, dstColorSpace);
     } else {
-        proxy = GrUploadPixmapToTextureProxy(proxyProvider, pixmap, SkBudgeted::kYes,
-                                             dstColorSpace);
+        SkDestinationSurfaceColorMode colorMode = dstColorSpace
+                ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+                : SkDestinationSurfaceColorMode::kLegacy;
+
+        if (SkImageInfoIsValid(pixmap.info(), colorMode)) {
+            ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
+            GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *proxyProvider->caps());
+            proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, pixmap.addr(),
+                                                      pixmap.rowBytes());
+        }
     }
 
     if (!proxy) {
