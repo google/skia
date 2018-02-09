@@ -145,8 +145,7 @@ def TriggerAndWait(options):
         print 'No patch logs are here: %s' % ret["nopatch_log"]
         return 0
 
-    sys.stdout.write('.')
-    sys.stdout.flush()
+    print '.'
     time.sleep(POLLING_FREQUENCY_SECS)
 
 
