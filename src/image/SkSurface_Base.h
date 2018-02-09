@@ -45,7 +45,9 @@ public:
      */
     virtual sk_sp<SkImage> onNewImageSnapshot() = 0;
 
-    virtual void onWritePixels(const SkPixmap&, int x, int y) = 0;
+    virtual void onWritePixels(const SkPixmap&, int x, int y){
+        // android needs to override this so we can make it pure = 0
+    }
 
     /**
      *  Default implementation:
