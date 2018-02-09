@@ -242,14 +242,6 @@
 #define GR_GL_MULTISAMPLE_COVERAGE_MODES     0x8E12
 #define GR_GL_MAX_TEXTURE_BUFFER_SIZE        0x8C2B
 
-#define GR_GL_MAX_IMAGE_UNITS                                 0x8F38
-#define GR_GL_MAX_COMBINED_IMAGE_UNITS_AND_FRAGMENT_OUTPUTS   0x8F39
-#define GR_GL_MAX_IMAGE_SAMPLES                               0x906D
-#define GR_GL_MAX_VERTEX_IMAGE_UNIFORMS                       0x90CA
-#define GR_GL_MAX_GEOMETRY_IMAGE_UNIFORMS                     0x90CD
-#define GR_GL_MAX_FRAGMENT_IMAGE_UNIFORMS                     0x90CE
-#define GR_GL_MAX_COMBINED_IMAGE_UNIFORMS                     0x90CF
-
 /* GetTextureParameter */
 /*      GL_TEXTURE_MAG_FILTER */
 /*      GL_TEXTURE_MIN_FILTER */
