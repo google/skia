@@ -52,6 +52,24 @@
       "revId": "54d9c889fb6aca043a7b005d61de4e0e65a3ae53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d1db00d_5c9f4e3c",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-09T14:19:23Z",
+      "side": 1,
+      "message": "*headscratch* Not sure how that ended up in there...",
+      "parentUuid": "777a266c_99639e8b",
+      "revId": "54d9c889fb6aca043a7b005d61de4e0e65a3ae53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
