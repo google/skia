@@ -10,6 +10,7 @@
 #include "GrCaps.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxyPriv.h"
 #include "GrRenderTarget.h"
 #include "GrSurfaceProxyPriv.h"
 
@@ -63,7 +64,8 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 
     // TODO: do we have enough information to improve this worst case estimate?
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                  colorSamplesPerPixel, this->mipMapped(), !this->priv().isExact());
+                                  colorSamplesPerPixel, this->texPriv().proxyMipMapped(),
+                                  !this->priv().isExact());
 }
 
 bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
@@ -109,7 +111,7 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
 void GrTextureRenderTargetProxy::validateLazySurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrTextureProxy version
     SkASSERT(surface->asTexture());
-    SkASSERT(GrMipMapped::kNo == this->mipMapped() ||
+    SkASSERT(GrMipMapped::kNo == this->texPriv().proxyMipMapped() ||
              GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
 
     // Anything checked here should also be checking the GrRenderTargetProxy version
