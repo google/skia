@@ -118,9 +118,16 @@ GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
     return GrSamplerState::Filter::kMipMap;
 }
 
+GrMipMapped GrTextureProxy::mipMapped() const {
+    if (this->priv().isInstantiated()) {
+        return this->priv().peekTexture()->texturePriv().mipMapped();
+    }
+    return fMipMapped;
+}
+
 size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(), 1,
-                                  this->mipMapped(), !this->priv().isExact());
+                                  this->texPriv().proxyMipMapped(), !this->priv().isExact());
 }
 
 void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUniqueKey& key) {
@@ -149,7 +156,7 @@ void GrTextureProxy::validateLazySurface(const GrSurface* surface) {
 
     // Anything that is checked here should be duplicated in GrTextureRenderTargetProxy's version
     SkASSERT(surface->asTexture());
-    SkASSERT(GrMipMapped::kNo == this->mipMapped() ||
+    SkASSERT(GrMipMapped::kNo == this->texPriv().proxyMipMapped() ||
              GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
 }
 #endif
