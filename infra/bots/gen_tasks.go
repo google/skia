@@ -339,8 +339,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				d["gpu"] = gpu
 				// Yuck. We have two different types of MacMini7,1 with the same GPU but different CPUs.
 				if parts["cpu_or_gpu_value"] == "IntelIris5100" {
-					// Run all tasks on Golo machines for now.
-					d["cpu"] = "x86-64-i7-4578U"
+					// Run all tasks on Skolo machines for now.
+					d["cpu"] = "x86-64-i5-4278U"
 				}
 			} else if strings.Contains(parts["os"], "ChromeOS") {
 				version, ok := map[string]string{
