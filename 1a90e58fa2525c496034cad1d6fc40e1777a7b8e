@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "b9dbd597_3715518e",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-09T19:05:55Z",
+      "side": 1,
+      "message": "Couldn\u0027t we have a contract more on the lines of \"while playing back this DDL, we will use this resource cache limit\". Thus they can change the limit on us, but have to accept we may go over while playing back the DDL. After the DDL is done being played we\u0027ll readjust the cache to the set limit.",
+      "parentUuid": "1e8c8862_5c7f0d48",
+      "range": {
+        "startLine": 442,
+        "startChar": 6,
+        "endLine": 445,
+        "endChar": 87
+      },
+      "revId": "1a90e58fa2525c496034cad1d6fc40e1777a7b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c31e4315_e9b690db",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 1
