@@ -126,7 +126,6 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
                                   Program::Settings::Value(caps.name())));
     CAP(fbFetchSupport);
     CAP(fbFetchNeedsCustomOutput);
-    CAP(bindlessTextureSupport);
     CAP(dropsTileOnZeroDivide);
     CAP(flatInterpolationSupport);
     CAP(noperspectiveInterpolationSupport);

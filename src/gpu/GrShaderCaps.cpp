@@ -27,7 +27,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
-    fBindlessTextureSupport = false;
     fUsesPrecisionModifiers = false;
     fCanUseAnyFunctionInShader = true;
     fCanUseMinAndAbsTogether = true;
@@ -104,7 +103,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
 
     writer->appendBool("FB Fetch Support", fFBFetchSupport);
     writer->appendBool("Drops tile on zero divide", fDropsTileOnZeroDivide);
-    writer->appendBool("Bindless texture support", fBindlessTextureSupport);
     writer->appendBool("Uses precision modifiers", fUsesPrecisionModifiers);
     writer->appendBool("Can use any() function", fCanUseAnyFunctionInShader);
     writer->appendBool("Can use min() and abs() together", fCanUseMinAndAbsTogether);

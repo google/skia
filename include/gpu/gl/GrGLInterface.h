@@ -308,23 +308,6 @@ public:
         /* NV_framebuffer_mixed_samples */
         GrGLFunction<GrGLCoverageModulationProc> fCoverageModulation;
 
-        /* NV_bindless_texture */
-        // We use the NVIDIA verson for now because it does not require dynamically uniform handles.
-        // We may switch the the ARB version and/or omit methods in the future.
-        GrGLFunction<GrGLGetTextureHandleProc> fGetTextureHandle;
-        GrGLFunction<GrGLGetTextureSamplerHandleProc> fGetTextureSamplerHandle;
-        GrGLFunction<GrGLMakeTextureHandleResidentProc> fMakeTextureHandleResident;
-        GrGLFunction<GrGLMakeTextureHandleNonResidentProc> fMakeTextureHandleNonResident;
-        GrGLFunction<GrGLGetImageHandleProc> fGetImageHandle;
-        GrGLFunction<GrGLMakeImageHandleResidentProc> fMakeImageHandleResident;
-        GrGLFunction<GrGLMakeImageHandleNonResidentProc> fMakeImageHandleNonResident;
-        GrGLFunction<GrGLIsTextureHandleResidentProc> fIsTextureHandleResident;
-        GrGLFunction<GrGLIsImageHandleResidentProc> fIsImageHandleResident;
-        GrGLFunction<GrGLUniformHandleui64Proc> fUniformHandleui64;
-        GrGLFunction<GrGLUniformHandleui64vProc> fUniformHandleui64v;
-        GrGLFunction<GrGLProgramUniformHandleui64Proc> fProgramUniformHandleui64;
-        GrGLFunction<GrGLProgramUniformHandleui64vProc> fProgramUniformHandleui64v;
-
         /* ARB_sample_shading */
         GrGLFunction<GrGLMinSampleShadingProc> fMinSampleShading;
 

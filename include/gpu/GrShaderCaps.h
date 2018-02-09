@@ -56,8 +56,6 @@ public:
 
     bool fbFetchNeedsCustomOutput() const { return fFBFetchNeedsCustomOutput; }
 
-    bool bindlessTextureSupport() const { return fBindlessTextureSupport; }
-
     const char* versionDeclString() const { return fVersionDeclString; }
 
     const char* fbFetchColorName() const { return fFBFetchColorName; }
@@ -257,7 +255,6 @@ private:
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;
-    bool fBindlessTextureSupport : 1;
     bool fUsesPrecisionModifiers : 1;
     bool fFlatInterpolationSupport : 1;
     bool fPreferFlatInterpolation : 1;
