@@ -60,8 +60,10 @@ static DEFINE_string2(match, m, nullptr,
 static DEFINE_string(slide, "", "Start on this sample.");
 static DEFINE_bool(list, false, "List samples?");
 
-#ifdef SK_VULKAN
+#if defined(SK_VULKAN)
 #    define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
+#elif defined(SK_NXT)
+#    define BACKENDS_STR "\"sw\", \"gl\", and \"nxt\""
 #else
 #    define BACKENDS_STR "\"sw\" and \"gl\""
 #endif
@@ -87,6 +89,9 @@ const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
 #if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
     "ANGLE",
 #endif
+#ifdef SK_NXT
+    "NXT",
+#endif
 #ifdef SK_VULKAN
     "Vulkan",
 #endif
@@ -94,6 +99,11 @@ const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
 };
 
 static sk_app::Window::BackendType get_backend_type(const char* str) {
+#ifdef SK_NXT
+    if (0 == strcmp(str, "nxt")) {
+        return sk_app::Window::kNXT_BackendType;
+    } else
+#endif
 #ifdef SK_VULKAN
     if (0 == strcmp(str, "vk")) {
         return sk_app::Window::kVulkan_BackendType;

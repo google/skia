@@ -313,6 +313,7 @@ private:
     friend class GrGLCaps;
     friend class GrMockCaps;
     friend class GrMtlCaps;
+    friend class GrNXTCaps;
     friend class GrVkCaps;
     friend class SkSL::ShaderCapsFactory;
 };

@@ -12,6 +12,10 @@
 #include "gl/GrGLTypes.h"
 #include "mock/GrMockTypes.h"
 
+#ifdef SK_NXT
+#include "nxt/GrNXTTypes.h"
+#endif
+
 #ifdef SK_VULKAN
 #include "vk/GrVkTypes.h"
 #endif
@@ -42,6 +46,12 @@ public:
                      GrMipMapped,
                      const GrGLTextureInfo& glInfo);
 
+#ifdef SK_NXT
+    GrBackendTexture(int width,
+                     int height,
+                     const GrNXTImageInfo& nxtInfo);
+#endif
+
 #ifdef SK_VULKAN
     GrBackendTexture(int width,
                      int height,
@@ -68,6 +78,10 @@ public:
     // it returns nullptr.
     const GrGLTextureInfo* getGLTextureInfo() const;
 
+#ifdef SK_NXT
+    const GrNXTImageInfo* getNXTImageInfo() const;
+#endif
+
 #ifdef SK_VULKAN
     // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
     // it returns nullptr.
@@ -88,6 +102,7 @@ private:
     friend class GrBackendTextureImageGenerator;
     friend class GrGpu;
     friend class GrGLGpu;
+    friend class GrNXTGpu;
     friend class GrVkGpu;
     GrPixelConfig config() const { return fConfig; }
 
@@ -99,6 +114,9 @@ private:
 
     union {
         GrGLTextureInfo fGLInfo;
+#ifdef SK_NXT
+        GrNXTImageInfo  fNXTInfo;
+#endif
 #ifdef SK_VULKAN
         GrVkImageInfo   fVkInfo;
 #endif
@@ -126,6 +144,14 @@ public:
                           int sampleCnt,
                           int stencilBits,
                           const GrGLFramebufferInfo& glInfo);
+
+#ifdef SK_NXT
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          int stencilBits,
+                          const GrNXTImageInfo& nxtInfo);
+#endif
 
 #ifdef SK_VULKAN
     GrBackendRenderTarget(int width,
@@ -175,6 +201,9 @@ private:
 
     union {
         GrGLFramebufferInfo fGLInfo;
+#ifdef SK_NXT
+        GrNXTImageInfo   fNXTInfo;
+#endif
 #ifdef SK_VULKAN
         GrVkImageInfo   fVkInfo;
 #endif

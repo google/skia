@@ -86,6 +86,9 @@ static const struct {
     { "angle_gl_es3",          "gpu", "api=angle_gl_es3" },
     { "commandbuffer",         "gpu", "api=commandbuffer" },
     { "mock",                  "gpu", "api=mock" }
+#ifdef SK_NXT
+    ,{ "nxt",                  "gpu", "api=nxt" }
+#endif
 #ifdef SK_VULKAN
     ,{ "vk",                   "gpu", "api=vulkan" }
     ,{ "vksrgb",               "gpu", "api=vulkan,color=srgb" }

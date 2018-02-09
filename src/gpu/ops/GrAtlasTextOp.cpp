@@ -220,7 +220,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     uint32_t atlasPageCount = fFontCache->getAtlasPageCount(maskFormat);
     const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(maskFormat);
-    if (!atlasPageCount || !proxies[0]) {
+    if (!atlasPageCount || !proxies || !proxies[0]) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
     }

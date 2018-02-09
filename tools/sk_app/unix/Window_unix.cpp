@@ -350,6 +350,12 @@ bool Window_unix::attach(BackendType attachType) {
     }
 
     switch (attachType) {
+#ifdef SK_NXT
+        // For now, let's use a GL window for NXT on Linux.
+        case kNXT_BackendType:
+            fWindowContext = window_context_factory::NewNXTGLForXlib(winInfo, fRequestedDisplayParams);
+            break;
+#endif
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
             fWindowContext = window_context_factory::NewVulkanForXlib(winInfo,

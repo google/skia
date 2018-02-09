@@ -256,6 +256,17 @@ bool Window_mac::attach(BackendType attachType) {
             fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
             break;
 
+#ifdef SK_NXT
+        case kNXT_BackendType:
+#ifdef SK_NXT_METAL
+            fWindowContext = window_context_factory::NewNXTMTLForMac(info, fRequestedDisplayParams);
+#endif
+#ifdef SK_NXT_OPENGL
+            fWindowContext = window_context_factory::NewNXTGLForMac(info, fRequestedDisplayParams);
+#endif
+            break;
+#endif
+
         case kNativeGL_BackendType:
         default:
             fWindowContext = NewGLForMac(info, fRequestedDisplayParams);

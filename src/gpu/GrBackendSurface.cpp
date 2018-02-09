@@ -9,9 +9,26 @@
 
 #include "gl/GrGLUtil.h"
 
+#ifdef SK_NXT
+#include "nxt/GrNXTTypes.h"
+#include "nxt/GrNXTUtil.h"
+#endif
+
 #ifdef SK_VULKAN
 #include "vk/GrVkTypes.h"
 #include "vk/GrVkUtil.h"
+#endif
+
+#ifdef SK_NXT
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   const GrNXTImageInfo& nxtInfo)
+        : fWidth(width)
+        , fHeight(height)
+        , fConfig(GrNXTFormatToPixelConfig(nxtInfo.fFormat))
+        , fMipMapped(GrMipMapped(nxtInfo.fLevelCount > 1))
+        , fBackend(kNXT_GrBackend)
+        , fNXTInfo(nxtInfo) {}
 #endif
 
 #ifdef SK_VULKAN
@@ -73,6 +90,15 @@ GrBackendTexture::GrBackendTexture(int width,
         , fBackend(kMock_GrBackend)
         , fMockInfo(mockInfo) {}
 
+#ifdef SK_NXT
+const GrNXTImageInfo* GrBackendTexture::getNXTImageInfo() const {
+    if (this->isValid() && kNXT_GrBackend == fBackend) {
+        return &fNXTInfo;
+    }
+    return nullptr;
+}
+#endif
+
 #ifdef SK_VULKAN
 const GrVkImageInfo* GrBackendTexture::getVkImageInfo() const {
     if (this->isValid() && kVulkan_GrBackend == fBackend) {
@@ -97,6 +123,21 @@ const GrMockTextureInfo* GrBackendTexture::getMockTextureInfo() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_NXT
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             int stencilBits,
+                                             const GrNXTImageInfo& nxtInfo)
+        : fWidth(width)
+        , fHeight(height)
+        , fSampleCnt(sampleCnt)
+        , fStencilBits(stencilBits)
+        , fConfig(GrNXTFormatToPixelConfig(nxtInfo.fFormat))
+        , fBackend(kNXT_GrBackend)
+        , fNXTInfo(nxtInfo) {}
+#endif
 
 #ifdef SK_VULKAN
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
