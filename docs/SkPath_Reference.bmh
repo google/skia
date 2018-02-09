@@ -5781,7 +5781,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
     #Method RawIter()
 
         Initializes RawIter with an empty Path. next() on RawIter returns kDone_Verb.
-        Call setPath to initialize Iter at a later time.
+        Call setPath to initialize SkPath::Iter at a later time.
 
         #Return RawIter of empty Path ##
 
@@ -5804,7 +5804,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
 
     #Method void setPath(const SkPath& path)
 
-        Sets Iter to return elements of Verb_Array, Point_Array, and Conic_Weight in path.
+        Sets SkPath::Iter to return elements of Verb_Array, Point_Array, and Conic_Weight in path.
 
         #Param path  Path to iterate ##
 

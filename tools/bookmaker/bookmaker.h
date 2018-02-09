@@ -902,6 +902,17 @@ public:
 
     void setWrapper();
 
+    const Definition* topicParent() const {
+        Definition* test = fParent;
+        while (test) {
+            if (MarkType::kTopic == test->fMarkType) {
+                return test;
+            }
+            test = test->fParent;
+        }
+        return nullptr;
+    }
+
     string fText;  // if text is constructed instead of in a file, it's put here
     const char* fStart = nullptr;  // .. in original text file, or the start of fText
     const char* fContentStart;  // start past optional markup name

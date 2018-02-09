@@ -2518,7 +2518,7 @@ void roundOut(SkIRect* dst) const
 </pre>
 
 Sets <a href="SkIRect_Reference#IRect">IRect</a> by discarding the fractional portion of <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fTop">fTop</a>; and
-rounding up <a href="#SkRect_fRight">fRight</a> and FBottom, using(.
+rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(.
 
 ### Parameters
 
@@ -2552,7 +2552,7 @@ void roundOut(SkRect* dst) const
 </pre>
 
 Sets <a href="#Rect">Rect</a> by discarding the fractional portion of <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fTop">fTop</a>; and
-rounding up <a href="#SkRect_fRight">fRight</a> and FBottom, using(.
+rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(.
 
 ### Parameters
 
@@ -2587,7 +2587,7 @@ void roundIn(SkIRect* dst) const
 </pre>
 
 Sets <a href="#Rect">Rect</a> by rounding up <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fTop">fTop</a>; and
-discarding the fractional portion of <a href="#SkRect_fRight">fRight</a> and FBottom, using(.
+discarding the fractional portion of <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(.
 
 ### Parameters
 
@@ -2652,7 +2652,7 @@ SkIRect roundOut() const
 </pre>
 
 Sets <a href="SkIRect_Reference#IRect">IRect</a> by discarding the fractional portion of <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fTop">fTop</a>; and
-rounding up <a href="#SkRect_fRight">fRight</a> and FBottom, using(.
+rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(.
 
 ### Return Value
 

@@ -640,6 +640,9 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
 
 // walk children and output complete method doxygen description
 void IncludeWriter::methodOut(const Definition* method, const Definition& child) {
+    if (string::npos != method->fName.find("scalePixels")) {
+        SkDebugf("");
+    }
     if (fPendingMethod) {
         fIndent -= 4;
         fPendingMethod = false;
@@ -705,6 +708,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
     this->writeCommentTrailer();
     fBmhMethod = nullptr;
     fMethodDef = nullptr;
+    fEnumDef = nullptr;
     fWroteMethod = true;
 }
 
@@ -1317,19 +1321,14 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 }
                             }
                             // FIXME: trigger error earlier if inner #Struct or #Class is missing #Code
-                            const char* commentStart;
-                            const char* commentEnd;
                             if (!fBmhStructDef->fDeprecated) {
                                 SkASSERT(codeBlock);
                                 SkASSERT(nextBlock);  // FIXME: check enum for correct order earlier
-                                commentStart = codeBlock->fTerminator;
-                                commentEnd = nextBlock->fStart;
+                                const char* commentStart = codeBlock->fTerminator;
+                                const char* commentEnd = nextBlock->fStart;
+                                fIndentNext = true;
+                                this->structOut(root, *fBmhStructDef, commentStart, commentEnd);
                             }
-                            if (fIndentNext) {
-//                                fIndent += 4;
-                            }
-                            fIndentNext = true;
-                            this->structOut(root, *fBmhStructDef, commentStart, commentEnd);
                         }
                         fDeferComment = nullptr;
                     } else {
@@ -1488,9 +1487,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     }
                 }
 				SkASSERT(fBmhStructDef);
-				if (fBmhStructDef->fDeprecated) {
-					SkDebugf("");
-				} else {
+				if (!fBmhStructDef->fDeprecated) {
 					memberEnd = this->structMemberOut(memberStart, child);
 					startDef = &child;
 					fStart = child.fContentEnd + 1;
@@ -1676,6 +1673,7 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
     *refType = RefType::kNormal;
     SkASSERT(string::npos == undername.find(' '));
     const Definition* rootDef = nullptr;
+    string substitute;
     {
         auto rootDefIter = fBmhParser->fTopicMap.find(undername);
         if (fBmhParser->fTopicMap.end() != rootDefIter) {
@@ -1691,10 +1689,18 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                 if (fBmhParser->fTopicMap.end() != rootDefIter) {
                     rootDef = rootDefIter->second;
                 }
-            } else {
+                if (!rootDef) {
+                    size_t doubleColon = fBmhStructDef->fName.rfind("::");
+                    if (string::npos != doubleColon && undername
+                            == fBmhStructDef->fName.substr(doubleColon + 2)) {
+                        substitute = fBmhStructDef->fName;
+                    }
+                }
+            }
+            if (!rootDef && !substitute.length()) {
                 auto aliasIter = fBmhParser->fAliasMap.find(undername);
                 if (fBmhParser->fAliasMap.end() != aliasIter) {
-                    rootDef = aliasIter->second->fParent;
+                    rootDef = aliasIter->second;
                 } else if (!first) {
                     SkDebugf("unfound: %s\n", undername.c_str());
                     this->reportError("reference unfound");
@@ -1703,33 +1709,71 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
             }
         }
     }
-    string substitute;
     if (rootDef) {
-        for (auto child : rootDef->fChildren) {
-            if (MarkType::kSubstitute == child->fMarkType) {
-                substitute = string(child->fContentStart,
-                        (int) (child->fContentEnd - child->fContentStart));
-                break;
-            }
-        }
-        if (!substitute.length()) {
-            for (auto child : rootDef->fChildren) {
-                if (MarkType::kClass == child->fMarkType ||
-                        MarkType::kStruct == child->fMarkType ||
-                        (MarkType::kEnum == child->fMarkType && !child->fAnonymous) ||
-                        MarkType::kEnumClass == child->fMarkType) {
-                    substitute = child->fName;
-                    if (MarkType::kEnum == child->fMarkType && fInEnum) {
-                        size_t parentClassEnd = substitute.find("::");
-                        SkASSERT(string::npos != parentClassEnd);
-                        substitute = substitute.substr(parentClassEnd + 2);
-                    }
+        MarkType rootType = rootDef->fMarkType;
+        bool isTopic = MarkType::kSubtopic == rootType || MarkType::kTopic == rootType;
+        auto substituteParent = MarkType::kAlias == rootType ? rootDef->fParent :
+                isTopic ? rootDef : nullptr;
+        if (substituteParent) {
+            for (auto child : substituteParent->fChildren) {
+                if (MarkType::kSubstitute == child->fMarkType) {
+                    substitute = string(child->fContentStart,
+                            (int) (child->fContentEnd - child->fContentStart));
                     break;
                 }
             }
         }
         if (!substitute.length()) {
-            auto parent = rootDef->fParent;
+            string match = rootDef->fName;
+            size_t index;
+            while (string::npos != (index = match.find('_'))) {
+                match.erase(index, 1);
+            }
+            string skmatch = "Sk" + match;
+            auto parent = substituteParent ? substituteParent : rootDef;
+            for (auto child : parent->fChildren) {
+                // there may be more than one
+                // prefer the one mostly closely matching in text
+                if ((MarkType::kClass == child->fMarkType ||
+                    MarkType::kStruct == child->fMarkType ||
+                    (MarkType::kEnum == child->fMarkType && !child->fAnonymous) ||
+                    MarkType::kEnumClass == child->fMarkType) && (match == child->fName ||
+                    skmatch == child->fName)) {
+                    substitute = child->fName;
+                    break;
+                }
+            }
+        }
+        if (!substitute.length()) {
+            for (auto child : rootDef->fChildren) {
+                // there may be more than one
+                // if so, it's a bug since it's unknown which is the right one
+                if (MarkType::kClass == child->fMarkType ||
+                        MarkType::kStruct == child->fMarkType ||
+                        (MarkType::kEnum == child->fMarkType && !child->fAnonymous) ||
+                        MarkType::kEnumClass == child->fMarkType) {
+                    SkASSERT("" == substitute);
+                    substitute = child->fName;
+                    if (MarkType::kEnum == child->fMarkType) {
+                        size_t parentClassEnd = substitute.find("::");
+                        SkASSERT(string::npos != parentClassEnd);
+                        string subEnd = substitute.substr(parentClassEnd + 2);
+                        if (fInEnum) {
+                            substitute = subEnd;
+                        }
+                        if (subEnd == undername) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!substitute.length()) {
+            const Definition* parent = rootDef;
+            do {
+                parent = parent->fParent;
+            } while (parent && (MarkType::kSubtopic == parent->fMarkType
+                        || MarkType::kTopic == parent->fMarkType));
             if (parent) {
                 if (MarkType::kClass == parent->fMarkType ||
                         MarkType::kStruct == parent->fMarkType ||
@@ -1738,9 +1782,14 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                     if (parent->fParent != fRootTopic) {
                         substitute = parent->fName;
                         size_t under = undername.find('_');
-                        SkASSERT(string::npos != under);
-                        string secondHalf(&undername[under], (size_t) (undername.length() - under));
-                        substitute += ConvertRef(secondHalf, false);
+                        if (string::npos != under) {
+                            string secondHalf(&undername[under],
+                                    (size_t) (undername.length() - under));
+                            substitute += ConvertRef(secondHalf, false);
+                        } else {
+                            substitute += ' ';
+                            substitute += ConvertRef(undername, false);
+                        }
                     } else {
                         substitute += ConvertRef(undername, first);
                     }
@@ -1751,6 +1800,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
     // Ensure first word after period is capitalized if substitute is lower cased.
     if (first && isupper(start[0]) && substitute.length() > 0 && islower(substitute[0])) {
         substitute[0] = start[0];
+    }
+    if (undername == "Color_Type" && substitute == "") {
+        SkDebugf("");
     }
     return substitute;
 }
@@ -1806,6 +1858,9 @@ int IncludeWriter::lookupReference(const PunctuationState punctuation, const Wor
         if (Word::kFirst != word && '_' != last) {
             temp = ConvertRef(resolved, false);
         }
+    }
+    if (resolved == "Color_Type" && temp == "color type") {
+        SkDebugf("");
     }
     if (temp.length()) {
         if (start > lastWrite) {

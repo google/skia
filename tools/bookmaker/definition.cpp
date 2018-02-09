@@ -1285,9 +1285,6 @@ static string unpreformat(const string& orig) {
 }
 
 bool Definition::paramsMatch(const string& matchFormatted, const string& name) const {
-    if (string::npos != matchFormatted.find("readPixels")) {
-        SkDebugf("");
-    }
     string match = unpreformat(matchFormatted);
     TextParser def(fFileName, fStart, fContentStart, fLineCount);
     const char* dName = def.strnstr(name.c_str(), fContentStart);
