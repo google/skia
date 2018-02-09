@@ -89,7 +89,7 @@ private:
 // Create a 'width' x 'height' SkSurface that matches the colorType of 'canvas' as
 // best we can
 static sk_sp<SkSurface> make_color_matching_surface(SkCanvas* canvas, int width, int height,
-                                                    SkAlphaType alphaType) {
+                                                    SkAlphaType at) {
 
     SkColorType ct = canvas->imageInfo().colorType();
     sk_sp<SkColorSpace> cs(canvas->imageInfo().refColorSpace());
@@ -98,9 +98,11 @@ static sk_sp<SkSurface> make_color_matching_surface(SkCanvas* canvas, int width,
         // For backends that aren't yet color-space aware we just fallback to N32.
         ct = kN32_SkColorType;
         cs = nullptr;
+    } else if (SkColorTypeIsAlwaysOpaque(ct)) {
+        at = kOpaque_SkAlphaType;
     }
 
-    SkImageInfo info = SkImageInfo::Make(width, height, ct, alphaType, std::move(cs));
+    SkImageInfo info = SkImageInfo::Make(width, height, ct, at, std::move(cs));
 
     return sk_tool_utils::makeSurface(canvas, info);
 }
