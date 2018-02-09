@@ -456,8 +456,7 @@ struct SK_API SkIRect {
         @return   true if (x, y) is inside SkIRect
     */
     bool contains(int32_t x, int32_t y) const {
-        return  (unsigned)(x - fLeft) < (unsigned)(fRight - fLeft) &&
-                (unsigned)(y - fTop) < (unsigned)(fBottom - fTop);
+        return x >= fLeft && x < fRight && y >= fTop && y < fBottom;
     }
 
     /** Constructs SkRect to intersect from (left, top, right, bottom). Does not sort
