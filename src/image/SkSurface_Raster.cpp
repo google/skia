@@ -80,7 +80,7 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         return true;
     }
 
-    int shift = SkColorTypeShiftPerPixel(info.colorType());
+    int shift = info.shiftPerPixel();
 
     uint64_t minRB = (uint64_t)info.width() << shift;
     if (minRB > rowBytes) {

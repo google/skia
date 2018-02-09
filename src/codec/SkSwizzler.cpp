@@ -786,7 +786,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
     RowProc fastProc = nullptr;
     RowProc proc = nullptr;
     int srcBPP;
-    const int dstBPP = SkColorTypeBytesPerPixel(dstInfo.colorType());
+    const int dstBPP = dstInfo.bytesPerPixel();
     if (skipFormatConversion) {
         switch (encodedInfo.color()) {
             case SkEncodedInfo::kGray_Color:

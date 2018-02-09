@@ -26,6 +26,7 @@
 #include "SkImageGenerator.h"
 #include "SkImageGeneratorCG.h"
 #include "SkImageGeneratorWIC.h"
+#include "SkImageInfoPriv.h"
 #include "SkLiteDL.h"
 #include "SkLiteRecorder.h"
 #include "SkMallocPixelRef.h"
@@ -455,7 +456,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     }
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
-    const int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
+    const int bpp = decodeInfo.bytesPerPixel();
     const size_t rowBytes = size.width() * bpp;
     const size_t safeSize = decodeInfo.computeByteSize(rowBytes);
     SkAutoMalloc pixels(safeSize);
@@ -851,7 +852,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     }
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
-    int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
+    int bpp = decodeInfo.bytesPerPixel();
     size_t rowBytes = size.width() * bpp;
     SkAutoMalloc pixels(size.height() * rowBytes);
 
@@ -977,7 +978,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     options.fBehavior = canvas->imageInfo().colorSpace() ?
             SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
 
-    int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
+    int bpp = decodeInfo.bytesPerPixel();
     size_t rowBytes = decodeInfo.width() * bpp;
     SkAutoMalloc pixels(decodeInfo.height() * rowBytes);
     if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes, &options)) {

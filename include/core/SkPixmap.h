@@ -279,7 +279,7 @@ public:
         @return  readable unsigned 8-bit pointer to pixels
     */
     const uint8_t* addr8() const {
-        SkASSERT(1 == SkColorTypeBytesPerPixel(fInfo.colorType()));
+        SkASSERT(1 == fInfo.bytesPerPixel());
         return reinterpret_cast<const uint8_t*>(fPixels);
     }
 
@@ -292,7 +292,7 @@ public:
         @return  readable unsigned 16-bit pointer to pixels
     */
     const uint16_t* addr16() const {
-        SkASSERT(2 == SkColorTypeBytesPerPixel(fInfo.colorType()));
+        SkASSERT(2 == fInfo.bytesPerPixel());
         return reinterpret_cast<const uint16_t*>(fPixels);
     }
 
@@ -305,7 +305,7 @@ public:
         @return  readable unsigned 32-bit pointer to pixels
     */
     const uint32_t* addr32() const {
-        SkASSERT(4 == SkColorTypeBytesPerPixel(fInfo.colorType()));
+        SkASSERT(4 == fInfo.bytesPerPixel());
         return reinterpret_cast<const uint32_t*>(fPixels);
     }
 
@@ -318,7 +318,7 @@ public:
         @return  readable unsigned 64-bit pointer to pixels
     */
     const uint64_t* addr64() const {
-        SkASSERT(8 == SkColorTypeBytesPerPixel(fInfo.colorType()));
+        SkASSERT(8 == fInfo.bytesPerPixel());
         return reinterpret_cast<const uint64_t*>(fPixels);
     }
 
@@ -332,7 +332,7 @@ public:
         @return  readable unsigned 16-bit pointer to first component of pixels
     */
     const uint16_t* addrF16() const {
-        SkASSERT(8 == SkColorTypeBytesPerPixel(fInfo.colorType()));
+        SkASSERT(8 == fInfo.bytesPerPixel());
         SkASSERT(kRGBA_F16_SkColorType == fInfo.colorType());
         return reinterpret_cast<const uint16_t*>(fPixels);
     }

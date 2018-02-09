@@ -15,6 +15,7 @@
 #include "SkFontMgrPriv.h"
 #include "SkFontStyle.h"
 #include "SkGraphics.h"
+#include "SkImageInfoPriv.h"
 #include "SkSurface.h"
 #include "Test.h"
 #include "gl/GLTestContext.h"
