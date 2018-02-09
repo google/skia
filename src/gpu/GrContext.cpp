@@ -333,6 +333,28 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return fThreadSafeProxy;
 }
 
+SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
+                                     int cacheMaxResourceCount, size_t cacheMaxResourceBytes,
+                                     const SkImageInfo& ii, int sampleCnt, GrSurfaceOrigin origin,
+                                     const SkSurfaceProps& surfaceProps,
+                                     bool isTextureable, bool isMipMapped) {
+    // We're assuming GrFSAAType::kMixedSamples will never be specified via this code path
+    GrFSAAType FSAAType = sampleCnt > 1 ? GrFSAAType::kUnifiedMSAA : GrFSAAType::kNone;
+
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(ii.colorType(), ii.colorSpace(), *fCaps);
+
+    if (!fCaps->mipMapSupport()) {
+        isMipMapped = false;
+    }
+
+    return SkSurfaceCharacterization(sk_ref_sp<GrContextThreadSafeProxy>(this),
+                                     cacheMaxResourceCount, cacheMaxResourceBytes,
+                                     origin, ii.width(), ii.height(), config, FSAAType, sampleCnt,
+                                     SkSurfaceCharacterization::Textureable(isTextureable),
+                                     SkSurfaceCharacterization::MipMapped(isMipMapped),
+                                     ii.refColorSpace(), surfaceProps);
+}
+
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 

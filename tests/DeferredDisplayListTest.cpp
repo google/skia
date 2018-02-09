@@ -80,8 +80,21 @@ public:
             return nullptr;
         }
 
-        SkSurfaceCharacterization c;
-        SkAssertResult(s->characterize(&c));
+        int maxResourceCount;
+        size_t maxResourceBytes;
+        context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+        // DDL TODO: test this parameter.
+        bool isTextureable = true;
+
+        // Note that Ganesh doesn't make use of the SkImageInfo's alphaType
+        SkImageInfo ii = SkImageInfo::Make(fWidth, fHeight, fColorType,
+                                           kPremul_SkAlphaType, fColorSpace);
+
+        SkSurfaceCharacterization c = context->threadSafeProxy()->createCharacterization(
+                                    maxResourceCount, maxResourceBytes,
+                                    ii, fSampleCount, fOrigin, fSurfaceProps,
+                                    isTextureable, fShouldCreateMipMaps);
 
         SkDeferredDisplayListRecorder r(c);
         SkCanvas* canvas = r.getCanvas();

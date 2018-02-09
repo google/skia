@@ -36,17 +36,18 @@ class GrResourceCache;
 class GrResourceProvider;
 class GrSamplerState;
 class GrSurfaceProxy;
+class GrSwizzle;
 class GrTextBlobCache;
 class GrTextContext;
 class GrTextureProxy;
 class GrVertexBuffer;
 struct GrVkBackendContext;
-class GrSwizzle;
-class SkTraceMemoryDump;
 
 class SkImage;
+class SkSurfaceCharacterization;
 class SkSurfaceProps;
 class SkTaskGroup;
+class SkTraceMemoryDump;
 
 class SK_API GrContext : public SkRefCnt {
 public:
@@ -433,6 +434,34 @@ private:
 class GrContextThreadSafeProxy : public SkRefCnt {
 public:
     bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
+
+    /**
+     *  Create a surface characterization for a DDL that will be replayed into the GrContext
+     *  that created this proxy.
+     *
+     *  @param cacheMaxResourceCount The max resource count limit that will be in effect when the
+     *                               DDL created with this characterization is replayed
+     *  @param cacheMaxResourceBytes The max resource bytes limit that will be in effect when the
+     *                               DDL created with this characterization is replayed
+     *  @param ii                    The image info specifying properties of the SkSurface that
+     *                               the DDL created with this characterization will be replayed
+     *                               into.
+     *                               Note: Ganesh doesn't make use of the SkImageInfo's alphaType
+     *  @param sampleCount           The sample count of the SkSurface that the DDL created with
+     *                               this characterization will be replayed into
+     *  @param origin                The origin of the SkSurface that the DDL created with this
+     *                               characterization will be replayed into
+     *  @param surfaceProps          The surface properties of the SkSurface that the DDL created
+     *                               with this characterization will be replayed into
+     *  @param isTextureable         Will the surface the DDL will be replayed into be textureable?
+     *  @param isMipMapped           Will the surface the DDL will be replayed into have space
+     *                               allocated for mipmaps?
+     */
+    SkSurfaceCharacterization createCharacterization(
+                                  int cacheMaxResourceCount, size_t cacheMaxResourceBytes,
+                                  const SkImageInfo& ii, int sampleCount, GrSurfaceOrigin origin,
+                                  const SkSurfaceProps& surfaceProps,
+                                  bool isTextureable, bool isMipMapped);
 
 private:
     // DDL TODO: need to add unit tests for backend & maybe options

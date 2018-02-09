@@ -73,6 +73,29 @@ public:
 
 private:
     friend class SkSurface_Gpu; // for 'set'
+    friend class GrContextThreadSafeProxy; // for private ctor
+
+    SkSurfaceCharacterization(sk_sp<GrContextThreadSafeProxy> contextInfo,
+                              int cacheMaxResourceCount, size_t cacheMaxResourceBytes,
+                              GrSurfaceOrigin origin, int width, int height,
+                              GrPixelConfig config, GrFSAAType FSAAType, int stencilCnt,
+                              Textureable isTextureable, MipMapped isMipMapped,
+                              sk_sp<SkColorSpace> colorSpace,
+                              const SkSurfaceProps& surfaceProps)
+            : fContextInfo(std::move(contextInfo))
+            , fCacheMaxResourceCount(cacheMaxResourceCount)
+            , fCacheMaxResourceBytes(cacheMaxResourceBytes)
+            , fOrigin(origin)
+            , fWidth(width)
+            , fHeight(height)
+            , fConfig(config)
+            , fFSAAType(FSAAType)
+            , fStencilCnt(stencilCnt)
+            , fIsTextureable(isTextureable)
+            , fIsMipMapped(isMipMapped)
+            , fColorSpace(std::move(colorSpace))
+            , fSurfaceProps(surfaceProps) {
+    }
 
     void set(sk_sp<GrContextThreadSafeProxy> contextInfo,
              int cacheMaxResourceCount,
