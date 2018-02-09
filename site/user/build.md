@@ -67,6 +67,10 @@ Having generated your build files, run Ninja to compile and link Skia.
     ninja -C out/Cached
     ninja -C out/RTTI
 
+If some header files are missing, install the corresponding dependencies
+
+    tools/install_dependencies.sh
+
 Android
 -------
 

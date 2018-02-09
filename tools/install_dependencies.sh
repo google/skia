@@ -23,15 +23,16 @@ dpkg_all_installed() {
 
 if command -v lsb_release > /dev/null ; then
     case $(lsb_release -i -s) in
-        Ubuntu)
+        Ubuntu|Debian)
             PACKAGES=$(cat<<-EOF
 		build-essential
 		freeglut3-dev
 		libfontconfig-dev
 		libfreetype6-dev
 		libgif-dev
+		libgl1-mesa-dev
 		libglu1-mesa-dev
-		libpng12-dev
+		libpng-dev
 		libqt4-dev
 		EOF
             )
