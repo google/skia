@@ -25,6 +25,8 @@
 
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
+static const SkRect DEV_RECT_S = SkRect::MakeWH(DEV_W * SK_Scalar1,
+                                                DEV_H * SK_Scalar1);
 static const U8CPU DEV_PAD = 0xee;
 
 static SkPMColor get_canvas_color(int x, int y) {
@@ -111,15 +113,23 @@ static uint32_t get_bitmap_color(int x, int y, int w, SkColorType ct, SkAlphaTyp
     return pack_color_type(ct, a, r, g , b);
 }
 
-static void fill_surface(SkSurface* surface) {
+static void fill_canvas(SkCanvas* canvas) {
     SkBitmap bmp;
-    bmp.allocN32Pixels(DEV_W, DEV_H);
-    for (int y = 0; y < DEV_H; ++y) {
-        for (int x = 0; x < DEV_W; ++x) {
-            *bmp.getAddr32(x, y) = get_canvas_color(x, y);
+    if (bmp.isNull()) {
+        bmp.allocN32Pixels(DEV_W, DEV_H);
+        for (int y = 0; y < DEV_H; ++y) {
+            for (int x = 0; x < DEV_W; ++x) {
+                *bmp.getAddr32(x, y) = get_canvas_color(x, y);
+            }
         }
     }
-    surface->writePixels(bmp, 0, 0);
+    canvas->save();
+    canvas->setMatrix(SkMatrix::I());
+    canvas->clipRect(DEV_RECT_S, kReplace_SkClipOp);
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    canvas->drawBitmap(bmp, 0, 0, &paint);
+    canvas->restore();
 }
 
 /**
@@ -278,17 +288,17 @@ static bool setup_bitmap(SkBitmap* bm, SkColorType ct, SkAlphaType at, int w, in
     return true;
 }
 
-static void call_writepixels(SkSurface* surface) {
+static void call_writepixels(SkCanvas* canvas) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
     SkPMColor pixel = 0;
-    surface->writePixels({info, &pixel, sizeof(SkPMColor)}, 0, 0);
+    canvas->writePixels(info, &pixel, sizeof(SkPMColor), 0, 0);
 }
 
 DEF_TEST(WritePixelsSurfaceGenID, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
     auto surface(SkSurface::MakeRaster(info));
     uint32_t genID1 = surface->generationID();
-    call_writepixels(surface.get());
+    call_writepixels(surface->getCanvas());
     uint32_t genID2 = surface->generationID();
     REPORTER_ASSERT(reporter, genID1 != genID2);
 }
@@ -359,14 +369,14 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface) 
                 const SkColorType ct = gSrcConfigs[c].fColorType;
                 const SkAlphaType at = gSrcConfigs[c].fAlphaType;
 
-                fill_surface(surface);
+                fill_canvas(canvas);
                 SkBitmap bmp;
                 REPORTER_ASSERT(reporter, setup_bitmap(&bmp, ct, at, rect.width(),
                                                        rect.height(), SkToBool(tightBmp)));
                 uint32_t idBefore = surface->generationID();
 
                 // sk_tool_utils::write_pixels(&canvas, bmp, rect.fLeft, rect.fTop, ct, at);
-                surface->writePixels(bmp, rect.fLeft, rect.fTop);
+                canvas->writePixels(bmp, rect.fLeft, rect.fTop);
 
                 uint32_t idAfter = surface->generationID();
                 REPORTER_ASSERT(reporter, check_write(reporter, surface, bmp,
@@ -459,7 +469,7 @@ static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
     bm.allocPixels(smII);
     bm.eraseColor(color);
 
-    surf->writePixels(bm, 0, 0);
+    surf->getCanvas()->writePixels(bm, 0, 0);
 
     return surf->makeImageSnapshot();
 }
