@@ -733,35 +733,6 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo& info,
-                                              const GrMipLevel texels[], int mipLevelCount,
-                                              SkBudgeted budgeted,
-                                              SkDestinationSurfaceColorMode colorMode) {
-    SkASSERT(mipLevelCount >= 1);
-    if (!ctx) {
-        return nullptr;
-    }
-    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
-
-    // For images where the client is passing the mip data we require that all the mip levels have
-    // valid data.
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            return nullptr;
-        }
-    }
-    sk_sp<GrTextureProxy> proxy(GrUploadMipMapToTextureProxy(proxyProvider, info,
-                                                             texels, mipLevelCount, colorMode));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    SkASSERT(proxy->priv().isExact());
-    return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
-                                   info.alphaType(), std::move(proxy),
-                                   info.refColorSpace(), budgeted);
-}
-
 sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColorType,
                                              SkTransferFunctionBehavior premulBehavior) const {
     if (SkTransferFunctionBehavior::kRespect == premulBehavior) {
