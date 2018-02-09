@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3f8c624_5819c769",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-09T19:02:13Z",
+      "side": 1,
+      "message": "This is our chance to rename this if we aren\u0027t happy with this name.",
+      "range": {
+        "startLine": 434,
+        "startChar": 6,
+        "endLine": 434,
+        "endChar": 30
+      },
+      "revId": "1a90e58fa2525c496034cad1d6fc40e1777a7b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e8c8862_5c7f0d48",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-09T19:02:13Z",
+      "side": 1,
+      "message": "Egads, do we really need this? This seems like it could be a hard promise to keep.",
+      "range": {
+        "startLine": 442,
+        "startChar": 6,
+        "endLine": 445,
+        "endChar": 87
+      },
+      "revId": "1a90e58fa2525c496034cad1d6fc40e1777a7b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c31e4315_e9b690db",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-09T19:02:13Z",
+      "side": 1,
+      "message": "Should we take a GrBackendTexture and ignore its texture id? My concern is around whether we will want to know the exact texture format.",
+      "range": {
+        "startLine": 456,
+        "startChar": 0,
+        "endLine": 458,
+        "endChar": 59
+      },
+      "revId": "1a90e58fa2525c496034cad1d6fc40e1777a7b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
