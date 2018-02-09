@@ -704,7 +704,7 @@ selects whether allocation for pixels is tracked by context. imageInfo
 describes the pixel format in Color_Type, and transparency in
 Alpha_Type, and color matching in Color_Space.
 
-sampleCount requests the number of samples per pixel. 
+sampleCount requests the number of samples per pixel.
 Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
 up to the next supported count, or rounded down if it is larger than the
 maximum supported count.
@@ -769,7 +769,7 @@ selects whether allocation for pixels is tracked by context. imageInfo
 describes the pixel format in Color_Type, and transparency in
 Alpha_Type, and color matching in Color_Space.
 
-sampleCount requests the number of samples per pixel. 
+sampleCount requests the number of samples per pixel.
 Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
 up to the next supported count, or rounded down if it is larger than the
 maximum supported count.
@@ -1090,13 +1090,13 @@ Caller must overwrite the entire back-end object.
 ##
 
 #Const kFlushRead_TextureHandleAccess 0
-#Deprecated 
+#Deprecated
 ##
 #Const kFlushWrite_TextureHandleAccess 1
-#Deprecated 
+#Deprecated
 ##
 #Const kDiscardWrite_TextureHandleAccess 2
-#Deprecated 
+#Deprecated
 ##
 
 #Example
@@ -1113,7 +1113,7 @@ Caller must overwrite the entire back-end object.
     int y = 20;
     SkString str;
     paint.setTextSize(16);
-    for (auto access : { SkSurface::kFlushRead_BackendHandleAccess, 
+    for (auto access : { SkSurface::kFlushRead_BackendHandleAccess,
                          SkSurface::kFlushWrite_BackendHandleAccess,
                          SkSurface::kDiscardWrite_BackendHandleAccess } ) {
         sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
@@ -1213,7 +1213,7 @@ In OpenGL this returns the frame buffer object ID.
     sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(
             context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));
     GrBackendObject backendObject;
-    if (gpuSurface->getRenderTargetHandle(&backendObject, 
+    if (gpuSurface->getRenderTargetHandle(&backendObject,
             SkSurface::kFlushRead_BackendHandleAccess)) {
         SkString str;
         str.printf("backendObject=%d", backendObject);
@@ -1263,7 +1263,7 @@ does not share the same pixels.
 
 Returns nullptr if imageInfo width or height are zero, or if imageInfo
 is incompatible with Surface.
- 
+
 #Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
                   of Surface; width and height must be greater than zero
 ##
@@ -1339,7 +1339,7 @@ Blend_Mode, and Draw_Looper.
 #Param x  horizontal offset in Canvas ##
 #Param y  vertical offset in Canvas ##
 #Param paint  Paint containing Blend_Mode, Color_Filter, Image_Filter,
-              and so on; or nullptr 
+              and so on; or nullptr
 ##
 
 #Example
@@ -1392,7 +1392,7 @@ pixmap contents become invalid on any future change to Surface.
     }
 ##
 
-#SeeAlso readPixels writePixels
+#SeeAlso readPixels
 
 #Method ##
 
@@ -1451,7 +1451,7 @@ Does not copy, and returns false if:
     }
 ##
 
-#SeeAlso peekPixels writePixels
+#SeeAlso peekPixels
 
 #Method ##
 
@@ -1511,13 +1511,13 @@ Does not copy, and returns false if:
     for (int x : { 32, -32 } ) {
         for (int y : { 32, -32 } ) {
             surf->readPixels(info, data->writable_data(), info.minRowBytes(), x, y);
-        } 
+        }
     }
     sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, info.minRowBytes());
     canvas->drawImage(image, 0, 0);
 ##
 
-#SeeAlso peekPixels writePixels
+#SeeAlso peekPixels
 
 #Method ##
 
@@ -1570,67 +1570,12 @@ Does not copy, and returns false if:
     for (int x : { 32, -32 } ) {
         for (int y : { 32, -32 } ) {
             surf->readPixels(bitmap, x, y);
-        } 
+        }
     }
     canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso peekPixels writePixels
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method void writePixels(const SkPixmap& src, int dstX, int dstY)
-#In Pixels
-#Line # copies Rect of pixels ##
-Copies Rect of pixels from the src Pixmap to the Surface.
-
-Source Rect corners are (0, 0) and (src.width(), src.height()).
-Destination Rect corners are (dstX, dstY) and 
-#Formula
-(dstX + Surface width(), dstY + Surface height())
-##
-.
-Copies each readable pixel intersecting both rectangles, without scaling,
-converting to Surface colorType() and Surface alphaType() if required.
-
-#Param src  storage for pixels to copy to Surface ##
-#Param dstX x position relative to Surface to begin copy; may be negative ##
-#Param dstY x position relative to Surface to begin copy; may be negative ##
-
-#Example
-    // incomplete
-##
-
-#SeeAlso readPixels peekPixels
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method void writePixels(const SkBitmap& src, int dstX, int dstY)
-
-Copies Rect of pixels from the src Bitmap to the Surface.
-
-Source Rect corners are (0, 0) and (src.width(), src.height()).
-Destination Rect corners are (dstX, dstY) and
-#Formula
-(dstX + Surface width(), dstY + Surface height())
-##
-.
-Copies each readable pixel intersecting both rectangles, without scaling,
-converting to Surface colorType() and Surface alphaType() if required.
-
-#Param src  storage for pixels to copy to Surface ##
-#Param dstX x position relative to Surface to begin copy; may be negative ##
-#Param dstY x position relative to Surface to begin copy; may be negative ##
-
-#Example
-    // incomplete
-##
-
-#SeeAlso readPixels peekPixels
+#SeeAlso peekPixels
 
 #Method ##
 
@@ -1710,7 +1655,7 @@ with which they were created.
 
 If GrSemaphoresSubmitted::kNo is returned, the GPU back-end did not create or
 add any semaphores to signal on the GPU; the caller should not instruct the GPU
-to wait on any of the semaphores. 
+to wait on any of the semaphores.
 
 Pending surface commands are flushed regardless of the return result.
 
@@ -1814,7 +1759,7 @@ Return true if Surface supports characterization. Raster_Surface returns false.
          canvas->drawString("characterization unsupported", 20, 40, paint);
          return;
     }
-    // start of threadable work 
+    // start of threadable work
     SkDeferredDisplayListRecorder recorder(characterization);
     SkCanvas* subCanvas = recorder.getCanvas();
     subCanvas->clear(SK_ColorGREEN);
@@ -1854,7 +1799,7 @@ Raster_Surface returns false.
          canvas->drawString("characterization unsupported", 20, 40, paint);
          return;
     }
-    // start of threadable work 
+    // start of threadable work
     SkDeferredDisplayListRecorder recorder(characterization);
     SkCanvas* subCanvas = recorder.getCanvas();
     subCanvas->clear(SK_ColorGREEN);

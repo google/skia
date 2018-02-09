@@ -45,8 +45,6 @@ public:
      */
     virtual sk_sp<SkImage> onNewImageSnapshot() = 0;
 
-    virtual void onWritePixels(const SkPixmap&, int x, int y) = 0;
-
     /**
      *  Default implementation:
      *
