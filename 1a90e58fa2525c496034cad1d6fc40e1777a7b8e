@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "f9e57e78_b3e0045a",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-09T19:31:21Z",
+      "side": 1,
+      "message": "I didn\u0027t have anything in particular in mind but since the deferred texture data stuff was just removed this could be made to be DDL-centric.",
+      "parentUuid": "da063277_c3fbdcec",
+      "range": {
+        "startLine": 434,
+        "startChar": 6,
+        "endLine": 434,
+        "endChar": 30
+      },
+      "revId": "1a90e58fa2525c496034cad1d6fc40e1777a7b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1e8c8862_5c7f0d48",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 1
