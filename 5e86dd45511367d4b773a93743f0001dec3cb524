@@ -16,6 +16,24 @@
       "revId": "5e86dd45511367d4b773a93743f0001dec3cb524",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7baaff8b_2302b91e",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-09T15:53:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "564cdd37_d2bc02e3",
+      "revId": "5e86dd45511367d4b773a93743f0001dec3cb524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
