@@ -24,39 +24,35 @@ void SkTaskGroup2D::finish() {
 }
 
 void SkSpinningTaskGroup2D::work(int threadId) {
-    int& nextColumn = fRowData[threadId].fNextColumn;
+    int workCol = 0;
+    int initCol = 0;
 
     while (true) {
-        SkASSERT(nextColumn <= fWidth);
-        if (this->isFinishing() && nextColumn >= fWidth) {
+        SkASSERT(workCol <= fWidth);
+        if (this->isFinishing() && workCol >= fWidth) {
             return;
         }
 
-        if (nextColumn < fWidth) {
-            fWork(threadId, nextColumn);
-            nextColumn++;
+        // Note that row = threadId
+        if (workCol < fWidth && fKernel->work2D(threadId, workCol, threadId)) {
+            workCol++;
+        } else {
+            // Initialize something if we can't work
+            this->initAnUninitializedColumn(initCol, threadId);
         }
     }
 }
 
-SkFlexibleTaskGroup2D::SkFlexibleTaskGroup2D(Work2D&& w, int h, SkExecutor* x, int t)
-        : SkTaskGroup2D(std::move(w), h, x, t), fRowData(h), fThreadData(t) {
-    for (int i = 0; i < t; ++i) {
-        fThreadData[i].fRowIndex = i;
-    }
-}
-
-
 void SkFlexibleTaskGroup2D::work(int threadId) {
-    int failCnt = 0;
-    int& rowIndex = fThreadData[threadId].fRowIndex;
+    int row = threadId;
+    int initCol = 0;
+    int numRowsCompleted = 0;
+    std::vector<bool> completedRows(fHeight, false);
 
-    // This loop looks for work to do as long as
-    // either 1. isFinishing is false
-    // or     2. isFinishing is true but some rows still have unfinished tasks
-    while (true) {
-        RowData& rowData = fRowData[rowIndex];
-        bool processed = false;
+    // Only keep fHeight - numRowsCompleted number of threads looping. When rows are about to
+    // complete, this strategy keeps the contention low.
+    while (threadId >= numRowsCompleted) {
+        RowData& rowData = fRowData[row];
 
         // The Android roller somehow gets a false-positive compile warning/error about the try-lock
         // and unlock process. Hence we disable -Wthread-safety-analysis to bypass it.
@@ -65,15 +61,16 @@ void SkFlexibleTaskGroup2D::work(int threadId) {
 #pragma clang diagnostic ignored "-Wthread-safety-analysis"
 #endif
         if (rowData.fMutex.try_lock()) {
-            if (rowData.fNextColumn < fWidth) {
-                fWork(rowIndex, rowData.fNextColumn);
+            while (rowData.fNextColumn < fWidth &&
+                    fKernel->work2D(row, rowData.fNextColumn, threadId)) {
                 rowData.fNextColumn++;
-                processed = true;
-            } else {
-                // isFinishing can never go from true to false. Once it's true, we count how many
-                // times that a row is out of work. If that count reaches fHeight, then we're out of
-                // work for the whole group.
-                failCnt += this->isFinishing();
+            }
+            // isFinishing can never go from true to false. Once it's true, we count how many rows
+            // are completed (out of work). If that count reaches fHeight, then we're out of work
+            // for the whole group and we can stop.
+            if (rowData.fNextColumn == fWidth && this->isFinishing()) {
+                numRowsCompleted += (completedRows[row] == false);
+                completedRows[row] = true; // so we won't count this row twice
             }
             rowData.fMutex.unlock();
         }
@@ -81,11 +78,9 @@ void SkFlexibleTaskGroup2D::work(int threadId) {
 #pragma clang diagnostic pop
 #endif
 
-        if (!processed) {
-            if (failCnt >= fHeight) {
-                return;
-            }
-            rowIndex = (rowIndex + 1) % fHeight;
-        }
+        // By reaching here, we're either unable to acquire the row, or out of work, or blocked by
+        // initialization
+        row = (row + 1) % fHeight; // Move to the next row
+        this->initAnUninitializedColumn(initCol, threadId); // Initialize something
     }
 }

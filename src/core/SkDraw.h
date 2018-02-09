@@ -29,6 +29,7 @@ class SkRasterClip;
 struct SkDrawProcs;
 struct SkRect;
 class SkRRect;
+struct SkInitOnceData;
 
 class SkDraw {
 public:
@@ -127,11 +128,11 @@ private:
 
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
                      bool pathIsMutable, bool drawCoverage,
-                     SkBlitter* customBlitter = nullptr) const;
+                     SkBlitter* customBlitter = nullptr, SkInitOnceData* iData = nullptr) const;
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
     void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
-                     SkBlitter* customBlitter, bool doFill) const;
+                     SkBlitter* customBlitter, bool doFill, SkInitOnceData* iData = nullptr) const;
     /**
      *  Return the current clip bounds, in local coordinates, with slop to account
      *  for antialiasing or hairlines (i.e. device-bounds outset by 1, and then
@@ -156,6 +157,8 @@ public:
 #else
     void validate() const {}
 #endif
+
+    friend class SkThreadedBMPDevice; // to access private method drawPath
 };
 
 #endif
