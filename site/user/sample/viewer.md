@@ -36,17 +36,35 @@ Space             | Toggle display of Tools UI
 
 Android
 -------
-The Viewer APK must be built by gradle which can be invoked on the command line with the following script:
 
-    ./platform_tools/android/bin/android_build_app -C <out_dir> viewer
+To build Viewer as an Android App, you will need the
+[Android SDK](https://developer.android.com/studio/#command-tools) installed and your `ANDROID_HOME` environment variable set.
 
-where `<out_dir>` is the ninja out directory for android (e.g., `out/arm64`) that you want to use to
-build the app. Upon completion of the script the APK can be found at `<out_dir>/viewer.apk`
+    mkdir ~/android-sdk
+    ( cd ~/android-sdk; unzip ~/Downloads/sdk-tools-*.zip )
+    yes | ~/android-sdk/tools/bin/sdkmanager --licenses
+    export ANDROID_HOME=~/android-sdk  # Or wherever you installed the Android SDK.
 
-To load resources in the Android Viewer place them in `/data/local/tmp/resources`; to load SKPs place them in `/data/local/tmp/skps`.
+The Viewer APK must be built by gradle which can be invoked on the command line
+with the following script:
 
-Swiping left and right will switch slides, pinch-zoom will zoom in and out, and display options are available in the UI.
+    platform_tools/android/bin/android_build_app -C <out_dir> viewer
+
+where `<out_dir>` is the ninja out directory for android (e.g., `out/arm64`)
+that you want to use to build the app. Upon completion of the script the APK
+can be found at `<out_dir>/viewer.apk`
+
+To load resources in the Android Viewer place them in
+`/data/local/tmp/resources`; to load SKPs place them in `/data/local/tmp/skps`.
+
+Swiping left and right will switch slides, pinch-zoom will zoom in and out, and
+display options are available in the UI.
 
 iOS
 ---
-The viewer is not yet fully supported on iOS, but can be used to display individual slides on a device by launching via `ios-deploy` with the `--match` or `--slide` command-line options. The viewer will automatically bundle the `resources` directory in the top-level Skia directory, and will bundle an `skps` directory if also placed in the Skia directory.
+
+The viewer is not yet fully supported on iOS, but can be used to display
+individual slides on a device by launching via `ios-deploy` with the `--match`
+or `--slide` command-line options. The viewer will automatically bundle the
+`resources` directory in the top-level Skia directory, and will bundle an
+`skps` directory if also placed in the Skia directory.
