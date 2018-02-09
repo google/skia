@@ -192,6 +192,8 @@ protected:
 
     virtual void writeProgramElement(const ProgramElement& e);
 
+    virtual bool biasTextureCalls() { return true; }
+
     const char* fLineEnding;
     const Context& fContext;
     StringStream fHeader;

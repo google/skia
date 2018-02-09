@@ -82,6 +82,8 @@ private:
 
     void writeTest();
 
+    bool biasTextureCalls() override { return false; }
+
     String fName;
     String fFullName;
     SectionAndParameterHelper fSectionAndParameterHelper;
