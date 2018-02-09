@@ -34,6 +34,24 @@
       "revId": "54d9c889fb6aca043a7b005d61de4e0e65a3ae53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "777a266c_99639e8b",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-09T13:41:04Z",
+      "side": 1,
+      "message": "A  fix for that landed here: https://skia.googlesource.com/skia/+/da278250a99c46a5a775be4db0fd17fe2581f99f",
+      "parentUuid": "b0d7cc02_1986d1bf",
+      "revId": "54d9c889fb6aca043a7b005d61de4e0e65a3ae53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
