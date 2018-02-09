@@ -70,6 +70,30 @@
       "revId": "c30e164fc4f313aa4d462761e35486c7c05b6e25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3c7ff4f_ceb974f0",
+        "filename": "site/user/api/METADATA",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-02-09T16:28:32Z",
+      "side": 1,
+      "message": "I did not realize that. I put them down at the end.",
+      "parentUuid": "5d070fcf_2508ac29",
+      "range": {
+        "startLine": 6,
+        "startChar": 5,
+        "endLine": 6,
+        "endChar": 22
+      },
+      "revId": "c30e164fc4f313aa4d462761e35486c7c05b6e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
