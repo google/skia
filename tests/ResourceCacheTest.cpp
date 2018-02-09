@@ -1659,29 +1659,6 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
                                                GrSurfaceFlags flags,
                                                int width, int height,
                                                int sampleCnt) {
-    SkBitmap bm;
-
-    bm.allocN32Pixels(width, height, true);
-    bm.eraseColor(SK_ColorBLUE);
-
-    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bm, SkDestinationSurfaceColorMode::kLegacy, nullptr));
-    SkASSERT(mipmaps);
-    SkASSERT(mipmaps->countLevels() > 1);
-
-    int mipLevelCount = mipmaps->countLevels() + 1;
-
-    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
-
-    texels[0].fPixels = bm.getPixels();
-    texels[0].fRowBytes = bm.rowBytes();
-
-    for (int i = 1; i < mipLevelCount; ++i) {
-        SkMipMap::Level generatedMipLevel;
-        mipmaps->getLevel(i - 1, &generatedMipLevel);
-        texels[i].fPixels = generatedMipLevel.fPixmap.addr();
-        texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
-    }
-
     GrSurfaceDesc desc;
     desc.fFlags = flags;
     desc.fOrigin = (flags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
@@ -1691,7 +1668,7 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    return proxyProvider->createMipMapProxy(desc, SkBudgeted::kYes, texels.get(), mipLevelCount);
+    return proxyProvider->createMipMapProxy(desc, SkBudgeted::kYes);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,

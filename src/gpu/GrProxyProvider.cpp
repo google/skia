@@ -244,62 +244,19 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     return proxy;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(
-                                                    const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                    const GrMipLevel texels[], int mipLevelCount,
-                                                    SkDestinationSurfaceColorMode mipColorMode) {
+sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrSurfaceDesc& desc,
+                                                         SkBudgeted budgeted) {
     ASSERT_SINGLE_OWNER
 
     if (this->isAbandoned()) {
         return nullptr;
     }
 
-    if (!mipLevelCount) {
-        if (texels) {
-            return nullptr;
-        }
-        return this->createProxy(desc, SkBackingFit::kExact, budgeted);
-    }
-    if (!texels) {
-        return nullptr;
-    }
-
-    if (1 == mipLevelCount) {
-        return this->createTextureProxy(desc, budgeted, texels[0].fPixels, texels[0].fRowBytes);
-    }
-
-#ifdef SK_DEBUG
-    // There are only three states we want to be in when uploading data to a mipped surface.
-    // 1) We have data to upload to all layers
-    // 2) We are not uploading data to any layers
-    // 3) We are only uploading data to the base layer
-    // We check here to make sure we do not have any other state.
-    bool firstLevelHasData = SkToBool(texels[0].fPixels);
-    bool allOtherLevelsHaveData = true, allOtherLevelsLackData = true;
-    for  (int i = 1; i < mipLevelCount; ++i) {
-        if (texels[i].fPixels) {
-            allOtherLevelsLackData = false;
-        } else {
-            allOtherLevelsHaveData = false;
-        }
-    }
-    SkASSERT((firstLevelHasData && allOtherLevelsHaveData) || allOtherLevelsLackData);
-#endif
-
-    sk_sp<GrTexture> tex(fResourceProvider->createTexture(desc, budgeted,
-                                                          texels, mipLevelCount,
-                                                          mipColorMode));
-    if (!tex) {
-        return nullptr;
-    }
-
-    return this->createWrapped(std::move(tex), desc.fOrigin);
-}
-
-sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrSurfaceDesc& desc,
-                                                         SkBudgeted budgeted) {
     // SkMipMap doesn't include the base level in the level count so we have to add 1
     int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
+    if (1 == mipCount) {
+        return this->createProxy(desc, SkBackingFit::kExact, budgeted);
+    }
 
     std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipCount]);
 
@@ -309,8 +266,14 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrSurfaceDesc& de
         texels[i].fRowBytes = 0;
     }
 
-    return this->createMipMapProxy(desc, budgeted, texels.get(), mipCount,
-                                   SkDestinationSurfaceColorMode::kLegacy);
+    sk_sp<GrTexture> tex(fResourceProvider->createTexture(desc, budgeted,
+                                                          texels.get(), mipCount,
+                                                          SkDestinationSurfaceColorMode::kLegacy));
+    if (!tex) {
+        return nullptr;
+    }
+
+    return this->createWrapped(std::move(tex), desc.fOrigin);
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitmap& bitmap,

@@ -572,10 +572,6 @@ private:
     SkImage(int width, int height, uint32_t uniqueID);
     friend class SkImage_Base;
 
-    static sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&,
-                                                const GrMipLevel texels[], int mipLevelCount,
-                                                SkBudgeted, SkDestinationSurfaceColorMode);
-
     const int       fWidth;
     const int       fHeight;
     const uint32_t  fUniqueID;

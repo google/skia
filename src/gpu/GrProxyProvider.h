@@ -89,19 +89,6 @@ public:
                                              SkBackingFit fit);
 
     /*
-     * Create a mipmapped texture proxy with data.
-     *
-     * @param desc          Description of the texture properties.
-     * @param budgeted      Does the texture count against the resource cache budget?
-     * @param texels        A contiguous array of mipmap levels
-     * @param mipLevelCount The amount of elements in the texels array
-     */
-    sk_sp<GrTextureProxy> createMipMapProxy(const GrSurfaceDesc&, SkBudgeted,
-                                            const GrMipLevel texels[], int mipLevelCount,
-                                            SkDestinationSurfaceColorMode mipColorMode =
-                                                            SkDestinationSurfaceColorMode::kLegacy);
-
-    /*
      * Create a mipmapped texture proxy without any data.
      *
      * Like the call above but there are no texels to upload. A texture proxy is returned that

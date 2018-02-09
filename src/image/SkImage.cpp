@@ -343,11 +343,6 @@ sk_sp<SkImage> SkImage::makeRasterImage() const {
 
 #if !SK_SUPPORT_GPU
 
-sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel texels[],
-                                     int mipLevelCount, SkBudgeted, SkDestinationSurfaceColorMode) {
-    return nullptr;
-}
-
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkAlphaType at, sk_sp<SkColorSpace> cs,
@@ -396,13 +391,6 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, SkColorSpace* dstColorSpace
 }
 
 #endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel texels[],
-                                     int mipLevelCount, SkBudgeted) {
-    return nullptr;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
