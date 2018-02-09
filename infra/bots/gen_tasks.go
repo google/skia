@@ -343,6 +343,11 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD615":    "Mac-10.13.3",
 					"IntelIris5100": "Mac-10.13.1",
 				}[parts["cpu_or_gpu_value"]]
+				// Yuck. We have two different types of MacMini7,1 with the same GPU but different CPUs.
+				if parts["cpu_or_gpu_value"] == "IntelIris5100" {
+					// Run all tasks on Golo machines for now.
+					d["cpu"] = "x86-64-i7-4578U"
+				}
 			} else if strings.Contains(parts["os"], "ChromeOS") {
 				version, ok := map[string]string{
 					"MaliT604":           "9901.12.0",
