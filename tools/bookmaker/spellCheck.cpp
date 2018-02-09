@@ -644,9 +644,6 @@ void SpellCheck::wordCheck(const string& str) {
     if (mappy.end() != iter) {
         iter->second.fCount += 1;
     } else {
-        if ("offscreen" == str) {
-            SkDebugf("");
-        }
         CheckEntry* entry = &mappy[str];
         entry->fFile = fFileName;
         entry->fLine = fLineCount + fLocalLine;

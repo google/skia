@@ -640,6 +640,9 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
 
 // walk children and output complete method doxygen description
 void IncludeWriter::methodOut(const Definition* method, const Definition& child) {
+    if (string::npos != method->fName.find("scalePixels")) {
+        SkDebugf("");
+    }
     if (fPendingMethod) {
         fIndent -= 4;
         fPendingMethod = false;
@@ -705,6 +708,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
     this->writeCommentTrailer();
     fBmhMethod = nullptr;
     fMethodDef = nullptr;
+    fEnumDef = nullptr;
     fWroteMethod = true;
 }
 
@@ -1488,9 +1492,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     }
                 }
 				SkASSERT(fBmhStructDef);
-				if (fBmhStructDef->fDeprecated) {
-					SkDebugf("");
-				} else {
+				if (!fBmhStructDef->fDeprecated) {
 					memberEnd = this->structMemberOut(memberStart, child);
 					startDef = &child;
 					fStart = child.fContentEnd + 1;
