@@ -1612,15 +1612,22 @@ if (skia_enable_tools) {
     }
   }
 
-  # TODO(halcanary): Build ICU on iOS.
-  if (!is_ios && target_cpu != "wasm") {
-    test_app("sktexttopdf-hb") {
+  test_lib("skshaper") {
+    public_include_dirs = [ "tools/shape" ]
+    deps = [
+      ":skia",
+    ]
+
+    # TODO(halcanary): Build ICU on iOS.
+    if (is_ios || target_cpu == "wasm") {
+      sources = [
+        "tools/shape/SkShaper_primitive.cpp",
+      ]
+    } else {
       sources = [
         "tools/shape/SkShaper_harfbuzz.cpp",
-        "tools/shape/using_skia_and_harfbuzz.cpp",
       ]
-      deps = [
-        ":skia",
+      deps += [
         "//third_party/harfbuzz",
         "//third_party/icu",
       ]
@@ -1628,11 +1635,11 @@ if (skia_enable_tools) {
   }
   test_app("sktexttopdf") {
     sources = [
-      "tools/shape/SkShaper_primitive.cpp",
       "tools/shape/using_skia_and_harfbuzz.cpp",
     ]
     deps = [
       ":skia",
+      ":skshaper",
     ]
   }
 
