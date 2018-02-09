@@ -46,6 +46,30 @@
       "revId": "c30e164fc4f313aa4d462761e35486c7c05b6e25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d070fcf_2508ac29",
+        "filename": "site/user/api/METADATA",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-02-09T15:24:25Z",
+      "side": 1,
+      "message": "I prefer for the Reference files to be adjacent because the Reference files are actively maintained. The other files are creeping into bitrot. I would like to maintain overview and tutorials as well, and would be more than happy if someone else chooses to do that, but for now it isn\u0027t helpful to intersperse them.",
+      "parentUuid": "c9556828_c274b625",
+      "range": {
+        "startLine": 6,
+        "startChar": 5,
+        "endLine": 6,
+        "endChar": 22
+      },
+      "revId": "c30e164fc4f313aa4d462761e35486c7c05b6e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
