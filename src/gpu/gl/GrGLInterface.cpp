@@ -562,24 +562,6 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (fExtensions.has("GL_NV_bindless_texture")) {
-        if (!fFunctions.fGetTextureHandle ||
-            !fFunctions.fGetTextureSamplerHandle ||
-            !fFunctions.fMakeTextureHandleResident ||
-            !fFunctions.fMakeTextureHandleNonResident ||
-            !fFunctions.fGetImageHandle ||
-            !fFunctions.fMakeImageHandleResident ||
-            !fFunctions.fMakeImageHandleNonResident ||
-            !fFunctions.fIsTextureHandleResident ||
-            !fFunctions.fIsImageHandleResident ||
-            !fFunctions.fUniformHandleui64 ||
-            !fFunctions.fUniformHandleui64v ||
-            !fFunctions.fProgramUniformHandleui64 ||
-            !fFunctions.fProgramUniformHandleui64v) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
     if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
         fExtensions.has("GL_KHR_debug")) {
         if (!fFunctions.fDebugMessageControl ||

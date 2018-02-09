@@ -83,10 +83,6 @@ public:
         return false;
     }
 
-    bool bindlessTextureSupport() const {
-        return false;
-    }
-
     bool dropsTileOnZeroDivide() const {
         return false;
     }

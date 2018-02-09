@@ -366,22 +366,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC(GetProgramResourceLocation);
     }
 
-    if (extensions.has("GL_NV_bindless_texture")) {
-        GET_PROC_SUFFIX(GetTextureHandle, NV);
-        GET_PROC_SUFFIX(GetTextureSamplerHandle, NV);
-        GET_PROC_SUFFIX(MakeTextureHandleResident, NV);
-        GET_PROC_SUFFIX(MakeTextureHandleNonResident, NV);
-        GET_PROC_SUFFIX(GetImageHandle, NV);
-        GET_PROC_SUFFIX(MakeImageHandleResident, NV);
-        GET_PROC_SUFFIX(MakeImageHandleNonResident, NV);
-        GET_PROC_SUFFIX(IsTextureHandleResident, NV);
-        GET_PROC_SUFFIX(IsImageHandleResident, NV);
-        GET_PROC_SUFFIX(UniformHandleui64, NV);
-        GET_PROC_SUFFIX(UniformHandleui64v, NV);
-        GET_PROC_SUFFIX(ProgramUniformHandleui64, NV);
-        GET_PROC_SUFFIX(ProgramUniformHandleui64v, NV);
-    }
-
     if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_KHR_debug")) {
         // KHR_debug defines these methods to have no suffix in an OpenGL (not ES) context.
         GET_PROC(DebugMessageControl);
@@ -798,22 +782,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     }
     if (extensions.has("GL_CHROMIUM_framebuffer_mixed_samples")) {
         GET_PROC_SUFFIX(CoverageModulation, CHROMIUM);
-    }
-
-    if (extensions.has("GL_NV_bindless_texture")) {
-        GET_PROC_SUFFIX(GetTextureHandle, NV);
-        GET_PROC_SUFFIX(GetTextureSamplerHandle, NV);
-        GET_PROC_SUFFIX(MakeTextureHandleResident, NV);
-        GET_PROC_SUFFIX(MakeTextureHandleNonResident, NV);
-        GET_PROC_SUFFIX(GetImageHandle, NV);
-        GET_PROC_SUFFIX(MakeImageHandleResident, NV);
-        GET_PROC_SUFFIX(MakeImageHandleNonResident, NV);
-        GET_PROC_SUFFIX(IsTextureHandleResident, NV);
-        GET_PROC_SUFFIX(IsImageHandleResident, NV);
-        GET_PROC_SUFFIX(UniformHandleui64, NV);
-        GET_PROC_SUFFIX(UniformHandleui64v, NV);
-        GET_PROC_SUFFIX(ProgramUniformHandleui64, NV);
-        GET_PROC_SUFFIX(ProgramUniformHandleui64v, NV);
     }
 
     if (extensions.has("GL_KHR_debug")) {

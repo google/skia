@@ -230,21 +230,6 @@ typedef GrGLvoid (* GrGLCoverageModulationProc)(GrGLenum components);
 typedef GrGLvoid (* GrGLMultiDrawArraysIndirectProc)(GrGLenum mode, const GrGLvoid *indirect, GrGLsizei drawcount, GrGLsizei stride);
 typedef GrGLvoid (* GrGLMultiDrawElementsIndirectProc)(GrGLenum mode, GrGLenum type, const GrGLvoid *indirect, GrGLsizei drawcount, GrGLsizei stride);
 
-/* NV_bindless_texture */
-typedef GrGLuint64 (* GrGLGetTextureHandleProc)(GrGLuint texture);
-typedef GrGLuint64 (* GrGLGetTextureSamplerHandleProc)(GrGLuint texture, GrGLuint sampler);
-typedef GrGLvoid (* GrGLMakeTextureHandleResidentProc)(GrGLuint64 handle);
-typedef GrGLvoid (* GrGLMakeTextureHandleNonResidentProc)(GrGLuint64 handle);
-typedef GrGLuint64 (* GrGLGetImageHandleProc)(GrGLuint texture, GrGLint level, GrGLboolean layered, GrGLint layer, GrGLint format);
-typedef GrGLvoid (* GrGLMakeImageHandleResidentProc)(GrGLuint64 handle, GrGLenum access);
-typedef GrGLvoid (* GrGLMakeImageHandleNonResidentProc)(GrGLuint64 handle);
-typedef GrGLboolean (* GrGLIsTextureHandleResidentProc)(GrGLuint64 handle);
-typedef GrGLboolean (* GrGLIsImageHandleResidentProc)(GrGLuint64 handle);
-typedef GrGLvoid (* GrGLUniformHandleui64Proc)(GrGLint location, GrGLuint64 v0);
-typedef GrGLvoid (* GrGLUniformHandleui64vProc)(GrGLint location, GrGLsizei count, const GrGLuint64 *value);
-typedef GrGLvoid (* GrGLProgramUniformHandleui64Proc)(GrGLuint program, GrGLint location, GrGLuint64 v0);
-typedef GrGLvoid (* GrGLProgramUniformHandleui64vProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLuint64 *value);
-
 /* ARB_sample_shading */
 typedef GrGLvoid (* GrGLMinSampleShadingProc)(GrGLfloat value);
 
