@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d7b6ad48_ea22b84a",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-09T19:15:11Z",
+      "side": 1,
+      "message": "Are we doing some up front decomposition of op lists to account for these limits?",
+      "parentUuid": "b9dbd597_3715518e",
+      "range": {
+        "startLine": 442,
+        "startChar": 6,
+        "endLine": 445,
+        "endChar": 87
+      },
+      "revId": "1a90e58fa2525c496034cad1d6fc40e1777a7b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c31e4315_e9b690db",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 1
