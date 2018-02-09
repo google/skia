@@ -1919,7 +1919,7 @@ round: 31, 51, 41, 61
 #In Rounding
 #Line # sets members to nearest integer value away from opposite ##
 Sets IRect by discarding the fractional portion of fLeft and fTop; and
-rounding up fRight and FBottom, using
+rounding up fRight and fBottom, using
 #Formula
 (SkScalarFloorToInt(fLeft), SkScalarFloorToInt(fTop),
  SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom))
@@ -1948,7 +1948,7 @@ round: 30, 50, 41, 61
 
 #In Rounding
 Sets Rect by discarding the fractional portion of fLeft and fTop; and
-rounding up fRight and FBottom, using
+rounding up fRight and fBottom, using
 #Formula
 (SkScalarFloorToInt(fLeft), SkScalarFloorToInt(fTop),
  SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom))
@@ -1978,7 +1978,7 @@ round: 30, 50, 41, 61
 #In Rounding
 #Line # sets members to nearest integer value towards opposite ##
 Sets Rect by rounding up fLeft and fTop; and
-discarding the fractional portion of fRight and FBottom, using
+discarding the fractional portion of fRight and fBottom, using
 
 #Formula
 (SkScalarCeilToInt(fLeft), SkScalarCeilToInt(fTop),
@@ -2036,7 +2036,7 @@ round: 31, 51, 41, 61
 
 #In Rounding
 Sets IRect by discarding the fractional portion of fLeft and fTop; and
-rounding up fRight and FBottom, using
+rounding up fRight and fBottom, using
 #Formula
 (SkScalarFloorToInt(fLeft), SkScalarFloorToInt(fTop),
  SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom))

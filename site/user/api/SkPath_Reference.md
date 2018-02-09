@@ -5095,7 +5095,7 @@ RawIter()
 </pre>
 
 Initializes <a href="#SkPath_RawIter_RawIter">RawIter</a> with an empty <a href="#Path">Path</a>. <a href="#SkPath_RawIter_next">next</a> on <a href="#SkPath_RawIter_RawIter">RawIter</a> returns <a href="#SkPath_kDone_Verb">kDone Verb</a>.
-Call <a href="#SkPath_RawIter_setPath">setPath</a> to initialize <a href="#SkPath_Iter">Iter</a> at a later time.
+Call <a href="#SkPath_RawIter_setPath">setPath</a> to initialize <a href="#SkPath_Iter">SkPath::Iter</a> at a later time.
 
 ### Return Value
 
@@ -5131,7 +5131,7 @@ Sets <a href="#SkPath_RawIter_RawIter">RawIter</a> to return elements of <a href
 void setPath(const SkPath& path)
 </pre>
 
-Sets <a href="#SkPath_Iter">Iter</a> to return elements of <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Conic Weight</a> in <a href="#SkPath_RawIter_setPath_path">path</a>.
+Sets <a href="#SkPath_Iter">SkPath::Iter</a> to return elements of <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Conic Weight</a> in <a href="#SkPath_RawIter_setPath_path">path</a>.
 
 ### Parameters
 

@@ -109,8 +109,8 @@ or setPixelRef was called.
     };
 ##
 
-Subclass of Allocator that returns a Pixel_Ref that allocates its pixel
-memory from the heap. This is the default Allocator invoked by
+Subclass of SkBitmap::Allocator that returns a Pixel_Ref that allocates its pixel
+memory from the heap. This is the default SkBitmap::Allocator invoked by
 allocPixels.
 
 # ------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ pixel address = 0x560ddd0ac670
 ##
 ##
 
-#SeeAlso Allocator tryAllocPixels
+#SeeAlso SkBitmap::Allocator tryAllocPixels
 
 ##
 

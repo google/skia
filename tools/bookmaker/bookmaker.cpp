@@ -981,9 +981,6 @@ void HackParser::topicIter(const Definition* topic) {
         }
         switch (child->fMarkType) {
             case MarkType::kMethod: {
-                if (Definition::MethodType::kOperator == child->fMethodType) {
-                    SkDebugf("");
-                }
                 hasIn |= MarkType::kTopic != topic->fMarkType &&
                         MarkType::kSubtopic != topic->fMarkType;  // don't write #In if parent is class
                 hasLine |= child->fClone;
@@ -1008,10 +1005,6 @@ void HackParser::topicIter(const Definition* topic) {
                         }
                     }
                     if ("" == oneLiner) {
-                        const Definition* csParent = child->csParent();
-                        if (!csParent || !csParent->csParent()) {
-                            SkDebugf("");
-                        }
     #ifdef SK_DEBUG
                         const Definition* rootParent = topic;
                         while (rootParent->fParent && MarkType::kClass != rootParent->fMarkType
