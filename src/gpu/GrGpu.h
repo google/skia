@@ -201,7 +201,8 @@ public:
      */
     bool getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                            int readWidth, int readHeight, size_t rowBytes,
-                           GrPixelConfig readConfig, DrawPreference*, ReadPixelTempDrawInfo*);
+                           GrPixelConfig dstConfig, GrSRGBConversion,
+                           DrawPreference*, ReadPixelTempDrawInfo*);
 
     /** Info struct returned by getWritePixelsInfo about performing an intermediate draw in order
         to write pixels to a GrSurface for either performance or correctness reasons. */
@@ -227,22 +228,23 @@ public:
      * height, and rowBytes, must be non-zero and already reflect clipping to the dst bounds.
      */
     bool getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width, int height,
-                            GrPixelConfig srcConfig, DrawPreference*, WritePixelTempDrawInfo*);
+                            GrPixelConfig srcConfig, GrSRGBConversion,
+                            DrawPreference*, WritePixelTempDrawInfo*);
 
     /**
-     * Reads a rectangle of pixels from a render target.
+     * Reads a rectangle of pixels from a render target. No sRGB/Linear conversions are performed.
      *
-     * @param surface       The surface to read from
-     * @param left          left edge of the rectangle to read (inclusive)
-     * @param top           top edge of the rectangle to read (inclusive)
-     * @param width         width of rectangle to read in pixels.
-     * @param height        height of rectangle to read in pixels.
-     * @param config        the pixel config of the destination buffer
-     * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      the number of bytes between consecutive rows. Zero
-     *                      means rows are tightly packed.
-     * @param invertY       buffer should be populated bottom-to-top as opposed
-     *                      to top-to-bottom (skia's usual order)
+     * @param surface         The surface to read from
+     * @param left            left edge of the rectangle to read (inclusive)
+     * @param top             top edge of the rectangle to read (inclusive)
+     * @param width           width of rectangle to read in pixels.
+     * @param height          height of rectangle to read in pixels.
+     * @param dstConfig       the pixel config of the destination buffer
+     * @param buffer          memory to read the rectangle into.
+     * @param rowBytes        the number of bytes between consecutive rows. Zero
+     *                        means rows are tightly packed.
+     * @param invertY         buffer should be populated bottom-to-top as opposed
+     *                        to top-to-bottom (skia's usual order)
      *
      * @return true if the read succeeded, false if not. The read can fail
      *              because of a unsupported pixel config or because no render
@@ -250,19 +252,20 @@ public:
      */
     bool readPixels(GrSurface* surface, GrSurfaceOrigin,
                     int left, int top, int width, int height,
-                    GrPixelConfig config, void* buffer, size_t rowBytes);
+                    GrPixelConfig dstConfig,
+                    void* buffer, size_t rowBytes);
 
     /**
-     * Updates the pixels in a rectangle of a surface.
+     * Updates the pixels in a rectangle of a surface.  No sRGB/Linear conversions are performed.
      *
-     * @param surface       The surface to write to.
-     * @param left          left edge of the rectangle to write (inclusive)
-     * @param top           top edge of the rectangle to write (inclusive)
-     * @param width         width of rectangle to write in pixels.
-     * @param height        height of rectangle to write in pixels.
-     * @param config        the pixel config of the source buffer
-     * @param texels        array of mipmap levels containing texture data
-     * @param mipLevelCount number of levels in 'texels'
+     * @param surface         The surface to write to.
+     * @param left            left edge of the rectangle to write (inclusive)
+     * @param top             top edge of the rectangle to write (inclusive)
+     * @param width           width of rectangle to write in pixels.
+     * @param height          height of rectangle to write in pixels.
+     * @param srcConfig       the pixel config of the source buffer
+     * @param texels          array of mipmap levels containing texture data
+     * @param mipLevelCount   number of levels in 'texels'
      */
     bool writePixels(GrSurface* surface, GrSurfaceOrigin origin,
                      int left, int top, int width, int height,
@@ -272,15 +275,10 @@ public:
     /**
      * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
      * It then calls writePixels with that SkTArray.
-     *
-     * @param buffer   memory to read pixels from.
-     * @param rowBytes number of bytes between consecutive rows. Zero
-     *                 means rows are tightly packed.
      */
     bool writePixels(GrSurface* surface, GrSurfaceOrigin origin,
                      int left, int top, int width, int height,
-                     GrPixelConfig config, const void* buffer,
-                     size_t rowBytes);
+                     GrPixelConfig, const void* buffer, size_t rowBytes);
 
     /**
      * Updates the pixels in a rectangle of a texture using a buffer
@@ -293,7 +291,7 @@ public:
      * @param top              top edge of the rectangle to write (inclusive)
      * @param width            width of rectangle to write in pixels.
      * @param height           height of rectangle to write in pixels.
-     * @param config           the pixel config of the source buffer
+     * @param bufferConfig     the pixel config of the source buffer
      * @param transferBuffer   GrBuffer to read pixels from (type must be "kXferCpuToGpu")
      * @param offset           offset from the start of the buffer
      * @param rowBytes         number of bytes between consecutive rows in the buffer. Zero
@@ -301,7 +299,8 @@ public:
      */
     bool transferPixels(GrTexture* texture,
                         int left, int top, int width, int height,
-                        GrPixelConfig config, GrBuffer* transferBuffer,
+                        GrPixelConfig bufferConfig,
+                        GrBuffer* transferBuffer,
                         size_t offset, size_t rowBytes);
 
     // After the client interacts directly with the 3D context state the GrGpu
@@ -567,13 +566,13 @@ private:
         return false;
     }
 
-    virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
-                                     int readWidth, int readHeight,
-                                     size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,
-                                     ReadPixelTempDrawInfo*) = 0;
-    virtual bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
+    virtual bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin,
+                                     int width, int height, size_t rowBytes,
+                                     GrPixelConfig,
+                                     DrawPreference*, ReadPixelTempDrawInfo*) = 0;
+    virtual bool onGetWritePixelsInfo(GrSurface*, GrSurfaceOrigin,
                                       int width, int height,
-                                      GrPixelConfig srcConfig, DrawPreference*,
+                                      GrPixelConfig, DrawPreference*,
                                       WritePixelTempDrawInfo*) = 0;
 
     // overridden by backend-specific derived class to perform the surface read
@@ -581,19 +580,19 @@ private:
                               int left, int top,
                               int width, int height,
                               GrPixelConfig,
-                              void* buffer,
+                              void*,
                               size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the surface write
     virtual bool onWritePixels(GrSurface*, GrSurfaceOrigin,
                                int left, int top, int width, int height,
-                               GrPixelConfig config,
-                               const GrMipLevel texels[], int mipLevelCount) = 0;
+                               GrPixelConfig,
+                               const GrMipLevel[], int mipLevelCount) = 0;
 
     // overridden by backend-specific derived class to perform the texture transfer
     virtual bool onTransferPixels(GrTexture*,
                                   int left, int top, int width, int height,
-                                  GrPixelConfig config, GrBuffer* transferBuffer,
+                                  GrPixelConfig, GrBuffer*,
                                   size_t offset, size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the resolve

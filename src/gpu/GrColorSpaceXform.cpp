@@ -86,7 +86,7 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(const SkColorSpace* src,
     // just the gamut xform.
     if (kUnknown_GrPixelConfig != srcConfig) {
         // Determine if src transfer function is needed, based on src config and color space
-        if (GrPixelConfigIsSRGB(srcConfig)) {
+        if (GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(srcConfig)) {
             // Source texture is sRGB, will be converted to linear when we sample
             if (src->gammaCloseToSRGB()) {
                 // Hardware linearize does the right thing

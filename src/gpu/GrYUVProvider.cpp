@@ -136,7 +136,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
     // If we have sRGB write control, we can just tell the HW not to do the Linear -> sRGB step.
     // Otherwise, we do our shader math to go from YUV -> sRGB, manually convert sRGB -> Linear,
     // then let the HW convert Linear -> sRGB.
-    if (GrPixelConfigIsSRGB(desc.fConfig)) {
+    if (GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(desc.fConfig)) {
         if (ctx->caps()->srgbWriteControl()) {
             paint.setDisableOutputConversionToSRGB(true);
         } else {

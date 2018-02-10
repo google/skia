@@ -299,7 +299,7 @@ void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice 
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
         VkFormat format;
         if (GrPixelConfigToVkFormat(static_cast<GrPixelConfig>(i), &format)) {
-            if (!GrPixelConfigIsSRGB(static_cast<GrPixelConfig>(i)) || fSRGBSupport) {
+            if (GrSRGBEncoded::kNo == GrPixelConfigIsSRGBEncoded(static_cast<GrPixelConfig>(i)) || fSRGBSupport) {
                 fConfigTable[i].init(interface, physDev, properties, format);
             }
         }

@@ -694,10 +694,6 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
-    if (GrPixelConfigIsSRGB(dstSurface->config()) != GrPixelConfigIsSRGB(srcConfig)) {
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    }
-
     bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
 
     if (configsAreRBSwaps) {
@@ -731,13 +727,8 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
 }
 
 static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surface,
-                                            GrPixelConfig config) {
+                                           GrPixelConfig config) {
     if (!glTex) {
-        return false;
-    }
-
-    // OpenGL doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
         return false;
     }
 
@@ -751,12 +742,11 @@ static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surfac
 
 bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
                             int left, int top, int width, int height,
-                            GrPixelConfig config,
-                            const GrMipLevel texels[],
+                            GrPixelConfig dstConfig, const GrMipLevel texels[],
                             int mipLevelCount) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
-    if (!check_write_and_transfer_input(glTex, surface, config)) {
+    if (!check_write_and_transfer_input(glTex, surface, dstConfig)) {
         return false;
     }
 
@@ -765,7 +755,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
 
     return this->uploadTexData(glTex->config(), glTex->width(), glTex->height(),
                                origin, glTex->target(), kWrite_UploadType,
-                               left, top, width, height, config, texels, mipLevelCount);
+                               left, top, width, height, dstConfig, texels, mipLevelCount);
 }
 
 // For GL_[UN]PACK_ALIGNMENT.
@@ -800,7 +790,8 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
 
 bool GrGLGpu::onTransferPixels(GrTexture* texture,
                                int left, int top, int width, int height,
-                               GrPixelConfig config, GrBuffer* transferBuffer,
+                               GrPixelConfig config,
+                               GrBuffer* transferBuffer,
                                size_t offset, size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
     GrPixelConfig texConfig = glTex->config();
@@ -2163,15 +2154,6 @@ bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig rea
     }
 }
 
-static bool requires_srgb_conversion(GrPixelConfig a, GrPixelConfig b) {
-    if (GrPixelConfigIsSRGB(a)) {
-        return !GrPixelConfigIsSRGB(b) && !GrPixelConfigIsAlphaOnly(b);
-    } else if (GrPixelConfigIsSRGB(b)) {
-        return !GrPixelConfigIsSRGB(a) && !GrPixelConfigIsAlphaOnly(a);
-    }
-    return false;
-}
-
 bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                                   int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,
@@ -2180,17 +2162,6 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
 
     tempDrawInfo->fTempSurfaceFit = this->glCaps().partialFBOReadIsSlow() ? SkBackingFit::kExact
                                                                           : SkBackingFit::kApprox;
-
-    if (requires_srgb_conversion(srcConfig, readConfig)) {
-        if (!this->readPixelsSupported(readConfig, readConfig)) {
-            return false;
-        }
-        // Draw to do srgb to linear conversion or vice versa.
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
-        tempDrawInfo->fReadConfig = readConfig;
-        return true;
-    }
 
     if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig &&
         this->readPixelsSupported(kBGRA_8888_GrPixelConfig, kBGRA_8888_GrPixelConfig)) {
@@ -2234,7 +2205,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
             // it's unsupported, but 32bit RGBA reads are supported.
             // Don't attempt to do any srgb conversions since we only care about alpha.
             GrPixelConfig cpuTempConfig = kRGBA_8888_GrPixelConfig;
-            if (GrPixelConfigIsSRGB(srcSurface->config())) {
+            if (GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(srcSurface->config())) {
                 cpuTempConfig = kSRGBA_8888_GrPixelConfig;
             }
             if (!this->readPixelsSupported(srcSurface, cpuTempConfig)) {
@@ -2288,17 +2259,12 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
         return false;
     }
 
-    // OpenGL doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (requires_srgb_conversion(surface->config(), config)) {
-        return false;
-    }
-
     // We have a special case fallback for reading eight bit alpha. We will read back all four 8
     // bit channels as RGBA and then extract A.
     if (!this->readPixelsSupported(surface, config)) {
         // Don't attempt to do any srgb conversions since we only care about alpha.
         GrPixelConfig tempConfig = kRGBA_8888_GrPixelConfig;
-        if (GrPixelConfigIsSRGB(surface->config())) {
+        if (GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(surface->config())) {
             tempConfig = kSRGBA_8888_GrPixelConfig;
         }
         if (kAlpha_8_GrPixelConfig == config &&
@@ -2507,7 +2473,8 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool disa
     }
 
     if (this->glCaps().srgbWriteControl()) {
-        this->flushFramebufferSRGB(GrPixelConfigIsSRGB(target->config()) && !disableSRGB);
+        GrSRGBEncoded srgbEncoded = GrPixelConfigIsSRGBEncoded(target->config());
+        this->flushFramebufferSRGB(GrSRGBEncoded::kYes == srgbEncoded && !disableSRGB);
     }
 }
 
@@ -3052,7 +3019,8 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, bool 
     newTexParams.fMinFilter = filter_to_gl_min_filter(filterMode);
     newTexParams.fMagFilter = filter_to_gl_mag_filter(filterMode);
 
-    if (this->glCaps().srgbDecodeDisableSupport() && GrPixelConfigIsSRGB(texture->config())) {
+    if (this->glCaps().srgbDecodeDisableSupport() &&
+        GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(texture->config())) {
         newTexParams.fSRGBDecode = allowSRGBInputs ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
         if (setAll || newTexParams.fSRGBDecode != oldTexParams.fSRGBDecode) {
             this->setTextureUnit(unitIdx);
@@ -3064,7 +3032,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, bool 
     // We were supposed to ensure MipMaps were up-to-date and built correctly before getting here.
     if (GrSamplerState::Filter::kMipMap == filterMode) {
         SkASSERT(!texture->texturePriv().mipMapsAreDirty());
-        if (GrPixelConfigIsSRGB(texture->config())) {
+        if (GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(texture->config())) {
             SkDestinationSurfaceColorMode colorMode = allowSRGBInputs
                 ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
                 : SkDestinationSurfaceColorMode::kLegacy;
@@ -3184,7 +3152,7 @@ void GrGLGpu::generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs
     SkDestinationSurfaceColorMode colorMode = allowSRGBInputs
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
-    if (GrPixelConfigIsSRGB(texture->config()) &&
+    if (GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(texture->config()) &&
         colorMode != texture->texturePriv().mipColorMode()) {
         texture->texturePriv().markMipMapsDirty();
     }
@@ -3207,7 +3175,8 @@ void GrGLGpu::generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs
 
     // Configure sRGB decode, if necessary. This state is the only thing needed for the driver
     // call (glGenerateMipmap) to work correctly. Our manual method dirties other state, too.
-    if (this->glCaps().srgbDecodeDisableSupport() && GrPixelConfigIsSRGB(texture->config())) {
+    if (this->glCaps().srgbDecodeDisableSupport() &&
+        GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(texture->config())) {
         GrGLenum srgbDecode = allowSRGBInputs ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
         // Command buffer's sRGB decode extension doesn't influence mipmap generation correctly.
         // If we set this to skip_decode, it appears to suppress sRGB -> Linear for each downsample,
@@ -4199,7 +4168,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
     }
 
     // If we're mipping an sRGB texture, we need to ensure FB sRGB is correct:
-    if (GrPixelConfigIsSRGB(texture->config())) {
+    if (GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(texture->config())) {
         // If we have write-control, just set the state that we want:
         if (this->glCaps().srgbWriteControl()) {
             this->flushFramebufferSRGB(gammaCorrect);

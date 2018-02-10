@@ -224,7 +224,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
     GrPixelConfig config = srcProxy->config();
 
-    if (GrPixelConfigIsSRGB(config) && !colorSpace) {
+    if (GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(config) && !colorSpace) {
         // If the context doesn't have sRGB write control, and we make an sRGB RTC, we won't be
         // able to suppress the linear -> sRGB conversion out of the shader. Not all GL drivers
         // have that feature, and Vulkan is missing it entirely. To keep things simple, switch to
