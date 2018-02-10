@@ -56,6 +56,14 @@ enum class GrAAType : unsigned {
     kMixedSamples
 };
 
+/**
+ * Used to control antialiasing in draw calls.
+ */
+enum class GrAA : bool {
+    kNo = false,
+    kYes = true
+};
+
 static inline bool GrAATypeIsHW(GrAAType type) {
     switch (type) {
         case GrAAType::kNone:

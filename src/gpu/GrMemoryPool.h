@@ -8,6 +8,7 @@
 #ifndef GrMemoryPool_DEFINED
 #define GrMemoryPool_DEFINED
 
+#include "GrImpl.h"
 #include "GrTypes.h"
 #ifdef SK_DEBUG
 #include "SkTHash.h"

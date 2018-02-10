@@ -10,6 +10,7 @@
 
 #include "GrBuffer.h"
 #include "GrGpuResourceRef.h"
+#include "GrImpl.h"
 
 class GrPrimitiveProcessor;
 

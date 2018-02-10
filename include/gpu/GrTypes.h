@@ -124,61 +124,6 @@ template<typename TFlags> inline TFlags& operator&=(TFlags& a, GrTFlagsMask<TFla
     friend constexpr bool operator &(X, X);
 
 ////////////////////////////////////////////////////////////////////////////////
-
-// compile time versions of min/max
-#define GR_CT_MAX(a, b) (((b) < (a)) ? (a) : (b))
-#define GR_CT_MIN(a, b) (((b) < (a)) ? (b) : (a))
-
-/**
- *  divide, rounding up
- */
-static inline int32_t GrIDivRoundUp(int x, int y) {
-    SkASSERT(y > 0);
-    return (x + (y-1)) / y;
-}
-static inline uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
-    return (x + (y-1)) / y;
-}
-static inline size_t GrSizeDivRoundUp(size_t x, size_t y) {
-    return (x + (y-1)) / y;
-}
-
-// compile time, evaluates Y multiple times
-#define GR_CT_DIV_ROUND_UP(X, Y) (((X) + ((Y)-1)) / (Y))
-
-/**
- *  align up
- */
-static inline uint32_t GrUIAlignUp(uint32_t x, uint32_t alignment) {
-    return GrUIDivRoundUp(x, alignment) * alignment;
-}
-static inline size_t GrSizeAlignUp(size_t x, size_t alignment) {
-    return GrSizeDivRoundUp(x, alignment) * alignment;
-}
-
-// compile time, evaluates A multiple times
-#define GR_CT_ALIGN_UP(X, A) (GR_CT_DIV_ROUND_UP((X),(A)) * (A))
-
-/**
- * amount of pad needed to align up
- */
-static inline uint32_t GrUIAlignUpPad(uint32_t x, uint32_t alignment) {
-    return (alignment - x % alignment) % alignment;
-}
-static inline size_t GrSizeAlignUpPad(size_t x, size_t alignment) {
-    return (alignment - x % alignment) % alignment;
-}
-
-/**
- *  align down
- */
-static inline uint32_t GrUIAlignDown(uint32_t x, uint32_t alignment) {
-    return (x / alignment) * alignment;
-}
-static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
-    return (x / alignment) * alignment;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -205,14 +150,6 @@ typedef intptr_t GrBackendContext;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * Used to control antialiasing in draw calls.
- */
-enum class GrAA : bool {
-    kNo = false,
-    kYes = true
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -224,36 +161,6 @@ enum class GrMipMapped : bool {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-/**
-* Geometric primitives used for drawing.
-*/
-enum class GrPrimitiveType {
-    kTriangles,
-    kTriangleStrip,
-    kTriangleFan,
-    kPoints,
-    kLines,     // 1 pix wide only
-    kLineStrip, // 1 pix wide only
-    kLinesAdjacency // requires geometry shader support.
-};
-static constexpr int kNumGrPrimitiveTypes = (int) GrPrimitiveType::kLinesAdjacency + 1;
-
-static constexpr bool GrIsPrimTypeLines(GrPrimitiveType type) {
-    return GrPrimitiveType::kLines == type ||
-           GrPrimitiveType::kLineStrip == type ||
-           GrPrimitiveType::kLinesAdjacency == type;
-}
-
-static constexpr bool GrIsPrimTypeTris(GrPrimitiveType type) {
-    return GrPrimitiveType::kTriangles == type     ||
-           GrPrimitiveType::kTriangleStrip == type ||
-           GrPrimitiveType::kTriangleFan == type;
-}
-
-static constexpr bool GrPrimTypeRequiresGeometryShaderSupport(GrPrimitiveType type) {
-    return GrPrimitiveType::kLinesAdjacency == type;
-}
 
 /**
  *  Formats for masks, used by the font cache.
@@ -386,11 +293,6 @@ typedef intptr_t GrBackendObject;
 enum GrSurfaceOrigin {
     kTopLeft_GrSurfaceOrigin,
     kBottomLeft_GrSurfaceOrigin,
-};
-
-struct GrMipLevel {
-    const void* fPixels;
-    size_t fRowBytes;
 };
 
 /**

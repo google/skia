@@ -10,6 +10,7 @@
 
 #include "GrBuffer.h"
 #include "GrContextOptions.h"
+#include "GrImpl.h"
 #include "GrPathRange.h"
 #include "GrResourceCache.h"
 #include "SkImageInfo.h"
