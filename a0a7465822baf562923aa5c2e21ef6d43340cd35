@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c067d29_b90ee2d9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-11T18:13:28Z",
+      "side": 1,
+      "message": "Doesn\u0027t this break down when operator precedence interferes with left-to-right eval order?\n\nE.g., will this pass:\n\n  REPORTER_ASSERT(r, safe -\u003e* 1 + halfMaxPlus1 * 2 \u003d\u003d max);\n  REPORTER_ASSERT(r, !safe);",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "a0a7465822baf562923aa5c2e21ef6d43340cd35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
