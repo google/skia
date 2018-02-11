@@ -8,6 +8,8 @@
 #ifndef SkSafeMath_DEFINED
 #define SkSafeMath_DEFINED
 
+#include <limits>
+
 // SkSafeMath always check that a series of operations do not overflow.
 // This must be correct for all platforms, because this is a check for safety at runtime.
 
@@ -94,4 +96,103 @@ private:
     bool fOK = true;
 };
 
-#endif//SkSafeMath_DEFINED
+class SkSafeMathNG {
+    struct LHS {
+        LHS(SkSafeMathNG* safe, size_t v) : fV{v}, fSafe{*safe} {}
+
+        operator size_t() const {
+            if (fSafe.fOK) {
+                return fV;
+            } else {
+                return std::numeric_limits<size_t>::max();
+            }
+        }
+
+        size_t unpinnedValue() const {
+            return fV;
+        }
+
+        template <typename V>
+        LHS operator+(V v) {
+            size_t result = fV + v;
+            fSafe.fOK &= result >= fV;
+            return LHS{&fSafe, result};
+        }
+
+        template <typename V>
+        LHS operator*(V v) {
+            size_t result = sizeof(size_t) == sizeof(uint64_t) ? mul64(fV, v) : mul32(fV, v);
+            return LHS{&fSafe, result};
+        }
+
+        template <typename V>
+        LHS operator&(V v) {
+            size_t result = fV & v;
+            return LHS{&fSafe, result};
+        }
+
+        uint32_t mul32(uint32_t x, uint32_t y) {
+            uint64_t bx = x;
+            uint64_t by = y;
+            uint64_t result = bx * by;
+            fSafe.fOK &= result >> 32 == 0;
+            return result;
+        }
+
+        uint64_t mul64(uint64_t x, uint64_t y) {
+            if (x <= std::numeric_limits<uint64_t>::max() >> 32
+                && y <= std::numeric_limits<uint64_t>::max() >> 32) {
+                return x * y;
+            } else {
+                auto hi = [](uint64_t x) { return x >> 32; };
+                auto lo = [](uint64_t x) { return x & 0xFFFFFFFF; };
+
+                uint64_t lx_ly = lo(x) * lo(y);
+                uint64_t hx_ly = hi(x) * lo(y);
+                uint64_t lx_hy = lo(x) * hi(y);
+                uint64_t hx_hy = hi(x) * hi(y);
+                auto result = fSafe ->* lx_ly + (hx_ly << 32) + (lx_hy << 32);
+                fSafe.fOK &= (hx_hy + (hx_ly >> 32) + (lx_hy >> 32)) == 0;
+
+                #if defined(SK_DEBUG) && defined(__clang__) && defined(__x86_64__)
+                    auto double_check = (unsigned __int128)x * y;
+                    SkASSERT(result.unpinnedValue() == (double_check & 0xFFFFFFFFFFFFFFFF));
+                    SkASSERT(!fSafe.fOK || (double_check >> 64 == 0));
+                #endif
+
+                return result.unpinnedValue();
+            }
+        }
+
+        const size_t fV;
+        SkSafeMathNG& fSafe;
+    };
+
+public:
+    SkSafeMathNG() = default;
+
+    bool ok() const { return fOK; }
+    explicit operator bool() const { return fOK; }
+
+    LHS operator ->*(size_t v) {
+        return LHS{this, v};
+    }
+
+    size_t add(size_t x, size_t y) {
+        size_t result = x + y;
+        fOK &= result >= x;
+        return result;
+    }
+
+    LHS alignUp(size_t x, size_t alignment) {
+        SkASSERT(alignment && !(alignment & (alignment - 1)));
+        size_t mask = alignment - 1;
+        auto t = *this ->* x + mask;
+        return LHS{this, t & ~mask};
+    }
+
+private:
+    bool fOK{true};
+};
+
+#endif  //SkSafeMath_DEFINED

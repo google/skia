@@ -49,3 +49,65 @@ DEF_TEST(SafeMath, r) {
         REPORTER_ASSERT(r, !safe);
     }
 }
+
+DEF_TEST(SafeMathNG, r) {
+    size_t max = std::numeric_limits<size_t>::max();
+
+
+    {
+        SkSafeMathNG safe;
+        size_t v = safe ->* 3 + 4 + 5;
+        REPORTER_ASSERT(r, safe.ok());
+        REPORTER_ASSERT(r, 12 == v);
+    }
+    size_t halfMax = max >> 1;
+    size_t halfMaxPlus1 = halfMax + 1;
+    {
+        SkSafeMathNG safe;
+        REPORTER_ASSERT(r, safe ->* halfMax + halfMax == 2 * halfMax);
+        REPORTER_ASSERT(r, safe);
+        REPORTER_ASSERT(r, safe ->* halfMax + halfMaxPlus1 == max);
+        REPORTER_ASSERT(r, safe);
+        REPORTER_ASSERT(r, safe ->* max + 1 == max);
+        REPORTER_ASSERT(r, !safe);
+    }
+
+    {
+        SkSafeMathNG safe;
+        size_t v = safe ->* max + max;
+        REPORTER_ASSERT(r, v == max);
+        REPORTER_ASSERT(r, !safe);
+    }
+
+    {
+        size_t bits = (sizeof(size_t) * 8);
+        size_t halfBits = bits / 2;
+        size_t sqrtMax = max >> halfBits;
+        size_t sqrtMaxPlus1 = sqrtMax + 1;
+        SkSafeMathNG safe;
+        REPORTER_ASSERT(r, safe ->* sqrtMax * sqrtMax == sqrtMax * sqrtMax);
+        REPORTER_ASSERT(r, safe);
+        REPORTER_ASSERT(r, safe ->* sqrtMax * sqrtMaxPlus1 == sqrtMax << halfBits);
+        REPORTER_ASSERT(r, safe);
+        REPORTER_ASSERT(r, safe ->* sqrtMaxPlus1 * sqrtMaxPlus1 == max);
+        REPORTER_ASSERT(r, !safe);
+    }
+
+    {
+        SkSafeMathNG safe;
+        size_t v = safe ->* max * max;
+        REPORTER_ASSERT(r, v == max);
+        REPORTER_ASSERT(r, !safe);
+    }
+
+    {
+        SkSafeMathNG safe;
+        size_t v = safe.alignUp(5, 4);
+        REPORTER_ASSERT(r, v == 8);
+        REPORTER_ASSERT(r, safe);
+        v = safe.alignUp(max, 4);
+        REPORTER_ASSERT(r, v == max);
+        REPORTER_ASSERT(r, !safe);
+    }
+
+}
