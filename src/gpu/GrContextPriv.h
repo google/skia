@@ -67,6 +67,7 @@ public:
                                                                  const SkSurfaceProps* = nullptr);
 
     bool disableGpuYUVConversion() const { return fContext->fDisableGpuYUVConversion; }
+    bool sharpenMipmappedTextures() const { return fContext->fSharpenMipmappedTextures; }
 
     /**
      * Call to ensure all drawing to the context has been issued to the

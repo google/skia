@@ -370,6 +370,7 @@ private:
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDisableGpuYUVConversion;
+    bool                                    fSharpenMipmappedTextures;
     bool                                    fDidTestPMConversions;
     // true if the PM/UPM conversion succeeded; false otherwise
     bool                                    fPMUPMConversionsRoundTrip;

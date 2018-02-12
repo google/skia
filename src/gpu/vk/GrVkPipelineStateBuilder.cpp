@@ -7,6 +7,8 @@
 
 #include "vk/GrVkPipelineStateBuilder.h"
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrShaderCaps.h"
 #include "vk/GrVkDescriptorSetManager.h"
 #include "vk/GrVkGpu.h"
@@ -141,6 +143,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
     settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
     SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                               fVS,
                                               &vertShaderModule,
