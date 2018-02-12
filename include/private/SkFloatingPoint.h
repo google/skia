@@ -190,4 +190,14 @@ static inline float sk_float_rsqrt(float x) {
 #define SK_FLT_DECIMAL_DIG 9
 #endif
 
+// IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not
+// so we have a helper that suppresses the possible undefined-behavior warnings.
+
+#ifdef __clang__
+__attribute__((no_sanitize("float-divide-by-zero")))
+#endif
+static inline float sk_ieee_float_divide(float numer, float denom) {
+    return numer / denom;
+}
+
 #endif
