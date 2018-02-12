@@ -83,8 +83,11 @@ static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface*
         bool success = true;
         for (int y = 0; y < 256 && success; ++y) {
             const uint32_t* pixels1 = readBmp1.getAddr32(0, y);
-            const uint32_t* pixels2 = readBmp2.getAddr32(0, y);
-            for (int x = 0; x < 256 && success; ++x) {
+			REPORTER_ASSERT(reporter, pixels1);
+			const uint32_t* pixels2 = readBmp2.getAddr32(0, y);
+			REPORTER_ASSERT(reporter, pixels2);
+			success &= pixels1 && pixels2;
+			for (int x = 0; x < 256 && success; ++x) {
                 // We see sporadic failures here. May help to see where it goes wrong.
                 if (pixels1[x] != pixels2[x]) {
                     SkDebugf("%x != %x, x = %d, y = %d\n", pixels1[x], pixels2[x], x, y);
