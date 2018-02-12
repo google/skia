@@ -67,7 +67,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         0,                                  // applicationVersion
         "vktest",                           // pEngineName
         0,                                  // engineVerison
-        kGrVkMinimumVersion,                // apiVersion
+        0,                // apiVersion
     };
 
     GrVkExtensions extensions(getProc);
