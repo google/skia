@@ -1490,13 +1490,7 @@ if (skia_enable_tools) {
     test_lib("samples") {
       public_include_dirs = [ "samplecode" ]
       include_dirs = [ "experimental" ]
-      sources = samples_sources + [
-                  # Relocating these files here, so that clients don't try to build them while they're
-                  # still in active development. Clang's thread safety analysis gets tripped up by
-                  # conditional locks.
-                  "src/core/SkThreadedBMPDevice.cpp",
-                  "src/core/SkThreadedBMPDevice.h",
-                ]
+      sources = samples_sources
       deps = [
         ":experimental_sksg",
         ":experimental_svg_model",
