@@ -824,8 +824,16 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                        out);
             } else {
                 ASSERT(c.fArguments.size() == 2);
-                this->writeInstruction(op, type, result, sampler, uv,
-                                       out);
+                if (fProgram.fSettings.fSharpenTextures) {
+                    FloatLiteral lodBias(fContext, -1, -0.5);
+                    this->writeInstruction(op, type, result, sampler, uv,
+                                           SpvImageOperandsBiasMask,
+                                           this->writeFloatLiteral(lodBias),
+                                           out);
+                } else {
+                    this->writeInstruction(op, type, result, sampler, uv,
+                                           out);
+                }
             }
             break;
         }
