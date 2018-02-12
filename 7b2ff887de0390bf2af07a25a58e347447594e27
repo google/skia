@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5d610217_77f13836",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-12T20:35:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cdb8a04c_63c71fa8",
+      "range": {
+        "startLine": 23,
+        "startChar": 13,
+        "endLine": 23,
+        "endChar": 28
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "271a70e3_728fa3dc",
         "filename": "include/gpu/GrCaps.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-12T18:47:12Z",
       "side": 1,
       "message": "at least for where validateBackendTexture was called previously there was already code that was validating the SkImageInfo struct as a whole so there wasn\u0027t much need to move that in here as well.",
+      "range": {
+        "startLine": 215,
+        "startChar": 7,
+        "endLine": 215,
+        "endChar": 93
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab3c919e_2eb6439f",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-12T20:35:51Z",
+      "side": 1,
+      "message": "AFAICT the existing image info validation checks that the image info is internally consistent, not that the backend texture and image info are consistent.",
+      "parentUuid": "271a70e3_728fa3dc",
       "range": {
         "startLine": 215,
         "startChar": 7,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fa3494f1_a8285c46",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-12T20:35:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e240c4d7_f938570d",
+      "range": {
+        "startLine": 472,
+        "startChar": 34,
+        "endLine": 472,
+        "endChar": 70
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0dc8a6c1_3378fee7",
         "filename": "include/gpu/gl/GrGLTypes.h",
         "patchSetId": 5
@@ -82,6 +154,30 @@
       "writtenOn": "2018-02-12T19:03:14Z",
       "side": 1,
       "message": "The GR_GL macros are all private, let\u0027s just say GL_\n\nThere\u0027s something weird about call this a format since it has the target. Live with it or come up with a better name? TextureType, TextureSpec?",
+      "range": {
+        "startLine": 128,
+        "startChar": 25,
+        "endLine": 128,
+        "endChar": 92
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3784b185_a45c75d4",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-12T20:35:51Z",
+      "side": 1,
+      "message": "I\u0027ve renamed the GR_GL names.\n\nWe could also remove \u0027fTarget\u0027 since it currently isn\u0027t used.",
+      "parentUuid": "0dc8a6c1_3378fee7",
       "range": {
         "startLine": 128,
         "startChar": 25,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "a6e0359e_62318aa0",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-12T20:35:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "797485a2_f7c46286",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 20
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bcd786c1_e1f762e6",
         "filename": "include/gpu/mtl/GrMtlTypes.h",
         "patchSetId": 5
@@ -128,6 +248,30 @@
       "writtenOn": "2018-02-12T18:47:12Z",
       "side": 1,
       "message": "For metal this is definitely not going to be what this ends up as. I wonder, like GrBackendTexture, we just don\u0027t have a way to create a GrBackendFormat for metal and we can add it once we know what we want here",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 2
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f5597f7_abfd6d38",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-12T20:35:51Z",
+      "side": 1,
+      "message": "Right, I just intended this as a boiler plate placeholder until the Metal task was resumed.",
+      "parentUuid": "bcd786c1_e1f762e6",
       "range": {
         "startLine": 16,
         "startChar": 0,
