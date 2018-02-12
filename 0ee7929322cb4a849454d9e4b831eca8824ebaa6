@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "034d7c90_3699751a",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-12T16:57:12Z",
+      "side": 1,
+      "message": "can this be the default?",
+      "revId": "0ee7929322cb4a849454d9e4b831eca8824ebaa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
