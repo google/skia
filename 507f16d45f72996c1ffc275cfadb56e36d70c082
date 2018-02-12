@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12dc1b37_aa387d9b",
+        "filename": "include/core/SkScalar.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-12T17:48:45Z",
+      "side": 1,
+      "message": "Think you\u0027re going to use this a lot?  If so, we might want to build SkScalar into its own distinct type with this as operator/.",
+      "revId": "507f16d45f72996c1ffc275cfadb56e36d70c082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "115906ea_d5766079",
+        "filename": "src/effects/SkEmbossMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-12T17:48:45Z",
+      "side": 1,
+      "message": "Might just want to check if scale isn\u0027t finite once here, rather than all three later?",
+      "range": {
+        "startLine": 19,
+        "startChar": 21,
+        "endLine": 19,
+        "endChar": 55
+      },
+      "revId": "507f16d45f72996c1ffc275cfadb56e36d70c082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
