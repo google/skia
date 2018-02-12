@@ -255,6 +255,7 @@ bool GrContext::init(const GrContextOptions& options) {
                                                         options));
 
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
+    fSharpenMipmappedTextures = options.fSharpenMipmappedTextures;
     fDidTestPMConversions = false;
 
     GrPathRendererChain::Options prcOptions;
