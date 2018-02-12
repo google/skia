@@ -174,7 +174,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
     bool mipmapped = rtc->asTextureProxy() ? GrMipMapped::kYes == rtc->asTextureProxy()->mipMapped()
                                            : false;
 
-    data->set(ctx->threadSafeProxy(), maxResourceCount, maxResourceBytes,
+    data->set(ctx->threadSafeProxy(), maxResourceBytes,
               rtc->origin(), rtc->width(), rtc->height(),
               rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
               SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
@@ -188,8 +188,13 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
+    if (!data.isValid()) {
+        return false;
+    }
+
     // As long as the current state if the context allows for greater or equal resources,
     // we allow the DDL to be replayed.
+    // DDL TODO: should we just remove the resource check and ignore the cache limits on playback?
     int maxResourceCount;
     size_t maxResourceBytes;
     ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
@@ -210,7 +215,6 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     }
 
     return data.contextInfo() && data.contextInfo()->matches(ctx) &&
-           data.cacheMaxResourceCount() <= maxResourceCount &&
            data.cacheMaxResourceBytes() <= maxResourceBytes &&
            data.origin() == rtc->origin() && data.width() == rtc->width() &&
            data.height() == rtc->height() && data.config() == rtc->colorSpaceInfo().config() &&
@@ -220,7 +224,7 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
 }
 
 bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
-    if (!this->isCompatible(ddl->characterization())) {
+    if (!ddl || !this->isCompatible(ddl->characterization())) {
         return false;
     }
 
