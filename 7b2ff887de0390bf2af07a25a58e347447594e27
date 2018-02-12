@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "271a70e3_728fa3dc",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-12T18:47:12Z",
+      "side": 1,
+      "message": "at least for where validateBackendTexture was called previously there was already code that was validating the SkImageInfo struct as a whole so there wasn\u0027t much need to move that in here as well.",
+      "range": {
+        "startLine": 215,
+        "startChar": 7,
+        "endLine": 215,
+        "endChar": 93
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e240c4d7_f938570d",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-12T18:47:12Z",
+      "side": 1,
+      "message": "small nit: To make this makes more sense to follow the ImageInfo here just cause those two are more closely related in terms of the format of the data",
+      "range": {
+        "startLine": 472,
+        "startChar": 34,
+        "endLine": 472,
+        "endChar": 70
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcd786c1_e1f762e6",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-12T18:47:12Z",
+      "side": 1,
+      "message": "For metal this is definitely not going to be what this ends up as. I wonder, like GrBackendTexture, we just don\u0027t have a way to create a GrBackendFormat for metal and we can add it once we know what we want here",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 2
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
