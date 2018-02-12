@@ -800,7 +800,11 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
             // End-of-runs marker.
             break;
         }
-
+#if defined(IS_FUZZING)
+        if (glyphCount > 1000) {
+            return nullptr;
+        }
+#endif
         PositioningAndExtended pe;
         pe.intValue = reader.read32();
         GlyphPositioning pos = pe.positioning;
@@ -811,7 +815,11 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
         if (textSize < 0) {
             return nullptr;
         }
-
+#if defined(IS_FUZZING)
+        if (textSize > 1000) {
+            return nullptr;
+        }
+#endif
         SkPoint offset;
         reader.readPoint(&offset);
         SkPaint font;

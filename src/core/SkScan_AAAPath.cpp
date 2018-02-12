@@ -1595,6 +1595,11 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
     SkASSERT(blitter);
 
     SkEdgeBuilder builder;
+#if defined(IS_FUZZING)
+    if (path.countPoints() > 1000) {
+        return;
+    }
+#endif
     int count = builder.build_edges(path, &clipRect, 0, pathContainedInClip,
                                     SkEdgeBuilder::kAnalyticEdge);
     SkAnalyticEdge** list = builder.analyticEdgeList();

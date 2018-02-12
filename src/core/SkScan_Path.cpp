@@ -253,6 +253,11 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
             }
             local_top = local_bot + 1;
         } else {
+#if defined(IS_FUZZING)
+            if (count > 1000) {
+                count = 1000;
+            }
+#endif
             do {
                 int L = SkFixedRoundToInt(left);
                 int R = SkFixedRoundToInt(rite);
