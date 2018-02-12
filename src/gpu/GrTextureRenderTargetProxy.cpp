@@ -77,8 +77,7 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
     const GrUniqueKey& key = this->getUniqueKey();
 
     if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), this->needsStencil(),
-                               kFlags, this->mipMapped(), this->mipColorMode(),
-                               key.isValid() ? &key : nullptr)) {
+                               kFlags, this->mipMapped(), key.isValid() ? &key : nullptr)) {
         return false;
     }
     if (key.isValid()) {
@@ -97,7 +96,7 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numStencilSamples(),
                                                        this->needsStencil(), kFlags,
-                                                       this->mipMapped(), this->mipColorMode());
+                                                       this->mipMapped());
     if (!surface) {
         return nullptr;
     }

@@ -93,16 +93,10 @@ protected:
 
     ~GrTextureProxy() override;
 
-    SkDestinationSurfaceColorMode mipColorMode() const {
-        SkASSERT(LazyState::kNot == this->lazyInstantiationState());
-        return fMipColorMode;
-    }
-
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
     GrMipMapped fMipMapped;
-    SkDestinationSurfaceColorMode fMipColorMode;
 
     GrUniqueKey      fUniqueKey;
     GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
