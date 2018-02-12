@@ -67,7 +67,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         0,                                  // applicationVersion
         "vktest",                           // pEngineName
         0,                                  // engineVerison
-        kGrVkMinimumVersion,                // apiVersion
+        VK_API_VERSION_1_0,                // apiVersion
     };
 
     GrVkExtensions extensions(getProc);
@@ -118,10 +118,16 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         nullptr,                                   // pNext
         0,                                         // flags
         &app_info,                                 // pApplicationInfo
+        0,
+        nullptr,
+        0,
+        nullptr,
+#if 0
         (uint32_t) instanceLayerNames.count(),     // enabledLayerNameCount
         instanceLayerNames.begin(),                // ppEnabledLayerNames
         (uint32_t) instanceExtensionNames.count(), // enabledExtensionNameCount
         instanceExtensionNames.begin(),            // ppEnabledExtensionNames
+#endif
     };
 
     ACQUIRE_VK_PROC(CreateInstance, VK_NULL_HANDLE, VK_NULL_HANDLE);
