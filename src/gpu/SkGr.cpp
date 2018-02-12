@@ -131,7 +131,12 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTexturePr
     }
 
     // Copy the base layer to our proxy
-    sk_sp<GrSurfaceContext> sContext = ctx->contextPriv().makeWrappedSurfaceContext(proxy);
+    sk_sp<SkColorSpace> colorSpace;
+    if (GrPixelConfigIsSRGB(proxy->config())) {
+        colorSpace = SkColorSpace::MakeSRGB();
+    }
+    sk_sp<GrSurfaceContext> sContext =
+            ctx->contextPriv().makeWrappedSurfaceContext(proxy, std::move(colorSpace));
     SkASSERT(sContext);
     SkAssertResult(sContext->copy(baseProxy));
 

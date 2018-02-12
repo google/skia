@@ -476,7 +476,12 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage. We allow a null color space here, for read/write pixels and
     // other special code paths. If a color space is provided, though, enforce all other rules.
-    if (colorSpace && !SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
+        SkDebugf(fContext->dump().c_str());
+        SkDebugf("\nconfig: %d cs: %p\n", sProxy->config(), colorSpace.get());
+        if (colorSpace.get()) {
+            SkDebugf("gammaCloseToSRGB: %d, isSRGB:%d, gammaIsLinear:%d", colorSpace->gammaCloseToSRGB(), colorSpace->isSRGB(), colorSpace->gammaIsLinear());
+        }
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
@@ -499,7 +504,7 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage. We allow a null color space here, for read/write pixels and
     // other special code paths. If a color space is provided, though, enforce all other rules.
-    if (colorSpace && !SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }

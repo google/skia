@@ -154,6 +154,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
 
     for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
         desc.fConfig = static_cast<GrPixelConfig>(c);
+        sk_sp<SkColorSpace> colorSpace;
+        if (GrPixelConfigIsSRGB(desc.fConfig)) {
+            colorSpace = SkColorSpace::MakeSRGB();
+        }
         if (!context_info.grContext()->caps()->isConfigTexturable(desc.fConfig)) {
             continue;
         }
@@ -175,9 +179,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         if (!proxy) {
                             continue;
                         }
-
                         auto texCtx = context->contextPriv().makeWrappedSurfaceContext(
-                                                                                std::move(proxy));
+                                std::move(proxy), colorSpace);
                         SkImageInfo info = SkImageInfo::Make(
                                 kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
                         memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
@@ -202,7 +205,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     // Try creating the texture as a deferred proxy.
                     for (int i = 0; i < 2; ++i) {
                         auto surfCtx = context->contextPriv().makeDeferredSurfaceContext(
-                                desc, GrMipMapped::kNo, fit, SkBudgeted::kYes);
+                                desc, GrMipMapped::kNo, fit, SkBudgeted::kYes, colorSpace);
                         if (!surfCtx) {
                             continue;
                         }
