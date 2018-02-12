@@ -81,10 +81,12 @@ protected:
         const char* text = emojiFont.text;
 
         // draw text at different point sizes
-        constexpr SkScalar textSizes[] = { 10, 30, 50, };
+//        constexpr SkScalar textSizes[] = { 10, 30, 50, };
+        constexpr SkScalar textSizes[] = { 164 };
         SkPaint::FontMetrics metrics;
         SkScalar y = 0;
-        for (const bool& fakeBold : { false, true }) {
+        //for (const bool& fakeBold : { false, true }) {
+        for (const bool& fakeBold : { false }) {
             paint.setFakeBoldText(fakeBold);
             for (const SkScalar& textSize : textSizes) {
                 paint.setTextSize(textSize);
@@ -94,6 +96,7 @@ protected:
                 y += metrics.fDescent + metrics.fLeading;
             }
         }
+        return;
 
         y += 20;
         SkScalar savedY = y;
