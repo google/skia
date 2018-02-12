@@ -9,6 +9,7 @@
       "--output-dir",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
       "--no-sync",
+      "--no-hooks",
       "--make-output-dir"
     ],
     "env": {
