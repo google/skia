@@ -39,6 +39,30 @@
       "revId": "507f16d45f72996c1ffc275cfadb56e36d70c082",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6408c69_45d3b902",
+        "filename": "src/effects/SkEmbossMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-12T18:52:54Z",
+      "side": 1,
+      "message": "Thought about that, but then I\u0027d also have to convince myself (and other readers) that I can\u0027t later produce a non-finite due to the multiplication as I compute each dst value. If that is obviously true, then I\u0027ll change the test.",
+      "parentUuid": "115906ea_d5766079",
+      "range": {
+        "startLine": 19,
+        "startChar": 21,
+        "endLine": 19,
+        "endChar": 55
+      },
+      "revId": "507f16d45f72996c1ffc275cfadb56e36d70c082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
