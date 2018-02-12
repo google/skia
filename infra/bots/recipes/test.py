@@ -824,6 +824,8 @@ def test_steps(api):
       api.flavor.copy_file_to_device(host_hashes_file, hashes_file)
       use_hash_file = True
 
+  api.run(api.flavor.step, 'vulkaninfo', cmd=['C:\\Windows\\System32\\vulkaninfo.exe'])
+
   # Run DM.
   properties = [
     'gitHash',              api.vars.got_revision,
