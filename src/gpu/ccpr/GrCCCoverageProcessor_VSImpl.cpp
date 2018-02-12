@@ -35,25 +35,15 @@ protected:
         GrGLSLVertexBuilder* v = args.fVertBuilder;
         int numInputPoints = proc.numInputPoints();
 
-        const char* swizzle = (4 == numInputPoints) ? "xyzw" : "xyz";
-        v->codeAppendf("float%ix2 pts = transpose(float2x%i(%s.%s, %s.%s));",
-                       numInputPoints, numInputPoints, proc.getAttrib(kAttribIdx_X).fName, swizzle,
-                       proc.getAttrib(kAttribIdx_Y).fName, swizzle);
+        v->codeAppendf("float%ix2 pts = transpose(float2x%i(%s, %s));",
+                       numInputPoints, numInputPoints, proc.getAttrib(kAttribIdx_X).fName,
+                       proc.getAttrib(kAttribIdx_Y).fName);
 
-        if (WindMethod::kCrossProduct == proc.fWindMethod) {
-            v->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], "
-                                                                "pts[0] - pts[2]));");
-            if (4 == numInputPoints) {
-                v->codeAppend ("area_x2 += determinant(float2x2(pts[0] - pts[2], "
-                                                               "pts[0] - pts[3]));");
-            }
-            v->codeAppend ("half wind = sign(area_x2);");
-        } else {
-            SkASSERT(WindMethod::kInstanceData == proc.fWindMethod);
-            SkASSERT(3 == numInputPoints);
-            SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(kAttribIdx_X).fType);
-            v->codeAppendf("half wind = %s.w;", proc.getAttrib(kAttribIdx_X).fName);
+        v->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], pts[0] - pts[2]));");
+        if (4 == numInputPoints) {
+            v->codeAppend ("area_x2 += determinant(float2x2(pts[0] - pts[2], pts[0] - pts[3]));");
         }
+        v->codeAppend ("half wind = sign(area_x2);");
 
         float bloat = kAABloatRadius;
 #ifdef SK_DEBUG
@@ -350,9 +340,17 @@ public:
     }
 };
 
-void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
+void GrCCCoverageProcessor::initVS(GrResourceProvider* rp, const GrCaps& caps) {
     SkASSERT(Impl::kVertexShader == fImpl);
-    const GrCaps& caps = *rp->caps();
+
+    GrVertexAttribType inputPtsType = RenderPassIsCubic(fRenderPass) ?
+                                      kFloat4_GrVertexAttribType : kFloat3_GrVertexAttribType;
+
+    SkASSERT(kAttribIdx_X == this->numAttribs());
+    this->addInstanceAttrib("X", inputPtsType);
+
+    SkASSERT(kAttribIdx_Y == this->numAttribs());
+    this->addInstanceAttrib("Y", inputPtsType);
 
     switch (fRenderPass) {
         case RenderPass::kTriangleHulls: {
@@ -375,6 +373,8 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
                                                           gHull3AndEdgeIndexBufferKey);
                 fNumIndicesPerInstance = SK_ARRAY_COUNT(kHull3AndEdgeIndicesAsTris);
             }
+            SkASSERT(kAttribIdx_VertexData == this->numAttribs());
+            this->addVertexAttrib("vertexdata", kInt_GrVertexAttribType);
             break;
         }
         case RenderPass::kQuadraticHulls:
@@ -396,6 +396,8 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
                                                           gHull4IndexBufferKey);
                 fNumIndicesPerInstance = SK_ARRAY_COUNT(kHull4IndicesAsTris);
             }
+            SkASSERT(kAttribIdx_VertexData == this->numAttribs());
+            this->addVertexAttrib("vertexdata", kInt_GrVertexAttribType);
             break;
         }
         case RenderPass::kTriangleEdges:
@@ -425,36 +427,20 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         }
     }
 
-    if (RenderPassIsCubic(fRenderPass) || WindMethod::kInstanceData == fWindMethod) {
-        SkASSERT(WindMethod::kCrossProduct == fWindMethod || 3 == this->numInputPoints());
-
-        SkASSERT(kAttribIdx_X == this->numAttribs());
-        this->addInstanceAttrib("X", kFloat4_GrVertexAttribType);
-
-        SkASSERT(kAttribIdx_Y == this->numAttribs());
-        this->addInstanceAttrib("Y", kFloat4_GrVertexAttribType);
-
-        SkASSERT(offsetof(QuadPointInstance, fX) == this->getAttrib(kAttribIdx_X).fOffsetInRecord);
-        SkASSERT(offsetof(QuadPointInstance, fY) == this->getAttrib(kAttribIdx_Y).fOffsetInRecord);
-        SkASSERT(sizeof(QuadPointInstance) == this->getInstanceStride());
+#ifdef SK_DEBUG
+    if (RenderPassIsCubic(fRenderPass)) {
+        SkASSERT(offsetof(CubicInstance, fX) == this->getAttrib(kAttribIdx_X).fOffsetInRecord);
+        SkASSERT(offsetof(CubicInstance, fY) == this->getAttrib(kAttribIdx_Y).fOffsetInRecord);
+        SkASSERT(sizeof(CubicInstance) == this->getInstanceStride());
     } else {
-        SkASSERT(kAttribIdx_X == this->numAttribs());
-        this->addInstanceAttrib("X", kFloat3_GrVertexAttribType);
-
-        SkASSERT(kAttribIdx_Y == this->numAttribs());
-        this->addInstanceAttrib("Y", kFloat3_GrVertexAttribType);
-
-        SkASSERT(offsetof(TriPointInstance, fX) == this->getAttrib(kAttribIdx_X).fOffsetInRecord);
-        SkASSERT(offsetof(TriPointInstance, fY) == this->getAttrib(kAttribIdx_Y).fOffsetInRecord);
-        SkASSERT(sizeof(TriPointInstance) == this->getInstanceStride());
+        SkASSERT(offsetof(TriangleInstance, fX) == this->getAttrib(kAttribIdx_X).fOffsetInRecord);
+        SkASSERT(offsetof(TriangleInstance, fY) == this->getAttrib(kAttribIdx_Y).fOffsetInRecord);
+        SkASSERT(sizeof(TriangleInstance) == this->getInstanceStride());
     }
-
     if (fVertexBuffer) {
-        SkASSERT(kAttribIdx_VertexData == this->numAttribs());
-        this->addVertexAttrib("vertexdata", kInt_GrVertexAttribType);
-
         SkASSERT(sizeof(int32_t) == this->getVertexStride());
     }
+#endif
 
     if (caps.usePrimitiveRestart()) {
         this->setWillUsePrimitiveRestart();

@@ -33,9 +33,8 @@ class GrMesh;
  */
 class GrCCCoverageProcessor : public GrGeometryProcessor {
 public:
-    // Defines a single primitive shape with 3 input points (i.e. Triangles and Quadratics).
-    // X,Y point values are transposed.
-    struct TriPointInstance {
+    // Defines a single triangle or closed quadratic bezier, with transposed x,y point values.
+    struct TriangleInstance {
         float fX[3];
         float fY[3];
 
@@ -43,15 +42,12 @@ public:
         void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans);
     };
 
-    // Defines a single primitive shape with 4 input points, or 3 input points plus a W parameter
-    // duplicated in both 4th components (i.e. Cubics or Triangles with a custom winding number).
-    // X,Y point values are transposed.
-    struct QuadPointInstance {
+    // Defines a single closed cubic bezier, with transposed x,y point values.
+    struct CubicInstance {
         float fX[4];
         float fY[4];
 
         void set(const SkPoint[4], float dx, float dy);
-        void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
     };
 
     // All primitive shapes (triangles and closed, convex bezier curves) require more than one
@@ -97,29 +93,24 @@ public:
                caps.shaderCaps()->geometryShaderSupport();
     }
 
-    enum class WindMethod : bool {
-        kCrossProduct, // Calculate wind = +/-1 by sign of the cross product.
-        kInstanceData // Instance data provides custom, signed wind values of any magnitude.
-                      // (For tightly-wound tessellated triangles.)
-    };
-
-    GrCCCoverageProcessor(GrResourceProvider* rp, RenderPass pass, WindMethod windMethod)
+    GrCCCoverageProcessor(GrResourceProvider* rp, RenderPass pass, const GrCaps& caps)
             : INHERITED(kGrCCCoverageProcessor_ClassID)
             , fRenderPass(pass)
-            , fWindMethod(windMethod)
-            , fImpl(rp->caps()->shaderCaps()->geometryShaderSupport() ? Impl::kGeometryShader
-                                                                      : Impl::kVertexShader) {
-        SkASSERT(DoesRenderPass(pass, *rp->caps()));
+            , fImpl(caps.shaderCaps()->geometryShaderSupport() ? Impl::kGeometryShader
+                                                               : Impl::kVertexShader) {
+        SkASSERT(DoesRenderPass(pass, caps));
         if (Impl::kGeometryShader == fImpl) {
             this->initGS();
         } else {
-            this->initVS(rp);
+            this->initVS(rp, caps);
         }
     }
 
     // Appends a GrMesh that will draw the provided instances. The instanceBuffer must be an array
-    // of either TriPointInstance or QuadPointInstance, depending on this processor's RendererPass,
-    // with coordinates in the desired shape's final atlas-space position.
+    // of either TriangleInstance or CubicInstance, depending on this processor's RendererPass, with
+    // coordinates in the desired shape's final atlas-space position.
+    //
+    // NOTE: Quadratics use TriangleInstance since both have 3 points.
     void appendMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
                     SkTArray<GrMesh>* out) {
         if (Impl::kGeometryShader == fImpl) {
@@ -236,7 +227,7 @@ private:
     };
 
     void initGS();
-    void initVS(GrResourceProvider*);
+    void initVS(GrResourceProvider*, const GrCaps&);
 
     void appendGSMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
                       SkTArray<GrMesh>* out) const;
@@ -247,7 +238,6 @@ private:
     GrGLSLPrimitiveProcessor* createVSImpl(std::unique_ptr<Shader>) const;
 
     const RenderPass fRenderPass;
-    const WindMethod fWindMethod;
     const Impl fImpl;
     SkDEBUGCODE(float fDebugBloat = 0);
 
@@ -260,11 +250,11 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-inline void GrCCCoverageProcessor::TriPointInstance::set(const SkPoint p[3], const Sk2f& trans) {
+inline void GrCCCoverageProcessor::TriangleInstance::set(const SkPoint p[3], const Sk2f& trans) {
     this->set(p[0], p[1], p[2], trans);
 }
 
-inline void GrCCCoverageProcessor::TriPointInstance::set(const SkPoint& p0, const SkPoint& p1,
+inline void GrCCCoverageProcessor::TriangleInstance::set(const SkPoint& p0, const SkPoint& p1,
                                                          const SkPoint& p2, const Sk2f& trans) {
     Sk2f P0 = Sk2f::Load(&p0) + trans;
     Sk2f P1 = Sk2f::Load(&p1) + trans;
@@ -272,21 +262,11 @@ inline void GrCCCoverageProcessor::TriPointInstance::set(const SkPoint& p0, cons
     Sk2f::Store3(this, P0, P1, P2);
 }
 
-inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint p[4], float dx, float dy) {
+inline void GrCCCoverageProcessor::CubicInstance::set(const SkPoint p[4], float dx, float dy) {
     Sk4f X,Y;
     Sk4f::Load2(p, &X, &Y);
     (X + dx).store(&fX);
     (Y + dy).store(&fY);
-}
-
-inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint& p0, const SkPoint& p1,
-                                                          const SkPoint& p2, const Sk2f& trans,
-                                                          float w) {
-    Sk2f P0 = Sk2f::Load(&p0) + trans;
-    Sk2f P1 = Sk2f::Load(&p1) + trans;
-    Sk2f P2 = Sk2f::Load(&p2) + trans;
-    Sk2f W = Sk2f(w);
-    Sk2f::Store4(this, P0, P1, P2, W);
 }
 
 inline bool GrCCCoverageProcessor::RenderPassIsCubic(RenderPass pass) {

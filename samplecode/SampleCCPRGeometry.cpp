@@ -26,8 +26,8 @@
 #include "gl/GrGLGpu.cpp"
 #include "ops/GrDrawOp.h"
 
-using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
-using QuadPointInstance = GrCCCoverageProcessor::QuadPointInstance;
+using TriangleInstance = GrCCCoverageProcessor::TriangleInstance;
+using CubicInstance = GrCCCoverageProcessor::CubicInstance;
 using RenderPass = GrCCCoverageProcessor::RenderPass;
 
 static constexpr float kDebugBloat = 40;
@@ -66,8 +66,8 @@ private:
     SkPoint fPoints[4] = {
             {100.05f, 100.05f}, {400.75f, 100.05f}, {400.75f, 300.95f}, {100.05f, 300.95f}};
 
-    SkTArray<TriPointInstance> fTriPointInstances;
-    SkTArray<QuadPointInstance> fQuadPointInstances;
+    SkTArray<TriangleInstance> fTriangleInstances;
+    SkTArray<CubicInstance> fCubicInstances;
 
     typedef SampleView INHERITED;
 };
@@ -190,8 +190,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 }
 
 void CCPRGeometryView::updateGpuData() {
-    fTriPointInstances.reset();
-    fQuadPointInstances.reset();
+    fTriangleInstances.reset();
+    fCubicInstances.reset();
 
     if (GrCCCoverageProcessor::RenderPassIsCubic(fRenderPass)) {
         double t[2], s[2];
@@ -210,7 +210,7 @@ void CCPRGeometryView::updateGpuData() {
                     ptsIdx += 2;
                     continue;
                 case GrCCGeometry::Verb::kMonotonicCubicTo:
-                    fQuadPointInstances.push_back().set(&geometry.points()[ptsIdx], 0, 0);
+                    fCubicInstances.push_back().set(&geometry.points()[ptsIdx], 0, 0);
                     ptsIdx += 3;
                     continue;
                 default:
@@ -234,11 +234,11 @@ void CCPRGeometryView::updateGpuData() {
                 continue;
             }
             SkASSERT(GrCCGeometry::Verb::kMonotonicQuadraticTo == verb);
-            fTriPointInstances.push_back().set(&geometry.points()[ptsIdx], Sk2f(0, 0));
+            fTriangleInstances.push_back().set(&geometry.points()[ptsIdx], Sk2f(0, 0));
             ptsIdx += 2;
         }
     } else {
-        fTriPointInstances.push_back().set(fPoints[0], fPoints[1], fPoints[3], Sk2f(0, 0));
+        fTriangleInstances.push_back().set(fPoints[0], fPoints[1], fPoints[3], Sk2f(0, 0));
     }
 }
 
@@ -253,28 +253,27 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
         return;
     }
 
-    GrCCCoverageProcessor proc(rp, fView->fRenderPass,
-                               GrCCCoverageProcessor::WindMethod::kCrossProduct);
+    GrCCCoverageProcessor proc(rp, fView->fRenderPass, state->caps());
     SkDEBUGCODE(proc.enableDebugVisualizations(kDebugBloat));
 
     SkSTArray<1, GrMesh> mesh;
     if (GrCCCoverageProcessor::RenderPassIsCubic(fView->fRenderPass)) {
         sk_sp<GrBuffer> instBuff(rp->createBuffer(
-                fView->fQuadPointInstances.count() * sizeof(QuadPointInstance),
-                kVertex_GrBufferType, kDynamic_GrAccessPattern,
+                fView->fCubicInstances.count() * sizeof(CubicInstance), kVertex_GrBufferType,
+                kDynamic_GrAccessPattern,
                 GrResourceProvider::kNoPendingIO_Flag | GrResourceProvider::kRequireGpuMemory_Flag,
-                fView->fQuadPointInstances.begin()));
-        if (!fView->fQuadPointInstances.empty() && instBuff) {
-            proc.appendMesh(instBuff.get(), fView->fQuadPointInstances.count(), 0, &mesh);
+                fView->fCubicInstances.begin()));
+        if (!fView->fCubicInstances.empty() && instBuff) {
+            proc.appendMesh(instBuff.get(), fView->fCubicInstances.count(), 0, &mesh);
         }
     } else {
         sk_sp<GrBuffer> instBuff(rp->createBuffer(
-                fView->fTriPointInstances.count() * sizeof(TriPointInstance), kVertex_GrBufferType,
+                fView->fTriangleInstances.count() * sizeof(TriangleInstance), kVertex_GrBufferType,
                 kDynamic_GrAccessPattern,
                 GrResourceProvider::kNoPendingIO_Flag | GrResourceProvider::kRequireGpuMemory_Flag,
-                fView->fTriPointInstances.begin()));
-        if (!fView->fTriPointInstances.empty() && instBuff) {
-            proc.appendMesh(instBuff.get(), fView->fTriPointInstances.count(), 0, &mesh);
+                fView->fTriangleInstances.begin()));
+        if (!fView->fTriangleInstances.empty() && instBuff) {
+            proc.appendMesh(instBuff.get(), fView->fTriangleInstances.count(), 0, &mesh);
         }
     }
 

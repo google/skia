@@ -2359,7 +2359,6 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
                    GrTessellator::WindingVertex** verts) {
     int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
-        *verts = nullptr;
         return 0;
     }
     SkArenaAlloc alloc(kArenaChunkSize);
