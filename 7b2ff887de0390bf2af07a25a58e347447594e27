@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "cdb8a04c_63c71fa8",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-12T19:03:14Z",
+      "side": 1,
+      "message": "Given how simple the Gr*Format things are, should we make them private and have the public constructors or makers of this type just take the input params to each one? Just thinking something like\n\nGrBackendFormat::MakeGL(GL_RGBA8, GL_TEXTURE_2D);\n\nis a bit more user friendly than having to wrap a GrGLFormat in a GrBackendFormat.\n\nAlso might let use just omit the types that only have one field.",
+      "range": {
+        "startLine": 23,
+        "startChar": 13,
+        "endLine": 23,
+        "endChar": 28
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "271a70e3_728fa3dc",
         "filename": "include/gpu/GrCaps.h",
         "patchSetId": 5
@@ -41,6 +64,52 @@
         "startChar": 34,
         "endLine": 472,
         "endChar": 70
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dc8a6c1_3378fee7",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-12T19:03:14Z",
+      "side": 1,
+      "message": "The GR_GL macros are all private, let\u0027s just say GL_\n\nThere\u0027s something weird about call this a format since it has the target. Live with it or come up with a better name? TextureType, TextureSpec?",
+      "range": {
+        "startLine": 128,
+        "startChar": 25,
+        "endLine": 128,
+        "endChar": 92
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "797485a2_f7c46286",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-12T19:03:14Z",
+      "side": 1,
+      "message": "We should probably state that this must be a sized internal format, regardless of the GL version.",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 20
       },
       "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
