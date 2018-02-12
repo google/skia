@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbb6ccf3_548b52ca",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-12T21:55:07Z",
+      "side": 1,
+      "message": "Update this comment?",
+      "range": {
+        "startLine": 476,
+        "startChar": 0,
+        "endLine": 476,
+        "endChar": 98
+      },
+      "revId": "3c71c3ad3b8593dae3a54b74fcbacca1290be772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c428268_306bafdf",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-12T21:55:07Z",
+      "side": 1,
+      "message": "... and this one.",
+      "revId": "3c71c3ad3b8593dae3a54b74fcbacca1290be772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
