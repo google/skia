@@ -57,6 +57,16 @@ public:
         return false;
     }
 
+    bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
+                                    GrPixelConfig* config) const {
+        const GrMtlFormat* mtlFormat = format.getMtlFormat();
+        if (!mtlFormat) {
+            return false;
+        }
+        *config = mtlFormat->fConfig;
+        return true;
+    }
+
 private:
     void initFeatureSet(MTLFeatureSet featureSet);
 

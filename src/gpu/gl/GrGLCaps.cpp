@@ -2539,3 +2539,13 @@ bool GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkCo
     return validate_sized_format(fbInfo->fFormat, ct, config, fStandard);
 }
 
+bool GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
+                                          GrPixelConfig* config) const {
+    const GrGLFormat* glFormat = format.getGLFormat();
+    if (!glFormat) {
+        return false;
+    }
+    return validate_sized_format(glFormat->fFormat, ct, config, fStandard);
+}
+
+
