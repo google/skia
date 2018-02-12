@@ -1799,6 +1799,15 @@ if (skia_enable_tools) {
       "//third_party/jsoncpp",
     ]
   }
+  test_app("vkcontext") {
+    sources = [
+      "experimental/vkcontext.cpp",
+    ]
+    deps = [
+      ":gpu_tool_utils",
+      ":skia",
+    ]
+  }
 
   if (!is_win && skia_enable_gpu) {
     test_lib("skqp_lib") {
