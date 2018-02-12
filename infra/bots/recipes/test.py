@@ -59,6 +59,10 @@ def dm_flags(api, bot):
   if '-x86-' in bot and not 'NexusPlayer' in bot:
     args.extend(['--threads', '4'])
 
+  # Temporarily serialize the NexusPlayer Test bots to help diagnose skia:7614.
+  if 'NexusPlayer' in bot:
+    args.extend(['--threads', '0'])
+
   # Nexus7 runs out of memory due to having 4 cores and only 1G RAM.
   if 'CPU' in bot and 'Nexus7' in bot:
     args.extend(['--threads', '2'])
