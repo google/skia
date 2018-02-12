@@ -124,4 +124,9 @@ struct GrGLFramebufferInfo {
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLFramebufferInfo*));
 
+struct GrGLFormat {
+    GrGLenum fTarget; // GR_GL_TEXTURE_2D, GR_GL_TEXTURE_EXTERNAL or GR_GL_TEXTURE_RECTANGLE
+    GrGLenum fFormat;
+};
+
 #endif

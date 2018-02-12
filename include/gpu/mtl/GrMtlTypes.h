@@ -13,4 +13,8 @@
 // This is a placeholder class until we fill it out. This is needed so we can have the mtl include
 // path in our BUILD.gn
 
+struct GrMtlFormat {
+    GrPixelConfig fConfig;
+};
+
 #endif

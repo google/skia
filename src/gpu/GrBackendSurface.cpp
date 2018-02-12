@@ -14,6 +14,62 @@
 #include "vk/GrVkUtil.h"
 #endif
 
+GrBackendFormat::GrBackendFormat(const GrGLFormat& glFormat)
+        : fBackend(kOpenGL_GrBackend)
+        , fValid(true)
+        , fGLFormat(glFormat) {
+}
+
+const GrGLFormat* GrBackendFormat::getGLFormat() const {
+    if (this->isValid() && kOpenGL_GrBackend == fBackend) {
+        return &fGLFormat;
+    }
+    return nullptr;
+}
+
+#ifdef SK_VULKAN
+GrBackendFormat::GrBackendFormat(const GrVkFormat& vkFormat)
+        : fBackend(kVulkan_GrBackend)
+        , fValid(true)
+        , fVkFormat(vkFormat) {
+}
+
+const GrVkFormat* GrBackendFormat::getVkFormat() const {
+    if (this->isValid() && kVulkan_GrBackend == fBackend) {
+        return &fVkFormat;
+    }
+    return nullptr;
+}
+#endif
+
+GrBackendFormat::GrBackendFormat(const GrMockFormat& mockFormat)
+        : fBackend(kMock_GrBackend)
+        , fValid(true)
+        , fMockFormat(mockFormat) {
+}
+
+const GrMockFormat* GrBackendFormat::getMockFormat() const {
+    if (this->isValid() && kMock_GrBackend == fBackend) {
+        return &fMockFormat;
+    }
+    return nullptr;
+}
+
+#ifdef SK_METAL
+GrBackendFormat::GrBackendFormat(const GrMtlFormat& mtlFormat)
+        : fBackend(kMetal_GrBackend)
+        , fValid(true)
+        , fMtlFormat(mtlFormat) {
+}
+
+const GrMtlFormat* GrBackendFormat::getMtlFormat() const {
+    if (this->isValid() && kMetal_GrBackend == fBackend) {
+        return &fMtlFormat;
+    }
+    return nullptr;
+}
+#endif
+
 #ifdef SK_VULKAN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,

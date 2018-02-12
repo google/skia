@@ -16,6 +16,68 @@
 #include "vk/GrVkTypes.h"
 #endif
 
+#ifdef SK_METAL
+#include "mtl/GrMtlTypes.h"
+#endif
+
+class SK_API GrBackendFormat {
+public:
+    // Creates an invalid backend format.
+    GrBackendFormat() : fValid(false) {}
+
+    GrBackendFormat(const GrGLFormat& glFormat);
+
+#ifdef SK_VULKAN
+    GrBackendFormat(const GrVkFormat& vkFormat);
+#endif
+
+    GrBackendFormat(const GrMockFormat& mockFormat);
+
+#ifdef SK_METAL
+    GrBackendFormat(const GrMtlFormat& mtlFormat);
+#endif
+
+    GrBackend backend() const {return fBackend; }
+
+    // If the backend API is GL, this returns a pointer to the GrGLFormat struct. Otherwise
+    // it returns nullptr.
+    const GrGLFormat* getGLFormat() const;
+
+#ifdef SK_VULKAN
+    // If the backend API is Vulkan, this returns a pointer to the GrVkFormat struct. Otherwise
+    // it returns nullptr
+    const GrVkFormat* getVkFormat() const;
+#endif
+
+    // If the backend API is Mock, this returns a pointer to the GrMockFormat struct. Otherwise
+    // it returns nullptr.
+    const GrMockFormat* getMockFormat() const;
+
+#ifdef SK_METAL
+    // If the backend API is Metal, this returns a pointer to the GrMtlFormat struct. Otherwise
+    // it returns nullptr.
+    const GrMtlFormat* getMtlFormat() const;
+#endif
+
+    // Returns true if the backend format has been initialized.
+    bool isValid() const { return fValid; }
+
+private:
+    GrBackend fBackend;
+    bool      fValid;
+
+    union {
+        GrGLFormat   fGLFormat;
+#ifdef SK_VULKAN
+        GrVkFormat   fVkFormat;
+#endif
+        GrMockFormat fMockFormat;
+#ifdef SK_METAL
+        GrMtlFormat  fMtlFormat;
+#endif
+    };
+};
+
 class SK_API GrBackendTexture {
 public:
     // Creates an invalid backend texture.
