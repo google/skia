@@ -504,6 +504,7 @@
       "~bigbitmaprect_",
       "~savelayer_clipmask",
       "~DrawBitmapRect",
+      "~drawbitmaprect",
       "--nonativeFonts",
       "--verbose"
     ],
