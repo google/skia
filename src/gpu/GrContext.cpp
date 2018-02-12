@@ -333,6 +333,42 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return fThreadSafeProxy;
 }
 
+SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
+                                     size_t cacheMaxResourceBytes,
+                                     const SkImageInfo& ii, int sampleCnt, GrSurfaceOrigin origin,
+                                     const SkSurfaceProps& surfaceProps,
+                                     bool isMipMapped,
+                                     const GrBackendFormat& backendFormat) {
+    if (!backendFormat.isValid()) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    // We're assuming GrFSAAType::kMixedSamples will never be specified via this code path
+    GrFSAAType FSAAType = sampleCnt > 1 ? GrFSAAType::kUnifiedMSAA : GrFSAAType::kNone;
+
+    if (!fCaps->mipMapSupport()) {
+        isMipMapped = false;
+    }
+
+    GrPixelConfig config = kUnknown_GrPixelConfig;
+    if (!fCaps->getConfigFromBackendFormat(backendFormat, ii.colorType(), &config)) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    // This surface characterization factory assumes that the resulting characterization is
+    // textureable.
+    if (!fCaps->isConfigTexturable(config)) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    return SkSurfaceCharacterization(sk_ref_sp<GrContextThreadSafeProxy>(this),
+                                     cacheMaxResourceBytes,
+                                     origin, ii.width(), ii.height(), config, FSAAType, sampleCnt,
+                                     SkSurfaceCharacterization::Textureable(true),
+                                     SkSurfaceCharacterization::MipMapped(isMipMapped),
+                                     ii.refColorSpace(), surfaceProps);
+}
+
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 
@@ -1048,7 +1084,7 @@ std::unique_ptr<GrFragmentProcessor> GrContext::createUPMToPMEffect(
 
         return GrConfigConversionEffect::Make(std::move(fp), PMConversion::kToPremul);
     } else {
-        // For everything else (sRGB, half-float, etc...), it doesn't make sense to try and
+        // For everything else (sRGB, half-float, etc...), it dxoesn't make sense to try and
         // explicitly round the results. Just do the obvious, naive thing in the shader.
         return GrFragmentProcessor::PremulOutput(std::move(fp));
     }
@@ -1067,6 +1103,7 @@ bool GrContext::validPMUPMConversionExists() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+// DDL TODO: remove 'maxResources'
 void GrContext::getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const {
     ASSERT_SINGLE_OWNER
     if (maxResources) {
