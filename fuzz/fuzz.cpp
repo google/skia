@@ -42,10 +42,12 @@ DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a "
         "PNG with this name.");
 DEFINE_bool2(verbose, v, false, "Print more information while fuzzing.");
 DEFINE_string2(type, t, "", "How to interpret --bytes, one of:\n"
+                            "animated_image_decode\n"
                             "api\n"
                             "color_deserialize\n"
                             "filter_fuzz (equivalent to Chrome's filter_fuzz_stub)\n"
                             "icc\n"
+                            "image_decode\n"
                             "image_mode\n"
                             "image_scale\n"
                             "path_deserialize\n"
@@ -63,6 +65,8 @@ static void fuzz_api(sk_sp<SkData>);
 static void fuzz_color_deserialize(sk_sp<SkData>);
 static void fuzz_filter_fuzz(sk_sp<SkData>);
 static void fuzz_icc(sk_sp<SkData>);
+static void fuzz_img2(sk_sp<SkData>);
+static void fuzz_animated_img(sk_sp<SkData>);
 static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
@@ -106,6 +110,10 @@ static int fuzz_file(const char* path) {
     }
 
     if (!FLAGS_type.isEmpty()) {
+        if (0 == strcmp("animated_image_decode", FLAGS_type[0])) {
+            fuzz_animated_img(bytes);
+            return 0;
+        }
         if (0 == strcmp("api", FLAGS_type[0])) {
             fuzz_api(bytes);
             return 0;
@@ -116,6 +124,10 @@ static int fuzz_file(const char* path) {
         }
         if (0 == strcmp("icc", FLAGS_type[0])) {
             fuzz_icc(bytes);
+            return 0;
+        }
+        if (0 == strcmp("image_decode", FLAGS_type[0])) {
+            fuzz_img2(bytes);
             return 0;
         }
         if (0 == strcmp("image_scale", FLAGS_type[0])) {
@@ -207,6 +219,20 @@ static void dump_png(SkBitmap bitmap) {
         sk_tool_utils::EncodeImageToFile(FLAGS_dump[0], bitmap, SkEncodedImageFormat::kPNG, 100);
         SkDebugf("Dumped to %s\n", FLAGS_dump[0]);
     }
+}
+
+void FuzzAnimatedImage(sk_sp<SkData> bytes);
+
+static void fuzz_animated_img(sk_sp<SkData> bytes) {
+    FuzzAnimatedImage(bytes);
+    SkDebugf("[terminated] Didn't crash while decoding/drawing animated image!\n");
+}
+
+void FuzzImage(sk_sp<SkData> bytes);
+
+static void fuzz_img2(sk_sp<SkData> bytes) {
+    FuzzImage(bytes);
+    SkDebugf("[terminated] Didn't crash while decoding/drawing image!\n");
 }
 
 static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {

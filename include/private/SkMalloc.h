@@ -64,6 +64,13 @@ static inline void* sk_calloc_throw(size_t size) {
 }
 
 static inline void* sk_calloc_canfail(size_t size) {
+#if defined(IS_FUZZING_WITH_LIBFUZZER)
+    // The Libfuzzer environment is very susceptible to OOM, so to avoid those
+    // just pretend we can't allocate more than 200kb.
+    if (size > 200000) {
+        return nullptr;
+    }
+#endif
     return sk_malloc_flags(size, SK_MALLOC_ZERO_INITIALIZE);
 }
 
@@ -76,6 +83,13 @@ SK_API extern void* sk_realloc_throw(void* buffer, size_t count, size_t elemSize
  *  These variants return nullptr on failure
  */
 static inline void* sk_malloc_canfail(size_t size) {
+#if defined(IS_FUZZING_WITH_LIBFUZZER)
+    // The Libfuzzer environment is very susceptible to OOM, so to avoid those
+    // just pretend we can't allocate more than 200kb.
+    if (size > 200000) {
+        return nullptr;
+    }
+#endif
     return sk_malloc_flags(size, 0);
 }
 SK_API extern void* sk_malloc_canfail(size_t count, size_t elemSize);
