@@ -22,6 +22,9 @@ locations of the Android NDK and SDK.  Current values:
 
 Additionally, \`python\` and \`ninja\` should be in your path.
 
+If SKQP_EXTRA_MODELS is non-empty, assets unneeded by the CTS tests will be
+included for experimental mode.
+
 EOM
     exit 1
 }
@@ -37,7 +40,14 @@ set -e # Exit immediately
 
 cd "$(dirname "$0")/../.."
 
+
+git clean -fxd platform_tools/android/apps/skqp
+
 python tools/skqp/download_model
+if [ -z "$SKQP_EXTRA_MODELS" ]; then
+    python tools/skqp/remove_unneeded_assets
+fi
+
 python tools/skqp/setup_resources
 python tools/git-sync-deps
 
