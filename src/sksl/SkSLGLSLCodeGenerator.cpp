@@ -505,12 +505,14 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         fHeader.writeText(" : require\n");
         fFoundDerivatives = true;
     }
+    bool isTextureFunctionWithBias = false;
     if (c.fFunction.fName == "texture" && c.fFunction.fBuiltin) {
         const char* dim = "";
         bool proj = false;
         switch (c.fArguments[0]->fType.dimensions()) {
             case SpvDim1D:
                 dim = "1D";
+                isTextureFunctionWithBias = true;
                 if (c.fArguments[1]->fType == *fContext.fFloat_Type) {
                     proj = false;
                 } else {
@@ -520,6 +522,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 break;
             case SpvDim2D:
                 dim = "2D";
+                isTextureFunctionWithBias = true;
                 if (c.fArguments[1]->fType == *fContext.fFloat2_Type) {
                     proj = false;
                 } else {
@@ -529,6 +532,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 break;
             case SpvDim3D:
                 dim = "3D";
+                isTextureFunctionWithBias = true;
                 if (c.fArguments[1]->fType == *fContext.fFloat3_Type) {
                     proj = false;
                 } else {
@@ -538,6 +542,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 break;
             case SpvDimCube:
                 dim = "Cube";
+                isTextureFunctionWithBias = true;
                 proj = false;
                 break;
             case SpvDimRect:
@@ -572,6 +577,9 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->write(separator);
         separator = ", ";
         this->writeExpression(*arg, kSequence_Precedence);
+    }
+    if (fProgram.fSettings.fSharpenTextures && isTextureFunctionWithBias) {
+        this->write(", -0.5");
     }
     this->write(")");
 }
