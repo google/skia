@@ -68,8 +68,7 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNeedsStencil, kFlags,
-                               GrMipMapped::kNo,
-                               SkDestinationSurfaceColorMode::kLegacy, nullptr)) {
+                               GrMipMapped::kNo, nullptr)) {
         return false;
     }
     SkASSERT(fTarget->asRenderTarget());
@@ -84,8 +83,7 @@ sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resource
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt, fNeedsStencil,
-                                                       kFlags, GrMipMapped::kNo,
-                                                       SkDestinationSurfaceColorMode::kLegacy);
+                                                       kFlags, GrMipMapped::kNo);
     if (!surface) {
         return nullptr;
     }

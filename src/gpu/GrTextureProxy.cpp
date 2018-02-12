@@ -19,7 +19,6 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
         : INHERITED(srcDesc, fit, budgeted, flags)
         , fMipMapped(GrMipMapped::kNo)
-        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     SkASSERT(!srcData);  // currently handled in Make()
@@ -31,7 +30,6 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantia
                                SkBudgeted budgeted, uint32_t flags)
         : INHERITED(std::move(callback), lazyType, desc, fit, budgeted, flags)
         , fMipMapped(mipMapped)
-        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
 }
@@ -40,7 +38,6 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantia
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fMipMapped(fTarget->asTexture()->texturePriv().mipMapped())
-        , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode())
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     if (fTarget->getUniqueKey().isValid()) {
@@ -65,7 +62,7 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
         return false;
     }
     if (!this->instantiateImpl(resourceProvider, 1, /* needsStencil = */ false,
-                               kNone_GrSurfaceFlags, fMipMapped, fMipColorMode,
+                               kNone_GrSurfaceFlags, fMipMapped,
                                fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
         return false;
     }
@@ -79,7 +76,7 @@ sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvi
     sk_sp<GrSurface> surface= this->createSurfaceImpl(resourceProvider, 1,
                                                       /* needsStencil = */ false,
                                                       kNone_GrSurfaceFlags,
-                                                      fMipMapped, fMipColorMode);
+                                                      fMipMapped);
     if (!surface) {
         return nullptr;
     }
