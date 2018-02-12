@@ -447,6 +447,12 @@ public:
      */
     static SkDngImage* NewFromStream(SkRawStream* stream) {
         std::unique_ptr<SkDngImage> dngImage(new SkDngImage(stream));
+#if defined(IS_FUZZING_WITH_LIBFUZZER)
+        // Libfuzzer easily runs out of memory after here. To avoid that
+        // We just pretend all streams are invalid. Our AFL-fuzzer
+        // should still exercise this code; it's more resistant to OOM.
+        return nullptr;
+#endif
         if (!dngImage->initFromPiex() && !dngImage->readDng()) {
             return nullptr;
         }
