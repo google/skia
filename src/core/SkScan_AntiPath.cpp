@@ -667,7 +667,7 @@ static SkIRect safeRoundOut(const SkRect& src) {
 }
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
-                          SkBlitter* blitter, bool forceRLE, bool forceDAA) {
+                          SkBlitter* blitter, bool forceRLE, SkDAARecord* daaRecord) {
     if (origClip.isEmpty()) {
         return;
     }
@@ -737,8 +737,8 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         sk_blit_above(blitter, ir, *clipRgn);
     }
 
-    if (forceDAA || ShouldUseDAA(path)) {
-        SkScan::DAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE);
+    if (daaRecord || ShouldUseDAA(path)) {
+        SkScan::DAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE, daaRecord);
     } else if (ShouldUseAAA(path)) {
         // Do not use AAA if path is too complicated:
         // there won't be any speedup or significant visual improvement.
@@ -774,19 +774,19 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* b
 }
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
-                          SkBlitter* blitter, bool forceDAA) {
+                          SkBlitter* blitter, SkDAARecord* daaRecord) {
     if (clip.isEmpty() || !path.isFinite()) {
         return;
     }
 
     if (clip.isBW()) {
-        AntiFillPath(path, clip.bwRgn(), blitter, false, forceDAA);
+        AntiFillPath(path, clip.bwRgn(), blitter, false, daaRecord);
     } else {
         SkRegion        tmp;
         SkAAClipBlitter aaBlitter;
 
         tmp.setRect(clip.getBounds());
         aaBlitter.init(blitter, &clip.aaRgn());
-        AntiFillPath(path, tmp, &aaBlitter, true, forceDAA); // SkAAClipBlitter can blitMask, why forceRLE?
+        AntiFillPath(path, tmp, &aaBlitter, true, daaRecord); // SkAAClipBlitter can blitMask, why forceRLE?
     }
 }
