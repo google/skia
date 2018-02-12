@@ -26,7 +26,7 @@ storage as needed; for instance, an encoded <a href="#Image">Image</a> may decod
 or height returns <a href="#Image">Image</a> equal to nullptr.
 
 <a href="#Image">Image</a> may be created from <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, <a href="SkSurface_Reference#Surface">Surface</a>, <a href="undocumented#Picture">Picture</a>, encoded streams,
-<a href="undocumented#GPU_Texture">GPU Texture</a>, <a href="undocumented#YUV_ColorSpace">YUV ColorSpace</a> data, or hardware buffer. Encoded streams supported
+<a href="undocumented#GPU_Texture">GPU Texture</a>, <a href="SkImageInfo_Reference#YUV_ColorSpace">YUV ColorSpace</a> data, or hardware buffer. Encoded streams supported
 include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encoding details
 vary with platform.
 
@@ -76,12 +76,12 @@ drawing.
 | <a href="#SkImage_MakeFromBitmap">MakeFromBitmap</a> | creates <a href="#Image">Image</a> from <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, sharing or copying pixels |
 | <a href="#SkImage_MakeFromEncoded">MakeFromEncoded</a> | creates <a href="#Image">Image</a> from encoded data |
 | <a href="#SkImage_MakeFromGenerator">MakeFromGenerator</a> | creates <a href="#Image">Image</a> from a stream of data |
-| <a href="#SkImage_MakeFromNV12TexturesCopy">MakeFromNV12TexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="undocumented#YUV_ColorSpace">YUV ColorSpace</a> data in two planes |
+| <a href="#SkImage_MakeFromNV12TexturesCopy">MakeFromNV12TexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#YUV_ColorSpace">YUV ColorSpace</a> data in two planes |
 |  | <a href="#SkImage_MakeFromNV12TexturesCopy">MakeFromNV12TexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace, const GrBackendObject nv12TextureHandles[2], const SkISize nv12Sizes[2], GrSurfaceOrigin surfaceOrigin, sk sp&lt;SkColorSpace&gt; colorSpace = nullptr)</a> |
 |  | <a href="#SkImage_MakeFromNV12TexturesCopy_2">MakeFromNV12TexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace, const GrBackendTexture nv12TextureHandles[2], const SkISize nv12Sizes[2], GrSurfaceOrigin surfaceOrigin, sk sp&lt;SkColorSpace&gt; colorSpace = nullptr)</a> |
 | <a href="#SkImage_MakeFromPicture">MakeFromPicture</a> | creates <a href="#Image">Image</a> from <a href="undocumented#Picture">Picture</a> |
 | <a href="#SkImage_MakeFromRaster">MakeFromRaster</a> | creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, with release |
-| <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="undocumented#YUV_ColorSpace">YUV ColorSpace</a> data in three planes |
+| <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#YUV_ColorSpace">YUV ColorSpace</a> data in three planes |
 |  | <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace, const GrBackendObject yuvTextureHandles[3], const SkISize yuvSizes[3], GrSurfaceOrigin surfaceOrigin, sk sp&lt;SkColorSpace&gt; colorSpace = nullptr)</a> |
 |  | <a href="#SkImage_MakeFromYUVTexturesCopy_2">MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvTextureHandles[3], const SkISize yuvSizes[3], GrSurfaceOrigin surfaceOrigin, sk sp&lt;SkColorSpace&gt; colorSpace = nullptr)</a> |
 | <a href="#SkImage_MakeRasterCopy">MakeRasterCopy</a> | creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a> and copied pixels |
@@ -108,10 +108,10 @@ drawing.
 | <a href="#SkImage_MakeFromBitmap">MakeFromBitmap</a> | creates <a href="#Image">Image</a> from <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, sharing or copying pixels |
 | <a href="#SkImage_MakeFromEncoded">MakeFromEncoded</a> | creates <a href="#Image">Image</a> from encoded data |
 | <a href="#SkImage_MakeFromGenerator">MakeFromGenerator</a> | creates <a href="#Image">Image</a> from a stream of data |
-| <a href="#SkImage_MakeFromNV12TexturesCopy">MakeFromNV12TexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="undocumented#YUV_ColorSpace">YUV ColorSpace</a> data in two planes |
+| <a href="#SkImage_MakeFromNV12TexturesCopy">MakeFromNV12TexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#YUV_ColorSpace">YUV ColorSpace</a> data in two planes |
 | <a href="#SkImage_MakeFromPicture">MakeFromPicture</a> | creates <a href="#Image">Image</a> from <a href="undocumented#Picture">Picture</a> |
 | <a href="#SkImage_MakeFromRaster">MakeFromRaster</a> | creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, with release |
-| <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="undocumented#YUV_ColorSpace">YUV ColorSpace</a> data in three planes |
+| <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#YUV_ColorSpace">YUV ColorSpace</a> data in three planes |
 | <a href="#SkImage_MakeRasterCopy">MakeRasterCopy</a> | creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a> and copied pixels |
 | <a href="#SkImage_MakeRasterData">MakeRasterData</a> | creates <a href="#Image">Image</a> from <a href="#Info">Image Info</a> and shared pixels |
 | <a href="#SkImage_alphaType">alphaType</a> | returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> |
@@ -735,8 +735,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvTextureHandles"> <code><strong>yuvTextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvSizes"> <code><strong>yuvSizes </strong></code> </a></td> <td>
@@ -779,8 +779,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvTextureHandles"> <code><strong>yuvTextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvSizes"> <code><strong>yuvSizes </strong></code> </a></td> <td>
@@ -826,8 +826,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles"> <code><strong>nv12TextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12Sizes"> <code><strong>nv12Sizes </strong></code> </a></td> <td>
@@ -872,8 +872,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles"> <code><strong>nv12TextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_nv12Sizes"> <code><strong>nv12Sizes </strong></code> </a></td> <td>
