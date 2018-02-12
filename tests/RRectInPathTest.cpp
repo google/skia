@@ -470,3 +470,27 @@ DEF_TEST(RoundRectInPath, reporter) {
     test_skbug_3239(reporter);
     test_mix(reporter);
 }
+
+DEF_TEST(RRect_fragile, reporter) {
+    SkRect rect = {
+        SkBits2Float(0x1f800000),  // 0x003F0000 was the starter value that also fails
+        SkBits2Float(0x1400001C),
+        SkBits2Float(0x3F000004),
+        SkBits2Float(0x3F000004),
+    };
+
+    SkPoint radii[] = {
+        { SkBits2Float(0x00000001), SkBits2Float(0x00000001) },
+        { SkBits2Float(0x00000020), SkBits2Float(0x00000001) },
+        { SkBits2Float(0x00000000), SkBits2Float(0x00000000) },
+        { SkBits2Float(0x3F000004), SkBits2Float(0x3F000004) },
+    };
+
+    SkRRect rr;
+    // please don't assert
+    if (false) {    // disable until we fix this
+        SkDebugf("%g 0x%08X\n", rect.fLeft, SkFloat2Bits(rect.fLeft));
+        rr.setRectRadii(rect, radii);
+    }
+}
+
