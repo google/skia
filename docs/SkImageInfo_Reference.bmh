@@ -128,6 +128,8 @@ kRGBA_8888_SkColorType.
 #Subtopic Color_Type ##
 
 # ------------------------------------------------------------------------------
+#Subtopic YUV_ColorSpace
+#Alias YUV_ColorSpace
 #Enum SkYUVColorSpace
 #Line # incomplete ##
 
@@ -161,6 +163,7 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 #SeeAlso incomplete
 
 #Enum SkYUVColorSpace ##
+#Subtopic YUV_ColorSpace ##
 
 # ------------------------------------------------------------------------------
 #EnumClass SkDestinationSurfaceColorMode
