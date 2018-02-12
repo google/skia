@@ -983,6 +983,62 @@ DEF_TEST(SkSLTexture, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLSharpen, r) {
+    SkSL::Program::Settings settings;
+    settings.fSharpenTextures = true;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    SkSL::Program::Inputs inputs;
+    test(r,
+         "uniform sampler1D one;"
+         "uniform sampler2D two;"
+         "void main() {"
+         "float4 a = texture(one, 0);"
+         "float4 b = texture(two, float2(0));"
+         "float4 c = texture(one, float2(0));"
+         "float4 d = texture(two, float3(0));"
+         "sk_FragColor = half4(a.x, b.x, c.x, d.x);"
+         "}",
+         settings,
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform sampler1D one;\n"
+         "uniform sampler2D two;\n"
+         "void main() {\n"
+         "    vec4 a = texture(one, 0.0, -0.5);\n"
+         "    vec4 b = texture(two, vec2(0.0), -0.5);\n"
+         "    vec4 c = textureProj(one, vec2(0.0), -0.5);\n"
+         "    vec4 d = textureProj(two, vec3(0.0), -0.5);\n"
+         "    sk_FragColor = vec4(a.x, b.x, c.x, d.x);\n"
+         "}\n",
+         &inputs);
+
+    caps = SkSL::ShaderCapsFactory::Version110();
+    settings.fCaps = caps.get();
+    test(r,
+         "uniform sampler1D one;"
+         "uniform sampler2D two;"
+         "void main() {"
+         "float4 a = texture(one, 0);"
+         "float4 b = texture(two, float2(0));"
+         "float4 c = texture(one, float2(0));"
+         "float4 d = texture(two, float3(0));"
+         "sk_FragColor = half4(a.x, b.x, c.x, d.x);"
+         "}",
+         settings,
+         "#version 110\n"
+         "uniform sampler1D one;\n"
+         "uniform sampler2D two;\n"
+         "void main() {\n"
+         "    vec4 a = texture1D(one, 0.0, -0.5);\n"
+         "    vec4 b = texture2D(two, vec2(0.0), -0.5);\n"
+         "    vec4 c = texture1DProj(one, vec2(0.0), -0.5);\n"
+         "    vec4 d = texture2DProj(two, vec3(0.0), -0.5);\n"
+         "    gl_FragColor = vec4(a.x, b.x, c.x, d.x);\n"
+         "}\n",
+         &inputs);
+}
+
 DEF_TEST(SkSLOffset, r) {
     test(r,
          "struct Test {"

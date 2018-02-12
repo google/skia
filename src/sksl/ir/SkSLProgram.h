@@ -76,6 +76,8 @@ struct Program {
         bool fReplaceSettings = true;
         // if true, all halfs are forced to be floats
         bool fForceHighPrecision = false;
+        // if true, add -0.5 bias to LOD of all texture lookups
+        bool fSharpenTextures = false;
         std::unordered_map<String, Value> fArgs;
     };
 
