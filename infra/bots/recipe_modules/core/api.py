@@ -154,4 +154,12 @@ class SkiaApi(recipe_api.RecipeApi):
     if self.m.vars.need_chromium_checkout:
       with self.m.context(cwd=self.m.vars.checkout_root,
                           env=self.m.vars.gclient_env):
-        self.m.gclient.runhooks()
+        # TODO(borenet): Remove this hack and replace with
+        # 'self.m.gclient.runhooks()' after the transition to Kitchen:
+        # https://bugs.chromium.org/p/skia/issues/detail?id=7050
+        depot_tools = self.m.vars.checkout_root.join('depot_tools')
+        self.m.git.checkout(
+            'https://chromium.googlesource.com/chromium/tools/depot_tools.git',
+            dir_path=depot_tools, ref='master')
+        self.m.run(self.m.step, 'gclient runhooks',
+                   cmd=[depot_tools.join('gclient'), 'runhooks'])
