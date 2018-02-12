@@ -25,6 +25,7 @@
 #include "SkImagePriv.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPaintFilterCanvas.h"
 #include "SkPictureRecorder.h"
 #include "SkScan.h"
 #include "SkStream.h"
@@ -315,30 +316,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #endif
         this->setBackend(newBackend);
     });
-
-    fCommands.addCommand('A', "AA", "Toggle analytic AA", [this]() {
-        if (!gSkUseAnalyticAA) {
-            gSkUseAnalyticAA = true;
-        } else if (!gSkForceAnalyticAA) {
-            gSkForceAnalyticAA = true;
-        } else {
-            gSkUseAnalyticAA = gSkForceAnalyticAA = false;
-        }
-        this->updateTitle();
-        fWindow->inval();
-    });
-    fCommands.addCommand('D', "AA", "Toggle delta AA", [this]() {
-        if (!gSkUseDeltaAA) {
-            gSkUseDeltaAA = true;
-        } else if (!gSkForceDeltaAA) {
-            gSkForceDeltaAA = true;
-        } else {
-            gSkUseDeltaAA = gSkForceDeltaAA = false;
-        }
-        this->updateTitle();
-        fWindow->inval();
-    });
-
     fCommands.addCommand('+', "Threaded Backend", "Increase tile count", [this]() {
         fTileCnt++;
         if (fThreadCnt == 0) {
@@ -375,6 +352,106 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     });
     fCommands.addCommand('K', "IO", "Save slide to SKP", [this]() {
         fSaveToSKP = true;
+        fWindow->inval();
+    });
+    fCommands.addCommand('H', "Paint", "Hinting mode", [this]() {
+        if (!fPaintOverrides.fHinting) {
+            fPaintOverrides.fHinting = true;
+            fPaint.setHinting(SkPaint::kNo_Hinting);
+        } else {
+            switch (fPaint.getHinting()) {
+                case SkPaint::kNo_Hinting:
+                    fPaint.setHinting(SkPaint::kSlight_Hinting);
+                    break;
+                case SkPaint::kSlight_Hinting:
+                    fPaint.setHinting(SkPaint::kNormal_Hinting);
+                    break;
+                case SkPaint::kNormal_Hinting:
+                    fPaint.setHinting(SkPaint::kFull_Hinting);
+                    break;
+                case SkPaint::kFull_Hinting:
+                    fPaint.setHinting(SkPaint::kNo_Hinting);
+                    fPaintOverrides.fHinting = false;
+                    break;
+            }
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('A', "Paint", "Antialias Mode", [this]() {
+        if (!(fPaintOverrides.fFlags & SkPaint::kAntiAlias_Flag)) {
+            fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
+            fPaintOverrides.fFlags |= SkPaint::kAntiAlias_Flag;
+            fPaint.setAntiAlias(false);
+            fPaintOverrides.fOriginalSkUseAnalyticAA = gSkUseAnalyticAA;
+            fPaintOverrides.fOriginalSkForceAnalyticAA = gSkForceAnalyticAA;
+            fPaintOverrides.fOriginalSkUseDeltaAA = gSkUseDeltaAA;
+            fPaintOverrides.fOriginalSkForceDeltaAA = gSkForceDeltaAA;
+            gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+            gSkUseDeltaAA = gSkForceDeltaAA = false;
+        } else {
+            fPaint.setAntiAlias(true);
+            switch (fPaintOverrides.fAntiAlias) {
+                case SkPaintFields::AntiAliasState::Alias:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Normal;
+                    break;
+                case SkPaintFields::AntiAliasState::Normal:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::AnalyticAAEnabled;
+                    gSkUseDeltaAA = gSkForceDeltaAA = false;
+                    gSkUseAnalyticAA = true;
+                    break;
+                case SkPaintFields::AntiAliasState::AnalyticAAEnabled:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::AnalyticAAForced;
+                    gSkForceAnalyticAA = true;
+                    break;
+                case SkPaintFields::AntiAliasState::AnalyticAAForced:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::DeltaAAEnabled;
+                    gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                    gSkUseDeltaAA = true;
+                    break;
+                case SkPaintFields::AntiAliasState::DeltaAAEnabled:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::DeltaAAForced;
+                    gSkForceDeltaAA = true;
+                    break;
+                case SkPaintFields::AntiAliasState::DeltaAAForced:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
+                    fPaintOverrides.fFlags &= ~SkPaint::kAntiAlias_Flag;
+                    gSkUseAnalyticAA = fPaintOverrides.fOriginalSkUseAnalyticAA;
+                    gSkForceAnalyticAA = fPaintOverrides.fOriginalSkForceAnalyticAA;
+                    gSkUseDeltaAA = fPaintOverrides.fOriginalSkUseDeltaAA;
+                    gSkForceDeltaAA = fPaintOverrides.fOriginalSkForceDeltaAA;
+                    break;
+            }
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('L', "Paint", "Subpixel Antialias Mode", [this]() {
+        if (!(fPaintOverrides.fFlags & SkPaint::kLCDRenderText_Flag)) {
+            fPaintOverrides.fFlags |= SkPaint::kLCDRenderText_Flag;
+            fPaint.setLCDRenderText(false);
+        } else {
+            if (!fPaint.isLCDRenderText()) {
+                fPaint.setLCDRenderText(true);
+            } else {
+                fPaintOverrides.fFlags &= ~SkPaint::kLCDRenderText_Flag;
+            }
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('S', "Paint", "Subpixel Position Mode", [this]() {
+        if (!(fPaintOverrides.fFlags & SkPaint::kSubpixelText_Flag)) {
+            fPaintOverrides.fFlags |= SkPaint::kSubpixelText_Flag;
+            fPaint.setSubpixelText(false);
+        } else {
+            if (!fPaint.isSubpixelText()) {
+                fPaint.setSubpixelText(true);
+            } else {
+                fPaintOverrides.fFlags &= ~SkPaint::kSubpixelText_Flag;
+            }
+        }
+        this->updateTitle();
         fWindow->inval();
     });
 
@@ -497,6 +574,26 @@ Viewer::~Viewer() {
     delete fWindow;
 }
 
+struct SkPaintTitleUpdater {
+    SkPaintTitleUpdater(SkString* title) : fTitle(title), fCount(0) {}
+    void append(const char* s) {
+        if (fCount == 0) {
+            fTitle->append(" {");
+        } else {
+            fTitle->append(", ");
+        }
+        fTitle->append(s);
+        ++fCount;
+    }
+    void done() {
+        if (fCount > 0) {
+            fTitle->append("}");
+        }
+    }
+    SkString* fTitle;
+    int fCount;
+};
+
 void Viewer::updateTitle() {
     if (!fWindow) {
         return;
@@ -521,6 +618,46 @@ void Viewer::updateTitle() {
             title.append(" <AAA>");
         }
     }
+
+    SkPaintTitleUpdater paintTitle(&title);
+    if (fPaintOverrides.fFlags & SkPaint::kAntiAlias_Flag) {
+        if (fPaint.isAntiAlias()) {
+            paintTitle.append("Antialias");
+        } else {
+            paintTitle.append("Alias");
+        }
+    }
+    if (fPaintOverrides.fFlags & SkPaint::kLCDRenderText_Flag) {
+        if (fPaint.isLCDRenderText()) {
+            paintTitle.append("LCD");
+        } else {
+            paintTitle.append("lcd");
+        }
+    }
+    if (fPaintOverrides.fFlags & SkPaint::kSubpixelText_Flag) {
+        if (fPaint.isSubpixelText()) {
+            paintTitle.append("Subpixel Glyphs");
+        } else {
+            paintTitle.append("Pixel Glyphs");
+        }
+    }
+    if (fPaintOverrides.fHinting) {
+        switch (fPaint.getHinting()) {
+            case SkPaint::kNo_Hinting:
+                paintTitle.append("No Hinting");
+                break;
+            case SkPaint::kSlight_Hinting:
+                paintTitle.append("Slight Hinting");
+                break;
+            case SkPaint::kNormal_Hinting:
+                paintTitle.append("Normal Hinting");
+                break;
+            case SkPaint::kFull_Hinting:
+                paintTitle.append("Full Hinting");
+                break;
+        }
+    }
+    paintTitle.done();
 
     if (fTileCnt > 0) {
         title.appendf(" T%d", fTileCnt);
@@ -714,6 +851,30 @@ void Viewer::setColorMode(ColorMode colorMode) {
     fWindow->inval();
 }
 
+class OveridePaintFilterCanvas : public SkPaintFilterCanvas {
+public:
+    OveridePaintFilterCanvas(SkCanvas* canvas, SkPaint* paint, Viewer::SkPaintFields* fields)
+        : SkPaintFilterCanvas(canvas), fPaint(paint), fPaintOverrides(fields)
+    { }
+    bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
+        if (fPaintOverrides->fHinting) {
+            paint->writable()->setHinting(fPaint->getHinting());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kAntiAlias_Flag) {
+            paint->writable()->setAntiAlias(fPaint->isAntiAlias());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kLCDRenderText_Flag) {
+            paint->writable()->setLCDRenderText(fPaint->isLCDRenderText());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kSubpixelText_Flag) {
+            paint->writable()->setSubpixelText(fPaint->isSubpixelText());
+        }
+        return true;
+    }
+    SkPaint* fPaint;
+    Viewer::SkPaintFields* fPaintOverrides;
+};
+
 void Viewer::drawSlide(SkCanvas* canvas) {
     SkAutoCanvasRestore autorestore(canvas, false);
 
@@ -798,7 +959,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     slideCanvas->concat(computeMatrix());
     // Time the painting logic of the slide
     fStatsLayer.beginTiming(fPaintTimer);
-    fSlides[fCurrentSlide]->draw(slideCanvas);
+    OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides);
+    fSlides[fCurrentSlide]->draw(&filterCanvas);
     fStatsLayer.endTiming(fPaintTimer);
     slideCanvas->restoreToCount(count);
 

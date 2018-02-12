@@ -37,6 +37,45 @@ public:
     bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers) override;
     bool onChar(SkUnichar c, uint32_t modifiers) override;
 
+    struct SkPaintFields {
+        bool fTypeface = false;
+        bool fPathEffect = false;
+        bool fShader = false;
+        bool fMaskFilter = false;
+        bool fColorFilter = false;
+        bool fDrawLooper = false;
+        bool fImageFilter = false;
+
+        bool fTextSize = false;
+        bool fTextScaleX = false;
+        bool fTextSkewX = false;
+        bool fColor = false;
+        bool fWidth = false;
+        bool fMiterLimit = false;
+        bool fBlendMode = false;
+
+        uint32_t fFlags = 0;
+        enum class AntiAliasState {
+            Alias,
+            Normal,
+            AnalyticAAEnabled,
+            AnalyticAAForced,
+            DeltaAAEnabled,
+            DeltaAAForced,
+        } fAntiAlias = AntiAliasState::Alias;
+        bool fOriginalSkUseAnalyticAA = false;
+        bool fOriginalSkForceAnalyticAA = false;
+        bool fOriginalSkUseDeltaAA = false;
+        bool fOriginalSkForceDeltaAA = false;
+
+        bool fTextAlign = false;
+        bool fCapType = false;
+        bool fJoinType = false;
+        bool fStyle = false;
+        bool fTextEncoding = false;
+        bool fHinting = false;
+        bool fFilterQuality = false;
+    };
 private:
     enum class ColorMode {
         kLegacy,                                 // N32, no color management
@@ -121,6 +160,9 @@ private:
     int fTileCnt;
     int fThreadCnt;
     std::unique_ptr<SkExecutor> fExecutor;
+
+    SkPaint fPaint;
+    SkPaintFields fPaintOverrides;
 };
 
 
