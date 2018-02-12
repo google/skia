@@ -443,6 +443,18 @@
         "Build-Mac-Clang-x86_64-Release-TSAN"
       ]
     },
+    "Build-Ubuntu16-Clang-skqp-dev": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu16-Clang-skqp-dev"
+      ]
+    },
+    "Build-Ubuntu16-Clang-skqp-release": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu16-Clang-skqp-release"
+      ]
+    },
     "Build-Win-Clang-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
@@ -5219,6 +5231,50 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-x86_64-Release-TSAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu16-Clang-skqp-dev": {
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu16-Clang-skqp-dev",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu16-Clang-skqp-release": {
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu16-Clang-skqp-release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
