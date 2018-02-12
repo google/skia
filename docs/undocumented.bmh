@@ -773,11 +773,3 @@ FT_Load_Glyph
     #Struct ##
 #Topic ##
 
-#Enum YUV_ColorSpace
-#Const kJPEG_SkYUVColorSpace 0
-##
-#Const kRec601_SkYUVColorSpace 1
-##
-#Const kRec709_SkYUVColorSpace 2
-##
-##
