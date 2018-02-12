@@ -35,10 +35,9 @@ public:
         kEndOpenContour // endPt != startPt.
     };
 
-    // These tallies track numbers of CCPR primitives that are required to draw a contour.
+    // These tallies track numbers of CCPR primitives are required to draw a contour.
     struct PrimitiveTallies {
         int fTriangles; // Number of triangles in the contour's fan.
-        int fWoundTriangles; // Triangles (from the tessellator) whose winding magnitude > 1.
         int fQuadratics;
         int fCubics;
 
@@ -116,11 +115,11 @@ private:
                                   int maxSubdivisions = kMaxSubdivionsPerCubicSection);
 
     // Transient state used while building a contour.
-    SkPoint fCurrAnchorPoint;
-    SkPoint fCurrFanPoint;
-    PrimitiveTallies fCurrContourTallies;
-    SkCubicType fCurrCubicType;
-    SkDEBUGCODE(bool fBuildingContour = false);
+    SkPoint                         fCurrAnchorPoint;
+    SkPoint                         fCurrFanPoint;
+    PrimitiveTallies                fCurrContourTallies;
+    SkCubicType                     fCurrCubicType;
+    SkDEBUGCODE(bool                fBuildingContour = false);
 
     // TODO: These points could eventually be written directly to block-allocated GPU buffers.
     SkSTArray<128, SkPoint, true>   fPoints;
@@ -129,7 +128,6 @@ private:
 
 inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b) {
     fTriangles += b.fTriangles;
-    fWoundTriangles += b.fWoundTriangles;
     fQuadratics += b.fQuadratics;
     fCubics += b.fCubics;
 }
@@ -137,14 +135,12 @@ inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b
 GrCCGeometry::PrimitiveTallies
 inline GrCCGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) const {
     return {fTriangles - b.fTriangles,
-            fWoundTriangles - b.fWoundTriangles,
             fQuadratics - b.fQuadratics,
             fCubics - b.fCubics};
 }
 
 inline bool GrCCGeometry::PrimitiveTallies::operator==(const PrimitiveTallies& b) {
-    return fTriangles == b.fTriangles && fWoundTriangles == b.fWoundTriangles &&
-           fQuadratics == b.fQuadratics && fCubics == b.fCubics;
+    return fTriangles == b.fTriangles && fQuadratics == b.fQuadratics && fCubics == b.fCubics;
 }
 
 #endif

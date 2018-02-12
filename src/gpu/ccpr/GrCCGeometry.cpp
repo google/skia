@@ -30,7 +30,7 @@ void GrCCGeometry::beginContour(const SkPoint& devPt) {
 
     // Store the current verb count in the fTriangles field for now. When we close the contour we
     // will use this value to calculate the actual number of triangles in its fan.
-    fCurrContourTallies = {fVerbs.count(), 0, 0, 0};
+    fCurrContourTallies = {fVerbs.count(), 0, 0};
 
     fPoints.push_back(devPt);
     fVerbs.push_back(Verb::kBeginContour);
