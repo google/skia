@@ -196,6 +196,14 @@ void SkRRect::scaleRadii() {
         SkScaleToSides::AdjustRadii(height, scale, &fRadii[3].fY, &fRadii[0].fY);
     }
 
+    while (!AreRectAndRadiiValid(fRect, fRadii)) {
+        scale *= 0.9999999;
+        SkScaleToSides::AdjustRadii(width,  scale, &fRadii[0].fX, &fRadii[1].fX);
+        SkScaleToSides::AdjustRadii(height, scale, &fRadii[1].fY, &fRadii[2].fY);
+        SkScaleToSides::AdjustRadii(width,  scale, &fRadii[2].fX, &fRadii[3].fX);
+        SkScaleToSides::AdjustRadii(height, scale, &fRadii[3].fY, &fRadii[0].fY);
+    }
+
     // At this point we're either oval, simple, or complex (not empty or rect).
     this->computeType();
 
