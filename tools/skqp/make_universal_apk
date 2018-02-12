@@ -22,6 +22,9 @@ locations of the Android NDK and SDK.  Current values:
 
 Additionally, \`python\` and \`ninja\` should be in your path.
 
+If SKQP_SLIM_APK is non-empty, assets unneeded by the CTS tests will bei
+removed.
+
 EOM
     exit 1
 }
@@ -37,7 +40,14 @@ set -e # Exit immediately
 
 cd "$(dirname "$0")/../.."
 
+
+git clean -fxd platform_tools/android/apps/skqp
+
 python tools/skqp/download_model
+if [ "$SKQP_SLIM_APK" ]; then
+    python tools/skqp/remove_unneeded_assets
+fi
+
 python tools/skqp/setup_resources
 python tools/git-sync-deps
 
