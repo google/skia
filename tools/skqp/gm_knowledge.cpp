@@ -77,13 +77,13 @@ static int get_error_with_nearby(int x, int y, const SkPixmap& pm,
                 }
             }
             void skipBad() {
-                do {
+                while (curr < 8) {
                     SkIPoint p = this->get();
                     if (p.x() >= 0 && p.y() >= 0 && p.x() < w && p.y() < h) {
                         return;
                     }
                     ++curr;
-                } while (curr < 8);
+                }
                 curr = -1;
             }
             void operator++() {
