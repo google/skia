@@ -61,4 +61,8 @@ struct GrVkImageInfo {
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkImageInfo*));
 
+struct GrVkFormat {
+    VkFormat       fFormat;
+};
+
 #endif
