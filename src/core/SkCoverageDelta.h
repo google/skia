@@ -182,6 +182,20 @@ static SK_ALWAYS_INLINE SkAlpha CoverageToAlpha(SkFixed coverage, bool isEvenOdd
     return isInverse ? 255 - result : result;
 }
 
+struct SkDAARecord {
+    enum class Type {
+        kToBeComputed,
+        kMask,
+        kList
+    } fType;
+
+    SkMask               fMask;
+    SkCoverageDeltaList* fList;
+    SkArenaAlloc*        fAlloc;
+
+    SkDAARecord(SkArenaAlloc* alloc) : fType(Type::kToBeComputed), fAlloc(alloc) {}
+};
+
 template<typename T>
 static SK_ALWAYS_INLINE T CoverageToAlpha(const T&  coverage, bool isEvenOdd, bool isInverse) {
     T t0(0), t255(255);

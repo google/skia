@@ -315,16 +315,14 @@ void gen_alpha_deltas(const SkPath& path, const SkIRect& clipBounds, Deltas& res
     }
 }
 
-// For threaded backend with out-of-order init-once, we probably have to take care of the
-// blitRegion, sk_blit_above, sk_blit_below in SkScan::AntiFillPath to maintain the draw order. If
-// we do that, be caureful that blitRect may throw exception if the rect is empty.
 void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
-                         const SkIRect& clipBounds, bool forceRLE) {
+                         const SkIRect& clipBounds, bool forceRLE, SkDAARecord* record) {
     bool containedInClip = clipBounds.contains(ir);
     bool isEvenOdd  = path.getFillType() & 1;
     bool isConvex   = path.isConvex();
     bool isInverse  = path.isInverseFillType();
     bool skipRect   = isConvex && !isInverse;
+    bool isInitOnce = record && record->fType == SkDAARecord::Type::kToBeComputed;
 
     SkIRect clippedIR = ir;
     clippedIR.intersect(clipBounds);
@@ -340,18 +338,44 @@ void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
 #else
     constexpr int STACK_SIZE = 64 << 10; // 64k stack size to avoid heap allocation
 #endif
-    SkSTArenaAlloc<STACK_SIZE> alloc; // avoid heap allocation with SkSTArenaAlloc
+    SkSTArenaAlloc<STACK_SIZE> stackAlloc; // avoid heap allocation with SkSTArenaAlloc
 
-    // Only blitter->blitXXX needs to be done in order in the threaded backend.
-    // Everything before can be done out of order in the threaded backend.
-    if (!forceRLE && !isInverse && SkCoverageDeltaMask::Suitable(clippedIR)) {
-        SkCoverageDeltaMask deltaMask(&alloc, clippedIR);
-        gen_alpha_deltas(path, clipBounds, deltaMask, blitter, skipRect, containedInClip);
-        deltaMask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
-        blitter->blitMask(deltaMask.prepareSkMask(), clippedIR);
-    } else {
-        SkCoverageDeltaList deltaList(&alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
-        gen_alpha_deltas(path, clipBounds, deltaList, blitter, skipRect, containedInClip);
-        blitter->blitCoverageDeltas(&deltaList, clipBounds, isEvenOdd, isInverse, isConvex, &alloc);
+    // Set alloc to record's alloc if and only if we're in the init-once phase. We have to do that
+    // during init phase because the mask or list needs to live longer. We can't do that during blit
+    // phase because the same record could be accessed by multiple threads simultaneously.
+    SkArenaAlloc* alloc = isInitOnce ? record->fAlloc : &stackAlloc;
+
+    if (record == nullptr) {
+        record = alloc->make<SkDAARecord>(alloc);
+    }
+
+    // Only blitter->blitXXX needs to be done in order in the threaded backend. Everything else can
+    // be done out of order in the init-once phase. We do that by calling DAAFillPath twice: first
+    // with a null blitter, and then second with the real blitter and the SkMask/SkCoverageDeltaList
+    // generated in the first step.
+    if (record->fType == SkDAARecord::Type::kToBeComputed) {
+        if (!forceRLE && !isInverse && SkCoverageDeltaMask::Suitable(clippedIR)) {
+            record->fType = SkDAARecord::Type::kMask;
+            SkCoverageDeltaMask deltaMask(alloc, clippedIR);
+            gen_alpha_deltas(path, clipBounds, deltaMask, blitter, skipRect, containedInClip);
+            deltaMask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
+            record->fMask = deltaMask.prepareSkMask();
+        } else {
+            record->fType = SkDAARecord::Type::kList;
+            SkCoverageDeltaList* deltaList = alloc->make<SkCoverageDeltaList>(
+                    alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
+            gen_alpha_deltas(path, clipBounds, *deltaList, blitter, skipRect, containedInClip);
+            record->fList = deltaList;
+        }
+    }
+
+    if (!isInitOnce) {
+        SkASSERT(record->fType != SkDAARecord::Type::kToBeComputed);
+        if (record->fType == SkDAARecord::Type::kMask) {
+            blitter->blitMask(record->fMask, clippedIR);
+        } else {
+            blitter->blitCoverageDeltas(record->fList,
+                                        clipBounds, isEvenOdd, isInverse, isConvex, alloc);
+        }
     }
 }
