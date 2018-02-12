@@ -313,6 +313,10 @@ skia_core_sources = [
   "$_src/core/SkTextToPathIter.h",
   "$_src/core/SkTime.cpp",
   "$_src/core/SkTDPQueue.h",
+
+  # The Clang's false positive thread warnings have been resolved in SkTaskGroup2D.cpp
+  "$_src/core/SkThreadedBMPDevice.cpp",
+  "$_src/core/SkThreadedBMPDevice.h",
   "$_src/core/SkThreadID.cpp",
   "$_src/core/SkTLList.h",
   "$_src/core/SkTLS.cpp",
