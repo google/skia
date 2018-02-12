@@ -1305,6 +1305,9 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
+    for (int i = 0; i < FLAGS_match.count(); ++i) {
+        FLAGS_match.set(i, "windowrectangles_mask");
+    }
     if (!FLAGS_nativeFonts) {
         gSkFontMgr_DefaultFactory = &DM::MakeFontMgr;
     }
