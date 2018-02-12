@@ -5,6 +5,7 @@
 DEPS = [
   'depot_tools/bot_update',
   'depot_tools/gclient',
+  'depot_tools/git',
   'depot_tools/tryserver',
   'flavor',
   'recipe_engine/context',
