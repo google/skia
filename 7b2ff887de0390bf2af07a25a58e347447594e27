@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "847f52aa_6cdfb5bc",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-13T13:50:27Z",
+      "side": 1,
+      "message": "Yeah, I think we should kill fTarget and if we decide we need it introduce it outside of GrGLFormat. When I think about other use cases for this as GrPixelConfig recedes it doesn\u0027t make sense for it to be part of the format. Sorry for the churn!",
+      "parentUuid": "3784b185_a45c75d4",
+      "range": {
+        "startLine": 128,
+        "startChar": 25,
+        "endLine": 128,
+        "endChar": 92
+      },
+      "revId": "7b2ff887de0390bf2af07a25a58e347447594e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "797485a2_f7c46286",
         "filename": "include/gpu/gl/GrGLTypes.h",
         "patchSetId": 5
