@@ -14,6 +14,55 @@
 #include "vk/GrVkUtil.h"
 #endif
 
+GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
+        : fBackend(kOpenGL_GrBackend)
+        , fValid(true)
+        , fGLTarget(target)
+        , fGLFormat(format) {
+}
+
+const GrGLenum* GrBackendFormat::getGLFormat() const {
+    if (this->isValid() && kOpenGL_GrBackend == fBackend) {
+        return &fGLFormat;
+    }
+    return nullptr;
+}
+
+const GrGLenum* GrBackendFormat::getGLTarget() const {
+    if (this->isValid() && kOpenGL_GrBackend == fBackend) {
+        return &fGLTarget;
+    }
+    return nullptr;
+}
+
+#ifdef SK_VULKAN
+GrBackendFormat::GrBackendFormat(VkFormat vkFormat)
+        : fBackend(kVulkan_GrBackend)
+        , fValid(true)
+        , fVkFormat(vkFormat) {
+}
+
+const VkFormat* GrBackendFormat::getVkFormat() const {
+    if (this->isValid() && kVulkan_GrBackend == fBackend) {
+        return &fVkFormat;
+    }
+    return nullptr;
+}
+#endif
+
+GrBackendFormat::GrBackendFormat(GrPixelConfig config)
+        : fBackend(kMock_GrBackend)
+        , fValid(true)
+        , fMockFormat(config) {
+}
+
+const GrPixelConfig* GrBackendFormat::getMockFormat() const {
+    if (this->isValid() && kMock_GrBackend == fBackend) {
+        return &fMockFormat;
+    }
+    return nullptr;
+}
+
 #ifdef SK_VULKAN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
