@@ -381,11 +381,6 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
         return false;
     }
 
-    // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
-        return false;
-    }
-
     bool success = false;
     bool linearTiling = vkTex->isLinearTiled();
     if (linearTiling) {
@@ -432,11 +427,6 @@ bool GrVkGpu::onTransferPixels(GrTexture* texture,
     }
     GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
     if (!vkBuffer) {
-        return false;
-    }
-
-    // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(texture->config()) != GrPixelConfigIsSRGB(config)) {
         return false;
     }
 
@@ -1861,27 +1851,28 @@ void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const
 
 bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                                   int width, int height, size_t rowBytes,
-                                  GrPixelConfig readConfig, DrawPreference* drawPreference,
+                                  GrPixelConfig dstConfig,
+                                  DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
-    if (srcSurface->config() == readConfig) {
+    if (srcSurface->config() == dstConfig) {
         return true;
     }
 
     // Any config change requires a draw
     ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
-    tempDrawInfo->fReadConfig = readConfig;
+    tempDrawInfo->fTempSurfaceDesc.fConfig = dstConfig;
+    tempDrawInfo->fReadConfig = dstConfig;
 
     return true;
 }
 
 bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                            int left, int top, int width, int height,
-                           GrPixelConfig config,
+                           GrPixelConfig dstConfig,
                            void* buffer,
                            size_t rowBytes) {
     VkFormat pixelFormat;
-    if (!GrPixelConfigToVkFormat(config, &pixelFormat)) {
+    if (!GrPixelConfigToVkFormat(dstConfig, &pixelFormat)) {
         return false;
     }
 
@@ -1916,7 +1907,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                           VK_PIPELINE_STAGE_TRANSFER_BIT,
                           false);
 
-    size_t bpp = GrBytesPerPixel(config);
+    size_t bpp = GrBytesPerPixel(dstConfig);
     size_t tightRowBytes = bpp * width;
     bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 

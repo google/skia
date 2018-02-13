@@ -694,10 +694,6 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
-    if (GrPixelConfigIsSRGB(dstSurface->config()) != GrPixelConfigIsSRGB(srcConfig)) {
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    }
-
     bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
 
     if (configsAreRBSwaps) {
@@ -731,13 +727,8 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
 }
 
 static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surface,
-                                            GrPixelConfig config) {
+                                           GrPixelConfig config) {
     if (!glTex) {
-        return false;
-    }
-
-    // OpenGL doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
         return false;
     }
 
@@ -751,12 +742,11 @@ static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surfac
 
 bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
                             int left, int top, int width, int height,
-                            GrPixelConfig config,
-                            const GrMipLevel texels[],
+                            GrPixelConfig dstConfig, const GrMipLevel texels[],
                             int mipLevelCount) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
-    if (!check_write_and_transfer_input(glTex, surface, config)) {
+    if (!check_write_and_transfer_input(glTex, surface, dstConfig)) {
         return false;
     }
 
@@ -765,7 +755,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
 
     return this->uploadTexData(glTex->config(), glTex->width(), glTex->height(),
                                origin, glTex->target(), kWrite_UploadType,
-                               left, top, width, height, config, texels, mipLevelCount);
+                               left, top, width, height, dstConfig, texels, mipLevelCount);
 }
 
 // For GL_[UN]PACK_ALIGNMENT.
@@ -800,7 +790,8 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
 
 bool GrGLGpu::onTransferPixels(GrTexture* texture,
                                int left, int top, int width, int height,
-                               GrPixelConfig config, GrBuffer* transferBuffer,
+                               GrPixelConfig config,
+                               GrBuffer* transferBuffer,
                                size_t offset, size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
     GrPixelConfig texConfig = glTex->config();
@@ -2163,15 +2154,6 @@ bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig rea
     }
 }
 
-static bool requires_srgb_conversion(GrPixelConfig a, GrPixelConfig b) {
-    if (GrPixelConfigIsSRGB(a)) {
-        return !GrPixelConfigIsSRGB(b) && !GrPixelConfigIsAlphaOnly(b);
-    } else if (GrPixelConfigIsSRGB(b)) {
-        return !GrPixelConfigIsSRGB(a) && !GrPixelConfigIsAlphaOnly(a);
-    }
-    return false;
-}
-
 bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                                   int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,
@@ -2180,17 +2162,6 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
 
     tempDrawInfo->fTempSurfaceFit = this->glCaps().partialFBOReadIsSlow() ? SkBackingFit::kExact
                                                                           : SkBackingFit::kApprox;
-
-    if (requires_srgb_conversion(srcConfig, readConfig)) {
-        if (!this->readPixelsSupported(readConfig, readConfig)) {
-            return false;
-        }
-        // Draw to do srgb to linear conversion or vice versa.
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
-        tempDrawInfo->fReadConfig = readConfig;
-        return true;
-    }
 
     if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig &&
         this->readPixelsSupported(kBGRA_8888_GrPixelConfig, kBGRA_8888_GrPixelConfig)) {
@@ -2285,11 +2256,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
 
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (!renderTarget && !this->glCaps().canConfigBeFBOColorAttachment(surface->config())) {
-        return false;
-    }
-
-    // OpenGL doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (requires_srgb_conversion(surface->config(), config)) {
         return false;
     }
 

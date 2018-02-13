@@ -165,7 +165,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
                                                   kPremul_SkAlphaType,
                                                   SkColorSpace::MakeSRGB());
     const SkImageInfo iiRGBA = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType,
-                                                 kPremul_SkAlphaType);
+                                                 kPremul_SkAlphaType,
+                                                 SkColorSpace::MakeSRGBLinear());
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
@@ -217,7 +218,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         sContext = context->contextPriv().makeDeferredSurfaceContext(desc,
                                                                      GrMipMapped::kNo,
                                                                      SkBackingFit::kExact,
-                                                                     SkBudgeted::kNo);
+                                                                     SkBudgeted::kNo,
+                                                                     SkColorSpace::MakeSRGBLinear());
         if (!sContext) {
             ERRORF(reporter, "Could not create RGBA surface context.");
             return;
