@@ -395,8 +395,13 @@ if actual_freq != str(freq):
     gn = self.m.vars.skia_dir.join('bin', gn)
 
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-    self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
-    self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
+
+    if 'SKQP' in extra_tokens:
+      mk_universal = self.m.vars.skia_dir.join('tools', 'skqp', 'make_universal_apk')
+      self._run('make_universal', mk_universal)
+    else:
+      self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
+      self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
 
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
