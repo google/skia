@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "266d4137_6cb7d68b",
+        "filename": "site/dev/testing/skqp.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-13T20:52:55Z",
+      "side": 1,
+      "message": "The most recent development APK can be found on google storage at...\n\nThen also define what universal and the SHA are.  Do you want to include a link to the googlesource page that the SHA refers to?",
+      "range": {
+        "startLine": 5,
+        "startChar": 1,
+        "endLine": 5,
+        "endChar": 30
+      },
+      "revId": "eac3ff0ea3f4b2c3f5ac0b5498d9bfb9e3239fbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53d9627c_08caacc3",
+        "filename": "site/dev/testing/skqp.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-13T20:52:55Z",
+      "side": 1,
+      "message": "does markdown let you define a variable so that in future updates you only need to update the SHA?",
+      "range": {
+        "startLine": 9,
+        "startChar": 34,
+        "endLine": 9,
+        "endChar": 44
+      },
+      "revId": "eac3ff0ea3f4b2c3f5ac0b5498d9bfb9e3239fbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
