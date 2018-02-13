@@ -339,7 +339,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
             return;
         }
 
-        // Write sRGB data to a linear context and read back as sRGB, untagged, and linear
+        // Write sRGB data to a linear context and read back as sRGB, untagged, and linear.
         if (linearContext->writePixels(iiSRGB, origData, 0, 0, 0)) {
             // We expect that the sRGB data was converted to linear on the write and then back to
             // sRGB on the read.
