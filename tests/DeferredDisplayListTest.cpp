@@ -20,6 +20,51 @@
 #include "SkSurfaceProps.h"
 #include "Test.h"
 
+#include "gl/GrGLDefines.h"
+#ifdef SK_VULKAN
+#include "vk/GrVkDefines.h"
+#endif
+
+static GrBackendFormat create_backend_format(GrContext* context, SkColorType colorType) {
+    const GrCaps* caps = context->caps();
+
+    switch (context->contextPriv().getBackend()) {
+    case kOpenGL_GrBackend:
+        if (kRGBA_8888_SkColorType == colorType) {
+            GrGLenum format = caps->srgbSupport() ? GR_GL_SRGB8_ALPHA8 : GR_GL_RGBA8;
+            return GrBackendFormat::MakeGL(format, GR_GL_TEXTURE_2D);
+        } else if (kRGBA_F16_SkColorType == colorType) {
+            return GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D);
+        }
+        break;
+#ifdef SK_VULKAN
+    case kVulkan_GrBackend:
+        if (kRGBA_8888_SkColorType == colorType) {
+            VkFormat format =  caps->srgbSupport() ? VK_FORMAT_R8G8B8A8_SRGB
+                                                   : VK_FORMAT_B8G8R8A8_UNORM;
+            return GrBackendFormat::MakeVK(format);
+        } else if (kRGBA_F16_SkColorType == colorType) {
+            return GrBackendFormat::MakeVK(VK_FORMAT_R16G16B16A16_SFLOAT);
+        }
+        break;
+#endif
+    case kMock_GrBackend:
+        if (kRGBA_8888_SkColorType == colorType) {
+            GrPixelConfig config = caps->srgbSupport() ? kSRGBA_8888_GrPixelConfig
+                                                       : kRGBA_8888_GrPixelConfig;
+            return GrBackendFormat::MakeMock(config);
+        } else if (kRGBA_F16_SkColorType == colorType) {
+            return GrBackendFormat::MakeMock(kRGBA_half_GrPixelConfig);
+        }
+        break;
+    default:
+        return GrBackendFormat(); // return an invalid format
+    }
+
+    return GrBackendFormat(); // return an invalid format
+}
+
+
 class SurfaceParameters {
 public:
     static const int kNumParams = 9;
@@ -80,8 +125,20 @@ public:
             return nullptr;
         }
 
-        SkSurfaceCharacterization c;
-        SkAssertResult(s->characterize(&c));
+        int maxResourceCount;
+        size_t maxResourceBytes;
+        context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+        // Note that Ganesh doesn't make use of the SkImageInfo's alphaType
+        SkImageInfo ii = SkImageInfo::Make(fWidth, fHeight, fColorType,
+                                           kPremul_SkAlphaType, fColorSpace);
+
+        GrBackendFormat backendFormat = create_backend_format(context, fColorType);
+
+        SkSurfaceCharacterization c = context->threadSafeProxy()->createCharacterization(
+                                                maxResourceBytes, ii, backendFormat, fSampleCount,
+                                                fOrigin, fSurfaceProps, fShouldCreateMipMaps);
+        SkAssertResult(c.isValid());
 
         SkDeferredDisplayListRecorder r(c);
         SkCanvas* canvas = r.getCanvas();
@@ -161,6 +218,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) 
         SurfaceParameters params;
 
         ddl = params.createDDL(context);
+        SkAssertResult(ddl);
 
         // The DDL should draw into an SkSurface created with the same parameters
         sk_sp<SkSurface> s = params.make(context);
@@ -211,9 +269,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) 
         int maxResourceCount;
         size_t maxResourceBytes;
         context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
-
-        context->setResourceCacheLimits(maxResourceCount/2, maxResourceBytes);
-        REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
 
         context->setResourceCacheLimits(maxResourceCount, maxResourceBytes/2);
         REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
