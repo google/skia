@@ -261,11 +261,10 @@ bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace
             return context->caps()->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB();
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
-            // We may get here with either a linear-gamma color space or with a sRGB-gamma color
-            // space when we lack GPU sRGB support.
+            // If we don't have sRGB support, we may get here with a color space. It still needs
+            // to be sRGB-like (so that the application will work correctly on sRGB devices.)
             return !colorSpace ||
-                   (colorSpace->gammaCloseToSRGB() && !context->caps()->srgbSupport()) ||
-                   colorSpace->gammaIsLinear();
+                (colorSpace->gammaCloseToSRGB() && !context->caps()->srgbSupport());
         default:
             return !colorSpace;
     }
