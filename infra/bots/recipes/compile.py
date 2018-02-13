@@ -212,3 +212,27 @@ def GenTests(api):
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
   )
+
+
+  buildername = 'Build-Debian9-Clang-universal-Dev-Android_SKQP'
+  yield (
+      api.test('skqp_builder') +
+      api.properties(
+          repository='https://skia.googlesource.com/skia.git',
+          buildername=buildername,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          patch_issue=500,
+          patch_repo='https://skia.googlesource.com/skia.git',
+          patch_set=1,
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=buildername,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      ) +
+      api.path.exists(
+          api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+      )
+  )
