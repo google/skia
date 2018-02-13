@@ -257,17 +257,6 @@ with open(sys.argv[1], 'w') as f:
                      infra_step=True,
                      abort_on_failure=False, fail_build_on_failure=False)
 
-  def copy_extra_build_products(self, swarming_out_dir):
-    configuration = self.m.vars.builder_cfg.get('configuration', '')
-    extra_tokens  = self.m.vars.extra_tokens
-    os            = self.m.vars.builder_cfg.get('os',            '')
-
-    win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
-    if 'Win' in os and 'Vulkan' in extra_tokens:
-      self.m.run.copy_build_products(
-          win_vulkan_sdk,
-          swarming_out_dir.join('out', configuration + '_x64'))
-
   def step(self, name, cmd):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     cmd = [app] + cmd[1:]
