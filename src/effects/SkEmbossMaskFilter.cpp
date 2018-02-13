@@ -30,7 +30,7 @@ sk_sp<SkMaskFilter> SkEmbossMaskFilter::Make(SkScalar blurSigma, const Light& li
 
     Light newLight = light;
     normalize3(newLight.fDirection, light.fDirection);
-    if (SkScalarsAreFinite(newLight.fDirection, 3)) {
+    if (!SkScalarsAreFinite(newLight.fDirection, 3)) {
         return nullptr;
     }
 
