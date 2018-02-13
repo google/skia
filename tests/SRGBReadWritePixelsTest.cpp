@@ -174,10 +174,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     desc.fConfig = kSRGBA_8888_GrPixelConfig;
     if (context->caps()->isConfigRenderable(desc.fConfig) &&
         context->caps()->isConfigTexturable(desc.fConfig)) {
-        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
+        auto srgbContext = context->contextPriv().makeDeferredSurfaceContext(
                 desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo,
                 SkColorSpace::MakeSRGB());
-        if (!sContext) {
+        if (!srgbContext) {
             ERRORF(reporter, "Could not create SRGBA surface context.");
             return;
         }
@@ -185,15 +185,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         float error = context->caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
 
         // Write srgba data and read as srgba and then as rgba
-        if (sContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
+        if (srgbContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
             // For the all-srgba case, we allow a small error only for devices that have
             // precision variation because the srgba data gets converted to linear and back in
             // the shader.
             float smallError = context->caps()->shaderCaps()->halfIs32Bits() ? 0.0f : 1.f;
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiSRGBA,
                                   check_srgb_to_linear_to_srgb_conversion, smallError,
                                   "write/read srgba to srgba texture");
-            read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiRGBA,
                                   check_srgb_to_linear_conversion, error,
                                   "write srgba/read rgba with srgba texture");
         } else {
@@ -201,12 +201,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         }
 
         // Now verify that we can write linear data
-        if (sContext->writePixels(iiRGBA, origData, 0, 0, 0)) {
+        if (srgbContext->writePixels(iiRGBA, origData, 0, 0, 0)) {
             // We allow more error on GPUs with lower precision shader variables.
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiSRGBA,
                                   check_linear_to_srgb_conversion, error,
                                   "write rgba/read srgba with srgba texture");
-            read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiRGBA,
                                   check_linear_to_srgb_to_linear_conversion, error,
                                   "write/read rgba with srgba texture");
         } else {
@@ -214,17 +214,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         }
 
         desc.fConfig = kRGBA_8888_GrPixelConfig;
-        sContext = context->contextPriv().makeDeferredSurfaceContext(desc,
+        auto untaggedContext = context->contextPriv().makeDeferredSurfaceContext(desc,
                                                                      GrMipMapped::kNo,
                                                                      SkBackingFit::kExact,
                                                                      SkBudgeted::kNo);
-        if (!sContext) {
-            ERRORF(reporter, "Could not create RGBA surface context.");
+        if (!untaggedContext) {
+            ERRORF(reporter, "Could not create untagged RGBA surface context.");
             return;
         }
 
         // Write srgba data to a rgba texture and read back as srgba and rgba
-        if (sContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
+        if (untaggedContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
 #if 0
             // We don't support this conversion (read from untagged source into tagged destination.
             // If we decide there is a meaningful way to implement this, restore this test.
@@ -237,7 +237,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
             // sRGB encoded values.
             //
             // srgb_to_linear_to_srgb is a proxy for the expected identity transform.
-            read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiRGBA,
                                   check_srgb_to_linear_to_srgb_conversion, error,
                                   "write srgba/read rgba to rgba texture");
         } else {
@@ -245,8 +245,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         }
 
         // Write rgba data to a rgba texture and read back as srgba
-        if (sContext->writePixels(iiRGBA, origData, 0, 0, 0)) {
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
+        if (untaggedContext->writePixels(iiRGBA, origData, 0, 0, 0)) {
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiSRGBA,
                                   check_linear_to_srgb_conversion, 1.2f,
                                   "write rgba/read srgba to rgba texture");
         } else {
