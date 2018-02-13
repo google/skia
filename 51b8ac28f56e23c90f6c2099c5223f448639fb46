@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8dabea1c_5ae83626",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-02-13T15:44:37Z",
+      "side": 1,
+      "message": "Yep, that\u0027s the correct one. Thanks!",
+      "parentUuid": "4890912e_699b6dcb",
+      "range": {
+        "startLine": 179,
+        "startChar": 40,
+        "endLine": 179,
+        "endChar": 79
+      },
+      "revId": "51b8ac28f56e23c90f6c2099c5223f448639fb46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "398d6bef_d8338673",
         "filename": "src/android/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "51b8ac28f56e23c90f6c2099c5223f448639fb46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f89e719_bdb8e4e2",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-02-13T15:44:37Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "398d6bef_d8338673",
+      "range": {
+        "startLine": 215,
+        "startChar": 32,
+        "endLine": 215,
+        "endChar": 57
+      },
+      "revId": "51b8ac28f56e23c90f6c2099c5223f448639fb46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
