@@ -57,6 +57,11 @@ public:
         return false;
     }
 
+    bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
+                                    GrPixelConfig*) const override {
+        return false;
+    }
+
 private:
     void initFeatureSet(MTLFeatureSet featureSet);
 
