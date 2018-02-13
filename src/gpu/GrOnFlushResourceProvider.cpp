@@ -53,9 +53,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     return renderTargetContext;
 }
 
-// TODO: we only need this entry point as long as we have to pre-allocate the atlas.
-// Remove it ASAP.
-sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
+sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext2(
                                                         sk_sp<GrSurfaceProxy> proxy,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
@@ -84,6 +82,10 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
 
 bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
     auto resourceProvider = fDrawingMgr->getContext()->contextPriv().resourceProvider();
+
+    if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
+        return proxy->priv().doLazyInstantiation(resourceProvider);
+    }
 
     return proxy->instantiate(resourceProvider);
 }
