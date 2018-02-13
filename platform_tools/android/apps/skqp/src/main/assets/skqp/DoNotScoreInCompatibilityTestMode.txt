@@ -5,6 +5,7 @@ addarc
 animated-image-blurs
 anisotropic_hq
 arcs_as_paths
+bezier_quad_effects
 bitmapfilters
 bleed
 bleed_alpha_bmp
@@ -27,6 +28,7 @@ colormatrix
 complexclip_aa_invert
 complexclip_aa_layer_invert
 concavepaths
+conicpaths
 const_color_processor
 convex-lineonly-paths-stroke-and-fill
 convex-polygon-inset
@@ -110,6 +112,7 @@ ovals
 ovals_as_paths
 parsedpaths
 pathfill
+perlinnoise
 pictureshader
 polygons
 rects
@@ -117,6 +120,7 @@ rrect
 rrect_draw_aa
 savelayer_with_backdrop
 scaled_tilemodes_npot
+shadermaskfilter_gradient
 shadertext
 shadertext2
 shadertext3
@@ -144,5 +148,6 @@ varied_text_clipped_lcd
 varied_text_clipped_no_lcd
 varied_text_ignorable_clip_no_lcd
 verylarge_picture_image
+windowrectangles_mask
 yuv_to_rgb_effect
 zeroPath
