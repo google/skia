@@ -109,7 +109,9 @@ cc_defaults {
         instrumentation: true,
         profile_file: "skia/skia.profdata",
         benchmarks: ["hwui", "skia"],
-        enable_profile_use: true,
+        // Bugs: http://b/73127367, http://b/73257154, http://b/73249590
+        // Turn off PGO for Skia until toolchain bug is fixed.
+        enable_profile_use: false,
     },
 }
 
