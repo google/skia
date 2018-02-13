@@ -553,8 +553,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     GrGpu::DrawPreference drawPreference = premulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                        : GrGpu::kNoDraw_DrawPreference;
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
+    GrSRGBConversion srgbConversion = GrDetermineWritePixelsSRGBConversion(
+            srcConfig, srcColorSpace, GrPixelConfigIsSRGBEncoded(dstProxy->config()),
+            dst->colorSpaceInfo().colorSpace());
     if (!fContext->fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
-                                            srcConfig, &drawPreference, &tempDrawInfo)) {
+                                            srcConfig, srgbConversion, &drawPreference,
+                                            &tempDrawInfo)) {
         return false;
     }
 
@@ -686,8 +690,12 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GrGpu::DrawPreference drawPreference = unpremulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                          : GrGpu::kNoDraw_DrawPreference;
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
+    GrSRGBConversion srgbConversion = GrDetermineReadPixelsSRGBConversion(
+            GrPixelConfigIsSRGBEncoded(srcProxy->config()), src->colorSpaceInfo().colorSpace(),
+            dstConfig, dstColorSpace);
     if (!fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
-                                           dstConfig, &drawPreference, &tempDrawInfo)) {
+                                           dstConfig, srgbConversion, &drawPreference,
+                                           &tempDrawInfo)) {
         return false;
     }
 
