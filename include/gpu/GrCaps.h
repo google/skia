@@ -15,7 +15,6 @@
 #include "SkRefCnt.h"
 #include "SkString.h"
 
-class GrBackendFormat;
 class GrBackendRenderTarget;
 class GrBackendTexture;
 struct GrContextOptions;
@@ -201,7 +200,7 @@ public:
     bool validateSurfaceDesc(const GrSurfaceDesc&, GrMipMapped) const;
 
     /**
-     * Returns true if the GrBackendTexture can be used with the supplied SkColorType. If it is
+     * Returns true if the GrBackendTexutre can we used with the supplied SkColorType. If it is
      * compatible, the passed in GrPixelConfig will be set to a config that matches the backend
      * format and requested SkColorType.
      */
@@ -209,12 +208,6 @@ public:
                                         GrPixelConfig*) const = 0;
     virtual bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
                                              GrPixelConfig*) const = 0;
-
-    // TODO: replace validateBackendTexture and validateBackendRenderTarget with calls to
-    // getConfigFromBackendFormat?
-    // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
-    virtual bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
-                                            GrPixelConfig*) const = 0;
 
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps

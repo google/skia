@@ -41,10 +41,6 @@ SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
 bool SkDeferredDisplayListRecorder::init() {
     SkASSERT(!fSurface);
 
-    if (!fCharacterization.isValid()) {
-        return false;
-    }
-
 #ifdef SK_RASTER_RECORDER_IMPLEMENTATION
     // Use raster right now to allow threading
     const SkImageInfo ii = SkImageInfo::Make(fCharacterization.width(), fCharacterization.height(),

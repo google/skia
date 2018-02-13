@@ -36,7 +36,8 @@ public:
     enum class MipMapped : bool { kNo = false, kYes = true };
 
     SkSurfaceCharacterization()
-            : fCacheMaxResourceBytes(0)
+            : fCacheMaxResourceCount(0)
+            , fCacheMaxResourceBytes(0)
             , fOrigin(kBottomLeft_GrSurfaceOrigin)
             , fWidth(0)
             , fHeight(0)
@@ -55,9 +56,8 @@ public:
     SkSurfaceCharacterization& operator=(const SkSurfaceCharacterization& other) = default;
 
     GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
+    int cacheMaxResourceCount() const { return fCacheMaxResourceCount; }
     size_t cacheMaxResourceBytes() const { return fCacheMaxResourceBytes; }
-
-    bool isValid() const { return kUnknown_GrPixelConfig != fConfig; }
 
     GrSurfaceOrigin origin() const { return fOrigin; }
     int width() const { return fWidth; }
@@ -73,30 +73,9 @@ public:
 
 private:
     friend class SkSurface_Gpu; // for 'set'
-    friend class GrContextThreadSafeProxy; // for private ctor
-
-    SkSurfaceCharacterization(sk_sp<GrContextThreadSafeProxy> contextInfo,
-                              size_t cacheMaxResourceBytes,
-                              GrSurfaceOrigin origin, int width, int height,
-                              GrPixelConfig config, GrFSAAType FSAAType, int stencilCnt,
-                              Textureable isTextureable, MipMapped isMipMapped,
-                              sk_sp<SkColorSpace> colorSpace,
-                              const SkSurfaceProps& surfaceProps)
-            : fContextInfo(std::move(contextInfo))
-            , fCacheMaxResourceBytes(cacheMaxResourceBytes)
-            , fOrigin(origin)
-            , fWidth(width)
-            , fHeight(height)
-            , fConfig(config)
-            , fFSAAType(FSAAType)
-            , fStencilCnt(stencilCnt)
-            , fIsTextureable(isTextureable)
-            , fIsMipMapped(isMipMapped)
-            , fColorSpace(std::move(colorSpace))
-            , fSurfaceProps(surfaceProps) {
-    }
 
     void set(sk_sp<GrContextThreadSafeProxy> contextInfo,
+             int cacheMaxResourceCount,
              size_t cacheMaxResourceBytes,
              GrSurfaceOrigin origin,
              int width, int height,
@@ -110,6 +89,7 @@ private:
         SkASSERT(MipMapped::kNo == isMipMapped || Textureable::kYes == isTextureable);
 
         fContextInfo = contextInfo;
+        fCacheMaxResourceCount = cacheMaxResourceCount;
         fCacheMaxResourceBytes = cacheMaxResourceBytes;
 
         fOrigin = origin;
@@ -125,6 +105,7 @@ private:
     }
 
     sk_sp<GrContextThreadSafeProxy> fContextInfo;
+    int                             fCacheMaxResourceCount;
     size_t                          fCacheMaxResourceBytes;
 
     GrSurfaceOrigin                 fOrigin;
@@ -148,8 +129,6 @@ public:
             , fHeight(0)
             , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
     }
-
-    bool isValid() const { return false; }
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }

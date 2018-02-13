@@ -72,29 +72,13 @@ public:
     }
 
     bool validateBackendTexture(const GrBackendTexture& tex, SkColorType,
-                                GrPixelConfig* config) const override {
-        const GrMockTextureInfo* texInfo = tex.getMockTextureInfo();
-        if (!texInfo) {
-            return false;
-        }
-
-        *config = texInfo->fConfig;
-        return true;
+                                GrPixelConfig*) const override {
+        return SkToBool(tex.getMockTextureInfo());
     }
 
     bool validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType,
                                      GrPixelConfig*) const override {
         return false;
-    }
-
-    bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
-                                    GrPixelConfig* config) const override {
-        const GrPixelConfig* mockFormat = format.getMockFormat();
-        if (!mockFormat) {
-            return false;
-        }
-        *config = *mockFormat;
-        return true;
     }
 
 private:
