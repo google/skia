@@ -70,6 +70,30 @@
       "revId": "0f3436a5fd76381c6a9a514db27eeeb63d238e06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41b22709_a8ce113f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-02-13T21:48:04Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "1f98f53c_9612fa66",
+      "range": {
+        "startLine": 66,
+        "startChar": 20,
+        "endLine": 66,
+        "endChar": 22
+      },
+      "revId": "0f3436a5fd76381c6a9a514db27eeeb63d238e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
