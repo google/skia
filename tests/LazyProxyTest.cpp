@@ -58,13 +58,12 @@ public:
         Op(GrProxyProvider* proxyProvider, LazyProxyTest* test, bool nullTexture)
                     : GrDrawOp(ClassID()), fTest(test) {
             fProxy = proxyProvider->createFullyLazyProxy([this, nullTexture](
-                                        GrResourceProvider* rp, GrSurfaceOrigin* origin) {
+                                        GrResourceProvider* rp) {
                 if (!rp) {
                     return sk_sp<GrTexture>();
                 }
                 REPORTER_ASSERT(fTest->fReporter, !fTest->fHasOpTexture);
                 fTest->fHasOpTexture = true;
-                *origin = kTopLeft_GrSurfaceOrigin;
                 if (nullTexture) {
                     return sk_sp<GrTexture>();
                 } else {
@@ -77,7 +76,7 @@ public:
                     REPORTER_ASSERT(fTest->fReporter, texture);
                     return texture;
                 }
-            }, GrProxyProvider::Renderable::kNo, kRGB_565_GrPixelConfig);
+            }, GrProxyProvider::Renderable::kNo, kTopLeft_GrSurfaceOrigin, kRGB_565_GrPixelConfig);
             this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
         }
 
@@ -112,17 +111,19 @@ public:
                 , fProxyProvider(proxyProvider)
                 , fTest(test)
                 , fAtlas(atlas) {
-            fLazyProxy = proxyProvider->createFullyLazyProxy([this](GrResourceProvider* rp,
-                                                                    GrSurfaceOrigin* origin) {
-                if (!rp) {
-                    return sk_sp<GrTexture>();
-                }
-                REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
-                fTest->fHasClipTexture = true;
-                *origin = kBottomLeft_GrSurfaceOrigin;
-                fAtlas->instantiate(rp);
-                return sk_ref_sp(fAtlas->priv().peekTexture());
-            }, GrProxyProvider::Renderable::kYes, kAlpha_half_GrPixelConfig);
+            fLazyProxy = proxyProvider->createFullyLazyProxy(
+                                [this](GrResourceProvider* rp) {
+                                    if (!rp) {
+                                        return sk_sp<GrTexture>();
+                                    }
+                                    REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
+                                    fTest->fHasClipTexture = true;
+                                    fAtlas->instantiate(rp);
+                                    return sk_ref_sp(fAtlas->priv().peekTexture());
+                                },
+                                GrProxyProvider::Renderable::kYes,
+                                kBottomLeft_GrSurfaceOrigin,
+                                kAlpha_half_GrPixelConfig);
             fAccess.reset(fLazyProxy, GrSamplerState::Filter::kNearest,
                           GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
             this->addTextureSampler(&fAccess);
@@ -220,8 +221,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
             int testCount = 0;
             int* testCountPtr = &testCount;
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-                    [testCountPtr](GrResourceProvider* resourceProvider,
-                                   GrSurfaceOrigin* /*outOrigin*/) {
+                    [testCountPtr](GrResourceProvider* resourceProvider) {
                         if (!resourceProvider) {
                             *testCountPtr = -1;
                             return sk_sp<GrTexture>();
@@ -267,8 +267,7 @@ public:
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
         fLazyProxy = proxyProvider->createLazyProxy(
-                [testExecuteValue, shouldFailInstantiation, desc] (
-                        GrResourceProvider* rp, GrSurfaceOrigin* /*origin*/) {
+                [testExecuteValue, shouldFailInstantiation, desc] (GrResourceProvider* rp) {
                     if (!rp) {
                         return sk_sp<GrTexture>();
                     }

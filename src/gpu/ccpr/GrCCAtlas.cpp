@@ -138,6 +138,8 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(GrOnFlushResourceProvider* onFl
     SkASSERT(!fTextureProxy);
 
     GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = fWidth;
     desc.fHeight = fHeight;
     desc.fConfig = kAlpha_half_GrPixelConfig;
