@@ -26,7 +26,6 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'skia_launcher',
   'skiaserve',
   'lib/*.so',
-  'vulkan-1.dll',
 ]
 
 
