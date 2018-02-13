@@ -484,23 +484,18 @@ public:
     // Determines whether a texture will need to be rescaled in order to be used with the
     // GrSamplerState. This variation is called when the caller will create a new texture using the
     // resource provider from a non-texture src (cpu-backed image, ...).
-    bool isACopyNeededForTextureParams(int width, int height, const GrSamplerState&,
-                                       GrTextureProducer::CopyParams*,
-                                       SkScalar scaleAdjust[2]) const;
+    static bool IsACopyNeededForTextureParams1(const GrCaps&, int width, int height,
+                                              const GrSamplerState&, GrTextureProducer::CopyParams*,
+                                              SkScalar scaleAdjust[2]);
 
     // Like the above but this variation should be called when the caller is not creating the
     // original texture but rather was handed the original texture. It adds additional checks
     // relevant to original textures that were created external to Skia via
     // GrResourceProvider::wrap methods.
-    bool isACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState& params,
-                                       GrTextureProducer::CopyParams* copyParams,
-                                       SkScalar scaleAdjust[2]) const {
-        if (this->isACopyNeededForTextureParams(proxy->width(), proxy->height(), params,
-                                                copyParams, scaleAdjust)) {
-            return true;
-        }
-        return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
-    }
+    static bool IsACopyNeededForTextureParams(const GrCaps& caps,GrTextureProxy* proxy,
+                                              const GrSamplerState& params,
+                                              GrTextureProducer::CopyParams* copyParams,
+                                              SkScalar scaleAdjust[2]);
 
     // This is only to be used in GL-specific tests.
     virtual const GrGLContext* glContextForTesting() const { return nullptr; }
@@ -560,12 +555,6 @@ private:
                                                                      int sampleCnt) = 0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
-
-    virtual bool onIsACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState&,
-                                                 GrTextureProducer::CopyParams*,
-                                                 SkScalar scaleAdjust[2]) const {
-        return false;
-    }
 
     virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                                      int readWidth, int readHeight,
