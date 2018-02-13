@@ -262,6 +262,7 @@ gm_sources = [
   "$_gm/samplerstress.cpp",
   "$_gm/savelayer.cpp",
   "$_gm/scaledstrokes.cpp",
+  "$_gm/scaledemoji.cpp",
   "$_gm/shadermaskfilter.cpp",
   "$_gm/shadertext.cpp",
   "$_gm/shadertext2.cpp",
