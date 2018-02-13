@@ -16,6 +16,69 @@
 #include "vk/GrVkTypes.h"
 #endif
 
+class SK_API GrBackendFormat {
+public:
+    // Creates an invalid backend format.
+    GrBackendFormat() : fValid(false) {}
+
+    static GrBackendFormat MakeGL(GrGLenum format, GrGLenum target) {
+        return GrBackendFormat(format, target);
+    }
+
+#ifdef SK_VULKAN
+    static GrBackendFormat MakeVK(VkFormat format) {
+        return GrBackendFormat(format);
+    }
+#endif
+
+    static GrBackendFormat MakeMock(GrPixelConfig config) {
+        return GrBackendFormat(config);
+    }
+
+    GrBackend backend() const {return fBackend; }
+
+    // If the backend API is GL, these return a pointer to the format and target. Otherwise
+    // it returns nullptr.
+    const GrGLenum* getGLFormat() const;
+    const GrGLenum* getGLTarget() const;
+
+#ifdef SK_VULKAN
+    // If the backend API is Vulkan, this returns a pointer to a VkFormat. Otherwise
+    // it returns nullptr
+    const VkFormat* getVkFormat() const;
+#endif
+
+    // If the backend API is Mock, this returns a pointer to a GrPixelConfig. Otherwise
+    // it returns nullptr.
+    const GrPixelConfig* getMockFormat() const;
+
+    // Returns true if the backend format has been initialized.
+    bool isValid() const { return fValid; }
+
+private:
+    GrBackendFormat(GrGLenum format, GrGLenum target);
+
+#ifdef SK_VULKAN
+    GrBackendFormat(const VkFormat vkFormat);
+#endif
+
+    GrBackendFormat(const GrPixelConfig config);
+
+    GrBackend fBackend;
+    bool      fValid;
+
+    union {
+        struct {
+            GrGLenum fTarget; // GL_TEXTURE_2D, GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE
+            GrGLenum fFormat; // the sized, internal format of the GL resource
+        } fGL;
+#ifdef SK_VULKAN
+        VkFormat      fVkFormat;
+#endif
+        GrPixelConfig fMockFormat;
+    };
+};
+
 class SK_API GrBackendTexture {
 public:
     // Creates an invalid backend texture.
