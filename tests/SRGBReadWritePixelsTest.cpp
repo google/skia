@@ -112,6 +112,11 @@ static bool check_srgb_to_linear_to_srgb_conversion(uint32_t input, uint32_t out
     return check_double_conversion<srgb_to_linear, linear_to_srgb>(input, output, error);
 }
 
+static bool check_no_conversion(uint32_t input, uint32_t output, float error) {
+    // This is a bit of a hack to check identity transformations that may lose precision.
+    return check_srgb_to_linear_to_srgb_conversion(input, output, error);
+}
+
 typedef bool (*CheckFn) (uint32_t orig, uint32_t actual, float error);
 
 void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* context,
@@ -142,8 +147,8 @@ void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* conte
     }
 }
 
-// TODO: Add tests for copySurface between srgb/linear textures. Add tests for unpremul/premul
-// conversion during read/write along with srgb/linear conversions.
+// Test all combinations of writePixels/readPixels where the surface context/write source/read dst
+// are sRGB, linear, or untagged RGBA_8888.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 #if defined(SK_BUILD_FOR_GOOGLE3)
@@ -161,11 +166,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         }
     }
 
-    const SkImageInfo iiSRGBA = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType,
-                                                  kPremul_SkAlphaType,
-                                                  SkColorSpace::MakeSRGB());
-    const SkImageInfo iiRGBA = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType,
-                                                 kPremul_SkAlphaType);
+    const SkImageInfo iiSRGB = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType,
+                                                 kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
+    const SkImageInfo iiUntagged =
+            SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    const SkImageInfo iiLinear = SkImageInfo::Make(
+            kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear());
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
@@ -174,83 +181,221 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     desc.fConfig = kSRGBA_8888_GrPixelConfig;
     if (context->caps()->isConfigRenderable(desc.fConfig) &&
         context->caps()->isConfigTexturable(desc.fConfig)) {
-        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
+        auto srgbContext = context->contextPriv().makeDeferredSurfaceContext(
                 desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo,
                 SkColorSpace::MakeSRGB());
-        if (!sContext) {
+        if (!srgbContext) {
             ERRORF(reporter, "Could not create SRGBA surface context.");
             return;
         }
 
+        // We allow more error on GPUs with lower precision shader variables.
         float error = context->caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
 
-        // Write srgba data and read as srgba and then as rgba
-        if (sContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
-            // For the all-srgba case, we allow a small error only for devices that have
-            // precision variation because the srgba data gets converted to linear and back in
+        // Write sRGB data and then read as sRGB, untagged, and linear.
+        if (srgbContext->writePixels(iiSRGB, origData, 0, 0, 0)) {
+            // For the all-sRGB case, we allow a small error only for devices that have
+            // precision variation because the sRGB data gets converted to linear and back in
             // the shader.
             float smallError = context->caps()->shaderCaps()->halfIs32Bits() ? 0.0f : 1.f;
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiSRGB,
                                   check_srgb_to_linear_to_srgb_conversion, smallError,
-                                  "write/read srgba to srgba texture");
-            read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
+                                  "write/read sRGB to sRGB context");
+            // TODO: This should either fail or do no conversion as we're reading to untagged.
+            // Currently it treats the untagged dst as linear and converts from sRGB.
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiUntagged,
                                   check_srgb_to_linear_conversion, error,
-                                  "write srgba/read rgba with srgba texture");
+                                  "write sRGB/read untagged with sRGB context");
+            // Reading back as linear will trigger a sRGB->linear conversion.
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiLinear,
+                                  check_srgb_to_linear_conversion, error,
+                                  "write sRGB/read linear with sRGB context");
         } else {
-            ERRORF(reporter, "Could not write srgba data to srgba texture.");
+            ERRORF(reporter, "Could not write srgba data to srgba context.");
         }
 
-        // Now verify that we can write linear data
-        if (sContext->writePixels(iiRGBA, origData, 0, 0, 0)) {
-            // We allow more error on GPUs with lower precision shader variables.
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
+        // Now verify that we can write untagged data. Currently this treats the untagged data as
+        // linear and converts to sRGB during the write. TODO: Fail or passthrough?
+        if (srgbContext->writePixels(iiUntagged, origData, 0, 0, 0)) {
+            // If we read back as sRGB we get back the values that were converted during the write
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiSRGB,
                                   check_linear_to_srgb_conversion, error,
-                                  "write rgba/read srgba with srgba texture");
-            read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
+                                  "write untagged/read sRGB with sRGB context");
+            // The untagged read is treated as linear and so we convert back from sRGB in the
+            // context to linear. TODO: Fail or passthrough.
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiUntagged,
                                   check_linear_to_srgb_to_linear_conversion, error,
-                                  "write/read rgba with srgba texture");
+                                  "write/read untagged with sRGB context");
+            // Reading to linear converts back to linear from the sRGB context.
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiLinear,
+                                  check_linear_to_srgb_to_linear_conversion, error,
+                                  "write untagged/read linear with sRGB context");
         } else {
-            ERRORF(reporter, "Could not write rgba data to srgba texture.");
+            ERRORF(reporter, "Could not write rgba data to sRGB context.");
+        }
+
+        // Now verify that we can write linear data. It should get converted to sRGB on the write.
+        // We will then read it back as sRGB, untagged, and linear.
+        if (srgbContext->writePixels(iiLinear, origData, 0, 0, 0)) {
+            // If we read back as sRGB we get back the values that were converted during the write
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiSRGB,
+                                  check_linear_to_srgb_conversion, error,
+                                  "write linear/read sRGB with sRGB context");
+            // The untagged read is treated as linear and so we convert back from sRGB in the
+            // context to linear. TODO: Fail or passthrough?
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiUntagged,
+                                  check_linear_to_srgb_to_linear_conversion, error,
+                                  "write linear/read untagged with sRGB context");
+            // Reading to linear converts back to linear from the sRGB context..
+            read_and_check_pixels(reporter, srgbContext.get(), origData, iiLinear,
+                                  check_linear_to_srgb_to_linear_conversion, error,
+                                  "write/read linear with sRGB context");
+        } else {
+            ERRORF(reporter, "Could not write rgba data to srgba context.");
         }
 
         desc.fConfig = kRGBA_8888_GrPixelConfig;
-        sContext = context->contextPriv().makeDeferredSurfaceContext(desc,
-                                                                     GrMipMapped::kNo,
-                                                                     SkBackingFit::kExact,
-                                                                     SkBudgeted::kNo);
-        if (!sContext) {
-            ERRORF(reporter, "Could not create RGBA surface context.");
+        auto untaggedContext = context->contextPriv().makeDeferredSurfaceContext(
+                desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo);
+        if (!untaggedContext) {
+            ERRORF(reporter, "Could not create untagged RGBA context.");
             return;
         }
 
-        // Write srgba data to a rgba texture and read back as srgba and rgba
-        if (sContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
-#if 0
-            // We don't support this conversion (read from untagged source into tagged destination.
-            // If we decide there is a meaningful way to implement this, restore this test.
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
-                                  check_srgb_to_linear_to_srgb_conversion, error,
-                                  "write/read srgba to rgba texture");
-#endif
-            // We expect the sRGB -> linear write to do no sRGB conversion (to match the behavior of
-            // drawing tagged sources). skbug.com/6547. So the data we read should still contain
-            // sRGB encoded values.
-            //
-            // srgb_to_linear_to_srgb is a proxy for the expected identity transform.
-            read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
-                                  check_srgb_to_linear_to_srgb_conversion, error,
-                                  "write srgba/read rgba to rgba texture");
+        // Write sRGB data to an untagged context and read back as sRGB, untagged, and linear.
+        // Because the surface is untagged, we expect this write performs no conversion.
+        if (untaggedContext->writePixels(iiSRGB, origData, 0, 0, 0)) {
+            // Currently this converts to sRGB when we read. TODO: Should reading from an untagged
+            // context to sRGB fail or do no conversion?
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiSRGB,
+                                  check_linear_to_srgb_conversion, error,
+                                  "write/read sRGB to untagged context");
+
+            // Reading untagged back as untagged should do no conversion.
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiUntagged,
+                                  check_no_conversion, error,
+                                  "write sRGB/read untagged to untagged context");
+            // Currently reading back from untagged to linear does no conversion. TODO: Is this OK
+            // or should it fail?
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiLinear,
+                                  check_no_conversion, error,
+                                  "write sRGB/read linear to untagged context");
         } else {
-            ERRORF(reporter, "Could not write srgba data to rgba texture.");
+            ERRORF(reporter, "Could not write sRGB data to untagged context.");
         }
 
-        // Write rgba data to a rgba texture and read back as srgba
-        if (sContext->writePixels(iiRGBA, origData, 0, 0, 0)) {
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
-                                  check_linear_to_srgb_conversion, 1.2f,
-                                  "write rgba/read srgba to rgba texture");
+        // Write untagged data to an untagged context and read back as sRGB, untagged, and linear.
+        // No conversion happens on the write.
+        if (untaggedContext->writePixels(iiUntagged, origData, 0, 0, 0)) {
+            // Currently this converts to sRGB when we read. TODO: Should reading from an untagged
+            // context to sRGB fail or do no conversion?
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiSRGB,
+                                  check_linear_to_srgb_conversion, error,
+                                  "write untagged/read sRGB to untagged context");
+
+            // Reading untagged back as untagged should do no conversion.
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiUntagged,
+                                  check_no_conversion, error,
+                                  "write/read untagged to untagged context");
+            // Currently reading back from untagged to linear does no conversion. TODO: Is this OK
+            // or should it fail?
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiLinear,
+                                  check_no_conversion, error,
+                                  "write untagged/read linear to untagged context");
         } else {
-            ERRORF(reporter, "Could not write rgba data to rgba texture.");
+            ERRORF(reporter, "Could not write rgba data to rgba context.");
+        }
+
+        // Write linear data to an untagged context and read back as sRGB, untagged, and linear.
+        // No conversion happens on the write.
+        if (untaggedContext->writePixels(iiLinear, origData, 0, 0, 0)) {
+            // Currently this converts to sRGB when we read. TODO: Should reading from an untagged
+            // context to sRGB fail or do no conversion?
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiSRGB,
+                                  check_linear_to_srgb_conversion, error,
+                                  "write linear/read sRGB to untagged context");
+
+            // Reading untagged back as untagged should do no conversion.
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiUntagged,
+                                  check_no_conversion, error,
+                                  "write linear/read untagged to untagged context");
+            // Currently reading back from untagged to linear does no conversion. TODO: Is this OK
+            // or should it fail?
+            read_and_check_pixels(reporter, untaggedContext.get(), origData, iiLinear,
+                                  check_no_conversion, error,
+                                  "write/read linear to untagged context");
+        } else {
+            ERRORF(reporter, "Could not write rgba data to rgba context.");
+        }
+
+        auto linearContext =
+                context->contextPriv().makeDeferredSurfaceContext(desc,
+                                                                  GrMipMapped::kNo,
+                                                                  SkBackingFit::kExact,
+                                                                  SkBudgeted::kNo,
+                                                                  SkColorSpace::MakeSRGBLinear());
+        if (!linearContext) {
+            ERRORF(reporter, "Could not create linear RGBA surface context.");
+            return;
+        }
+
+        // Write sRGB data to a linear context and read back as sRGB, untagged, and linear
+        if (linearContext->writePixels(iiSRGB, origData, 0, 0, 0)) {
+            // We expect that the sRGB data was converted to linear on the write and then back to
+            // sRGB on the read.
+            read_and_check_pixels(reporter, linearContext.get(), origData, iiSRGB,
+                                  check_srgb_to_linear_to_srgb_conversion, error,
+                                  "write/read sRGB to linear context");
+
+            // We expect the sRGB -> linear write to do sRGB conversion and then no conversion
+            // when read. TODO: Is this ok or should untagged read fail on a linear context?
+            read_and_check_pixels(reporter, linearContext.get(), origData, iiUntagged,
+                                  check_srgb_to_linear_conversion, error,
+                                  "write sRGB/read untagged to linear context");
+
+            // This should have converted on write and then no conversion when read.
+            read_and_check_pixels(reporter, linearContext.get(), origData, iiLinear,
+                                  check_srgb_to_linear_conversion, error,
+                                  "write sRGB/read untagged to linear context");
+        } else {
+            ERRORF(reporter, "Could not write srgba data to rgba context.");
+        }
+
+        // Write untagged data to a linear context and read back as sRGB, untagged, and linear.
+        // TODO: Should this fail? Currently it does no conversion on write.
+        if (linearContext->writePixels(iiUntagged, origData, 0, 0, 0)) {
+            // Reading back to sRGB triggers a conversion
+            read_and_check_pixels(reporter, linearContext.get(), origData, iiSRGB,
+                                  check_linear_to_srgb_conversion, error,
+                                  "write untagged/read sRGB to linear context");
+            // Reading back to untagged does no conversion. TODO: Should this fail?
+            read_and_check_pixels(reporter, linearContext.get(), origData, iiUntagged,
+                                  check_no_conversion, error,
+                                  "write/read untagged to linear context");
+            // Reading back to linear does no conversion.
+            read_and_check_pixels(reporter, linearContext.get(), origData, iiLinear,
+                                  check_no_conversion, error,
+                                  "write untagged/read linear to linear context");
+        } else {
+            ERRORF(reporter, "Could not write rgba data to rgba context.");
+        }
+        // Write linear data to a linear context and read back as sRGB, untagged, and linear.
+        // No conversion on write.
+        if (linearContext->writePixels(iiUntagged, origData, 0, 0, 0)) {
+            // Reading back to sRGB triggers a conversion
+            read_and_check_pixels(reporter, linearContext.get(), origData, iiSRGB,
+                                  check_linear_to_srgb_conversion, error,
+                                  "write linear/read sRGB to linear context");
+            // Reading back to untagged does no conversion. TODO: Should this fail?
+            read_and_check_pixels(reporter, linearContext.get(), origData, iiUntagged,
+                                  check_no_conversion, error,
+                                  "write linear/read untagged to linear context");
+            // Reading back to linear does no conversion.
+            read_and_check_pixels(reporter, linearContext.get(), origData, iiLinear,
+                                  check_no_conversion, error,
+                                  "write/read linear to linear context");
+        } else {
+            ERRORF(reporter, "Could not write rgba data to rgba context.");
         }
     }
 }
