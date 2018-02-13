@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "26bbc247_a3469ec8",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-13T20:45:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b1ec24e_9ec5fbb1",
+      "revId": "331f4cdbe4bb935a165887467ec6ffa42b23ac31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8cec26e3_999a0065",
         "filename": "tests/SRGBReadWritePixelsTest.cpp",
         "patchSetId": 5
@@ -33,6 +51,24 @@
       "revId": "331f4cdbe4bb935a165887467ec6ffa42b23ac31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca1a8870_a926808b",
+        "filename": "tests/SRGBReadWritePixelsTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-13T20:45:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8cec26e3_999a0065",
+      "revId": "331f4cdbe4bb935a165887467ec6ffa42b23ac31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
