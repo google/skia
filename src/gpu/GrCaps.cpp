@@ -96,7 +96,9 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     this->onApplyOptionsOverrides(options);
     if (options.fDisableDriverCorrectnessWorkarounds) {
-        SkASSERT(!fBlacklistCoverageCounting);
+        // We always blacklist coverage counting on Vulkan currently. TODO: Either stop doing that
+        // or disambiguate blacklisting from incomplete implementation.
+        // SkASSERT(!fBlacklistCoverageCounting);
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAdvBlendEqBlacklist);
     }
