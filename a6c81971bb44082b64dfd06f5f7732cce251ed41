@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5785321b_6f9fde6e",
+        "filename": "src/codec/SkBmpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-13T22:13:50Z",
+      "side": 1,
+      "message": "Think it reads better to put it inside this check?\n\nif (height \u003c 0) {\n   // We can\u0027t negate INT_MIN.\n   if (height \u003d\u003d INT_MIN) {\n       return kInvalidInput;\n   }\n   \n   height \u003d -height;\n   rowOrder \u003d ...;\n}",
+      "revId": "a6c81971bb44082b64dfd06f5f7732cce251ed41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
