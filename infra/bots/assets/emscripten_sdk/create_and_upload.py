@@ -12,6 +12,7 @@
 import argparse
 import common
 import os
+import shutil
 import subprocess
 import sys
 import utils
@@ -30,6 +31,22 @@ def main():
     upload_script = os.path.join(common.FILE_DIR, 'upload.py')
 
     try:
+      # Remove large directories that we don't need to use the sdk
+      # (e.g. intermediate build products)
+      rmpath = os.path.join(args.sdk_path, 'clang', 'fastcomp',
+                            'build_incoming_64')
+      # We can ignore errors, for example, if the folders were already deleted.
+      shutil.rmtree(os.path.join(rmpath, 'lib'), ignore_errors=True)
+      shutil.rmtree(os.path.join(rmpath, 'tools') , ignore_errors=True)
+
+      # Remove the source code, which has lots of small files which slows
+      # extraction
+      src = os.path.join(args.sdk_path, 'clang', 'fastcomp', 'src')
+      for name in os.listdir(src):
+        p = os.path.join(src, name)
+        if os.path.isdir(p):
+          shutil.rmtree(p)
+
       cmd = ['python', upload_script, '-t', args.sdk_path]
       if args.gsutil:
         cmd.extend(['--gsutil', args.gsutil])
