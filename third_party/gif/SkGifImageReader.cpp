@@ -370,13 +370,11 @@ sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, int i
     return nullptr;
 }
 
-// Perform decoding for this frame. frameComplete will be true if the entire frame is decoded.
+// Perform decoding for this frame.
 // Returns false if a decoding error occurred. This is a fatal error and causes the SkGifImageReader to set the "decode failed" flag.
 // Otherwise, either not enough data is available to decode further than before, or the new data has been decoded successfully; returns true in this case.
-bool SkGIFFrameContext::decode(SkStreamBuffer* streamBuffer, SkGifCodec* client,
-                               bool* frameComplete)
+bool SkGIFFrameContext::decode(SkStreamBuffer* streamBuffer, SkGifCodec* client)
 {
-    *frameComplete = false;
     if (!m_lzwContext) {
         // Wait for more data to properly initialize SkGIFLZWContext.
         if (!isDataSizeDefined() || !isHeaderDefined())
@@ -409,7 +407,6 @@ bool SkGIFFrameContext::decode(SkStreamBuffer* streamBuffer, SkGifCodec* client,
     // If this frame is data complete then the previous loop must have completely decoded all LZW blocks.
     // There will be no more decoding for this frame so it's time to cleanup.
     if (isComplete()) {
-        *frameComplete = true;
         m_lzwContext.reset();
     }
     return true;
@@ -418,11 +415,11 @@ bool SkGIFFrameContext::decode(SkStreamBuffer* streamBuffer, SkGifCodec* client,
 // Decode a frame.
 // This method uses SkGIFFrameContext:decode() to decode the frame; decoding error is reported to client as a critical failure.
 // Return true if decoding has progressed. Return false if an error has occurred.
-bool SkGifImageReader::decode(int frameIndex, bool* frameComplete)
+bool SkGifImageReader::decode(int frameIndex)
 {
     SkGIFFrameContext* currentFrame = m_frames[frameIndex].get();
 
-    return currentFrame->decode(&m_streamBuffer, m_client, frameComplete);
+    return currentFrame->decode(&m_streamBuffer, m_client);
 }
 
 // Parse incoming GIF data stream into internal data structures.

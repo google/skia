@@ -218,7 +218,7 @@ public:
         m_lzwBlocks.emplace_back(position, size);
     }
 
-    bool decode(SkStreamBuffer*, SkGifCodec* client, bool* frameDecoded);
+    bool decode(SkStreamBuffer*, SkGifCodec* client);
 
     int transparentPixel() const { return m_transparentPixel; }
     void setTransparentPixel(int pixel) { m_transparentPixel = pixel; }
@@ -305,9 +305,8 @@ public:
     SkCodec::Result parse(SkGIFParseQuery);
 
     // Decode the frame indicated by frameIndex.
-    // frameComplete will be set to true if the frame is completely decoded.
     // The method returns false if there is an error.
-    bool decode(int frameIndex, bool* frameComplete);
+    bool decode(int frameIndex);
 
     int imagesCount() const
     {
