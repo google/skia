@@ -12,7 +12,8 @@
 #include "../private/GrTypesPriv.h"
 
 struct GrMockTextureInfo {
-    int fID;
+    GrPixelConfig fConfig;
+    int           fID;
 };
 
 /**

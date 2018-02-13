@@ -17,6 +17,7 @@
 #include "GrContextOptions.h"
 
 class GrAtlasGlyphCache;
+class GrBackendFormat;
 class GrBackendSemaphore;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
@@ -36,17 +37,18 @@ class GrResourceCache;
 class GrResourceProvider;
 class GrSamplerState;
 class GrSurfaceProxy;
+class GrSwizzle;
 class GrTextBlobCache;
 class GrTextContext;
 class GrTextureProxy;
 class GrVertexBuffer;
 struct GrVkBackendContext;
-class GrSwizzle;
-class SkTraceMemoryDump;
 
 class SkImage;
+class SkSurfaceCharacterization;
 class SkSurfaceProps;
 class SkTaskGroup;
+class SkTraceMemoryDump;
 
 class SK_API GrContext : public SkRefCnt {
 public:
@@ -434,6 +436,41 @@ private:
 class GrContextThreadSafeProxy : public SkRefCnt {
 public:
     bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
+
+    /**
+     *  Create a surface characterization for a DDL that will be replayed into the GrContext
+     *  that created this proxy. On failure the resulting characterization will be invalid (i.e.,
+     *  "!c.isValid()").
+     *
+     *  @param cacheMaxResourceBytes The max resource bytes limit that will be in effect when the
+     *                               DDL created with this characterization is replayed.
+     *                               Note: the contract here is that the DDL will be created as
+     *                               if it had a full 'cacheMaxResourceBytes' to use. If replayed
+     *                               into a GrContext that already has locked GPU memory, the
+     *                               replay can exceed the budget. To rephrase, all resource
+     *                               allocation decisions are made at record time and at playback
+     *                               time the budget limits will be ignored.
+     *  @param ii                    The image info specifying properties of the SkSurface that
+     *                               the DDL created with this characterization will be replayed
+     *                               into.
+     *                               Note: Ganesh doesn't make use of the SkImageInfo's alphaType
+     *  @param backendFormat         Information about the format of the GPU surface that will
+     *                               back the SkSurface upon replay
+     *  @param sampleCount           The sample count of the SkSurface that the DDL created with
+     *                               this characterization will be replayed into
+     *  @param origin                The origin of the SkSurface that the DDL created with this
+     *                               characterization will be replayed into
+     *  @param surfaceProps          The surface properties of the SkSurface that the DDL created
+     *                               with this characterization will be replayed into
+     *  @param isMipMapped           Will the surface the DDL will be replayed into have space
+     *                               allocated for mipmaps?
+     */
+    SkSurfaceCharacterization createCharacterization(
+                                  size_t cacheMaxResourceBytes,
+                                  const SkImageInfo& ii, const GrBackendFormat& backendFormat,
+                                  int sampleCount, GrSurfaceOrigin origin,
+                                  const SkSurfaceProps& surfaceProps,
+                                  bool isMipMapped);
 
 private:
     // DDL TODO: need to add unit tests for backend & maybe options
