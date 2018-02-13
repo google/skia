@@ -707,16 +707,22 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         }
         // TODO: Need to decide the semantics of this function for color spaces. Do we support
         // conversion to a passed-in color space? For now, specifying nullptr means that this
-        // path will do no conversion, so it will match the behavior of the non-draw path.
-        sk_sp<GrRenderTargetContext> tempRTC = fContext->makeDeferredRenderTargetContext(
-                                                           tempDrawInfo.fTempSurfaceFit,
-                                                           tempDrawInfo.fTempSurfaceDesc.fWidth,
-                                                           tempDrawInfo.fTempSurfaceDesc.fHeight,
-                                                           tempDrawInfo.fTempSurfaceDesc.fConfig,
-                                                           nullptr,
-                                                           tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
-                                                           GrMipMapped::kNo,
-                                                           tempDrawInfo.fTempSurfaceDesc.fOrigin);
+        // path will do no conversion, so it will match the behavior of the non-draw path. For
+        // now we simply infer an sRGB color space if the config is sRGB in order to avoid an
+        // illegal combination.
+        sk_sp<SkColorSpace> colorSpace;
+        if (GrPixelConfigIsSRGB(tempDrawInfo.fTempSurfaceDesc.fConfig)) {
+            colorSpace = SkColorSpace::MakeSRGB();
+        }
+        sk_sp<GrRenderTargetContext> tempRTC =
+                fContext->makeDeferredRenderTargetContext(tempDrawInfo.fTempSurfaceFit,
+                                                          tempDrawInfo.fTempSurfaceDesc.fWidth,
+                                                          tempDrawInfo.fTempSurfaceDesc.fHeight,
+                                                          tempDrawInfo.fTempSurfaceDesc.fConfig,
+                                                          std::move(colorSpace),
+                                                          tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
+                                                          GrMipMapped::kNo,
+                                                          tempDrawInfo.fTempSurfaceDesc.fOrigin);
         if (tempRTC) {
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
             sk_sp<GrTextureProxy> proxy = src->asTextureProxyRef();
@@ -821,6 +827,12 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
                                                                  const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
+    // sRGB pixel configs may only be used with near-sRGB gamma color spaces.
+    if (GrPixelConfigIsSRGB(proxy->config())) {
+        if (!colorSpace || !colorSpace->gammaCloseToSRGB()) {
+            return nullptr;
+        }
+    }
     if (proxy->asRenderTargetProxy()) {
         return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
                                                                std::move(colorSpace), props);
@@ -834,8 +846,9 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
 sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
                                                                   GrMipMapped mipMapped,
                                                                   SkBackingFit fit,
-                                                                  SkBudgeted isDstBudgeted) {
-
+                                                                  SkBudgeted isDstBudgeted,
+                                                                  sk_sp<SkColorSpace> colorSpace,
+                                                                  const SkSurfaceProps* props) {
     sk_sp<GrTextureProxy> proxy;
     if (GrMipMapped::kNo == mipMapped) {
         proxy = this->proxyProvider()->createProxy(dstDesc, fit, isDstBudgeted);
@@ -847,7 +860,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
         return nullptr;
     }
 
-    return this->makeWrappedSurfaceContext(std::move(proxy));
+    return this->makeWrappedSurfaceContext(std::move(proxy), std::move(colorSpace), props);
 }
 
 sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackendTexture& tex,
