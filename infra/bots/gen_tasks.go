@@ -30,11 +30,12 @@ import (
 )
 
 const (
-	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
-	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
-	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
-	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
-	ISOLATE_NDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+	BUNDLE_RECIPES_NAME    = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_SKIMAGE_NAME   = "Housekeeper-PerCommit-IsolateSkImage"
+	ISOLATE_SKP_NAME       = "Housekeeper-PerCommit-IsolateSKP"
+	ISOLATE_SVG_NAME       = "Housekeeper-PerCommit-IsolateSVG"
+	ISOLATE_NDK_LINUX_NAME = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+	//	ISOLATE_SDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME  = "Housekeeper-PerCommit-IsolateWinToolchain"
 	ISOLATE_WIN_VULKAN_SDK_NAME = "Housekeeper-PerCommit-IsolateWinVulkanSDK"
 
@@ -447,6 +448,10 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		isolateFile: "isolate_ndk_linux.isolate",
 		cipdPkg:     "android_ndk_linux",
 	},
+	// ISOLATE_SDK_LINUX_NAME: {
+	// 	isolateFile: "isolate_sdk_linux.isolate",
+	// 	cipdPkg:     "android_sdk",
+	// },
 	ISOLATE_WIN_TOOLCHAIN_NAME: {
 		isolateFile: "isolate_win_toolchain.isolate",
 		cipdPkg:     "win_toolchain",
