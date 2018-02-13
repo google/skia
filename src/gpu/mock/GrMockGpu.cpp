@@ -69,7 +69,6 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgete
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
     GrMockTextureInfo info;
-    info.fConfig = desc.fConfig;
     info.fID = NextInternalTextureID();
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
         return sk_sp<GrTexture>(
@@ -95,7 +94,6 @@ GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(void* pixels, int w,
                                                             GrPixelConfig config, bool isRT,
                                                             GrMipMapped) {
     GrMockTextureInfo info;
-    info.fConfig = config;
     info.fID = NextExternalTextureID();
     fOutstandingTestingOnlyTextureIDs.add(info.fID);
     return GrBackendTexture(w, h, config, info);

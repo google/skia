@@ -407,9 +407,6 @@ public:
     bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
                                      GrPixelConfig*) const override;
 
-    bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
-                                    GrPixelConfig*) const override;
-
 private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
