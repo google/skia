@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e582151_393a87a8",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-13T20:04:24Z",
+      "side": 1,
+      "message": "We can\u0027t just use \"surface \u003d resourceProvider-\u003ecreateTexture\" here and in the next two calls?",
+      "revId": "f286a5943376274ae65060105d55d7c27b2050ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
