@@ -416,11 +416,7 @@ int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     return table[table.count() - 1];
 }
 
-bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixelConfig* config) {
-    if (!imageInfo) {
-        return false;
-    }
-    VkFormat format = imageInfo->fFormat;
+bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config) {
     *config = kUnknown_GrPixelConfig;
 
     switch (ct) {
@@ -478,11 +474,30 @@ bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixel
 
 bool GrVkCaps::validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
                                       GrPixelConfig* config) const {
-    return validate_image_info(tex.getVkImageInfo(), ct, config);
+    const GrVkImageInfo* imageInfo = tex.getVkImageInfo();
+    if (!imageInfo) {
+        return false;
+    }
+
+    return validate_image_info(imageInfo->fFormat, ct, config);
 }
 
 bool GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType ct,
                                            GrPixelConfig* config) const {
-    return validate_image_info(rt.getVkImageInfo(), ct, config);
+    const GrVkImageInfo* imageInfo = rt.getVkImageInfo();
+    if (!imageInfo) {
+        return false;
+    }
+
+    return validate_image_info(imageInfo->fFormat, ct, config);
+}
+
+bool GrVkCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
+                                          GrPixelConfig* config) const {
+    const VkFormat* vkFormat = format.getVkFormat();
+    if (!vkFormat) {
+        return false;
+    }
+    return validate_image_info(*vkFormat, ct, config);
 }
 
