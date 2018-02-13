@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46809733_aa8036d0",
+        "filename": "site/dev/testing/skqp.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-02-13T22:05:00Z",
+      "side": 1,
+      "message": "super nit:  \n... first, e.g.:",
+      "range": {
+        "startLine": 9,
+        "startChar": 69,
+        "endLine": 9,
+        "endChar": 75
+      },
+      "revId": "28d401871af11c4bf0bc8d22c1dc3b11d369d237",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
