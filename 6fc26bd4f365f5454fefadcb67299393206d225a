@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eaf48261_ae7c201b",
+        "filename": "infra/bots/assets/emscripten_sdk/create_and_upload.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-13T22:23:13Z",
+      "side": 1,
+      "message": "Seems unpleasantly surprising that this script would delete a bunch of files from the source directory.\n\nIt also appears that \"with utils.tmp_dir()\" above has no purpose. Maybe you meant to copy files to a temporary directory before deleting?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 68
+      },
+      "revId": "6fc26bd4f365f5454fefadcb67299393206d225a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38da9cb2_789a283c",
+        "filename": "infra/bots/assets/emscripten_sdk/create_and_upload.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-13T22:23:13Z",
+      "side": 1,
+      "message": "nit: Based on the code, there are non-directories in src that we need. Could you add a comment explaining what files are here and why they\u0027re needed?",
+      "revId": "6fc26bd4f365f5454fefadcb67299393206d225a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
