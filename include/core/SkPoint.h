@@ -10,6 +10,7 @@
 
 #include "SkMath.h"
 #include "SkScalar.h"
+#include "../private/SkSafe32.h"
 
 /** \struct SkIPoint16
     SkIPoint holds two 16 bit integer coordinates
@@ -115,8 +116,8 @@ struct SkIPoint {
         @param v  ivector to add
     */
     void operator+=(const SkIVector& v) {
-        fX += v.fX;
-        fY += v.fY;
+        fX = Sk32_sat_add(fX, v.fX);
+        fY = Sk32_sat_add(fY, v.fY);
     }
 
     /** Subtracts ivector v from SkIPoint. Sets SkIPoint to: (fX - v.fX, fY - v.fY).
@@ -124,8 +125,8 @@ struct SkIPoint {
         @param v  ivector to subtract
     */
     void operator-=(const SkIVector& v) {
-        fX -= v.fX;
-        fY -= v.fY;
+        fX = Sk32_sat_sub(fX, v.fX);
+        fY = Sk32_sat_sub(fY, v.fY);
     }
 
     /** Returns true if SkIPoint is equivalent to SkIPoint constructed from (x, y).
@@ -167,7 +168,7 @@ struct SkIPoint {
         @return   ivector from b to a
     */
     friend SkIVector operator-(const SkIPoint& a, const SkIPoint& b) {
-        return {a.fX - b.fX, a.fY - b.fY};
+        return { Sk32_sat_sub(a.fX, b.fX), Sk32_sat_sub(a.fY, b.fY) };
     }
 
     /** Returns SkIPoint resulting from SkIPoint a offset by ivector b, computed as: (a.fX + b.fX, a.fY + b.fY).
@@ -180,7 +181,7 @@ struct SkIPoint {
         @return   SkIPoint equal to a offset by b
     */
     friend SkIPoint operator+(const SkIPoint& a, const SkIVector& b) {
-        return {a.fX + b.fX, a.fY + b.fY};
+        return { Sk32_sat_add(a.fX, b.fX), Sk32_sat_add(a.fY, b.fY) };
     }
 };
 
