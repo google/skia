@@ -96,6 +96,18 @@
         "Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework"
       ]
     },
+    "Build-Debian9-Clang-universal-Dev-Android_SKQP": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-universal-Dev-Android_SKQP"
+      ]
+    },
+    "Build-Debian9-Clang-universal-Release-Android_SKQP": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-universal-Release-Android_SKQP"
+      ]
+    },
     "Build-Debian9-Clang-x64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
@@ -3701,6 +3713,58 @@
         "android_compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-Clang-universal-Dev-Android_SKQP": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-universal-Dev-Android_SKQP",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-Clang-universal-Release-Android_SKQP": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-universal-Release-Android_SKQP",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
