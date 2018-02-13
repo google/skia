@@ -139,7 +139,7 @@ struct GrContextOptions {
      * This has the effect of sharpening those textures, at the cost of some aliasing, and possible
      * performance impact.
      */
-    bool fSharpenMipmappedTextures = false;
+    bool fSharpenMipmappedTextures = true;
 
     /**
      * Enables driver workaround to use draws instead of glClear. This only applies to
