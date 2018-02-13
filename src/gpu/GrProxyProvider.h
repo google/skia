@@ -141,8 +141,7 @@ public:
                                                          GrSurfaceOrigin origin,
                                                          int sampleCnt);
 
-    using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*,
-                                                                   GrSurfaceOrigin* outOrigin)>;
+    using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*)>;
     enum class Textureable : bool {
         kNo = false,
         kYes = true
@@ -166,8 +165,12 @@ public:
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
                                           GrMipMapped, SkBackingFit, SkBudgeted);
 
+    /**
+     * Fully lazy proxies have unspecified width and height. Methods that rely on those values
+     * (e.g., width, height, getBoundsRect) should be avoided.
+     */
     sk_sp<GrTextureProxy> createFullyLazyProxy(LazyInstantiateCallback&&,
-                                               Renderable, GrPixelConfig);
+                                               Renderable, GrSurfaceOrigin, GrPixelConfig);
 
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
                                                            const GrSurfaceDesc&, Textureable,

@@ -361,8 +361,7 @@ protected:
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
-    using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*,
-                                                                   GrSurfaceOrigin* outOrigin)>;
+    using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*)>;
 
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
