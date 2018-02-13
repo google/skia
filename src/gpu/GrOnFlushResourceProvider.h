@@ -57,6 +57,9 @@ public:
      * Any OnFlushCallbackObject associated with a path renderer will need to be deleted.
      */
     virtual bool retainOnFreeGpuResources() { return false; }
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 /*
