@@ -588,6 +588,8 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
+    dinfo->buffered_image = jpeg_has_multiple_scans(dinfo);
+
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {
         return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
@@ -607,6 +609,25 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     this->allocateStorage(dstInfo);
+
+
+    if (dinfo->buffered_image) {
+        int status = 0;
+        do {
+            status = jpeg_consume_input(dinfo);
+        } while ((status != JPEG_SUSPENDED) && (status != JPEG_REACHED_EOI));
+
+        if (!dinfo->output_scanline) {
+            int scan = dinfo->input_scan_number;
+            // If we haven't displayed anything yet
+            // (output_scan_number == 0) and we have enough data for
+            // a complete scan, force output of the last full scan.
+            if (!dinfo->output_scan_number && (scan > 1) && (status != JPEG_REACHED_EOI))
+                --scan;
+
+            jpeg_start_output(dinfo, scan);
+        }
+    }
 
     int rows = this->readRows(dstInfo, dst, dstRowBytes, dstInfo.height(), options);
     if (rows < dstInfo.height()) {
