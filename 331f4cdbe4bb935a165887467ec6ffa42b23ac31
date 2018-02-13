@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b1ec24e_9ec5fbb1",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-13T17:56:47Z",
+      "side": 1,
+      "message": "nit: Looks like an extra space after GPU, and an extra \u0027S\u0027 in sRGB",
+      "revId": "331f4cdbe4bb935a165887467ec6ffa42b23ac31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cec26e3_999a0065",
+        "filename": "tests/SRGBReadWritePixelsTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-13T17:56:47Z",
+      "side": 1,
+      "message": "iiUntagged -\u003e iiLinear",
+      "revId": "331f4cdbe4bb935a165887467ec6ffa42b23ac31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
