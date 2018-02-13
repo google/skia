@@ -62,7 +62,8 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
 
 bool is_orientation_marker(const uint8_t* data, size_t data_length, SkEncodedOrigin* orientation) {
     bool littleEndian;
-    if (!is_valid_endian_marker(data, &littleEndian)) {
+    // We need eight bytes to read the endian marker and the offset, below.
+    if (data_length < 8 || !is_valid_endian_marker(data, &littleEndian)) {
         return false;
     }
 

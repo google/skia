@@ -621,14 +621,20 @@ DEF_TEST(Codec_Dimensions, r) {
 }
 
 static void test_invalid(skiatest::Reporter* r, const char path[]) {
-    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
-    if (!stream) {
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Failed to get resources %s", path);
         return;
     }
-    REPORTER_ASSERT(r, !SkCodec::MakeFromStream(std::move(stream)));
+
+    REPORTER_ASSERT(r, !SkCodec::MakeFromData(data));
 }
 
 DEF_TEST(Codec_Empty, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
     // Test images that should not be able to create a codec
     test_invalid(r, "empty_images/zero-dims.gif");
     test_invalid(r, "empty_images/zero-embedded.ico");
@@ -648,6 +654,7 @@ DEF_TEST(Codec_Empty, r) {
     test_invalid(r, "empty_images/zero_height.tiff");
 #endif
     test_invalid(r, "invalid_images/b37623797.ico");
+    test_invalid(r, "invalid_images/osfuzz6295.webp");
 }
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
