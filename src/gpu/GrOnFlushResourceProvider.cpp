@@ -12,7 +12,7 @@
 #include "GrProxyProvider.h"
 #include "GrSurfaceProxy.h"
 
-sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
+sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext1(
                                                         const GrSurfaceDesc& desc,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
@@ -55,7 +55,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
 
 // TODO: we only need this entry point as long as we have to pre-allocate the atlas.
 // Remove it ASAP.
-sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
+sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext2(
                                                         sk_sp<GrSurfaceProxy> proxy,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
