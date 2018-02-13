@@ -221,7 +221,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [desc, budgeted, srcImage, fit]
-            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
+            (GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     // Nothing to clean up here. Once the proxy (and thus lambda) is deleted the ref
                     // on srcImage will be released.
@@ -322,7 +322,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [desc, baseLevel, mipmaps, mipColorMode]
-            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
+            (GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     return sk_sp<GrTexture>();
                 }
@@ -409,7 +409,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [backendTex, ownership, releaseHelper]
-            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
+            (GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     // If this had a releaseHelper it will get unrefed when we delete this lambda
                     // and will call the release proc so that the client knows they can free the
@@ -540,12 +540,13 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
 
 sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallback&& callback,
                                                             Renderable renderable,
+                                                            GrSurfaceOrigin origin,
                                                             GrPixelConfig config) {
     GrSurfaceDesc desc;
     if (Renderable::kYes == renderable) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
     }
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    desc.fOrigin = origin;
     desc.fWidth = -1;
     desc.fHeight = -1;
     desc.fConfig = config;

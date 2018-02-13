@@ -38,14 +38,14 @@ public:
 
     void setCoverageCountBatchID(CoverageCountBatchID batchID) {
         SkASSERT(!fCoverageCountBatchID);
-        SkASSERT(!fTextureProxy);
+        SkASSERT(!fTextureProxy1);
         fCoverageCountBatchID = batchID;
     }
 
     sk_sp<GrRenderTargetContext> SK_WARN_UNUSED_RESULT finalize(GrOnFlushResourceProvider*,
                                                                 sk_sp<const GrCCPathParser>);
 
-    GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
+    GrTextureProxy* textureProxy() const { return fTextureProxy1.get(); }
 
 private:
     class Node;
@@ -61,7 +61,7 @@ private:
     std::unique_ptr<Node> fTopNode;
 
     CoverageCountBatchID fCoverageCountBatchID SkDEBUGCODE(= 0);
-    sk_sp<GrTextureProxy> fTextureProxy;
+    sk_sp<GrTextureProxy> fTextureProxy1;
 };
 
 #endif

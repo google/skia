@@ -92,7 +92,7 @@ GrCCAtlas::~GrCCAtlas() {}
 bool GrCCAtlas::addRect(int w, int h, SkIPoint16* loc) {
     // This can't be called anymore once setCoverageCountBatchID() has been called.
     SkASSERT(!fCoverageCountBatchID);
-    SkASSERT(!fTextureProxy);
+    SkASSERT(!fTextureProxy1);
 
     if (!this->internalPlaceRect(w, h, loc)) {
         return false;
@@ -135,9 +135,11 @@ bool GrCCAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
 sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(GrOnFlushResourceProvider* onFlushRP,
                                                  sk_sp<const GrCCPathParser> parser) {
     SkASSERT(fCoverageCountBatchID);
-    SkASSERT(!fTextureProxy);
+    SkASSERT(!fTextureProxy1);
 
     GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = fWidth;
     desc.fHeight = fHeight;
     desc.fConfig = kAlpha_half_GrPixelConfig;
@@ -155,6 +157,6 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(GrOnFlushResourceProvider* onFl
                                                       fDrawBounds);
     rtc->addDrawOp(GrNoClip(), std::move(op));
 
-    fTextureProxy = sk_ref_sp(rtc->asTextureProxy());
+    fTextureProxy1 = sk_ref_sp(rtc->asTextureProxy());
     return rtc;
 }
