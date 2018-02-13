@@ -229,7 +229,7 @@ void CCPR::ClipPath::init(GrProxyProvider* proxyProvider,
     SkASSERT(this->isUninitialized());
 
     fAtlasLazyProxy = proxyProvider->createFullyLazyProxy(
-            [this](GrResourceProvider* resourceProvider, GrSurfaceOrigin* outOrigin) {
+            [this](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     return sk_sp<GrTexture>();
                 }
@@ -243,19 +243,16 @@ void CCPR::ClipPath::init(GrProxyProvider* proxyProvider,
                     return sk_sp<GrTexture>();
                 }
 
+                SkASSERT(kTopLeft_GrSurfaceOrigin == textureProxy->origin());
+
                 fAtlasScale = {1.f / textureProxy->width(), 1.f / textureProxy->height()};
                 fAtlasTranslate = {fAtlasOffsetX * fAtlasScale.x(),
                                    fAtlasOffsetY * fAtlasScale.y()};
-                if (kBottomLeft_GrSurfaceOrigin == textureProxy->origin()) {
-                    fAtlasScale.fY = -fAtlasScale.y();
-                    fAtlasTranslate.fY = 1 - fAtlasTranslate.y();
-                }
                 SkDEBUGCODE(fHasAtlasTransform = true);
 
-                *outOrigin = textureProxy->origin();
                 return sk_ref_sp(textureProxy->priv().peekTexture());
             },
-            GrProxyProvider::Renderable::kYes, kAlpha_half_GrPixelConfig);
+            GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin, kAlpha_half_GrPixelConfig);
 
     const SkRect& pathDevBounds = deviceSpacePath.getBounds();
     if (SkTMax(pathDevBounds.height(), pathDevBounds.width()) > kPathCropThreshold) {

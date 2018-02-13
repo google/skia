@@ -87,7 +87,7 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     if (fLazyInstantiateCallback) {
         // We call the callback with a null GrResourceProvider to signal that the lambda should
         // clean itself up if it is holding onto any captured objects.
-        this->fLazyInstantiateCallback(nullptr, nullptr);
+        this->fLazyInstantiateCallback(nullptr);
     }
     // For this to be deleted the opList that held a ref on it (if there was one) must have been
     // deleted. Which would have cleared out this back pointer.
@@ -353,26 +353,14 @@ void GrSurfaceProxyPriv::exactify() {
 bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvider) {
     SkASSERT(GrSurfaceProxy::LazyState::kNot != fProxy->lazyInstantiationState());
 
-    GrSurfaceOrigin* outOrigin;
-    if (GrSurfaceProxy::LazyState::kPartially == fProxy->lazyInstantiationState()) {
-        // In the partially instantiated case, we set the origin on the SurfaceProxy at creation
-        // time (via a GrSurfaceDesc). In the lambda, the creation of the texture never needs to
-        // know the origin, and it also can't change or have any effect on it. Thus we just pass in
-        // nullptr in this case since it should never be set.
-        outOrigin = nullptr;
-    } else {
-        outOrigin = &fProxy->fOrigin;
-    }
-
-    sk_sp<GrSurface> surface = fProxy->fLazyInstantiateCallback(resourceProvider, outOrigin);
+    sk_sp<GrSurface> surface = fProxy->fLazyInstantiateCallback(resourceProvider);
     if (GrSurfaceProxy::LazyInstantiationType::kSingleUse == fProxy->fLazyInstantiationType) {
-        fProxy->fLazyInstantiateCallback(nullptr, nullptr);
+        fProxy->fLazyInstantiateCallback(nullptr);
         fProxy->fLazyInstantiateCallback = nullptr;
     }
     if (!surface) {
         fProxy->fWidth = 0;
         fProxy->fHeight = 0;
-        fProxy->fOrigin = kTopLeft_GrSurfaceOrigin;
         return false;
     }
 
