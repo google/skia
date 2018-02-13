@@ -46,6 +46,30 @@
       "revId": "0f3436a5fd76381c6a9a514db27eeeb63d238e06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f98f53c_9612fa66",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-13T21:43:02Z",
+      "side": 1,
+      "message": "Yeah, we\u0027ll catch too few bytes after the header later down the function, right?",
+      "parentUuid": "d9514f71_29d37339",
+      "range": {
+        "startLine": 66,
+        "startChar": 20,
+        "endLine": 66,
+        "endChar": 22
+      },
+      "revId": "0f3436a5fd76381c6a9a514db27eeeb63d238e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
