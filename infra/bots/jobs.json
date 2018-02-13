@@ -72,6 +72,8 @@
   "Build-Mac-Clang-x86_64-Release",
   "Build-Mac-Clang-x86_64-Release-CommandBuffer",
   "Build-Mac-Clang-x86_64-Release-TSAN",
+  "Build-Debian9-Clang-universal-Dev-Android_SKQP",
+  "Build-Debian9-Clang-universal-Release-Android_SKQP",
   "Build-Win-Clang-arm64-Release-Android",
   "Build-Win-Clang-x86_64-Debug",
   "Build-Win-Clang-x86_64-Debug-ANGLE",
