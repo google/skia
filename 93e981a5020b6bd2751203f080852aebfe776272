@@ -22,6 +22,29 @@
       "revId": "93e981a5020b6bd2751203f080852aebfe776272",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d5555f5_10be7e60",
+        "filename": "site/dev/testing/skqp.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-13T21:18:41Z",
+      "side": 1,
+      "message": "\u003capk_sha_here\u003e",
+      "range": {
+        "startLine": 15,
+        "startChar": 34,
+        "endLine": 15,
+        "endChar": 44
+      },
+      "revId": "93e981a5020b6bd2751203f080852aebfe776272",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
