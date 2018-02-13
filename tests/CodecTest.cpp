@@ -623,7 +623,7 @@ DEF_TEST(Codec_Dimensions, r) {
 static void test_invalid(skiatest::Reporter* r, const char path[]) {
     auto data = GetResourceAsData(path);
     if (!data) {
-        ERRORF(r, "Failed to get resources %s", path);
+        ERRORF(r, "Failed to get resource %s", path);
         return;
     }
 
@@ -655,6 +655,7 @@ DEF_TEST(Codec_Empty, r) {
 #endif
     test_invalid(r, "invalid_images/b37623797.ico");
     test_invalid(r, "invalid_images/osfuzz6295.webp");
+    test_invalid(r, "invalid_images/osfuzz6288.bmp");
 }
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
