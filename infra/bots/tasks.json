@@ -6078,7 +6078,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -6113,7 +6113,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dimensions": [
@@ -6168,7 +6168,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -6201,7 +6201,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -6288,7 +6288,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dimensions": [
@@ -6420,7 +6420,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dimensions": [
