@@ -84,17 +84,21 @@ bool SkDeferredDisplayListRecorder::init() {
     // DDL is being replayed into.
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
-        [ lazyProxyData ] (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /* outOrigin */) {
-            if (!resourceProvider) {
-                return sk_sp<GrSurface>();
-            }
+            [ lazyProxyData ] (GrResourceProvider* resourceProvider) {
+                if (!resourceProvider) {
+                    return sk_sp<GrSurface>();
+                }
 
-            // The proxy backing the destination surface had better have been instantiated
-            // prior to the proxy backing the DLL's surface. Steal its GrRenderTarget.
-            SkASSERT(lazyProxyData->fReplayDest->priv().peekSurface());
-            return sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->priv().peekSurface());
-        }, desc, GrProxyProvider::Textureable(fCharacterization.isTextureable()),
-           GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes);
+                // The proxy backing the destination surface had better have been instantiated
+                // prior to the proxy backing the DLL's surface. Steal its GrRenderTarget.
+                SkASSERT(lazyProxyData->fReplayDest->priv().peekSurface());
+                return sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->priv().peekSurface());
+            },
+            desc,
+            GrProxyProvider::Textureable(fCharacterization.isTextureable()),
+            GrMipMapped::kNo,
+            SkBackingFit::kExact,
+            SkBudgeted::kYes);
 
     sk_sp<GrSurfaceContext> c = fContext->contextPriv().makeWrappedSurfaceContext(
                                                                  std::move(proxy),
