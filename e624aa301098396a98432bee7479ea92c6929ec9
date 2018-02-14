@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77e3c624_effdfe86",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-14T19:37:05Z",
+      "side": 1,
+      "message": "Will \"GrMipMapped mipMapped(backendTex.hasMipMaps());\" work ?",
+      "revId": "e624aa301098396a98432bee7479ea92c6929ec9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
