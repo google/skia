@@ -433,20 +433,54 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
     return proxy;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackendTexture& tex,
+sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackendTexture& backendTex,
                                                                  GrSurfaceOrigin origin,
                                                                  int sampleCnt) {
     if (this->isAbandoned()) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture(fResourceProvider->wrapRenderableBackendTexture(tex, sampleCnt));
-    if (!texture) {
-        return nullptr;
-    }
-    SkASSERT(texture->asRenderTarget());  // A GrTextureRenderTarget
+    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
 
-    return this->createWrapped(std::move(texture), origin);
+    GrSurfaceDesc desc;
+    desc.fOrigin = origin;
+    desc.fWidth = backendTex.width();
+    desc.fHeight = backendTex.height();
+    desc.fConfig = backendTex.config();
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fSampleCnt = sampleCnt;
+    GrMipMapped mipMapped = backendTex.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
+
+    sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
+            [backendTex, sampleCnt]
+            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
+                if (!resourceProvider) {
+                    // If this had a releaseHelper it will get unrefed when we delete this lambda
+                    // and will call the release proc so that the client knows they can free the
+                    // underlying backend object.
+                    return sk_sp<GrTexture>();
+                }
+
+                sk_sp<GrTexture> tex = resourceProvider->wrapRenderableBackendTexture(backendTex,
+                                                                                      sampleCnt);
+                if (!tex) {
+                    return sk_sp<GrTexture>();
+                }
+                SkASSERT(tex->asRenderTarget());   // A GrTextureRenderTarget
+                // Make sure we match how we created the proxy with SkBudgeted::kNo
+                SkASSERT(SkBudgeted::kNo == tex->resourcePriv().isBudgeted());
+
+                return tex;
+            }, desc, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
+
+    if (fResourceProvider) {
+        // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however,
+        // we're better off instantiating the proxy immediately here.
+        if (!proxy->priv().doLazyInstantiation(fResourceProvider)) {
+            return nullptr;
+        }
+    }
+    return proxy;
 }
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(
