@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f59ce640_00f17ab8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-02-14T16:16:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83dd8481_46a8f580",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 18
+      },
+      "revId": "1e581e943a97fe69a21516a343c30a14de3f4e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "91e9ce47_b1d6d034",
         "filename": "infra/bots/assets/android_sdk_linux/common.py",
         "patchSetId": 8
@@ -39,6 +63,24 @@
       "revId": "1e581e943a97fe69a21516a343c30a14de3f4e13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe5cc94a_7727effc",
+        "filename": "infra/bots/assets/android_sdk_linux/common.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-02-14T16:16:30Z",
+      "side": 1,
+      "message": "Done\nRemoved infra/bots/assets/android_sdk.",
+      "parentUuid": "91e9ce47_b1d6d034",
+      "revId": "1e581e943a97fe69a21516a343c30a14de3f4e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -62,6 +104,30 @@
       "revId": "1e581e943a97fe69a21516a343c30a14de3f4e13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9059d60_0fa71d2a",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-02-14T16:16:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9a82be7_034762ee",
+      "range": {
+        "startLine": 216,
+        "startChar": 0,
+        "endLine": 217,
+        "endChar": 6
+      },
+      "revId": "1e581e943a97fe69a21516a343c30a14de3f4e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
