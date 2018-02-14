@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88cc08a5_ddc7ccf4",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-14T18:37:01Z",
+      "side": 1,
+      "message": "You do this again on line 236, below.",
+      "revId": "6de12effbd491974a2cf9a3181671e78cf341cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e8d24b9_0db2d5a2",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-14T18:37:01Z",
+      "side": 1,
+      "message": "Do we need these checks in getReadPixelsInfo, above?",
+      "revId": "6de12effbd491974a2cf9a3181671e78cf341cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc354591_3d93a7dc",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-14T18:37:01Z",
+      "side": 1,
+      "message": "nit: extra word here? (remove \u0027in\u0027?)",
+      "revId": "6de12effbd491974a2cf9a3181671e78cf341cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
