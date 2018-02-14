@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf5bd1f8_5e8bfcf0",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-14T14:42:39Z",
+      "side": 1,
+      "message": "rm extra spaces?",
+      "range": {
+        "startLine": 445,
+        "startChar": 20,
+        "endLine": 445,
+        "endChar": 26
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b76a8ec_6a064c73",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-14T14:42:39Z",
+      "side": 1,
+      "message": "nit, asterisks aren\u0027t aligned.\n\nMight be helpful to comment that either the SkGlyph or a path is returned.",
+      "range": {
+        "startLine": 453,
+        "startChar": 3,
+        "endLine": 455,
+        "endChar": 6
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5244406f_bae5d697",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-14T14:42:39Z",
+      "side": 1,
+      "message": "Out of curiosity, when does this happen? When the is nothing to draw for the glyph?",
+      "range": {
+        "startLine": 476,
+        "startChar": 0,
+        "endLine": 477,
+        "endChar": 32
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2611795_b56fedb2",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-14T14:42:39Z",
+      "side": 1,
+      "message": "Seems like this is due for a renaming... but not I\u0027m thinking you already did that in another change. Was it reverted? (and the Pos variation)",
+      "range": {
+        "startLine": 553,
+        "startChar": 25,
+        "endLine": 553,
+        "endChar": 44
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fba7abb8_4e086718",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-14T14:42:39Z",
+      "side": 1,
+      "message": "Does it make sense to use your new iter here or is it a different type of iteration?",
+      "range": {
+        "startLine": 903,
+        "startChar": 4,
+        "endLine": 903,
+        "endChar": 25
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
