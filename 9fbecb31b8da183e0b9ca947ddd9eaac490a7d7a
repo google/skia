@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19c0efd2_d8c40a6c",
+        "filename": "tests/OnFlushCallbackTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-14T14:13:25Z",
+      "side": 1,
+      "message": "the tabbing here looks a little extreme. I think usually we\u0027ve been tabbing the capture and arguments in 8 spaces and starting the body of the lambda at 12, and then the final params to createFullyLazy are back to 8 spaces.",
+      "range": {
+        "startLine": 298,
+        "startChar": 32,
+        "endLine": 298,
+        "endChar": 74
+      },
+      "revId": "9fbecb31b8da183e0b9ca947ddd9eaac490a7d7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
