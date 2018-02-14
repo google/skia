@@ -340,6 +340,14 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
                                    int width, int height,
                                    GrPixelConfig srcConfig, DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
+    if (*drawPreference != kNoDraw_DrawPreference) {
+        // We assume the base class has only inserted a draw for sRGB reasons. So the temp surface
+        // has the config of the original src data. There is no swizzling nor src config spoofing.
+        SkASSERT(tempDrawInfo->fWriteConfig == srcConfig);
+        SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == srcConfig);
+        SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
+    }
+
     GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
 
     if (dstSurface->config() == srcConfig) {
@@ -378,11 +386,6 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
 
     // Make sure we have at least the base level
     if (!mipLevelCount || !texels[0].fPixels) {
-        return false;
-    }
-
-    // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
         return false;
     }
 
@@ -432,11 +435,6 @@ bool GrVkGpu::onTransferPixels(GrTexture* texture,
     }
     GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
     if (!vkBuffer) {
-        return false;
-    }
-
-    // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(texture->config()) != GrPixelConfigIsSRGB(config)) {
         return false;
     }
 
@@ -1859,29 +1857,35 @@ void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const
     *effectiveSampleCnt = rt->numStencilSamples();
 }
 
-bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
-                                  int width, int height, size_t rowBytes,
-                                  GrPixelConfig readConfig, DrawPreference* drawPreference,
+bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, int width,
+                                  int height, size_t rowBytes, GrPixelConfig dstConfig,
+                                  DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
-    if (srcSurface->config() == readConfig) {
+    if (*drawPreference != kNoDraw_DrawPreference) {
+        // We assume the base class has only inserted a draw for sRGB reasons. So the
+        // the temp surface has the config of the dst data. There is no swizzling nor dst config.
+        // spoofing.
+        SkASSERT(tempDrawInfo->fReadConfig == dstConfig);
+        SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == dstConfig);
+        SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
+    }
+
+    if (srcSurface->config() == dstConfig) {
         return true;
     }
 
     // Any config change requires a draw
     ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
-    tempDrawInfo->fReadConfig = readConfig;
+    tempDrawInfo->fTempSurfaceDesc.fConfig = dstConfig;
+    tempDrawInfo->fReadConfig = dstConfig;
 
     return true;
 }
 
-bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
-                           int left, int top, int width, int height,
-                           GrPixelConfig config,
-                           void* buffer,
-                           size_t rowBytes) {
+bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
+                           int height, GrPixelConfig dstConfig, void* buffer, size_t rowBytes) {
     VkFormat pixelFormat;
-    if (!GrPixelConfigToVkFormat(config, &pixelFormat)) {
+    if (!GrPixelConfigToVkFormat(dstConfig, &pixelFormat)) {
         return false;
     }
 
@@ -1916,7 +1920,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                           VK_PIPELINE_STAGE_TRANSFER_BIT,
                           false);
 
-    size_t bpp = GrBytesPerPixel(config);
+    size_t bpp = GrBytesPerPixel(dstConfig);
     size_t tightRowBytes = bpp * width;
     bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 

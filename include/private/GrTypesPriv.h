@@ -791,13 +791,27 @@ static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
     return false;
 }
 
-// Returns true if the color (non-alpha) components represent sRGB values. It does NOT indicate that
-// all three color components are present in the config or anything about their order.
-static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
+/**
+ * Refers to the encoding of a GPU buffer as it will be interpreted by the GPU when sampling and
+ * blending.
+ */
+enum class GrSRGBEncoded : bool { kNo = false, kYes = true };
+
+/**
+ * Describes whether pixel data encoding should be converted to/from linear/sRGB encoding.
+ */
+enum class GrSRGBConversion {
+    kNone,
+    kSRGBToLinear,
+    kLinearToSRGB,
+};
+
+// Returns whether the config's color channels are sRGB encoded.
+static inline GrSRGBEncoded GrPixelConfigIsSRGBEncoded(GrPixelConfig config) {
     switch (config) {
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-            return true;
+            return GrSRGBEncoded::kYes;
         case kUnknown_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
         case kAlpha_8_as_Alpha_GrPixelConfig:
@@ -814,12 +828,15 @@ static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
         case kAlpha_half_GrPixelConfig:
         case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
-            return false;
+            return GrSRGBEncoded::kNo;
     }
     SK_ABORT("Invalid pixel config");
-    return false;
+    return GrSRGBEncoded::kNo;
 }
 
+static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
+    return GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(config);
+}
 // Takes a config and returns the equivalent config with the R and B order
 // swapped if such a config exists. Otherwise, kUnknown_GrPixelConfig
 static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
