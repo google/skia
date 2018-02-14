@@ -25,20 +25,6 @@ public:
     virtual ~GrGLSLFragmentBuilder() {}
 
     /**
-     * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
-     * if code is added that uses one of these features without calling enableFeature()
-     */
-    enum GLSLFeature {
-        kMultisampleInterpolation_GLSLFeature
-    };
-
-    /**
-     * If the feature is supported then true is returned and any necessary #extension declarations
-     * are added to the shaders. If the feature is not supported then false will be returned.
-     */
-    virtual bool enableFeature(GLSLFeature) = 0;
-
-    /**
      * This returns a variable name to access the 2D, perspective correct version of the coords in
      * the fragment shader. The passed in coordinates must either be of type kHalf2 or kHalf3. If
      * the coordinates are 3-dimensional, it a perspective divide into is emitted into the
@@ -123,7 +109,6 @@ public:
     GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program);
 
     // Shared GrGLSLFragmentBuilder interface.
-    bool enableFeature(GLSLFeature) override;
     virtual SkString ensureCoords2D(const GrShaderVar&) override;
 
     // GrGLSLFPFragmentBuilder interface.
