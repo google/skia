@@ -22,6 +22,29 @@
       "revId": "29a353e6a46d6ead165682ddd516787024bee697",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2622c759_af478e44",
+        "filename": "site/user/build.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T15:36:53Z",
+      "side": 1,
+      "message": "Yeah, all this is redundant.  I\u0027d rather not repeat ourselves for every platform when the instructions are the same.  If we write it in only one place, it can\u0027t be inconsistent with itself.",
+      "range": {
+        "startLine": 248,
+        "startChar": 2,
+        "endLine": 256,
+        "endChar": 24
+      },
+      "revId": "29a353e6a46d6ead165682ddd516787024bee697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
