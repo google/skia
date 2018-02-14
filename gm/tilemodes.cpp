@@ -12,11 +12,11 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-
-
 // effects
 #include "SkGradientShader.h"
 #include "SkBlurDrawLooper.h"
+
+#include "Resources.h"
 
 static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     bm->allocPixels(SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
@@ -264,3 +264,17 @@ DEF_GM( return new TilingGM(true); )
 DEF_GM( return new TilingGM(false); )
 DEF_GM( return new Tiling2GM(make_bm, "bitmap"); )
 DEF_GM( return new Tiling2GM(make_grad, "gradient"); )
+
+DEF_SIMPLE_GM(tilemode_decal, canvas, 200, 200) {
+    auto img = GetResourceAsImage("images/mandrill_128.png");
+    SkPaint paint;
+    paint.setColor(SK_ColorYELLOW);
+
+    SkRect r = { -20, -20, img->width() + 20.0f, img->height() + 20.0f };
+    canvas->translate(25, 25);
+    canvas->drawRect(r, paint);
+
+    paint.setShader(img->makeShader(SkShader::kDecal_TileMode, SkShader::kDecal_TileMode));
+    canvas->drawRect(r, paint);
+}
+

@@ -1832,6 +1832,34 @@ STAGE( clamp_x_1, Ctx::None) { r = clamp_01(r); }
 STAGE(repeat_x_1, Ctx::None) { r = clamp_01(r - floor_(r)); }
 STAGE(mirror_x_1, Ctx::None) { r = clamp_01(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f )); }
 
+// Decal stores a 32bit mask after checking the coordinate (x and/or y) against its domain:
+//      mask == 0x00000000 if the coordinate(s) are out of bounds
+//      mask == 0xFFFFFFFF if the coordinate(s) are in bounds
+// After the gather stage, the r,g,b,a values are AND'd with this mask, setting them to 0
+// if either of the coordinates were out of bounds.
+
+STAGE(decal_x, SkJumper_DecalTileCtx* ctx) {
+    auto w = ctx->limit_x;
+    unaligned_store(ctx->mask, if_then_else((r >= w) | (r < 0), U32(0), U32(~0)));
+}
+STAGE(decal_y, SkJumper_DecalTileCtx* ctx) {
+    auto h = ctx->limit_y;
+    unaligned_store(ctx->mask, if_then_else((g >= h) | (g < 0), U32(0), U32(~0)));
+}
+STAGE(decal_x_and_y, SkJumper_DecalTileCtx* ctx) {
+    auto w = ctx->limit_x;
+    auto h = ctx->limit_y;
+    unaligned_store(ctx->mask,
+                    if_then_else((r >= w) | (r < 0) | (g >= h) | (g < 0), U32(0), U32(~0)));
+}
+STAGE(check_decal_mask, SkJumper_DecalTileCtx* ctx) {
+    auto mask = unaligned_load<U32>(ctx->mask);
+    r = bit_cast<F>( bit_cast<U32>(r) & mask );
+    g = bit_cast<F>( bit_cast<U32>(g) & mask );
+    b = bit_cast<F>( bit_cast<U32>(b) & mask );
+    a = bit_cast<F>( bit_cast<U32>(a) & mask );
+}
+
 STAGE(luminance_to_alpha, Ctx::None) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;
     r = g = b = 0;
