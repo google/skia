@@ -17,18 +17,6 @@
 
 const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 
-static const char* sample_offset_array_name(GrGLSLFPFragmentBuilder::Coordinates coords) {
-    static const char* kArrayNames[] = {
-        "deviceSpaceSampleOffsets",
-        "windowSpaceSampleOffsets"
-    };
-    return kArrayNames[coords];
-
-    GR_STATIC_ASSERT(0 == GrGLSLFPFragmentBuilder::kSkiaDevice_Coordinates);
-    GR_STATIC_ASSERT(1 == GrGLSLFPFragmentBuilder::kGLSLWindow_Coordinates);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kArrayNames) == GrGLSLFPFragmentBuilder::kLast_Coordinates + 1);
-}
-
 static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
 
@@ -84,11 +72,9 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     , fHasCustomColorOutput(false)
     , fCustomColorOutputIndex(-1)
     , fHasSecondaryOutput(false)
-    , fUsedSampleOffsetArrays(0)
     , fForceHighPrecision(false) {
     fSubstageIndices.push_back(0);
 #ifdef SK_DEBUG
-    fUsedProcessorFeatures = GrProcessor::kNone_RequiredFeatures;
     fHasReadDstColor = false;
 #endif
 }
@@ -104,17 +90,6 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
     this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
                       coords.c_str());
     return coords2D;
-}
-
-void GrGLSLFragmentShaderBuilder::appendOffsetToSample(const char* sampleIdx, Coordinates coords) {
-    SkASSERT(fProgramBuilder->header().fSamplePatternKey);
-    SkDEBUGCODE(fUsedProcessorFeatures |= GrProcessor::kSampleLocations_RequiredFeature);
-    if (kTopLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
-        // With a top left origin, device and window space are equal, so we only use device coords.
-        coords = kSkiaDevice_Coordinates;
-    }
-    this->codeAppendf("%s[%s]", sample_offset_array_name(coords), sampleIdx);
-    fUsedSampleOffsetArrays |= (1 << coords);
 }
 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
@@ -218,33 +193,6 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
     fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
-    if (fUsedSampleOffsetArrays & (1 << kSkiaDevice_Coordinates)) {
-        this->defineSampleOffsetArray(sample_offset_array_name(kSkiaDevice_Coordinates),
-                                      SkMatrix::MakeTrans(-0.5f, -0.5f));
-    }
-    if (fUsedSampleOffsetArrays & (1 << kGLSLWindow_Coordinates)) {
-        // With a top left origin, device and window space are equal, so we only use device coords.
-        SkASSERT(kBottomLeft_GrSurfaceOrigin == this->getSurfaceOrigin());
-        SkMatrix m;
-        m.setScale(1, -1);
-        m.preTranslate(-0.5f, -0.5f);
-        this->defineSampleOffsetArray(sample_offset_array_name(kGLSLWindow_Coordinates), m);
-    }
-}
-
-void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, const SkMatrix& m) {
-    SkASSERT(fProgramBuilder->caps()->sampleLocationsSupport());
-    const GrPipeline& pipeline = fProgramBuilder->pipeline();
-    const GrRenderTargetPriv& rtp = pipeline.renderTarget()->renderTargetPriv();
-    const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
-    SkSTArray<16, SkPoint, true> offsets;
-    offsets.push_back_n(specs.fEffectiveSampleCnt);
-    m.mapPoints(offsets.begin(), specs.fSampleLocations, specs.fEffectiveSampleCnt);
-    this->definitions().appendf("const float2 %s[] = float2[](", name);
-    for (int i = 0; i < specs.fEffectiveSampleCnt; ++i) {
-        this->definitions().appendf("float2(%f, %f)", offsets[i].x(), offsets[i].y());
-        this->definitions().append(i + 1 != specs.fEffectiveSampleCnt ? ", " : ");\n");
-    }
 }
 
 void GrGLSLFragmentShaderBuilder::onBeforeChildProcEmitCode() {
