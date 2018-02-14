@@ -304,3 +304,13 @@ DEF_TEST(String_Threaded, r) {
         thread.join();
     }
 }
+
+DEF_TEST(String_huge, r) {
+     size_t size = 0xFFFFFFFF - 16;
+    for (;;) {
+        // this crashes on 0xFFFF,FFF4
+        SkString str(size);
+        size += 1;
+    }
+}
+
