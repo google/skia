@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c80a6d0b_efe82513",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T21:07:10Z",
+      "side": 1,
+      "message": "/msan (holding the MSAN libc++) needs to come first on this path, before /lib (the vanilla libc++)",
+      "range": {
+        "startLine": 204,
+        "startChar": 27,
+        "endLine": 204,
+        "endChar": 53
+      },
+      "revId": "ac4b7e06c2f91ebafb4213b53225f33e5ce4aceb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
