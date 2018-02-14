@@ -31,7 +31,7 @@ protected:
 
         // The vertex shader simply forwards transposed x or y values to the geometry shader.
         SkASSERT(1 == proc.numAttribs());
-        gpArgs->fPositionVar.set(4 == proc.numInputPoints() ? kFloat4_GrSLType : kFloat3_GrSLType,
+        gpArgs->fPositionVar.set(GrVertexAttribTypeToSLType(proc.getAttrib(0).fType),
                                  proc.getAttrib(0).fName);
 
         // Geometry shader.
@@ -57,11 +57,20 @@ protected:
 
         GrShaderVar wind("wind", kHalf_GrSLType);
         g->declareGlobal(wind);
-        g->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], pts[0] - pts[2]));");
-        if (4 == numInputPoints) {
-            g->codeAppend ("area_x2 += determinant(float2x2(pts[0] - pts[2], pts[0] - pts[3]));");
+        if (WindMethod::kCrossProduct == proc.fWindMethod) {
+            g->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], "
+                                                                "pts[0] - pts[2]));");
+            if (4 == numInputPoints) {
+                g->codeAppend ("area_x2 += determinant(float2x2(pts[0] - pts[2], "
+                                                               "pts[0] - pts[3]));");
+            }
+            g->codeAppendf("%s = sign(area_x2);", wind.c_str());
+        } else {
+            SkASSERT(WindMethod::kInstanceData == proc.fWindMethod);
+            SkASSERT(3 == numInputPoints);
+            SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(0).fType);
+            g->codeAppendf("%s = sk_in[0].sk_Position.w;", wind.c_str());
         }
-        g->codeAppendf("%s = sign(area_x2);", wind.c_str());
 
         SkString emitVertexFn;
         SkSTArray<2, GrShaderVar> emitArgs;
@@ -322,12 +331,17 @@ private:
 
 void GrCCCoverageProcessor::initGS() {
     SkASSERT(Impl::kGeometryShader == fImpl);
-    if (RenderPassIsCubic(fRenderPass)) {
-        this->addVertexAttrib("x_or_y_values", kFloat4_GrVertexAttribType); // (See appendMesh.)
-        SkASSERT(sizeof(CubicInstance) == this->getVertexStride() * 2);
+    if (RenderPassIsCubic(fRenderPass) || WindMethod::kInstanceData == fWindMethod) {
+        SkASSERT(WindMethod::kCrossProduct == fWindMethod || 3 == this->numInputPoints());
+        this->addVertexAttrib("x_or_y_values", kFloat4_GrVertexAttribType);
+        SkASSERT(sizeof(QuadPointInstance) == this->getVertexStride() * 2);
+        SkASSERT(offsetof(QuadPointInstance, fY) == this->getVertexStride());
+        GR_STATIC_ASSERT(0 == offsetof(QuadPointInstance, fX));
     } else {
-        this->addVertexAttrib("x_or_y_values", kFloat3_GrVertexAttribType); // (See appendMesh.)
-        SkASSERT(sizeof(TriangleInstance) == this->getVertexStride() * 2);
+        this->addVertexAttrib("x_or_y_values", kFloat3_GrVertexAttribType);
+        SkASSERT(sizeof(TriPointInstance) == this->getVertexStride() * 2);
+        SkASSERT(offsetof(TriPointInstance, fY) == this->getVertexStride());
+        GR_STATIC_ASSERT(0 == offsetof(TriPointInstance, fX));
     }
     this->setWillUseGeoShader();
 }
