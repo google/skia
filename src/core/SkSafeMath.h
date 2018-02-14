@@ -48,6 +48,13 @@ public:
         return add(x, alignment - 1) & ~(alignment - 1);
     }
 
+    template <typename T> T castTo(size_t value) {
+        if (!SkTFitsIn<T>(value)) {
+            fOK = false;
+        }
+        return static_cast<T>(value);
+    }
+
     // These saturate to their results
     static size_t Add(size_t x, size_t y);
     static size_t Mul(size_t x, size_t y);
