@@ -115,6 +115,15 @@ GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
     return GrSamplerState::Filter::kMipMap;
 }
 
+bool GrTextureProxy::isProblemTexture() const {
+
+    if (fTarget) {
+        return fTarget->asTexture()->texturePriv().isProblemTexture();
+    }
+
+    return false;
+}
+
 GrMipMapped GrTextureProxy::mipMapped() const {
     if (this->priv().isInstantiated()) {
         return this->priv().peekTexture()->texturePriv().mipMapped();

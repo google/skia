@@ -79,6 +79,7 @@ protected:
 private:
     void computeScratchKey(GrScratchKey*) const override;
     size_t onGpuMemorySize() const override;
+    virtual bool onIsProblemTexture() const = 0;
     void markMipMapsDirty();
     void markMipMapsClean();
 

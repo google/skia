@@ -57,6 +57,8 @@ protected:
         return false;
     }
 
+    bool onIsProblemTexture() const override { return false; }
+
 private:
     enum Wrapped { kWrapped };
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,

@@ -29,6 +29,8 @@ public:
 
     GrSamplerState::Filter highestFilterMode() const;
 
+    bool isProblemTexture() const;
+
     // If we are instantiated and have a target, return the mip state of that target. Otherwise
     // returns the proxy's mip state from creation time. This is useful for lazy proxies which may
     // claim to not need mips at creation time, but the instantiation happens to give us a mipped
