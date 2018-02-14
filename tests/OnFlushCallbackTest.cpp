@@ -15,9 +15,11 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrProxyProvider.h"
+#include "GrQuad.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
-#include "GrQuad.h"
+#include "GrTexture.h"
+
 #include "SkBitmap.h"
 #include "SkPointPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -283,13 +285,41 @@ public:
         header->fHead = op;
     }
 
-    // For the time being we need to pre-allocate the atlas.
-    void setAtlasDest(sk_sp<GrTextureProxy> atlasDest) {
-        fAtlasDest = atlasDest;
+    int numOps() const { return fOps.count(); }
+
+    // Get the fully lazy proxy that is backing the atlas. Its actual width isn't
+    // known until flush time.
+    sk_sp<GrTextureProxy> getAtlasProxy(GrProxyProvider* proxyProvider) {
+        if (fAtlasProxy) {
+            return fAtlasProxy;
+        }
+
+        fAtlasProxy = proxyProvider->createFullyLazyProxy(
+                [](GrResourceProvider* resourceProvider) {
+                    if (!resourceProvider) {
+                        return sk_sp<GrTexture>();
+                    }
+
+                    GrSurfaceDesc desc;
+                    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+                    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+                    // TODO: until partial flushes in MDB lands we're stuck having
+                    // all 9 atlas draws occur
+                    desc.fWidth = 9 /*this->numOps()*/ * kAtlasTileSize;
+                    desc.fHeight = kAtlasTileSize;
+                    desc.fConfig = kRGBA_8888_GrPixelConfig;
+
+                    return resourceProvider->createTexture(desc, SkBudgeted::kYes,
+                                                           GrResourceProvider::kNoPendingIO_Flag);
+                },
+                GrProxyProvider::Renderable::kYes,
+                kBottomLeft_GrSurfaceOrigin,
+                kRGBA_8888_GrPixelConfig);
+        return fAtlasProxy;
     }
 
     /*
-     * This callback back creates the atlas and updates the AtlasedRectOps to read from it
+     * This callback creates the atlas and updates the AtlasedRectOps to read from it
      */
     void preFlush(GrOnFlushResourceProvider* resourceProvider,
                   const uint32_t* opListIDs, int numOpListIDs,
@@ -308,31 +338,21 @@ public:
             return; // nothing to atlas
         }
 
-        // TODO: right now we have to pre-allocate the atlas bc the TextureSamplers need a
-        // hard GrTexture
-#if 0
-        GrSurfaceDesc desc;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fWidth = this->numOps() * kAtlasTileSize;
-        desc.fHeight = kAtlasTileSize;
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
+        if (!resourceProvider->instatiateProxy(fAtlasProxy.get())) {
+            return;
+        }
 
-        sk_sp<GrRenderTargetContext> rtc = resourceProvider->makeRenderTargetContext(desc,
-                                                                                     nullptr,
-                                                                                     nullptr);
-#else
         // At this point all the GrAtlasedOp's should have lined up to read from 'atlasDest' and
         // there should either be two writes to clear it or no writes.
-        SkASSERT(9 == fAtlasDest->getPendingReadCnt_TestOnly());
-        SkASSERT(2 == fAtlasDest->getPendingWriteCnt_TestOnly() ||
-                 0 == fAtlasDest->getPendingWriteCnt_TestOnly());
+        SkASSERT(9 == fAtlasProxy->getPendingReadCnt_TestOnly());
+        SkASSERT(2 == fAtlasProxy->getPendingWriteCnt_TestOnly() ||
+                 0 == fAtlasProxy->getPendingWriteCnt_TestOnly());
         sk_sp<GrRenderTargetContext> rtc = resourceProvider->makeRenderTargetContext(
-                                                                           fAtlasDest,
+                                                                           fAtlasProxy,
                                                                            nullptr, nullptr);
-#endif
 
         // clear the atlas
-        rtc->clear(nullptr, 0xFFFFFFFF, GrRenderTargetContext::CanClearFullscreen::kYes);
+        rtc->clear(nullptr, 0x0, GrRenderTargetContext::CanClearFullscreen::kYes);
 
         int blocksInAtlas = 0;
         for (int i = 0; i < lists.count(); ++i) {
@@ -358,9 +378,6 @@ public:
 
                 // Set the atlased Op's localRect to point to where it landed in the atlas
                 op->setLocalRect(SkRect::Make(r));
-
-                // TODO: we also need to set the op's GrSuperDeferredSimpleTextureEffect to point
-                // to the rtc's proxy!
             }
 
             // We've updated all these ops and we certainly don't want to process them again
@@ -395,9 +412,8 @@ private:
     // Each opList containing AtlasedRectOps gets its own internal singly-linked list
     SkTDArray<LinkedListHeader>  fOps;
 
-    // For the time being we need to pre-allocate the atlas bc the TextureSamplers require
-    // a GrTexture
-    sk_sp<GrTextureProxy>        fAtlasDest;
+    // The fully lazy proxy for the atlas
+    sk_sp<GrTextureProxy>        fAtlasProxy;
 
     // Set to true when the testing harness expects this object to be no longer used
     bool                         fDone;
@@ -405,7 +421,7 @@ private:
 
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
 static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject* object, int start,
-                                                 sk_sp<GrTextureProxy> fakeAtlas) {
+                                                 sk_sp<GrTextureProxy> atlasProxy) {
     sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContext(
                                                                       SkBackingFit::kApprox,
                                                                       3*kDrawnTileSize,
@@ -419,7 +435,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
 
-        auto fp = GrSimpleTextureEffect::Make(fakeAtlas, SkMatrix::I());
+        auto fp = GrSimpleTextureEffect::Make(atlasProxy, SkMatrix::I());
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -474,20 +490,8 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
 
     return sk_ref_sp(tmp->asTextureProxy());
 }
-#else
-// TODO: this is unfortunate and must be removed. We want the atlas to be created later.
-sk_sp<GrTextureProxy> pre_create_atlas(GrProxyProvider* proxyProvider) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    desc.fWidth = 32;
-    desc.fHeight = 16;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-
-    return proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes,
-                                      GrResourceProvider::kNoPendingIO_Flag);
-}
 #endif
+
 
 static void test_color(skiatest::Reporter* reporter, const SkBitmap& bm, int x, SkColor expected) {
     SkColor readback = bm.getColor(x, kDrawnTileSize/2);
@@ -509,27 +513,24 @@ static void test_color(skiatest::Reporter* reporter, const SkBitmap& bm, int x, 
  *           R G B C M Y
  * with the atlas having width = 6*kAtlasTileSize and height = kAtlasTileSize.
  *
- * Note: until MDB lands, the atlas will actually have width= 9*kAtlasTileSize and look like:
+ * Note: until partial flushes in MDB lands, the atlas will actually have width= 9*kAtlasTileSize
+ * and look like:
  *           R G B C M Y K Grey White
  */
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kNumProxies = 3;
 
     GrContext* context = ctxInfo.grContext();
+    auto proxyProvider = context->contextPriv().proxyProvider();
 
     AtlasObject object;
-
-    // For now (until we add a GrSuperDeferredSimpleTextureEffect), we create the final atlas
-    // proxy ahead of time.
-    sk_sp<GrTextureProxy> atlasDest = pre_create_atlas(context->contextPriv().proxyProvider());
-
-    object.setAtlasDest(atlasDest);
 
     context->contextPriv().addOnFlushCallbackObject(&object);
 
     sk_sp<GrTextureProxy> proxies[kNumProxies];
     for (int i = 0; i < kNumProxies; ++i) {
-        proxies[i] = make_upstream_image(context, &object, i*3, atlasDest);
+        proxies[i] = make_upstream_image(context, &object, i*3,
+                                         object.getAtlasProxy(proxyProvider));
     }
 
     static const int kFinalWidth = 6*kDrawnTileSize;

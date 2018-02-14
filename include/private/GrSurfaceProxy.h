@@ -219,7 +219,6 @@ public:
     int worstCaseWidth() const;
     int worstCaseHeight() const;
     GrSurfaceOrigin origin() const {
-        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
         SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
         return fOrigin;
     }
