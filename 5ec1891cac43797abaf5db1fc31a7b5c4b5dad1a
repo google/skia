@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed1b3590_1d921135",
+        "filename": "site/user/build.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-14T16:51:05Z",
+      "side": 1,
+      "message": "Let\u0027s back the link up by one to https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017 so people can click download themselves?",
+      "revId": "5ec1891cac43797abaf5db1fc31a7b5c4b5dad1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
