@@ -25,20 +25,6 @@ public:
     virtual ~GrGLSLFragmentBuilder() {}
 
     /**
-     * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
-     * if code is added that uses one of these features without calling enableFeature()
-     */
-    enum GLSLFeature {
-        kMultisampleInterpolation_GLSLFeature
-    };
-
-    /**
-     * If the feature is supported then true is returned and any necessary #extension declarations
-     * are added to the shaders. If the feature is not supported then false will be returned.
-     */
-    virtual bool enableFeature(GLSLFeature) = 0;
-
-    /**
      * This returns a variable name to access the 2D, perspective correct version of the coords in
      * the fragment shader. The passed in coordinates must either be of type kHalf2 or kHalf3. If
      * the coordinates are 3-dimensional, it a perspective divide into is emitted into the
@@ -61,34 +47,6 @@ public:
     /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
     GrGLSLFPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
 
-    enum Coordinates {
-        kSkiaDevice_Coordinates,
-        kGLSLWindow_Coordinates,
-
-        kLast_Coordinates = kGLSLWindow_Coordinates
-    };
-
-    /**
-     * Appends the offset from the center of the pixel to a specified sample.
-     *
-     * @param sampleIdx      GLSL expression of the sample index.
-     * @param Coordinates    Coordinate space in which to emit the offset.
-     *
-     * A processor must call setWillUseSampleLocations in its constructor before using this method.
-     */
-    virtual void appendOffsetToSample(const char* sampleIdx, Coordinates) = 0;
-
-    /**
-     * Subtracts sample coverage from the fragment. Any sample whose corresponding bit is not found
-     * in the mask will not be written out to the framebuffer.
-     *
-     * @param mask      int that contains the sample mask. Bit N corresponds to the Nth sample.
-     * @param invert    perform a bit-wise NOT on the provided mask before applying it?
-     *
-     * Requires GLSL support for sample variables.
-     */
-    virtual void maskSampleCoverage(const char* mask, bool invert = false) = 0;
-
     /**
      * Fragment procs with child procs should call these functions before/after calling emitCode
      * on a child proc.
@@ -99,29 +57,6 @@ public:
     virtual const SkString& getMangleString() const = 0;
 
     virtual void forceHighPrecision() = 0;
-};
-
-/*
- * This class is used by primitive processors to build their fragment code.
- */
-class GrGLSLPPFragmentBuilder : public GrGLSLFPFragmentBuilder {
-public:
-    /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
-    GrGLSLPPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
-
-    /**
-     * Overrides the fragment's sample coverage. The provided mask determines which samples will now
-     * be written out to the framebuffer. Note that this mask can be reduced by a future call to
-     * maskSampleCoverage.
-     *
-     * If a primitive processor uses this method, it must guarantee that every codepath through the
-     * shader overrides the sample mask at some point.
-     *
-     * @param mask    int that contains the new coverage mask. Bit N corresponds to the Nth sample.
-     *
-     * Requires NV_sample_mask_override_coverage.
-     */
-    virtual void overrideSampleCoverage(const char* mask) = 0;
 };
 
 /*
@@ -148,22 +83,14 @@ public:
 /*
  * This class implements the various fragment builder interfaces.
  */
-class GrGLSLFragmentShaderBuilder : public GrGLSLPPFragmentBuilder, public GrGLSLXPFragmentBuilder {
+class GrGLSLFragmentShaderBuilder : public GrGLSLFPFragmentBuilder, public GrGLSLXPFragmentBuilder {
 public:
-   /** Returns a nonzero key for a surface's origin. This should only be called if a processor will
-       use the fragment position and/or sample locations. */
-    static uint8_t KeyForSurfaceOrigin(GrSurfaceOrigin);
-
     GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program);
 
     // Shared GrGLSLFragmentBuilder interface.
-    bool enableFeature(GLSLFeature) override;
     virtual SkString ensureCoords2D(const GrShaderVar&) override;
 
     // GrGLSLFPFragmentBuilder interface.
-    void appendOffsetToSample(const char* sampleIdx, Coordinates) override;
-    void maskSampleCoverage(const char* mask, bool invert = false) override;
-    void overrideSampleCoverage(const char* mask) override;
     const SkString& getMangleString() const override { return fMangleString; }
     void onBeforeChildProcEmitCode() override;
     void onAfterChildProcEmitCode() override;
@@ -185,10 +112,8 @@ private:
 #ifdef SK_DEBUG
     // As GLSLProcessors emit code, there are some conditions we need to verify.  We use the below
     // state to track this.  The reset call is called per processor emitted.
-    GrProcessor::RequiredFeatures usedProcessorFeatures() const { return fUsedProcessorFeatures; }
     bool hasReadDstColor() const { return fHasReadDstColor; }
     void resetVerification() {
-        fUsedProcessorFeatures = GrProcessor::kNone_RequiredFeatures;
         fHasReadDstColor = false;
     }
 #endif
@@ -199,7 +124,6 @@ private:
     GrSurfaceOrigin getSurfaceOrigin() const;
 
     void onFinalize() override;
-    void defineSampleOffsetArray(const char* name, const SkMatrix&);
 
     static const char* kDstColorName;
 
@@ -227,14 +151,11 @@ private:
     bool          fHasCustomColorOutput;
     int           fCustomColorOutputIndex;
     bool          fHasSecondaryOutput;
-    uint8_t       fUsedSampleOffsetArrays;
-    bool          fHasInitializedSampleMask;
     bool          fForceHighPrecision;
 
 #ifdef SK_DEBUG
     // some state to verify shaders and effects are consistent, this is reset between effects by
     // the program creator
-    GrProcessor::RequiredFeatures fUsedProcessorFeatures;
     bool fHasReadDstColor;
 #endif
 

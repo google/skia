@@ -16,6 +16,7 @@
 #include "SkPathPriv.h"
 #include "SkPoint.h"
 #include "ccpr/GrCCGeometry.h"
+#include <cmath>
 
 using TriangleInstance = GrCCCoverageProcessor::TriangleInstance;
 using CubicInstance = GrCCCoverageProcessor::CubicInstance;
