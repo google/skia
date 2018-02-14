@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0160358e_76d4ea56",
+        "filename": "infra/bots/assets/emscripten_sdk/create_and_upload.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-14T13:25:44Z",
+      "side": 1,
+      "message": "I added a few comments about how we only care about the binaries really, for this SDK.\n\nAlso removed the tmp_dir() since we don\u0027t need to copy anything in there.  If we had to make a copy of the sdk in said tmp_dir() it would be very slow and require a large amount (~17GB) of disk space",
+      "parentUuid": "eaf48261_ae7c201b",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 68
+      },
+      "revId": "6fc26bd4f365f5454fefadcb67299393206d225a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38da9cb2_789a283c",
         "filename": "infra/bots/assets/emscripten_sdk/create_and_upload.py",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "6fc26bd4f365f5454fefadcb67299393206d225a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba3949f6_5127c87c",
+        "filename": "infra/bots/assets/emscripten_sdk/create_and_upload.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-14T13:25:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38da9cb2_789a283c",
+      "revId": "6fc26bd4f365f5454fefadcb67299393206d225a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
