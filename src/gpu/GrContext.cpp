@@ -542,6 +542,74 @@ static bool pm_upm_must_round_trip(GrPixelConfig config, SkColorSpace* colorSpac
            (kRGBA_8888_GrPixelConfig == config || kBGRA_8888_GrPixelConfig == config);
 }
 
+static GrSRGBConversion determine_write_pixels_srgb_conversion(
+        GrPixelConfig srcConfig,
+        const SkColorSpace* srcColorSpace,
+        GrSRGBEncoded dstSRGBEncoded,
+        const SkColorSpace* dstColorSpace) {
+    // No support for sRGB-encoded alpha.
+    if (GrPixelConfigIsAlphaOnly(srcConfig)) {
+        return GrSRGBConversion::kNone;
+    }
+    // When the destination has no color space or it has a ~sRGB gamma but isn't sRGB encoded
+    // (because of caps) then we act in "legacy" mode where no conversions are performed.
+    if (!dstColorSpace ||
+        (dstColorSpace->gammaCloseToSRGB() && GrSRGBEncoded::kNo == dstSRGBEncoded)) {
+        return GrSRGBConversion::kNone;
+    }
+    // Similarly, if the src was sRGB gamma and 8888 but we didn't choose a sRGB config we must be
+    // in legacy mode. For now, anyway.
+    if (srcColorSpace && srcColorSpace->gammaCloseToSRGB() &&
+        GrSRGBEncoded::kNo == GrPixelConfigIsSRGBEncoded(srcConfig) &&
+        GrPixelConfigIs8888Unorm(srcConfig)) {
+        return GrSRGBConversion::kNone;
+    }
+
+    bool srcColorSpaceIsSRGB = srcColorSpace && srcColorSpace->gammaCloseToSRGB();
+    bool dstColorSpaceIsSRGB = dstColorSpace->gammaCloseToSRGB();
+
+    // For now we are assuming that if color space of the dst does not have sRGB gamma then the
+    // texture format is not sRGB encoded and vice versa. Note that we already checked for "legacy"
+    // mode being forced on by caps above. This may change in the future.
+    SkASSERT(dstColorSpaceIsSRGB == (GrSRGBEncoded::kYes == dstSRGBEncoded));
+
+    // Similarly we are assuming that if the color space of the src does not have sRGB gamma then
+    // the CPU pixels don't have a sRGB pixel config. This will become moot soon as we will not
+    // be using GrPixelConfig to describe CPU pixel allocations.
+    //    SkASSERT(!(!dstColorSpaceIsSRGB && GrPixelConfigIsSRGB(srcConfig)));
+
+    if (srcColorSpaceIsSRGB == dstColorSpaceIsSRGB) {
+        // They are either both sRGB encoded or neither is.
+        return GrSRGBConversion::kNone;
+    }
+    if (srcColorSpaceIsSRGB) {
+        // We are going from SRGB to nonSRGB. Because of the above checks we know that the dst has
+        // a non-SRGB color space and is not sRGB encoded. Convert the src to linear.
+        return GrSRGBConversion::kSRGBToLinear;
+    }
+    // The dst is sRGB gamme and the src is not. As we already asserted that the dst must be
+    // encoded in this case.
+    return GrSRGBConversion::kLinearToSRGB;
+}
+
+static GrSRGBConversion determine_read_pixels_srgb_conversion(
+        GrSRGBEncoded srcSRGBEncoded,
+        const SkColorSpace* srcColorSpace,
+        GrPixelConfig dstConfig,
+        const SkColorSpace* dstColorSpace) {
+    // This is symmetrical with WritePixels.
+    switch (determine_write_pixels_srgb_conversion(dstConfig, dstColorSpace, srcSRGBEncoded,
+                                                   srcColorSpace)) {
+        case GrSRGBConversion::kNone:
+            return GrSRGBConversion::kNone;
+        case GrSRGBConversion::kLinearToSRGB:
+            return GrSRGBConversion::kSRGBToLinear;
+        case GrSRGBConversion::kSRGBToLinear:
+            return GrSRGBConversion::kLinearToSRGB;
+    }
+    return GrSRGBConversion::kNone;
+}
+
 bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
                                        int left, int top, int width, int height,
                                        GrPixelConfig srcConfig, SkColorSpace* srcColorSpace,
@@ -590,8 +658,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     GrGpu::DrawPreference drawPreference = premulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                        : GrGpu::kNoDraw_DrawPreference;
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
+    GrSRGBConversion srgbConversion = determine_write_pixels_srgb_conversion(
+            srcConfig, srcColorSpace, GrPixelConfigIsSRGBEncoded(dstProxy->config()),
+            dst->colorSpaceInfo().colorSpace());
     if (!fContext->fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
-                                            srcConfig, &drawPreference, &tempDrawInfo)) {
+                                            srcConfig, srgbConversion, &drawPreference,
+                                            &tempDrawInfo)) {
         return false;
     }
 
@@ -723,8 +795,12 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GrGpu::DrawPreference drawPreference = unpremulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                          : GrGpu::kNoDraw_DrawPreference;
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
+    GrSRGBConversion srgbConversion = determine_read_pixels_srgb_conversion(
+            GrPixelConfigIsSRGBEncoded(srcProxy->config()), src->colorSpaceInfo().colorSpace(),
+            dstConfig, dstColorSpace);
     if (!fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
-                                           dstConfig, &drawPreference, &tempDrawInfo)) {
+                                           dstConfig, srgbConversion, &drawPreference,
+                                           &tempDrawInfo)) {
         return false;
     }
 
