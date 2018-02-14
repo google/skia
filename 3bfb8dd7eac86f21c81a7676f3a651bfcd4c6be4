@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48ff0d0f_fdf9c33d",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T20:53:27Z",
+      "side": 1,
+      "message": "Side note... I bet if we switch over to \"kLast_TileMode \u003d kDecal_TileMode,\" style, it\u0027ll make Cary\u0027s enum documentation effort easier.",
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8769486_761cc8d7",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1836,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T20:53:27Z",
+      "side": 1,
+      "message": "I think these comments about masks are a bit out of date?",
+      "range": {
+        "startLine": 1835,
+        "startChar": 17,
+        "endLine": 1836,
+        "endChar": 96
+      },
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85afdf90_26fa1289",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1841,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T20:53:27Z",
+      "side": 1,
+      "message": "Maybe like this?\n\n  unaligned_store(ctx-\u003emask,\n                  if_then_else( (r \u003c 0) | (r \u003e\u003d ctx-\u003elimit_x), U32(~0), U32(0) ));",
+      "range": {
+        "startLine": 1841,
+        "startChar": 15,
+        "endLine": 1841,
+        "endChar": 40
+      },
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ed4c49b_f1eccfca",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1858,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T20:53:27Z",
+      "side": 1,
+      "message": "Ok, now I\u0027m warming back up to writing stage code again... maybe this way?\n\n  r \u003d bit_cast\u003cF\u003e( bit_cast\u003cU32\u003e(r) \u0026 mask );\n  ...",
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cc421f7_4faf307a",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T20:53:27Z",
+      "side": 1,
+      "message": "// Decal has an implicit border of transparent black, so when it\u0027s used we\u0027re never opaque.\n\n?",
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
