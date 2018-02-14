@@ -26,7 +26,7 @@ static const int DEV_W = 100, DEV_H = 100;
 
 template <typename T>
 void runFPTest(skiatest::Reporter* reporter, GrContext* context,
-               T min, T max, T epsilon, T maxInt, int arraySize, GrPixelConfig config) {
+               T min, T max, T epsilon, T maxInt, int arraySize, GrColorType colorType) {
     if (0 != arraySize % 4) {
         REPORT_FAILURE(reporter, "(0 != arraySize % 4)",
                        SkString("arraySize must be divisible by 4."));
@@ -51,7 +51,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fOrigin = 0 == origin ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;
-        desc.fConfig = config;
+        desc.fConfig = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
 
         sk_sp<GrTextureProxy> fpProxy = proxyProvider->createTextureProxy(
                                            desc, SkBudgeted::kNo, controlPixelData.begin(), 0);
@@ -66,7 +66,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
 
         bool result = context->contextPriv().readSurfacePixels(sContext.get(),
                                                                0, 0, DEV_W, DEV_H,
-                                                               desc.fConfig, nullptr,
+                                                               colorType, nullptr,
                                                                readBuffer.begin(), 0);
         REPORTER_ASSERT(reporter, result);
         REPORTER_ASSERT(reporter,
@@ -80,7 +80,7 @@ static const float kMaxIntegerRepresentableInSPFloatingPoint = 16777216;  // 2 ^
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, ctxInfo) {
     runFPTest<float>(reporter, ctxInfo.grContext(), FLT_MIN, FLT_MAX, FLT_EPSILON,
                      kMaxIntegerRepresentableInSPFloatingPoint,
-                     RGBA32F_CONTROL_ARRAY_SIZE, kRGBA_float_GrPixelConfig);
+                     RGBA32F_CONTROL_ARRAY_SIZE, GrColorType::kRGBA_F32);
 }
 
 static const int RG32F_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 2;
@@ -88,7 +88,7 @@ static const int RG32F_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 2;
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest_RG, reporter, ctxInfo) {
     runFPTest<float>(reporter, ctxInfo.grContext(), FLT_MIN, FLT_MAX, FLT_EPSILON,
                      kMaxIntegerRepresentableInSPFloatingPoint,
-                     RG32F_CONTROL_ARRAY_SIZE, kRG_float_GrPixelConfig);
+                     RG32F_CONTROL_ARRAY_SIZE, GrColorType::kRG_F32);
 }
 
 static const int HALF_ALPHA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 1 /*alpha-only*/;
@@ -97,7 +97,7 @@ static const SkHalf kMaxIntegerRepresentableInHalfFloatingPoint = 0x6800;  // 2 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxInfo) {
     runFPTest<SkHalf>(reporter, ctxInfo.grContext(), SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
         kMaxIntegerRepresentableInHalfFloatingPoint,
-        HALF_ALPHA_CONTROL_ARRAY_SIZE, kAlpha_half_GrPixelConfig);
+        HALF_ALPHA_CONTROL_ARRAY_SIZE, GrColorType::kAlpha_F16);
 }
 
 static const int HALF_RGBA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4 /*RGBA*/;
@@ -105,7 +105,7 @@ static const int HALF_RGBA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4 /*RGBA*/;
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, ctxInfo) {
     runFPTest<SkHalf>(reporter, ctxInfo.grContext(), SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
         kMaxIntegerRepresentableInHalfFloatingPoint,
-        HALF_RGBA_CONTROL_ARRAY_SIZE, kRGBA_half_GrPixelConfig);
+        HALF_RGBA_CONTROL_ARRAY_SIZE, GrColorType::kRGBA_F16);
 }
 
 #endif
