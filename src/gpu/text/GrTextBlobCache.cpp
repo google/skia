@@ -10,7 +10,8 @@
 DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage)
 
 GrTextBlobCache::~GrTextBlobCache() {
-    SkDEBUGCODE(this->freeAll();)
+    this->freeAll();
+    delete fPool;
 }
 
 void GrTextBlobCache::freeAll() {
@@ -23,7 +24,7 @@ void GrTextBlobCache::freeAll() {
     fBlobIDCache.reset();
 
     // There should be no allocations in the memory pool at this point
-    SkASSERT(fPool.isEmpty());
+    SkASSERT(!fPool || fPool->isEmpty());
     SkASSERT(fBlobList.isEmpty());
 }
 
@@ -53,16 +54,26 @@ void GrTextBlobCache::purgeStaleBlobs() {
     }
 }
 
+bool GrTextBlobCache::overBudget() const {
+    if (fPool) {
+        return fPool->size() > fBudget;
+    }
+
+    // When DDLs are being recorded no GrAtlasTextBlob will be deleted so the cache budget is
+    // somewhat meaningless.
+    return false;
+}
+
 void GrTextBlobCache::checkPurge(GrAtlasTextBlob* blob) {
     // First, purge all stale blob IDs.
     this->purgeStaleBlobs();
 
     // If we are still over budget, then unref until we are below budget again
-    if (fPool.size() > fBudget) {
+    if (this->overBudget()) {
         BitmapBlobList::Iter iter;
         iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
         GrAtlasTextBlob* lruBlob = nullptr;
-        while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
+        while (this->overBudget() && (lruBlob = iter.get()) && lruBlob != blob) {
             // Backup the iterator before removing and unrefing the blob
             iter.prev();
 
@@ -77,7 +88,7 @@ void GrTextBlobCache::checkPurge(GrAtlasTextBlob* blob) {
         }
 
 #ifdef SPEW_BUDGET_MESSAGE
-        if (fPool.size() > fBudget) {
+        if (this->overBudget()) {
             SkDebugf("Single textblob is larger than our whole budget");
         }
 #endif
