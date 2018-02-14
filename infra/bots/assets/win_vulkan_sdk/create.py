@@ -15,12 +15,14 @@ import sys
 import os
 
 
-def create_asset(target_dir, sdk_path, runtime_path):
+def create_asset(target_dir, sdk_path):
   """Create the asset."""
+  # The bots only need Include from the SDK.
+  target_include_dir = os.path.join(target_dir, "Include")
+  sdk_include_dir = os.path.join(sdk_path, "Include")
   if not os.path.isdir(target_dir):
     os.makedirs(target_dir)
-  shutil.copytree(sdk_path, target_dir)
-  shutil.copyfile(runtime_path, os.path.join(target_dir, "vulkan-1.dll"))
+  shutil.copytree(sdk_include_dir, target_include_dir)
 
 def main():
   if sys.platform != 'win32':
@@ -29,11 +31,8 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('--target_dir', '-t', required=True)
   parser.add_argument('--sdk_path', '-s', required=True)
-  parser.add_argument('--runtime_path', '-r',
-      default=os.path.join("C:","System32","vulkan-1.dll"),
-      required=True)
   args = parser.parse_args()
-  create_asset(args.target_dir, args.sdk_path, args.runtime_path)
+  create_asset(args.target_dir, args.sdk_path)
 
 
 if __name__ == '__main__':
