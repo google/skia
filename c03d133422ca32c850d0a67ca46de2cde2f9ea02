@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c44ac31_f0509d55",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-14T14:05:41Z",
+      "side": 1,
+      "message": "It is, but I forgot to remove the comment.",
+      "range": {
+        "startLine": 469,
+        "startChar": 41,
+        "endLine": 469,
+        "endChar": 67
+      },
+      "revId": "c03d133422ca32c850d0a67ca46de2cde2f9ea02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
