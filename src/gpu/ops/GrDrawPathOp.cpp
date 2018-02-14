@@ -70,7 +70,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state) {
 
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
-    state->gpu()->pathRendering()->drawPath(pipeline, *pathProc, stencil, fPath.get());
+    state->gpu1()->pathRendering()->drawPath(pipeline, *pathProc, stencil, fPath.get());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -183,7 +183,7 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
     if (fDraws.count() == 1) {
         const InstanceData& instances = *head.fInstanceData;
-        state->gpu()->pathRendering()->drawPaths(pipeline,
+        state->gpu1()->pathRendering()->drawPaths(pipeline,
                                                  *pathProc,
                                                  stencil,
                                                  fPathRange.get(),
@@ -211,7 +211,7 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
         }
         SkASSERT(idx == fTotalPathCount);
 
-        state->gpu()->pathRendering()->drawPaths(pipeline,
+        state->gpu1()->pathRendering()->drawPaths(pipeline,
                                                  *pathProc,
                                                  stencil,
                                                  fPathRange.get(),

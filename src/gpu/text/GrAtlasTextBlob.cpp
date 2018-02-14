@@ -245,8 +245,7 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
         const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
         const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
-        const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
-        GrTextUtils::Target* target) {
+        const GrDistanceFieldAdjustTable* distanceAdjustTable, GrTextUtils::Target* target) {
     GrMaskFormat format = info.maskFormat();
 
     GrPaint grPaint;
@@ -255,11 +254,11 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
     if (info.drawAsDistanceFields()) {
         bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         op = GrAtlasTextOp::MakeDistanceField(
-                std::move(grPaint), glyphCount, cache, distanceAdjustTable,
+                std::move(grPaint), glyphCount, distanceAdjustTable,
                 target->colorSpaceInfo().isGammaCorrect(), paint.luminanceColor(),
                 info.hasUseLCDText(), useBGR, info.isAntiAliased());
     } else {
-        op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount, cache);
+        op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount);
     }
     GrAtlasTextOp::Geometry& geometry = op->geometry();
     geometry.fViewMatrix = viewMatrix;
@@ -389,12 +388,12 @@ void GrAtlasTextBlob::flush(GrAtlasGlyphCache* atlasGlyphCache, GrTextUtils::Tar
 std::unique_ptr<GrDrawOp> GrAtlasTextBlob::test_makeOp(
         int glyphCount, uint16_t run, uint16_t subRun, const SkMatrix& viewMatrix,
         SkScalar x, SkScalar y, const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
-        const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
+        const GrDistanceFieldAdjustTable* distanceAdjustTable,
         GrTextUtils::Target* target) {
     const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
     SkIRect emptyRect = SkIRect::MakeEmpty();
     return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, emptyRect, paint, props,
-                        distanceAdjustTable, cache, target);
+                        distanceAdjustTable, target);
 }
 
 void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlob& r) {

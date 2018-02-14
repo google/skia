@@ -272,7 +272,7 @@ public:
     std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, uint16_t run, uint16_t subRun,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                           const GrTextUtils::Paint&, const SkSurfaceProps&,
-                                          const GrDistanceFieldAdjustTable*, GrAtlasGlyphCache*,
+                                          const GrDistanceFieldAdjustTable*,
                                           GrTextUtils::Target*);
 
 private:
