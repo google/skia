@@ -236,6 +236,9 @@ Skia can build on Windows with Visual Studio 2017 or Visual Studio 2015 Update 3
 If GN is unable to locate either of those, it will print an error message. In that
 case, you can pass your `VC` path to GN via `win_vc`.
 
+Skia can be compiled with the free [Build Tools for Visual Studio
+2017](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017).
+
 The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
     python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
