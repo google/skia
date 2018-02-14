@@ -106,13 +106,8 @@ public:
     /*
      * Create a GrSurfaceProxy without any data.
      */
-    sk_sp<GrTextureProxy> createProxy(const GrSurfaceDesc&, GrMipMapped, SkBackingFit, SkBudgeted,
-                                      uint32_t flags);
-
-    sk_sp<GrTextureProxy> createProxy(const GrSurfaceDesc& desc, SkBackingFit fit,
-                                      SkBudgeted budgeted, uint32_t flags = 0) {
-        return this->createProxy(desc, GrMipMapped::kNo, fit, budgeted, flags);
-    }
+    sk_sp<GrTextureProxy> createProxy(const GrSurfaceDesc&, SkBackingFit, SkBudgeted,
+                                      uint32_t flags = 0);
 
     // These match the definitions in SkImage & GrTexture.h, for whence they came
     typedef void* ReleaseContext;
