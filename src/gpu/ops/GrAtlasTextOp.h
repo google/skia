@@ -43,7 +43,7 @@ public:
                                                      int glyphCount, GrAtlasGlyphCache* fontCache) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
-        op->fFontCache = fontCache;
+        op->fFontCache1 = fontCache;
         switch (maskFormat) {
             case kA8_GrMaskFormat:
                 op->fMaskType = kGrayscaleCoverageMask_MaskType;
@@ -58,7 +58,7 @@ public:
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
         op->fLuminanceColor = 0;
-        op->fFontCache = fontCache;
+        op->fFontCache1 = fontCache;
         return op;
     }
 
@@ -69,7 +69,7 @@ public:
             bool isAntiAliased) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
-        op->fFontCache = fontCache;
+        op->fFontCache1 = fontCache;
         op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
                                        : isLCD ? (useBGR ? kLCDBGRDistanceField_MaskType
                                                          : kLCDDistanceField_MaskType)
@@ -95,7 +95,7 @@ public:
     void visitProxies(const VisitProxyFunc& func) const override {
         fProcessors.visitProxies(func);
 
-        const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat());
+        const sk_sp<GrTextureProxy>* proxies = fFontCache1->getProxies(this->maskFormat());
         for (int i = 0; i < kMaxTextures; ++i) {
             if (proxies[i]) {
                 func(proxies[i].get());
@@ -196,7 +196,7 @@ private:
     int fGeoCount;
     int fNumGlyphs;
     MaskType fMaskType;
-    GrAtlasGlyphCache* fFontCache;
+    GrAtlasGlyphCache* fFontCache1;
     // Distance field properties
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fLuminanceColor;

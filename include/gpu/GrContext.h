@@ -364,7 +364,7 @@ private:
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
-    GrAtlasGlyphCache*                      fAtlasGlyphCache;
+    GrAtlasGlyphCache*                      fAtlasGlyphCache1;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDisableGpuYUVConversion;
