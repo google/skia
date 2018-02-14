@@ -209,6 +209,9 @@ def nanobench_flags(api, bot):
   match.append('~inc0.webp')
   match.append('~inc1.webp')
 
+  match = []
+  match.append('desk_skbug6850overlay.skp')
+
   if match:
     args.append('--match')
     args.extend(match)
