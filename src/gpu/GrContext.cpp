@@ -295,7 +295,7 @@ bool GrContext::init(const GrContextOptions& options) {
     } else {
         allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
     }
-    fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes,
+    fAtlasGlyphCache1 = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes,
                                              allowMultitexturing);
     this->contextPriv().addOnFlushCallbackObject(fAtlasGlyphCache);
 
