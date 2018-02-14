@@ -82,6 +82,24 @@
     },
     {
       "key": {
+        "uuid": "cf9e210c_dfebf0da",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1858,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T20:56:07Z",
+      "side": 1,
+      "message": "er, \u0026 ~mask.  (Or create the mask the other way around so that \u0026 works?)",
+      "parentUuid": "5ed4c49b_f1eccfca",
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2cc421f7_4faf307a",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 1
