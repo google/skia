@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89061f3c_198cd9aa",
+        "filename": "src/effects/SkBlurMask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-14T19:40:56Z",
+      "side": 1,
+      "message": "unlucky winner of nit: over 100 chars",
+      "range": {
+        "startLine": 242,
+        "startChar": 86,
+        "endLine": 242,
+        "endChar": 104
+      },
+      "revId": "daa257ae8894ac90ded69b09ee4e9e57065e80a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
