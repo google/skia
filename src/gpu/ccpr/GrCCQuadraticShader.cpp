@@ -51,7 +51,7 @@ void GrCCQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
     this->onEmitVaryings(varyingHandler, scope, code);
 }
 
-void GrCCQuadraticShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+void GrCCQuadraticShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
                                              const char* outputCoverage) const {
     this->emitCoverage(f, outputCoverage);
     f->codeAppendf("%s *= %s.w;", outputCoverage, fXYDW.fsIn()); // Sign by wind.
@@ -84,7 +84,7 @@ void GrCCQuadraticHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandle
                   OutName(fGrad), OutName(fXYDW), fCanonicalMatrix.c_str());
 }
 
-void GrCCQuadraticHullShader::emitCoverage(GrGLSLPPFragmentBuilder* f,
+void GrCCQuadraticHullShader::emitCoverage(GrGLSLFPFragmentBuilder* f,
                                            const char* outputCoverage) const {
     f->codeAppendf("float d = (%s.x * %s.x - %s.y) * inversesqrt(dot(%s, %s));",
                    fXYDW.fsIn(), fXYDW.fsIn(), fXYDW.fsIn(), fGrad.fsIn(), fGrad.fsIn());
@@ -116,7 +116,7 @@ void GrCCQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHand
                   fEdgeDistanceEquation.c_str());
 }
 
-void GrCCQuadraticCornerShader::emitCoverage(GrGLSLPPFragmentBuilder* f,
+void GrCCQuadraticCornerShader::emitCoverage(GrGLSLFPFragmentBuilder* f,
                                              const char* outputCoverage) const {
     f->codeAppendf("float x = %s.x, y = %s.y, d = %s.z;",
                    fXYDW.fsIn(), fXYDW.fsIn(), fXYDW.fsIn());

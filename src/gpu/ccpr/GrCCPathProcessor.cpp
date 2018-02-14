@@ -219,7 +219,7 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          args.fFPCoordTransformHandler);
 
     // Fragment shader.
-    GrGLSLPPFragmentBuilder* f = args.fFragBuilder;
+    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 
     f->codeAppend ("half coverage_count = ");
     f->appendTextureLookup(args.fTexSamplers[0], texcoord.fsIn(), kFloat2_GrSLType);

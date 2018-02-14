@@ -153,7 +153,7 @@ public:
                                  qp.inPosition()->asShaderVar(), SkMatrix::I(),
                                  args.fFPCoordTransformHandler);
 
-            GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
+            GrGLSLFPFragmentBuilder* fsBuilder = args.fFragBuilder;
             fsBuilder->codeAppendf("if (%s.x * %s.x >= %s.y) discard;", uv.fsIn(), uv.fsIn(),
                                                                         uv.fsIn());
             fsBuilder->codeAppendf("%s = half4(1.0);", args.fOutputCoverage);

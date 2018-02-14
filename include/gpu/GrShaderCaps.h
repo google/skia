@@ -72,10 +72,6 @@ public:
 
     bool multisampleInterpolationSupport() const { return fMultisampleInterpolationSupport; }
 
-    bool sampleVariablesSupport() const { return fSampleVariablesSupport; }
-
-    bool sampleMaskOverrideCoverageSupport() const { return fSampleMaskOverrideCoverageSupport; }
-
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
     bool texelFetchSupport() const { return fTexelFetchSupport; }
@@ -195,11 +191,6 @@ public:
         return fMultisampleInterpolationExtensionString;
     }
 
-    const char* sampleVariablesExtensionString() const {
-        SkASSERT(this->sampleVariablesSupport());
-        return fSampleVariablesExtensionString;
-    }
-
     const char* imageLoadStoreExtensionString() const {
         SkASSERT(this->imageLoadStoreSupport());
         return fImageLoadStoreExtensionString;
@@ -260,8 +251,6 @@ private:
     bool fPreferFlatInterpolation : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
     bool fMultisampleInterpolationSupport : 1;
-    bool fSampleVariablesSupport : 1;
-    bool fSampleMaskOverrideCoverageSupport : 1;
     bool fExternalTextureSupport : 1;
     bool fTexelFetchSupport : 1;
     bool fVertexIDSupport : 1;
@@ -292,7 +281,6 @@ private:
     const char* fTexelBufferExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
     const char* fMultisampleInterpolationExtensionString;
-    const char* fSampleVariablesExtensionString;
     const char* fImageLoadStoreExtensionString;
 
     const char* fFBFetchColorName;

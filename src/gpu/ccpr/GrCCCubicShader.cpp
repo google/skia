@@ -92,7 +92,7 @@ void GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
     this->onEmitVaryings(varyingHandler, scope, code);
 }
 
-void GrCCCubicShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+void GrCCCubicShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
                                          const char* outputCoverage) const {
     f->codeAppendf("float k = %s.x, l = %s.y, m = %s.z, d = %s.w;",
                    fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn());
@@ -116,7 +116,7 @@ void GrCCCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                     OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
 }
 
-void GrCCCubicHullShader::emitCoverage(GrGLSLPPFragmentBuilder* f,
+void GrCCCubicHullShader::emitCoverage(GrGLSLFPFragmentBuilder* f,
                                        const char* outputCoverage) const {
     // k,l,m,d are defined by the base class.
     f->codeAppend ("float f = k*k*k - l*m;");
@@ -148,7 +148,7 @@ void GrCCCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                   fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
 }
 
-void GrCCCubicCornerShader::emitCoverage(GrGLSLPPFragmentBuilder* f,
+void GrCCCubicCornerShader::emitCoverage(GrGLSLFPFragmentBuilder* f,
                                          const char* outputCoverage) const {
     f->codeAppendf("float2x4 grad_klmd = float2x4(%s, %s);", fdKLMDdx.fsIn(), fdKLMDdy.fsIn());
 

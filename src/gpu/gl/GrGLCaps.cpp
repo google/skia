@@ -734,22 +734,6 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         }
     }
 
-    if (kGL_GrGLStandard == standard) {
-        shaderCaps->fSampleVariablesSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
-    } else {
-        if (ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
-            shaderCaps->fSampleVariablesSupport = true;
-        } else if (ctxInfo.hasExtension("GL_OES_sample_variables")) {
-            shaderCaps->fSampleVariablesSupport = true;
-            shaderCaps->fSampleVariablesExtensionString = "GL_OES_sample_variables";
-        }
-    }
-
-    if (shaderCaps->fSampleVariablesSupport &&
-        ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage")) {
-        shaderCaps->fSampleMaskOverrideCoverageSupport = true;
-    }
-
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
                                                                   shaderCaps->fGLSLGeneration,
                                                                   fIsCoreProfile);
@@ -2273,12 +2257,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // TODO: Once this is fixed we can update the check here to look at a driver version number too.
     if (kAdreno5xx_GrGLRenderer == ctxInfo.renderer()) {
         shaderCaps->fFBFetchSupport = false;
-    }
-
-    // Pre-361 NVIDIA has a bug with NV_sample_mask_override_coverage.
-    if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(361,00)) {
-        shaderCaps->fSampleMaskOverrideCoverageSupport = false;
     }
 
     // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
