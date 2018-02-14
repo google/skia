@@ -54,8 +54,7 @@ public:
     /* Helper functions for analytic rectangle blurs */
 
     /** Look up the intensity of the (one dimnensional) blurred half-plane.
-        @param profile The precomputed 1D blur profile; memory allocated by and managed by
-                       ComputeBlurProfile below.
+        @param profile The precomputed 1D blur profile; initialized by ComputeBlurProfile below.
         @param loc the location to look up; The lookup will clamp invalid inputs, but
                    meaningful data are available between 0 and blurred_width
         @param blurred_width The width of the final, blurred rectangle
@@ -63,12 +62,12 @@ public:
     */
     static uint8_t ProfileLookup(const uint8_t* profile, int loc, int blurredWidth, int sharpWidth);
 
-    /** Allocate memory for and populate the profile of a 1D blurred halfplane.  The caller
-        must free the memory.  The amount of memory allocated will be exactly 6*sigma bytes.
-        @param sigma The standard deviation of the gaussian blur kernel
+    /** Populate the profile of a 1D blurred halfplane.
+        @param profile The 1D table to fill in
+        @param size    Should be 6*sigma bytes
+        @param sigma   The standard deviation of the gaussian blur kernel
     */
-
-    static uint8_t* ComputeBlurProfile(SkScalar sigma);
+    static void ComputeBlurProfile(uint8_t* profile, int size, SkScalar sigma);
 
     /** Compute an entire scanline of a blurred step function.  This is a 1D helper that
         will produce both the horizontal and vertical profiles of the blurry rectangle.
