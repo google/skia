@@ -52,16 +52,24 @@ uniform half profileSize;
         sk_sp<GrTextureProxy> blurProfile(proxyProvider->findOrCreateProxyByUniqueKey(
                                                                     key, kTopLeft_GrSurfaceOrigin));
         if (!blurProfile) {
-            GrSurfaceDesc texDesc;
-            texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
-            texDesc.fWidth = profileSize;
-            texDesc.fHeight = 1;
-            texDesc.fConfig = kAlpha_8_GrPixelConfig;
+            SkImageInfo ii = SkImageInfo::MakeA8(profileSize, 1);
 
-            std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
+            SkBitmap bitmap;
+            if (!bitmap.tryAllocPixels(ii)) {
+                return nullptr;
+            }
 
-            blurProfile = proxyProvider->createTextureProxy(texDesc, SkBudgeted::kYes,
-                                                            profile.get(), 0);
+            SkBlurMask::ComputeBlurProfile(bitmap.getAddr8(0, 0), profileSize, sigma);
+            bitmap.setImmutable();
+
+            sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
+            if (!image) {
+                return nullptr;
+            }
+
+            blurProfile = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags,
+                                                            kTopLeft_GrSurfaceOrigin, 1,
+                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!blurProfile) {
                 return nullptr;
             }
