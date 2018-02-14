@@ -26,6 +26,7 @@ struct GrDistanceFieldAdjustTable;
 class GrMemoryPool;
 class SkDrawFilter;
 class SkTextBlob;
+class GrTextBlobCache;
 class SkTextBlobRunIterator;
 
 // With this flag enabled, the GrAtlasTextContext will, as a sanity check, regenerate every blob
@@ -52,7 +53,7 @@ public:
 
     class VertexRegenerator;
 
-    static sk_sp<GrAtlasTextBlob> Make(GrMemoryPool* pool, int glyphCount, int runCount);
+    static sk_sp<GrAtlasTextBlob> Make(GrMemoryPool*, int glyphCount, int runCount);
 
     /**
      * We currently force regeneration of a blob if old or new matrix differ in having perspective.
@@ -102,10 +103,7 @@ public:
         return SkOpts::hash(&key, sizeof(Key));
     }
 
-    void operator delete(void* p) {
-        GrAtlasTextBlob* blob = reinterpret_cast<GrAtlasTextBlob*>(p);
-        blob->fPool->release(p);
-    }
+    void operator delete(void* p);
     void* operator new(size_t) {
         SK_ABORT("All blobs are created by placement new.");
         return sk_malloc_throw(0);
@@ -521,7 +519,7 @@ private:
     char* fVertices;
     GrGlyph** fGlyphs;
     Run* fRuns;
-    GrMemoryPool* fPool;
+    GrMemoryPool* fPool;   // this will be null when DDLs are being recorded
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     Key fKey;

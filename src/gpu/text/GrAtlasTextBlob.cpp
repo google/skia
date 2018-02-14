@@ -27,7 +27,12 @@ sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount,
                   glyphCount * sizeof(GrGlyph**) +
                   sizeof(GrAtlasTextBlob::Run) * runCount;
 
-    void* allocation = pool->allocate(size);
+    void* allocation;
+    if (pool) {
+        allocation = pool->allocate(size);;
+    } else {
+        allocation = ::operator new (size);
+    }
     if (CACHE_SANITY_CHECK) {
         sk_bzero(allocation, size);
     }
@@ -47,6 +52,16 @@ sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount,
     cacheBlob->fRunCount = runCount;
     cacheBlob->fPool = pool;
     return cacheBlob;
+}
+
+void GrAtlasTextBlob::operator delete(void* p) {
+    GrAtlasTextBlob* blob = reinterpret_cast<GrAtlasTextBlob*>(p);
+    if (blob->fPool) {
+        blob->fPool->release(p);
+    } else {
+        ::operator delete(p);
+    }
+
 }
 
 SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
