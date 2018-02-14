@@ -29,7 +29,10 @@ if (skia_use_system_libwebp) {
   }
 
   third_party("libwebp_sse41") {
-    public_include_dirs = [ "../externals/libwebp/src" ]
+    public_include_dirs = [
+      "../externals/libwebp/src",
+      "../externals/libwebp",
+    ]
     configs += [ ":libwebp_defines" ]
     sources = [
       "../externals/libwebp/src/dsp/alpha_processing_sse41.c",
@@ -44,7 +47,10 @@ if (skia_use_system_libwebp) {
   }
 
   third_party("libwebp_avx2") {
-    public_include_dirs = [ "../externals/libwebp/src" ]
+    public_include_dirs = [
+      "../externals/libwebp/src",
+      "../externals/libwebp",
+    ]
     configs += [ ":libwebp_defines" ]
     sources = [
       "../externals/libwebp/src/dsp/enc_avx2.c",
@@ -56,7 +62,10 @@ if (skia_use_system_libwebp) {
   }
 
   third_party("libwebp") {
-    public_include_dirs = [ "../externals/libwebp/src" ]
+    public_include_dirs = [
+      "../externals/libwebp/src",
+      "../externals/libwebp",
+    ]
 
     deps = [
       ":libwebp_avx2",
@@ -78,14 +87,12 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dec/vp8_dec.c",
       "../externals/libwebp/src/dec/vp8l_dec.c",
       "../externals/libwebp/src/dec/webp_dec.c",
+      "../externals/libwebp/src/demux/anim_decode.c",
       "../externals/libwebp/src/demux/demux.c",
       "../externals/libwebp/src/dsp/alpha_processing.c",
       "../externals/libwebp/src/dsp/alpha_processing_mips_dsp_r2.c",
       "../externals/libwebp/src/dsp/alpha_processing_neon.c",
       "../externals/libwebp/src/dsp/alpha_processing_sse2.c",
-      "../externals/libwebp/src/dsp/argb.c",
-      "../externals/libwebp/src/dsp/argb_mips_dsp_r2.c",
-      "../externals/libwebp/src/dsp/argb_sse2.c",
       "../externals/libwebp/src/dsp/cost.c",
       "../externals/libwebp/src/dsp/cost_mips32.c",
       "../externals/libwebp/src/dsp/cost_mips_dsp_r2.c",
@@ -95,6 +102,7 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/dec_clip_tables.c",
       "../externals/libwebp/src/dsp/dec_mips32.c",
       "../externals/libwebp/src/dsp/dec_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/dec_msa.c",
       "../externals/libwebp/src/dsp/dec_neon.c",
       "../externals/libwebp/src/dsp/dec_sse2.c",
       "../externals/libwebp/src/dsp/enc.c",
@@ -125,6 +133,8 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/rescaler_msa.c",
       "../externals/libwebp/src/dsp/rescaler_neon.c",
       "../externals/libwebp/src/dsp/rescaler_sse2.c",
+      "../externals/libwebp/src/dsp/ssim.c",
+      "../externals/libwebp/src/dsp/ssim_sse2.c",
       "../externals/libwebp/src/dsp/upsampling.c",
       "../externals/libwebp/src/dsp/upsampling_mips_dsp_r2.c",
       "../externals/libwebp/src/dsp/upsampling_msa.c",
@@ -133,12 +143,15 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/yuv.c",
       "../externals/libwebp/src/dsp/yuv_mips32.c",
       "../externals/libwebp/src/dsp/yuv_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/yuv_neon.c",
       "../externals/libwebp/src/dsp/yuv_sse2.c",
       "../externals/libwebp/src/enc/alpha_enc.c",
       "../externals/libwebp/src/enc/analysis_enc.c",
+      "../externals/libwebp/src/enc/backward_references_cost_enc.c",
       "../externals/libwebp/src/enc/backward_references_enc.c",
       "../externals/libwebp/src/enc/config_enc.c",
       "../externals/libwebp/src/enc/cost_enc.c",
+      "../externals/libwebp/src/enc/delta_palettization_enc.c",
       "../externals/libwebp/src/enc/filter_enc.c",
       "../externals/libwebp/src/enc/frame_enc.c",
       "../externals/libwebp/src/enc/histogram_enc.c",
