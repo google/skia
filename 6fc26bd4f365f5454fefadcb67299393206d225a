@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "16fc68fc_2db64b4b",
+        "filename": "infra/bots/assets/emscripten_sdk/create_and_upload.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-14T15:28:07Z",
+      "side": 1,
+      "message": "Ok. Since you\u0027re probably the one that will be running this script, I can\u0027t complain too much about it deleting files that you might want. :-)",
+      "parentUuid": "0160358e_76d4ea56",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 68
+      },
+      "revId": "6fc26bd4f365f5454fefadcb67299393206d225a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38da9cb2_789a283c",
         "filename": "infra/bots/assets/emscripten_sdk/create_and_upload.py",
         "patchSetId": 4
