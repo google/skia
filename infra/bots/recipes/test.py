@@ -514,8 +514,9 @@ def dm_flags(api, bot):
     # https://crbug.com/697030
     match.append('~HalfFloatAlphaTextureTest')
 
-  if 'AndroidOne' in bot:  # skia:4711
-    match.append('~WritePixels')
+  if 'AndroidOne' in bot:
+    match.append('~WritePixels')  # skia:4711
+    match.append('~PremulAlphaRoundTrip_Gpu')  # skia:7501
 
   if 'Chromecast' in bot:
     if 'GPU' in bot:
