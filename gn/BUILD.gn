@@ -226,6 +226,7 @@ config("default") {
       }
       if (sanitize == "ASAN") {
         sanitizers += ",address"
+        cflags += [ "-fsanitize-address-use-after-scope" ]
       }
       if (is_android) {
         # Android only easily supports address for now
