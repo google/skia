@@ -25,13 +25,16 @@ declare_args() {
   cc = "cc"
   cxx = "c++"
 
-  win_sdk = "C:/Program Files (x86)/Windows Kits/10"
+  win_sdk = getenv("WIN_SDK")
   win_sdk_version = ""
 
-  win_vc = ""
+  win_vc = getenv("WIN_VC")
   win_toolchain_version = ""
 
   clang_win = ""
+}
+if (win_sdk == "") {
+  win_sdk = "C:/Program Files (x86)/Windows Kits/10"
 }
 declare_args() {
   is_debug = !is_official_build
