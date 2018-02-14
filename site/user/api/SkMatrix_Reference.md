@@ -93,7 +93,7 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#SkMatrix_rectStaysRect">rectStaysRect</a> | returns if mapped <a href="SkRect_Reference#Rect">Rect</a> can be represented by another <a href="SkRect_Reference#Rect">Rect</a> |
 | <a href="#SkMatrix_reset">reset</a> | sets <a href="#Matrix">Matrix</a> to identity |
 | <a href="#SkMatrix_set">set</a> | sets one value |
-| <a href="#SkMatrix_set9">set9</a> | sets all values from <a href="#Scalar">Scalar</a> array |
+| <a href="#SkMatrix_set9">set9</a> | sets all values from <a href="undocumented#Number_Types_Scalar">Scalar</a> array |
 | <a href="#SkMatrix_setAffine">setAffine</a> | sets left two columns |
 | <a href="#SkMatrix_setAll">setAll</a> | sets all values from parameters |
 | <a href="#SkMatrix_setConcat">setConcat</a> | sets to <a href="#Matrix">Matrix</a> parameter multiplied by <a href="#Matrix">Matrix</a> parameter |
@@ -1289,7 +1289,7 @@ after dirty cache:    x = 66
 |  | <a href="#SkMatrix_preSkew_2">preSkew(SkScalar kx, SkScalar ky)</a> |
 | <a href="#SkMatrix_preTranslate">preTranslate</a> | pre-multiplies <a href="#Matrix">Matrix</a> by translation |
 | <a href="#SkMatrix_set">set</a> | sets one value |
-| <a href="#SkMatrix_set9">set9</a> | sets all values from <a href="#Scalar">Scalar</a> array |
+| <a href="#SkMatrix_set9">set9</a> | sets all values from <a href="undocumented#Number_Types_Scalar">Scalar</a> array |
 | <a href="#SkMatrix_setAll">setAll</a> | sets all values from parameters |
 | <a href="#SkMatrix_setPerspX">setPerspX</a> | sets input x perspective factor |
 | <a href="#SkMatrix_setPerspY">setPerspY</a> | sets input y perspective factor |
@@ -1318,7 +1318,7 @@ defined. Safer than operator[]; internal cache is always maintained.
 one of: <a href="#SkMatrix_kMScaleX">kMScaleX</a>, <a href="#SkMatrix_kMSkewX">kMSkewX</a>, <a href="#SkMatrix_kMTransX">kMTransX</a>, <a href="#SkMatrix_kMSkewY">kMSkewY</a>, <a href="#SkMatrix_kMScaleY">kMScaleY</a>, <a href="#SkMatrix_kMTransY">kMTransY</a>,
 <a href="#SkMatrix_kMPersp0">kMPersp0</a>, <a href="#SkMatrix_kMPersp1">kMPersp1</a>, <a href="#SkMatrix_kMPersp2">kMPersp2</a></td>
   </tr>  <tr>    <td><a name="SkMatrix_set_value"> <code><strong>value </strong></code> </a></td> <td>
-<a href="#Scalar">Scalar</a> to store in <a href="#Matrix">Matrix</a></td>
+<a href="undocumented#Number_Types_Scalar">Scalar</a> to store in <a href="#Matrix">Matrix</a></td>
   </tr>
 </table>
 
@@ -1607,14 +1607,14 @@ perspective scale factor to store</td>
 void get9(SkScalar buffer[9]) const
 </pre>
 
-Copies nine <a href="#Scalar">Scalar</a> values contained by <a href="#Matrix">Matrix</a> into <a href="#SkMatrix_get9_buffer">buffer</a>, in member value
+Copies nine <a href="undocumented#Number_Types_Scalar">Scalar</a> values contained by <a href="#Matrix">Matrix</a> into <a href="#SkMatrix_get9_buffer">buffer</a>, in member value
 ascending order: <a href="#SkMatrix_kMScaleX">kMScaleX</a>, <a href="#SkMatrix_kMSkewX">kMSkewX</a>, <a href="#SkMatrix_kMTransX">kMTransX</a>, <a href="#SkMatrix_kMSkewY">kMSkewY</a>, <a href="#SkMatrix_kMScaleY">kMScaleY</a>, <a href="#SkMatrix_kMTransY">kMTransY</a>,
 <a href="#SkMatrix_kMPersp0">kMPersp0</a>, <a href="#SkMatrix_kMPersp1">kMPersp1</a>, <a href="#SkMatrix_kMPersp2">kMPersp2</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkMatrix_get9_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
-storage for nine <a href="#Scalar">Scalar</a> values</td>
+storage for nine <a href="undocumented#Number_Types_Scalar">Scalar</a> values</td>
   </tr>
 </table>
 
@@ -1645,7 +1645,7 @@ storage for nine <a href="#Scalar">Scalar</a> values</td>
 void set9(const SkScalar buffer[9])
 </pre>
 
-Sets <a href="#Matrix">Matrix</a> to nine <a href="#Scalar">Scalar</a> values in <a href="#SkMatrix_set9_buffer">buffer</a>, in member value ascending order:
+Sets <a href="#Matrix">Matrix</a> to nine <a href="undocumented#Number_Types_Scalar">Scalar</a> values in <a href="#SkMatrix_set9_buffer">buffer</a>, in member value ascending order:
 <a href="#SkMatrix_kMScaleX">kMScaleX</a>, <a href="#SkMatrix_kMSkewX">kMSkewX</a>, <a href="#SkMatrix_kMTransX">kMTransX</a>, <a href="#SkMatrix_kMSkewY">kMSkewY</a>, <a href="#SkMatrix_kMScaleY">kMScaleY</a>, <a href="#SkMatrix_kMTransY">kMTransY</a>, <a href="#SkMatrix_kMPersp0">kMPersp0</a>, <a href="#SkMatrix_kMPersp1">kMPersp1</a>,
 <a href="#SkMatrix_kMPersp2">kMPersp2</a>.
 
@@ -1663,7 +1663,7 @@ transformation, possibly improving precision.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkMatrix_set9_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
-nine <a href="#Scalar">Scalar</a> values</td>
+nine <a href="undocumented#Number_Types_Scalar">Scalar</a> values</td>
   </tr>
 </table>
 

@@ -30,7 +30,7 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | name | description |
 | --- | --- |
 | <a href="#As_Points">As Points</a> | conversion to and from <a href="#Point">Points</a> |
-| <a href="#From_Integers">From Integers</a> | set <a href="#Scalar">Scalar</a> values from integer input |
+| <a href="#From_Integers">From Integers</a> | set <a href="undocumented#Number_Types_Scalar">Scalar</a> values from integer input |
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
 | <a href="#Intersection">Intersection</a> | set to shared bounds |
 | <a href="#Join">Join</a> | set to union of bounds |
@@ -454,7 +454,7 @@ rect1 == rect2
 static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect)
 </pre>
 
-Returns constructed <a href="SkIRect_Reference#IRect">IRect</a> set to <a href="#SkRect_Make_2_irect">irect</a>, promoting integers to <a href="#Scalar">Scalar</a>.
+Returns constructed <a href="SkIRect_Reference#IRect">IRect</a> set to <a href="#SkRect_Make_2_irect">irect</a>, promoting integers to <a href="undocumented#Number_Types_Scalar">Scalar</a>.
 Does not validate input; <a href="#SkRect_fLeft">fLeft</a> may be greater than <a href="#SkRect_fRight">fRight</a>, <a href="#SkRect_fTop">fTop</a> may be greater
 than <a href="#SkRect_fBottom">fBottom</a>.
 
@@ -1224,7 +1224,7 @@ rect: {0, 0, 0, 0} is empty
 void set(const SkIRect& src)
 </pre>
 
-Sets <a href="#Rect">Rect</a> to <a href="#SkRect_set_src">src</a>, promoting <a href="#SkRect_set_src">src</a> members from integer to <a href="#Scalar">Scalar</a>.
+Sets <a href="#Rect">Rect</a> to <a href="#SkRect_set_src">src</a>, promoting <a href="#SkRect_set_src">src</a> members from integer to <a href="undocumented#Number_Types_Scalar">Scalar</a>.
 Very large values in <a href="#SkRect_set_src">src</a> may lose precision.
 
 ### Parameters
@@ -1505,7 +1505,7 @@ void iset(int left, int top, int right, int bottom)
 </pre>
 
 Sets <a href="#Rect">Rect</a> to (left, top, right, bottom).
-All parameters are promoted from integer to <a href="#Scalar">Scalar</a>.
+All parameters are promoted from integer to <a href="undocumented#Number_Types_Scalar">Scalar</a>.
 left and right are not sorted; left is not necessarily less than right.
 top and bottom are not sorted; top is not necessarily less than bottom.
 
@@ -2753,7 +2753,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 const SkScalar* asScalars() const
 </pre>
 
-Returns pointer to first <a href="#Scalar">Scalar</a> in <a href="#Rect">Rect</a>, to treat it as an array with four
+Returns pointer to first <a href="undocumented#Number_Types_Scalar">Scalar</a> in <a href="#Rect">Rect</a>, to treat it as an array with four
 entries.
 
 ### Return Value

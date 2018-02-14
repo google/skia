@@ -152,8 +152,8 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | --- | --- |
 | <a href="#SkPath_empty_constructor">SkPath()</a> | constructs with default values |
 | <a href="#SkPath_copy_const_SkPath">SkPath(const SkPath& path)</a> | makes a shallow copy |
-| <a href="#SkPath_reset">reset</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>; frees memory |
-| <a href="#SkPath_rewind">rewind</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>, keeping memory |
+| <a href="#SkPath_reset">reset</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>; frees memory |
+| <a href="#SkPath_rewind">rewind</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>, keeping memory |
 | <a href="#SkPath_destructor">~SkPath()</a> | decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objects |
 
 ## <a name="Operator"></a> Operator
@@ -209,7 +209,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_isConvex">isConvex</a> | returns if geometry is convex |
 | <a href="#SkPath_isEmpty">isEmpty</a> | returns if verb count is zero |
 | <a href="#SkPath_isFinite">isFinite</a> | returns if all <a href="SkPoint_Reference#Point">Point</a> values are finite |
-| <a href="#SkPath_isInterpolatable">isInterpolatable</a> | returns if pair contains equal counts of <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> |
+| <a href="#SkPath_isInterpolatable">isInterpolatable</a> | returns if pair contains equal counts of <a href="#Verb_Array">Verb Array</a> and <a href="#Conic_Weight">Weights</a> |
 | <a href="#SkPath_isInverseFillType">isInverseFillType</a> | returns if <a href="#Fill_Type">Fill Type</a> fills outside geometry |
 | <a href="#SkPath_isLastContourClosed">isLastContourClosed</a> | returns if final <a href="#Contour">Contour</a> forms a loop |
 | <a href="#SkPath_isLine">isLine</a> | returns if describes <a href="undocumented#Line">Line</a> |
@@ -230,9 +230,9 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_rMoveTo">rMoveTo</a> | starts <a href="#Contour">Contour</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_rQuadTo">rQuadTo</a> | appends <a href="#Quad">Quad</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_readFromMemory">readFromMemory</a> | Initializes from buffer |
-| <a href="#SkPath_reset">reset</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>; frees memory |
+| <a href="#SkPath_reset">reset</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>; frees memory |
 | <a href="#SkPath_reverseAddPath">reverseAddPath</a> | adds contents of <a href="#Path">Path</a> back to front |
-| <a href="#SkPath_rewind">rewind</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>, keeping memory |
+| <a href="#SkPath_rewind">rewind</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>, keeping memory |
 | <a href="#SkPath_serialize">serialize</a> | copies data to buffer |
 | <a href="#SkPath_setConvexity">setConvexity</a> | sets if geometry is convex to avoid future computation |
 | <a href="#SkPath_setFillType">setFillType</a> | sets <a href="#Fill_Type">Fill Type</a>: winding, even-odd, inverse |
@@ -240,7 +240,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_setLastPt">setLastPt</a> | replaces <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_swap">swap</a> | exchanges <a href="#Path">Path</a> pair |
 | <a href="#SkPath_toggleInverseFillType">toggleInverseFillType</a> | toggles <a href="#Fill_Type">Fill Type</a> between inside and outside geometry |
-| <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a> |
+| <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Conic_Weight">Weights</a> |
 | <a href="#SkPath_updateBoundsCache">updateBoundsCache</a> | refreshes result of <a href="#SkPath_getBounds">getBounds</a> |
 | <a href="#SkPath_writeToMemory">writeToMemory</a> | copies data to buffer |
 
@@ -301,7 +301,7 @@ for consecutive entries.
 
 </table>
 
-| <a href="#Verb">Verb</a> | Allocated <a href="#Point">Points</a> | Iterated <a href="#Point">Points</a> | <a href="#Weight">Weights</a> |
+| <a href="#Verb">Verb</a> | Allocated <a href="#Point">Points</a> | Iterated <a href="#Point">Points</a> | <a href="#Conic_Weight">Weights</a> |
 | --- | --- | --- | ---  |
 | <a href="#SkPath_kMove_Verb">kMove Verb</a> | 1 | 1 | 0 |
 | <a href="#SkPath_kLine_Verb">kLine Verb</a> | 1 | 2 | 0 |
@@ -376,7 +376,7 @@ travel counterclockwise.
 SkPath()
 </pre>
 
-By default, <a href="#Path">Path</a> has no <a href="#Verb">Verbs</a>, no <a href="#Point">Points</a>, and no <a href="#Weight">Weights</a>.
+By default, <a href="#Path">Path</a> has no <a href="#Verb">Verbs</a>, no <a href="#Point">Points</a>, and no <a href="#Conic_Weight">Weights</a>.
 <a href="#Fill_Type">Fill Type</a> is set to <a href="#SkPath_kWinding_FillType">kWinding FillType</a>.
 
 ### Return Value
@@ -410,7 +410,7 @@ SkPath(const SkPath& path)
 
 Copy constructor makes two paths identical by value. Internally, <a href="#SkPath_copy_const_SkPath_path">path</a> and
 the returned result share pointer values. The underlying <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>
-and <a href="#Weight">Weights</a> are copied when modified.
+and <a href="#Conic_Weight">Weights</a> are copied when modified.
 
 Creating a <a href="#Path">Path</a> copy is very efficient and never allocates memory.
 <a href="#Path">Paths</a> are always copied by value from the interface; the underlying shared
@@ -477,7 +477,7 @@ SkPath& operator=(const SkPath& path)
 </pre>
 
 <a href="#Path">Path</a> assignment makes two paths identical by value. Internally, assignment
-shares pointer values. The underlying <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a>
+shares pointer values. The underlying <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a> and <a href="#Conic_Weight">Weights</a>
 are copied when modified.
 
 Copying <a href="#Path">Paths</a> by assignment is very efficient and never allocates memory.
@@ -487,7 +487,7 @@ pointers are not exposed.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_copy_operator_path"> <code><strong>path </strong></code> </a></td> <td>
-<a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, <a href="#Weight">Weights</a>, and <a href="#Fill_Type">Fill Type</a> to copy</td>
+<a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, <a href="#Conic_Weight">Weights</a>, and <a href="#Fill_Type">Fill Type</a> to copy</td>
   </tr>
 </table>
 
@@ -521,7 +521,7 @@ path2 bounds = 10, 20, 30, 40
 bool operator==(const SkPath& a, const SkPath& b)
 </pre>
 
-Compares <a href="#SkPath_equal_operator_a">a</a> and <a href="#SkPath_equal_operator_b">b</a>; returns true if <a href="#Fill_Type">Fill Type</a>, <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>
+Compares <a href="#SkPath_equal_operator_a">a</a> and <a href="#SkPath_equal_operator_b">b</a>; returns true if <a href="#Fill_Type">Fill Type</a>, <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>
 are equivalent.
 
 ### Parameters
@@ -562,7 +562,7 @@ reset one == two
 bool operator!=(const SkPath& a, const SkPath& b)
 </pre>
 
-Compares <a href="#SkPath_notequal_operator_a">a</a> and <a href="#SkPath_notequal_operator_b">b</a>; returns true if <a href="#Fill_Type">Fill Type</a>, <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>
+Compares <a href="#SkPath_notequal_operator_a">a</a> and <a href="#SkPath_notequal_operator_b">b</a>; returns true if <a href="#Fill_Type">Fill Type</a>, <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>
 are not equivalent.
 
 ### Parameters
@@ -610,7 +610,7 @@ convexity !=
 | <a href="#SkPath_getLastPt">getLastPt</a> | returns <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_isEmpty">isEmpty</a> | returns if verb count is zero |
 | <a href="#SkPath_isFinite">isFinite</a> | returns if all <a href="SkPoint_Reference#Point">Point</a> values are finite |
-| <a href="#SkPath_isInterpolatable">isInterpolatable</a> | returns if pair contains equal counts of <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> |
+| <a href="#SkPath_isInterpolatable">isInterpolatable</a> | returns if pair contains equal counts of <a href="#Verb_Array">Verb Array</a> and <a href="#Conic_Weight">Weights</a> |
 | <a href="#SkPath_isLastContourClosed">isLastContourClosed</a> | returns if final <a href="#Contour">Contour</a> forms a loop |
 | <a href="#SkPath_isLine">isLine</a> | returns if describes <a href="undocumented#Line">Line</a> |
 | <a href="#SkPath_isNestedFillRects">isNestedFillRects</a> | returns if describes <a href="SkRect_Reference#Rect">Rect</a> pair, one inside the other |
@@ -627,8 +627,8 @@ convexity !=
 bool isInterpolatable(const SkPath& compare) const
 </pre>
 
-Return true if <a href="#Path">Paths</a> contain equal <a href="#Verb">Verbs</a> and equal <a href="#Weight">Weights</a>.
-If <a href="#Path">Paths</a> contain one or more <a href="#Conic">Conics</a>, the <a href="#Weight">Weights</a> must match.
+Return true if <a href="#Path">Paths</a> contain equal <a href="#Verb">Verbs</a> and equal <a href="#Conic_Weight">Weights</a>.
+If <a href="#Path">Paths</a> contain one or more <a href="#Conic">Conics</a>, the <a href="#Conic_Weight">Weights</a> must match.
 
 <a href="#SkPath_conicTo">conicTo</a> may add different <a href="#Verb">Verbs</a> depending on <a href="#Conic_Weight">Conic Weight</a>, so it is not
 trivial to interpolate a pair of <a href="#Path">Paths</a> containing <a href="#Conic">Conics</a> with different
@@ -643,7 +643,7 @@ trivial to interpolate a pair of <a href="#Path">Paths</a> containing <a href="#
 
 ### Return Value
 
-true if <a href="#Path">Paths</a> <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> are equivalent
+true if <a href="#Path">Paths</a> <a href="#Verb_Array">Verb Array</a> and <a href="#Conic_Weight">Weights</a> are equivalent
 
 ### Example
 
@@ -677,7 +677,7 @@ bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const
 </pre>
 
 <a href="#Interpolate">Interpolate</a> between <a href="#Path">Paths</a> with <a href="#Point_Array">Point Array</a> of equal size.
-Copy <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> to <a href="#SkPath_interpolate_out">out</a>, and set <a href="#SkPath_interpolate_out">out</a> <a href="#Point_Array">Point Array</a> to a weighted
+Copy <a href="#Verb_Array">Verb Array</a> and <a href="#Conic_Weight">Weights</a> to <a href="#SkPath_interpolate_out">out</a>, and set <a href="#SkPath_interpolate_out">out</a> <a href="#Point_Array">Point Array</a> to a weighted
 average of this <a href="#Point_Array">Point Array</a> and <a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>, using the formula:
 (<a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> * <a href="#SkPath_interpolate_weight">weight</a>) + <a href="#SkPath_interpolate_ending">ending</a> <a href="SkPoint_Reference#Point">Point</a> * (1 - <a href="#SkPath_interpolate_weight">weight</a>).
 
@@ -1167,7 +1167,7 @@ void reset()
 </pre>
 
 Sets <a href="#Path">Path</a> to its initial state.
-Removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>, and sets <a href="#SkPath_FillType">FillType</a> to <a href="#SkPath_kWinding_FillType">kWinding FillType</a>.
+Removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>, and sets <a href="#SkPath_FillType">FillType</a> to <a href="#SkPath_kWinding_FillType">kWinding FillType</a>.
 Internal storage associated with <a href="#Path">Path</a> is released.
 
 ### Example
@@ -1188,7 +1188,7 @@ void rewind()
 </pre>
 
 Sets <a href="#Path">Path</a> to its initial state, preserving internal storage.
-Removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>, and sets <a href="#SkPath_FillType">FillType</a> to <a href="#SkPath_kWinding_FillType">kWinding FillType</a>.
+Removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>, and sets <a href="#SkPath_FillType">FillType</a> to <a href="#SkPath_kWinding_FillType">kWinding FillType</a>.
 Internal storage associated with <a href="#Path">Path</a> is retained.
 
 Use <a href="#SkPath_rewind">rewind</a> instead of <a href="#SkPath_reset">reset</a> if <a href="#Path">Path</a> storage will be reused and performance
@@ -1807,7 +1807,7 @@ just right verb count: 3  move line line
 void swap(SkPath& other)
 </pre>
 
-Exchanges the <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, <a href="#Weight">Weights</a>, and <a href="#Fill_Type">Fill Type</a> with <a href="#SkPath_swap_other">other</a>.
+Exchanges the <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, <a href="#Conic_Weight">Weights</a>, and <a href="#Fill_Type">Fill Type</a> with <a href="#SkPath_swap_other">other</a>.
 Cached state is also exchanged. <a href="#SkPath_swap">swap</a> internally exchanges pointers, so
 it is lightweight and does not allocate memory.
 
@@ -2403,7 +2403,7 @@ parabola, or a piece of a hyperbola. <a href="#Conic">Conic</a> begins at a star
 curves towards a control <a href="SkPoint_Reference#Point">Point</a>, and then curves to an end <a href="SkPoint_Reference#Point">Point</a>. The influence
 of the control <a href="SkPoint_Reference#Point">Point</a> is determined by <a href="#Conic_Weight">Conic Weight</a>.
 
-Each <a href="#Conic">Conic</a> in <a href="#Path">Path</a> adds two <a href="#Point">Points</a> and one <a href="#Conic_Weight">Conic Weight</a>. <a href="#Weight">Conic Weights</a> in <a href="#Path">Path</a>
+Each <a href="#Conic">Conic</a> in <a href="#Path">Path</a> adds two <a href="#Point">Points</a> and one <a href="#Conic_Weight">Conic Weight</a>. <a href="#Conic_Weight">Conic Weights</a> in <a href="#Path">Path</a>
 may be inspected with <a href="#SkPath_Iter">Iter</a>, or with <a href="#SkPath_RawIter">RawIter</a>.
 
 ## <a name="Weight"></a> Weight
@@ -2475,7 +2475,7 @@ before adding <a href="#Conic">Conic</a>.
 Appends <a href="#SkPath_kMove_Verb">kMove Verb</a> to <a href="#Verb_Array">Verb Array</a> and (0, 0) to <a href="#Point_Array">Point Array</a>, if needed.
 
 If <a href="#SkPath_conicTo_w">w</a> is finite and not one, appends <a href="#SkPath_kConic_Verb">kConic Verb</a> to <a href="#Verb_Array">Verb Array</a>;
-and (<a href="#SkPath_conicTo_x1">x1</a>, <a href="#SkPath_conicTo_y1">y1</a>), (<a href="#SkPath_conicTo_x2">x2</a>, <a href="#SkPath_conicTo_y2">y2</a>) to <a href="#Point_Array">Point Array</a>; and <a href="#SkPath_conicTo_w">w</a> to <a href="#Weight">Conic Weights</a>.
+and (<a href="#SkPath_conicTo_x1">x1</a>, <a href="#SkPath_conicTo_y1">y1</a>), (<a href="#SkPath_conicTo_x2">x2</a>, <a href="#SkPath_conicTo_y2">y2</a>) to <a href="#Point_Array">Point Array</a>; and <a href="#SkPath_conicTo_w">w</a> to <a href="#Conic_Weight">Conic Weights</a>.
 
 If <a href="#SkPath_conicTo_w">w</a> is one, appends <a href="#SkPath_kQuad_Verb">kQuad Verb</a> to <a href="#Verb_Array">Verb Array</a>, and
 (<a href="#SkPath_conicTo_x1">x1</a>, <a href="#SkPath_conicTo_y1">y1</a>), (<a href="#SkPath_conicTo_x2">x2</a>, <a href="#SkPath_conicTo_y2">y2</a>) to <a href="#Point_Array">Point Array</a>.
@@ -2523,7 +2523,7 @@ before adding <a href="#Conic">Conic</a>.
 Appends <a href="#SkPath_kMove_Verb">kMove Verb</a> to <a href="#Verb_Array">Verb Array</a> and (0, 0) to <a href="#Point_Array">Point Array</a>, if needed.
 
 If <a href="#SkPath_conicTo_2_w">w</a> is finite and not one, appends <a href="#SkPath_kConic_Verb">kConic Verb</a> to <a href="#Verb_Array">Verb Array</a>;
-and <a href="#Point">Points</a> <a href="#SkPath_conicTo_2_p1">p1</a>, <a href="#SkPath_conicTo_2_p2">p2</a> to <a href="#Point_Array">Point Array</a>; and <a href="#SkPath_conicTo_2_w">w</a> to <a href="#Weight">Conic Weights</a>.
+and <a href="#Point">Points</a> <a href="#SkPath_conicTo_2_p1">p1</a>, <a href="#SkPath_conicTo_2_p2">p2</a> to <a href="#Point_Array">Point Array</a>; and <a href="#SkPath_conicTo_2_w">w</a> to <a href="#Conic_Weight">Conic Weights</a>.
 
 If <a href="#SkPath_conicTo_2_w">w</a> is one, appends <a href="#SkPath_kQuad_Verb">kQuad Verb</a> to <a href="#Verb_Array">Verb Array</a>, and <a href="#Point">Points</a> <a href="#SkPath_conicTo_2_p1">p1</a>, <a href="#SkPath_conicTo_2_p2">p2</a>
 to <a href="#Point_Array">Point Array</a>.
@@ -3900,7 +3900,7 @@ starts a new <a href="#Contour">Contour</a>.</td>
   </tr>
   <tr>
     <td><a name="SkPath_kExtend_AddPathMode"> <code><strong>SkPath::kExtend_AddPathMode </strong></code> </a></td><td>If destination is closed or empty, start a new Contour. If destination</td><td>is not empty, add <a href="undocumented#Line">Line</a> from <a href="#Last_Point">Last Point</a> to added <a href="#Path">Path</a> first <a href="SkPoint_Reference#Point">Point</a>. Skip added
-<a href="#Path">Path</a> initial <a href="#SkPath_kMove_Verb">kMove Verb</a>, then append remining <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a>.</td>
+<a href="#Path">Path</a> initial <a href="#SkPath_kMove_Verb">kMove Verb</a>, then append remining <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a>.</td>
   </tr>
 </table>
 
@@ -3925,14 +3925,14 @@ void addPath(const SkPath& src, SkScalar dx, SkScalar dy, AddPathMode mode = kAp
 
 Append <a href="#SkPath_addPath_src">src</a> to <a href="#Path">Path</a>, offset by (<a href="#SkPath_addPath_dx">dx</a>, <a href="#SkPath_addPath_dy">dy</a>).
 
-If <a href="#SkPath_addPath_mode">mode</a> is <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>, <a href="#SkPath_addPath_src">src</a> <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Conic Weights</a> are
+If <a href="#SkPath_addPath_mode">mode</a> is <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>, <a href="#SkPath_addPath_src">src</a> <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Conic Weights</a> are
 added unaltered. If <a href="#SkPath_addPath_mode">mode</a> is <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>, add <a href="undocumented#Line">Line</a> before appending
-<a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a>.
+<a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_addPath_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a> to add</td>
+<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
   </tr>  <tr>    <td><a name="SkPath_addPath_dx"> <code><strong>dx </strong></code> </a></td> <td>
 offset added to <a href="#SkPath_addPath_src">src</a> <a href="#Point_Array">Point Array</a> x coordinates</td>
   </tr>  <tr>    <td><a name="SkPath_addPath_dy"> <code><strong>dy </strong></code> </a></td> <td>
@@ -3960,14 +3960,14 @@ void addPath(const SkPath& src, AddPathMode mode = kAppend_AddPathMode)
 
 Append <a href="#SkPath_addPath_2_src">src</a> to <a href="#Path">Path</a>.
 
-If <a href="#SkPath_addPath_2_mode">mode</a> is <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>, <a href="#SkPath_addPath_2_src">src</a> <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Conic Weights</a> are
+If <a href="#SkPath_addPath_2_mode">mode</a> is <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>, <a href="#SkPath_addPath_2_src">src</a> <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Conic Weights</a> are
 added unaltered. If <a href="#SkPath_addPath_2_mode">mode</a> is <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>, add <a href="undocumented#Line">Line</a> before appending
-<a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a>.
+<a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_addPath_2_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a> to add</td>
+<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
   </tr>  <tr>    <td><a name="SkPath_addPath_2_mode"> <code><strong>mode </strong></code> </a></td> <td>
 <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a> or <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a></td>
   </tr>
@@ -3990,16 +3990,16 @@ void addPath(const SkPath& src, const SkMatrix& matrix, AddPathMode mode = kAppe
 </pre>
 
 Append <a href="#SkPath_addPath_3_src">src</a> to <a href="#Path">Path</a>, transformed by <a href="#SkPath_addPath_3_matrix">matrix</a>. Transformed curves may have different
-<a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a>.
+<a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a>.
 
-If <a href="#SkPath_addPath_3_mode">mode</a> is <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>, <a href="#SkPath_addPath_3_src">src</a> <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Conic Weights</a> are
+If <a href="#SkPath_addPath_3_mode">mode</a> is <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>, <a href="#SkPath_addPath_3_src">src</a> <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Conic Weights</a> are
 added unaltered. If <a href="#SkPath_addPath_3_mode">mode</a> is <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>, add <a href="undocumented#Line">Line</a> before appending
-<a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a>.
+<a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_addPath_3_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a> to add</td>
+<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
   </tr>  <tr>    <td><a name="SkPath_addPath_3_matrix"> <code><strong>matrix </strong></code> </a></td> <td>
 transform applied to <a href="#SkPath_addPath_3_src">src</a></td>
   </tr>  <tr>    <td><a name="SkPath_addPath_3_mode"> <code><strong>mode </strong></code> </a></td> <td>
@@ -4030,7 +4030,7 @@ Reversed <a href="#SkPath_reverseAddPath_src">src</a> always appends a new <a hr
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_reverseAddPath_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a> to add</td>
+<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
   </tr>
 </table>
 
@@ -4082,7 +4082,7 @@ overwritten, translated copy of <a href="#Path">Path</a>; may be nullptr</td>
 | <a href="#SkPath_offset">offset</a> | translates <a href="#Point_Array">Point Array</a> |
 |  | <a href="#SkPath_offset">offset(SkScalar dx, SkScalar dy, SkPath* dst)</a> const |
 |  | <a href="#SkPath_offset_2">offset(SkScalar dx, SkScalar dy)</a> |
-| <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a> |
+| <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Conic_Weight">Weights</a> |
 |  | <a href="#SkPath_transform">transform(const SkMatrix& matrix, SkPath* dst)</a> const |
 |  | <a href="#SkPath_transform_2">transform(const SkMatrix& matrix)</a> |
 
@@ -4404,7 +4404,7 @@ void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const
 Writes text representation of <a href="#Path">Path</a> to <a href="#SkPath_dump_stream">stream</a>. If <a href="#SkPath_dump_stream">stream</a> is nullptr, writes to
 standard output. Set <a href="#SkPath_dump_forceClose">forceClose</a> to true to get edges used to fill <a href="#Path">Path</a>.
 Set <a href="#SkPath_dump_dumpAsHex">dumpAsHex</a> true to generate exact binary representations
-of floating point numbers used in <a href="#Point_Array">Point Array</a> and <a href="#Weight">Conic Weights</a>.
+of floating point numbers used in <a href="#Point_Array">Point Array</a> and <a href="#Conic_Weight">Conic Weights</a>.
 
 ### Parameters
 
@@ -4651,7 +4651,7 @@ length = 68; returned by readFromMemory = 64
 
 <a href="#Generation_ID">Generation ID</a> provides a quick way to check if <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, or
 <a href="#Conic_Weight">Conic Weight</a> has changed. <a href="#Generation_ID">Generation ID</a> is not a hash; identical <a href="#Path">Paths</a> will
-not necessarily have matching <a href="SkPath_Reference#Generation_ID">Generation IDs</a>.
+not necessarily have matching <a href="#Generation_ID">Generation IDs</a>.
 
 Empty <a href="#Path">Paths</a> have a <a href="#Generation_ID">Generation ID</a> of one.
 

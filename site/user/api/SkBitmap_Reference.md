@@ -18,7 +18,7 @@ SkBitmap Reference
 
 # <a name="SkBitmap"></a> Class SkBitmap
 <a href="#Bitmap">Bitmap</a> describes a two-dimensional raster pixel array. <a href="#Bitmap">Bitmap</a> is built on
-<a href="SkImageInfo_Reference#Image_Info">Image Info</a>, containing integer width and height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+<a href="SkImageInfo_Reference#Image_Info">Image Info</a>, containing integer width and height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 describing the pixel format, and <a href="undocumented#Color_Space">Color Space</a> describing the range of colors.
 <a href="#Bitmap">Bitmap</a> points to <a href="undocumented#Pixel_Ref">Pixel Ref</a>, which describes the physical array of pixels.
 <a href="SkImageInfo_Reference#Image_Info">Image Info</a> bounds may be located anywhere fully inside <a href="undocumented#Pixel_Ref">Pixel Ref</a> bounds.
@@ -100,11 +100,11 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_allocN32Pixels">allocN32Pixels</a> | allocates compatible <a href="#ARGB">Color ARGB</a> pixels, or aborts |
 | <a href="#SkBitmap_allocPixels">allocPixels</a> | allocates pixels from <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, or aborts |
 | <a href="#SkBitmap_allocPixelsFlags">allocPixelsFlags</a> | allocates pixels from <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with options, or aborts |
-| <a href="#SkBitmap_alphaType">alphaType</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> |
+| <a href="#SkBitmap_alphaType">alphaType</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> |
 | <a href="#SkBitmap_bounds">bounds</a> | returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> as Rectangle |
-| <a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> | returns number of bytes in pixel based on <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
+| <a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> | returns number of bytes in pixel based on <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> |
 | <a href="#SkBitmap_colorSpace">colorSpace</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a> |
-| <a href="#SkBitmap_colorType">colorType</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
+| <a href="#SkBitmap_colorType">colorType</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> |
 | <a href="#SkBitmap_computeByteSize">computeByteSize</a> | returns size required for pixels |
 | <a href="#SkBitmap_dimensions">dimensions</a> | returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> |
 | <a href="#SkBitmap_drawsNothing">drawsNothing</a> | returns true if no <a href="#SkBitmap_width">width</a>, no <a href="#SkBitmap_height">height</a>, or no <a href="undocumented#Pixel_Ref">Pixel Ref</a> |
@@ -143,10 +143,10 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_reset">reset</a> | sets to default values, releases pixel ownership |
 | <a href="#SkBitmap_rowBytes">rowBytes</a> | returns interval between rows in bytes |
 | <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> | returns interval between rows in pixels |
-| <a href="#SkBitmap_setAlphaType">setAlphaType</a> | sets <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> of shared pixels |
+| <a href="#SkBitmap_setAlphaType">setAlphaType</a> | sets <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> of shared pixels |
 | <a href="#SkBitmap_setHasHardwareMipMap">setHasHardwareMipMap</a> | sets Mip_Map support present; Android only |
 | <a href="#SkBitmap_setImmutable">setImmutable</a> | marks that pixels will not change |
-| <a href="#SkBitmap_setInfo">setInfo</a> | sets height, width, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and so on, releasing pixels |
+| <a href="#SkBitmap_setInfo">setInfo</a> | sets height, width, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, and so on, releasing pixels |
 | <a href="#SkBitmap_setIsVolatile">setIsVolatile</a> | marks if pixels should not be cached |
 | <a href="#SkBitmap_setPixelRef">setPixelRef</a> | sets <a href="undocumented#Pixel_Ref">Pixel Ref</a> and offset |
 | <a href="#SkBitmap_setPixels">setPixels</a> | sets <a href="undocumented#Pixel_Ref">Pixel Ref</a> without an offset |
@@ -178,7 +178,7 @@ virtual bool allocPixelRef(SkBitmap* bitmap) = 0
 </pre>
 
 Allocates the pixel memory for the <a href="#SkBitmap_Allocator_allocPixelRef_bitmap">bitmap</a>, given its dimensions and
-<a href="SkImageInfo_Reference#Color_Type">Color Type</a>. Returns true on success, where success means either <a href="#SkBitmap_setPixels">setPixels</a>
+<a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>. Returns true on success, where success means either <a href="#SkBitmap_setPixels">setPixels</a>
 or <a href="#SkBitmap_setPixelRef">setPixelRef</a> was called.
 
 ### Parameters
@@ -218,7 +218,7 @@ bool allocPixelRef(SkBitmap* bitmap) override
 </pre>
 
 Allocates the pixel memory for the <a href="#SkBitmap_HeapAllocator_allocPixelRef_bitmap">bitmap</a>, given its dimensions and
-<a href="SkImageInfo_Reference#Color_Type">Color Type</a>. Returns true on success, where success means either <a href="#SkBitmap_setPixels">setPixels</a>
+<a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>. Returns true on success, where success means either <a href="#SkBitmap_setPixels">setPixels</a>
 or <a href="#SkBitmap_setPixelRef">setPixelRef</a> was called.
 
 ### Parameters
@@ -509,11 +509,11 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
 
 | name | description |
 | --- | --- |
-| <a href="#SkBitmap_alphaType">alphaType</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> |
+| <a href="#SkBitmap_alphaType">alphaType</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> |
 | <a href="#SkBitmap_bounds">bounds</a> | returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> as Rectangle |
-| <a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> | returns number of bytes in pixel based on <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
+| <a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> | returns number of bytes in pixel based on <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> |
 | <a href="#SkBitmap_colorSpace">colorSpace</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a> |
-| <a href="#SkBitmap_colorType">colorType</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
+| <a href="#SkBitmap_colorType">colorType</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> |
 | <a href="#SkBitmap_dimensions">dimensions</a> | returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> |
 | <a href="#SkBitmap_drawsNothing">drawsNothing</a> | returns true if no <a href="#SkBitmap_width">width</a>, no <a href="#SkBitmap_height">height</a>, or no <a href="undocumented#Pixel_Ref">Pixel Ref</a> |
 | <a href="#SkBitmap_empty">empty</a> | returns true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> has zero <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> |
@@ -592,7 +592,7 @@ reference to <a href="SkPixmap_Reference#Pixmap">Pixmap</a> describing this <a h
 const SkImageInfo& info() const
 </pre>
 
-Returns width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and <a href="undocumented#Color_Space">Color Space</a>.
+Returns width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, and <a href="undocumented#Color_Space">Color Space</a>.
 
 ### Return Value
 
@@ -693,13 +693,13 @@ bitmap height: 32  info height: 32
 SkColorType colorType() const
 </pre>
 
-Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>,
+Returns <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, one of: <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>,
 <a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kARGB 4444 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kRGBA 8888 SkColorType</a>,
 <a href="SkImageInfo_Reference#SkColorType">kBGRA 8888 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kRGBA F16 SkColorType</a>.
 
 ### Return Value
 
-<a href="SkImageInfo_Reference#Color_Type">Color Type</a> in <a href="SkImageInfo_Reference#Image_Info">Image Info</a>
+<a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> in <a href="SkImageInfo_Reference#Image_Info">Image Info</a>
 
 ### Example
 
@@ -726,12 +726,12 @@ color type: kAlpha_8_SkColorType
 SkAlphaType alphaType() const
 </pre>
 
-Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>,
+Returns <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>,
 <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kUnpremul SkAlphaType</a>.
 
 ### Return Value
 
-<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> in <a href="SkImageInfo_Reference#Image_Info">Image Info</a>
+<a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> in <a href="SkImageInfo_Reference#Image_Info">Image Info</a>
 
 ### Example
 
@@ -827,7 +827,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 int bytesPerPixel() const
 </pre>
 
-Returns number of bytes per pixel required by <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+Returns number of bytes per pixel required by <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 Returns zero if <a href="#SkBitmap_colorType">colorType</a>( is <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>.
 
 ### Return Value
@@ -1085,27 +1085,27 @@ setInfo returned:true  rowBytes:8
 bool setAlphaType(SkAlphaType alphaType)
 </pre>
 
-Sets <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, if <a href="#SkBitmap_alphaType">alphaType</a> is compatible with <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
-Returns true unless <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> and current <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+Sets <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, if <a href="#SkBitmap_alphaType">alphaType</a> is compatible with <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
+Returns true unless <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> and current <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 is not <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>.
 
-Returns true if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>. <a href="#SkBitmap_alphaType">alphaType</a> is ignored, and
-<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> remains <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>.
+Returns true if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>. <a href="#SkBitmap_alphaType">alphaType</a> is ignored, and
+<a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> remains <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>.
 
-Returns true if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a> or <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>.
-<a href="#SkBitmap_alphaType">alphaType</a> is ignored, and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> remains <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>.
+Returns true if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a> or <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>.
+<a href="#SkBitmap_alphaType">alphaType</a> is ignored, and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> remains <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>.
 
-If <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kARGB 4444 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kRGBA 8888 SkColorType</a>,
+If <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kARGB 4444 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kRGBA 8888 SkColorType</a>,
 <a href="SkImageInfo_Reference#SkColorType">kBGRA 8888 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kRGBA F16 SkColorType</a>: returns true unless
-<a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is not <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>.
-If <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>, <a href="#SkBitmap_alphaType">alphaType</a> is ignored.
+<a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> is not <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>.
+If <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>, <a href="#SkBitmap_alphaType">alphaType</a> is ignored.
 
-If <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, returns true unless
-<a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is not <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>.
-If <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>, <a href="#SkBitmap_alphaType">alphaType</a> is ignored. If <a href="#SkBitmap_alphaType">alphaType</a> is
+If <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, returns true unless
+<a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> is not <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>.
+If <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>, <a href="#SkBitmap_alphaType">alphaType</a> is ignored. If <a href="#SkBitmap_alphaType">alphaType</a> is
 <a href="SkImageInfo_Reference#SkAlphaType">kUnpremul SkAlphaType</a>, it is treated as <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>.
 
-This changes <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> in <a href="undocumented#Pixel_Ref">Pixel Ref</a>; all bitmaps sharing <a href="undocumented#Pixel_Ref">Pixel Ref</a>
+This changes <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> in <a href="undocumented#Pixel_Ref">Pixel Ref</a>; all bitmaps sharing <a href="undocumented#Pixel_Ref">Pixel Ref</a>
 are affected.
 
 ### Parameters
@@ -1118,7 +1118,7 @@ one of: <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>, <a
 
 ### Return Value
 
-true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set
+true if <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> is set
 
 ### Example
 
@@ -1126,7 +1126,7 @@ true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set
 
 ### See Also
 
-<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="#SkBitmap_setInfo">setInfo</a>
+<a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="#SkBitmap_setInfo">setInfo</a>
 
 ---
 
@@ -1269,8 +1269,8 @@ Writing to immutable <a href="#Bitmap">Bitmap</a> pixels triggers an assert on d
 bool isOpaque() const
 </pre>
 
-Returns true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>.
-Does not check if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> allows <a href="#Alpha">Alpha</a>, or if any pixel value has
+Returns true if <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>.
+Does not check if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> allows <a href="#Alpha">Alpha</a>, or if any pixel value has
 transparency.
 
 ### Return Value
@@ -1406,15 +1406,15 @@ width:0 height:0 isNull:true
 static bool ComputeIsOpaque(const SkBitmap& bm)
 </pre>
 
-Returns true if all pixels are opaque. <a href="SkImageInfo_Reference#Color_Type">Color Type</a> determines how pixels
-are encoded, and whether pixel describes <a href="#Alpha">Alpha</a>. Returns true for <a href="SkImageInfo_Reference#Color_Type">Color Types</a>
-without alpha in each pixel; for other <a href="SkImageInfo_Reference#Color_Type">Color Types</a>, returns true if all
+Returns true if all pixels are opaque. <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> determines how pixels
+are encoded, and whether pixel describes <a href="#Alpha">Alpha</a>. Returns true for <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Types</a>
+without alpha in each pixel; for other <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Types</a>, returns true if all
 pixels have alpha values equivalent to 1.0 or greater.
 
-For <a href="SkImageInfo_Reference#Color_Type">Color Types</a> <a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a> or <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>: always
-returns true. For <a href="SkImageInfo_Reference#Color_Type">Color Types</a> <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kBGRA 8888 SkColorType</a>,
+For <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Types</a> <a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a> or <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>: always
+returns true. For <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Types</a> <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kBGRA 8888 SkColorType</a>,
 <a href="SkImageInfo_Reference#SkColorType">kRGBA 8888 SkColorType</a>: returns true if all pixel <a href="#Alpha">Alpha</a> values are 255.
-For <a href="SkImageInfo_Reference#Color_Type">Color Type</a> <a href="SkImageInfo_Reference#SkColorType">kARGB 4444 SkColorType</a>: returns true if all pixel <a href="#Alpha">Alpha</a> values are 15.
+For <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> <a href="SkImageInfo_Reference#SkColorType">kARGB 4444 SkColorType</a>: returns true if all pixel <a href="#Alpha">Alpha</a> values are 15.
 For <a href="SkImageInfo_Reference#SkColorType">kRGBA F16 SkColorType</a>: returns true if all pixel <a href="#Alpha">Alpha</a> values are 1.0 or
 greater.
 
@@ -1429,7 +1429,7 @@ Returns false for <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorTy
 
 ### Return Value
 
-true if all pixels have opaque values or <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is opaque
+true if all pixels have opaque values or <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is opaque
 
 ### Example
 
@@ -1448,7 +1448,7 @@ computeIsOpaque: true
 
 ### See Also
 
-<a href="#SkBitmap_isOpaque">isOpaque</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> <a href="#Alpha">Alpha</a>
+<a href="#SkBitmap_isOpaque">isOpaque</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> <a href="#Alpha">Alpha</a>
 
 ---
 
@@ -1588,7 +1588,7 @@ subset: 100, 100, 412, 412
 bool setInfo(const SkImageInfo& imageInfo, size_t rowBytes = 0)
 </pre>
 
-Sets width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a>, and optional
+Sets width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a>, and optional
 <a href="#SkBitmap_rowBytes">rowBytes</a>. Frees pixels, and returns true if successful.
 
 <a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_alphaType">alphaType</a> may be altered to a value permitted by <a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a>.
@@ -1618,7 +1618,7 @@ Calls <a href="#SkBitmap_reset">reset</a> and returns false if:
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_setInfo_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+contains width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkBitmap_setInfo_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
 <a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">minRowBytes</a> or larger; or zero</td>
   </tr>
@@ -1634,7 +1634,7 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> set successful
 
 ### See Also
 
-<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> <a href="undocumented#Color_Space">Color Space</a> <a href="#SkBitmap_height">height</a> <a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_width">width</a>
+<a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> <a href="undocumented#Color_Space">Color Space</a> <a href="#SkBitmap_height">height</a> <a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_width">width</a>
 
 ---
 
@@ -1708,7 +1708,7 @@ Passing <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> is u
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_tryAllocPixelsFlags_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+contains width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkBitmap_tryAllocPixelsFlags_flags"> <code><strong>flags </strong></code> </a></td> <td>
 <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>, or zero</td>
   </tr>
@@ -1762,7 +1762,7 @@ Passing <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> is u
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_allocPixelsFlags_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+contains width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkBitmap_allocPixelsFlags_flags"> <code><strong>flags </strong></code> </a></td> <td>
 <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>, or zero</td>
   </tr>
@@ -1801,7 +1801,7 @@ implementation of malloc().
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_tryAllocPixels_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+contains width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkBitmap_tryAllocPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
 size of pixel row or larger; may be zero</td>
   </tr>
@@ -1844,7 +1844,7 @@ implementation of malloc().
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_allocPixels_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+contains width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkBitmap_allocPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
 size of pixel row or larger; may be zero</td>
   </tr>
@@ -1880,7 +1880,7 @@ implementation of malloc().
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_tryAllocPixels_2_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+contains width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>
 </table>
 
@@ -1919,7 +1919,7 @@ implementation of malloc().
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_allocPixels_2_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+contains width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>
 </table>
 
@@ -1940,7 +1940,7 @@ contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a
 bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false)
 </pre>
 
-Sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to width, height, and <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>; and allocates
+Sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to width, height, and <a href="SkImageInfo_Reference#Image_Info_Color_Type_Native">Native Color Type</a>; and allocates
 pixel memory. If <a href="#SkBitmap_isOpaque">isOpaque</a> is true, sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>;
 otherwise, sets to <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>.
 
@@ -1984,7 +1984,7 @@ true if pixel storage is allocated
 void allocN32Pixels(int width, int height, bool isOpaque = false)
 </pre>
 
-Sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to width, height, and the <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>; and allocates
+Sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to width, height, and the <a href="SkImageInfo_Reference#Image_Info_Color_Type_Native">Native Color Type</a>; and allocates
 pixel memory. If <a href="#SkBitmap_isOpaque">isOpaque</a> is true, sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>;
 otherwise, sets to <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>.
 
@@ -2042,7 +2042,7 @@ as parameters.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_installPixels_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+contains width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkBitmap_installPixels_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
 address or pixel storage; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkBitmap_installPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
@@ -2097,7 +2097,7 @@ Caller must ensure that <a href="#SkBitmap_installPixels_2_pixels">pixels</a> ar
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_installPixels_2_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+contains width, height, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkBitmap_installPixels_2_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
 address or pixel storage; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkBitmap_installPixels_2_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
@@ -2224,7 +2224,7 @@ bool SK_WARN_UNUSED_RESULT tryAllocPixels()
 </pre>
 
 Allocates pixel memory with <a href="#SkBitmap_HeapAllocator">HeapAllocator</a>, and replaces existing <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
-The allocation size is determined by <a href="SkImageInfo_Reference#Image_Info">Image Info</a> width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+The allocation size is determined by <a href="SkImageInfo_Reference#Image_Info">Image Info</a> width, height, and <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 
 Returns false if <a href="#SkBitmap_info">info</a>.<a href="#SkBitmap_colorType">colorType</a> is <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, or allocation fails.
 
@@ -2251,7 +2251,7 @@ void allocPixels()
 </pre>
 
 Allocates pixel memory with <a href="#SkBitmap_HeapAllocator">HeapAllocator</a>, and replaces existing <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
-The allocation size is determined by <a href="SkImageInfo_Reference#Image_Info">Image Info</a> width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+The allocation size is determined by <a href="SkImageInfo_Reference#Image_Info">Image Info</a> width, height, and <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 
 Aborts if <a href="#SkBitmap_info">info</a>.<a href="#SkBitmap_colorType">colorType</a> is <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, or allocation fails.
 Abort steps may be provided by the user at compile
@@ -2276,7 +2276,7 @@ bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator)
 </pre>
 
 Allocates pixel memory with <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a>, and replaces existing <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
-The allocation size is determined by <a href="SkImageInfo_Reference#Image_Info">Image Info</a> width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+The allocation size is determined by <a href="SkImageInfo_Reference#Image_Info">Image Info</a> width, height, and <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 If <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a> is nullptr, use <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> instead.
 
 Returns false if <a href="#SkBitmap_Allocator_allocPixelRef">Allocator::allocPixelRef</a> return false.
@@ -2312,7 +2312,7 @@ void allocPixels(Allocator* allocator)
 </pre>
 
 Allocates pixel memory with <a href="#SkBitmap_allocPixels_4_allocator">allocator</a>, and replaces existing <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
-The allocation size is determined by <a href="SkImageInfo_Reference#Image_Info">Image Info</a> width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+The allocation size is determined by <a href="SkImageInfo_Reference#Image_Info">Image Info</a> width, height, and <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 If <a href="#SkBitmap_allocPixels_4_allocator">allocator</a> is nullptr, use <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> instead.
 
 Aborts if <a href="#SkBitmap_Allocator_allocPixelRef">Allocator::allocPixelRef</a> return false. Abort steps may be provided by
@@ -2404,10 +2404,10 @@ subset origin: 32, 64
 
 | name | description |
 | --- | --- |
-| <a href="#SkBitmap_setAlphaType">setAlphaType</a> | sets <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> of shared pixels |
+| <a href="#SkBitmap_setAlphaType">setAlphaType</a> | sets <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> of shared pixels |
 | <a href="#SkBitmap_setHasHardwareMipMap">setHasHardwareMipMap</a> | sets Mip_Map support present; Android only |
 | <a href="#SkBitmap_setImmutable">setImmutable</a> | marks that pixels will not change |
-| <a href="#SkBitmap_setInfo">setInfo</a> | sets height, width, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and so on, releasing pixels |
+| <a href="#SkBitmap_setInfo">setInfo</a> | sets height, width, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, and so on, releasing pixels |
 | <a href="#SkBitmap_setIsVolatile">setIsVolatile</a> | marks if pixels should not be cached |
 | <a href="#SkBitmap_setPixelRef">setPixelRef</a> | sets <a href="undocumented#Pixel_Ref">Pixel Ref</a> and offset |
 
@@ -2425,7 +2425,7 @@ Asserts in debug builds if <a href="#SkBitmap_setPixelRef_dx">dx</a> or <a href=
 to legal range in release builds.
 
 The caller is responsible for ensuring that the pixels match the
-<a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> in <a href="SkImageInfo_Reference#Image_Info">Image Info</a>.
+<a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> in <a href="SkImageInfo_Reference#Image_Info">Image Info</a>.
 
 ### Parameters
 
@@ -2679,11 +2679,11 @@ SkColor getColor(int x, int y) const
 </pre>
 
 Returns pixel at (<a href="#SkBitmap_getColor_x">x</a>, <a href="#SkBitmap_getColor_y">y</a>) as <a href="#Unpremultiply">Unpremultiplied</a> <a href="undocumented#Color">Color</a>.
-Returns black with <a href="#Alpha">Alpha</a> if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>.
+Returns black with <a href="#Alpha">Alpha</a> if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>.
 
 Input is not validated: out of bounds values of <a href="#SkBitmap_getColor_x">x</a> or <a href="#SkBitmap_getColor_y">y</a> trigger an assert() if
 built with SK_DEBUG defined; and returns undefined values or may crash if
-SK_RELEASE is defined. Fails if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a> or
+SK_RELEASE is defined. Fails if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a> or
 pixel address is nullptr.
 
 <a href="undocumented#Color_Space">Color Space</a> in <a href="SkImageInfo_Reference#Image_Info">Image Info</a> is ignored. Some <a href="undocumented#Color">Color</a> precision may be lost in the
@@ -2741,7 +2741,7 @@ Returns pixel address at (<a href="#SkBitmap_getAddr_x">x</a>, <a href="#SkBitma
 
 Input is not validated: out of bounds values of <a href="#SkBitmap_getAddr_x">x</a> or <a href="#SkBitmap_getAddr_y">y</a>, or <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>,
 trigger an assert() if built with SK_DEBUG defined. Returns nullptr if
-<a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, or <a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr.
+<a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, or <a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr.
 
 Performs a lookup of pixel size; for better performance, call
 one of: <a href="#SkBitmap_getAddr8">getAddr8</a>, <a href="#SkBitmap_getAddr16">getAddr16</a>, or <a href="#SkBitmap_getAddr32">getAddr32</a>.
@@ -3002,7 +3002,7 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
 Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Bitmap">Bitmap</a> pixels to <a href="#SkBitmap_readPixels_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkBitmap_readPixels_srcX">srcX</a>, <a href="#SkBitmap_readPixels_srcY">srcY</a>),
 and does not exceed <a href="#Bitmap">Bitmap</a> (<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>).
 
-<a href="#SkBitmap_readPixels_dstInfo">dstInfo</a> specifies width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and
+<a href="#SkBitmap_readPixels_dstInfo">dstInfo</a> specifies width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, and
 <a href="undocumented#Color_Space">Color Space</a> of destination. <a href="#SkBitmap_readPixels_dstRowBytes">dstRowBytes</a> specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if:
 
@@ -3031,7 +3031,7 @@ pixels are treated as if they are linear, regardless of how they are encoded.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_readPixels_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-destination width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+destination width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkBitmap_readPixels_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
 destination pixel storage</td>
   </tr>  <tr>    <td><a name="SkBitmap_readPixels_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
@@ -3069,7 +3069,7 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
 Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Bitmap">Bitmap</a> to <a href="#SkBitmap_readPixels_2_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkBitmap_readPixels_2_srcX">srcX</a>, <a href="#SkBitmap_readPixels_2_srcY">srcY</a>),
 and does not exceed <a href="#Bitmap">Bitmap</a> (<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>).
 
-<a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a> specifies width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and <a href="undocumented#Color_Space">Color Space</a> of
+<a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a> specifies width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, and <a href="undocumented#Color_Space">Color Space</a> of
 destination. <a href="#SkBitmap_readPixels_2_dstRowBytes">dstRowBytes</a> specifics the gap from one destination row to the next.
 Returns true if pixels are copied. Returns false if:
 
@@ -3093,7 +3093,7 @@ or ifabs(srcY) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_height">height
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_readPixels_2_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-destination width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+destination width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkBitmap_readPixels_2_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
 destination pixel storage</td>
   </tr>  <tr>    <td><a name="SkBitmap_readPixels_2_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
@@ -3129,7 +3129,7 @@ bool readPixels(const SkPixmap& dst, int srcX, int srcY) const
 Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Bitmap">Bitmap</a> to <a href="#SkBitmap_readPixels_3_dst">dst</a>. Copy starts at (<a href="#SkBitmap_readPixels_3_srcX">srcX</a>, <a href="#SkBitmap_readPixels_3_srcY">srcY</a>), and
 does not exceed <a href="#Bitmap">Bitmap</a> (<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>).
 
-<a href="#SkBitmap_readPixels_3_dst">dst</a> specifies width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
+<a href="#SkBitmap_readPixels_3_dst">dst</a> specifies width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
 and row bytes of destination. <a href="#SkBitmap_readPixels_3_dst">dst</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if:
 
@@ -3140,9 +3140,9 @@ row to the next. Returns true if pixels are copied. Returns false if:
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
-<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> must match.
+<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> must match.
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
 <a href="#SkBitmap_readPixels_3_srcX">srcX</a> and <a href="#SkBitmap_readPixels_3_srcY">srcY</a> may be negative to copy only top or left of source. Returns
@@ -3184,7 +3184,7 @@ bool readPixels(const SkPixmap& dst) const
 Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Bitmap">Bitmap</a> to <a href="#SkBitmap_readPixels_4_dst">dst</a>. Copy starts at (0, 0), and
 does not exceed <a href="#Bitmap">Bitmap</a> (<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>).
 
-<a href="#SkBitmap_readPixels_4_dst">dst</a> specifies width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
+<a href="#SkBitmap_readPixels_4_dst">dst</a> specifies width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
 and row bytes of destination. <a href="#SkBitmap_readPixels_4_dst">dst</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if:
 
@@ -3195,9 +3195,9 @@ row to the next. Returns true if pixels are copied. Returns false if:
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
-<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> must match.
+<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> must match.
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
 
@@ -3232,7 +3232,7 @@ bool writePixels(const SkPixmap& src, int dstX, int dstY)
 Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#SkBitmap_writePixels_src">src</a>. Copy starts at (<a href="#SkBitmap_writePixels_dstX">dstX</a>, <a href="#SkBitmap_writePixels_dstY">dstY</a>), and does not exceed
 (<a href="#SkBitmap_writePixels_src">src</a>.<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_writePixels_src">src</a>.<a href="#SkBitmap_height">height</a>).
 
-<a href="#SkBitmap_writePixels_src">src</a> specifies width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
+<a href="#SkBitmap_writePixels_src">src</a> specifies width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
 and row bytes of source. <a href="#SkBitmap_writePixels_src">src</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> specifics the gap from one source
 row to the next. Returns true if pixels are copied. Returns false if:
 
@@ -3243,9 +3243,9 @@ row to the next. Returns true if pixels are copied. Returns false if:
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
-<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_writePixels_src">src</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> must match.
+<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_writePixels_src">src</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> must match.
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_src">src</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_src">src</a> <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
 <a href="#SkBitmap_writePixels_dstX">dstX</a> and <a href="#SkBitmap_writePixels_dstY">dstY</a> may be negative to copy only top or left of source. Returns
@@ -3287,7 +3287,7 @@ bool writePixels(const SkPixmap& src)
 Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#SkBitmap_writePixels_2_src">src</a>. Copy starts at (0, 0), and does not exceed
 (<a href="#SkBitmap_writePixels_2_src">src</a>.<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_writePixels_2_src">src</a>.<a href="#SkBitmap_height">height</a>).
 
-<a href="#SkBitmap_writePixels_2_src">src</a> specifies width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
+<a href="#SkBitmap_writePixels_2_src">src</a> specifies width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
 and row bytes of source. <a href="#SkBitmap_writePixels_2_src">src</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> specifics the gap from one source
 row to the next. Returns true if pixels are copied. Returns false if:
 
@@ -3298,9 +3298,9 @@ row to the next. Returns true if pixels are copied. Returns false if:
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
-<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_writePixels_2_src">src</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> must match.
+<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_writePixels_2_src">src</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> must match.
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
 
@@ -3334,7 +3334,7 @@ bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior b
 Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#SkBitmap_writePixels_3_src">src</a>. Copy starts at (0, 0), and does not exceed
 (<a href="#SkBitmap_writePixels_3_src">src</a>.<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_writePixels_3_src">src</a>.<a href="#SkBitmap_height">height</a>).
 
-<a href="#SkBitmap_writePixels_3_src">src</a> specifies width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
+<a href="#SkBitmap_writePixels_3_src">src</a> specifies width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
 and row bytes of source. <a href="#SkBitmap_writePixels_3_src">src</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> specifics the gap from one source
 row to the next. Returns true if pixels are copied. Returns false if:
 
@@ -3345,9 +3345,9 @@ row to the next. Returns true if pixels are copied. Returns false if:
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
-<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_writePixels_3_src">src</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> must match.
+<a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_writePixels_3_src">src</a> <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> must match.
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible. Returns false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a>
 is zero or negative.

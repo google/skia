@@ -183,13 +183,13 @@ Allocates raster <a href="#Canvas">Canvas</a> that will draw directly into <a hr
 <a href="#Canvas">Canvas</a> is returned if all parameters are valid.
 Valid parameters include:
 <a href="#SkCanvas_MakeRasterDirect_info">info</a> dimensions are zero or positive;
-<a href="#SkCanvas_MakeRasterDirect_info">info</a> contains <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
+<a href="#SkCanvas_MakeRasterDirect_info">info</a> contains <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
 <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> is not nullptr;
-<a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> is zero or large enough to contain <a href="#SkCanvas_MakeRasterDirect_info">info</a> width <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> of <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+<a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> is zero or large enough to contain <a href="#SkCanvas_MakeRasterDirect_info">info</a> width <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> of <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 
 Pass zero for <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> to compute <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> from <a href="#SkCanvas_MakeRasterDirect_info">info</a> width and size of pixel.
 If <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> is greater than zero, it must be equal to or greater than
-<a href="#SkCanvas_MakeRasterDirect_info">info</a> width times bytes required for <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+<a href="#SkCanvas_MakeRasterDirect_info">info</a> width times bytes required for <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 
 <a href="undocumented#Pixel">Pixel</a> buffer size should be <a href="#SkCanvas_MakeRasterDirect_info">info</a> height times computed <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a>.
 <a href="#Pixels">Pixels</a> are not initialized.
@@ -198,7 +198,7 @@ To access <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> after drawing, 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_MakeRasterDirect_info"> <code><strong>info </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, of <a href="undocumented#Raster_Surface">Raster Surface</a>;
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, of <a href="undocumented#Raster_Surface">Raster Surface</a>;
 width, or height, or both, may be zero</td>
   </tr>  <tr>    <td><a name="SkCanvas_MakeRasterDirect_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
 pointer to destination <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> buffer</td>
@@ -245,8 +245,8 @@ static std::unique_ptr&lt;SkCanvas&gt; MakeRasterDirectN32(int width, int height
 
 Allocates raster <a href="#Canvas">Canvas</a> specified by inline image specification. Subsequent <a href="#Canvas">Canvas</a>
 calls draw into <a href="#SkCanvas_MakeRasterDirectN32_pixels">pixels</a>.
-<a href="SkImageInfo_Reference#Color_Type">Color Type</a> is set to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>.
-<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set to <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>.
+<a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is set to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>.
+<a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> is set to <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>.
 To access <a href="#SkCanvas_MakeRasterDirectN32_pixels">pixels</a> after drawing, call <a href="#SkCanvas_flush">flush</a> or <a href="#SkCanvas_peekPixels">peekPixels</a>.
 
 <a href="#Canvas">Canvas</a> is returned if all parameters are valid.
@@ -257,7 +257,7 @@ Valid parameters include:
 
 Pass zero for <a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a> to compute <a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a> from <a href="#SkCanvas_MakeRasterDirectN32_width">width</a> and size of pixel.
 If <a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a> is greater than zero, it must be equal to or greater than
-<a href="#SkCanvas_MakeRasterDirectN32_width">width</a> times bytes required for <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+<a href="#SkCanvas_MakeRasterDirectN32_width">width</a> times bytes required for <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 
 <a href="undocumented#Pixel">Pixel</a> buffer size should be <a href="#SkCanvas_MakeRasterDirectN32_height">height</a> times <a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a>.
 
@@ -413,7 +413,7 @@ May be deprecated in the future.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_copy_const_SkBitmap_bitmap"> <code><strong>bitmap </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and pixel
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, and pixel
 storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
   </tr>
 </table>
@@ -504,7 +504,7 @@ constructed <a href="#Canvas">Canvas</a>.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_const_SkBitmap_const_SkSurfaceProps_bitmap"> <code><strong>bitmap </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>,
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>,
 and pixel storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_const_SkBitmap_const_SkSurfaceProps_props"> <code><strong>props </strong></code> </a></td> <td>
 order and orientation of RGB striping; and whether to use
@@ -621,11 +621,11 @@ SkImageInfo imageInfo() const
 </pre>
 
 Returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> for <a href="#Canvas">Canvas</a>. If <a href="#Canvas">Canvas</a> is not associated with <a href="undocumented#Raster_Surface">Raster Surface</a> or
-<a href="undocumented#GPU_Surface">GPU Surface</a>, returned <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is set to <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>.
+<a href="undocumented#GPU_Surface">GPU Surface</a>, returned <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> is set to <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>.
 
 ### Return Value
 
-dimensions and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> of <a href="#Canvas">Canvas</a>
+dimensions and <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> of <a href="#Canvas">Canvas</a>
 
 ### Example
 
@@ -763,7 +763,7 @@ does not have <a href="undocumented#Surface_Properties">Surface Properties</a>, 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_makeSurface_info"> <code><strong>info </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and <a href="undocumented#Color_Space">Color Space</a></td>
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, and <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_makeSurface_props"> <code><strong>props </strong></code> </a></td> <td>
 <a href="undocumented#Surface_Properties">Surface Properties</a> to match; may be nullptr to match <a href="#Canvas">Canvas</a></td>
   </tr>
@@ -981,7 +981,7 @@ class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
 The destination pixel storage must be allocated by the caller.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a> contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -999,7 +999,7 @@ Does not copy, and returns false if:
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_readPixels_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> of <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a></td>
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> of <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_readPixels_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
 storage for pixels; <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.height() times <a href="#SkCanvas_readPixels_dstRowBytes">dstRowBytes</a>, or larger</td>
   </tr>  <tr>    <td><a name="SkCanvas_readPixels_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
@@ -1065,7 +1065,7 @@ class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
 Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> if needed.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 do not match. Only pixels within both source and destination <a href="#Rect">Rects</a>
 are copied. <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> pixels contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -1137,7 +1137,7 @@ class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
 Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a> if needed.
 
-<a href="SkBitmap_Reference#Bitmap">Bitmap</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+<a href="SkBitmap_Reference#Bitmap">Bitmap</a> values are converted only if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> pixels outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -1208,7 +1208,7 @@ converting to <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() and <a hre
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 do not match. Only <a href="#SkCanvas_writePixels_pixels">pixels</a> within both source and destination rectangles
 are copied. <a href="#Canvas">Canvas</a> <a href="#SkCanvas_writePixels_pixels">pixels</a> outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -1228,7 +1228,7 @@ Does not copy, and returns false if:
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_writePixels_info"> <code><strong>info </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> of <a href="#SkCanvas_writePixels_pixels">pixels</a></td>
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> of <a href="#SkCanvas_writePixels_pixels">pixels</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
 <a href="#SkCanvas_writePixels_pixels">pixels</a> to copy, of size <a href="#SkCanvas_writePixels_info">info</a>.height() times <a href="#SkCanvas_writePixels_rowBytes">rowBytes</a>, or larger</td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
@@ -1274,7 +1274,7 @@ converting to <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() and <a hre
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href="#Canvas">Canvas</a> pixels outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -1599,7 +1599,7 @@ int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint)
 
 Saves <a href="#Matrix">Matrix</a>, <a href="#Clip">Clip</a>, and <a href="undocumented#Draw_Filter">Draw Filter</a> (<a href="undocumented#Draw_Filter">Draw Filter</a> deprecated on most platforms),
 and allocates a <a href="SkBitmap_Reference#Bitmap">Bitmap</a> for subsequent drawing.
-<a href="SkPaint_Reference#LCD_Text">LCD Text</a> is preserved when the <a href="#Layer">Layer</a> is drawn to the prior <a href="#Layer">Layer</a>.
+<a href="#LCD_Text">LCD Text</a> is preserved when the <a href="#Layer">Layer</a> is drawn to the prior <a href="#Layer">Layer</a>.
 
 Calling <a href="#SkCanvas_restore">restore</a> discards changes to <a href="#Matrix">Matrix</a>, <a href="#Clip">Clip</a>, and <a href="undocumented#Draw_Filter">Draw Filter</a>,
 and draws <a href="#Layer">Layer</a>.
@@ -1615,8 +1615,8 @@ Optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_saveLaye
 
 Call <a href="#SkCanvas_restoreToCount">restoreToCount</a> with returned value to restore this and subsequent saves.
 
-<a href="#Draw">Draw</a> text on an opaque background so that <a href="SkPaint_Reference#LCD_Text">LCD Text</a> blends correctly with the
-prior <a href="#Layer">Layer</a>. <a href="SkPaint_Reference#LCD_Text">LCD Text</a> drawn on a background with transparency may result in
+<a href="#Draw">Draw</a> text on an opaque background so that <a href="#LCD_Text">LCD Text</a> blends correctly with the
+prior <a href="#Layer">Layer</a>. <a href="#LCD_Text">LCD Text</a> drawn on a background with transparency may result in
 incorrect blending.
 
 ### Parameters
@@ -2161,9 +2161,9 @@ amount to skew in y</td>
 
 <div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"><div>Black text mimics an oblique text style by using a negative skew in x that
 shifts the geometry to the right as the y values decrease.
-<a href="#Red">Red</a> text uses a positive skew in y to shift the geometry down as the x values
+<a href="#RGB_Red">Red</a> text uses a positive skew in y to shift the geometry down as the x values
 increase.
-<a href="#Blue">Blue</a> text combines x and y skew to rotate and scale.</div></fiddle-embed></div>
+<a href="#RGB_Blue">Blue</a> text combines x and y skew to rotate and scale.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -5113,8 +5113,8 @@ void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint&
 <a href="#SkCanvas_drawTextBlob_blob">blob</a> contains <a href="#Glyph">Glyphs</a>, their positions, and <a href="#SkCanvas_drawTextBlob_paint">paint</a> attributes specific to text:
 <a href="undocumented#Typeface">Typeface</a>, <a href="#Text_Size">Paint Text Size</a>, <a href="#Text_Scale_X">Paint Text Scale X</a>, <a href="#Text_Skew_X">Paint Text Skew X</a>,
 <a href="#Text_Align">Paint Text Align</a>, <a href="#Hinting">Paint Hinting</a>, Anti-alias, <a href="#Fake_Bold">Paint Fake Bold</a>,
-<a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="SkPaint_Reference#LCD_Text">LCD Text</a>, <a href="SkPaint_Reference#Linear_Text">Linear Text</a>,
-<a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
+<a href="#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="#LCD_Text">LCD Text</a>, <a href="#Linear_Text">Linear Text</a>,
+<a href="#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
 
 <a href="#Text_Encoding">Paint Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
 
@@ -5155,8 +5155,8 @@ void drawTextBlob(const sk_sp&lt;SkTextBlob&gt;& blob, SkScalar x, SkScalar y, c
 <a href="#SkCanvas_drawTextBlob_2_blob">blob</a> contains <a href="#Glyph">Glyphs</a>, their positions, and <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> attributes specific to text:
 <a href="undocumented#Typeface">Typeface</a>, <a href="#Text_Size">Paint Text Size</a>, <a href="#Text_Scale_X">Paint Text Scale X</a>, <a href="#Text_Skew_X">Paint Text Skew X</a>,
 <a href="#Text_Align">Paint Text Align</a>, <a href="#Hinting">Paint Hinting</a>, Anti-alias, <a href="#Fake_Bold">Paint Fake Bold</a>,
-<a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="SkPaint_Reference#LCD_Text">LCD Text</a>, <a href="SkPaint_Reference#Linear_Text">Linear Text</a>,
-<a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
+<a href="#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="#LCD_Text">LCD Text</a>, <a href="#Linear_Text">Linear Text</a>,
+<a href="#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
 
 <a href="#Text_Encoding">Paint Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
 

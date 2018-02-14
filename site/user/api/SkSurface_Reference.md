@@ -92,9 +92,9 @@ Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Can
 <a href="#Surface">Surface</a> is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are greater than zero;
-info contains <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
+info contains <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
 <a href="#SkSurface_MakeRasterDirect_pixels">pixels</a> is not nullptr;
-<a href="#SkSurface_MakeRasterDirect_rowBytes">rowBytes</a> is large enough to contain info width <a href="#SkSurface_MakeRasterDirect_pixels">pixels</a> of <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+<a href="#SkSurface_MakeRasterDirect_rowBytes">rowBytes</a> is large enough to contain info width <a href="#SkSurface_MakeRasterDirect_pixels">pixels</a> of <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 
 <a href="undocumented#Pixel">Pixel</a> buffer size should be info height times computed <a href="#SkSurface_MakeRasterDirect_rowBytes">rowBytes</a>.
 <a href="#Pixels">Pixels</a> are not initialized.
@@ -103,7 +103,7 @@ To access <a href="#SkSurface_MakeRasterDirect_pixels">pixels</a> after drawing,
 ### Parameters
 
 <table>  <tr>    <td><a name="SkSurface_MakeRasterDirect_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
 of <a href="undocumented#Raster_Surface">Raster Surface</a>; width and height must be greater than zero</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRasterDirect_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
 pointer to destination <a href="#SkSurface_MakeRasterDirect_pixels">pixels</a> buffer</td>
@@ -155,9 +155,9 @@ Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Can
 <a href="#Surface">Surface</a> is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are greater than zero;
-info contains <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
+info contains <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
 <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a> is not nullptr;
-<a href="#SkSurface_MakeRasterDirectReleaseProc_rowBytes">rowBytes</a> is large enough to contain info width <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a> of <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
+<a href="#SkSurface_MakeRasterDirectReleaseProc_rowBytes">rowBytes</a> is large enough to contain info width <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a> of <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>.
 
 <a href="undocumented#Pixel">Pixel</a> buffer size should be info height times computed <a href="#SkSurface_MakeRasterDirectReleaseProc_rowBytes">rowBytes</a>.
 <a href="#Pixels">Pixels</a> are not initialized.
@@ -166,7 +166,7 @@ To access <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a> aft
 ### Parameters
 
 <table>  <tr>    <td><a name="SkSurface_MakeRasterDirectReleaseProc_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
 of <a href="undocumented#Raster_Surface">Raster Surface</a>; width and height must be greater than zero</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRasterDirectReleaseProc_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
 pointer to destination <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a> buffer</td>
@@ -223,8 +223,8 @@ Allocates and zeroes pixel memory. <a href="undocumented#Pixel">Pixel</a> memory
 <a href="#Surface">Surface</a> is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are greater than zero;
-info contains <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
-<a href="#SkSurface_MakeRaster_rowBytes">rowBytes</a> is large enough to contain info width pixels of <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, or is zero.
+info contains <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
+<a href="#SkSurface_MakeRaster_rowBytes">rowBytes</a> is large enough to contain info width pixels of <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, or is zero.
 
 If <a href="#SkSurface_MakeRaster_rowBytes">rowBytes</a> is not zero, subsequent images returned by <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a>
 have the same <a href="#SkSurface_MakeRaster_rowBytes">rowBytes</a>.
@@ -232,7 +232,7 @@ have the same <a href="#SkSurface_MakeRaster_rowBytes">rowBytes</a>.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkSurface_MakeRaster_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
 of <a href="undocumented#Raster_Surface">Raster Surface</a>; width and height must be greater than zero</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRaster_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
 interval from one <a href="#Surface">Surface</a> row to the next; may be zero</td>
@@ -281,12 +281,12 @@ Allocates and zeroes pixel memory. <a href="undocumented#Pixel">Pixel</a> memory
 <a href="#Surface">Surface</a> is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are greater than zero;
-info contains <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>.
+info contains <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkSurface_MakeRaster_2_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
 of <a href="undocumented#Raster_Surface">Raster Surface</a>; width and height must be greater than zero</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRaster_2_props"> <code><strong>props </strong></code> </a></td> <td>
 LCD striping orientation and setting for device independent fonts;
@@ -320,7 +320,7 @@ Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Can
 Allocates and zeroes pixel memory. <a href="undocumented#Pixel">Pixel</a> memory size is height times width times
 four. <a href="undocumented#Pixel">Pixel</a> memory is deleted when <a href="#Surface">Surface</a> is deleted.
 
-Internally, sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to width, height, <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>, and
+Internally, sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type_Native">Native Color Type</a>, and
 <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>.
 
 <a href="#Surface">Surface</a> is returned if width and height are greater than zero.
@@ -813,10 +813,10 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
 </pre>
 
 Returns <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_context">context</a>. Allocates memory for
-pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_budgeted">budgeted</a>
+pixels, based on the width, height, and <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_budgeted">budgeted</a>
 selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_context">context</a>. <a href="#SkSurface_MakeRenderTarget_imageInfo">imageInfo</a>
-describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
-<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
+describes the pixel format in <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, and transparency in
+<a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
 <a href="#SkSurface_MakeRenderTarget_sampleCount">sampleCount</a> requests the number of samples per pixel.
 Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
@@ -836,7 +836,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_budgeted"> <code><strong>budgeted </strong></code> </a></td> <td>
 one of: <a href="#SkBudgeted_kNo">SkBudgeted::kNo</a>, <a href="#SkBudgeted_kYes">SkBudgeted::kYes</a></td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>;
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>;
 width, or height, or both, may be zero</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_sampleCount"> <code><strong>sampleCount </strong></code> </a></td> <td>
 samples per pixel, or 0 to disable full scene anti-aliasing</td>
@@ -873,10 +873,10 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
 </pre>
 
 Returns <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. Allocates memory for
-pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_2_budgeted">budgeted</a>
+pixels, based on the width, height, and <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_2_budgeted">budgeted</a>
 selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. <a href="#SkSurface_MakeRenderTarget_2_imageInfo">imageInfo</a>
-describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
-<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
+describes the pixel format in <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, and transparency in
+<a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
 <a href="#SkSurface_MakeRenderTarget_2_sampleCount">sampleCount</a> requests the number of samples per pixel.
 Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
@@ -892,7 +892,7 @@ maximum supported count.
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_2_budgeted"> <code><strong>budgeted </strong></code> </a></td> <td>
 one of: <a href="#SkBudgeted_kNo">SkBudgeted::kNo</a>, <a href="#SkBudgeted_kYes">SkBudgeted::kYes</a></td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_2_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
 of <a href="undocumented#Raster_Surface">Raster Surface</a>; width, or height, or both, may be zero</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_2_sampleCount"> <code><strong>sampleCount </strong></code> </a></td> <td>
 samples per pixel, or 0 to disable Multi_Sample_Anti_Aliasing</td>
@@ -927,10 +927,10 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
 </pre>
 
 Returns <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. Allocates memory for
-pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_3_budgeted">budgeted</a>
+pixels, based on the width, height, and <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_3_budgeted">budgeted</a>
 selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. <a href="#SkSurface_MakeRenderTarget_3_imageInfo">imageInfo</a>
-describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
-<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
+describes the pixel format in <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, and transparency in
+<a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
 <a href="#Surface">Surface</a> bottom-left corner is pinned to the origin.
 
@@ -941,7 +941,7 @@ describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color T
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_3_budgeted"> <code><strong>budgeted </strong></code> </a></td> <td>
 one of: <a href="#SkBudgeted_kNo">SkBudgeted::kNo</a>, <a href="#SkBudgeted_kYes">SkBudgeted::kYes</a></td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_3_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
 of <a href="undocumented#Raster_Surface">Raster Surface</a>; width, or height, or both, may be zero</td>
   </tr>
 </table>
@@ -1341,7 +1341,7 @@ is incompatible with <a href="#Surface">Surface</a>.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkSurface_makeSurface_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>,
 of <a href="#Surface">Surface</a>; width and height must be greater than zero</td>
   </tr>
 </table>
@@ -1489,7 +1489,7 @@ converting to <a href="#SkSurface_readPixels_dst">dst</a>.colorType() and <a hre
 
 The destination pixel storage must be allocated by the caller.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href="#SkSurface_readPixels_dst">dst</a> contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -1545,7 +1545,7 @@ converting to <a href="#SkSurface_readPixels_2_dstInfo">dstInfo</a>.colorType() 
 
 The destination pixel storage must be allocated by the caller.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href="#SkSurface_readPixels_2_dstPixels">dstPixels</a> contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -1562,7 +1562,7 @@ Does not copy, and returns false if:
 ### Parameters
 
 <table>  <tr>    <td><a name="SkSurface_readPixels_2_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> of <a href="#SkSurface_readPixels_2_dstPixels">dstPixels</a></td>
+width, height, <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a>, and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a> of <a href="#SkSurface_readPixels_2_dstPixels">dstPixels</a></td>
   </tr>  <tr>    <td><a name="SkSurface_readPixels_2_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
 storage for pixels; <a href="#SkSurface_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkSurface_height">height</a> times <a href="#SkSurface_readPixels_2_dstRowBytes">dstRowBytes</a>, or larger</td>
   </tr>  <tr>    <td><a name="SkSurface_readPixels_2_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
@@ -1607,7 +1607,7 @@ converting to bitmap.colorType() and bitmap.alphaType() if required.
 
 The destination pixel storage must be allocated by the caller.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Info_Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Image_Info_Alpha_Type">Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href="#SkSurface_readPixels_3_dst">dst</a> contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 

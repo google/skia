@@ -650,7 +650,10 @@ string MdOut::linkName(const Definition* ref) const {
 // def should not include SkXXX_
 string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         const string& ref, BmhParser::Resolvable resolvable) const {
-	string buildup;
+    if ("Native" == def->fName) {
+        SkDebugf("");
+    }
+    string buildup;
     const string* str = &def->fFiddle;
     SkASSERT(str->length() > 0);
     size_t under = str->find('_');

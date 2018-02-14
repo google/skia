@@ -183,6 +183,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 if (!typeNameBuilder.size()) {
                     return this->reportError<bool>("unnamed topic");
                 }
+                if ("Native" == typeNameBuilder[0]) {
+                    SkDebugf("");
+                }
                 fTopics.emplace_front(markType, defStart, fLineCount, fParent);
                 RootDefinition* rootDefinition = &fTopics.front();
                 definition = rootDefinition;
@@ -399,6 +402,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     return this->reportError<bool>("duplicate alias");
                 }
                 fAliasMap[alias] = definition;
+                definition->fFiddle = definition->fParent->fFiddle;
 			}
 			else if (MarkType::kLine == markType) {
 				const char* nextLF = this->strnchr('\n', this->fEnd);

@@ -871,7 +871,7 @@ Returns <a href="#Point">Point</a> multiplied by scale.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPoint_multiply_operator_scale"> <code><strong>scale </strong></code> </a></td> <td>
-<a href="#Scalar">Scalar</a> to multiply by</td>
+<a href="undocumented#Number_Types_Scalar">Scalar</a> to multiply by</td>
   </tr>
 </table>
 
@@ -902,7 +902,7 @@ Multiplies <a href="#Point">Point</a> by scale. Sets <a href="#Point">Point</a> 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPoint_multiplyby_operator_scale"> <code><strong>scale </strong></code> </a></td> <td>
-<a href="#Scalar">Scalar</a> to multiply by</td>
+<a href="undocumented#Number_Types_Scalar">Scalar</a> to multiply by</td>
   </tr>
 </table>
 
