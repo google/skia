@@ -4587,7 +4587,7 @@
         {
           "name": "skia/bots/emscripten_sdk",
           "path": "emscripten_sdk",
-          "version": "version:1"
+          "version": "version:2"
         }
       ],
       "dimensions": [
