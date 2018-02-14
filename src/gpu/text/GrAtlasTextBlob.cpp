@@ -9,6 +9,7 @@
 #include "GrBlurUtils.h"
 #include "GrClip.h"
 #include "GrContext.h"
+#include "GrTextBlobCache.h"
 #include "GrTextUtils.h"
 #include "SkColorFilter.h"
 #include "SkDrawFilter.h"
@@ -18,7 +19,7 @@
 #include "SkTextToPathIter.h"
 #include "ops/GrAtlasTextOp.h"
 
-sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount, int runCount) {
+sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrTextBlobCache* cache, int glyphCount, int runCount) {
     // We allocate size for the GrAtlasTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
@@ -27,10 +28,7 @@ sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount,
                   glyphCount * sizeof(GrGlyph**) +
                   sizeof(GrAtlasTextBlob::Run) * runCount;
 
-    void* allocation = pool->allocate(size);
-    if (CACHE_SANITY_CHECK) {
-        sk_bzero(allocation, size);
-    }
+    void* allocation = cache->allocateBlobSpace(size);
 
     sk_sp<GrAtlasTextBlob> cacheBlob(new (allocation) GrAtlasTextBlob);
     cacheBlob->fSize = size;
@@ -45,8 +43,13 @@ sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount,
         new (&cacheBlob->fRuns[i]) GrAtlasTextBlob::Run;
     }
     cacheBlob->fRunCount = runCount;
-    cacheBlob->fPool = pool;
+    cacheBlob->fCache = cache;
     return cacheBlob;
+}
+
+void GrAtlasTextBlob::operator delete(void* p) {
+    GrAtlasTextBlob* blob = reinterpret_cast<GrAtlasTextBlob*>(p);
+    blob->fCache->freeBlobSpace(p, blob->fSize);
 }
 
 SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
@@ -399,7 +402,7 @@ std::unique_ptr<GrDrawOp> GrAtlasTextBlob::test_makeOp(
 
 void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlob& r) {
     SkASSERT_RELEASE(l.fSize == r.fSize);
-    SkASSERT_RELEASE(l.fPool == r.fPool);
+    SkASSERT_RELEASE(l.fCache == r.fCache);
 
     SkASSERT_RELEASE(l.fBlurRec.fSigma == r.fBlurRec.fSigma);
     SkASSERT_RELEASE(l.fBlurRec.fStyle == r.fBlurRec.fStyle);

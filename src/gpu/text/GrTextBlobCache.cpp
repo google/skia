@@ -11,6 +11,7 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage)
 
 GrTextBlobCache::~GrTextBlobCache() {
     SkDEBUGCODE(this->freeAll();)
+    delete fPool;
 }
 
 void GrTextBlobCache::freeAll() {
@@ -23,7 +24,8 @@ void GrTextBlobCache::freeAll() {
     fBlobIDCache.reset();
 
     // There should be no allocations in the memory pool at this point
-    SkASSERT(fPool.isEmpty());
+    SkASSERT(!fPool || fPool->isEmpty());
+    SkASSERT(!fRAMUse);
     SkASSERT(fBlobList.isEmpty());
 }
 
@@ -53,16 +55,48 @@ void GrTextBlobCache::purgeStaleBlobs() {
     }
 }
 
+bool GrTextBlobCache::overBudget() const {
+    if (fPool) {
+        SkASSERT(fPool->size() == fRAMUse);
+        return fPool->size() > fBudget;
+    }
+    return fRAMUse > fBudget;
+}
+
+void* GrTextBlobCache::allocateBlobSpace(size_t size) {
+    void* allocation;
+    if (fPool) {
+        allocation = fPool->allocate(size);;
+    } else {
+        allocation = ::operator new (size);
+    }
+    if (CACHE_SANITY_CHECK) {
+        sk_bzero(allocation, size);
+    }
+
+    fRAMUse += size;
+    return allocation;
+}
+
+void GrTextBlobCache::freeBlobSpace(void* p, size_t size) {
+    if (fPool) {
+        fPool->release(p);
+    } else {
+        fRAMUse -= size;
+        ::operator delete(p);
+    }
+}
+
 void GrTextBlobCache::checkPurge(GrAtlasTextBlob* blob) {
     // First, purge all stale blob IDs.
     this->purgeStaleBlobs();
 
     // If we are still over budget, then unref until we are below budget again
-    if (fPool.size() > fBudget) {
+    if (this->overBudget()) {
         BitmapBlobList::Iter iter;
         iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
         GrAtlasTextBlob* lruBlob = nullptr;
-        while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
+        while (this->overBudget() && (lruBlob = iter.get()) && lruBlob != blob) {
             // Backup the iterator before removing and unrefing the blob
             iter.prev();
 
@@ -77,7 +111,7 @@ void GrTextBlobCache::checkPurge(GrAtlasTextBlob* blob) {
         }
 
 #ifdef SPEW_BUDGET_MESSAGE
-        if (fPool.size() > fBudget) {
+        if (this->overBudget) {
             SkDebugf("Single textblob is larger than our whole budget");
         }
 #endif

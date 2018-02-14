@@ -23,11 +23,12 @@ public:
      */
     typedef void (*PFOverBudgetCB)(void* data);
 
-    GrTextBlobCache(PFOverBudgetCB cb, void* data, uint32_t uniqueID)
-        : fPool(0u, kMinGrowthSize)
+    GrTextBlobCache(PFOverBudgetCB cb, void* data, uint32_t uniqueID, bool usePool)
+        : fPool(usePool ? new GrMemoryPool(0u, kMinGrowthSize) : nullptr)
         , fCallback(cb)
         , fData(data)
         , fBudget(kDefaultBudget)
+        , fRAMUse(0)
         , fUniqueID(uniqueID)
         , fPurgeBlobInbox(uniqueID) {
         SkASSERT(cb && data);
@@ -36,14 +37,14 @@ public:
 
     // creates an uncached blob
     sk_sp<GrAtlasTextBlob> makeBlob(int glyphCount, int runCount) {
-        return GrAtlasTextBlob::Make(&fPool, glyphCount, runCount);
+        return GrAtlasTextBlob::Make(this, glyphCount, runCount);
     }
 
     sk_sp<GrAtlasTextBlob> makeBlob(const SkTextBlob* blob) {
         int glyphCount = 0;
         int runCount = 0;
         BlobGlyphCount(&glyphCount, &runCount, blob);
-        return GrAtlasTextBlob::Make(&fPool, glyphCount, runCount);
+        return GrAtlasTextBlob::Make(this, glyphCount, runCount);
     }
 
     sk_sp<GrAtlasTextBlob> makeCachedBlob(const SkTextBlob* blob,
@@ -97,6 +98,9 @@ public:
         fBudget = budget;
         this->checkPurge();
     }
+
+    void* allocateBlobSpace(size_t size);
+    void freeBlobSpace(void*, size_t size);
 
     struct PurgeBlobMessage {
         uint32_t fID;
@@ -171,15 +175,17 @@ private:
     }
 
     void checkPurge(GrAtlasTextBlob* blob = nullptr);
+    bool overBudget() const;
 
     static const int kMinGrowthSize = 1 << 16;
     static const int kDefaultBudget = 1 << 22;
-    GrMemoryPool fPool;
+    GrMemoryPool* fPool;
     BitmapBlobList fBlobList;
     SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache;
     PFOverBudgetCB fCallback;
-    void* fData;
-    size_t fBudget;
+    void*    fData;
+    size_t   fBudget;
+    size_t   fRAMUse;        // Explicit memory use tracker for DDL
     uint32_t fUniqueID;      // unique id to use for messaging
     SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox;
 };
