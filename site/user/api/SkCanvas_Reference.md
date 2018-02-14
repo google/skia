@@ -5,7 +5,7 @@ SkCanvas Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopic"></a> Subtopic
+## <a name="Overview_Subtopic"></a> Overview Subtopic
 
 | name | description |
 | --- | --- |
@@ -345,7 +345,7 @@ Creates <a href="#Canvas">Canvas</a> of the specified dimensions without a <a hr
 Used by Subclasses with custom implementations for draw methods.
 
 If <a href="#SkCanvas_int_int_const_SkSurfaceProps_star_props">props</a> equals nullptr, <a href="undocumented#Surface_Properties">Surface Properties</a> are created with
-<a href="undocumented#Surface_Properties_Legacy_Font_Host">Surface Properties Legacy Font Host</a> settings, which choose the pixel striping
+<a href="undocumented#Legacy_Font_Host">Surface Properties Legacy Font Host</a> settings, which choose the pixel striping
 direction and order. Since a platform may dynamically change its direction when
 the device is rotated, and since a platform may have multiple monitors with
 different characteristics, it is best not to rely on this legacy behavior.
@@ -1599,7 +1599,7 @@ int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint)
 
 Saves <a href="#Matrix">Matrix</a>, <a href="#Clip">Clip</a>, and <a href="undocumented#Draw_Filter">Draw Filter</a> (<a href="undocumented#Draw_Filter">Draw Filter</a> deprecated on most platforms),
 and allocates a <a href="SkBitmap_Reference#Bitmap">Bitmap</a> for subsequent drawing.
-<a href="SkPaint_Reference#LCD_Text">LCD Text</a> is preserved when the <a href="#Layer">Layer</a> is drawn to the prior <a href="#Layer">Layer</a>.
+<a href="#LCD_Text">LCD Text</a> is preserved when the <a href="#Layer">Layer</a> is drawn to the prior <a href="#Layer">Layer</a>.
 
 Calling <a href="#SkCanvas_restore">restore</a> discards changes to <a href="#Matrix">Matrix</a>, <a href="#Clip">Clip</a>, and <a href="undocumented#Draw_Filter">Draw Filter</a>,
 and draws <a href="#Layer">Layer</a>.
@@ -1615,8 +1615,8 @@ Optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_saveLaye
 
 Call <a href="#SkCanvas_restoreToCount">restoreToCount</a> with returned value to restore this and subsequent saves.
 
-<a href="#Draw">Draw</a> text on an opaque background so that <a href="SkPaint_Reference#LCD_Text">LCD Text</a> blends correctly with the
-prior <a href="#Layer">Layer</a>. <a href="SkPaint_Reference#LCD_Text">LCD Text</a> drawn on a background with transparency may result in
+<a href="#Draw">Draw</a> text on an opaque background so that <a href="#LCD_Text">LCD Text</a> blends correctly with the
+prior <a href="#Layer">Layer</a>. <a href="#LCD_Text">LCD Text</a> drawn on a background with transparency may result in
 incorrect blending.
 
 ### Parameters
@@ -2161,9 +2161,9 @@ amount to skew in y</td>
 
 <div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"><div>Black text mimics an oblique text style by using a negative skew in x that
 shifts the geometry to the right as the y values decrease.
-<a href="#Red">Red</a> text uses a positive skew in y to shift the geometry down as the x values
+<a href="#RGB_Red">Red</a> text uses a positive skew in y to shift the geometry down as the x values
 increase.
-<a href="#Blue">Blue</a> text combines x and y skew to rotate and scale.</div></fiddle-embed></div>
+<a href="#RGB_Blue">Blue</a> text combines x and y skew to rotate and scale.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -5113,8 +5113,8 @@ void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint&
 <a href="#SkCanvas_drawTextBlob_blob">blob</a> contains <a href="#Glyph">Glyphs</a>, their positions, and <a href="#SkCanvas_drawTextBlob_paint">paint</a> attributes specific to text:
 <a href="undocumented#Typeface">Typeface</a>, <a href="#Text_Size">Paint Text Size</a>, <a href="#Text_Scale_X">Paint Text Scale X</a>, <a href="#Text_Skew_X">Paint Text Skew X</a>,
 <a href="#Text_Align">Paint Text Align</a>, <a href="#Hinting">Paint Hinting</a>, Anti-alias, <a href="#Fake_Bold">Paint Fake Bold</a>,
-<a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="SkPaint_Reference#LCD_Text">LCD Text</a>, <a href="SkPaint_Reference#Linear_Text">Linear Text</a>,
-<a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
+<a href="#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="#LCD_Text">LCD Text</a>, <a href="#Linear_Text">Linear Text</a>,
+<a href="#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
 
 <a href="#Text_Encoding">Paint Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
 
@@ -5155,8 +5155,8 @@ void drawTextBlob(const sk_sp&lt;SkTextBlob&gt;& blob, SkScalar x, SkScalar y, c
 <a href="#SkCanvas_drawTextBlob_2_blob">blob</a> contains <a href="#Glyph">Glyphs</a>, their positions, and <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> attributes specific to text:
 <a href="undocumented#Typeface">Typeface</a>, <a href="#Text_Size">Paint Text Size</a>, <a href="#Text_Scale_X">Paint Text Scale X</a>, <a href="#Text_Skew_X">Paint Text Skew X</a>,
 <a href="#Text_Align">Paint Text Align</a>, <a href="#Hinting">Paint Hinting</a>, Anti-alias, <a href="#Fake_Bold">Paint Fake Bold</a>,
-<a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="SkPaint_Reference#LCD_Text">LCD Text</a>, <a href="SkPaint_Reference#Linear_Text">Linear Text</a>,
-<a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
+<a href="#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="#LCD_Text">LCD Text</a>, <a href="#Linear_Text">Linear Text</a>,
+<a href="#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
 
 <a href="#Text_Encoding">Paint Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
 

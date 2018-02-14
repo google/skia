@@ -5,7 +5,7 @@ SkPixmap Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopic"></a> Subtopic
+## <a name="Overview_Subtopic"></a> Overview Subtopic
 
 | name | description |
 | --- | --- |
@@ -1902,10 +1902,10 @@ Returns false if <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkPixm
 
 Scales the image, with <a href="#SkPixmap_scalePixels_filterQuality">filterQuality</a>, to match <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_width">width</a> and <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_height">height</a>.
 <a href="#SkPixmap_scalePixels_filterQuality">filterQuality</a> <a href="undocumented#SkFilterQuality">kNone SkFilterQuality</a> is fastest, typically implemented with
-<a href="undocumented#Filter_Quality_Nearest_Neighbor">Filter Quality Nearest Neighbor</a>. <a href="undocumented#SkFilterQuality">kLow SkFilterQuality</a> is typically implemented with
-<a href="undocumented#Filter_Quality_Bilerp">Filter Quality Bilerp</a>. <a href="undocumented#SkFilterQuality">kMedium SkFilterQuality</a> is typically implemented with
-<a href="undocumented#Filter_Quality_Bilerp">Filter Quality Bilerp</a>, and <a href="undocumented#Filter_Quality_MipMap">Filter Quality MipMap</a> when size is reduced.
-<a href="undocumented#SkFilterQuality">kHigh SkFilterQuality</a> is slowest, typically implemented with <a href="undocumented#Filter_Quality_BiCubic">Filter Quality BiCubic</a>.
+<a href="undocumented#Nearest_Neighbor">Filter Quality Nearest Neighbor</a>. <a href="undocumented#SkFilterQuality">kLow SkFilterQuality</a> is typically implemented with
+<a href="undocumented#Bilerp">Filter Quality Bilerp</a>. <a href="undocumented#SkFilterQuality">kMedium SkFilterQuality</a> is typically implemented with
+<a href="undocumented#Bilerp">Filter Quality Bilerp</a>, and <a href="undocumented#MipMap">Filter Quality MipMap</a> when size is reduced.
+<a href="undocumented#SkFilterQuality">kHigh SkFilterQuality</a> is slowest, typically implemented with <a href="undocumented#BiCubic">Filter Quality BiCubic</a>.
 
 ### Parameters
 

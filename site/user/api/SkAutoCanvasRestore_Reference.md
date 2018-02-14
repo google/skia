@@ -5,12 +5,12 @@ SkAutoCanvasRestore Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopic"></a> Subtopic
+## <a name="Overview_Subtopic"></a> Overview Subtopic
 
 | name | description |
 | --- | --- |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Constructor">Constructor</a> | functions that construct <a href="SkAutoCanvasRestore_Reference#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Member_Function">Member Function</a> | static functions and member methods |
+| <a href="SkAutoCanvasRestore_Reference#Constructor">Constructor</a> | functions that construct <a href="SkAutoCanvasRestore_Reference#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
+| <a href="SkAutoCanvasRestore_Reference#Member_Function">Member Function</a> | static functions and member methods |
 
 # <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
 Stack helper class calls

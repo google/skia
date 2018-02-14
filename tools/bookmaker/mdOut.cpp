@@ -650,7 +650,10 @@ string MdOut::linkName(const Definition* ref) const {
 // def should not include SkXXX_
 string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         const string& ref, BmhParser::Resolvable resolvable) const {
-	string buildup;
+    if ("Native" == def->fName) {
+        SkDebugf("");
+    }
+    string buildup;
     const string* str = &def->fFiddle;
     SkASSERT(str->length() > 0);
     size_t under = str->find('_');
@@ -688,7 +691,7 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         while (start > 0 && (isalnum(filename[start - 1]) || '_' == filename[start - 1])) {
             --start;
         }
-        buildup = filename.substr(start) + "#" + (classMatch ? namePart : *str);
+        buildup = filename.substr(start) + "#" + (classMatch ? namePart : def->fName);
     }
     if (MarkType::kParam == def->fMarkType) {
         const Definition* parent = def->fParent;

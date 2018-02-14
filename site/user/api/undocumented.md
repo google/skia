@@ -123,11 +123,11 @@ int SkColorSetARGB(a, r, g, b)
 
 ## <a name="RGB"></a> RGB
 
-## <a name="Red"></a> Red
+## <a name="RGB_Red"></a> RGB Red
 
-## <a name="Blue"></a> Blue
+## <a name="RGB_Blue"></a> RGB Blue
 
-## <a name="Green"></a> Green
+## <a name="RGB_Green"></a> RGB Green
 
 ## <a name="ARGB"></a> ARGB
 
@@ -574,7 +574,7 @@ template &lt;typename D, typename S&gt; inline bool SkTFitsIn(S s)
 
 # <a name="Number_Types"></a> Number Types
 
-# <a name="Scalar"></a> Scalar
+## <a name="Scalar"></a> Scalar
 
 ### Constants
 
@@ -891,7 +891,7 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
 
 # <a name="SkSurfaceProps"></a> Class SkSurfaceProps
 
-# <a name="Legacy_Font_Host"></a> Legacy Font Host
+## <a name="Legacy_Font_Host"></a> Legacy Font Host
 
 ## <a name="SkSurfaceProps_InitType"></a> Enum SkSurfaceProps::InitType
 
