@@ -210,6 +210,8 @@ config("default") {
     # You can either pass the sanitizers directly, e.g. "address,undefined",
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
+    cflags_cc += [ "-stdlib=libc++" ]
+    ldflags += [ "-stdlib=libc++" ]
     if (sanitize == "ASAN" || sanitize == "UBSAN") {
       # ASAN implicitly runs all UBSAN checks also.
       sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
@@ -253,8 +255,6 @@ config("default") {
     ldflags += [ "-fsanitize=$sanitizers" ]
     if (sanitizers == "memory") {
       cflags += [ "-fsanitize-memory-track-origins" ]
-      cflags_cc += [ "-stdlib=libc++" ]
-      ldflags += [ "-stdlib=libc++" ]
     }
   }
 }
