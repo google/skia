@@ -294,6 +294,7 @@ with open(sys.argv[1], 'w') as f:
       env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
+      ld_library_path.append(clang_linux + '/lib')
 
     if 'MSAN' in extra_tokens:
       # Find the MSAN-built libc++.
