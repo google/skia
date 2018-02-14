@@ -129,7 +129,6 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
     CAP(dropsTileOnZeroDivide);
     CAP(flatInterpolationSupport);
     CAP(noperspectiveInterpolationSupport);
-    CAP(multisampleInterpolationSupport);
     CAP(externalTextureSupport);
     CAP(texelFetchSupport);
     CAP(imageLoadStoreSupport);
