@@ -46,6 +46,30 @@
       "revId": "c4725e5a2c787dce0c8ac4e24e8d48b4cc4105df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f09efe1_3fd8652d",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-14T21:02:10Z",
+      "side": 1,
+      "message": "Oh, got it. I scanned and saw what looked like an unrelated renaming.",
+      "parentUuid": "69e6272e_5a2e9d07",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "c4725e5a2c787dce0c8ac4e24e8d48b4cc4105df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
