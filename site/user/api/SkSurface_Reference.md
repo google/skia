@@ -320,7 +320,7 @@ Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Can
 Allocates and zeroes pixel memory. <a href="undocumented#Pixel">Pixel</a> memory size is height times width times
 four. <a href="undocumented#Pixel">Pixel</a> memory is deleted when <a href="#Surface">Surface</a> is deleted.
 
-Internally, sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to width, height, <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>, and
+Internally, sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to width, height, <a href="#Native">Native Color Type</a>, and
 <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>.
 
 <a href="#Surface">Surface</a> is returned if width and height are greater than zero.
