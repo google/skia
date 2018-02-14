@@ -70,8 +70,6 @@ public:
 
     bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
 
-    bool multisampleInterpolationSupport() const { return fMultisampleInterpolationSupport; }
-
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
     bool texelFetchSupport() const { return fTexelFetchSupport; }
@@ -186,11 +184,6 @@ public:
         return fNoPerspectiveInterpolationExtensionString;
     }
 
-    const char* multisampleInterpolationExtensionString() const {
-        SkASSERT(this->multisampleInterpolationSupport());
-        return fMultisampleInterpolationExtensionString;
-    }
-
     const char* imageLoadStoreExtensionString() const {
         SkASSERT(this->imageLoadStoreSupport());
         return fImageLoadStoreExtensionString;
@@ -250,7 +243,6 @@ private:
     bool fFlatInterpolationSupport : 1;
     bool fPreferFlatInterpolation : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
-    bool fMultisampleInterpolationSupport : 1;
     bool fExternalTextureSupport : 1;
     bool fTexelFetchSupport : 1;
     bool fVertexIDSupport : 1;
@@ -280,7 +272,6 @@ private:
     const char* fExternalTextureExtensionString;
     const char* fTexelBufferExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
-    const char* fMultisampleInterpolationExtensionString;
     const char* fImageLoadStoreExtensionString;
 
     const char* fFBFetchColorName;

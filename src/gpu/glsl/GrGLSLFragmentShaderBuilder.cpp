@@ -93,23 +93,6 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
 #endif
 }
 
-bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
-    const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
-    switch (feature) {
-        case kMultisampleInterpolation_GLSLFeature:
-            if (!shaderCaps.multisampleInterpolationSupport()) {
-                return false;
-            }
-            if (const char* extension = shaderCaps.multisampleInterpolationExtensionString()) {
-                this->addFeature(1 << kMultisampleInterpolation_GLSLFeature, extension);
-            }
-            return true;
-        default:
-            SK_ABORT("Unexpected GLSLFeature requested.");
-            return false;
-    }
-}
-
 SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) {
     if (kFloat3_GrSLType != coords.getType() && kHalf3_GrSLType != coords.getType()) {
         SkASSERT(kFloat2_GrSLType == coords.getType() || kHalf2_GrSLType == coords.getType());

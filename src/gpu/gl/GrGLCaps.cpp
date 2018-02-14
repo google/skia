@@ -721,19 +721,6 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         }
     }
 
-    if (kGL_GrGLStandard == standard) {
-        shaderCaps->fMultisampleInterpolationSupport =
-                ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
-    } else {
-        if (ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
-            shaderCaps->fMultisampleInterpolationSupport = true;
-        } else if (ctxInfo.hasExtension("GL_OES_shader_multisample_interpolation")) {
-            shaderCaps->fMultisampleInterpolationSupport = true;
-            shaderCaps->fMultisampleInterpolationExtensionString =
-                "GL_OES_shader_multisample_interpolation";
-        }
-    }
-
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
                                                                   shaderCaps->fGLSLGeneration,
                                                                   fIsCoreProfile);
