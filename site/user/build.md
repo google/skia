@@ -234,16 +234,26 @@ Windows
 
 Skia can build on Windows with Visual Studio 2017 or Visual Studio 2015 Update 3.
 If GN is unable to locate either of those, it will print an error message. In that
-case, you can pass your `VC` path to GN via `win_vc`.
+case, you can pass your `VC` path to GN via `win_vc` or the `WIN_VC` environment variable.
 
 The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
     python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
 
-You can then pass the VC and SDK paths to GN by setting your GN args:
+You can then pass the VC and SDK paths to GN by setting these environment
+variables before calling gn::
 
-    win_vc = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\VC"
-    win_sdk = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\win_sdk"
+    set WIN_VC=C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\VC
+    set WIN_SDK=C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\win_sdk
+    python tools\git-sync-deps
+    bin\gn gen out\static --args="is_official_build=true"
+    bin\gn gen out\shared --args="is_official_build=true is_component_build=true"
+    bin\gn gen out\debug
+    bin\gn gen out\release  --args="is_debug=false"
+    ninja -c out\static
+    ninja -c out\shared
+    ninja -c out\debug
+    ninja -c out\release
 
 This toolchain is the only way we support 32-bit builds, by also setting `target_cpu="x86"`.
 There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/win_toolchain_2015`.
