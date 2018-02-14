@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebb19175_2474e211",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-14T16:20:30Z",
+      "side": 1,
+      "message": "Does this matter?  We won\u0027t pick it up because the bot has \"Dev\" instead of \"Debug\".",
+      "range": {
+        "startLine": 371,
+        "startChar": 0,
+        "endLine": 372,
+        "endChar": 32
+      },
+      "revId": "3d9c990ff8664a8ab637d8d91a651c37711ce850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
