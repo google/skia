@@ -252,7 +252,28 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    return this->createProxy(desc, GrMipMapped::kYes, SkBackingFit::kExact, budgeted, 0);
+    // SkMipMap doesn't include the base level in the level count so we have to add 1
+    int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
+    if (1 == mipCount) {
+        return this->createProxy(desc, SkBackingFit::kExact, budgeted);
+    }
+
+    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipCount]);
+
+    // We don't want to upload any texel data
+    for (int i = 0; i < mipCount; i++) {
+        texels[i].fPixels = nullptr;
+        texels[i].fRowBytes = 0;
+    }
+
+    sk_sp<GrTexture> tex(fResourceProvider->createTexture(desc, budgeted,
+                                                          texels.get(), mipCount,
+                                                          SkDestinationSurfaceColorMode::kLegacy));
+    if (!tex) {
+        return nullptr;
+    }
+
+    return this->createWrapped(std::move(tex), desc.fOrigin);
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitmap& bitmap,
@@ -340,21 +361,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
-                                                   GrMipMapped mipMapped,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted,
                                                    uint32_t flags) {
     SkASSERT(0 == flags || GrResourceProvider::kNoPendingIO_Flag == flags);
 
-    if (GrMipMapped::kYes == mipMapped) {
-        // SkMipMap doesn't include the base level in the level count so we have to add 1
-        int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
-        if (1 == mipCount) {
-            mipMapped = GrMipMapped::kNo;
-        }
-    }
-
-    if (!this->caps()->validateSurfaceDesc(desc, mipMapped)) {
+    if (!this->caps()->validateSurfaceDesc(desc, GrMipMapped::kNo)) {
         return nullptr;
     }
     GrSurfaceDesc copyDesc = desc;
@@ -367,12 +379,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
         return sk_sp<GrTextureProxy>(
-                new GrTextureRenderTargetProxy(*this->caps(), copyDesc, mipMapped, fit, budgeted,
-                                               flags));
+                new GrTextureRenderTargetProxy(*this->caps(), copyDesc, fit, budgeted, flags));
     }
 
-    return sk_sp<GrTextureProxy>(new GrTextureProxy(copyDesc, mipMapped, fit, budgeted, nullptr, 0,
-                                                    flags));
+    return sk_sp<GrTextureProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
