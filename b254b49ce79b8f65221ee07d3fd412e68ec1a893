@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1efff6b8_7eccfc9e",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-14T16:58:44Z",
+      "side": 1,
+      "message": "Would it make sense to have some way to track budgets for DDLs? Otherwise it seems you could allocate blobs and then find you don\u0027t have room for them.",
+      "range": {
+        "startLine": 62,
+        "startChar": 7,
+        "endLine": 63,
+        "endChar": 28
+      },
+      "revId": "b254b49ce79b8f65221ee07d3fd412e68ec1a893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
