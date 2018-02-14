@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "38e35d47_c233768c",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-14T21:21:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48ff0d0f_fdf9c33d",
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8769486_761cc8d7",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "3d43dff7_3eec8614",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1836,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-14T21:21:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8769486_761cc8d7",
+      "range": {
+        "startLine": 1835,
+        "startChar": 17,
+        "endLine": 1836,
+        "endChar": 96
+      },
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "85afdf90_26fa1289",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 1
@@ -62,6 +104,30 @@
       "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd4cae78_7b598235",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1841,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-14T21:21:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85afdf90_26fa1289",
+      "range": {
+        "startLine": 1841,
+        "startChar": 15,
+        "endLine": 1841,
+        "endChar": 40
+      },
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -97,6 +163,24 @@
       "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6c0f1b7_e7753531",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1858,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-14T21:21:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf9e210c_dfebf0da",
+      "revId": "3bfb8dd7eac86f21c81a7676f3a651bfcd4c6be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
