@@ -15,7 +15,7 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
 
-class GrGLSLPPFragmentBuilder;
+class GrGLSLFPFragmentBuilder;
 class GrGLSLVertexGeoBuilder;
 class GrMesh;
 
@@ -178,7 +178,7 @@ public:
             this->onEmitVaryings(varyingHandler, scope, code, position, inputCoverage, wind);
         }
 
-        void emitFragmentCode(const GrCCCoverageProcessor& proc, GrGLSLPPFragmentBuilder*,
+        void emitFragmentCode(const GrCCCoverageProcessor& proc, GrGLSLFPFragmentBuilder*,
                               const char* skOutputColor, const char* skOutputCoverage) const;
 
         // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
@@ -201,7 +201,7 @@ public:
                                     const char* wind) = 0;
 
         // Emits the fragment code that calculates a pixel's signed coverage value.
-        virtual void onEmitFragmentCode(GrGLSLPPFragmentBuilder*,
+        virtual void onEmitFragmentCode(GrGLSLFPFragmentBuilder*,
                                         const char* outputCoverage) const = 0;
 
         // Returns the name of a Shader's internal varying at the point where where its value is
@@ -216,7 +216,7 @@ public:
         // center. Subclasses can use this for software multisampling.
         //
         // Returns the number of samples.
-        static int DefineSoftSampleLocations(GrGLSLPPFragmentBuilder* f, const char* samplesName);
+        static int DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f, const char* samplesName);
     };
 
     class GSImpl;

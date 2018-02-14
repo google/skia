@@ -43,8 +43,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
     fMultisampleInterpolationSupport = false;
-    fSampleVariablesSupport = false;
-    fSampleMaskOverrideCoverageSupport = false;
     fExternalTextureSupport = false;
     fTexelFetchSupport = false;
     fVertexIDSupport = false;
@@ -61,7 +59,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fTexelBufferExtensionString = nullptr;
     fNoPerspectiveInterpolationExtensionString = nullptr;
     fMultisampleInterpolationExtensionString = nullptr;
-    fSampleVariablesExtensionString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
     fImageLoadStoreExtensionString = nullptr;
@@ -119,8 +116,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
     writer->appendBool("Multisample interpolation support", fMultisampleInterpolationSupport);
-    writer->appendBool("Sample variables support", fSampleVariablesSupport);
-    writer->appendBool("Sample mask override coverage support", fSampleMaskOverrideCoverageSupport);
     writer->appendBool("External texture support", fExternalTextureSupport);
     writer->appendBool("texelFetch support", fTexelFetchSupport);
     writer->appendBool("sk_VertexID support", fVertexIDSupport);

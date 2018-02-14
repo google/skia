@@ -16,7 +16,7 @@
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrCCCoverageProcessor::Shader::emitFragmentCode(const GrCCCoverageProcessor& proc,
-                                                     GrGLSLPPFragmentBuilder* f,
+                                                     GrGLSLFPFragmentBuilder* f,
                                                      const char* skOutputColor,
                                                      const char* skOutputCoverage) const {
     f->codeAppendf("half coverage = 0;");
@@ -44,7 +44,7 @@ void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuil
     s->codeAppendf("%s = float3(-n, dot(n, %s) - .5);", outputDistanceEquation, leftPt);
 }
 
-int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLPPFragmentBuilder* f,
+int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f,
                                                              const char* samplesName) {
     // Standard DX11 sample locations.
 #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)

@@ -22,7 +22,7 @@ public:
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // emit attributes
         varyingHandler->emitAttributes(rsgp);
