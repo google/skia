@@ -32,8 +32,8 @@ protected:
                         const char* position, const char* inputCoverage, const char* wind) final;
     virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) = 0;
 
-    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const final;
-    virtual void emitCoverage(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const = 0;
+    void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const final;
+    virtual void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const = 0;
 
     GrShaderVar fKLMMatrix{"klm_matrix", kFloat3x3_GrSLType};
     GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
@@ -42,7 +42,7 @@ protected:
 
 class GrCCCubicHullShader : public GrCCCubicShader {
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void emitCoverage(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
+    void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fGradMatrix;
 };
@@ -51,7 +51,7 @@ class GrCCCubicCornerShader : public GrCCCubicShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void emitCoverage(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
+    void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fdKLMDdx;
     GrGLSLVarying fdKLMDdy;

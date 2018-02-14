@@ -173,9 +173,7 @@ protected:
         kTexelBuffer_GLSLPrivateFeature,
         kFramebufferFetch_GLSLPrivateFeature,
         kNoPerspectiveInterpolation_GLSLPrivateFeature,
-        kSampleVariables_GLSLPrivateFeature,
-        kSampleMaskOverrideCoverage_GLSLPrivateFeature,
-        kLastGLSLPrivateFeature = kSampleMaskOverrideCoverage_GLSLPrivateFeature
+        kLastGLSLPrivateFeature = kNoPerspectiveInterpolation_GLSLPrivateFeature
     };
 
     /*

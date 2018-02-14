@@ -31,8 +31,8 @@ protected:
                         const char* position, const char* inputCoverage, const char* wind) final;
     virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) {}
 
-    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const final;
-    virtual void emitCoverage(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const = 0;
+    void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const final;
+    virtual void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const = 0;
 
     const GrShaderVar fCanonicalMatrix{"canonical_matrix", kFloat3x3_GrSLType};
     const GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
@@ -49,7 +49,7 @@ class GrCCQuadraticHullShader : public GrCCQuadraticShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void emitCoverage(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
+    void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fGrad;
 };
@@ -61,7 +61,7 @@ class GrCCQuadraticCornerShader : public GrCCQuadraticShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void emitCoverage(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
+    void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fdXYDdx;
     GrGLSLVarying fdXYDdy;
