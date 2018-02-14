@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkAtomics.h"
+#include "SkSafeMath.h"
 #include "SkString.h"
 #include "SkUtils.h"
 #include <stdarg.h>
@@ -224,13 +224,18 @@ sk_sp<SkString::Rec> SkString::Rec::Make(const char text[], size_t len) {
         return sk_sp<SkString::Rec>(const_cast<Rec*>(&gEmptyRec));
     }
 
-    len = trim_size_t_to_u32(len);
-    // add 1 for terminating 0, then align4 so we can have some slop when growing the string
-    const size_t actualLength = SizeOfRec() + SkAlign4(len + 1);
-    SkASSERT_RELEASE(len < actualLength);  // Check for overflow.
+    SkSafeMath safe;
+    // We store a 32bit version of the length
+    uint32_t stringLen = safe.castTo<uint32_t>(len);
+    // Add SizeOfRec() for our overhead and 1 for null-termination
+    size_t allocationSize = safe.add(len, SizeOfRec() + sizeof(char));
+    // Align up to a multiple of 4
+    allocationSize = safe.alignUp(allocationSize, 4);
 
-    void* storage = ::operator new (actualLength);
-    sk_sp<Rec> rec(new (storage) Rec(SkToU32(len), 1));
+    SkASSERT_RELEASE(safe.ok());
+
+    void* storage = ::operator new (allocationSize);
+    sk_sp<Rec> rec(new (storage) Rec(stringLen, 1));
     if (text) {
         memcpy(rec->data(), text, len);
     }

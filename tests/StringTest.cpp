@@ -304,3 +304,24 @@ DEF_TEST(String_Threaded, r) {
         thread.join();
     }
 }
+
+// Ensure that the string allocate doesn't internally overflow any calculations, and accidentally
+// let us create a string with a requested length longer than we can manage.
+DEF_TEST(String_huge, r) {
+    // start testing slightly below max 32
+    size_t size = SK_MaxU32 - 16;
+    // See where we crash, and manually check that its at the right point.
+    //
+    //  To test, change the false to true
+    while (false) {
+        // On a 64bit build, this should crash when size == 1 << 32, since we can't store
+        // that length in the string's header (which has a u32 slot for the length).
+        //
+        // On a 32bit build, this should crash the first time around, since we can't allocate
+        // anywhere near this amount.
+        //
+        SkString str(size);
+        size += 1;
+    }
+}
+
