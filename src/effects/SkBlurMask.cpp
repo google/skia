@@ -209,22 +209,18 @@ static float gaussianIntegral(float x) {
     return 0.4375f + (-x3 / 6.0f - 3.0f * x2 * 0.25f - 1.125f * x);
 }
 
-/*  ComputeBlurProfile allocates and fills in an array of floating
+/*  ComputeBlurProfile fills in an array of floating
     point values between 0 and 255 for the profile signature of
     a blurred half-plane with the given blur radius.  Since we're
     going to be doing screened multiplications (i.e., 1 - (1-x)(1-y))
     all the time, we actually fill in the profile pre-inverted
     (already done 255-x).
-
-    It's the responsibility of the caller to delete the
-    memory returned in profile_out.
 */
 
-uint8_t* SkBlurMask::ComputeBlurProfile(SkScalar sigma) {
-    int size = SkScalarCeilToInt(6*sigma);
+void SkBlurMask::ComputeBlurProfile(uint8_t* profile, int size, SkScalar sigma) {
+    SkASSERT(SkScalarCeilToInt(6*sigma) == size);
 
     int center = size >> 1;
-    uint8_t* profile = new uint8_t[size];
 
     float invr = 1.f/(2*sigma);
 
@@ -234,8 +230,6 @@ uint8_t* SkBlurMask::ComputeBlurProfile(SkScalar sigma) {
         float gi = gaussianIntegral(scaled_x);
         profile[x] = 255 - (uint8_t) (255.f * gi);
     }
-
-    return profile;
 }
 
 // TODO MAYBE: Maintain a profile cache to avoid recomputing this for
@@ -282,9 +276,9 @@ void SkBlurMask::ComputeBlurredScanline(uint8_t *pixels, const uint8_t *profile,
 bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
                           const SkRect &src, SkBlurStyle style,
                           SkIPoint *margin, SkMask::CreateMode createMode) {
-    int profile_size = SkScalarCeilToInt(6*sigma);
+    int profileSize = SkScalarCeilToInt(6*sigma);
 
-    int pad = profile_size/2;
+    int pad = profileSize/2;
     if (margin) {
         margin->set( pad, pad );
     }
@@ -312,7 +306,9 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
         return true;
     }
 
-    std::unique_ptr<uint8_t[]> profile(ComputeBlurProfile(sigma));
+    SkAutoTMalloc<uint8_t> profile(profileSize);
+
+    ComputeBlurProfile(profile, profileSize, sigma);
 
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {
@@ -331,8 +327,8 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
     SkAutoTMalloc<uint8_t> horizontalScanline(dstWidth);
     SkAutoTMalloc<uint8_t> verticalScanline(dstHeight);
 
-    ComputeBlurredScanline(horizontalScanline, profile.get(), dstWidth, sigma);
-    ComputeBlurredScanline(verticalScanline, profile.get(), dstHeight, sigma);
+    ComputeBlurredScanline(horizontalScanline, profile, dstWidth, sigma);
+    ComputeBlurredScanline(verticalScanline, profile, dstHeight, sigma);
 
     for (int y = 0 ; y < dstHeight ; ++y) {
         for (int x = 0 ; x < dstWidth ; x++) {
