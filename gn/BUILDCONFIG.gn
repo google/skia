@@ -137,6 +137,8 @@ if (target_os == "win") {
       "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC"
   vc_2017_com_default =
       "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC"
+  vc_2017_bt_default =
+      "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/VC"
   vc_2015_default = "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC"
 
   if (win_vc == "") {
@@ -149,6 +151,11 @@ if (target_os == "win") {
                                      [ "$vc_2017_com_default" ],
                                      "trim string")) {
       win_vc = vc_2017_com_default
+      msvc = 2017
+    } else if ("True" == exec_script("//gn/checkdir.py",
+                                     [ "$vc_2017_bt_default" ],
+                                     "trim string")) {
+      win_vc = vc_2017_bt_default
       msvc = 2017
     } else if ("True" == exec_script("//gn/checkdir.py",
                                      [ "$vc_2015_default" ],
