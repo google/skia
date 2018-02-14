@@ -209,6 +209,10 @@ public:
                 case SkShader::kMirror_TileMode:
                     fWrapMode = GrSamplerState::WrapMode::kMirrorRepeat;
                     break;
+                case SkShader::kDecal_TileMode:
+                    SkASSERT(false);    // TODO:
+                    fWrapMode = GrSamplerState::WrapMode::kClamp;
+                    break;
             }
         }
 

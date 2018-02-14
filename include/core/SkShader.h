@@ -53,14 +53,12 @@ public:
          */
         kMirror_TileMode,
 
-#if 0
         /** only draw within the original domain, return 0 everywhere else */
         kDecal_TileMode,
-#endif
     };
 
     enum {
-        kTileModeCount = kMirror_TileMode + 1
+        kTileModeCount = kDecal_TileMode + 1
     };
 
     /**

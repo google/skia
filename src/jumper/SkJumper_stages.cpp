@@ -1832,6 +1832,35 @@ STAGE( clamp_x_1, Ctx::None) { r = clamp_01(r); }
 STAGE(repeat_x_1, Ctx::None) { r = clamp_01(r - floor_(r)); }
 STAGE(mirror_x_1, Ctx::None) { r = clamp_01(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f )); }
 
+// Decal stores a mask (negative value) if the corresponding coordinate (x and/or y) was
+// out of range. Then, after the gather step this mask is checked, and if it contains a negative,
+// then the src compoents are set to zero (check_decal_mask)
+
+STAGE(decal_x, SkJumper_DecalTileCtx* ctx) {
+    auto limit_x = ctx->limit_x;
+    U32 mask = if_then_else(r >= limit_x, U32(~0), U32(0)) | if_then_else(r < 0, U32(~0), U32(0));
+    unaligned_store(ctx->mask, mask);
+}
+STAGE(decal_y, SkJumper_DecalTileCtx* ctx) {
+    auto limit_y = ctx->limit_y;
+    U32 mask = if_then_else(g >= limit_y, U32(~0), U32(0)) | if_then_else(g < 0, U32(~0), U32(0));
+    unaligned_store(ctx->mask, mask);
+}
+STAGE(decal_x_and_y, SkJumper_DecalTileCtx* ctx) {
+    auto limit_x = ctx->limit_x;
+    auto limit_y = ctx->limit_y;
+    U32 mask = if_then_else(r >= limit_x, U32(~0), U32(0)) | if_then_else(r < 0, U32(~0), U32(0))
+             | if_then_else(g >= limit_y, U32(~0), U32(0)) | if_then_else(g < 0, U32(~0), U32(0));
+    unaligned_store(ctx->mask, mask);
+}
+STAGE(check_decal_mask, SkJumper_DecalTileCtx* ctx) {
+    auto mask = unaligned_load<U32>(ctx->mask);
+    r = if_then_else(mask == 0, r, 0);
+    g = if_then_else(mask == 0, g, 0);
+    b = if_then_else(mask == 0, b, 0);
+    a = if_then_else(mask == 0, a, 0);
+}
+
 STAGE(luminance_to_alpha, Ctx::None) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;
     r = g = b = 0;
