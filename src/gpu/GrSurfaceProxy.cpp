@@ -81,6 +81,9 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
+    if (fTarget->asTexture() && fTarget->asTexture()->texturePriv().isProblemTexture()) {
+        fFlags = GrResourceProvider::kProblemTexture_Flag;
+    }
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -204,6 +207,10 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
 
     GrTexturePriv::ComputeScratchKey(this->config(), width, height, SkToBool(rtp), sampleCount,
                                      mipMapped, key);
+}
+
+bool GrSurfaceProxy::isProblemTexture() const { 
+    return fFlags & GrResourceProvider::kProblemTexture_Flag;
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {

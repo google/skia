@@ -48,6 +48,8 @@ protected:
         return false;
     }
 
+    bool onIsProblemTexture() const override { return false; }
+
 private:
     GrMockTextureInfo          fInfo;
     sk_sp<GrReleaseProcHelper> fReleaseHelper;

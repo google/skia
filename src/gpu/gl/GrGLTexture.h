@@ -87,6 +87,11 @@ protected:
 
     bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override;
 
+    bool onIsProblemTexture() const override {
+        return GR_GL_TEXTURE_EXTERNAL == this->target() ||
+               GR_GL_TEXTURE_RECTANGLE == this->target();
+    }
+
 private:
     void invokeReleaseProc() {
         if (fReleaseHelper) {

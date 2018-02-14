@@ -384,6 +384,8 @@ protected:
         return this->internalHasPendingWrite();
     }
 
+    bool isProblemTexture() const;
+
     void computeScratchKey(GrScratchKey*) const;
 
     virtual sk_sp<GrSurface> createSurface(GrResourceProvider*) const = 0;
@@ -407,7 +409,7 @@ private:
     mutable SkBudgeted   fBudgeted; // always kYes for lazy-callback resources
                                     // set from the backing resource for wrapped resources
                                     // mutable bc of SkSurface/SkImage wishy-washiness
-    const uint32_t       fFlags;
+    uint32_t             fFlags;
 
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 

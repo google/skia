@@ -731,7 +731,7 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
 }
 
 static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surface,
-                                            GrPixelConfig config) {
+                                           GrPixelConfig config) {
     if (!glTex) {
         return false;
     }
@@ -4513,30 +4513,6 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
         attribState = &fDefaultVertexArrayAttribState;
     }
     return attribState;
-}
-
-bool GrGLGpu::onIsACopyNeededForTextureParams(GrTextureProxy* proxy,
-                                              const GrSamplerState& textureParams,
-                                              GrTextureProducer::CopyParams* copyParams,
-                                              SkScalar scaleAdjust[2]) const {
-    const GrTexture* texture = proxy->priv().peekTexture();
-    if (!texture) {
-        // The only way to get and EXTERNAL or RECTANGLE texture in Ganesh is to wrap them.
-        // In that case the proxy should already be instantiated.
-        return false;
-    }
-
-    if (textureParams.isRepeated() || GrSamplerState::Filter::kMipMap == textureParams.filter()) {
-        const GrGLTexture* glTexture = static_cast<const GrGLTexture*>(texture);
-        if (GR_GL_TEXTURE_EXTERNAL == glTexture->target() ||
-            GR_GL_TEXTURE_RECTANGLE == glTexture->target()) {
-            copyParams->fFilter = GrSamplerState::Filter::kNearest;
-            copyParams->fWidth = texture->width();
-            copyParams->fHeight = texture->height();
-            return true;
-        }
-    }
-    return false;
 }
 
 void GrGLGpu::onFinishFlush(bool insertedSemaphore) {

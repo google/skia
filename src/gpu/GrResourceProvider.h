@@ -188,6 +188,8 @@ public:
          *  creating a buffer to guarantee it resides in GPU memory.
          */
         kRequireGpuMemory_Flag = 0x2,
+
+        kProblemTexture_Flag = 0x4
     };
 
     /**
