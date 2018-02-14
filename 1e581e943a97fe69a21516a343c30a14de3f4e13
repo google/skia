@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91e9ce47_b1d6d034",
+        "filename": "infra/bots/assets/android_sdk_linux/common.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-14T12:30:11Z",
+      "side": 1,
+      "message": "Should these be moves instead of an adds?",
+      "revId": "1e581e943a97fe69a21516a343c30a14de3f4e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9a82be7_034762ee",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-14T12:30:11Z",
+      "side": 1,
+      "message": "Intentional?",
+      "range": {
+        "startLine": 216,
+        "startChar": 0,
+        "endLine": 217,
+        "endChar": 6
+      },
+      "revId": "1e581e943a97fe69a21516a343c30a14de3f4e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
