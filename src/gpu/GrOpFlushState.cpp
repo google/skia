@@ -81,12 +81,13 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
     GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* dstProxy, int left, int top,
                                                      int width, int height, GrPixelConfig srcConfig,
                                                      const void* buffer, size_t rowBytes) {
+        // We don't allow srgb conversions via op flush state uploads.
+        static constexpr auto kSRGBConversion = GrSRGBConversion::kNone;
         GrSurface* dstSurface = dstProxy->priv().peekSurface();
         GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
         GrGpu::WritePixelTempDrawInfo tempInfo;
-        if (!fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(),
-                                      width, height, srcConfig,
-                                      &drawPreference, &tempInfo)) {
+        if (!fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height, srcConfig,
+                                      kSRGBConversion, &drawPreference, &tempInfo)) {
             return false;
         }
         if (GrGpu::kNoDraw_DrawPreference == drawPreference) {

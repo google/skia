@@ -199,9 +199,9 @@ public:
      * that would allow a successful readPixels call. The passed width, height, and rowBytes,
      * must be non-zero and already reflect clipping to the src bounds.
      */
-    bool getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
-                           int readWidth, int readHeight, size_t rowBytes,
-                           GrPixelConfig readConfig, DrawPreference*, ReadPixelTempDrawInfo*);
+    bool getReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width,
+                           int height, size_t rowBytes, GrPixelConfig,
+                           GrSRGBConversion, DrawPreference*, ReadPixelTempDrawInfo*);
 
     /** Info struct returned by getWritePixelsInfo about performing an intermediate draw in order
         to write pixels to a GrSurface for either performance or correctness reasons. */
@@ -226,18 +226,19 @@ public:
      * that would allow a successful transfer of the src pixels to the dst. The passed width,
      * height, and rowBytes, must be non-zero and already reflect clipping to the dst bounds.
      */
-    bool getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width, int height,
-                            GrPixelConfig srcConfig, DrawPreference*, WritePixelTempDrawInfo*);
+    bool getWritePixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height,
+                            GrPixelConfig, GrSRGBConversion, DrawPreference*,
+                            WritePixelTempDrawInfo*);
 
     /**
-     * Reads a rectangle of pixels from a render target.
+     * Reads a rectangle of pixels from a render target. No sRGB/linear conversions are performed.
      *
      * @param surface       The surface to read from
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
      * @param height        height of rectangle to read in pixels.
-     * @param config        the pixel config of the destination buffer
+     * @param dstConfig     the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
      * @param rowBytes      the number of bytes between consecutive rows. Zero
      *                      means rows are tightly packed.
@@ -248,39 +249,32 @@ public:
      *              because of a unsupported pixel config or because no render
      *              target is currently set.
      */
-    bool readPixels(GrSurface* surface, GrSurfaceOrigin,
-                    int left, int top, int width, int height,
-                    GrPixelConfig config, void* buffer, size_t rowBytes);
+    bool readPixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width, int height,
+                    GrPixelConfig dstConfig, void* buffer, size_t rowBytes);
 
     /**
-     * Updates the pixels in a rectangle of a surface.
+     * Updates the pixels in a rectangle of a surface.  No sRGB/linear conversions are performed.
      *
      * @param surface       The surface to write to.
      * @param left          left edge of the rectangle to write (inclusive)
      * @param top           top edge of the rectangle to write (inclusive)
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
-     * @param config        the pixel config of the source buffer
+     * @param srcConfig     the pixel config of the source buffer
      * @param texels        array of mipmap levels containing texture data
      * @param mipLevelCount number of levels in 'texels'
      */
     bool writePixels(GrSurface* surface, GrSurfaceOrigin origin,
                      int left, int top, int width, int height,
-                     GrPixelConfig config,
+                     GrPixelConfig srcConfig,
                      const GrMipLevel texels[], int mipLevelCount);
 
     /**
      * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
      * It then calls writePixels with that SkTArray.
-     *
-     * @param buffer   memory to read pixels from.
-     * @param rowBytes number of bytes between consecutive rows. Zero
-     *                 means rows are tightly packed.
      */
-    bool writePixels(GrSurface* surface, GrSurfaceOrigin origin,
-                     int left, int top, int width, int height,
-                     GrPixelConfig config, const void* buffer,
-                     size_t rowBytes);
+    bool writePixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width,
+                     int height, GrPixelConfig, const void* buffer, size_t rowBytes);
 
     /**
      * Updates the pixels in a rectangle of a texture using a buffer
@@ -293,16 +287,15 @@ public:
      * @param top              top edge of the rectangle to write (inclusive)
      * @param width            width of rectangle to write in pixels.
      * @param height           height of rectangle to write in pixels.
-     * @param config           the pixel config of the source buffer
+     * @param bufferConfig     the pixel config of the source buffer
      * @param transferBuffer   GrBuffer to read pixels from (type must be "kXferCpuToGpu")
      * @param offset           offset from the start of the buffer
      * @param rowBytes         number of bytes between consecutive rows in the buffer. Zero
      *                         means rows are tightly packed.
      */
-    bool transferPixels(GrTexture* texture,
-                        int left, int top, int width, int height,
-                        GrPixelConfig config, GrBuffer* transferBuffer,
-                        size_t offset, size_t rowBytes);
+    bool transferPixels(GrTexture* texture, int left, int top, int width, int height,
+                        GrPixelConfig bufferConfig, GrBuffer* transferBuffer, size_t offset,
+                        size_t rowBytes);
 
     // After the client interacts directly with the 3D context state the GrGpu
     // must resync its internal state and assumptions about 3D context state.
@@ -567,14 +560,11 @@ private:
         return false;
     }
 
-    virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
-                                     int readWidth, int readHeight,
-                                     size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,
+    virtual bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height,
+                                     size_t rowBytes, GrPixelConfig, DrawPreference*,
                                      ReadPixelTempDrawInfo*) = 0;
-    virtual bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
-                                      int width, int height,
-                                      GrPixelConfig srcConfig, DrawPreference*,
-                                      WritePixelTempDrawInfo*) = 0;
+    virtual bool onGetWritePixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height,
+                                      GrPixelConfig, DrawPreference*, WritePixelTempDrawInfo*) = 0;
 
     // overridden by backend-specific derived class to perform the surface read
     virtual bool onReadPixels(GrSurface*, GrSurfaceOrigin,
