@@ -299,7 +299,8 @@ bool GrContext::init(const GrContextOptions& options) {
                                              allowMultitexturing);
     this->contextPriv().addOnFlushCallbackObject(fAtlasGlyphCache);
 
-    fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this, this->uniqueID()));
+    fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
+                                             this, this->uniqueID(), SkToBool(fGpu)));
 
     if (options.fExecutor) {
         fTaskGroup = skstd::make_unique<SkTaskGroup>(*options.fExecutor);
