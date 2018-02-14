@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "87c0d8d6_ad0e2517",
+        "filename": "site/user/build.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-02-14T21:06:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27f9a87c_cad09eb9",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 248,
+        "endChar": 30
+      },
+      "revId": "29a353e6a46d6ead165682ddd516787024bee697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2622c759_af478e44",
         "filename": "site/user/build.md",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "29a353e6a46d6ead165682ddd516787024bee697",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2d069a4_14fed02a",
+        "filename": "site/user/build.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-02-14T21:06:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2622c759_af478e44",
+      "range": {
+        "startLine": 248,
+        "startChar": 2,
+        "endLine": 256,
+        "endChar": 24
+      },
+      "revId": "29a353e6a46d6ead165682ddd516787024bee697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
