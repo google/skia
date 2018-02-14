@@ -10,6 +10,7 @@
 
 #include "GrMesh.h"
 #include "GrNonAtomicRef.h"
+#include "GrTessellator.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "ccpr/GrCCCoverageProcessor.h"
@@ -76,8 +77,13 @@ private:
 
     // Every kBeginPath verb has a corresponding PathInfo entry.
     struct PathInfo {
+        PathInfo(ScissorMode scissorMode, int16_t offsetX, int16_t offsetY)
+                : fScissorMode(scissorMode), fAtlasOffsetX(offsetX), fAtlasOffsetY(offsetY) {}
+
         ScissorMode fScissorMode;
         int16_t fAtlasOffsetX, fAtlasOffsetY;
+        std::unique_ptr<GrTessellator::WindingVertex[]> fFanTessellation;
+        int fFanTessellationCount = 0;
     };
 
     // Defines a batch of CCPR primitives. Start indices are deduced by looking at the previous
@@ -85,6 +91,7 @@ private:
     struct CoverageCountBatch {
         PrimitiveTallies fEndNonScissorIndices;
         int fEndScissorSubBatchIdx;
+        PrimitiveTallies fTotalPrimitiveCounts;
     };
 
     // Defines a sub-batch from CoverageCountBatch that will be drawn with the given scissor rect.
@@ -98,8 +105,8 @@ private:
     void endContourIfNeeded(bool insideContour);
 
     void drawRenderPass(GrOpFlushState*, const GrPipeline&, CoverageCountBatchID,
-                        GrCCCoverageProcessor::RenderPass, int PrimitiveTallies::*instanceType,
-                        const SkIRect& drawBounds) const;
+                        GrCCCoverageProcessor::RenderPass, GrCCCoverageProcessor::WindMethod,
+                        int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const;
 
     // Staging area for the path being parsed.
     SkDEBUGCODE(int fParsingPath = false);
@@ -107,6 +114,7 @@ private:
     int fCurrPathPointsIdx;
     int fCurrPathVerbsIdx;
     PrimitiveTallies fCurrPathPrimitiveCounts;
+    SkPath::FillType fCurrPathFillType;
 
     GrCCGeometry fGeometry;
     SkSTArray<32, PathInfo, true> fPathsInfo;
