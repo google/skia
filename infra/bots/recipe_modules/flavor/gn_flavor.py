@@ -287,6 +287,9 @@ with open(sys.argv[1], 'w') as f:
     if any('SAN' in t for t in extra_tokens):
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
       path.append(clang_linux + '/bin')
+      # XSAN is compiled with libc++, which is included in the lib folder
+      # and needed for runtime.
+      ld_library_path.append(clang_linux + '/lib')
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
 
