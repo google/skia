@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69209359_fbd2faee",
+        "filename": "tools/xsan.blacklist",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T21:09:16Z",
+      "side": 1,
+      "message": "This one is probably test-tool-only and not reachable by fuzzers.",
+      "revId": "afd438e9aa6b8b4b32b5b755801fe13356d39703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca4806cc_bd362b6a",
+        "filename": "tools/xsan.blacklist",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T21:09:16Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "afd438e9aa6b8b4b32b5b755801fe13356d39703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ec66b2b_8358ed55",
+        "filename": "tools/xsan.blacklist",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T21:09:16Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "afd438e9aa6b8b4b32b5b755801fe13356d39703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "772b060f_b7fc16d1",
+        "filename": "tools/xsan.blacklist",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-14T21:09:16Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "afd438e9aa6b8b4b32b5b755801fe13356d39703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
