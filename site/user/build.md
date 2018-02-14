@@ -240,10 +240,20 @@ The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
     python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
 
-You can then pass the VC and SDK paths to GN by setting your GN args:
+You can then pass the VC and SDK paths to GN by setting the `VSINSTALLDIR`
+environment variable before calling gn.  The `SetEnv.cmd` script that comes
+with Visual C++ does this:
 
-    win_vc = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\VC"
-    win_sdk = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\win_sdk"
+    C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\win_sdk\bin\SetEnv.cmd
+    python tools\git-sync-deps
+    bin\gn gen out\static --args="is_official_build=true"
+    bin\gn gen out\shared --args="is_official_build=true is_component_build=true"
+    bin\gn gen out\debug
+    bin\gn gen out\release  --args="is_debug=false"
+    ninja -c out\static
+    ninja -c out\shared
+    ninja -c out\debug
+    ninja -c out\release
 
 This toolchain is the only way we support 32-bit builds, by also setting `target_cpu="x86"`.
 There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/win_toolchain_2015`.

@@ -8,6 +8,9 @@ is_skia_standalone = true
 # It's best to keep the names and defaults of is_foo flags consistent with Chrome.
 
 declare_args() {
+  vsinstalldir = getenv("VSINSTALLDIR")
+}
+declare_args() {
   is_official_build = false
   is_component_build = false
   ndk = ""
@@ -25,13 +28,16 @@ declare_args() {
   cc = "cc"
   cxx = "c++"
 
-  win_sdk = "C:/Program Files (x86)/Windows Kits/10"
+  win_sdk = "$vsinstalldir/win_sdk"
   win_sdk_version = ""
 
-  win_vc = ""
+  win_vc = "$vsinstalldir/VC"
   win_toolchain_version = ""
 
   clang_win = ""
+}
+if (win_sdk == "") {
+  win_sdk = "C:/Program Files (x86)/Windows Kits/10"
 }
 declare_args() {
   is_debug = !is_official_build
