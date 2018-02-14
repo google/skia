@@ -22,6 +22,30 @@
       "revId": "c03d133422ca32c850d0a67ca46de2cde2f9ea02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2777acab_c627608a",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-14T14:22:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c44ac31_f0509d55",
+      "range": {
+        "startLine": 469,
+        "startChar": 41,
+        "endLine": 469,
+        "endChar": 67
+      },
+      "revId": "c03d133422ca32c850d0a67ca46de2cde2f9ea02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
