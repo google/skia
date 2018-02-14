@@ -15,11 +15,10 @@
 #include "GrTexturePriv.h"
 
 // Deferred version
-GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped mipMapped,
-                               SkBackingFit fit, SkBudgeted budgeted, const void* srcData,
-                               size_t /*rowBytes*/, uint32_t flags)
+GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
+                               const void* srcData, size_t /*rowBytes*/, uint32_t flags)
         : INHERITED(srcDesc, fit, budgeted, flags)
-        , fMipMapped(mipMapped)
+        , fMipMapped(GrMipMapped::kNo)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     SkASSERT(!srcData);  // currently handled in Make()

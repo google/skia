@@ -117,6 +117,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 GrSurfaceFlags flags, GrMipMapped mipMapped) const {
     SkASSERT(GrSurfaceProxy::LazyState::kNot == this->lazyInstantiationState());
     SkASSERT(!fTarget);
+    SkASSERT(GrMipMapped::kNo == mipMapped);
     GrSurfaceDesc desc;
     desc.fFlags = flags;
     if (fNeedsClear) {
@@ -129,30 +130,10 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     desc.fSampleCnt = sampleCnt;
 
     sk_sp<GrSurface> surface;
-    if (GrMipMapped::kYes == mipMapped) {
-        SkASSERT(SkBackingFit::kExact == fFit);
-
-        // SkMipMap doesn't include the base level in the level count so we have to add 1
-        int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
-        // We should have caught the case where mipCount == 1 when making the proxy and instead
-        // created a non-mipmapped proxy.
-        SkASSERT(mipCount > 1);
-        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipCount]);
-
-        // We don't want to upload any texel data
-        for (int i = 0; i < mipCount; i++) {
-            texels[i].fPixels = nullptr;
-            texels[i].fRowBytes = 0;
-        }
-
-        surface = resourceProvider->createTexture(desc, fBudgeted, texels.get(), mipCount,
-                                                  SkDestinationSurfaceColorMode::kLegacy);
+    if (SkBackingFit::kApprox == fFit) {
+        surface.reset(resourceProvider->createApproxTexture(desc, fFlags).release());
     } else {
-        if (SkBackingFit::kApprox == fFit) {
-            surface = resourceProvider->createApproxTexture(desc, fFlags);
-        } else {
-            surface = resourceProvider->createTexture(desc, fBudgeted, fFlags);
-        }
+        surface.reset(resourceProvider->createTexture(desc, fBudgeted, fFlags).release());
     }
     if (!surface) {
         return nullptr;
