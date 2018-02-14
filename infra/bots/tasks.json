@@ -6403,7 +6403,7 @@
         {
           "name": "skia/bots/win_vulkan_sdk",
           "path": "win_vulkan_sdk",
-          "version": "version:2"
+          "version": "version:7"
         }
       ],
       "dimensions": [
