@@ -304,3 +304,9 @@ DEF_TEST(String_Threaded, r) {
         thread.join();
     }
 }
+
+DEF_TEST(String_huge, r) {
+    size_t size = 0xFFFFFFFF - 8;
+    SkString str(size);
+}
+
