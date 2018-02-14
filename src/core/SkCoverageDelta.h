@@ -170,6 +170,20 @@ private:
     }
 };
 
+struct SkDAARecord {
+    enum class Type {
+        kToBeComputed,
+        kMask,
+        kList
+    } fType;
+
+    SkMask               fMask;
+    SkCoverageDeltaList* fList;
+    SkArenaAlloc*        fAlloc;
+
+    SkDAARecord(SkArenaAlloc* alloc) : fType(Type::kToBeComputed), fAlloc(alloc) {}
+};
+
 static SK_ALWAYS_INLINE SkAlpha CoverageToAlpha(SkFixed coverage, bool isEvenOdd, bool isInverse) {
     SkAlpha result;
     if (isEvenOdd) {
