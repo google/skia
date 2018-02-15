@@ -19,7 +19,8 @@ struct DisplayParams;
 namespace window_context_factory {
 
 struct MacWindowInfo {
-    SDL_Window*  fWindow;
+    SDL_Window*   fWindow;
+    SDL_GLContext fGLContext;
 };
 
 inline WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&) {
