@@ -58,6 +58,39 @@ public:
 private:
     GrAtlasTextContext(const Options& options);
 
+    class FallbackTextHelper {
+    public:
+        FallbackTextHelper(const SkMatrix& viewMatrix,
+                           SkScalar textSize,
+                           SkScalar maxTextSize,
+                           SkScalar textRatio)
+            : fViewMatrix(viewMatrix)
+            , fTextRatio(textRatio)
+            , fTextSize(textSize)
+            , fMaxTextSize(maxTextSize)
+            , fScaledFallbackTextSize(maxTextSize)
+            , fUseScaledFallback(false) {
+            fMaxScale = viewMatrix.getMaxScale();
+        }
+
+        void appendText(const SkGlyph& glyph, int count, const char* text, SkPoint glyphPos);
+        void drawText(GrAtlasTextBlob* blob, int runIndex,
+                      GrAtlasGlyphCache* fontCache, const SkSurfaceProps& props,
+                      const GrTextUtils::Paint& paint, SkScalerContextFlags scalerContextFlags);
+
+    private:
+        SkTDArray<char> fFallbackTxt;
+        SkTDArray<SkPoint> fFallbackPos;
+
+        const SkMatrix& fViewMatrix;
+        SkScalar fTextRatio;
+        SkScalar fTextSize;
+        SkScalar fMaxTextSize;
+        SkScalar fScaledFallbackTextSize;
+        SkScalar fMaxScale;
+        bool fUseScaledFallback;
+    };
+
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     // Determines if we need to use fake gamma (and contrast boost):
@@ -104,18 +137,21 @@ private:
                                const SkSurfaceProps&, const GrTextUtils::Paint& paint,
                                SkScalerContextFlags scalerContextFlags, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength, const SkScalar pos[],
-                               int scalarsPerPosition, const SkPoint& offset,
-                               SkScalar textRatio);
+                               int scalarsPerPosition, const SkPoint& offset);
 
-    static void DrawBmpTextAsPaths(GrAtlasTextBlob* blob, int runIndex,
-                                   const GrTextUtils::Paint& paint, const char text[],
+    static void DrawBmpTextAsPaths(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
+                                   const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                                   SkScalerContextFlags scalerContextFlags,
+                                   const SkMatrix& viewMatrix, const char text[],
                                    size_t byteLength, SkScalar x, SkScalar y);
 
-    static void DrawBmpPosTextAsPaths(GrAtlasTextBlob*, int runIndex,
-                                      const SkSurfaceProps& props, const GrTextUtils::Paint& paint,
+    static void DrawBmpPosTextAsPaths(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
+                                      const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                                      SkScalerContextFlags scalerContextFlags,
+                                      const SkMatrix& viewMatrix,
                                       const char text[], size_t byteLength,
                                       const SkScalar pos[], int scalarsPerPosition,
-                                      const SkPoint& offset, SkScalar textRatio);
+                                      const SkPoint& offset);
 
     // functions for appending distance field text
     bool canDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
