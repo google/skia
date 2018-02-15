@@ -561,71 +561,49 @@ static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
     return true;
 }
 
-/**
-  * Variants of SkScalarRoundToInt, identical to SkDScalarRoundToInt except when the input fraction
-  * is 0.5. When SK_RASTERIZE_EVEN_ROUNDING is enabled, we must bias the result before rounding to
-  * account for potential FDot6 rounding edge-cases.
-  */
-#ifdef SK_RASTERIZE_EVEN_ROUNDING
-static const double kRoundBias = 0.5 / SK_FDot6One;
-#else
-static const double kRoundBias = 0.0;
-#endif
+// Bias used for conservative rounding of float rects to int rects, to nudge the irects a little
+// larger, so we don't "think" a path's bounds are inside a clip, when (due to numeric drift in
+// the scan-converter) we might walk beyond the predicted limits.
+static const double kConservativeRoundBias = 0.5 + 0.5 / SK_FDot6One;
 
 /**
-  * Round the value down. This is used to round the top and left of a rectangle,
-  * and corresponds to the way the scan converter treats the top and left edges.
-  */
+ *  Round the value down. This is used to round the top and left of a rectangle,
+ *  and corresponds to the way the scan converter treats the top and left edges.
+ *  It has a slight bias to make the "rounded" int smaller than a normal round, to create a more
+ *  conservative int-bounds (larger) from a float rect.
+ */
 static inline int round_down_to_int(SkScalar x) {
     double xx = x;
-    xx -= 0.5 + kRoundBias;
+    xx -= kConservativeRoundBias;
     return sk_double_saturate2int(ceil(xx));
 }
 
 /**
-  * Round the value up. This is used to round the bottom and right of a rectangle,
-  * and corresponds to the way the scan converter treats the bottom and right edges.
+ *  Round the value up. This is used to round the right and bottom of a rectangle.
+ *  It has a slight bias to make the "rounded" int smaller than a normal round, to create a more
+ *  conservative int-bounds (larger) from a float rect.
   */
 static inline int round_up_to_int(SkScalar x) {
     double xx = x;
-    xx += 0.5 + kRoundBias;
+    xx += kConservativeRoundBias;
     return sk_double_saturate2int(floor(xx));
 }
 
-/**
-  *  Variant of SkRect::round() that explicitly performs the rounding step (i.e. floor(x + 0.5))
-  *  using double instead of SkScalar (float). It does this by calling SkDScalarRoundToInt(),
-  *  which may be slower than calling SkScalarRountToInt(), but gives slightly more accurate
-  *  results. Also rounds top and left using double, flooring when the fraction is exactly 0.5f.
-  *
-  *  e.g.
-  *      SkScalar left = 0.5f;
-  *      int ileft = SkScalarRoundToInt(left);
-  *      SkASSERT(0 == ileft);  // <--- fails
-  *      int ileft = round_down_to_int(left);
-  *      SkASSERT(0 == ileft);  // <--- succeeds
-  *      SkScalar right = 0.49999997f;
-  *      int iright = SkScalarRoundToInt(right);
-  *      SkASSERT(0 == iright);  // <--- fails
-  *      iright = SkDScalarRoundToInt(right);
-  *      SkASSERT(0 == iright);  // <--- succeeds
-  *
-  *
-  *  If using SK_RASTERIZE_EVEN_ROUNDING, we need to ensure we account for edges bounded by this
-  *  rect being rounded to FDot6 format before being later rounded to an integer. For example, a
-  *  value like 0.499 can be below 0.5, but round to 0.5 as FDot6, which would finally round to
-  *  the integer 1, instead of just rounding to 0.
-  *
-  *  To handle this, a small bias of half an FDot6 increment is added before actually rounding to
-  *  an integer value. This simulates the rounding of SkScalarRoundToFDot6 without incurring the
-  *  range loss of converting to FDot6 format first, preserving the integer range for the SkIRect.
-  *  Thus, bottom and right are rounded in this manner (biased up), ensuring the rect is large
-  *  enough.
+/*
+ *  Conservative rounding function, which effectively nudges the int-rect to be slightly larger
+ *  than SkRect::round() might have produced. This is a safety-net for the scan-converter, which
+ *  inspects the returned int-rect, and may disable clipping (for speed) if it thinks all of the
+ *  edges will fit inside the clip's bounds. The scan-converter introduces slight numeric errors
+ *  due to accumulated += of the slope, so this function is used to return a conservatively large
+ *  int-bounds, and thus we will only disable clipping if we're sure the edges will stay in-bounds.
   */
-static void round_asymmetric_to_int(const SkRect& src, SkIRect* dst) {
-    SkASSERT(dst);
-    dst->set(round_down_to_int(src.fLeft), round_down_to_int(src.fTop),
-             round_up_to_int(src.fRight), round_up_to_int(src.fBottom));
+static SkIRect conservative_round_to_int(const SkRect& src) {
+    return {
+        round_down_to_int(src.fLeft),
+        round_down_to_int(src.fTop),
+        round_up_to_int(src.fRight),
+        round_up_to_int(src.fBottom),
+    };
 }
 
 void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
@@ -644,7 +622,7 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         }
         clipPtr = &finiteClip;
     }
-        // don't reference "origClip" any more, just use clipPtr
+    // don't reference "origClip" any more, just use clipPtr
 
 
     SkRect bounds = path.getBounds();
@@ -655,12 +633,8 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         }
         irPreClipped = true;
     }
-    SkIRect ir;
-    // We deliberately call round_asymmetric_to_int() instead of round(), since we can't afford
-    // to generate a bounds that is tighter than the corresponding SkEdges. The edge code basically
-    // converts the floats to fixed, and then "rounds". If we called round() instead of
-    // round_asymmetric_to_int() here, we could generate the wrong ir for values like 0.4999997.
-    round_asymmetric_to_int(bounds, &ir);
+
+    SkIRect ir = conservative_round_to_int(bounds);
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
             blitter->blitRegion(*clipPtr);
