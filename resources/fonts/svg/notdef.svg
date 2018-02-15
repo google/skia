@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- In the colr format should be filled with the current paint. -->
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   viewBox="0 0 158.75 211.66667"
+   height="800"
+   width="600">
+  <g
+     transform="translate(0,-85.333351)"
+     id="layer1">
+    <rect
+       y="97.374527"
+       x="4.3011618"
+       height="195.32433"
+       width="150.42305"
+       id="rect4639"
+       style="fill:none;stroke:#2b0000;stroke-width:6.61458349;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       id="path5186"
+       d="M 14.967094,109.37681 144.05828,283.63654"
+       style="fill:none;stroke:#2b0000;stroke-width:6.61458349;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       id="path5188"
+       d="M 146.19643,107.77319 14.699822,282.83473"
+       style="fill:none;stroke:#2b0000;stroke-width:6.61458349;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
+</svg>
