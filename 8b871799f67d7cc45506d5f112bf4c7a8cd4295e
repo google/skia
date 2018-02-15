@@ -22,6 +22,30 @@
       "revId": "8b871799f67d7cc45506d5f112bf4c7a8cd4295e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "076ba6ac_6a1037ec",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-15T14:04:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ac7836d_debbcc2e",
+      "range": {
+        "startLine": 294,
+        "startChar": 8,
+        "endLine": 295,
+        "endChar": 31
+      },
+      "revId": "8b871799f67d7cc45506d5f112bf4c7a8cd4295e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
