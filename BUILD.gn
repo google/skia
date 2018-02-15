@@ -1278,7 +1278,11 @@ if (skia_enable_tools) {
       "tools/debugger/SkObjectParser.cpp",
       "tools/fonts/SkRandomScalerContext.cpp",
       "tools/fonts/SkTestFontMgr.cpp",
-      "tools/fonts/SkTestScalerContext.cpp",
+      "tools/fonts/SkTestFontMgr.h",
+      "tools/fonts/SkTestSVGTypeface.cpp",
+      "tools/fonts/SkTestSVGTypeface.h",
+      "tools/fonts/SkTestTypeface.cpp",
+      "tools/fonts/SkTestTypeface.h",
       "tools/fonts/sk_tool_utils_font.cpp",
       "tools/picture_utils.cpp",
       "tools/random_parse_path.cpp",
@@ -1298,6 +1302,7 @@ if (skia_enable_tools) {
     }
     deps = [
       ":common_flags",
+      ":experimental_svg_model",
       ":flags",
       "//third_party/libpng",
     ]
@@ -1666,6 +1671,17 @@ if (skia_enable_tools) {
     assert_no_deps = [
       # tool_utils requires the output of this app.
       ":tool_utils",
+    ]
+  }
+
+  test_app("create_test_font_color") {
+    sources = [
+      "tools/fonts/create_test_font_color.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+      ":tool_utils"
     ]
   }
 
