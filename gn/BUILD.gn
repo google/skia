@@ -247,7 +247,7 @@ config("default") {
       "-fno-sanitize-recover=$sanitizers",
       "-fsanitize-blacklist=" + rebase_path("../tools/xsan.blacklist"),
     ]
-    if (!is_win) {
+    if (!is_win && !is_android) {
       cflags += [ "-fno-omit-frame-pointer" ]
       cflags_cc += [ "-stdlib=libc++" ]
       ldflags += [ "-stdlib=libc++" ]
