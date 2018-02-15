@@ -45,7 +45,10 @@ public:
 
     // Forwarded to the wrapped canvas.
     SkISize getBaseLayerSize() const override { return proxy()->getBaseLayerSize(); }
-    GrContext*  getGrContext()       override { return proxy()->getGrContext();     }
+    GrContext*  getGrContext() override { return proxy()->getGrContext();     }
+    GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext() override {
+        return proxy()->internal_private_accessTopLayerRenderTargetContext();
+    }
 
 protected:
     /**
