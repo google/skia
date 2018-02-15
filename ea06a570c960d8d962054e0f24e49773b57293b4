@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abbfc4b5_f69bb772",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-15T01:44:04Z",
+      "side": 1,
+      "message": "If you\u0027re picking Pixel randomly, and this isn\u0027t on the CQ, it would be better to use Nexus5x because we have a lot of them.",
+      "revId": "ea06a570c960d8d962054e0f24e49773b57293b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66dd3390_cab2b260",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-15T01:44:04Z",
+      "side": 1,
+      "message": "Likewise, if there\u0027s not a reason to pick GTX660, let\u0027s go with IntelIris6100 or IntelIris540. GTX660 is significantly over-utilized right now.",
+      "revId": "ea06a570c960d8d962054e0f24e49773b57293b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "292d6fb7_d814dd49",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-15T01:44:04Z",
+      "side": 1,
+      "message": "nit: parens superfluous",
+      "range": {
+        "startLine": 142,
+        "startChar": 7,
+        "endLine": 142,
+        "endChar": 8
+      },
+      "revId": "ea06a570c960d8d962054e0f24e49773b57293b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
