@@ -231,27 +231,19 @@ private:
     bool readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig);
 
     bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height, size_t rowBytes,
-                             GrPixelConfig, DrawPreference*, ReadPixelTempDrawInfo*) override;
+                             GrColorType, DrawPreference*, ReadPixelTempDrawInfo*) override;
 
-    bool onGetWritePixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height, GrPixelConfig,
+    bool onGetWritePixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height, GrColorType,
                               DrawPreference*, WritePixelTempDrawInfo*) override;
 
-    bool onReadPixels(GrSurface*, GrSurfaceOrigin,
-                      int left, int top,
-                      int width, int height,
-                      GrPixelConfig,
-                      void* buffer,
-                      size_t rowBytes) override;
+    bool onReadPixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width, int height,
+                      GrColorType, void* buffer, size_t rowBytes) override;
 
-    bool onWritePixels(GrSurface*, GrSurfaceOrigin,
-                       int left, int top, int width, int height,
-                       GrPixelConfig config,
-                       const GrMipLevel texels[], int mipLevelCount) override;
+    bool onWritePixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width, int height,
+                       GrColorType, const GrMipLevel texels[], int mipLevelCount) override;
 
-    bool onTransferPixels(GrTexture*,
-                          int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
-                          size_t offset, size_t rowBytes) override;
+    bool onTransferPixels(GrTexture*, int left, int top, int width, int height, GrColorType,
+                          GrBuffer* transferBuffer, size_t offset, size_t rowBytes) override;
 
     // Before calling any variation of TexImage, TexSubImage, etc..., call this to ensure that the
     // PIXEL_UNPACK_BUFFER is unbound.

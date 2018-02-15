@@ -142,11 +142,9 @@ public:
      * @return true if the read succeeded, false if not. The read can fail because of an unsupported
      *         pixel configs
      */
-    bool readSurfacePixels(GrSurfaceContext* src,
-                           int left, int top, int width, int height,
-                           GrPixelConfig dstConfig, SkColorSpace* dstColorSpace, void* buffer,
-                           size_t rowBytes = 0,
-                           uint32_t pixelOpsFlags = 0);
+    bool readSurfacePixels(GrSurfaceContext* src, int left, int top, int width, int height,
+                           GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
+                           size_t rowBytes = 0, uint32_t pixelOpsFlags = 0);
 
     /**
      * Writes a rectangle of pixels to a surface.
@@ -164,11 +162,9 @@ public:
      * @return true if the write succeeded, false if not. The write can fail because of an
      *         unsupported combination of surface and src configs.
      */
-    bool writeSurfacePixels(GrSurfaceContext* dst,
-                            int left, int top, int width, int height,
-                            GrPixelConfig srcConfig, SkColorSpace* srcColorSpace, const void* buffer,
-                            size_t rowBytes,
-                            uint32_t pixelOpsFlags = 0);
+    bool writeSurfacePixels(GrSurfaceContext* dst, int left, int top, int width, int height,
+                            GrColorType srcColorType, SkColorSpace* srcColorSpace,
+                            const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
 
     GrBackend getBackend() const { return fContext->fBackend; }
 
