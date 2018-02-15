@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32e0bfa9_bc26cf3a",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-15T19:27:38Z",
+      "side": 1,
+      "message": "I think you want to do something like CommandBuffer, ANGLE, or Vulkan below; i.e.:\nif \u0027NativeFonts\u0027 in bot:\n  configs \u003d [gl_prefix]\n\nIf \"configs\" is empty, dm will only run unit tests.\n\nYou\u0027ll also need to add one of the new tasks to TEST_BUILDERS near the end of this file.",
+      "revId": "240516f772ea27e62f477ba510aabeb84b6f68d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
