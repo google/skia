@@ -22,6 +22,9 @@ static constexpr int32_t Sk32_sat_sub(int32_t a, int32_t b) {
 
 // To avoid UBSAN complaints about 2's compliment overflows
 //
+static constexpr int32_t Sk32_can_overflow_add(int32_t a, int32_t b) {
+    return (int32_t)((uint32_t)a + (uint32_t)b);
+}
 static constexpr int32_t Sk32_can_overflow_sub(int32_t a, int32_t b) {
     return (int32_t)((uint32_t)a - (uint32_t)b);
 }

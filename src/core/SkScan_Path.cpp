@@ -15,6 +15,7 @@
 #include "SkRasterClip.h"
 #include "SkRectPriv.h"
 #include "SkRegion.h"
+#include "SkSafe32.h"
 #include "SkTemplates.h"
 #include "SkTSort.h"
 
@@ -259,8 +260,12 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
                 if (L < R) {
                     blitter->blitH(L, local_top, R - L);
                 }
-                left += dLeft;
-                rite += dRite;
+                // Either/both of these might overflow, since we perform this step even if
+                // (later) we determine that we are done with the edge, and so the computed
+                // left or rite edge will not be used (see update_edge). Use this helper to
+                // silence UBSAN when we perform the add.
+                left = Sk32_can_overflow_add(left, dLeft);
+                rite = Sk32_can_overflow_add(rite, dRite);
                 local_top += 1;
             } while (--count >= 0);
         }
