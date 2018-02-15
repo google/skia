@@ -1392,6 +1392,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         texStorageSupported = version >= GR_GL_VER(3,0) ||
                               ctxInfo.hasExtension("GL_EXT_texture_storage");
     }
+    texStorageSupported = false;
 
     bool texelBufferSupport = this->shaderCaps()->texelBufferSupport();
 
