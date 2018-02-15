@@ -249,6 +249,8 @@ config("default") {
     ]
     if (!is_win) {
       cflags += [ "-fno-omit-frame-pointer" ]
+    }
+    if (is_linux) {
       cflags_cc += [ "-stdlib=libc++" ]
       ldflags += [ "-stdlib=libc++" ]
     }
