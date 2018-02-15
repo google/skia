@@ -22,6 +22,30 @@
       "revId": "ac4b7e06c2f91ebafb4213b53225f33e5ce4aceb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61acb656_0446f825",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-15T13:14:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c80a6d0b_efe82513",
+      "range": {
+        "startLine": 204,
+        "startChar": 27,
+        "endLine": 204,
+        "endChar": 53
+      },
+      "revId": "ac4b7e06c2f91ebafb4213b53225f33e5ce4aceb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
