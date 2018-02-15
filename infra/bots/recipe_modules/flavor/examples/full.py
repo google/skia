@@ -61,6 +61,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Chromebook_GLES',
   'Build-Debian9-Clang-arm-Release-Android_ASAN',
   'Build-Debian9-Clang-arm64-Release-Android_ASAN',
+  'Build-Debian9-Clang-universal-Dev-Android_SKQP',
   'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
   'Build-Debian9-Clang-x86_64-Release-Fast',
