@@ -253,16 +253,21 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
             }
             local_top = local_bot + 1;
         } else {
-            do {
+            for (;;) {
                 int L = SkFixedRoundToInt(left);
                 int R = SkFixedRoundToInt(rite);
                 if (L < R) {
                     blitter->blitH(L, local_top, R - L);
                 }
+                local_top += 1;
+                if (--count < 0) {
+                    break;
+                }
+                // We check count before these adds, to avoid possible int-overflow computing
+                // a left or right value that we won't use anyway. Just to quiet UBSAN.
                 left += dLeft;
                 rite += dRite;
-                local_top += 1;
-            } while (--count >= 0);
+            }
         }
 
         leftE->fX = left;
