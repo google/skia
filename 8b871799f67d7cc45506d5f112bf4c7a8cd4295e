@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ac7836d_debbcc2e",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-15T13:56:59Z",
+      "side": 1,
+      "message": "This doesn\u0027t really make sense to me.  More like this?\n\n# We find that testing sanitizer builds with libc++ uncovers more issues than \n# with the system-provided C++ standard library, which is usually libstdc++.\n# libc++ proactively hooks into sanitizers to help their analyses.\n# We ship a copy of libc++ with our Linux toolchain in /lib.",
+      "range": {
+        "startLine": 294,
+        "startChar": 8,
+        "endLine": 295,
+        "endChar": 31
+      },
+      "revId": "8b871799f67d7cc45506d5f112bf4c7a8cd4295e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
