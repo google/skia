@@ -53,14 +53,16 @@ public:
          */
         kMirror_TileMode,
 
-#if 0
-        /** only draw within the original domain, return 0 everywhere else */
+        /** only draw within the original domain, return transparent-black everywhere else
+         */
         kDecal_TileMode,
-#endif
+
+        kLast_TileMode = kDecal_TileMode
     };
 
+    // DEPRECATED -- use kLast_TileMode instead
     enum {
-        kTileModeCount = kMirror_TileMode + 1
+        kTileModeCount = kLast_TileMode + 1
     };
 
     /**
