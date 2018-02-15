@@ -16,6 +16,23 @@
       "revId": "939ebc006cf912f7b5f1de6d36c3cd7f5445d330",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f769ead_cc6dddd8",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-15T14:38:43Z",
+      "side": 1,
+      "message": "I don\u0027t actually think this is the harmful part.  It\u0027d be the part where we put clang_linux/lib on the library path, right?",
+      "revId": "939ebc006cf912f7b5f1de6d36c3cd7f5445d330",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
