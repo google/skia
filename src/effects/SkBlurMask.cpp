@@ -279,6 +279,9 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
                           const SkRect &src, SkBlurStyle style,
                           SkIPoint *margin, SkMask::CreateMode createMode) {
     int profileSize = SkScalarCeilToInt(6*sigma);
+    if (profileSize <= 0) {
+        return false;   // no blur to compute
+    }
 
     int pad = profileSize/2;
     if (margin) {
