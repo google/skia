@@ -1281,6 +1281,9 @@ if (skia_enable_tools) {
       ":flags",
       "//third_party/libpng",
     ]
+    if (skia_use_expat) {
+      deps += [ ":experimental_svg_model" ]
+    }
     public_deps = [
       "//third_party/jsoncpp",
     ]
@@ -1646,6 +1649,20 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_app("create_test_font_color") {
+    sources = [
+      "tools/fonts/create_test_font_color.cpp",
+    ]
+    deps = [
+      ":skia",
+      ":tool_utils"
+    ]
+    assert_no_deps = [
+      # tool_utils requires the output of this app.
+      #":tool_utils",
+    ]
+  }
+
   test_app("get_images_from_skps") {
     sources = [
       "tools/get_images_from_skps.cpp",
@@ -1964,7 +1981,6 @@ if (skia_enable_tools) {
       ]
       libs = []
 
-      include_dirs = []
       deps = [
         ":experimental_skottie",
         ":experimental_sksg",
