@@ -10,9 +10,14 @@ Compiling Skia with ASAN, UBSAN, or TSAN can be done with the latest version of 
 - TSAN works on Linux and Mac.
 - MSAN works on Linux[1].
 
+We find that testing sanitizer builds with libc++ uncovers more issues than
+with the system-provided C++ standard library, which is usually libstdc++.
+libc++ proactively hooks into sanitizers to help their analyses.
+We ship a copy of libc++ with our Linux toolchain in /lib.
+
 [1]To compile and run with MSAN, an MSAN-instrumented version of libc++ is needed.
 It's generally easiest to run one of the following 2 steps to build/download a recent version
-of Clang and the instrumented libc++.
+of Clang and the instrumented libc++, located in /msan.
 
 Downloading Clang binaries (Googlers Only)
 ------------------------------------------
@@ -63,6 +68,11 @@ Configure and Compile Skia with ASAN
     python tools/git-sync-deps
     bin/gn gen out/asan
     ninja -C out/asan
+
+
+To use the libc++ that comes with the above Clang asset:
+
+    env LD_LIBRARY_PATH=$CLANGDIR/lib out/dm ...
 
 Configure and Compile Skia with TSAN
 ------------------------------------
