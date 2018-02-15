@@ -271,7 +271,6 @@ private:
             }
 
             int currentIndices = tess.numIndices();
-            SkASSERT(currentIndices <= UINT16_MAX);
             if (indexCount + currentIndices > UINT16_MAX) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
