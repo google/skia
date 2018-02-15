@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "d9555111_28816b7f",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-15T15:53:49Z",
+      "side": 1,
+      "message": "Hmm, I suppose we see fewer task failures on NVIDIA vs. Intel, but there are a lot more flaky GMs on NVIDIA.",
+      "parentUuid": "99cb51d0_e848d248",
+      "revId": "ea06a570c960d8d962054e0f24e49773b57293b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "292d6fb7_d814dd49",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 1
