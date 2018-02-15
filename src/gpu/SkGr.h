@@ -152,6 +152,7 @@ bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);
 GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
                                                        const SkMatrix& viewM,
                                                        const SkMatrix& localM,
+                                                       bool sharpenMipmappedTextures,
                                                        bool* doBicubic);
 
 //////////////////////////////////////////////////////////////////////////////
