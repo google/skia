@@ -307,6 +307,7 @@ bool GrContext::init(const GrContextOptions& options) {
 
     fPersistentCache = options.fPersistentCache;
 
+    SkDebugf("%s\n", this->dump().c_str());
     return true;
 }
 
