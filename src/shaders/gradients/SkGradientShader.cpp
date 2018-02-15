@@ -292,9 +292,12 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
     p->append_matrix(alloc, matrix);
     this->appendGradientStages(alloc, p, &postPipeline);
 
-    switch(fTileMode) {
+    switch (fTileMode) {
         case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x_1); break;
         case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x_1); break;
+        case kDecal_TileMode:
+            // TODO: need decal stages
+            // fall-through for now
         case kClamp_TileMode:
             if (!fOrigPos) {
                 // We clamp only when the stops are evenly spaced.
