@@ -75,3 +75,32 @@ bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
     return paint.getMaskFilter() || paint.getPathEffect() ||
            paint.isFakeBoldText() || paint.getStyle() != SkPaint::kFill_Style;
 }
+
+bool GrTextUtils::PathTextIter::next(const SkGlyph** skGlyph, const SkPath** path, SkScalar* xpos) {
+    SkASSERT(skGlyph);
+    SkASSERT(path);
+    SkASSERT(xpos);
+    if (fText < fStop) {
+        const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
+
+        fXPos += (fPrevAdvance + fAutoKern.adjust(glyph)) * fScale;
+        SkASSERT(0 == fXYIndex || 1 == fXYIndex);
+        fPrevAdvance = SkFloatToScalar((&glyph.fAdvanceX)[fXYIndex]);
+
+        if (glyph.fWidth) {
+            if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
+                *skGlyph = &glyph;
+                *path = nullptr;
+            } else {
+                *skGlyph = nullptr;
+                *path = fCache->findPath(glyph);
+            }
+        } else {
+            *skGlyph = nullptr;
+            *path = nullptr;
+        }
+        *xpos = fXPos;
+        return true;
+    }
+    return false;
+}

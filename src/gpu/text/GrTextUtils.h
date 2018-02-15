@@ -13,6 +13,7 @@
 #include "SkColorFilter.h"
 #include "SkPaint.h"
 #include "SkScalar.h"
+#include "SkTextToPathIter.h"
 #include "SkTLazy.h"
 
 class GrAtlasGlyphCache;
@@ -127,6 +128,25 @@ public:
     static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
 
     static bool ShouldDisableLCD(const SkPaint& paint);
+
+    class PathTextIter : SkTextBaseIter {
+    public:
+        PathTextIter(const char text[], size_t length, const SkPaint& paint,
+                     bool applyStrokeAndPathEffects)
+            : SkTextBaseIter(text, length, paint, applyStrokeAndPathEffects) {
+        }
+
+        const SkPaint&  getPaint() const { return fPaint; }
+        SkScalar        getPathScale() const { return fScale; }
+        const char*     getText() const { return fText; }
+
+        /**
+         *  Returns false when all of the text has been consumed
+         *  Will set skGlyph if the maskformat is ARGB, and path otherwise. The other will be null.
+         *  If the glyph is zero-width, both will be null.
+         */
+        bool next(const SkGlyph** skGlyph, const SkPath** path, SkScalar* xpos);
+    };
 };
 
 #endif
