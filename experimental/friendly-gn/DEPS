@@ -1,0 +1,6 @@
+deps = {
+    "third_party/externals/libpng":
+        "https://skia.googlesource.com/third_party/libpng.git@v1.6.33",
+    "third_party/externals/zlib":
+        "https://chromium.googlesource.com/chromium/src/third_party/zlib@e7afdfe128e01ca480a28f757b571957befdd962",
+}

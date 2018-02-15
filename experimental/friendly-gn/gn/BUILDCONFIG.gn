@@ -1,0 +1,92 @@
+declare_args() {
+  dev = false
+  shared = false
+}
+
+declare_args() {
+  asserts = dev
+  optimize = true
+  symbols = dev
+  warnings = dev
+  werror = dev
+}
+
+if (target_cpu == "x86_64" || target_cpu == "x86-64") {
+  target_cpu = "x64"
+}
+if (target_cpu == "wasm") {
+  target_os = "wasm"
+}
+
+if (target_os == "") {
+  target_os = host_os
+}
+if (target_cpu == "") {
+  target_cpu = host_cpu
+}
+
+is_linux = target_os == "linux"
+is_mac = target_os == "mac"
+is_win = target_os == "win"
+
+if (target_cpu == "") {
+  target_cpu = host_cpu
+  if (is_android || is_ios) {
+    target_cpu = "arm64"
+  }
+}
+
+template("component") {
+  _component_mode = "static_library"
+  if (shared) {
+    _component_mode = "shared_library"
+  }
+
+  target(_component_mode, target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+
+default_configs = [
+  "//gn:extra_flags",
+  "//gn:no_asserts",
+  "//gn:no_warnings",
+]
+
+if (asserts) {
+  default_configs -= [ "//gn:no_asserts" ]
+}
+if (optimize) {
+  default_configs += [ "//gn:optimize" ]
+}
+if (symbols) {
+  default_configs += [ "//gn:symbols" ]
+}
+if (warnings) {
+  default_configs += [ "//gn:warnings" ]
+  default_configs -= [ "//gn:no_warnings" ]
+}
+if (werror) {
+  default_configs += [ "//gn:werror" ]
+}
+
+set_defaults("executable") {
+  configs = [ "//gn:executable" ] + default_configs
+}
+set_defaults("source_set") {
+  configs = default_configs
+}
+set_defaults("static_library") {
+  configs = default_configs
+}
+set_defaults("shared_library") {
+  configs = default_configs
+}
+set_defaults("component") {
+  configs = default_configs
+  if (!shared) {
+    complete_static_lib = true
+  }
+}
+
+set_default_toolchain("//gn:gcc_like")

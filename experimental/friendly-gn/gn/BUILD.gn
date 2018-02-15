@@ -1,0 +1,75 @@
+declare_args() {
+  extra_cflags = []
+  extra_cflags_cc = []
+  extra_ldflags = []
+
+  sanitize = ""
+
+  cc_wrapper = ""
+  cc = "cc"
+  cxx = "c++"
+  ar = "ar"
+}
+
+config("executable") {
+  ldflags = [ "-Wl,-rpath,@loader_path/." ]
+}
+config("extra_flags") {
+  cflags = extra_cflags
+  cflags_cc = extra_cflags_cc
+  ldflags = extra_ldflags
+}
+config("no_asserts") {
+  defines = [ "NDEBUG" ]
+}
+config("no_warnings") {
+  cflags = [ "-w" ]
+}
+config("optimize") {
+  cflags = [ "-O3" ]
+}
+config("symbols") {
+  cflags = [ "-g" ]
+}
+config("warnings") {
+  cflags = [ "-Weverything" ]
+}
+config("werror") {
+  cflags = [ "-Werror" ]
+}
+
+toolchain("gcc_like") {
+  tool("cc") {
+    depfile = "{{output}}.d"
+    depsformat = "gcc"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+    ]
+    command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
+  }
+  tool("cxx") {
+    depfile = "{{output}}.d"
+    depsformat = "gcc"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+    ]
+    command = "$cc_wrapper $cxx -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+  }
+  tool("alink") {
+    outputs = [
+      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+    ]
+    default_output_extension = ".a"
+    output_prefix = "lib"
+    command = "rm -f {{output}} && $ar rcs {{output}} {{inputs}}"
+  }
+  tool("link") {
+      outputs = [
+        "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+      ]
+      command = "$cc_wrapper $cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} -o {{output}}"
+    }
+  tool("stamp") {
+    command = "touch {{output}}"
+  }
+}
