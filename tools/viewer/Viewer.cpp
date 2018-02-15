@@ -13,6 +13,7 @@
 #include "SampleSlide.h"
 #include "SkottieSlide.h"
 #include "SKPSlide.h"
+#include "SlideDir.h"
 
 #include "GrContext.h"
 #include "SkCanvas.h"
@@ -556,14 +557,23 @@ void Viewer::initSlides() {
     for (const auto& json : FLAGS_jsons) {
         fSlides.push_back(sk_make_sp<SkottieSlide2>(json));
 
+        SkTArray<sk_sp<Slide>, true> dirSlides;
+
         SkOSFile::Iter it(json.c_str(), ".json");
         SkString jsonName;
         while (it.next(&jsonName)) {
             if (SkCommandLineFlags::ShouldSkip(FLAGS_match, jsonName.c_str())) {
                 continue;
             }
-            fSlides.push_back(sk_make_sp<SkottieSlide>(jsonName, SkOSPath::Join(json.c_str(),
-                                                                                jsonName.c_str())));
+            auto slide = sk_make_sp<SkottieSlide>(jsonName, SkOSPath::Join(json.c_str(),
+                                                                           jsonName.c_str()));
+            dirSlides.push_back(slide);
+            fSlides.push_back(std::move(slide));
+        }
+
+        if (!dirSlides.empty()) {
+            fSlides.push_back(sk_make_sp<SlideDir>(SkStringPrintf("skottie-dir[%s]", json.c_str()),
+                                                   std::move(dirSlides)));
         }
     }
 }
