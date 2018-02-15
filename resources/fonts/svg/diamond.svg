@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- The default glyf will be much smaller than the colr glyf layers. -->
+<svg
+   version="1.1"
+   viewBox="0 0 158.75 211.66667"
+   height="800"
+   width="600">
+  <g
+     transform="translate(0,-85.333351)"
+     id="layer1">
+    <path
+       transform="matrix(1,0,0,1.3773044,0.80180858,-33.549844)"
+       d="m 79.11178,236.39392 c -5.497887,0 -73.0286729,-67.53078 -73.028673,-73.02867 -2e-7,-5.49789 67.530782,-73.028671 73.028669,-73.028672 5.497888,0 73.028674,67.530782 73.028674,73.028672 0,5.49789 -67.530782,73.02867 -73.02867,73.02867 z"
+       id="path5299"
+       style="fill:#ff2a2a;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       transform="matrix(0.60436993,0,0,0.81236352,32.100808,58.741857)"
+       d="m 79.11178,236.39392 c -5.497887,0 -73.0286729,-67.53078 -73.028673,-73.02867 -2e-7,-5.49789 67.530782,-73.028671 73.028669,-73.028672 5.497888,0 73.028674,67.530782 73.028674,73.028672 0,5.49789 -67.530782,73.02867 -73.02867,73.02867 z"
+       id="path5299-5"
+       style="fill:none;stroke:#2b0000;stroke-width:14.19605827;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
+</svg>
