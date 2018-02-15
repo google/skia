@@ -72,7 +72,7 @@ protected:
     friend class GrTextureProxyPriv;
 
     // Deferred version
-    GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit, SkBudgeted,
+    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped, SkBackingFit, SkBudgeted,
                    const void* srcData, size_t srcRowBytes, uint32_t flags);
 
     // Lazy-callback version
