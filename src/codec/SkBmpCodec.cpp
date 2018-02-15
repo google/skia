@@ -268,6 +268,11 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
     // Check for valid dimensions from header
     SkCodec::SkScanlineOrder rowOrder = SkCodec::kBottomUp_SkScanlineOrder;
     if (height < 0) {
+        // We can't negate INT32_MIN.
+        if (height == INT32_MIN) {
+            return kInvalidInput;
+        }
+
         height = -height;
         rowOrder = SkCodec::kTopDown_SkScanlineOrder;
     }
