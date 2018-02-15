@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "90ea0892_98a70168",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-15T19:06:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf5bd1f8_5e8bfcf0",
+      "range": {
+        "startLine": 445,
+        "startChar": 20,
+        "endLine": 445,
+        "endChar": 26
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b76a8ec_6a064c73",
         "filename": "src/gpu/text/GrAtlasTextContext.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1600c88_d59bf869",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-15T19:06:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b76a8ec_6a064c73",
+      "range": {
+        "startLine": 453,
+        "startChar": 3,
+        "endLine": 455,
+        "endChar": 6
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -92,6 +140,30 @@
       "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "394d5375_67e8a07c",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-15T19:06:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3c2ffd_0cb787ce",
+      "range": {
+        "startLine": 476,
+        "startChar": 0,
+        "endLine": 477,
+        "endChar": 32
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -166,6 +238,30 @@
     },
     {
       "key": {
+        "uuid": "9e2e0af0_8adb41f3",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-15T19:06:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b2244cd_1111ae48",
+      "range": {
+        "startLine": 553,
+        "startChar": 25,
+        "endLine": 553,
+        "endChar": 44
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fba7abb8_4e086718",
         "filename": "src/gpu/text/GrAtlasTextContext.cpp",
         "patchSetId": 5
@@ -201,6 +297,30 @@
       "side": 1,
       "message": "I probably could -- I\u0027ll give it a try.",
       "parentUuid": "fba7abb8_4e086718",
+      "range": {
+        "startLine": 903,
+        "startChar": 4,
+        "endLine": 903,
+        "endChar": 25
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65265a31_8b287d55",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-15T19:06:51Z",
+      "side": 1,
+      "message": "I don\u0027t think it will work -- the base class uses a very specific kind of iteration (it\u0027s tailored for DrawText of paths). I could try to write a more general iterator, but I\u0027d rather do that in another change.",
+      "parentUuid": "bf72993c_3647fac4",
       "range": {
         "startLine": 903,
         "startChar": 4,
