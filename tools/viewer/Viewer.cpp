@@ -1003,6 +1003,18 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
     if (GestureDevice::kMouse == fGestureDevice) {
         return false;
     }
+
+    const auto slideMatrix = this->computeMatrix();
+    SkMatrix slideInvMatrix;
+    if (slideMatrix.invert(&slideInvMatrix)) {
+        SkPoint slideMouse = SkPoint::Make(x, y);
+        slideInvMatrix.mapPoints(&slideMouse, 1);
+        if (fSlides[fCurrentSlide]->onMouse(slideMouse.x(), slideMouse.y(), state, 0)) {
+            fWindow->inval();
+            return true;
+        }
+    }
+
     void* castedOwner = reinterpret_cast<void*>(owner);
     switch (state) {
         case Window::kUp_InputState: {

@@ -325,7 +325,7 @@ SkView::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, unsi
         if (!GrCCCoverageProcessor::RenderPassIsCubic(fRenderPass) && 2 == i) {
             continue;
         }
-        if (fabs(x - fPoints[i].x()) < 20 && fabsf(y - fPoints[i].y()) < 20) {
+        if (fabs(x - fPoints[i].x()) < 50 && fabsf(y - fPoints[i].y()) < 50) {
             return new Click(this, i);
         }
     }
