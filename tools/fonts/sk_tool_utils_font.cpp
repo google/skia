@@ -11,7 +11,7 @@
 #include "SkFontStyle.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
-#include "SkTestScalerContext.h"
+#include "SkTestTypeface.h"
 #include "SkUtils.h"
 #include "sk_tool_utils.h"
 
@@ -71,9 +71,12 @@ sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
 
 sk_sp<SkTypeface> emoji_typeface() {
 #if defined(SK_BUILD_FOR_WIN)
+    sk_sp<SkTypeface> typeface = MakeResourceAsTypeface("fonts/colr.ttf");
+    if (typeface) { return typeface; }
+
     sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     const char *colorEmojiFontName = "Segoe UI Emoji";
-    sk_sp<SkTypeface> typeface(fm->matchFamilyStyle(colorEmojiFontName, SkFontStyle()));
+    typeface.reset(fm->matchFamilyStyle(colorEmojiFontName, SkFontStyle()));
     if (typeface) {
         return typeface;
     }
@@ -91,12 +94,15 @@ sk_sp<SkTypeface> emoji_typeface() {
     return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
 
 #else
-    return MakeResourceAsTypeface("fonts/Funkster.ttf");
+    sk_sp<SkTypeface> typeface = MakeResourceAsTypeface("fonts/colr.ttf");
+    if (typeface) { return typeface; }
+    return SkTypeface::MakeFromName("Emoji", SkFontStyle());
 
 #endif
 }
 
 const char* emoji_sample_text() {
+    return "\xF0\x9F\x98\x80" "Hamburgefons";
 #if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     return "\xF0\x9F\x92\xB0" "\xF0\x9F\x8F\xA1" "\xF0\x9F\x8E\x85"  // 💰🏡🎅
            "\xF0\x9F\x8D\xAA" "\xF0\x9F\x8D\x95" "\xF0\x9F\x9A\x80"  // 🍪🍕🚀
@@ -104,7 +110,7 @@ const char* emoji_sample_text() {
            "\xF0\x9F\x93\xA6"                                        // 📦
            "\xF0\x9F\x87\xBA" "\xF0\x9F\x87\xB8" "\xF0\x9F\x87\xA6"; // 🇺🇸🇦
 #else
-    return "Hamburgefons";
+    return "\xF0\x9F\x98\x80" "Hamburgefons";
 #endif
 }
 

@@ -224,6 +224,7 @@ public:
         fontBounds.offset(x, y);
         SkPaint boundsPaint(glyphPaint);
         boundsPaint.setColor(boundsColor);
+        boundsPaint.setStyle(SkPaint::kStroke_Style);
         canvas->drawRect(fontBounds, boundsPaint);
 
         SkPaint::FontMetrics fm;
@@ -282,7 +283,6 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
         paint.setTextSize(100);
-        paint.setStyle(SkPaint::kStroke_Style);
         paint.setTextScaleX(fScaleX);
         paint.setTextSkewX(fSkewX);
 
@@ -299,7 +299,7 @@ protected:
         for (int i = 0; i < count; ++i) {
             sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count() && j < 3; ++j) {
-                paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
+                paint.setTypeface(sk_sp<SkTypeface>(sk_tool_utils::emoji_typeface()));
                 // Fonts with lots of glyphs are interesting, but can take a long time to find
                 // the glyphs which make up the maximum extent.
                 if (paint.getTypeface() && paint.getTypeface()->countGlyphs() < 1000) {
