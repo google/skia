@@ -59,8 +59,8 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Backend_Semaphore
+#Alias Backend_Semaphores
 #Class GrBackendSemaphore
-#Alias GrBackendSemaphores
 ##
 ##
 
@@ -444,7 +444,7 @@ FT_Load_Glyph
 #Topic Number_Types
     #Typedef uint16_t SkGlyphID
     #Typedef ##
-    #Topic Scalar
+    #Subtopic Scalar
     #Alias Scalar
     #Typedef float SkScalar
     #Typedef ##
@@ -690,7 +690,7 @@ FT_Load_Glyph
 
 #Topic Surface_Properties
     #Class SkSurfaceProps
-        #Topic Legacy_Font_Host
+        #Subtopic Legacy_Font_Host
         #Enum InitType
             #Const kLegacyFontHost_InitType 0
             ##
