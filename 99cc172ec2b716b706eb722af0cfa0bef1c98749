@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c684c6fb_be708b40",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-15T23:23:23Z",
+      "side": 1,
+      "message": "You\u0027ll need to do \u0027cd infra/bots; make train\u0027 and commit the new file before this will pass the CQ.",
+      "revId": "99cc172ec2b716b706eb722af0cfa0bef1c98749",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
