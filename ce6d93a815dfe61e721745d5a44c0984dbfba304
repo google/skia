@@ -22,6 +22,30 @@
       "revId": "ce6d93a815dfe61e721745d5a44c0984dbfba304",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2f892e6_ab2b5e1d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-02-15T15:43:29Z",
+      "side": 1,
+      "message": "Thanks! I\u0027m guessing that explains why it didn\u0027t turn into a link etc.",
+      "parentUuid": "fedc29cb_24ed12c3",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 12
+      },
+      "revId": "ce6d93a815dfe61e721745d5a44c0984dbfba304",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
