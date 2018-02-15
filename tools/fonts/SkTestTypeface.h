@@ -5,17 +5,31 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkTestScalerContext_DEFINED
-#define SkTestScalerContext_DEFINED
+#ifndef SkTestTypeface_DEFINED
+#define SkTestTypeface_DEFINED
 
 #include "SkFixed.h"
+#include "SkFontArguments.h"
+#include "SkFontStyle.h"
 #include "SkPaint.h"
-#include "SkPath.h"
 #include "SkRefCnt.h"
-#include "SkTDArray.h"
+#include "SkScalar.h"
 #include "SkTypeface.h"
+#include "SkTypes.h"
 
+#include <memory>
+
+class SkDescriptor;
+class SkFontDescriptor;
+class SkGlyph;
+class SkPath;
+class SkScalerContext;
+class SkStreamAsset;
+class SkString;
 class SkTestFont;
+struct SkAdvancedTypefaceMetrics;
+struct SkScalerContextEffects;
+struct SkScalerContextRec;
 
 struct SkTestFontData {
     const SkScalar* fPoints;
