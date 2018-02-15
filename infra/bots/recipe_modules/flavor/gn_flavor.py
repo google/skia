@@ -284,9 +284,18 @@ with open(sys.argv[1], 'w') as f:
         path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
 
+    if 'MSAN' in extra_tokens:
+      # Find the MSAN-built libc++.
+      ld_library_path.append(clang_linux + '/msan')
+
     if any('SAN' in t for t in extra_tokens):
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
       path.append(clang_linux + '/bin')
+      # We find that testing sanitizer builds with libc++ uncovers more issues
+      # than with the system-provided C++ standard library, which is usually
+      # libstdc++. libc++ proactively hooks into sanitizers to help their
+      # analyses. We ship a copy of libc++ with our Linux toolchain in /lib.
+      ld_library_path.append(clang_linux + '/lib')
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
 
@@ -294,10 +303,6 @@ with open(sys.argv[1], 'w') as f:
       env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
-
-    if 'MSAN' in extra_tokens:
-      # Find the MSAN-built libc++.
-      ld_library_path.append(clang_linux + '/msan')
 
     if 'TSAN' in extra_tokens:
       # We don't care about malloc(), fprintf, etc. used in signal handlers.

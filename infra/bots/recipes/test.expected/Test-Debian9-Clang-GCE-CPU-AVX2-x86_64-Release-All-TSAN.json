@@ -426,6 +426,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
       "SKIA_OUT": "[START_DIR]/out",
       "TSAN_OPTIONS": "report_signal_unsafe=0"
