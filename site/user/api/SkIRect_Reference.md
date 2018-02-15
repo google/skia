@@ -5,11 +5,11 @@ SkIRect Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopic"></a> Subtopic
+## <a name="Overview_Subtopic"></a> Overview Subtopic
 
 | name | description |
 | --- | --- |
-| <a href="#Constructor">Constructor</a> | functions that construct <a href="SkIRect_Reference#SkIRect">SkIRect</a> |
+| <a href="#Constructor">Constructor</a> | functions that construct <a href="#SkIRect">SkIRect</a> |
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Member">Member</a> | member values |
 | <a href="#Operator">Operator</a> | operator overloading methods |
@@ -158,7 +158,7 @@ outset rect isEmpty: false
 
 ### See Also
 
-<a href="#SkIRect_EmptyIRect">EmptyIRect</a> <a href="#SkIRect_isEmpty">isEmpty</a> <a href="#SkIRect_setEmpty">setEmpty</a> <a href="#SkRect_MakeEmpty">SkRect::MakeEmpty</a>
+<a href="#SkIRect_EmptyIRect">EmptyIRect</a> <a href="#SkIRect_isEmpty">isEmpty</a> <a href="#SkIRect_setEmpty">setEmpty</a> <a href="SkRect_Reference#SkRect_MakeEmpty">SkRect::MakeEmpty</a>
 
 ---
 
@@ -199,7 +199,7 @@ all equal
 
 ### See Also
 
-<a href="#SkIRect_MakeSize">MakeSize</a> <a href="#SkIRect_MakeXYWH">MakeXYWH</a> <a href="#SkRect_MakeWH">SkRect::MakeWH</a> <a href="#SkRect_MakeIWH">SkRect::MakeIWH</a>
+<a href="#SkIRect_MakeSize">MakeSize</a> <a href="#SkIRect_MakeXYWH">MakeXYWH</a> <a href="SkRect_Reference#SkRect_MakeWH">SkRect::MakeWH</a> <a href="SkRect_Reference#SkRect_MakeIWH">SkRect::MakeIWH</a>
 
 ---
 
@@ -239,7 +239,7 @@ floor width: 25  height: 35
 
 ### See Also
 
-<a href="#SkIRect_MakeWH">MakeWH</a> <a href="#SkIRect_MakeXYWH">MakeXYWH</a> <a href="#SkRect_Make">SkRect::Make</a><sup><a href="#SkRect_Make_2">[2]</a></sup> <a href="#SkRect_MakeIWH">SkRect::MakeIWH</a>
+<a href="#SkIRect_MakeWH">MakeWH</a> <a href="#SkIRect_MakeXYWH">MakeXYWH</a> <a href="SkRect_Reference#SkRect_Make">SkRect::Make</a><sup><a href="SkRect_Reference#SkRect_Make_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_MakeIWH">SkRect::MakeIWH</a>
 
 ---
 
@@ -285,7 +285,7 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 ### See Also
 
-<a href="#SkIRect_MakeXYWH">MakeXYWH</a> <a href="#SkRect_MakeLTRB">SkRect::MakeLTRB</a>
+<a href="#SkIRect_MakeXYWH">MakeXYWH</a> <a href="SkRect_Reference#SkRect_MakeLTRB">SkRect::MakeLTRB</a>
 
 ---
 
@@ -333,7 +333,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 ### See Also
 
-<a href="#SkIRect_MakeLTRB">MakeLTRB</a> <a href="#SkRect_MakeXYWH">SkRect::MakeXYWH</a>
+<a href="#SkIRect_MakeLTRB">MakeLTRB</a> <a href="SkRect_Reference#SkRect_MakeXYWH">SkRect::MakeXYWH</a>
 
 ---
 
@@ -387,7 +387,7 @@ sorted.fLeft: 10 sorted.left(): 10
 
 ### See Also
 
-<a href="#SkIRect_fLeft">fLeft</a> <a href="#SkIRect_x">x</a> <a href="#SkRect_left">SkRect::left()</a>
+<a href="#SkIRect_fLeft">fLeft</a> <a href="#SkIRect_x">x</a> <a href="SkRect_Reference#SkRect_left">SkRect::left()</a>
 
 ---
 
@@ -420,7 +420,7 @@ sorted.fTop: 5 sorted.top(): 5
 
 ### See Also
 
-<a href="#SkIRect_fTop">fTop</a> <a href="#SkIRect_y">y</a> <a href="#SkRect_top">SkRect::top()</a>
+<a href="#SkIRect_fTop">fTop</a> <a href="#SkIRect_y">y</a> <a href="SkRect_Reference#SkRect_top">SkRect::top()</a>
 
 ---
 
@@ -453,7 +453,7 @@ sorted.fRight: 15 sorted.right(): 15
 
 ### See Also
 
-<a href="#SkIRect_fRight">fRight</a> <a href="#SkRect_right">SkRect::right()</a>
+<a href="#SkIRect_fRight">fRight</a> <a href="SkRect_Reference#SkRect_right">SkRect::right()</a>
 
 ---
 
@@ -486,7 +486,7 @@ sorted.fBottom: 25 sorted.bottom(): 25
 
 ### See Also
 
-<a href="#SkIRect_fBottom">fBottom</a> <a href="#SkRect_bottom">SkRect::bottom()</a>
+<a href="#SkIRect_fBottom">fBottom</a> <a href="SkRect_Reference#SkRect_bottom">SkRect::bottom()</a>
 
 ---
 
@@ -519,7 +519,7 @@ sorted.fLeft: 10 sorted.x(): 10
 
 ### See Also
 
-<a href="#SkIRect_fLeft">fLeft</a> <a href="#SkIRect_left">left</a> <a href="#SkIRect_y">y</a> <a href="#SkRect_x">SkRect::x()</a>
+<a href="#SkIRect_fLeft">fLeft</a> <a href="#SkIRect_left">left</a> <a href="#SkIRect_y">y</a> <a href="SkRect_Reference#SkRect_x">SkRect::x()</a>
 
 ---
 
@@ -552,7 +552,7 @@ sorted.fTop: 5 sorted.y(): 5
 
 ### See Also
 
-<a href="#SkIRect_fTop">fTop</a> <a href="#SkIRect_top">top</a> <a href="#SkIRect_x">x</a> <a href="#SkRect_y">SkRect::y()</a>
+<a href="#SkIRect_fTop">fTop</a> <a href="#SkIRect_top">top</a> <a href="#SkIRect_x">x</a> <a href="SkRect_Reference#SkRect_y">SkRect::y()</a>
 
 ---
 
@@ -585,7 +585,7 @@ large width: -5
 
 ### See Also
 
-<a href="#SkIRect_height">height</a> <a href="#SkIRect_width64">width64</a> <a href="#SkIRect_height64">height64</a> <a href="#SkRect_width">SkRect::width()</a>
+<a href="#SkIRect_height">height</a> <a href="#SkIRect_width64">width64</a> <a href="#SkIRect_height64">height64</a> <a href="SkRect_Reference#SkRect_width">SkRect::width()</a>
 
 ---
 
@@ -614,7 +614,7 @@ width: -5 width64: 4294967291
 
 ### See Also
 
-<a href="#SkIRect_width">width</a> <a href="#SkIRect_height">height</a> <a href="#SkIRect_height64">height64</a> <a href="#SkRect_width">SkRect::width()</a>
+<a href="#SkIRect_width">width</a> <a href="#SkIRect_height">height</a> <a href="#SkIRect_height64">height64</a> <a href="SkRect_Reference#SkRect_width">SkRect::width()</a>
 
 ---
 
@@ -647,7 +647,7 @@ large height: -5
 
 ### See Also
 
-<a href="#SkIRect_width">width</a> <a href="#SkRect_height">SkRect::height()</a>
+<a href="#SkIRect_width">width</a> <a href="SkRect_Reference#SkRect_height">SkRect::height()</a>
 
 ---
 
@@ -676,7 +676,7 @@ height: -5 height64: 4294967291
 
 ### See Also
 
-<a href="#SkIRect_width">width</a> <a href="#SkIRect_height">height</a> <a href="#SkIRect_width64">width64</a> <a href="#SkRect_height">SkRect::height()</a>
+<a href="#SkIRect_width">width</a> <a href="#SkIRect_height">height</a> <a href="#SkIRect_width64">width64</a> <a href="SkRect_Reference#SkRect_height">SkRect::height()</a>
 
 ---
 
@@ -746,7 +746,7 @@ left: -10 right:  11 centerX:   0 div2:   0
 
 ### See Also
 
-<a href="#SkIRect_centerY">centerY</a> <a href="#SkRect_centerX">SkRect::centerX</a>
+<a href="#SkIRect_centerY">centerY</a> <a href="SkRect_Reference#SkRect_centerX">SkRect::centerX</a>
 
 ---
 
@@ -780,7 +780,7 @@ left: 1073741824 right: 1073741826 centerX: -1073741823 safe mid x: 1073741825
 
 ### See Also
 
-<a href="#SkIRect_centerX">centerX</a> <a href="#SkRect_centerY">SkRect::centerY</a>
+<a href="#SkIRect_centerX">centerX</a> <a href="SkRect_Reference#SkRect_centerY">SkRect::centerY</a>
 
 ---
 
@@ -814,7 +814,7 @@ sorted: {20, 40, 20, 50} is empty
 
 ### See Also
 
-<a href="#SkIRect_EmptyIRect">EmptyIRect</a> <a href="#SkIRect_MakeEmpty">MakeEmpty</a> <a href="#SkIRect_sort">sort</a> <a href="#SkRect_isEmpty">SkRect::isEmpty</a>
+<a href="#SkIRect_EmptyIRect">EmptyIRect</a> <a href="#SkIRect_MakeEmpty">MakeEmpty</a> <a href="#SkIRect_sort">sort</a> <a href="SkRect_Reference#SkRect_isEmpty">SkRect::isEmpty</a>
 
 ---
 
@@ -847,7 +847,7 @@ sorted: {20, 40, 20, 50} is empty
 
 ### See Also
 
-<a href="#SkIRect_EmptyIRect">EmptyIRect</a> <a href="#SkIRect_MakeEmpty">MakeEmpty</a> <a href="#SkIRect_sort">sort</a> <a href="#SkRect_isEmpty">SkRect::isEmpty</a>
+<a href="#SkIRect_EmptyIRect">EmptyIRect</a> <a href="#SkIRect_MakeEmpty">MakeEmpty</a> <a href="#SkIRect_sort">sort</a> <a href="SkRect_Reference#SkRect_isEmpty">SkRect::isEmpty</a>
 
 ---
 
@@ -1010,7 +1010,7 @@ rect: {0, 0, 0, 0} is empty
 
 ### See Also
 
-<a href="#SkIRect_MakeEmpty">MakeEmpty</a> <a href="#SkRect_setEmpty">SkRect::setEmpty</a>
+<a href="#SkIRect_MakeEmpty">MakeEmpty</a> <a href="SkRect_Reference#SkRect_setEmpty">SkRect::setEmpty</a>
 
 ---
 
@@ -1053,7 +1053,7 @@ rect2: {3, 4, 1, 2}
 
 ### See Also
 
-<a href="#SkIRect_setLTRB">setLTRB</a> <a href="#SkIRect_setXYWH">setXYWH</a> <a href="#SkRect_set">SkRect::set</a><sup><a href="#SkRect_set_2">[2]</a></sup><sup><a href="#SkRect_set_3">[3]</a></sup><sup><a href="#SkRect_set_4">[4]</a></sup>
+<a href="#SkIRect_setLTRB">setLTRB</a> <a href="#SkIRect_setXYWH">setXYWH</a> <a href="SkRect_Reference#SkRect_set">SkRect::set</a><sup><a href="SkRect_Reference#SkRect_set_2">[2]</a></sup><sup><a href="SkRect_Reference#SkRect_set_3">[3]</a></sup><sup><a href="SkRect_Reference#SkRect_set_4">[4]</a></sup>
 
 ---
 
@@ -1096,7 +1096,7 @@ rect2: {3, 4, 1, 2}
 
 ### See Also
 
-<a href="#SkIRect_set">set</a> <a href="#SkIRect_setXYWH">setXYWH</a> <a href="#SkRect_setLTRB">SkRect::setLTRB</a>
+<a href="#SkIRect_set">set</a> <a href="#SkIRect_setXYWH">setXYWH</a> <a href="SkRect_Reference#SkRect_setLTRB">SkRect::setLTRB</a>
 
 ---
 
@@ -1140,7 +1140,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 ### See Also
 
-<a href="#SkIRect_MakeXYWH">MakeXYWH</a> <a href="#SkIRect_setLTRB">setLTRB</a> <a href="#SkIRect_set">set</a> <a href="#SkRect_setXYWH">SkRect::setXYWH</a>
+<a href="#SkIRect_MakeXYWH">MakeXYWH</a> <a href="#SkIRect_setLTRB">setLTRB</a> <a href="#SkIRect_set">set</a> <a href="SkRect_Reference#SkRect_setXYWH">SkRect::setXYWH</a>
 
 ---
 
@@ -1196,7 +1196,7 @@ rect: 25, 82, 35, 92  isEmpty: false
 
 ### See Also
 
-<a href="#SkIRect_offset">offset</a><sup><a href="#SkIRect_offset_2">[2]</a></sup> <a href="#SkIRect_makeInset">makeInset</a> <a href="#SkIRect_makeOutset">makeOutset</a> <a href="#SkRect_makeOffset">SkRect::makeOffset</a>
+<a href="#SkIRect_offset">offset</a><sup><a href="#SkIRect_offset_2">[2]</a></sup> <a href="#SkIRect_makeInset">makeInset</a> <a href="#SkIRect_makeOutset">makeOutset</a> <a href="SkRect_Reference#SkRect_makeOffset">SkRect::makeOffset</a>
 
 ---
 
@@ -1242,7 +1242,7 @@ rect: 25, 82, 5, 28  isEmpty: true
 
 ### See Also
 
-<a href="#SkIRect_inset">inset</a> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="#SkIRect_makeOutset">makeOutset</a> <a href="#SkRect_makeInset">SkRect::makeInset</a>
+<a href="#SkIRect_inset">inset</a> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="#SkIRect_makeOutset">makeOutset</a> <a href="SkRect_Reference#SkRect_makeInset">SkRect::makeInset</a>
 
 ---
 
@@ -1288,7 +1288,7 @@ rect: -5, 18, 35, 92  isEmpty: false
 
 ### See Also
 
-<a href="#SkIRect_outset">outset</a> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="#SkIRect_makeInset">makeInset</a> <a href="#SkRect_makeOutset">SkRect::makeOutset</a>
+<a href="#SkIRect_outset">outset</a> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="#SkIRect_makeInset">makeInset</a> <a href="SkRect_Reference#SkRect_makeOutset">SkRect::makeOutset</a>
 
 ---
 
@@ -1329,7 +1329,7 @@ rect: 15, 27, 55, 86
 
 ### See Also
 
-<a href="#SkIRect_offsetTo">offsetTo</a> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="#SkRect_offset">SkRect::offset</a><sup><a href="#SkRect_offset_2">[2]</a></sup>
+<a href="#SkIRect_offsetTo">offsetTo</a> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="SkRect_Reference#SkRect_offset">SkRect::offset</a><sup><a href="SkRect_Reference#SkRect_offset_2">[2]</a></sup>
 
 ---
 
@@ -1368,7 +1368,7 @@ rect: 15, 27, 55, 86
 
 ### See Also
 
-<a href="#SkIRect_offsetTo">offsetTo</a> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="#SkRect_offset">SkRect::offset</a><sup><a href="#SkRect_offset_2">[2]</a></sup>
+<a href="#SkIRect_offsetTo">offsetTo</a> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="SkRect_Reference#SkRect_offset">SkRect::offset</a><sup><a href="SkRect_Reference#SkRect_offset_2">[2]</a></sup>
 
 ---
 
@@ -1405,7 +1405,7 @@ rect: 15, 27, 55, 86
 
 ### See Also
 
-<a href="#SkIRect_offset">offset</a><sup><a href="#SkIRect_offset_2">[2]</a></sup> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="#SkIRect_setXYWH">setXYWH</a> <a href="#SkRect_offsetTo">SkRect::offsetTo</a>
+<a href="#SkIRect_offset">offset</a><sup><a href="#SkIRect_offset_2">[2]</a></sup> <a href="#SkIRect_makeOffset">makeOffset</a> <a href="#SkIRect_setXYWH">setXYWH</a> <a href="SkRect_Reference#SkRect_offsetTo">SkRect::offsetTo</a>
 
 ---
 
@@ -1446,7 +1446,7 @@ rect: 15, 27, 45, 60
 
 ### See Also
 
-<a href="#SkIRect_outset">outset</a> <a href="#SkIRect_makeInset">makeInset</a> <a href="#SkRect_inset">SkRect::inset</a>
+<a href="#SkIRect_outset">outset</a> <a href="#SkIRect_makeInset">makeInset</a> <a href="SkRect_Reference#SkRect_inset">SkRect::inset</a>
 
 ---
 
@@ -1487,7 +1487,7 @@ rect: 5, 1, 55, 86
 
 ### See Also
 
-<a href="#SkIRect_inset">inset</a> <a href="#SkIRect_makeOutset">makeOutset</a> <a href="#SkRect_outset">SkRect::outset</a>
+<a href="#SkIRect_inset">inset</a> <a href="#SkIRect_makeOutset">makeOutset</a> <a href="SkRect_Reference#SkRect_outset">SkRect::outset</a>
 
 ---
 
@@ -1611,7 +1611,7 @@ rect: (30, 50, 40, 60) does not contain (30, 60)
 
 ### See Also
 
-<a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a><sup><a href="#SkIRect_containsNoEmptyCheck_2">[2]</a></sup> <a href="#SkRect_contains">SkRect::contains</a><sup><a href="#SkRect_contains_2">[2]</a></sup>
+<a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a><sup><a href="#SkIRect_containsNoEmptyCheck_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_contains">SkRect::contains</a><sup><a href="SkRect_Reference#SkRect_contains_2">[2]</a></sup>
 
 ---
 
@@ -1660,7 +1660,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 ### See Also
 
-<a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a><sup><a href="#SkIRect_containsNoEmptyCheck_2">[2]</a></sup> <a href="#SkRect_contains">SkRect::contains</a><sup><a href="#SkRect_contains_2">[2]</a></sup>
+<a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a><sup><a href="#SkIRect_containsNoEmptyCheck_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_contains">SkRect::contains</a><sup><a href="SkRect_Reference#SkRect_contains_2">[2]</a></sup>
 
 ---
 
@@ -1702,7 +1702,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 ### See Also
 
-<a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a><sup><a href="#SkIRect_containsNoEmptyCheck_2">[2]</a></sup> <a href="#SkRect_contains">SkRect::contains</a><sup><a href="#SkRect_contains_2">[2]</a></sup>
+<a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a><sup><a href="#SkIRect_containsNoEmptyCheck_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_contains">SkRect::contains</a><sup><a href="SkRect_Reference#SkRect_contains_2">[2]</a></sup>
 
 ---
 
@@ -1744,7 +1744,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 ### See Also
 
-<a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a><sup><a href="#SkIRect_containsNoEmptyCheck_2">[2]</a></sup> <a href="#SkRect_contains">SkRect::contains</a><sup><a href="#SkRect_contains_2">[2]</a></sup>
+<a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a><sup><a href="#SkIRect_containsNoEmptyCheck_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_contains">SkRect::contains</a><sup><a href="SkRect_Reference#SkRect_contains_2">[2]</a></sup>
 
 ---
 
@@ -1796,7 +1796,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 ### See Also
 
-<a href="#SkIRect_contains">contains</a><sup><a href="#SkIRect_contains_2">[2]</a></sup><sup><a href="#SkIRect_contains_3">[3]</a></sup><sup><a href="#SkIRect_contains_4">[4]</a></sup> <a href="#SkRect_contains">SkRect::contains</a><sup><a href="#SkRect_contains_2">[2]</a></sup>
+<a href="#SkIRect_contains">contains</a><sup><a href="#SkIRect_contains_2">[2]</a></sup><sup><a href="#SkIRect_contains_3">[3]</a></sup><sup><a href="#SkIRect_contains_4">[4]</a></sup> <a href="SkRect_Reference#SkRect_contains">SkRect::contains</a><sup><a href="SkRect_Reference#SkRect_contains_2">[2]</a></sup>
 
 ---
 
@@ -1838,7 +1838,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 ### See Also
 
-<a href="#SkIRect_contains">contains</a><sup><a href="#SkIRect_contains_2">[2]</a></sup><sup><a href="#SkIRect_contains_3">[3]</a></sup><sup><a href="#SkIRect_contains_4">[4]</a></sup> <a href="#SkRect_contains">SkRect::contains</a><sup><a href="#SkRect_contains_2">[2]</a></sup>
+<a href="#SkIRect_contains">contains</a><sup><a href="#SkIRect_contains_2">[2]</a></sup><sup><a href="#SkIRect_contains_3">[3]</a></sup><sup><a href="#SkIRect_contains_4">[4]</a></sup> <a href="SkRect_Reference#SkRect_contains">SkRect::contains</a><sup><a href="SkRect_Reference#SkRect_contains_2">[2]</a></sup>
 
 ---
 
@@ -1881,7 +1881,7 @@ intersection: 30, 60, 50, 80
 
 ### See Also
 
-<a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> <a href="#SkIRect_join">join</a><sup><a href="#SkIRect_join_2">[2]</a></sup> <a href="#SkRect_intersect">SkRect::intersect</a><sup><a href="#SkRect_intersect_2">[2]</a></sup><sup><a href="#SkRect_intersect_3">[3]</a></sup>
+<a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> <a href="#SkIRect_join">join</a><sup><a href="#SkIRect_join_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_intersect">SkRect::intersect</a><sup><a href="SkRect_Reference#SkRect_intersect_2">[2]</a></sup><sup><a href="SkRect_Reference#SkRect_intersect_3">[3]</a></sup>
 
 ---
 
@@ -1923,7 +1923,7 @@ intersection: 30, 60, 50, 80
 
 ### See Also
 
-<a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> <a href="#SkIRect_join">join</a><sup><a href="#SkIRect_join_2">[2]</a></sup> <a href="#SkRect_intersect">SkRect::intersect</a><sup><a href="#SkRect_intersect_2">[2]</a></sup><sup><a href="#SkRect_intersect_3">[3]</a></sup>
+<a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> <a href="#SkIRect_join">join</a><sup><a href="#SkIRect_join_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_intersect">SkRect::intersect</a><sup><a href="SkRect_Reference#SkRect_intersect_2">[2]</a></sup><sup><a href="SkRect_Reference#SkRect_intersect_3">[3]</a></sup>
 
 ---
 
@@ -1966,7 +1966,7 @@ intersection: 30, 60, 50, 80
 
 ### See Also
 
-<a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_intersect">intersect</a><sup><a href="#SkIRect_intersect_2">[2]</a></sup><sup><a href="#SkIRect_intersect_3">[3]</a></sup> <a href="#SkIRect_join">join</a><sup><a href="#SkIRect_join_2">[2]</a></sup> <a href="#SkRect_intersect">SkRect::intersect</a><sup><a href="#SkRect_intersect_2">[2]</a></sup><sup><a href="#SkRect_intersect_3">[3]</a></sup>
+<a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_intersect">intersect</a><sup><a href="#SkIRect_intersect_2">[2]</a></sup><sup><a href="#SkIRect_intersect_3">[3]</a></sup> <a href="#SkIRect_join">join</a><sup><a href="#SkIRect_join_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_intersect">SkRect::intersect</a><sup><a href="SkRect_Reference#SkRect_intersect_2">[2]</a></sup><sup><a href="SkRect_Reference#SkRect_intersect_3">[3]</a></sup>
 
 ---
 
@@ -2017,7 +2017,7 @@ intersection: 30, 60, 50, 80
 
 ### See Also
 
-<a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> <a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_join">join</a><sup><a href="#SkIRect_join_2">[2]</a></sup> <a href="#SkRect_intersect">SkRect::intersect</a><sup><a href="#SkRect_intersect_2">[2]</a></sup><sup><a href="#SkRect_intersect_3">[3]</a></sup>
+<a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> <a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_join">join</a><sup><a href="#SkIRect_join_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_intersect">SkRect::intersect</a><sup><a href="SkRect_Reference#SkRect_intersect_2">[2]</a></sup><sup><a href="SkRect_Reference#SkRect_intersect_3">[3]</a></sup>
 
 ---
 
@@ -2058,7 +2058,7 @@ intersection
 
 ### See Also
 
-<a href="#SkIRect_IntersectsNoEmptyCheck">IntersectsNoEmptyCheck</a> <a href="#SkIRect_intersect">intersect</a><sup><a href="#SkIRect_intersect_2">[2]</a></sup><sup><a href="#SkIRect_intersect_3">[3]</a></sup> <a href="#SkRect_intersect">SkRect::intersect</a><sup><a href="#SkRect_intersect_2">[2]</a></sup><sup><a href="#SkRect_intersect_3">[3]</a></sup>
+<a href="#SkIRect_IntersectsNoEmptyCheck">IntersectsNoEmptyCheck</a> <a href="#SkIRect_intersect">intersect</a><sup><a href="#SkIRect_intersect_2">[2]</a></sup><sup><a href="#SkIRect_intersect_3">[3]</a></sup> <a href="SkRect_Reference#SkRect_intersect">SkRect::intersect</a><sup><a href="SkRect_Reference#SkRect_intersect_2">[2]</a></sup><sup><a href="SkRect_Reference#SkRect_intersect_3">[3]</a></sup>
 
 ---
 
@@ -2099,7 +2099,7 @@ intersection
 
 ### See Also
 
-<a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_intersect">intersect</a><sup><a href="#SkIRect_intersect_2">[2]</a></sup><sup><a href="#SkIRect_intersect_3">[3]</a></sup> <a href="#SkRect_intersect">SkRect::intersect</a><sup><a href="#SkRect_intersect_2">[2]</a></sup><sup><a href="#SkRect_intersect_3">[3]</a></sup>
+<a href="#SkIRect_Intersects">Intersects</a> <a href="#SkIRect_intersect">intersect</a><sup><a href="#SkIRect_intersect_2">[2]</a></sup><sup><a href="#SkIRect_intersect_3">[3]</a></sup> <a href="SkRect_Reference#SkRect_intersect">SkRect::intersect</a><sup><a href="SkRect_Reference#SkRect_intersect_2">[2]</a></sup><sup><a href="SkRect_Reference#SkRect_intersect_3">[3]</a></sup>
 
 ---
 
@@ -2153,7 +2153,7 @@ join: 10, 20, 55, 65
 
 ### See Also
 
-<a href="#SkIRect_set">set</a> <a href="#SkRect_join">SkRect::join</a><sup><a href="#SkRect_join_2">[2]</a></sup>
+<a href="#SkIRect_set">set</a> <a href="SkRect_Reference#SkRect_join">SkRect::join</a><sup><a href="SkRect_Reference#SkRect_join_2">[2]</a></sup>
 
 ---
 
@@ -2188,7 +2188,7 @@ join: 10, 20, 55, 65
 
 ### See Also
 
-<a href="#SkIRect_set">set</a> <a href="#SkRect_join">SkRect::join</a><sup><a href="#SkRect_join_2">[2]</a></sup>
+<a href="#SkIRect_set">set</a> <a href="SkRect_Reference#SkRect_join">SkRect::join</a><sup><a href="SkRect_Reference#SkRect_join_2">[2]</a></sup>
 
 ---
 
@@ -2224,7 +2224,7 @@ sorted: 20, 10, 30, 50
 
 ### See Also
 
-<a href="#SkIRect_makeSorted">makeSorted</a> <a href="#SkRect_sort">SkRect::sort</a>
+<a href="#SkIRect_makeSorted">makeSorted</a> <a href="SkRect_Reference#SkRect_sort">SkRect::sort</a>
 
 ---
 
@@ -2258,7 +2258,7 @@ sorted: 20, 10, 30, 50
 
 ### See Also
 
-<a href="#SkIRect_sort">sort</a> <a href="#SkRect_makeSorted">SkRect::makeSorted</a>
+<a href="#SkIRect_sort">sort</a> <a href="SkRect_Reference#SkRect_makeSorted">SkRect::makeSorted</a>
 
 ---
 

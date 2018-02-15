@@ -59,10 +59,14 @@ generate this on output.
 # ------------------------------------------------------------------------------
 #Subtopic Color_Type
 #Line # incomplete ##
-#Alias Native_Color_Type
-#Substitute native SkColorType
 #Alias Color_Type
 #Alias Color_Types
+
+#Subtopic Native
+#Alias Native_Color_Type
+#Substitute native SkColorType
+##
+
 #Enum SkColorType
 #Line # incomplete ##
 

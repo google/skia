@@ -11,21 +11,21 @@
     "code": "void draw(SkCanvas* canvas) {\n    const char* verbNames[] = { \"move\", \"line\", \"quad\", \"conic\", \"cubic\", \"close\", \"done\" };\n    const int pointCount[]  = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };\n    SkPath path;\n    path.conicTo(20, 30, 50, 60, 1);\n    SkPath::Iter iter(path, false);\n    SkPath::Verb verb;\n    do {\n       SkPoint points[4];\n       verb = iter.next(points);\n       SkDebugf(\"%s \", verbNames[(int) verb]);\n       for (int i = 0; i < pointCount[(int) verb]; ++i) {\n            SkDebugf(\"{%g, %g}, \", points[i].fX, points[i].fY);\n       }\n       if (SkPath::kConic_Verb == verb) {\n           SkDebugf(\"weight = %g\", iter.conicWeight());\n       }\n       SkDebugf(\"\\n\");\n    } while (SkPath::kDone_Verb != verb);\n}\n",
     "hash": "2aadded3d20dfef34d1c8abe28c7bc8d",
     "file": "SkPath_Reference",
-    "name": "Weight",
+    "name": "Conic_Weight",
         "stdout": "move {0, 0}, \\nquad {0, 0}, {20, 30}, {50, 60}, \\ndone \\n"
     },
         "Path_Conic_Weight_a": {
     "code": "void draw(SkCanvas* canvas) {\n    const char* verbNames[] = { \"move\", \"line\", \"quad\", \"conic\", \"cubic\", \"close\", \"done\" };\n    const int pointCount[]  = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };\n    SkPath path;\n    path.arcTo(20, 0, 20, 20, 20);\n    SkPath::Iter iter(path, false);\n    SkPath::Verb verb;\n    do {\n       SkPoint points[4];\n       verb = iter.next(points);\n       SkDebugf(\"%s \", verbNames[(int) verb]);\n       for (int i = 0; i < pointCount[(int) verb]; ++i) {\n            SkDebugf(\"{%g, %g}, \", points[i].fX, points[i].fY);\n       }\n       if (SkPath::kConic_Verb == verb) {\n           SkDebugf(\"weight = %g\", iter.conicWeight());\n       }\n       SkDebugf(\"\\n\");\n    } while (SkPath::kDone_Verb != verb);\n}\n",
     "hash": "e88f554efacfa9f75f270fb1c0add5b4",
     "file": "SkPath_Reference",
-    "name": "Weight_2",
+    "name": "Conic_Weight_2",
         "stdout": "move {0, 0}, \\nconic {0, 0}, {20, 0}, {20, 20}, weight = 0.707107\\ndone \\n"
     },
         "Path_Conic_Weight_b": {
     "code": "void draw(SkCanvas* canvas) {\n    const char* verbNames[] = { \"move\", \"line\", \"quad\", \"conic\", \"cubic\", \"close\", \"done\" };\n    const int pointCount[]  = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };\n    SkPath path;\n    path.conicTo(20, 0, 20, 20, SK_ScalarInfinity);\n    SkPath::Iter iter(path, false);\n    SkPath::Verb verb;\n    do {\n       SkPoint points[4];\n       verb = iter.next(points);\n       SkDebugf(\"%s \", verbNames[(int) verb]);\n       for (int i = 0; i < pointCount[(int) verb]; ++i) {\n            SkDebugf(\"{%g, %g}, \", points[i].fX, points[i].fY);\n       }\n       if (SkPath::kConic_Verb == verb) {\n           SkDebugf(\"weight = %g\", iter.conicWeight());\n       }\n       SkDebugf(\"\\n\");\n    } while (SkPath::kDone_Verb != verb);\n}\n",
     "hash": "6fb11419e99297fe2fe666c296117fb9",
     "file": "SkPath_Reference",
-    "name": "Weight_3",
+    "name": "Conic_Weight_3",
         "stdout": "move {0, 0}, \\nline {0, 0}, {20, 0}, \\nline {20, 0}, {20, 20}, \\ndone \\n"
     },
         "SkAutoCanvasRestore_restore": {
@@ -3452,7 +3452,7 @@
     "height": 64,
     "hash": "62848df605af6258653d9e16b27d8f7f",
     "file": "SkPath_Reference",
-    "name": "Zero_Length"
+    "name": "Contour_Zero_Length"
 },
     "Path_Contour_a": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(8);\n    SkPath path;\n    path.moveTo(36, 48);\n    path.quadTo(66, 88, 120, 36);\n    canvas->drawPath(path, paint);\n    path.close();\n    canvas->translate(0, 50);\n    canvas->drawPath(path, paint);\n}\n",

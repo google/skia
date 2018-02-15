@@ -2069,7 +2069,7 @@ public:
     static constexpr const char* kOperators = "Operator";
     static constexpr const char* kOverview = "Overview";
     static constexpr const char* kRelatedFunctions = "Related_Function";
-    static constexpr const char* kSubtopics = "Subtopic";
+    static constexpr const char* kSubtopics = "Overview_Subtopic";
 
 private:
     enum class TableState {

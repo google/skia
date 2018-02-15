@@ -5,11 +5,11 @@ SkIPoint16 Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopic"></a> Subtopic
+## <a name="Overview_Subtopic"></a> Overview Subtopic
 
 | name | description |
 | --- | --- |
-| <a href="#Constructor">Constructor</a> | functions that construct <a href="SkIPoint16_Reference#SkIPoint16">SkIPoint16</a> |
+| <a href="#Constructor">Constructor</a> | functions that construct <a href="#SkIPoint16">SkIPoint16</a> |
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Member">Member</a> | member values |
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
@@ -92,7 +92,7 @@ pt1.fY == pt2.fY
 
 ### See Also
 
-<a href="#SkIPoint16_set">set</a> <a href="#SkPoint_iset">SkPoint::iset()</a><sup><a href="#SkPoint_iset_2">[2]</a></sup> <a href="#SkIPoint_Make">SkIPoint::Make</a>
+<a href="#SkIPoint16_set">set</a> <a href="SkPoint_Reference#SkPoint_iset">SkPoint::iset()</a><sup><a href="SkPoint_Reference#SkPoint_iset_2">[2]</a></sup> <a href="SkIPoint_Reference#SkIPoint_Make">SkIPoint::Make</a>
 
 ---
 
@@ -130,7 +130,7 @@ pt1.fX == pt1.x()
 
 ### See Also
 
-<a href="#SkIPoint16_y">y</a> <a href="#SkIPoint_x">SkIPoint::x()</a>
+<a href="#SkIPoint16_y">y</a> <a href="SkIPoint_Reference#SkIPoint_x">SkIPoint::x()</a>
 
 ---
 
@@ -161,7 +161,7 @@ pt1.fY == pt1.y()
 
 ### See Also
 
-<a href="#SkIPoint16_x">x</a> <a href="#SkPoint_y">SkPoint::y()</a> <a href="#SkIPoint_y">SkIPoint::y()</a>
+<a href="#SkIPoint16_x">x</a> <a href="SkPoint_Reference#SkPoint_y">SkPoint::y()</a> <a href="SkIPoint_Reference#SkIPoint_y">SkIPoint::y()</a>
 
 ---
 
@@ -204,7 +204,7 @@ pt1.fY == pt2.fY
 
 ### See Also
 
-<a href="#SkIPoint16_Make">Make</a> <a href="#SkPoint_set">SkPoint::set</a>
+<a href="#SkIPoint16_Make">Make</a> <a href="SkPoint_Reference#SkPoint_set">SkPoint::set</a>
 
 ---
 

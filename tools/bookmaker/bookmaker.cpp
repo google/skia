@@ -188,13 +188,31 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 definition = rootDefinition;
                 definition->fFileName = fFileName;
                 definition->fContentStart = fChar;
-                definition->fName = typeNameBuilder[0];
-                Definition* parent = fParent;
-                while (parent && MarkType::kTopic != parent->fMarkType
-                        && MarkType::kSubtopic != parent->fMarkType) {
-                    parent = parent->fParent;
+                if (MarkType::kTopic == markType) {
+                    if (fParent) {
+                        return this->reportError<bool>("#Topic must be root");
+                    }
+                    // topic name is unappended
+                    definition->fName = typeNameBuilder[0];
+                } else {
+                    if (!fParent) {
+                        return this->reportError<bool>("#Subtopic may not be root");
+                    }
+                    Definition* parent = fParent;
+                    while (MarkType::kTopic != parent->fMarkType && MarkType::kSubtopic != parent->fMarkType) {
+                        parent = parent->fParent;
+                        if (!parent) {
+                            // subtopic must have subtopic or topic in parent chain
+                            return this->reportError<bool>("#Subtopic missing parent");
+                        }
+                    }
+                    if (MarkType::kSubtopic == parent->fMarkType) {
+                        // subtopic prepends parent subtopic name, but not parent topic name
+                        definition->fName = parent->fName + '_';
+                    }
+                    definition->fName += typeNameBuilder[0];
+                    definition->fFiddle = parent->fFiddle + '_';
                 }
-                definition->fFiddle = parent ? parent->fFiddle + '_' : "";
                 definition->fFiddle += Definition::NormalizedName(typeNameBuilder[0]);
                 this->setAsParent(definition);
             }
@@ -399,6 +417,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     return this->reportError<bool>("duplicate alias");
                 }
                 fAliasMap[alias] = definition;
+                definition->fFiddle = definition->fParent->fFiddle;
 			}
 			else if (MarkType::kLine == markType) {
 				const char* nextLF = this->strnchr('\n', this->fEnd);

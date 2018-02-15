@@ -569,8 +569,9 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
         // try with a prefix
         if ('k' == ref[0]) {
             for (auto const& iter : fBmhParser.fEnumMap) {
-                if (iter.second.find(ref, RootDefinition::AllowParens::kYes)) {
-                    return &iter.second;
+                auto def = iter.second.find(ref, RootDefinition::AllowParens::kYes);
+                if (def) {
+                    return def;
                 }
             }
             if (fEnumClass) {
@@ -650,37 +651,41 @@ string MdOut::linkName(const Definition* ref) const {
 // def should not include SkXXX_
 string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         const string& ref, BmhParser::Resolvable resolvable) const {
-	string buildup;
+    string buildup;
+    string refName;
     const string* str = &def->fFiddle;
     SkASSERT(str->length() > 0);
-    size_t under = str->find('_');
-    const Definition* curRoot = fRoot;
-    string classPart = string::npos != under ? str->substr(0, under) : *str;
-    bool classMatch = curRoot->fName == classPart;
-    while (curRoot->fParent) {
-        curRoot = curRoot->fParent;
-        classMatch |= curRoot->fName == classPart;
+    string classPart = *str;
+    bool globalEnumMember = false;
+    if (MarkType::kAlias == def->fMarkType) {
+        def = def->fParent;
+        SkASSERT(def);
+        SkASSERT(MarkType::kSubtopic == def->fMarkType ||MarkType::kTopic == def->fMarkType);
     }
-    const Definition* defRoot;
-    const Definition* temp = def;
-    do {
-        defRoot = temp;
-        if (!(temp = temp->fParent)) {
-            break;
+    if (MarkType::kSubtopic == def->fMarkType) {
+        const Definition* topic = def->topicParent();
+        SkASSERT(topic);
+        classPart = topic->fName;
+        refName = def->fName;
+    } else if (MarkType::kTopic == def->fMarkType) {
+        refName = def->fName;
+    } else {
+        if ('k' == (*str)[0] && string::npos != str->find("_Sk")) {
+            globalEnumMember = true;
+        } else {
+            SkASSERT("Sk" == str->substr(0, 2) || "SK" == str->substr(0, 2)
+                    // FIXME: kitchen sink catch below, need to do better
+                    || string::npos != def->fFileName.find("undocumented"));
+            size_t under = str->find('_');
+            classPart = string::npos != under ? str->substr(0, under) : *str;
         }
-        classMatch |= temp != defRoot && temp->fName == classPart;
-    } while (true);
-    string namePart = string::npos != under ? str->substr(under + 1, str->length()) : *str;
+        refName = def->fFiddle;
+    }
+    bool classMatch = fRoot->fFileName == def->fFileName;
     SkASSERT(fRoot);
     SkASSERT(fRoot->fFileName.length());
-    if (classMatch) {
-        buildup = "#";
-        if (*str != classPart && "Sk" == classPart.substr(0, 2)) {
-            buildup += classPart + "_";
-        }
-        buildup += namePart;
-    } else {
-        string filename = defRoot->asRoot()->fFileName;
+    if (!classMatch) {
+        string filename = def->fFileName;
         if (filename.substr(filename.length() - 4) == ".bmh") {
             filename = filename.substr(0, filename.length() - 4);
         }
@@ -688,15 +693,18 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         while (start > 0 && (isalnum(filename[start - 1]) || '_' == filename[start - 1])) {
             --start;
         }
-        buildup = filename.substr(start) + "#" + (classMatch ? namePart : *str);
+        buildup = filename.substr(start);
     }
+    buildup += "#" + refName;
     if (MarkType::kParam == def->fMarkType) {
         const Definition* parent = def->fParent;
         SkASSERT(MarkType::kMethod == parent->fMarkType);
         buildup = '#' + parent->fFiddle + '_' + ref;
     }
     string refOut(ref);
-    std::replace(refOut.begin(), refOut.end(), '_', ' ');
+    if (!globalEnumMember) {
+        std::replace(refOut.begin(), refOut.end(), '_', ' ');
+    }
     if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)) {
         refOut = refOut.substr(0, refOut.length() - 2);
     }
@@ -719,7 +727,6 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
 					found = true;
 				}
 			}
-
 		}
 		if (!found) {
 			SkDebugf("");  // convenient place to set a breakpoint
