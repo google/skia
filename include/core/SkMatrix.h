@@ -17,7 +17,7 @@ class SkString;
 
 /** \class SkMatrix
     SkMatrix holds a 3x3 matrix for transforming coordinates. This allows mapping
-    points and vectors with translation, scaling, skewing, rotation, and
+    SkPoint and vectors with translation, scaling, skewing, rotation, and
     perspective.
 
     SkMatrix elements are in row major order. SkMatrix does not have a constructor,
@@ -317,44 +317,44 @@ public:
     }
 
     /** Returns scale factor multiplied by x input, contributing to x output.
-        With mapPoints(), scales points along the x-axis.
+        With mapPoints(), scales SkPoint along the x-axis.
 
         @return  horizontal scale factor
     */
     SkScalar getScaleX() const { return fMat[kMScaleX]; }
 
     /** Returns scale factor multiplied by y input, contributing to y output.
-        With mapPoints(), scales points along the y-axis.
+        With mapPoints(), scales SkPoint along the y-axis.
 
         @return  vertical scale factor
     */
     SkScalar getScaleY() const { return fMat[kMScaleY]; }
 
     /** Returns scale factor multiplied by x input, contributing to y output.
-        With mapPoints(), skews points along the y-axis.
-        Skew x and y together can rotate points.
+        With mapPoints(), skews SkPoint along the y-axis.
+        Skew x and y together can rotate SkPoint.
 
         @return  vertical skew factor
     */
     SkScalar getSkewY() const { return fMat[kMSkewY]; }
 
     /** Returns scale factor multiplied by y input, contributing to x output.
-        With mapPoints(), skews points along the x-axis.
-        Skew x and y together can rotate points.
+        With mapPoints(), skews SkPoint along the x-axis.
+        Skew x and y together can rotate SkPoint.
 
         @return  horizontal scale factor
     */
     SkScalar getSkewX() const { return fMat[kMSkewX]; }
 
     /** Returns translation contributing to x output.
-        With mapPoints(), moves points along the x-axis.
+        With mapPoints(), moves SkPoint along the x-axis.
 
         @return  horizontal translation factor
     */
     SkScalar getTranslateX() const { return fMat[kMTransX]; }
 
     /** Returns translation contributing to y output.
-        With mapPoints(), moves points along the y-axis.
+        With mapPoints(), moves SkPoint along the y-axis.
 
         @return  vertical translation factor
     */
@@ -510,7 +510,7 @@ public:
     */
     void set9(const SkScalar buffer[9]);
 
-    /** Sets SkMatrix to identity; which has no effect on mapped points. Sets SkMatrix to:
+    /** Sets SkMatrix to identity; which has no effect on mapped SkPoint. Sets SkMatrix to:
 
             | 1 0 0 |
             | 0 1 0 |
@@ -521,7 +521,7 @@ public:
     */
     void reset();
 
-    /** Sets SkMatrix to identity; which has no effect on mapped points. Sets SkMatrix to:
+    /** Sets SkMatrix to identity; which has no effect on mapped SkPoint. Sets SkMatrix to:
 
             | 1 0 0 |
             | 0 1 0 |
@@ -1142,13 +1142,13 @@ public:
 
         If count is zero, sets SkMatrix to identity and returns true.
         If count is one, sets SkMatrix to translate and returns true.
-        If count is two or more, sets SkMatrix to map points if possible; returns false
+        If count is two or more, sets SkMatrix to map SkPoint if possible; returns false
         if SkMatrix cannot be constructed. If count is four, SkMatrix may include
         perspective.
 
-        @param src    points to map from
-        @param dst    points to map to
-        @param count  number of points in src and dst
+        @param src    SkPoint to map from
+        @param dst    SkPoint to map to
+        @param count  number of SkPoint in src and dst
         @return       true if SkMatrix was constructed successfully
     */
     bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count);
@@ -1213,7 +1213,7 @@ public:
     void setAffine(const SkScalar affine[6]);
 
     /** Maps src SkPoint array of length count to dst SkPoint array of equal or greater
-        length. Points are mapped by multiplying each SkPoint by SkMatrix. Given:
+        length. SkPoint are mapped by multiplying each SkPoint by SkMatrix. Given:
 
                      | A B C |        | x |
             Matrix = | D E F |,  pt = | y |
@@ -1234,9 +1234,9 @@ public:
 
         src and dst may point to the same storage.
 
-        @param dst    storage for mapped points
-        @param src    points to transform
-        @param count  number of points to transform
+        @param dst    storage for mapped SkPoint
+        @param src    SkPoint to transform
+        @param count  number of SkPoint to transform
     */
     void mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
         SkASSERT((dst && src && count > 0) || 0 == count);
@@ -1245,7 +1245,7 @@ public:
         this->getMapPtsProc()(*this, dst, src, count);
     }
 
-    /** Maps pts SkPoint array of length count in place. Points are mapped by multiplying
+    /** Maps pts SkPoint array of length count in place. SkPoint are mapped by multiplying
         each SkPoint by SkMatrix. Given:
 
                      | A B C |        | x |
@@ -1265,8 +1265,8 @@ public:
             Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
                           |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 
-        @param pts    storage for mapped points
-        @param count  number of points to transform
+        @param pts    storage for mapped SkPoint
+        @param count  number of SkPoint to transform
     */
     void mapPoints(SkPoint pts[], int count) const {
         this->mapPoints(pts, pts, count);
@@ -1440,7 +1440,7 @@ public:
 
         Returned value is the same as calling rectStaysRect().
 
-        @param dst  storage for bounds of mapped points
+        @param dst  storage for bounds of mapped SkPoint
         @param src  SkRect to map
         @return     true if dst is equivalent to mapped src
     */
@@ -1458,7 +1458,7 @@ public:
         return this->mapRect(rect, *rect);
     }
 
-    /** Maps four corners of rect to dst. Points are mapped by multiplying each
+    /** Maps four corners of rect to dst. SkPoint are mapped by multiplying each
         rect corner by SkMatrix. rect corner is processed in this order:
         (rect.fLeft, rect.fTop), (rect.fRight, rect.fTop), (rect.fRight, rect.fBottom),
         (rect.fLeft, rect.fBottom).
@@ -1480,7 +1480,7 @@ public:
             Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
                           |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 
-        @param dst   storage for mapped corner points
+        @param dst   storage for mapped corner SkPoint
         @param rect  SkRect to map
     */
     void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const {
@@ -1493,7 +1493,7 @@ public:
         elements other than scale or translate: asserts if SK_DEBUG is defined;
         otherwise, results are undefined.
 
-        @param dst  storage for bounds of mapped points
+        @param dst  storage for bounds of mapped SkPoint
         @param src  SkRect to map
     */
     void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const;
@@ -1532,7 +1532,7 @@ public:
         Returns false when the sign of zero values is the different; when one
         matrix has positive zero value and the other has negative zero value.
 
-        Returns true even when both matrices contain NaN.
+        Returns true even when both SkMatrix contain NaN.
 
         NaN never equals any value, including itself. To improve performance, NaN values
         are treated as bit patterns that are equal if their bit patterns are equal.
@@ -1550,7 +1550,7 @@ public:
 
         @param a  SkMatrix to compare
         @param b  SkMatrix to compare
-        @return   true if m and SkMatrix are numerically equal
+        @return   true if SkMatrix a and SkMatrix b are numerically equal
     */
     friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b);
 
@@ -1560,7 +1560,7 @@ public:
 
         @param a  SkMatrix to compare
         @param b  SkMatrix to compare
-        @return   true if m and SkMatrix are numerically not equal
+        @return   true if SkMatrix a and SkMatrix b are numerically not equal
     */
     friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b) {
         return !(a == b);

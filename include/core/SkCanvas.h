@@ -153,11 +153,7 @@ public:
     */
     SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr);
 
-    /** Construct a canvas that draws into device.
-        Used by child classes of SkCanvas.
-
-        @param device  specifies a device for the canvas to draw into
-        @return        SkCanvas that can be used to draw into device
+    /** To be deprecated soon.
     */
     explicit SkCanvas(SkBaseDevice* device);
 
@@ -203,8 +199,8 @@ public:
     */
     SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props);
 
-    /** Draw saved layers, if any.
-        Free up resources used by SkCanvas.
+    /** Draws saved layer, if any.
+        Frees up resources used by SkCanvas.
     */
     virtual ~SkCanvas();
 
@@ -358,7 +354,7 @@ public:
         Caller must allocate pixel storage in pixmap if needed.
 
         Pixel values are converted only if SkColorType and SkAlphaType
-        do not match. Only pixels within both source and destination rects
+        do not match. Only pixels within both source and destination SkRect
         are copied. pixmap pixels contents outside SkRect intersection are unchanged.
 
         Pass negative values for srcX or srcY to offset pixels across or down pixmap.
@@ -434,8 +430,8 @@ public:
 
         Does not copy, and returns false if:
         - Source and destination rectangles do not intersect.
-        - pixels could not be converted to this->imageInfo().colorType() or
-        this->imageInfo().alphaType().
+        - pixels could not be converted to SkCanvas imageInfo().colorType() or
+        imageInfo().alphaType().
         - SkCanvas pixels are not writable; for instance, SkCanvas is document-based.
         - rowBytes is too small to contain one row of pixels.
 
@@ -472,8 +468,8 @@ public:
         Does not copy, and returns false if:
         - Source and destination rectangles do not intersect.
         - bitmap does not have allocated pixels.
-        - bitmap pixels could not be converted to this->imageInfo().colorType() or
-        this->imageInfo().alphaType().
+        - bitmap pixels could not be converted to SkCanvas imageInfo().colorType() or
+        imageInfo().alphaType().
         - SkCanvas pixels are not writable; for instance, SkCanvas is document based.
         - bitmap pixels are inaccessible; for instance, bitmap wraps a texture.
 
@@ -550,7 +546,7 @@ public:
 
     /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms),
         and allocates a SkBitmap for subsequent drawing.
-        lcd text is preserved when the layer is drawn to the prior layer.
+        SkPaint lcd text is preserved when the layer is drawn to the prior layer.
 
         Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
         and draws layer.
@@ -567,8 +563,8 @@ public:
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
-        Draw text on an opaque background so that lcd text blends correctly with the
-        prior layer. lcd text drawn on a background with transparency may result in
+        Draw text on an opaque background so that SkPaint lcd text blends correctly with the
+        prior layer. SkPaint lcd text drawn on a background with transparency may result in
         incorrect blending.
 
         @param bounds  hint to limit the size of layer; may be nullptr
@@ -614,7 +610,7 @@ public:
         kInitWithPrevious_SaveLayerFlag       = 1 << 2,
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-        /** to be deprecated: bug.skia.org/2440 */
+        /** To be deprecated soon. */
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
 #endif
     };
@@ -1117,9 +1113,9 @@ public:
 
         If mode is kPoints_PointMode, the shape of point drawn depends on paint
         SkPaint::Cap. If paint is set to SkPaint::kRound_Cap, each point draws a
-        circle of diameter SkPaint stroke width. If paint is set to SkPaint::kSquare_Cap
+        circle of diameter SkPaint paint stroke width. If paint is set to SkPaint::kSquare_Cap
         or SkPaint::kButt_Cap, each point draws a square of width and height
-        SkPaint stroke width.
+        SkPaint paint stroke width.
 
         If mode is kLines_PointMode, each pair of points draws a line segment.
         One line is drawn for every two points; each point is used once. If count is odd,
@@ -1128,7 +1124,7 @@ public:
         If mode is kPolygon_PointMode, each adjacent pair of points draws a line segment.
         count minus one lines are drawn; the first and last point are used once.
 
-        Each line segment respects paint SkPaint::Cap and SkPaint stroke width.
+        Each line segment respects paint SkPaint::Cap and SkPaint paint stroke width.
         SkPaint::Style is ignored, as if were set to SkPaint::kStroke_Style.
 
         Always draws each element one at a time; is not affected by
@@ -1146,8 +1142,8 @@ public:
 
         The shape of point drawn depends on paint SkPaint::Cap.
         If paint is set to SkPaint::kRound_Cap, draw a circle of diameter
-        SkPaint stroke width. If paint is set to SkPaint::kSquare_Cap or SkPaint::kButt_Cap,
-        draw a square of width and height SkPaint stroke width.
+        SkPaint paint stroke width. If paint is set to SkPaint::kSquare_Cap or SkPaint::kButt_Cap,
+        draw a square of width and height SkPaint paint stroke width.
         SkPaint::Style is ignored, as if were set to SkPaint::kStroke_Style.
 
         @param x      left edge of circle or square
@@ -1160,8 +1156,8 @@ public:
 
         The shape of point drawn depends on paint SkPaint::Cap.
         If paint is set to SkPaint::kRound_Cap, draw a circle of diameter
-        SkPaint stroke width. If paint is set to SkPaint::kSquare_Cap or SkPaint::kButt_Cap,
-        draw a square of width and height SkPaint stroke width.
+        SkPaint paint stroke width. If paint is set to SkPaint::kSquare_Cap or SkPaint::kButt_Cap,
+        draw a square of width and height SkPaint paint stroke width.
         SkPaint::Style is ignored, as if were set to SkPaint::kStroke_Style.
 
         @param p      top-left edge of circle or square
@@ -1172,7 +1168,7 @@ public:
     }
 
     /** Draws line segment from (x0, y0) to (x1, y1) using clip, SkMatrix, and SkPaint paint.
-        In paint: SkPaint stroke width describes the line thickness;
+        In paint: SkPaint paint stroke width describes the line thickness;
         SkPaint::Cap draws the end rounded or square;
         SkPaint::Style is ignored, as if were set to SkPaint::kStroke_Style.
 
@@ -1185,7 +1181,7 @@ public:
     void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint);
 
     /** Draws line segment from p0 to p1 using clip, SkMatrix, and SkPaint paint.
-        In paint: SkPaint stroke width describes the line thickness;
+        In paint: SkPaint paint stroke width describes the line thickness;
         SkPaint::Cap draws the end rounded or square;
         SkPaint::Style is ignored, as if were set to SkPaint::kStroke_Style.
 
@@ -1199,7 +1195,7 @@ public:
 
     /** Draw SkRect rect using clip, SkMatrix, and SkPaint paint.
         In paint: SkPaint::Style determines if rectangle is stroked or filled;
-        if stroked, SkPaint stroke width describes the line thickness, and
+        if stroked, SkPaint paint stroke width describes the line thickness, and
         SkPaint::Join draws the corners rounded or square.
 
         @param rect   rectangle to draw
@@ -1209,7 +1205,7 @@ public:
 
     /** Draw SkIRect rect using clip, SkMatrix, and SkPaint paint.
         In paint: SkPaint::Style determines if rectangle is stroked or filled;
-        if stroked, SkPaint stroke width describes the line thickness, and
+        if stroked, SkPaint paint stroke width describes the line thickness, and
         SkPaint::Join draws the corners rounded or square.
 
         @param rect   rectangle to draw
@@ -1223,7 +1219,7 @@ public:
 
     /** Draw SkRegion region using clip, SkMatrix, and SkPaint paint.
         In paint: SkPaint::Style determines if rectangle is stroked or filled;
-        if stroked, SkPaint stroke width describes the line thickness, and
+        if stroked, SkPaint paint stroke width describes the line thickness, and
         SkPaint::Join draws the corners rounded or square.
 
         @param region  region to draw
@@ -1233,7 +1229,7 @@ public:
 
     /** Draw oval oval using clip, SkMatrix, and SkPaint.
         In paint: SkPaint::Style determines if oval is stroked or filled;
-        if stroked, SkPaint stroke width describes the line thickness.
+        if stroked, SkPaint paint stroke width describes the line thickness.
 
         @param oval   SkRect bounds of oval
         @param paint  SkPaint stroke or fill, blend, color, and so on, used to draw
@@ -1242,7 +1238,7 @@ public:
 
     /** Draw SkRRect rrect using clip, SkMatrix, and SkPaint paint.
         In paint: SkPaint::Style determines if rrect is stroked or filled;
-        if stroked, SkPaint stroke width describes the line thickness.
+        if stroked, SkPaint paint stroke width describes the line thickness.
 
         rrect may represent a rectangle, circle, oval, uniformly rounded rectangle, or
         may have any combination of positive non-square radii for the four corners.
@@ -1256,7 +1252,7 @@ public:
         using clip, SkMatrix, and SkPaint paint.
         outer must contain inner or the drawing is undefined.
         In paint: SkPaint::Style determines if SkRRect is stroked or filled;
-        if stroked, SkPaint stroke width describes the line thickness.
+        if stroked, SkPaint paint stroke width describes the line thickness.
         If stroked and SkRRect corner has zero length radii, SkPaint::Join can
         draw corners rounded or square.
 
@@ -1273,7 +1269,7 @@ public:
     /** Draw circle at (cx, cy) with radius using clip, SkMatrix, and SkPaint paint.
         If radius is zero or less, nothing is drawn.
         In paint: SkPaint::Style determines if circle is stroked or filled;
-        if stroked, SkPaint stroke width describes the line thickness.
+        if stroked, SkPaint paint stroke width describes the line thickness.
 
         @param cx      circle center on the x-axis
         @param cy      circle center on the y-axis
@@ -1285,7 +1281,7 @@ public:
     /** Draw circle at center with radius using clip, SkMatrix, and SkPaint paint.
         If radius is zero or less, nothing is drawn.
         In paint: SkPaint::Style determines if circle is stroked or filled;
-        if stroked, SkPaint stroke width describes the line thickness.
+        if stroked, SkPaint paint stroke width describes the line thickness.
 
         @param center  circle center
         @param radius  half the diameter of circle
@@ -1322,7 +1318,7 @@ public:
         SkMatrix, and SkPaint paint.
 
         In paint: SkPaint::Style determines if SkRRect is stroked or filled;
-        if stroked, SkPaint stroke width describes the line thickness.
+        if stroked, SkPaint paint stroke width describes the line thickness.
         If rx or ry are less than zero, they are treated as if they are zero.
         If rx plus ry exceeds rect width or rect height, radii are scaled down to fit.
         If rx and ry are zero, SkRRect is drawn as SkRect and if stroked is affected by
@@ -1340,7 +1336,7 @@ public:
 
         In paint: SkPaint::Style determines if SkRRect is stroked or filled:
         if filled, SkPath::FillType determines whether path contour describes inside or
-        outside of fill; if stroked, SkPaint stroke width describes the line thickness,
+        outside of fill; if stroked, SkPaint paint stroke width describes the line thickness,
         SkPaint::Cap describes line ends, and SkPaint::Join describes how
         corners are drawn.
 
@@ -1749,7 +1745,7 @@ public:
                         const SkPaint* paint = nullptr);
 
     /** \struct SkCanvas::Lattice
-        Lattice divides SkBitmap or SkImage into a rectangular grid.
+        SkCanvas::Lattice divides SkBitmap or SkImage into a rectangular grid.
         Grid entries on even columns and even rows are fixed; these entries are
         always drawn at their original size if the destination is large enough.
         If the destination side is too small to hold the fixed entries, all fixed
@@ -1822,7 +1818,7 @@ public:
 
     /** Draw SkBitmap bitmap stretched proportionally to fit into SkRect dst.
 
-        Lattice lattice divides bitmap into a rectangular grid.
+        SkCanvas::Lattice lattice divides bitmap into a rectangular grid.
         Each intersection of an even-numbered row and column is fixed; like the corners
         of drawBitmapNine(), fixed lattice elements never scale larger than their initial
         size and shrink proportionately when all fixed elements exceed the bitmap
@@ -1850,7 +1846,7 @@ public:
 
     /** Draw SkImage image stretched proportionally to fit into SkRect dst.
 
-        Lattice lattice divides image into a rectangular grid.
+        SkCanvas::Lattice lattice divides image into a rectangular grid.
         Each intersection of an even-numbered row and column is fixed; like the corners
         of drawBitmapNine(), fixed lattice elements never scale larger than their initial
         size and shrink proportionately when all fixed elements exceed the bitmap
@@ -1881,9 +1877,9 @@ public:
         text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
         UTF-8.
 
-        x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
+        x and y meaning depends on SkPaint::Align and SkPaint paint vertical text; by default
         text draws left to right, positioning the first glyph left side bearing at x
-        and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
+        and its baseline at y. Text size is affected by SkMatrix and SkPaint paint text size.
 
         All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
@@ -1905,9 +1901,9 @@ public:
         as UTF-8. Other values of SkPaint::TextEncoding are unlikely to produce the desired
         results, since zero bytes may be embedded in the string.
 
-        x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
+        x and y meaning depends on SkPaint::Align and SkPaint paint vertical text; by default
         string draws left to right, positioning the first glyph left side bearing at x
-        and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
+        and its baseline at y. Text size is affected by SkMatrix and SkPaint paint text size.
 
         All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
@@ -1933,9 +1929,9 @@ public:
         as UTF-8. Other values of SkPaint::TextEncoding are unlikely to produce the desired
         results, since zero bytes may be embedded in the string.
 
-        x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
+        x and y meaning depends on SkPaint::Align and SkPaint paint vertical text; by default
         string draws left to right, positioning the first glyph left side bearing at x
-        and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
+        and its baseline at y. Text size is affected by SkMatrix and SkPaint paint text size.
 
         All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
@@ -1954,10 +1950,10 @@ public:
         described by byteLength of text.
 
         text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
-        UTF-8. pos elements' meaning depends on SkPaint::Align and SkPaint vertical text;
+        UTF-8. pos elements' meaning depends on SkPaint::Align and SkPaint paint vertical text;
         by default each glyph left side bearing is positioned at x and its
         baseline is positioned at y. Text size is affected by SkMatrix and
-        SkPaint text size.
+        SkPaint paint text size.
 
         All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
@@ -1979,10 +1975,10 @@ public:
         must match the number of glyphs described by byteLength of text.
 
         text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
-        UTF-8. xpos elements' meaning depends on SkPaint::Align and SkPaint vertical text;
+        UTF-8. xpos elements' meaning depends on SkPaint::Align and SkPaint paint vertical text;
         by default each glyph left side bearing is positioned at an xpos element and
         its baseline is positioned at constY. Text size is affected by SkMatrix and
-        SkPaint text size.
+        SkPaint paint text size.
 
         All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
@@ -2010,9 +2006,9 @@ public:
         than the path length, the excess text is clipped.
 
         text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
-        UTF-8. Origin meaning depends on SkPaint::Align and SkPaint vertical text; by
+        UTF-8. Origin meaning depends on SkPaint::Align and SkPaint paint vertical text; by
         default text positions the first glyph left side bearing at origin x and its
-        baseline at origin y. Text size is affected by SkMatrix and SkPaint text size.
+        baseline at origin y. Text size is affected by SkMatrix and SkPaint paint text size.
 
         All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
@@ -2037,9 +2033,9 @@ public:
         than the path length, the excess text is clipped.
 
         text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
-        UTF-8. Origin meaning depends on SkPaint::Align and SkPaint vertical text; by
+        UTF-8. Origin meaning depends on SkPaint::Align and SkPaint paint vertical text; by
         default text positions the first glyph left side bearing at origin x and its
-        baseline at origin y. Text size is affected by SkMatrix and SkPaint text size.
+        baseline at origin y. Text size is affected by SkMatrix and SkPaint paint text size.
 
         All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
@@ -2080,10 +2076,10 @@ public:
     /** Draw SkTextBlob blob at (x, y), using clip, SkMatrix, and SkPaint paint.
 
         blob contains glyphs, their positions, and paint attributes specific to text:
-        SkTypeface, SkPaint text size, SkPaint text scale x, SkPaint text skew x,
-        SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
-        font embedded bitmaps, full hinting spacing, lcd text, linear text,
-        subpixel text, and SkPaint vertical text.
+        SkTypeface, SkPaint paint text size, SkPaint paint text scale x, SkPaint paint text skew x,
+        SkPaint::Align, SkPaint::Hinting, SkPaint anti-alias, SkPaint paint fake bold,
+        SkPaint font embedded bitmaps, SkPaint full hinting spacing, SkPaint lcd text, SkPaint linear text,
+        SkPaint subpixel text, and SkPaint paint vertical text.
 
         SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
 
@@ -2100,10 +2096,10 @@ public:
     /** Draw SkTextBlob blob at (x, y), using clip, SkMatrix, and SkPaint paint.
 
         blob contains glyphs, their positions, and paint attributes specific to text:
-        SkTypeface, SkPaint text size, SkPaint text scale x, SkPaint text skew x,
-        SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
-        font embedded bitmaps, full hinting spacing, lcd text, linear text,
-        subpixel text, and SkPaint vertical text.
+        SkTypeface, SkPaint paint text size, SkPaint paint text scale x, SkPaint paint text skew x,
+        SkPaint::Align, SkPaint::Hinting, SkPaint anti-alias, SkPaint paint fake bold,
+        SkPaint font embedded bitmaps, SkPaint full hinting spacing, SkPaint lcd text, SkPaint linear text,
+        SkPaint subpixel text, and SkPaint paint vertical text.
 
         SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
 
@@ -2199,8 +2195,8 @@ public:
         as Coons_Patch texture; SkBlendMode mode combines color colors and SkShader if
         both are provided.
 
-        SkPoint array cubics specifies four cubics starting at the top-left corner,
-        in clockwise order, sharing every fourth point. The last cubic ends at the
+        SkPoint array cubics specifies four SkPath cubics starting at the top-left corner,
+        in clockwise order, sharing every fourth point. The last SkPath cubic ends at the
         first point.
 
         Color array color associates colors with corners in top-left, top-right,
@@ -2209,7 +2205,7 @@ public:
         If paint contains SkShader, SkPoint array texCoords maps SkShader as texture to
         corners in top-left, top-right, bottom-right, bottom-left order.
 
-        @param cubics     SkPath cubic array, sharing common points
+        @param cubics     SkPath path cubic array, sharing common points
         @param colors     color array, one for each corner
         @param texCoords  SkPoint array of texture coordinates, mapping SkShader to corners;
                           may be nullptr
@@ -2219,7 +2215,7 @@ public:
     void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
 
-    /** Draws cubic Coons_Patch: the interpolation of four cubics with shared corners,
+    /** Draws SkPath cubic Coons_Patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture coordinate, with each corner.
 
         Coons_Patch uses clip and SkMatrix, paint SkShader, SkColorFilter,
@@ -2227,8 +2223,8 @@ public:
         as Coons_Patch texture; SkBlendMode mode combines color colors and SkShader if
         both are provided.
 
-        SkPoint array cubics specifies four cubics starting at the top-left corner,
-        in clockwise order, sharing every fourth point. The last cubic ends at the
+        SkPoint array cubics specifies four SkPath cubics starting at the top-left corner,
+        in clockwise order, sharing every fourth point. The last SkPath cubic ends at the
         first point.
 
         Color array color associates colors with corners in top-left, top-right,
@@ -2237,7 +2233,7 @@ public:
         If paint contains SkShader, SkPoint array texCoords maps SkShader as texture to
         corners in top-left, top-right, bottom-right, bottom-left order.
 
-        @param cubics     SkPath cubic array, sharing common points
+        @param cubics     SkPath path cubic array, sharing common points
         @param colors     color array, one for each corner
         @param texCoords  SkPoint array of texture coordinates, mapping SkShader to corners;
                           may be nullptr
@@ -2249,7 +2245,7 @@ public:
     }
 
     /** Draw a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
-        paint uses anti-alias, color alpha, SkColorFilter, SkImageFilter, and SkBlendMode
+        paint uses SkPaint anti-alias, color alpha, SkColorFilter, SkImageFilter, and SkBlendMode
         to draw, if present. For each entry in the array, SkRect tex locates sprite in
         atlas, and SkRSXform xform transforms it into destination space.
 
@@ -2272,7 +2268,7 @@ public:
                    const SkPaint* paint);
 
     /** Draw a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
-        paint uses anti-alias, color alpha, SkColorFilter, SkImageFilter, and SkBlendMode
+        paint uses SkPaint anti-alias, color alpha, SkColorFilter, SkImageFilter, and SkBlendMode
         to draw, if present. For each entry in the array, SkRect tex locates sprite in
         atlas, and SkRSXform xform transforms it into destination space.
 
@@ -2297,7 +2293,7 @@ public:
     }
 
     /** Draw a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
-        paint uses anti-alias, color alpha, SkColorFilter, SkImageFilter, and SkBlendMode
+        paint uses SkPaint anti-alias, color alpha, SkColorFilter, SkImageFilter, and SkBlendMode
         to draw, if present. For each entry in the array, SkRect tex locates sprite in
         atlas, and SkRSXform xform transforms it into destination space.
 
@@ -2318,7 +2314,7 @@ public:
     }
 
     /** Draw a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
-        paint uses anti-alias, color alpha, SkColorFilter, SkImageFilter, and SkBlendMode
+        paint uses SkPaint anti-alias, color alpha, SkColorFilter, SkImageFilter, and SkBlendMode
         to draw, if present. For each entry in the array, SkRect tex locates sprite in
         atlas, and SkRSXform xform transforms it into destination space.
 
@@ -2365,7 +2361,7 @@ public:
     */
     void drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y);
 
-    /** Associate SkRect on SkCanvas when an annotation; a key-value pair, where the key is
+    /** Associate SkRect on SkCanvas with an annotation; a key-value pair, where the key is
         a null-terminated utf8 string, and optional value is stored as SkData.
 
         Only some canvas implementations, such as recording to SkPicture, or drawing to
@@ -2394,11 +2390,11 @@ public:
     //////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-    /** Legacy call to be deprecated.
+    /** To be deprecated soon.
     */
     SkDrawFilter* getDrawFilter() const;
 
-    /** Legacy call to be deprecated.
+    /** To be deprecated soon.
     */
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter);
 #endif
@@ -2774,7 +2770,7 @@ private:
 class SkAutoCanvasRestore : SkNoncopyable {
 public:
 
-    /** Preserves SkCanvas save count. Optionally saves SkCanvas clip and SkMatrix.
+    /** Preserves SkCanvas save count. Optionally saves SkCanvas canvas clip and SkCanvas canvas matrix.
 
         @param canvas  SkCanvas to guard
         @param doSave  call SkCanvas::save()
