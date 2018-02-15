@@ -1953,6 +1953,7 @@ if (skia_enable_tools) {
         "tools/viewer/SampleSlide.cpp",
         "tools/viewer/SkottieSlide.cpp",
         "tools/viewer/SkottieSlide2.cpp",
+        "tools/viewer/SlideDir.cpp",
         "tools/viewer/StatsLayer.cpp",
         "tools/viewer/Viewer.cpp",
       ]
