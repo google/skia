@@ -640,9 +640,6 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
 
 // walk children and output complete method doxygen description
 void IncludeWriter::methodOut(const Definition* method, const Definition& child) {
-    if (string::npos != method->fName.find("scalePixels")) {
-        SkDebugf("");
-    }
     if (fPendingMethod) {
         fIndent -= 4;
         fPendingMethod = false;
@@ -1781,15 +1778,8 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                         MarkType::kEnumClass == parent->fMarkType) {
                     if (parent->fParent != fRootTopic) {
                         substitute = parent->fName;
-                        size_t under = undername.find('_');
-                        if (string::npos != under) {
-                            string secondHalf(&undername[under],
-                                    (size_t) (undername.length() - under));
-                            substitute += ConvertRef(secondHalf, false);
-                        } else {
-                            substitute += ' ';
-                            substitute += ConvertRef(undername, false);
-                        }
+                        substitute += ' ';
+                        substitute += ConvertRef(undername, false);
                     } else {
                         substitute += ConvertRef(undername, first);
                     }
@@ -1800,9 +1790,6 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
     // Ensure first word after period is capitalized if substitute is lower cased.
     if (first && isupper(start[0]) && substitute.length() > 0 && islower(substitute[0])) {
         substitute[0] = start[0];
-    }
-    if (undername == "Color_Type" && substitute == "") {
-        SkDebugf("");
     }
     return substitute;
 }
@@ -1858,9 +1845,6 @@ int IncludeWriter::lookupReference(const PunctuationState punctuation, const Wor
         if (Word::kFirst != word && '_' != last) {
             temp = ConvertRef(resolved, false);
         }
-    }
-    if (resolved == "Color_Type" && temp == "color type") {
-        SkDebugf("");
     }
     if (temp.length()) {
         if (start > lastWrite) {
