@@ -1,0 +1,8 @@
+use_relative_paths = True  # I have no idea what this is.
+
+deps = {
+    "third_party/externals/libpng":
+        "https://skia.googlesource.com/third_party/libpng.git@v1.6.33",
+    "third_party/externals/skcms":
+        "https://skia.googlesource.com/skcms@0e69310d6c33f2a6cc1e465d96f3005365875c0b",
+}

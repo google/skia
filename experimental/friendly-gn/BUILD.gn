@@ -1,0 +1,95 @@
+declare_args() {
+  use_skcms = dev
+  build_skcms = true
+
+  use_zlib = dev
+  build_zlib = dev
+}
+declare_args() {
+  use_libpng = dev && use_zlib
+  build_libpng = dev
+
+  enable_codec = dev
+  enable_pdf = dev && use_zlib
+  enable_transform = use_skcms
+}
+
+config("codec_enabled") {
+  defines = [ "CODEC_ENABLED" ]
+}
+source_set("codec") {
+  if (enable_codec) {
+    public_configs = [ ":codec_enabled" ]
+
+    defines = []
+    deps = []
+    sources = [
+      "codec.cc",
+      "codec_gif.cc",
+    ]
+
+    if (use_libpng) {
+      defines += [ "USE_LIBPNG" ]
+      deps += [ ":libpng" ]
+      sources += [ "codec_png.cc" ]
+    }
+  }
+}
+
+config("pdf_enabled") {
+  defines = [ "PDF_ENABLED" ]
+}
+source_set("pdf") {
+  if (enable_pdf) {
+    public_configs = [ ":pdf_enabled" ]
+
+    defines = []
+    deps = [
+      ":zlib",
+    ]
+    sources = [
+      "pdf.cc",
+    ]
+  }
+}
+
+config("transform_enabled") {
+  defines = [ "TRANSFORM_ENABLED" ]
+}
+source_set("transform") {
+  if (enable_transform) {
+    public_configs = [ ":pdf_enabled" ]
+
+    defines = []
+    deps = [
+      ":skcms",
+    ]
+    sources = [
+      "transform.cc",
+    ]
+  }
+}
+
+component("libskia") {
+  sources = [
+    "core.cc",
+  ]
+
+  deps = [
+    ":codec",
+    ":pdf",
+    ":transform",
+  ]
+}
+
+source_set("libpng") {
+}
+
+source_set("skcms") {
+  public = [
+    "third_party/externals/skcms/skcms.h",
+  ]
+  sources = [
+    "third_party/externals/skcms/skcms.c",
+  ]
+}
