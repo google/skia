@@ -330,6 +330,30 @@
       "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f693a82_de93e0c3",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-15T19:14:06Z",
+      "side": 1,
+      "message": "Not a big deal, just looked like it might be an opportunity for reuse.",
+      "parentUuid": "65265a31_8b287d55",
+      "range": {
+        "startLine": 903,
+        "startChar": 4,
+        "endLine": 903,
+        "endChar": 25
+      },
+      "revId": "fe384f1a822fcbc06371b3ca6ab6229726d600da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
