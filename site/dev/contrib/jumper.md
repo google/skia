@@ -20,11 +20,12 @@ Clang is exactly the same version we typically use (as of writing 5.0.0) and
 you'll need objdump to be compiled with support for x86-64, ARMv7, and ARMv8.
 
 The easiest way to satisfy these contraints is to get your hands on a Mac and
-install [Homebrew](https://brew.sh).  Once you have `brew` installed, run this
-to get the tools you need:
+install Xcode, Xcode command line tools, and [Homebrew](https://brew.sh).  Once
+you have `brew` installed, run these commands to get the tools you need:
 
 <!--?prettify lang=sh?-->
 
+    ls -d /usr/include >/dev/null || xcode-select --install
     brew install llvm binutils ccache
 
 Setting up GN
