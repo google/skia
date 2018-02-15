@@ -478,6 +478,9 @@ const Definition* MdOut::findParamType() {
 }
 
 const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, bool report) const {
+    if ("kUnknown_SkAlphaType" == ref) {
+        SkDebugf("");
+    }
     auto rootIter = fBmhParser.fClassMap.find(ref);
     if (rootIter != fBmhParser.fClassMap.end()) {
         return &rootIter->second;
@@ -569,8 +572,9 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
         // try with a prefix
         if ('k' == ref[0]) {
             for (auto const& iter : fBmhParser.fEnumMap) {
-                if (iter.second.find(ref, RootDefinition::AllowParens::kYes)) {
-                    return &iter.second;
+                auto def = iter.second.find(ref, RootDefinition::AllowParens::kYes);
+                if (def) {
+                    return def;
                 }
             }
             if (fEnumClass) {
@@ -650,27 +654,40 @@ string MdOut::linkName(const Definition* ref) const {
 // def should not include SkXXX_
 string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         const string& ref, BmhParser::Resolvable resolvable) const {
-	string buildup;
+    if ("kUnknown_SkAlphaType" == ref) {
+        SkDebugf("");
+    }
+    string buildup;
     const string* str = &def->fFiddle;
     SkASSERT(str->length() > 0);
-    size_t under = str->find('_');
-    const Definition* curRoot = fRoot;
-    string classPart = string::npos != under ? str->substr(0, under) : *str;
-    bool classMatch = curRoot->fName == classPart;
-    while (curRoot->fParent) {
-        curRoot = curRoot->fParent;
-        classMatch |= curRoot->fName == classPart;
+    string classPart = *str;
+    size_t under = string::npos;
+    bool globalEnumMember = false;
+    if (MarkType::kAlias == def->fMarkType) {
+        def = def->fParent;
+        SkASSERT(def);
+        SkASSERT(MarkType::kSubtopic == def->fMarkType ||MarkType::kTopic == def->fMarkType);
     }
-    const Definition* defRoot;
-    const Definition* temp = def;
-    do {
-        defRoot = temp;
-        if (!(temp = temp->fParent)) {
-            break;
+    if (MarkType::kSubtopic == def->fMarkType) {
+        const Definition* topic = def->topicParent();
+        SkASSERT(topic);
+        classPart = topic->fName;
+        under = classPart.length();
+    } else if (MarkType::kTopic == def->fMarkType) {
+        SkDebugf("");
+    } else {
+        if ('k' == (*str)[0] && string::npos != str->find("_Sk")) {
+            globalEnumMember = true;
+        } else {
+            SkASSERT("Sk" == str->substr(0, 2) || "SK" == str->substr(0, 2)
+                    // FIXME: kitchen sink catch below, need to do better
+                    || string::npos != def->fFileName.find("undocumented"));
+            under = str->find('_');
+            classPart = string::npos != under ? str->substr(0, under) : *str;
         }
-        classMatch |= temp != defRoot && temp->fName == classPart;
-    } while (true);
-    string namePart = string::npos != under ? str->substr(under + 1, str->length()) : *str;
+    }
+    bool classMatch = fRoot->fFileName == def->fFileName;
+    string namePart = string::npos != under ? str->substr(under + 1) : *str;
     SkASSERT(fRoot);
     SkASSERT(fRoot->fFileName.length());
     if (classMatch) {
@@ -680,7 +697,7 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         }
         buildup += namePart;
     } else {
-        string filename = defRoot->asRoot()->fFileName;
+        string filename = def->fFileName;
         if (filename.substr(filename.length() - 4) == ".bmh") {
             filename = filename.substr(0, filename.length() - 4);
         }
@@ -688,7 +705,7 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         while (start > 0 && (isalnum(filename[start - 1]) || '_' == filename[start - 1])) {
             --start;
         }
-        buildup = filename.substr(start) + "#" + (classMatch ? namePart : *str);
+        buildup = filename.substr(start) + "#" + (classMatch ? namePart : def->fName);
     }
     if (MarkType::kParam == def->fMarkType) {
         const Definition* parent = def->fParent;
@@ -696,7 +713,9 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         buildup = '#' + parent->fFiddle + '_' + ref;
     }
     string refOut(ref);
-    std::replace(refOut.begin(), refOut.end(), '_', ' ');
+    if (!globalEnumMember) {
+        std::replace(refOut.begin(), refOut.end(), '_', ' ');
+    }
     if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)) {
         refOut = refOut.substr(0, refOut.length() - 2);
     }
