@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkFontMgr.h"
+#include "SkPath.h"
 #include "SkGraphics.h"
 #include "SkTypeface.h"
 
@@ -224,6 +225,7 @@ public:
         fontBounds.offset(x, y);
         SkPaint boundsPaint(glyphPaint);
         boundsPaint.setColor(boundsColor);
+        boundsPaint.setStyle(SkPaint::kStroke_Style);
         canvas->drawRect(fontBounds, boundsPaint);
 
         SkPaint::FontMetrics fm;
@@ -264,6 +266,10 @@ public:
         }
         SkGlyphID str[] = { left, right, top, bottom };
         for (size_t i = 0; i < SK_ARRAY_COUNT(str); ++i) {
+            SkPath path;
+            glyphPaint.getTextPath(&str[i], sizeof(str[0]), x, y, &path);
+            SkPaint::Style style = path.isEmpty() ? SkPaint::kFill_Style : SkPaint::kStroke_Style;
+            glyphPaint.setStyle(style);
             canvas->drawText(&str[i], sizeof(str[0]), x, y, glyphPaint);
         }
     }
@@ -282,7 +288,6 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
         paint.setTextSize(100);
-        paint.setStyle(SkPaint::kStroke_Style);
         paint.setTextScaleX(fScaleX);
         paint.setTextSkewX(fSkewX);
 
