@@ -192,12 +192,14 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
 
 Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx,
                                const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                               GrDeferredUploadTarget* uploadTarget, GrAtlasGlyphCache* glyphCache,
+                               GrDeferredUploadTarget* uploadTarget,
+                               GrAtlasGlyphCache1* glyphCache, GrAtlasManager* atlasManager,
                                SkAutoGlyphCache* lazyCache)
         : fViewMatrix(viewMatrix)
         , fBlob(blob)
         , fUploadTarget(uploadTarget)
-        , fGlyphCache(glyphCache)
+        , fGlyphCache(glyphCache)      // delete?
+        , fAtlasManager(atlasManager)
         , fLazyCache(lazyCache)
         , fRun(&blob->fRuns[runIdx])
         , fSubRun(&blob->fRuns[runIdx].fSubRunInfo[subRunIdx])
@@ -273,7 +275,7 @@ Regenerator::Result Regenerator::doRegen() {
             glyph = fBlob->fGlyphs[glyphOffset];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
-            if (!fGlyphCache->hasGlyph(glyph) &&
+            if (!fAtlasManager->hasGlyph(glyph) &&
                 !strike->addGlyphToAtlas(fUploadTarget, glyph, fLazyCache->get(),
                                          fSubRun->maskFormat())) {
                 fBrokenRun = glyphIdx > 0;
@@ -281,8 +283,8 @@ Regenerator::Result Regenerator::doRegen() {
                 return result;
             }
             auto tokenTracker = fUploadTarget->tokenTracker();
-            fGlyphCache->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
-                                                      tokenTracker->nextDrawToken());
+            fAtlasManager->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
+                                                        tokenTracker->nextDrawToken());
         }
 
         regen_vertices<regenPos, regenCol, regenTexCoords>(currVertex, glyph, vertexStride,
@@ -301,13 +303,13 @@ Regenerator::Result Regenerator::doRegen() {
         }
         fSubRun->setAtlasGeneration(fBrokenRun
                                             ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                                            : fGlyphCache->atlasGeneration(fSubRun->maskFormat()));
+                                            : fAtlasManager->atlasGeneration(fSubRun->maskFormat()));
     }
     return result;
 }
 
-Regenerator::Result Regenerator::regenerate() {
-    uint64_t currentAtlasGen = fGlyphCache->atlasGeneration(fSubRun->maskFormat());
+Regenerator::Result Regenerator::regenerate1() {
+    uint64_t currentAtlasGen = fAtlasManager->atlasGeneration(fSubRun->maskFormat());
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
     if (fSubRun->atlasGeneration() != currentAtlasGen) {
@@ -350,9 +352,9 @@ Regenerator::Result Regenerator::regenerate() {
 
             // set use tokens for all of the glyphs in our subrun.  This is only valid if we
             // have a valid atlas generation
-            fGlyphCache->setUseTokenBulk(*fSubRun->bulkUseToken(),
-                                         fUploadTarget->tokenTracker()->nextDrawToken(),
-                                         fSubRun->maskFormat());
+            fAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
+                                           fUploadTarget->tokenTracker()->nextDrawToken(),
+                                           fSubRun->maskFormat());
             return result;
         }
     }

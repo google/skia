@@ -94,7 +94,7 @@ void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
 }
 
 void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
-    fAtlasGlyphCache->setAtlasSizes_ForTesting(configs);
+    fAtlasManager->setAtlasSizes_ForTesting(configs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -148,10 +148,11 @@ void GrContext::printGpuStats() const {
 }
 
 sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, uint32_t index) {
-    GrAtlasGlyphCache* cache = this->contextPriv().getAtlasGlyphCache();
+    GrAtlasManager* atlasManager = this->contextPriv().getAtlasManager();
 
-    const sk_sp<GrTextureProxy>* proxies = cache->getProxies(format);
-    if (index >= cache->getAtlasPageCount(format) || !proxies[index]) {
+    int numProxies;
+    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(format, &numProxies);
+    if (index >= numProxies || !proxies[index]) {
         return nullptr;
     }
 

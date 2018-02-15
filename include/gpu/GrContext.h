@@ -16,7 +16,8 @@
 #include "../private/GrSingleOwner.h"
 #include "GrContextOptions.h"
 
-class GrAtlasGlyphCache;
+class GrAtlasGlyphCache1;
+class GrAtlasManager;
 class GrBackendFormat;
 class GrBackendSemaphore;
 class GrContextPriv;
@@ -340,7 +341,7 @@ public:
     /** Get pointer to atlas texture for given mask format. Note that this wraps an
         actively mutating texture in an SkImage. This could yield unexpected results
         if it gets cached or used more generally. */
-    sk_sp<SkImage> getFontAtlasImage_ForTesting(GrMaskFormat format, uint32_t index = 0);
+    sk_sp<SkImage> getFontAtlasImage_ForTesting(GrMaskFormat format, int index = 0);
 
     GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
 
@@ -366,7 +367,8 @@ private:
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
-    GrAtlasGlyphCache*                      fAtlasGlyphCache;
+    GrAtlasGlyphCache1*                      fAtlasGlyphCache1;
+    GrAtlasManager*                         fAtlasManager;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDisableGpuYUVConversion;
