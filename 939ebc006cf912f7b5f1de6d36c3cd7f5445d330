@@ -33,6 +33,24 @@
       "revId": "939ebc006cf912f7b5f1de6d36c3cd7f5445d330",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26b6c055_bec434eb",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-15T14:41:55Z",
+      "side": 1,
+      "message": "We only do that at runtime.  This fixes the compile for me locally.  The Android ASAN tests don\u0027t put clang_linux/lib on the path at runtime (different flavor)",
+      "parentUuid": "7f769ead_cc6dddd8",
+      "revId": "939ebc006cf912f7b5f1de6d36c3cd7f5445d330",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
