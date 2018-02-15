@@ -147,6 +147,9 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 
         surface = resourceProvider->createTexture(desc, fBudgeted, texels.get(), mipCount,
                                                   SkDestinationSurfaceColorMode::kLegacy);
+        SkASSERT(surface);
+        SkASSERT(surface->asTexture());
+        SkASSERT(surface->asTexture()->texturePriv().mipMapped() == GrMipMapped::kYes);
     } else {
         if (SkBackingFit::kApprox == fFit) {
             surface = resourceProvider->createApproxTexture(desc, fFlags);
