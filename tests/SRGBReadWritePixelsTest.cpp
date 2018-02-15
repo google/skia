@@ -289,10 +289,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     // Write data to an untagged context. The write does no conversion no matter what encoding the
     // src data has.
     for (auto writeEncoding : {Encoding::kSRGB, Encoding::kUntagged, Encoding::kLinear}) {
-        // Currently this converts to sRGB when we read. TODO: Should reading from an untagged
-        // context to sRGB fail or do no conversion?
-        do_test(Encoding::kUntagged, writeEncoding, Encoding::kSRGB, error,
-                check_linear_to_srgb_conversion, context, reporter);
+        // The read from untagged to sRGB also does no conversion. TODO: Should it just fail?
+        do_test(Encoding::kUntagged, writeEncoding, Encoding::kSRGB, error, check_no_conversion,
+                context, reporter);
         // Reading untagged back as untagged should do no conversion.
         do_test(Encoding::kUntagged, writeEncoding, Encoding::kUntagged, error, check_no_conversion,
                 context, reporter);
