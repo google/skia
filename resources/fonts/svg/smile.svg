@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- In the colr format the eyes and mouth should be filled with the current paint. -->
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   viewBox="0 0 211.66666 211.66667"
+   height="800"
+   width="800">
+  <g
+     transform="translate(0,-85.333317)"
+     id="layer1">
+    <circle
+       r="98.273819"
+       cy="192.76852"
+       cx="104.81271"
+       id="path10"
+       style="fill:#000000;stroke-width:0.3084828" />
+    <circle
+       r="90.782074"
+       cy="192.32785"
+       cx="104.37203"
+       id="path12"
+       style="fill:#ffcc00;stroke-width:0.3084828" />
+    <ellipse
+       ry="20.032738"
+       rx="20.410715"
+       cy="159.88458"
+       cx="74.574615"
+       id="path62"
+       style="fill:#2b0000;stroke-width:0.26458332" />
+    <ellipse
+       ry="20.032738"
+       rx="20.410715"
+       cy="158.13309"
+       cx="138.02272"
+       id="path62-7"
+       style="fill:#2b0000;stroke-width:0.26458332" />
+    <path
+       d="m 163.09897,220.67157 a 58.248119,31.234499 0 0 1 -26.87407,29.28648 58.248119,31.234499 0 0 1 -60.863188,0.45572 58.248119,31.234499 0 0 1 -28.388544,-28.87269 l 58.126712,2.01564 z"
+       id="path113"
+       style="fill:#2b0000;stroke-width:0.26458332" />
+  </g>
+</svg>
