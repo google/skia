@@ -142,7 +142,7 @@ public:
         data->fData = userData;
     }
 
-    uint32_t pageCount() { return fNumPages; }
+    uint32_t pageCount1() { return fNumPages; }
 
     /**
      * A class which can be handed back to GrDrawOpAtlas for updating last use tokens in bulk.  The

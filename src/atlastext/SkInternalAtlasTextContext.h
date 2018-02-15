@@ -13,11 +13,12 @@
 #include "SkArenaAllocList.h"
 #include "SkRefCnt.h"
 
+class GrAtlasGlyphCache1;
+class GrContext;
+class GrTextBlobCache;
+
 class SkAtlasTextRenderer;
 class SkMatrix;
-class GrContext;
-class GrAtlasGlyphCache;
-class GrTextBlobCache;
 
 /**
  * The implementation of SkAtlasTextContext. This exists to hide the details from the public class.
@@ -32,7 +33,7 @@ public:
     SkAtlasTextRenderer* renderer() const { return fRenderer.get(); }
 
     GrContext* grContext() const { return fGrContext.get(); }
-    GrAtlasGlyphCache* atlasGlyphCache();
+    GrAtlasGlyphCache1* atlasGlyphCache1();
     GrTextBlobCache* textBlobCache();
 
     const GrTokenTracker* tokenTracker() final { return &fTokenTracker; }

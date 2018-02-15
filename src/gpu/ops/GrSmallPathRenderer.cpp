@@ -181,7 +181,7 @@ public:
         fHelper.visitProxies(func);
 
         const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
-        for (uint32_t i = 0; i < fAtlas->pageCount(); ++i) {
+        for (uint32_t i = 0; i < fAtlas->pageCount1(); ++i) {
             SkASSERT(proxies[i]);
             func(proxies[i].get());
         }
@@ -223,7 +223,7 @@ private:
         flushInfo.fPipeline = fHelper.makePipeline(target);
         // Setup GrGeometryProcessor
         GrDrawOpAtlas* atlas = fAtlas;
-        uint32_t atlasPageCount = atlas->pageCount();
+        uint32_t atlasPageCount = atlas->pageCount1();
         if (!atlasPageCount) {
             return;
         }
@@ -696,7 +696,7 @@ private:
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
         GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
-        if (gp->numTextureSamplers() != (int)fAtlas->pageCount()) {
+        if (gp->numTextureSamplers() != (int)fAtlas->pageCount1()) {
             // During preparation the number of atlas pages has increased.
             // Update the proxies used in the GP to match.
             if (fUsesDistanceField) {

@@ -90,6 +90,9 @@ public:
     const GrCaps& caps() const final;
     GrResourceProvider* resourceProvider() const final { return fResourceProvider; }
 
+    GrAtlasGlyphCache1* atlasGlyphCache() const final;
+    GrAtlasManager* atlasManager() const final;
+
 private:
     /** GrMeshDrawOp::Target override. */
     SkArenaAlloc* pipelineArena() override { return &fArena; }

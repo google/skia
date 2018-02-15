@@ -185,8 +185,9 @@ public:
     GrGpu* getGpu() { return fContext->fGpu.get(); }
     const GrGpu* getGpu() const { return fContext->fGpu.get(); }
 
-    GrAtlasGlyphCache* getAtlasGlyphCache() { return fContext->fAtlasGlyphCache; }
+    GrAtlasGlyphCache1* getAtlasGlyphCache1() { return fContext->fAtlasGlyphCache1; }
     GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
+    GrAtlasManager* getAtlasManager() { return fContext->fAtlasManager; }
 
     void moveOpListsToDDL(SkDeferredDisplayList*);
     void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
