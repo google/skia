@@ -761,8 +761,9 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
 
     GrSamplerState samplerState;
     bool doBicubic;
-    GrSamplerState::Filter textureFilterMode =
-            GrSkFilterQualityToGrFilterMode(quality, viewMatrix, srcToDstRect, &doBicubic);
+    GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
+            quality, viewMatrix, srcToDstRect, fContext->contextPriv().sharpenMipmappedTextures(),
+            &doBicubic);
 
     int tileFilterPad;
     if (doBicubic) {
@@ -812,7 +813,8 @@ void SkGpuDevice::drawBitmap(const SkBitmap& bitmap,
         GrSamplerState samplerState;
         bool doBicubic;
         GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-                paint.getFilterQuality(), viewMatrix, SkMatrix::I(), &doBicubic);
+                paint.getFilterQuality(), viewMatrix, SkMatrix::I(),
+                fContext->contextPriv().sharpenMipmappedTextures(), &doBicubic);
 
         int tileFilterPad;
 
@@ -1170,7 +1172,8 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         GrSamplerState sampleState;
         bool doBicubic;
         GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-                paint.getFilterQuality(), this->ctm(), srcToDstMatrix, &doBicubic);
+                paint.getFilterQuality(), this->ctm(), srcToDstMatrix,
+                fContext->contextPriv().sharpenMipmappedTextures(), &doBicubic);
 
         int tileFilterPad;
 
@@ -1362,7 +1365,8 @@ void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
                        GrFSAAType::kUnifiedMSAA == fRenderTargetContext->fsaaType();
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-            paint.getFilterQuality(), this->ctm(), SkMatrix::I(), &doBicubic);
+            paint.getFilterQuality(), this->ctm(), SkMatrix::I(),
+            fContext->contextPriv().sharpenMipmappedTextures(), &doBicubic);
     if (useFallback || doBicubic || GrSamplerState::Filter::kNearest != textureFilterMode) {
         SkLatticeIter iter(producer->width(), producer->height(), center, dst);
 

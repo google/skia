@@ -201,6 +201,7 @@ void SkImageShader::toString(SkString* str) const {
 
 #include "GrColorSpaceInfo.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "SkGr.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -243,7 +244,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // are provided by the caller.
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-            args.fFilterQuality, *args.fViewMatrix, lm, &doBicubic);
+            args.fFilterQuality, *args.fViewMatrix, lm,
+            args.fContext->contextPriv().sharpenMipmappedTextures(), &doBicubic);
     GrSamplerState samplerState(wrapModes, textureFilterMode);
     sk_sp<SkColorSpace> texColorSpace;
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };

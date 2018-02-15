@@ -562,6 +562,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
                                                        const SkMatrix& viewM,
                                                        const SkMatrix& localM,
+                                                       bool sharpenMipmappedTextures,
                                                        bool* doBicubic) {
     *doBicubic = false;
     GrSamplerState::Filter textureFilterMode;
@@ -575,7 +576,16 @@ GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilt
         case kMedium_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
-            if (matrix.getMinScale() < SK_Scalar1) {
+            // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until the
+            // computed LOD is >= 0.5. At what scale factor does a texture get an LOD of 0.5?
+            //
+            // Want:  0       = log2(1/s) - 0.5
+            //        0.5     = log2(1/s)
+            //        2^0.5   = 1/s
+            //        1/2^0.5 = s
+            //        2^0.5/2 = s
+            SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
+            if (matrix.getMinScale() < mipScale) {
                 textureFilterMode = GrSamplerState::Filter::kMipMap;
             } else {
                 // Don't trigger MIP level generation unnecessarily.
