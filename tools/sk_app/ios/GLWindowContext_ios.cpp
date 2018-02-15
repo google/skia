@@ -27,7 +27,7 @@ public:
     void onSwapBuffers() override;
 
     sk_sp<const GrGLInterface> onInitializeContext() override;
-    void onDestroyContext() override;
+    void onDestroyContext() override {}
 
 private:
     SDL_Window*   fWindow;
@@ -39,7 +39,7 @@ private:
 GLWindowContext_ios::GLWindowContext_ios(const IOSWindowInfo& info, const DisplayParams& params)
     : INHERITED(params)
     , fWindow(info.fWindow)
-    , fGLContext(nullptr) {
+    , fGLContext(info.fGLContext) {
 
     // any config code here (particularly for msaa)?
 
@@ -52,12 +52,7 @@ GLWindowContext_ios::~GLWindowContext_ios() {
 
 sk_sp<const GrGLInterface> GLWindowContext_ios::onInitializeContext() {
     SkASSERT(fWindow);
-
-    fGLContext = SDL_GL_CreateContext(fWindow);
-    if (!fGLContext) {
-        SkDebugf("%s\n", SDL_GetError());
-        return nullptr;
-    }
+    SkASSERT(fGLContext);
 
     if (0 == SDL_GL_MakeCurrent(fWindow, fGLContext)) {
         glClearStencil(0);
@@ -76,15 +71,6 @@ sk_sp<const GrGLInterface> GLWindowContext_ios::onInitializeContext() {
     }
     return GrGLMakeNativeInterface();
 }
-
-void GLWindowContext_ios::onDestroyContext() {
-    if (!fWindow || !fGLContext) {
-        return;
-    }
-    SDL_GL_DeleteContext(fGLContext);
-    fGLContext = nullptr;
-}
-
 
 void GLWindowContext_ios::onSwapBuffers() {
     if (fWindow && fGLContext) {
