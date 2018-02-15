@@ -114,7 +114,6 @@ private:
     int fCurrPathPointsIdx;
     int fCurrPathVerbsIdx;
     PrimitiveTallies fCurrPathPrimitiveCounts;
-    SkPath::FillType fCurrPathFillType;
 
     GrCCGeometry fGeometry;
     SkSTArray<32, PathInfo, true> fPathsInfo;
