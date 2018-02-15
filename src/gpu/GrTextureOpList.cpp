@@ -75,7 +75,7 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
     }
 
     std::unique_ptr<GrGpuTextureCommandBuffer> commandBuffer(
-                         flushState->gpu()->createCommandBuffer(fTarget.get()->priv().peekTexture(),
+                         flushState->gpu1()->createCommandBuffer(fTarget.get()->priv().peekTexture(),
                                                                 fTarget.get()->origin()));
     flushState->setCommandBuffer(commandBuffer.get());
 

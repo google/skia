@@ -21,6 +21,6 @@ void GrStencilPathOp::onExecute(GrOpFlushState* state) {
 
     GrPathRendering::StencilPathArgs args(fUseHWAA, state->drawOpArgs().fProxy,
                                           &fViewMatrix, &fScissor, &stencil);
-    state->gpu()->pathRendering()->stencilPath(args, fPath.get());
+    state->gpu1()->pathRendering()->stencilPath(args, fPath.get());
 }
 

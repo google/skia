@@ -145,7 +145,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     // TODO: at the very least, we want the stencil store op to always be discard (at this
     // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
     std::unique_ptr<GrGpuRTCommandBuffer> commandBuffer = create_command_buffer(
-                                                    flushState->gpu(),
+                                                    flushState->gpu1(),
                                                     fTarget.get()->priv().peekRenderTarget(),
                                                     fTarget.get()->origin(),
                                                     fColorLoadOp, fLoadClearColor,

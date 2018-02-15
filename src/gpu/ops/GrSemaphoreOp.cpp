@@ -30,7 +30,7 @@ private:
             : INHERITED(ClassID(), std::move(semaphore), proxy), fForceFlush(forceFlush) {}
 
     void onExecute(GrOpFlushState* state) override {
-        state->gpu()->insertSemaphore(fSemaphore, fForceFlush);
+        state->gpu1()->insertSemaphore(fSemaphore, fForceFlush);
     }
 
     bool fForceFlush;
@@ -55,7 +55,7 @@ private:
             : INHERITED(ClassID(), std::move(semaphore), proxy) {}
 
     void onExecute(GrOpFlushState* state) override {
-        state->gpu()->waitSemaphore(fSemaphore);
+        state->gpu1()->waitSemaphore(fSemaphore);
     }
 
     typedef GrSemaphoreOp INHERITED;

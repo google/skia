@@ -197,11 +197,9 @@ public:
     bool mustRegenerate(const GrTextUtils::Paint&, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
-    void flush(GrAtlasGlyphCache*, GrTextUtils::Target*, const SkSurfaceProps& props,
-               const GrDistanceFieldAdjustTable* distanceAdjustTable,
-               const GrTextUtils::Paint& paint, const GrClip& clip,
-               const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
-               SkScalar y);
+    void flush(GrTextUtils::Target*, const SkSurfaceProps&, const GrDistanceFieldAdjustTable*,
+               const GrTextUtils::Paint&, const GrClip&,
+               const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y);
 
     void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex,
                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
@@ -272,7 +270,7 @@ public:
     std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, uint16_t run, uint16_t subRun,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                           const GrTextUtils::Paint&, const SkSurfaceProps&,
-                                          const GrDistanceFieldAdjustTable*, GrAtlasGlyphCache*,
+                                          const GrDistanceFieldAdjustTable*,
                                           GrTextUtils::Target*);
 
 private:
@@ -503,8 +501,7 @@ private:
             const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
             const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
-            const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
-            GrTextUtils::Target*);
+            const GrDistanceFieldAdjustTable* distanceAdjustTable, GrTextUtils::Target*);
 
     struct StrokeInfo {
         SkScalar fFrameWidth;

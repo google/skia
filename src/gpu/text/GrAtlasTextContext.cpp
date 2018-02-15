@@ -181,7 +181,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* t
                                  viewMatrix, props, blob, x, y, drawFilter);
     }
 
-    cacheBlob->flush(atlasGlyphCache, target, props, fDistanceAdjustTable.get(), paint,
+    cacheBlob->flush(target, props, fDistanceAdjustTable.get(), paint,
                      clip, viewMatrix, clipBounds, x, y);
 }
 
@@ -331,7 +331,7 @@ void GrAtlasTextContext::drawText(GrContext* context, GrTextUtils::Target* targe
                                     ComputeScalerContextFlags(target->colorSpaceInfo()),
                                     viewMatrix, props, text, byteLength, x, y));
     if (blob) {
-        blob->flush(atlasGlyphCache, target, props, fDistanceAdjustTable.get(), paint,
+        blob->flush(target, props, fDistanceAdjustTable.get(), paint,
                     clip, viewMatrix, regionClipBounds, x, y);
     }
 }
@@ -356,7 +356,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrTextUtils::Target* ta
             ComputeScalerContextFlags(target->colorSpaceInfo()), viewMatrix, props, text,
             byteLength, pos, scalarsPerPosition, offset));
     if (blob) {
-        blob->flush(atlasGlyphCache, target, props, fDistanceAdjustTable.get(), paint,
+        blob->flush(target, props, fDistanceAdjustTable.get(), paint,
                     clip, viewMatrix, regionClipBounds, offset.fX, offset.fY);
     }
 }
@@ -936,8 +936,7 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
             static_cast<size_t>(textLen), x, y));
 
     return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, utilsPaint, gSurfaceProps,
-                             gTextContext->dfAdjustTable(), atlasGlyphCache,
-                             rtc->textTarget());
+                             gTextContext->dfAdjustTable(), rtc->textTarget());
 }
 
 #endif
