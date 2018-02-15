@@ -45,7 +45,7 @@ declare_args() {
 }
 
 if (host_os == "win") {
-  python = "python.bat"
+  python = "python.exe"
   stamp = "cmd.exe /c echo >"
 } else {
   python = "python"
