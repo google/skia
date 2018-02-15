@@ -33,6 +33,23 @@
       "revId": "a5e8f1161ad6e8eb3b32e3341baf3d7771064adf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a9c720b_c68f81b4",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1475,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-15T16:02:21Z",
+      "side": 1,
+      "message": "Now that we\u0027re only enabling texStorage of BGRA for a very narrow case, I\u0027d propose inverting the sense of the conditional:\n\nbool supportBGRATexStorage \u003d (standard \u003d\u003d GL) || apple;",
+      "revId": "a5e8f1161ad6e8eb3b32e3341baf3d7771064adf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
