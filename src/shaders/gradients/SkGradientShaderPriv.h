@@ -209,6 +209,10 @@ public:
                 case SkShader::kMirror_TileMode:
                     fWrapMode = GrSamplerState::WrapMode::kMirrorRepeat;
                     break;
+                case SkShader::kDecal_TileMode:
+                    // TODO: actually support decal
+                    fWrapMode = GrSamplerState::WrapMode::kClamp;
+                    break;
             }
         }
 

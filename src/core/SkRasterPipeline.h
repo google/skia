@@ -78,6 +78,8 @@ struct SkJumper_Engine;
     M(lab_to_xyz)                                                  \
                  M(mirror_x)   M(repeat_x)                         \
                  M(mirror_y)   M(repeat_y)                         \
+                 M(decal_x)    M(decal_y)   M(decal_x_and_y)       \
+    M(check_decal_mask)                                            \
     M(negate_x)                                                    \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)    \
