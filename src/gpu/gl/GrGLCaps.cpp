@@ -1334,7 +1334,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     // Correctness workarounds.
     bool disableTextureRedForMesa = false;
-    bool disableBGRATexStorageForDriver = false;
     bool disableSRGBForX86PowerVR = false;
     bool disableSRGBWriteControlForAdreno4xx = false;
     bool disableR8TexStorageForANGLEGL = false;
@@ -1351,12 +1350,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             isX86PowerVR = true;
         }
 #endif
-        // Adreno 3xx, 4xx, 5xx, and NexusPlayer all fail if we try to use TexStorage with BGRA
-        disableBGRATexStorageForDriver = kAdreno3xx_GrGLRenderer == ctxInfo.renderer() ||
-                                         kAdreno4xx_GrGLRenderer == ctxInfo.renderer() ||
-                                         kAdreno5xx_GrGLRenderer == ctxInfo.renderer() ||
-                                         isX86PowerVR;
-
         // NexusPlayer has strange bugs with sRGB (skbug.com/4148). This is a targeted fix to
         // blacklist that device (and any others that might be sharing the same driver).
         disableSRGBForX86PowerVR = isX86PowerVR;
@@ -1476,7 +1469,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     }
 
-    if (texStorageSupported && !disableBGRATexStorageForDriver) {
+   // TexStorage requries using a sized internal format and BGRA8 is only supported if we have the
+   // GL_APPLE_texture_format_BGRA8888 extention. For all other ES devices we disable BGRA
+   // TexStorage. On OpenGL we use RGBA so this is not an issue.
+   bool disableBGRATexStorage = kGLES_GrGLStandard == standard &&
+                                         !ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888");
+
+    if (texStorageSupported && !disableBGRATexStorage) {
         fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
@@ -1890,7 +1889,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     //     ES 2.0: the extension makes BGRA an external format but not an internal format.
     //     ES 3.0: the extension explicitly states GL_BGRA8 is not a valid internal format for
     //             glTexImage (just for glTexStorage).
-    if (useSizedTexFormats && this->bgraIsInternalFormat())  {
+    if (useSizedTexFormats && this->bgraIsInternalFormat()) {
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatTexImage = GR_GL_BGRA;
     }
 

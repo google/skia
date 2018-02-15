@@ -221,6 +221,7 @@ GrContext::GrContext(GrBackend backend)
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
     fAtlasGlyphCache = nullptr;
+    SkDebugf("%s\n", this->dump().c_str());
 }
 
 GrContext::GrContext(GrContextThreadSafeProxy* proxy)
