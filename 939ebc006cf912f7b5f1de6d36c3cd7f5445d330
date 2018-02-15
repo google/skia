@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1213bec_1da722e0",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-15T14:37:38Z",
+      "side": 1,
+      "message": "I think we want this still if (!is_win).",
+      "revId": "939ebc006cf912f7b5f1de6d36c3cd7f5445d330",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
