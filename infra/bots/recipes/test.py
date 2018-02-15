@@ -135,9 +135,10 @@ def dm_flags(api, bot):
     elif 'ChromeOS' in bot:
       gl_prefix = 'gles'
 
-    configs.extend([gl_prefix, gl_prefix + 'dft', gl_prefix + 'srgb'])
-    if sample_count is not '':
-      configs.append(gl_prefix + 'msaa' + sample_count)
+    if 'NativeFonts' not in bot:
+      configs.extend([gl_prefix, gl_prefix + 'dft', gl_prefix + 'srgb'])
+      if sample_count is not '':
+        configs.append(gl_prefix + 'msaa' + sample_count)
 
     # The NP produces a long error stream when we run with MSAA. The Tegra3 just
     # doesn't support it.
