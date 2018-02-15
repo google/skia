@@ -91,7 +91,9 @@ sk_sp<SkTypeface> emoji_typeface() {
     return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
 
 #else
-    return MakeResourceAsTypeface("fonts/Funkster.ttf");
+    sk_sp<SkTypeface> typeface = MakeResourceAsTypeface("fonts/sbix.ttf");
+    if (typeface) { return typeface; }
+    return SkTypeface::MakeFromName("Emoji", SkFontStyle());
 
 #endif
 }
@@ -104,7 +106,7 @@ const char* emoji_sample_text() {
            "\xF0\x9F\x93\xA6"                                        // 📦
            "\xF0\x9F\x87\xBA" "\xF0\x9F\x87\xB8" "\xF0\x9F\x87\xA6"; // 🇺🇸🇦
 #else
-    return "Hamburgefons";
+    return "\xF0\x9F\x98\x80" "Hamburgefons";
 #endif
 }
 
