@@ -424,7 +424,7 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/msan",
+      "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/msan:[START_DIR]/clang_linux/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
       "SKIA_OUT": "[START_DIR]/out"
     },

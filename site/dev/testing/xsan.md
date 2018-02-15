@@ -64,6 +64,13 @@ Configure and Compile Skia with ASAN
     bin/gn gen out/asan
     ninja -C out/asan
 
+
+When you run a binary built with ASAN/UBSAN/TSAN, you may need to provide a libc++ library
+on the LD_LIBRARY_PATH. On Linux, it's easy to use the one that comes with the
+above Clang asset:
+
+    env LD_LIBRARY_PATH=$CLANGDIR/lib out/dm ...
+
 Configure and Compile Skia with TSAN
 ------------------------------------
 
