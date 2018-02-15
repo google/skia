@@ -14,11 +14,11 @@ import urllib2
 
 os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
-gn_path = 'buildtools/linux64/gn' if 'linux'  in sys.platform else \
-          'buildtools/mac/gn'     if 'darwin' in sys.platform else \
-          'buildtools/win/gn.exe'
+dst = 'bin/gn.exe' if 'win32' in sys.platform else 'bin/gn'
 
-sha1 = open(gn_path + '.sha1').read().strip()
+sha1 = '113f5b30a7cfae72015600a119590d45d64c0d0d' if 'linux'  in sys.platform else \
+       'b33a6d33c2b2f42762f902672ffdf4837fa1c662' if 'darwin' in sys.platform else \
+       'b1981c189f40c3ae42b965277ad1bc3449d26d2a'  # Windows
 
 def sha1_of_file(path):
   h = hashlib.sha1()
@@ -27,15 +27,17 @@ def sha1_of_file(path):
       h.update(f.read())
   return h.hexdigest()
 
-if sha1_of_file(gn_path) != sha1:
-  with open(gn_path, 'wb') as f:
+if sha1_of_file(dst) != sha1:
+  with open(dst, 'wb') as f:
     f.write(urllib2.urlopen('https://chromium-gn.storage-download.googleapis.com/' + sha1).read())
 
-  os.chmod(gn_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
-                    stat.S_IRGRP                | stat.S_IXGRP |
-                    stat.S_IROTH                | stat.S_IXOTH )
+  os.chmod(dst, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+                stat.S_IRGRP                | stat.S_IXGRP |
+                stat.S_IROTH                | stat.S_IXOTH )
 
-gn_copy_path = os.path.join('bin', os.path.basename(gn_path))
-if sha1_of_file(gn_copy_path) != sha1:
-  shutil.copy(gn_path, gn_copy_path)
-
+# We'll also copy to a path that depot_tools' GN wrapper will expect to find the binary.
+copy_path = 'buildtools/linux64/gn' if 'linux'  in sys.platform else \
+            'buildtools/mac/gn'     if 'darwin' in sys.platform else \
+            'buildtools/win/gn.exe'
+if os.path.isdir(os.path.dirname(copy_path)):
+  shutil.copy(dst, copy_path)
