@@ -135,7 +135,9 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-iOS/Debug"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-iOS/Debug",
+      "-j",
+      "1000"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

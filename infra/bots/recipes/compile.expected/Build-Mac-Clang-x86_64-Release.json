@@ -135,7 +135,9 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Release/Release"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Release/Release",
+      "-j",
+      "1000"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

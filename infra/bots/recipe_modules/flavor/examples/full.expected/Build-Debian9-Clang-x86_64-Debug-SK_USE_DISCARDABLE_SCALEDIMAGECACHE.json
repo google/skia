@@ -37,7 +37,9 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE/Debug"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE/Debug",
+      "-j",
+      "1000"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

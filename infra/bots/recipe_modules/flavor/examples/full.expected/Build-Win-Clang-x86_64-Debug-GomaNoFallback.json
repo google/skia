@@ -131,6 +131,8 @@
       "-C",
       "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback/Debug_x64",
       "-j",
+      "1000",
+      "-j",
       "2000"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",

@@ -116,7 +116,7 @@ with open(sys.argv[1], 'w') as f:
       extra_ldflags.append('-L' + clang_linux + '/msan')
 
     args = {}
-    ninja_args = ['-k', '0', '-C', self.out_dir]
+    ninja_args = ['-k', '0', '-C', self.out_dir, '-j', '1000']
     env = {}
 
     if configuration != 'Debug':

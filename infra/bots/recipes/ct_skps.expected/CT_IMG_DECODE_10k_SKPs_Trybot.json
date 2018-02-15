@@ -150,7 +150,9 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/out/Debug"
+      "[START_DIR]/out/Debug",
+      "-j",
+      "1000"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

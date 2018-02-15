@@ -205,7 +205,9 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/out/Release"
+      "[START_DIR]/out/Release",
+      "-j",
+      "1000"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

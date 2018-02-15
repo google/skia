@@ -135,7 +135,9 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-Mini/Release"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-Mini/Release",
+      "-j",
+      "1000"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
