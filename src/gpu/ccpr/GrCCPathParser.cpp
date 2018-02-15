@@ -107,7 +107,6 @@ void GrCCPathParser::parsePath(const SkPath& path, const SkPoint* deviceSpacePts
     fCurrPathPointsIdx = fGeometry.points().count();
     fCurrPathVerbsIdx = fGeometry.verbs().count();
     fCurrPathPrimitiveCounts = PrimitiveTallies();
-    fCurrPathFillType = path.getFillType();
 
     fGeometry.beginPath();
 
@@ -177,9 +176,11 @@ void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clip
         const SkTArray<SkPoint, true>& pts = fGeometry.points();
         int ptsIdx = fCurrPathPointsIdx;
 
-        // Build an SkPath of the Redbook fan.
+        // Build an SkPath of the Redbook fan. We use "winding" fill type right now because we are
+        // producing a coverage count, and must fill in every region that has non-zero wind. The
+        // path processor will convert coverage count to the appropriate fill type later.
         SkPath fan;
-        fan.setFillType(fCurrPathFillType);
+        fan.setFillType(SkPath::kWinding_FillType);
         SkASSERT(GrCCGeometry::Verb::kBeginPath == verbs[fCurrPathVerbsIdx]);
         for (int i = fCurrPathVerbsIdx + 1; i < fGeometry.verbs().count(); ++i) {
             switch (verbs[i]) {
@@ -216,18 +217,23 @@ void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clip
                                                   SkRect::Make(clippedDevIBounds), &vertices);
         SkASSERT(0 == count % 3);
         for (int i = 0; i < count; i += 3) {
-            SkASSERT(vertices[i].fWinding == vertices[i + 1].fWinding);
-            SkASSERT(vertices[i].fWinding == vertices[i + 2].fWinding);
-            if (1 == abs(vertices[i].fWinding)) {
-                // Ensure this triangle's points actually wind in the same direction as fWinding.
-                float ax = vertices[i].fPos.fX - vertices[i + 1].fPos.fX;
-                float ay = vertices[i].fPos.fY - vertices[i + 1].fPos.fY;
-                float bx = vertices[i].fPos.fX - vertices[i + 2].fPos.fX;
-                float by = vertices[i].fPos.fY - vertices[i + 2].fPos.fY;
-                float wind = ay*bx - ax*by;
-                if ((wind > 0) != (vertices[i].fWinding > 0)) {
-                    std::swap(vertices[i + 1].fPos, vertices[i + 2].fPos);
-                }
+            int tessWinding = vertices[i].fWinding;
+            SkASSERT(tessWinding == vertices[i + 1].fWinding);
+            SkASSERT(tessWinding == vertices[i + 2].fWinding);
+
+            // Ensure this triangle's points actually wind in the same direction as tessWinding.
+            // CCPR shaders use the sign of wind to determine which direction to bloat, so even for
+            // "wound" triangles the winding sign and point ordering need to agree.
+            float ax = vertices[i].fPos.fX - vertices[i + 1].fPos.fX;
+            float ay = vertices[i].fPos.fY - vertices[i + 1].fPos.fY;
+            float bx = vertices[i].fPos.fX - vertices[i + 2].fPos.fX;
+            float by = vertices[i].fPos.fY - vertices[i + 2].fPos.fY;
+            float wind = ax*by - ay*bx;
+            if ((wind > 0) != (-tessWinding > 0)) { // Tessellator has opposite winding sense.
+                std::swap(vertices[i + 1].fPos, vertices[i + 2].fPos);
+            }
+
+            if (1 == abs(tessWinding)) {
                 ++fCurrPathPrimitiveCounts.fTriangles;
             } else {
                 ++fCurrPathPrimitiveCounts.fWoundTriangles;
@@ -328,7 +334,8 @@ static void emit_tessellated_fan(const GrTessellator::WindingVertex* vertices, i
         } else {
             quadPointInstanceData[indices->fWoundTriangles++].set(
                     vertices[i].fPos, vertices[i+1].fPos, vertices[i + 2].fPos, atlasOffset,
-                    static_cast<float>(vertices[i].fWinding));
+                    // Tessellator has opposite winding sense.
+                    -static_cast<float>(vertices[i].fWinding));
         }
     }
 }
