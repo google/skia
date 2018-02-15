@@ -74,19 +74,26 @@ private:
                 , fDrawBounds(device->transformDrawBounds(rawDrawBounds)) {}
         DrawElement(SkThreadedBMPDevice* device, InitFn&& initFn, const SkRect& rawDrawBounds)
                 : fInitialized(false)
+                , fNeedInit(true)
                 , fInitFn(std::move(initFn))
                 , fDS(device)
                 , fDrawBounds(device->transformDrawBounds(rawDrawBounds)) {}
 
         SK_ALWAYS_INLINE bool tryInitOnce(SkArenaAlloc* alloc) {
-            if (fInitialized) {
-                return false;
-            }
-            std::call_once(fNeedInit, [this, alloc]{
+            bool t = true;
+            // If there are multiple threads reaching this point simutaneously,
+            // compare_exchange_strong ensures that only one thread can enter the if condition and
+            // do the initialization.
+            if (!fInitialized && fNeedInit && fNeedInit.compare_exchange_strong(t, false)) {
+#ifdef SK_DEBUG
+                fDrawFn = 0; // Invalidate fDrawFn
+#endif
                 fInitFn(alloc, this);
                 fInitialized = true;
-            });
-            return true;
+                SkASSERT(fDrawFn != 0); // Ensure that fInitFn does populate fDrawFn
+                return true;
+            }
+            return false;
         }
 
         SK_ALWAYS_INLINE bool tryDraw(const SkIRect& tileBounds, SkArenaAlloc* alloc) {
@@ -105,7 +112,7 @@ private:
 
     private:
         std::atomic<bool>   fInitialized;
-        std::once_flag      fNeedInit;
+        std::atomic<bool>   fNeedInit;
         InitFn              fInitFn;
         DrawFn              fDrawFn;
         DrawState           fDS;
