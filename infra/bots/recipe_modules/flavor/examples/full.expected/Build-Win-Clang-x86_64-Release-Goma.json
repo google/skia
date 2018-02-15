@@ -160,7 +160,7 @@
       "python",
       "-u",
       "goma_ctl.py",
-      "stop"
+      "ensure_stop"
     ],
     "cwd": "[CACHE]/goma",
     "env": {
@@ -172,27 +172,6 @@
     },
     "infra_step": true,
     "name": "stop goma"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "import time; time.sleep(2)"
-    ],
-    "cwd": "[CACHE]/goma",
-    "env": {
-      "BUILDTYPE": "Release_x64",
-      "CHROME_HEADLESS": "1",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
-    },
-    "infra_step": true,
-    "name": "wait for goma_ctl stop",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import time; time.sleep(2)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
   },
   {
     "name": "$result",

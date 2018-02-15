@@ -262,14 +262,7 @@ with open(sys.argv[1], 'w') as f:
                      script='goma_ctl.py', args=['stat'], infra_step=True,
                      abort_on_failure=False, fail_build_on_failure=False)
           self.m.run(self.m.python, 'stop goma',
-                     script='goma_ctl.py', args=['stop'], infra_step=True,
-                     abort_on_failure=False, fail_build_on_failure=False)
-          # Hack: goma_ctl stop is asynchronous, so the process often does not
-          # stop before the recipe exits, which causes Swarming to freak out.
-          # Wait a couple seconds for it to exit normally.
-          # TODO(dogben): Remove after internal b/72128121 is resolved.
-          self.m.run(self.m.python.inline, 'wait for goma_ctl stop',
-                     program="""import time; time.sleep(2)""",
+                     script='goma_ctl.py', args=['ensure_stop'],
                      infra_step=True,
                      abort_on_failure=False, fail_build_on_failure=False)
 
