@@ -1702,7 +1702,7 @@ otherwise, a new semaphore is created and initializes GrBackendSemaphore.
 The caller must delete the semaphores created and returned in signalSemaphores.
 GrBackendSemaphore can be deleted as soon as this function returns.
 
-If the back-end API is OpenGL only uninitialized GrBackendSemaphores are supported.
+If the back-end API is OpenGL only uninitialized Backend_Semaphores are supported.
 
 If the back-end API is Vulkan semaphores may be initialized or uninitialized.
 If uninitialized, created semaphores are valid only with the VkDevice

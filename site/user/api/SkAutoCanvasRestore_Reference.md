@@ -5,12 +5,12 @@ SkAutoCanvasRestore Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopic"></a> Subtopic
+## <a name="Overview_Subtopic"></a> Overview Subtopic
 
 | name | description |
 | --- | --- |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Constructor">Constructor</a> | functions that construct <a href="SkAutoCanvasRestore_Reference#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Member_Function">Member Function</a> | static functions and member methods |
+| <a href="#Constructor">Constructor</a> | functions that construct <a href="#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
+| <a href="#Member_Function">Member Function</a> | static functions and member methods |
 
 # <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
 Stack helper class calls
@@ -35,14 +35,14 @@ Stack helper class calls
 SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
 </pre>
 
-Preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count. Optionally saves <a href="#Clip">Canvas Clip</a> and <a href="#Matrix">Canvas Matrix</a>.
+Preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count. Optionally saves <a href="SkCanvas_Reference#Clip">Canvas Clip</a> and <a href="SkCanvas_Reference#Matrix">Canvas Matrix</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_canvas"> <code><strong>canvas </strong></code> </a></td> <td>
 <a href="SkCanvas_Reference#Canvas">Canvas</a> to guard</td>
   </tr>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_doSave"> <code><strong>doSave </strong></code> </a></td> <td>
-call <a href="#SkCanvas_save">SkCanvas::save()</a></td>
+call <a href="SkCanvas_Reference#SkCanvas_save">SkCanvas::save()</a></td>
   </tr>
 </table>
 
@@ -56,7 +56,7 @@ utility to restore <a href="SkCanvas_Reference#Canvas">Canvas</a> state on destr
 
 ### See Also
 
-<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
+<a href="SkCanvas_Reference#SkCanvas_save">SkCanvas::save</a> <a href="SkCanvas_Reference#SkCanvas_restore">SkCanvas::restore</a>
 
 ---
 
@@ -72,7 +72,7 @@ scope.
 
 ### See Also
 
-<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
+<a href="SkCanvas_Reference#SkCanvas_save">SkCanvas::save</a> <a href="SkCanvas_Reference#SkCanvas_restore">SkCanvas::restore</a>
 
 ---
 
@@ -108,7 +108,7 @@ final count: 1
 
 ### See Also
 
-<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
+<a href="SkCanvas_Reference#SkCanvas_save">SkCanvas::save</a> <a href="SkCanvas_Reference#SkCanvas_restore">SkCanvas::restore</a>
 
 ---
 
