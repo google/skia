@@ -19,7 +19,8 @@ struct DisplayParams;
 namespace window_context_factory {
 
 struct IOSWindowInfo {
-    SDL_Window*  fWindow;
+    SDL_Window*   fWindow;
+    SDL_GLContext fGLContext;
 };
 
 inline WindowContext* NewVulkanForIOS(const IOSWindowInfo&, const DisplayParams&) {
