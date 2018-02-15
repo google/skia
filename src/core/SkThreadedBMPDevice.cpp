@@ -156,7 +156,7 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
         const SkMatrix* prePathMatrix, bool pathIsMutable) {
     SkRect drawBounds = path.isInverseFillType() ? SkRectPriv::MakeLargest()
                                                  : get_fast_bounds(path.getBounds(), paint);
-    if (path.countVerbs() < 100) { // when path is small, init-once has too much overhead
+    if (path.countVerbs() < 4) { // when path is small, init-once has too much overhead
         fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds) {
             TileDraw(ds, tileBounds).drawPath(path, paint, prePathMatrix, false);
         });

@@ -92,7 +92,11 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
     bool canUseMask = !deltas->forceRLE() &&
                       SkCoverageDeltaMask::CanHandle(SkIRect::MakeLTRB(0, 0, clip.width(), 1));
     const SkAntiRect& antiRect = deltas->getAntiRect();
-    for(int y = deltas->top(); y < deltas->bottom(); ++y) {
+
+    // Only access rows within our clip. Otherwise, we'll have data race in the threaded backend.
+    int top = SkTMax(deltas->top(), clip.fTop);
+    int bottom = SkTMin(deltas->bottom(), clip.fBottom);
+    for(int y = top; y < bottom; ++y) {
         // If antiRect is non-empty and we're at its top row, blit it and skip to the bottom
         if (antiRect.fHeight && y == antiRect.fY) {
             this->blitAntiRect(antiRect.fX, antiRect.fY, antiRect.fWidth, antiRect.fHeight,

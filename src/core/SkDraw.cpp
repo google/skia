@@ -1019,7 +1019,7 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
 
     if (iData == nullptr) {
         proc(devPath, *fRC, blitter); // proceed directly if we're not in threaded init-once
-    } else if (true || !doFill || !paint.isAntiAlias()) {
+    } else if (!doFill || !paint.isAntiAlias()) {
         // TODO remove true in the if statement above so we can proceed to DAA.
 
         // We're in threaded init-once but we can't use DAA. Hence we'll stop here and hand all the
@@ -1033,7 +1033,15 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
         });
     } else {
         // We can use DAA to do scan conversion in the init-once phase.
-        // TODO To be implemented
+        SkDAARecord* record = iData->fAlloc->make<SkDAARecord>(iData->fAlloc);
+        SkNullBlitter nullBlitter; // We don't want to blit anything during the init phase
+        SkScan::AntiFillPath(devPath, *fRC, &nullBlitter, record);
+        iData->fElement->setDrawFn([record, devPath, blitter](SkArenaAlloc* alloc,
+                    const SkThreadedBMPDevice::DrawState& ds, const SkIRect& tileBounds) {
+            SkASSERT(record->fType != SkDAARecord::Type::kToBeComputed);
+            SkThreadedBMPDevice::TileDraw tileDraw(ds, tileBounds);
+            SkScan::AntiFillPath(devPath, *tileDraw.fRC, blitter, record);
+        });
     }
 }
 
