@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc6a4102_9917eda0",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-16T17:01:17Z",
+      "side": 1,
+      "message": "match the -\u003e with the?",
+      "range": {
+        "startLine": 765,
+        "startChar": 78,
+        "endLine": 765,
+        "endChar": 98
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a5095dc_ee4fa35d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 2235,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-16T17:01:17Z",
+      "side": 1,
+      "message": "did you mean to drop the SRGBA here?",
+      "range": {
+        "startLine": 2235,
+        "startChar": 43,
+        "endLine": 2235,
+        "endChar": 66
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7095424e_1294caaf",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 1882,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-16T17:01:17Z",
+      "side": 1,
+      "message": "nit 100 chars",
+      "range": {
+        "startLine": 1882,
+        "startChar": 11,
+        "endLine": 1882,
+        "endChar": 101
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
