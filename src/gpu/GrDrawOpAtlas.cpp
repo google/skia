@@ -371,7 +371,7 @@ void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
     // a blinking cursor is drawn.
     // TODO: consider if we should also do this if it's been a long time since the last atlas use
     if (atlasUsedThisFlush) {
-        int availablePlots = 0;
+        SkTArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumPages - 1;
 
         // For all plots but the last one, update number of flushes since used, and check to see
@@ -400,7 +400,7 @@ void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
                 // Count plots we can potentially upload to in all pages except the last one
                 // (the potential compactee).
                 if (plot->flushesSinceLastUsed() > kRecentlyUsedCount) {
-                    ++availablePlots;
+                    availablePlots.push_back() = plot;
                 }
 
                 plotIter.next();
@@ -439,9 +439,10 @@ void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
                 // see if there's room in an earlier page and if so evict.
                 // We need to be somewhat harsh here so that one plot that is consistently in use
                 // doesn't end up locking the page in memory.
-                if (availablePlots) {
+                if (availablePlots.count() > 0) {
                     this->processEvictionAndResetRects(plot);
-                    --availablePlots;
+                    this->processEvictionAndResetRects(availablePlots.back());
+                    availablePlots.pop_back();
                 }
             } else if (plot->lastUseToken() != GrDeferredUploadToken::AlreadyFlushedToken()) {
                 // otherwise if aged out just evict it.
