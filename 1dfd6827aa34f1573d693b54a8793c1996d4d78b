@@ -470,6 +470,30 @@
     },
     {
       "key": {
+        "uuid": "69f0ea66_b857bc79",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 2235,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:42:49Z",
+      "side": 1,
+      "message": "To elaborate a bit: fReadColorType is what the caller should pass to GrGpu::readPixels() after doing the temp draw. GrGpu::readPixels() doesn\u0027t have a notion of srgb-ness of the dst buffer. It does type (float/unorm) conversions substitutes 0/1 for missing channels in the src and otherwise preserves values. Similar for GrGpu::writePixels().",
+      "parentUuid": "9bbe9537_b17d3366",
+      "range": {
+        "startLine": 2235,
+        "startChar": 43,
+        "endLine": 2235,
+        "endChar": 66
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7095424e_1294caaf",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 14
