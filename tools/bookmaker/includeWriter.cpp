@@ -732,16 +732,23 @@ void IncludeWriter::structOut(const Definition* root, const Definition& child,
 Definition* IncludeWriter::findMemberCommentBlock(const vector<Definition*>& bmhChildren,
 		const string& name) const {
 	for (auto memberDef : bmhChildren) {
-		if (memberDef->fName.length() - name.length() == memberDef->fName.find(name)) {
-			return memberDef;
-		}
+        if (MarkType::kMember != memberDef->fMarkType) {
+            continue;
+        }
+        string match = memberDef->fName;
+        // if match.endsWith(name) ...
+        if (match.length() >= name.length() && 
+                0 == match.compare(match.length() - name.length(), name.length(), name)) {
+            return memberDef;
+        }
 	}
 	for (auto memberDef : bmhChildren) {
-		if (MarkType::kSubtopic == memberDef->fMarkType || MarkType::kTopic == memberDef->fMarkType) {
-			Definition* result = this->findMemberCommentBlock(memberDef->fChildren, name);
-			if (result) {
-				return result;
-			}
+		if (MarkType::kSubtopic != memberDef->fMarkType && MarkType::kTopic != memberDef->fMarkType) {
+            continue;
+        }
+		Definition* result = this->findMemberCommentBlock(memberDef->fChildren, name);
+		if (result) {
+			return result;
 		}
 	}
 	return nullptr;
@@ -762,12 +769,9 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
 	if (!commentBlock) {
 		return memberStart->reportError<Definition*>("member missing comment block");
 	}
-	const char* commentStart = commentBlock->fContentStart;
-	ptrdiff_t commentLen = commentBlock->fContentEnd - commentStart;
-	bool isShort = commentBlock->fShort;
-	SkASSERT(!isShort || commentBlock->fChildren.size() == 0);
-
-    if (!isShort) {
+    if (!commentBlock->fShort) {
+        const char* commentStart = commentBlock->fContentStart;
+        ptrdiff_t commentLen = commentBlock->fContentEnd - commentStart;
         this->writeCommentHeader();
         bool wroteLineFeed = false;
         fIndent += 4;
@@ -812,14 +816,38 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
                 valueStart->fContentStart);
     }
     this->writeString(";");
-    if (isShort) {
+    if (commentBlock->fShort) {
         this->indentToColumn(fStructCommentTab);
         this->writeString("//!<");
         this->writeSpace();
-        this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
+        string extract = commentBlock->extractText(Definition::TrimExtract::kYes);
+        this->rewriteBlock(extract.length(), &extract.front(), Phrase::kNo);
     }
     this->lf(2);
     return valueEnd;
+}
+
+// iterate through bmh children and see which comments fit on include lines
+void IncludeWriter::structSetMembersShort(const vector<Definition*>& bmhChildren) {
+    for (auto memberDef : bmhChildren) {
+        if (MarkType::kMember != memberDef->fMarkType) {
+            continue;
+        }
+        string extract = memberDef->extractText(Definition::TrimExtract::kYes);
+        bool multiline = string::npos != extract.find('\n');
+        if (multiline) {
+            memberDef->fShort = false;
+        } else {
+            ptrdiff_t lineLen = extract.length() + 5 /* //!< space */ ;
+            memberDef->fShort = fStructCommentTab + lineLen < 100;
+        }
+    }
+    for (auto memberDef : bmhChildren) {
+        if (MarkType::kSubtopic != memberDef->fMarkType && MarkType::kTopic != memberDef->fMarkType) {
+            continue;
+        }
+        this->structSetMembersShort(memberDef->fChildren);
+    }
 }
 
 void IncludeWriter::structSizeMembers(const Definition& child) {
@@ -933,20 +961,7 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
         fStructValueTab -= 1 /* ; */ ;
     }
     // iterate through bmh children and see which comments fit on include lines
-    for (auto& member : fBmhStructDef->fChildren) {
-        if (MarkType::kMember != member->fMarkType) {
-            continue;
-        }
-        TextParser memberLine(member);
-        memberLine.trimEnd();
-        const char* commentStart = memberLine.fChar;
-        memberLine.skipLine();
-        ptrdiff_t lineLen = memberLine.fChar - commentStart + 5 /* //!< space */ ;
-        if (!memberLine.eof()) {
-            memberLine.skipWhiteSpace();
-        }
-        member->fShort = memberLine.eof() && fStructCommentTab + lineLen < 100;
-    }
+    this->structSetMembersShort(fBmhStructDef->fChildren);
 }
 
 static bool find_start(const Definition* startDef, const char* start) {
@@ -1410,11 +1425,13 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                         return false;
                     }
                 } else {
+                    if (KeyWord::kClass == child.fKeyWord || KeyWord::kStruct == child.fKeyWord) {
+                        fStructMemberTab = 0;
+                    }
                     if (!this->populate(&child, &pair, root)) {
                         return false;
                     }
                     if (KeyWord::kClass == child.fKeyWord || KeyWord::kStruct == child.fKeyWord) {
-                        fStructMemberTab = 0;
                         if (fInStruct) {
                             fInStruct = false;
                             do {
@@ -1661,6 +1678,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
         RefType* refType) {
         // look up Xxx_Xxx
     string undername(start, end - start);
+    if ("Paint_Stroke_Width" == undername) {
+        SkDebugf("");
+    }
     for (const auto& external : fBmhParser->fExternals) {
         if (external.fName == undername) {
             *refType = RefType::kExternal;
@@ -1779,7 +1799,7 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                     if (parent->fParent != fRootTopic) {
                         substitute = parent->fName;
                         substitute += ' ';
-                        substitute += ConvertRef(undername, false);
+                        substitute += ConvertRef(rootDef->fName, false);
                     } else {
                         substitute += ConvertRef(undername, first);
                     }
@@ -1802,6 +1822,7 @@ int IncludeWriter::lookupMethod(const PunctuationState punctuation, const Word w
         ++wordStart;
     }
     const int wordEnd = PunctuationState::kDelimiter == punctuation ||
+            PunctuationState::kParen == punctuation ||
             PunctuationState::kPeriod == punctuation ? run - 1 : run;
     string temp;
     if (hasIndirection && '(' != data[wordEnd - 1] && ')' != data[wordEnd - 1]) {
@@ -1837,6 +1858,7 @@ int IncludeWriter::lookupMethod(const PunctuationState punctuation, const Word w
 int IncludeWriter::lookupReference(const PunctuationState punctuation, const Word word,
         const int start, const int run, int lastWrite, const char last, const char* data) {
     const int end = PunctuationState::kDelimiter == punctuation ||
+            PunctuationState::kParen == punctuation ||
             PunctuationState::kPeriod == punctuation ? run - 1 : run;
     RefType refType = RefType::kUndefined;
     string resolved = string(&data[start], (size_t) (end - start));
@@ -1936,7 +1958,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                     case Word::kMixed:
                         if (hasUpper && hasLower && !hasSymbol && lastSpace > 0) {
                             lastWrite = this->lookupMethod(punctuation, word, lastSpace, run,
-                                    lastWrite, data, hasIndirection && !hasSymbol);
+                                    lastWrite, data, hasIndirection);
                         }
                         break;
                     default:
@@ -1954,7 +1976,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                 hasSymbol = false;
                 lastSpace = run;
                 break;
-            case '.':
+            case '.': case ',': case ';': case ':': case ')':
                 switch (word) {
                     case Word::kStart:
                         punctuation = PunctuationState::kDelimiter;
@@ -1966,31 +1988,13 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                                 PunctuationState::kPeriod == punctuation) {
                             word = Word::kMixed;
                         }
-                        punctuation = PunctuationState::kPeriod;
+                        punctuation = '.' == c ? PunctuationState::kPeriod :
+                                PunctuationState::kDelimiter;
                         break;
                     default:
                         SkASSERT(0);
                 }
-                embeddedIndirection = true;
-                break;
-            case ',': case ';': case ':':
-                switch (word) {
-                    case Word::kStart:
-                        punctuation = PunctuationState::kDelimiter;
-                    case Word::kCap:
-                    case Word::kFirst:
-                    case Word::kUnderline:
-                    case Word::kMixed:
-                        if (PunctuationState::kDelimiter == punctuation ||
-                                PunctuationState::kPeriod == punctuation) {
-                            word = Word::kMixed;
-                        }
-                        punctuation = PunctuationState::kDelimiter;
-                        break;
-                    default:
-                        SkASSERT(0);
-                }
-                embeddedSymbol = true;
+                ('.' == c ? embeddedIndirection : embeddedSymbol) = true;
                 break;
             case '>':
                 if ('-' == last) {
@@ -2007,14 +2011,10 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                 break;
             case '(':
                 if (' ' == last) {
-                    punctuation = PunctuationState::kDelimiter;
+                    punctuation = PunctuationState::kParen;
                 } else {
                     word = Word::kMixed;
                 }
-                embeddedSymbol = true;
-                break;
-            case ')':   // assume word type has already been set
-                punctuation = PunctuationState::kDelimiter;
                 embeddedSymbol = true;
                 break;
             case '_':
