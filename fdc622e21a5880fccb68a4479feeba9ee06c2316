@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd12b961_ccae789b",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-16T15:41:14Z",
+      "side": 1,
+      "message": "This immediately raises the question... how are we going to be calling this that\u0027s not practical to use makeArrayDefault()?",
+      "revId": "fdc622e21a5880fccb68a4479feeba9ee06c2316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
