@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27a5a129_ff014878",
+        "filename": "experimental/svg/model/SkSVGNode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-16T18:41:16Z",
+      "side": 1,
+      "message": "Hmm, ideally we should have a flag per (attr, tag) tuple - otherwise the usefulness of this log drops significantly.  That\u0027s obviously overkill though...\n\nSince nobody is paying attentions to these other than when developing SkSVG, how about suppressing for non-dev builds?\n\nThere\u0027s a SK_VERBOSE_SVG_PARSING define you can use to guard this log (similar to other log messages in SkSVGDOM.cpp).",
+      "revId": "46532f7b973d75c5a0efcc016c0c5dba242c0e6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
