@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd1e27c3_7d71213b",
+        "filename": "infra/bots/isolate_sdk_linux.isolate",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-16T21:07:39Z",
+      "side": 1,
+      "message": "Nit: this should probably be \"isolate_android_sdk_linux.isolate\" for clarity.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 1
+      },
+      "revId": "fda7fbe1777c1eac03c8f6501894fa6e8697ee35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d2dd612_3ed4cf1b",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-16T21:07:39Z",
+      "side": 1,
+      "message": "Can we change get_branch() to return only the branch name without \"branch: \"?",
+      "range": {
+        "startLine": 163,
+        "startChar": 16,
+        "endLine": 163,
+        "endChar": 32
+      },
+      "revId": "fda7fbe1777c1eac03c8f6501894fa6e8697ee35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
