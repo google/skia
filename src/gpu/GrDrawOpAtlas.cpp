@@ -14,6 +14,7 @@
 #include "GrRectanizer.h"
 #include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTracing.h"
 
@@ -34,11 +35,11 @@ void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvid
     }
 }
 
-std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig config, int width,
+std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrPixelConfig config, int width,
                                                    int height, int numPlotsX, int numPlotsY,
                                                    AllowMultitexturing allowMultitexturing,
                                                    GrDrawOpAtlas::EvictionFunc func, void* data) {
-    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(ctx, config, width, height, numPlotsX,
+    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(config, width, height, numPlotsX,
                                                            numPlotsY, allowMultitexturing));
     if (!atlas->getProxies()[0]) {
         return nullptr;
@@ -165,10 +166,9 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width, int height,
+GrDrawOpAtlas::GrDrawOpAtlas(GrPixelConfig config, int width, int height,
                              int numPlotsX, int numPlotsY, AllowMultitexturing allowMultitexturing)
-        : fContext(context)
-        , fPixelConfig(config)
+        : fPixelConfig(config)
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1)
@@ -204,11 +204,14 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<Plot> plotsp(SkRef(plot));
 
+#if 0
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
         if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
             return false;
         }
+#endif
+        SkASSERT(fProxies[pageIdx]->priv().isInstantiated());
 
         GrTextureProxy* proxy = fProxies[pageIdx].get();
 
@@ -326,11 +329,16 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     // one it displaced most likely was uploaded ASAP.
     // With c+14 we could move sk_sp into lambda to only ref once.
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
+
+#if 0
     // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
     // Once it is deferred more care must be taken upon instantiation failure.
     if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
         return false;
     }
+#endif
+    SkASSERT(fProxies[pageIdx]->priv().isInstantiated());
+
     GrTextureProxy* proxy = fProxies[pageIdx].get();
 
     GrDeferredUploadToken lastUploadToken = target->addInlineUpload(
@@ -473,7 +481,7 @@ bool GrDrawOpAtlas::createNewPage() {
         return false;
     }
 
-    GrProxyProvider* proxyProvider = fContext->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = nullptr; //fContext->contextPriv().proxyProvider();
 
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
