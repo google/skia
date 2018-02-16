@@ -95,8 +95,8 @@ void SkInternalAtlasTextContext::flush() {
     }
     GrDeferredTextureUploadWritePixelsFn writePixelsFn =
             [this](GrTextureProxy* proxy, int left, int top, int width, int height,
-                   GrPixelConfig config, const void* data, size_t rowBytes) -> bool {
-        SkASSERT(kAlpha_8_GrPixelConfig == config);
+                   GrColorType colorType, const void* data, size_t rowBytes) -> bool {
+        SkASSERT(GrColorType::kAlpha_8 == colorType);
         SkASSERT(proxy == this->fDistanceFieldAtlas.fProxy);
         void* handle = fDistanceFieldAtlas.fTextureHandle;
         this->fRenderer->setTextureData(handle, data, left, top, width, height, rowBytes);
