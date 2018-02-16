@@ -239,8 +239,12 @@ static void TestGradientOptimization(skiatest::Reporter* reporter) {
         { gC_0011, gP_0011, 4, gC_0011, gP_0011, 4, false },
     };
 
+    const SkShader::TileMode modes[] = {
+        SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode,
+        // TODO: add kDecal_TileMode when it is implemented
+    };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gProcInfo); ++i) {
-        for (int mode = 0; mode < SkShader::kTileModeCount; ++mode) {
+        for (auto mode : modes) {
             if (gProcInfo[i].fIsClampRestricted && mode != SkShader::kClamp_TileMode) {
                 continue;
             }

@@ -66,7 +66,7 @@ void SkImageShader::flatten(SkWriteBuffer& buffer) const {
 }
 
 bool SkImageShader::isOpaque() const {
-    return fImage->isOpaque();
+    return fImage->isOpaque() && fTileModeX != kDecal_TileMode && fTileModeY != kDecal_TileMode;
 }
 
 static bool legacy_shader_can_handle(const SkMatrix& a, const SkMatrix& b) {
@@ -111,6 +111,9 @@ bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, Sk
         return true;
     }
 #endif
+    if (tx == kDecal_TileMode || ty == kDecal_TileMode) {
+        return true;
+    }
     if (!legacy_shader_can_handle(ctm, localM)) {
         return true;
     }
@@ -214,6 +217,9 @@ static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkShader::TileMode 
             return GrSamplerState::WrapMode::kRepeat;
         case SkShader::TileMode::kMirror_TileMode:
             return GrSamplerState::WrapMode::kMirrorRepeat;
+        case SkShader::kDecal_TileMode:
+            // TODO: depending on caps, we should extend WrapMode for decal...
+            return GrSamplerState::WrapMode::kClamp;
     }
     SK_ABORT("Unknown tile mode.");
     return GrSamplerState::WrapMode::kClamp;
@@ -361,17 +367,32 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
 
     bool is_srgb = rec.fDstCS && (!info.colorSpace() || info.gammaCloseToSRGB());
 
+    SkJumper_DecalTileCtx* decal_ctx = nullptr;
+    bool decal_x_and_y = fTileModeX == kDecal_TileMode && fTileModeY == kDecal_TileMode;
+    if (fTileModeX == kDecal_TileMode || fTileModeY == kDecal_TileMode) {
+        decal_ctx = alloc->make<SkJumper_DecalTileCtx>();
+        decal_ctx->limit_x = limit_x->scale;
+        decal_ctx->limit_y = limit_y->scale;
+    }
+
     auto append_tiling_and_gather = [&] {
-        switch (fTileModeX) {
-            case kClamp_TileMode:  /* The gather_xxx stage will clamp for us. */   break;
-            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit_x); break;
-            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit_x); break;
+        if (decal_x_and_y) {
+            p->append(SkRasterPipeline::decal_x_and_y,  decal_ctx);
+        } else {
+            switch (fTileModeX) {
+                case kClamp_TileMode:  /* The gather_xxx stage will clamp for us. */     break;
+                case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit_x);   break;
+                case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit_x);   break;
+                case kDecal_TileMode:  p->append(SkRasterPipeline::decal_x,  decal_ctx); break;
+            }
+            switch (fTileModeY) {
+                case kClamp_TileMode:  /* The gather_xxx stage will clamp for us. */     break;
+                case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, limit_y);   break;
+                case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, limit_y);   break;
+                case kDecal_TileMode:  p->append(SkRasterPipeline::decal_y,  decal_ctx); break;
+            }
         }
-        switch (fTileModeY) {
-            case kClamp_TileMode:  /* The gather_xxx stage will clamp for us. */   break;
-            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, limit_y); break;
-            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, limit_y); break;
-        }
+
         void* ctx = gather;
         switch (info.colorType()) {
             case kAlpha_8_SkColorType:      p->append(SkRasterPipeline::gather_a8,      ctx); break;
@@ -389,6 +410,9 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
                                             p->append(SkRasterPipeline::force_opaque       ); break;
 
             default: SkASSERT(false);
+        }
+        if (decal_ctx) {
+            p->append(SkRasterPipeline::check_decal_mask, decal_ctx);
         }
         if (is_srgb) {
             p->append(SkRasterPipeline::from_srgb);
