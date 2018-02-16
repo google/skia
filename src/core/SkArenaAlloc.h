@@ -137,6 +137,13 @@ public:
         return array;
     }
 
+    // Only use makeBytesAlignedTo if none of the typed variants are impractical to use.
+    void* makeBytesAlignedTo(size_t size, size_t align) {
+        auto objStart = this->allocObject(SkTo<uint32_t>(size), SkTo<uint32_t>(align));
+        fCursor = objStart + size;
+        return objStart;
+    }
+
     // Destroy all allocated objects, free any heap allocations.
     void reset();
 
