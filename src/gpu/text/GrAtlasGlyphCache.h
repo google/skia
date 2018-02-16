@@ -16,7 +16,7 @@
 #include "SkGlyphCache.h"
 #include "SkTDynamicHash.h"
 
-class GrAtlasGlyphCache;
+class GrAtlasGlyphCache1;
 class GrGpu;
 
 /**
@@ -28,8 +28,7 @@ class GrGpu;
  */
 class GrAtlasTextStrike : public SkNVRefCnt<GrAtlasTextStrike> {
 public:
-    /** Owner is the cache that owns this strike. */
-    GrAtlasTextStrike(GrAtlasGlyphCache* owner, const SkDescriptor& fontScalerKey);
+    GrAtlasTextStrike(const SkDescriptor& fontScalerKey);
     ~GrAtlasTextStrike();
 
     inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
@@ -65,7 +64,7 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrDeferredUploadTarget*, GrGlyph*, SkGlyphCache*,
+    bool addGlyphToAtlas(GrDeferredUploadTarget*, GrAtlasManager*, GrGlyph*, SkGlyphCache*,
                          GrMaskFormat expectedMaskFormat);
 
     // testing
@@ -75,7 +74,7 @@ public:
     void removeID(GrDrawOpAtlas::AtlasID);
 
     // If a TextStrike is abandoned by the cache, then the caller must get a new strike
-    bool isAbandoned() const { return fIsAbandoned; }
+    bool isAbandoned1() const { return fIsAbandoned1; }
 
     static const SkDescriptor& GetKey(const GrAtlasTextStrike& ts) {
         return *ts.fFontScalerKey.getDesc();
@@ -86,11 +85,10 @@ public:
 private:
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID> fCache;
     SkAutoDescriptor fFontScalerKey;
-    SkArenaAlloc fPool{512};
+    SkArenaAlloc fPool1{512};
 
-    GrAtlasGlyphCache* fAtlasGlyphCache;
     int fAtlasedGlyphs;
-    bool fIsAbandoned;
+    bool fIsAbandoned1;
 
     static const SkGlyph& GrToSkGlyph(SkGlyphCache* cache, GrGlyph::PackedID id) {
         return cache->getGlyphIDMetrics(GrGlyph::UnpackID(id),
@@ -100,24 +98,27 @@ private:
 
     GrGlyph* generateGlyph(const SkGlyph&, GrGlyph::PackedID, SkGlyphCache*);
 
-    friend class GrAtlasGlyphCache;
+    friend class GrAtlasGlyphCache1;
 };
 
 /**
  * GrAtlasGlyphCache manages strikes which are indexed by a SkGlyphCache. These strikes can then be
- * used to generate individual Glyph Masks. The GrAtlasGlyphCache also manages GrDrawOpAtlases,
- * though this is more or less transparent to the client(aside from atlasGeneration, described
- * below).
+ * used to generate individual Glyph Masks.
  */
-class GrAtlasGlyphCache : public GrOnFlushCallbackObject {
+class GrAtlasGlyphCache1 {
 public:
-    GrAtlasGlyphCache(GrContext*, float maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
-    ~GrAtlasGlyphCache() override;
+    GrAtlasGlyphCache1(SkScalar glyphSizeLimit);
+    ~GrAtlasGlyphCache1();
+
+    SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
+
+    void freeAll();
+
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrAtlasTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    inline GrAtlasTextStrike* getStrike(const SkGlyphCache* cache) {
+    inline GrAtlasTextStrike* getStrike1(const SkGlyphCache* cache) {
         GrAtlasTextStrike* strike = fCache.find(cache->getDescriptor());
         if (nullptr == strike) {
             strike = this->generateStrike(cache);
@@ -125,26 +126,87 @@ public:
         return strike;
     }
 
-    void freeAll();
+    static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
+
+private:
+    GrAtlasTextStrike* generateStrike(const SkGlyphCache* cache) {
+        GrAtlasTextStrike* strike = new GrAtlasTextStrike(cache->getDescriptor());
+        fCache.add(strike);
+        return strike;
+    }
+
+    using StrikeHash = SkTDynamicHash<GrAtlasTextStrike, SkDescriptor>;
+
+    StrikeHash         fCache;
+    GrAtlasTextStrike* fPreserveStrike;
+    SkScalar           fGlyphSizeLimit;
+};
+
+ /** The GrAtlasManager classes manage the lifetime of and access to GrDrawOpAtlases.
+  *  The restricted version is available at op creation time and only allows basic access
+  *  to the proxies (so the created ops can reference them). The full GrAtlasManager class
+  *  is only available and flush time and only via the GrOpFlushState.
+  *
+  *  This organization implies that all of the advanced atlasManager functionality (i.e.,
+  *  adding
+  */
+class GrRestrictedAtlasManager : public GrOnFlushCallbackObject {
+public:
+    GrRestrictedAtlasManager(sk_sp<const GrCaps>, float maxTextureBytes,
+                             GrDrawOpAtlas::AllowMultitexturing);
+    ~GrRestrictedAtlasManager() override;
 
     // if getProxies returns nullptr, the client must not try to use other functions on the
     // GrAtlasGlyphCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas.
-    const sk_sp<GrTextureProxy>* getProxies(GrMaskFormat format) {
+    const sk_sp<GrTextureProxy>* getProxies(GrMaskFormat format, int* numProxies) {
         if (this->initAtlas(format)) {
+            *numProxies = this->getAtlas(format)->pageCount1();
             return this->getAtlas(format)->getProxies();
         }
+        *numProxies = 0;
         return nullptr;
     }
 
-    uint32_t getAtlasPageCount(GrMaskFormat format) {
-        if (this->initAtlas(format)) {
-            return this->getAtlas(format)->pageCount();
-        }
-        return 0;
+    SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
+
+protected:
+    // There is a 1:1 mapping between GrMaskFormats and atlas indices
+    static int MaskFormatToAtlasIndex(GrMaskFormat format) {
+        static const int sAtlasIndices[] = {
+            kA8_GrMaskFormat,
+            kA565_GrMaskFormat,
+            kARGB_GrMaskFormat,
+        };
+        static_assert(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, "array_size_mismatch");
+
+        SkASSERT(sAtlasIndices[format] < kMaskFormatCount);
+        return sAtlasIndices[format];
     }
 
-    SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
+    GrDrawOpAtlas* getAtlas(GrMaskFormat format) const {
+        int atlasIndex = MaskFormatToAtlasIndex(format);
+        SkASSERT(fAtlases[atlasIndex]);
+        return fAtlases[atlasIndex].get();
+    }
+
+    sk_sp<const GrCaps> fCaps;
+    GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
+    std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
+    GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];
+    SkScalar fGlyphSizeLimit;
+
+private:
+    bool initAtlas(GrMaskFormat);
+
+    typedef GrOnFlushCallbackObject INHERITED;
+};
+
+class GrAtlasManager : public GrRestrictedAtlasManager {
+public:
+    GrAtlasManager(sk_sp<const GrCaps>, float maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
+
+    void freeAll();
 
     bool hasGlyph(GrGlyph* glyph) {
         SkASSERT(glyph);
@@ -170,11 +232,12 @@ public:
     }
 
     // add to texture atlas that matches this format
-    bool addToAtlas(GrAtlasTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
+    bool addToAtlas2(GrAtlasTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
                     GrDeferredUploadTarget* target, GrMaskFormat format, int width, int height,
                     const void* image, SkIPoint16* loc) {
-        fPreserveStrike = strike;
-        return this->getAtlas(format)->addToAtlas(id, target, width, height, image, loc);
+        // TODO: need to restore this!
+        //fPreserveStrike = strike;
+        return this->getAtlas(format)->addToAtlas1(id, target, width, height, image, loc);
     }
 
     // Some clients may wish to verify the integrity of the texture backing store of the
@@ -211,65 +274,13 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended debug only
 #ifdef SK_DEBUG
-    void dump() const;
+    void dump(GrContext* context) const;
 #endif
 
     void setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]);
 
-    GrContext* context() const { return fContext; }
-
 private:
-    static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format, const GrCaps& caps) {
-        switch (format) {
-            case kA8_GrMaskFormat:
-                return kAlpha_8_GrPixelConfig;
-            case kA565_GrMaskFormat:
-                return kRGB_565_GrPixelConfig;
-            case kARGB_GrMaskFormat:
-                return caps.srgbSupport() ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
-            default:
-                SkDEBUGFAIL("unsupported GrMaskFormat");
-                return kAlpha_8_GrPixelConfig;
-        }
-    }
-
-    // There is a 1:1 mapping between GrMaskFormats and atlas indices
-    static int MaskFormatToAtlasIndex(GrMaskFormat format) {
-        static const int sAtlasIndices[] = {
-            kA8_GrMaskFormat,
-            kA565_GrMaskFormat,
-            kARGB_GrMaskFormat,
-        };
-        static_assert(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, "array_size_mismatch");
-
-        SkASSERT(sAtlasIndices[format] < kMaskFormatCount);
-        return sAtlasIndices[format];
-    }
-
-    bool initAtlas(GrMaskFormat);
-
-    GrAtlasTextStrike* generateStrike(const SkGlyphCache* cache) {
-        GrAtlasTextStrike* strike = new GrAtlasTextStrike(this, cache->getDescriptor());
-        fCache.add(strike);
-        return strike;
-    }
-
-    GrDrawOpAtlas* getAtlas(GrMaskFormat format) const {
-        int atlasIndex = MaskFormatToAtlasIndex(format);
-        SkASSERT(fAtlases[atlasIndex]);
-        return fAtlases[atlasIndex].get();
-    }
-
-    static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
-
-    using StrikeHash = SkTDynamicHash<GrAtlasTextStrike, SkDescriptor>;
-    GrContext* fContext;
-    StrikeHash fCache;
-    GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
-    std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
-    GrAtlasTextStrike* fPreserveStrike;
-    GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];
-    SkScalar fGlyphSizeLimit;
+    typedef GrRestrictedAtlasManager INHERITED;
 };
 
 #endif

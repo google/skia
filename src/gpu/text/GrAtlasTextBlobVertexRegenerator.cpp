@@ -192,12 +192,11 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
 
 Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx,
                                const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                               GrDeferredUploadTarget* uploadTarget, GrAtlasGlyphCache* glyphCache,
+                               GrDeferredUploadTarget* uploadTarget,
                                SkAutoGlyphCache* lazyCache)
         : fViewMatrix(viewMatrix)
         , fBlob(blob)
         , fUploadTarget(uploadTarget)
-        , fGlyphCache(glyphCache)
         , fLazyCache(lazyCache)
         , fRun(&blob->fRuns[runIdx])
         , fSubRun(&blob->fRuns[runIdx].fSubRunInfo[subRunIdx])
@@ -213,7 +212,7 @@ Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx,
     // new strike, we instead keep our ref to the old strike and use the packed ids from
     // it.  These ids will still be valid as long as we hold the ref.  When we are done
     // updating our cache of the GrGlyph*s, we drop our ref on the old strike
-    if (fSubRun->strike()->isAbandoned()) {
+    if (fSubRun->strike()->isAbandoned1()) {
         fRegenFlags |= kRegenGlyph;
         fRegenFlags |= kRegenTex;
     }
@@ -226,7 +225,7 @@ Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx,
 }
 
 template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-Regenerator::Result Regenerator::doRegen() {
+Regenerator::Result Regenerator::doRegen(GrAtlasGlyphCache1* glyphCache, GrAtlasManager* atlasManager) {
     static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
     GrAtlasTextStrike* strike = nullptr;
     if (regenTexCoords) {
@@ -244,7 +243,7 @@ Regenerator::Result Regenerator::doRegen() {
         }
 
         if (regenGlyphs) {
-            strike = fGlyphCache->getStrike(fLazyCache->get());
+            strike = glyphCache->getStrike1(fLazyCache->get());
         } else {
             strike = fSubRun->strike();
         }
@@ -273,16 +272,16 @@ Regenerator::Result Regenerator::doRegen() {
             glyph = fBlob->fGlyphs[glyphOffset];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
-            if (!fGlyphCache->hasGlyph(glyph) &&
-                !strike->addGlyphToAtlas(fUploadTarget, glyph, fLazyCache->get(),
+            if (!atlasManager->hasGlyph(glyph) &&
+                !strike->addGlyphToAtlas(fUploadTarget, atlasManager, glyph, fLazyCache->get(),
                                          fSubRun->maskFormat())) {
                 fBrokenRun = glyphIdx > 0;
                 result.fFinished = false;
                 return result;
             }
             auto tokenTracker = fUploadTarget->tokenTracker();
-            fGlyphCache->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
-                                                      tokenTracker->nextDrawToken());
+            atlasManager->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
+                                                       tokenTracker->nextDrawToken());
         }
 
         regen_vertices<regenPos, regenCol, regenTexCoords>(currVertex, glyph, vertexStride,
@@ -301,13 +300,14 @@ Regenerator::Result Regenerator::doRegen() {
         }
         fSubRun->setAtlasGeneration(fBrokenRun
                                             ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                                            : fGlyphCache->atlasGeneration(fSubRun->maskFormat()));
+                                            : atlasManager->atlasGeneration(fSubRun->maskFormat()));
     }
     return result;
 }
 
-Regenerator::Result Regenerator::regenerate() {
-    uint64_t currentAtlasGen = fGlyphCache->atlasGeneration(fSubRun->maskFormat());
+Regenerator::Result Regenerator::regenerate1(GrAtlasGlyphCache1* glyphCache,
+                                             GrAtlasManager* atlasManager) {
+    uint64_t currentAtlasGen = atlasManager->atlasGeneration(fSubRun->maskFormat());
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
     if (fSubRun->atlasGeneration() != currentAtlasGen) {
@@ -316,29 +316,29 @@ Regenerator::Result Regenerator::regenerate() {
 
     switch (static_cast<RegenMask>(fRegenFlags)) {
         case kRegenPos:
-            return this->doRegen<true, false, false, false>();
+            return this->doRegen<true, false, false, false>(glyphCache, atlasManager);
         case kRegenCol:
-            return this->doRegen<false, true, false, false>();
+            return this->doRegen<false, true, false, false>(glyphCache, atlasManager);
         case kRegenTex:
-            return this->doRegen<false, false, true, false>();
+            return this->doRegen<false, false, true, false>(glyphCache, atlasManager);
         case kRegenGlyph:
-            return this->doRegen<false, false, true, true>();
+            return this->doRegen<false, false, true, true>(glyphCache, atlasManager);
 
         // combinations
         case kRegenPosCol:
-            return this->doRegen<true, true, false, false>();
+            return this->doRegen<true, true, false, false>(glyphCache, atlasManager);
         case kRegenPosTex:
-            return this->doRegen<true, false, true, false>();
+            return this->doRegen<true, false, true, false>(glyphCache, atlasManager);
         case kRegenPosTexGlyph:
-            return this->doRegen<true, false, true, true>();
+            return this->doRegen<true, false, true, true>(glyphCache, atlasManager);
         case kRegenPosColTex:
-            return this->doRegen<true, true, true, false>();
+            return this->doRegen<true, true, true, false>(glyphCache, atlasManager);
         case kRegenPosColTexGlyph:
-            return this->doRegen<true, true, true, true>();
+            return this->doRegen<true, true, true, true>(glyphCache, atlasManager);
         case kRegenColTex:
-            return this->doRegen<false, true, true, false>();
+            return this->doRegen<false, true, true, false>(glyphCache, atlasManager);
         case kRegenColTexGlyph:
-            return this->doRegen<false, true, true, true>();
+            return this->doRegen<false, true, true, true>(glyphCache, atlasManager);
         case kNoRegen: {
             Result result;
             bool hasW = fSubRun->hasWCoord();
@@ -350,9 +350,9 @@ Regenerator::Result Regenerator::regenerate() {
 
             // set use tokens for all of the glyphs in our subrun.  This is only valid if we
             // have a valid atlas generation
-            fGlyphCache->setUseTokenBulk(*fSubRun->bulkUseToken(),
-                                         fUploadTarget->tokenTracker()->nextDrawToken(),
-                                         fSubRun->maskFormat());
+            atlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
+                                          fUploadTarget->tokenTracker()->nextDrawToken(),
+                                          fSubRun->maskFormat());
             return result;
         }
     }

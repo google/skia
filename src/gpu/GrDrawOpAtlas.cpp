@@ -14,6 +14,7 @@
 #include "GrRectanizer.h"
 #include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTracing.h"
 
@@ -34,11 +35,11 @@ void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvid
     }
 }
 
-std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig config, int width,
+std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrPixelConfig config, int width,
                                                    int height, int numPlotsX, int numPlotsY,
                                                    AllowMultitexturing allowMultitexturing,
                                                    GrDrawOpAtlas::EvictionFunc func, void* data) {
-    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(ctx, config, width, height, numPlotsX,
+    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(config, width, height, numPlotsX,
                                                            numPlotsY, allowMultitexturing));
     if (!atlas->getProxies()[0]) {
         return nullptr;
@@ -165,10 +166,9 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width, int height,
+GrDrawOpAtlas::GrDrawOpAtlas(GrPixelConfig config, int width, int height,
                              int numPlotsX, int numPlotsY, AllowMultitexturing allowMultitexturing)
-        : fContext(context)
-        , fPixelConfig(config)
+        : fPixelConfig(config)
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1)
@@ -193,7 +193,7 @@ inline void GrDrawOpAtlas::processEviction(AtlasID id) {
     ++fAtlasGeneration;
 }
 
-inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* id, Plot* plot) {
+inline bool GrDrawOpAtlas::updatePlot1(GrDeferredUploadTarget* target, AtlasID* id, Plot* plot) {
     int pageIdx = GetPageIndexFromID(plot->id());
     this->makeMRU(plot, pageIdx);
 
@@ -204,11 +204,14 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<Plot> plotsp(SkRef(plot));
 
+#if 0
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
         if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
             return false;
         }
+#endif
+        SkASSERT(fProxies[pageIdx]->priv().isInstantiated());
 
         GrTextureProxy* proxy = fProxies[pageIdx].get();
 
@@ -230,7 +233,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
 // are rare; i.e., we are not continually refreshing the frame.
 static constexpr auto kRecentlyUsedCount = 256;
 
-bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int width, int height,
+bool GrDrawOpAtlas::addToAtlas1(AtlasID* id, GrDeferredUploadTarget* target, int width, int height,
                                const void* image, SkIPoint16* loc) {
     if (width > fPlotWidth || height > fPlotHeight) {
         return false;
@@ -248,7 +251,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
         while ((plot = plotIter.get())) {
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
             if (plot->addSubImage(width, height, image, loc)) {
-                return this->updatePlot(target, id, plot);
+                return this->updatePlot1(target, id, plot);
             }
             plotIter.next();
         }
@@ -269,7 +272,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
             SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
             SkASSERT(verify);
-            if (!this->updatePlot(target, id, plot)) {
+            if (!this->updatePlot1(target, id, plot)) {
                 return false;
             }
             return true;
@@ -283,7 +286,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
         Plot* plot = fPages[pageIdx].fPlotList.head();
         SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
         if (plot->addSubImage(width, height, image, loc)) {
-            return this->updatePlot(target, id, plot);
+            return this->updatePlot1(target, id, plot);
         }
 
         // we shouldn't get here -- if so, something has gone terribly wrong
@@ -326,11 +329,16 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     // one it displaced most likely was uploaded ASAP.
     // With c+14 we could move sk_sp into lambda to only ref once.
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
+
+#if 0
     // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
     // Once it is deferred more care must be taken upon instantiation failure.
     if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
         return false;
     }
+#endif
+    SkASSERT(fProxies[pageIdx]->priv().isInstantiated());
+
     GrTextureProxy* proxy = fProxies[pageIdx].get();
 
     GrDeferredUploadToken lastUploadToken = target->addInlineUpload(
@@ -473,7 +481,7 @@ bool GrDrawOpAtlas::createNewPage() {
         return false;
     }
 
-    GrProxyProvider* proxyProvider = fContext->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = nullptr; //fContext->contextPriv().proxyProvider();
 
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;

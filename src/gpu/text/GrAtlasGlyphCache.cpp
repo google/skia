@@ -16,30 +16,55 @@
 #include "SkMathPriv.h"
 #include "SkString.h"
 
-bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
-    int index = MaskFormatToAtlasIndex(format);
-    if (!fAtlases[index]) {
-        GrPixelConfig config = MaskFormatToPixelConfig(format, *fContext->caps());
-        int width = fAtlasConfigs[index].fWidth;
-        int height = fAtlasConfigs[index].fHeight;
-        int numPlotsX = fAtlasConfigs[index].numPlotsX();
-        int numPlotsY = fAtlasConfigs[index].numPlotsY();
-
-        fAtlases[index] = GrDrawOpAtlas::Make(fContext, config, width, height, numPlotsX, numPlotsY,
-                                              fAllowMultitexturing,
-                                              &GrAtlasGlyphCache::HandleEviction, (void*)this);
-        if (!fAtlases[index]) {
-            return false;
-        }
-    }
-    return true;
+GrAtlasGlyphCache1::GrAtlasGlyphCache1(SkScalar glyphSizeLimit)
+        : fPreserveStrike(nullptr)
+        , fGlyphSizeLimit(glyphSizeLimit) {
 }
 
-GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes,
-                                     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
-        : fContext(context), fAllowMultitexturing(allowMultitexturing), fPreserveStrike(nullptr) {
+GrAtlasGlyphCache1::~GrAtlasGlyphCache1() {
+    StrikeHash::Iter iter(&fCache);
+    while (!iter.done()) {
+        (*iter).fIsAbandoned1 = true;
+        (*iter).unref();
+        ++iter;
+    }
+}
+
+void GrAtlasGlyphCache1::freeAll() {
+    StrikeHash::Iter iter(&fCache);
+    while (!iter.done()) {
+        (*iter).fIsAbandoned1 = true;
+        (*iter).unref();
+        ++iter;
+    }
+    fCache.rewind();
+}
+
+void GrAtlasGlyphCache1::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
+    GrAtlasGlyphCache1* fontCache = reinterpret_cast<GrAtlasGlyphCache1*>(ptr);
+
+    StrikeHash::Iter iter(&fontCache->fCache);
+    for (; !iter.done(); ++iter) {
+        GrAtlasTextStrike* strike = &*iter;
+        strike->removeID(id);
+
+        // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
+        // triggered the eviction
+        if (strike != fontCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
+            fontCache->fCache.remove(GrAtlasTextStrike::GetKey(*strike));
+            strike->fIsAbandoned1 = true;
+            strike->unref();
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+GrRestrictedAtlasManager::GrRestrictedAtlasManager(sk_sp<const GrCaps> caps, float maxTextureBytes,
+                                                   GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
+            : fCaps(std::move(caps))
+            , fAllowMultitexturing(allowMultitexturing) {
     // Calculate RGBA size. Must be between 512 x 256 and MaxTextureSize x MaxTextureSize / 2
-    int log2MaxTextureSize = SkPrevLog2(context->caps()->maxTextureSize());
+    int log2MaxTextureSize = SkPrevLog2(fCaps->maxTextureSize());
     int log2MaxDim = 9;
     for (; log2MaxDim <= log2MaxTextureSize; ++log2MaxDim) {
         int maxDim = 1 << log2MaxDim;
@@ -76,43 +101,51 @@ GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes,
     fGlyphSizeLimit = minPlot;
 }
 
-GrAtlasGlyphCache::~GrAtlasGlyphCache() {
-    StrikeHash::Iter iter(&fCache);
-    while (!iter.done()) {
-        (*iter).fIsAbandoned = true;
-        (*iter).unref();
-        ++iter;
+GrRestrictedAtlasManager::~GrRestrictedAtlasManager() {
+}
+
+static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format, const GrCaps& caps) {
+    switch (format) {
+        case kA8_GrMaskFormat:
+            return kAlpha_8_GrPixelConfig;
+        case kA565_GrMaskFormat:
+            return kRGB_565_GrPixelConfig;
+        case kARGB_GrMaskFormat:
+            return caps.srgbSupport() ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+        default:
+            SkDEBUGFAIL("unsupported GrMaskFormat");
+            return kAlpha_8_GrPixelConfig;
     }
 }
 
-void GrAtlasGlyphCache::freeAll() {
-    StrikeHash::Iter iter(&fCache);
-    while (!iter.done()) {
-        (*iter).fIsAbandoned = true;
-        (*iter).unref();
-        ++iter;
+bool GrRestrictedAtlasManager::initAtlas(GrMaskFormat format) {
+    int index = MaskFormatToAtlasIndex(format);
+    if (!fAtlases[index]) {
+        GrPixelConfig config = mask_format_to_pixel_config(format, *fCaps);
+        int width = fAtlasConfigs[index].fWidth;
+        int height = fAtlasConfigs[index].fHeight;
+        int numPlotsX = fAtlasConfigs[index].numPlotsX();
+        int numPlotsY = fAtlasConfigs[index].numPlotsY();
+
+        fAtlases[index] = GrDrawOpAtlas::Make(config, width, height, numPlotsX, numPlotsY,
+                                              fAllowMultitexturing,
+                                              &GrAtlasGlyphCache1::HandleEviction, (void*)this);
+        if (!fAtlases[index]) {
+            return false;
+        }
     }
-    fCache.rewind();
+    return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+GrAtlasManager::GrAtlasManager(sk_sp<const GrCaps> caps, float maxTextureBytes,
+                               GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
+            : INHERITED(std::move(caps), maxTextureBytes, allowMultitexturing) {
+}
+
+void GrAtlasManager::freeAll() {
     for (int i = 0; i < kMaskFormatCount; ++i) {
         fAtlases[i] = nullptr;
-    }
-}
-
-void GrAtlasGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
-    GrAtlasGlyphCache* fontCache = reinterpret_cast<GrAtlasGlyphCache*>(ptr);
-
-    StrikeHash::Iter iter(&fontCache->fCache);
-    for (; !iter.done(); ++iter) {
-        GrAtlasTextStrike* strike = &*iter;
-        strike->removeID(id);
-
-        // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
-        // triggered the eviction
-        if (strike != fontCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
-            fontCache->fCache.remove(GrAtlasTextStrike::GetKey(*strike));
-            strike->fIsAbandoned = true;
-            strike->unref();
-        }
     }
 }
 
@@ -174,12 +207,12 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* 
     return true;
 }
 
-void GrAtlasGlyphCache::dump() const {
+void GrAtlasManager::dump(GrContext* context) const {
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
             const sk_sp<GrTextureProxy>* proxies = fAtlases[i]->getProxies();
-            for (uint32_t pageIdx = 0; pageIdx < fAtlases[i]->pageCount(); ++pageIdx) {
+            for (uint32_t pageIdx = 0; pageIdx < fAtlases[i]->pageCount1(); ++pageIdx) {
                 SkASSERT(proxies[pageIdx]);
                 SkString filename;
 #ifdef SK_BUILD_FOR_ANDROID
@@ -188,7 +221,7 @@ void GrAtlasGlyphCache::dump() const {
                 filename.printf("fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #endif
 
-                save_pixels(fContext, proxies[pageIdx].get(), filename.c_str());
+                save_pixels(context, proxies[pageIdx].get(), filename.c_str());
             }
         }
     }
@@ -196,7 +229,7 @@ void GrAtlasGlyphCache::dump() const {
 }
 #endif
 
-void GrAtlasGlyphCache::setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]) {
+void GrAtlasManager::setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]) {
     // Delete any old atlases.
     // This should be safe to do as long as we are not in the middle of a flush.
     for (int i = 0; i < kMaskFormatCount; i++) {
@@ -399,12 +432,11 @@ static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
     atlas and a position within that texture.
  */
 
-GrAtlasTextStrike::GrAtlasTextStrike(GrAtlasGlyphCache* owner, const SkDescriptor& key)
+GrAtlasTextStrike::GrAtlasTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key)
-    , fPool(9/*start allocations at 512 bytes*/)
-    , fAtlasGlyphCache(owner) // no need to ref, it won't go away before we do
+    , fPool1(9/*start allocations at 512 bytes*/)
     , fAtlasedGlyphs(0)
-    , fIsAbandoned(false) {}
+    , fIsAbandoned1(false) {}
 
 GrAtlasTextStrike::~GrAtlasTextStrike() {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
@@ -428,7 +460,7 @@ GrGlyph* GrAtlasTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::Packe
     }
     GrMaskFormat format = get_packed_glyph_mask_format(skGlyph);
 
-    GrGlyph* glyph = fPool.make<GrGlyph>();
+    GrGlyph* glyph = fPool1.make<GrGlyph>();
     glyph->init(packed, bounds, format);
     fCache.add(glyph);
     return glyph;
@@ -447,6 +479,7 @@ void GrAtlasTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
 }
 
 bool GrAtlasTextStrike::addGlyphToAtlas(GrDeferredUploadTarget* target,
+                                        GrAtlasManager* atlasManager,
                                         GrGlyph* glyph,
                                         SkGlyphCache* cache,
                                         GrMaskFormat expectedMaskFormat) {
@@ -473,9 +506,9 @@ bool GrAtlasTextStrike::addGlyphToAtlas(GrDeferredUploadTarget* target,
         }
     }
 
-    bool success = fAtlasGlyphCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
-                                               glyph->width(), glyph->height(),
-                                               storage.get(), &glyph->fAtlasLocation);
+    bool success = atlasManager->addToAtlas2(this, &glyph->fID, target, expectedMaskFormat,
+                                            glyph->width(), glyph->height(),
+                                            storage.get(), &glyph->fAtlasLocation);
     if (success) {
         SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != glyph->fID);
         fAtlasedGlyphs++;
