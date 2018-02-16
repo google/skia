@@ -202,6 +202,9 @@ LinearGradient4fContext::shadePremulSpan(int x, int y, dstType dst[], int count,
                                          float bias0, float bias1) const {
     const SkLinearGradient& shader = static_cast<const SkLinearGradient&>(fShader);
     switch (shader.fTileMode) {
+    case kDecal_TileMode:
+        SkASSERT(false);    // decal only supported via stages
+        // fall-through
     case kClamp_TileMode:
         this->shadeSpanInternal<dstType, premul, kClamp_TileMode >(x, y, dst, count, bias0, bias1);
         break;

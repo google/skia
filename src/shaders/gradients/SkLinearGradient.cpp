@@ -61,6 +61,10 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
 SkShaderBase::Context* SkLinearGradient::onMakeBurstPipelineContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const {
 
+    if (fTileMode == SkShader::kDecal_TileMode) {
+        // we only support decal w/ stages
+        return nullptr;
+    }
     // Raster pipeline has a 2-stop specialization faster than our burst.
     return fColorCount > 2 ? CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec)
                            : nullptr;

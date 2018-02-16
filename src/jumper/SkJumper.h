@@ -69,6 +69,12 @@ struct SkJumper_TileCtx {
     float invScale; // cache of 1/scale
 };
 
+struct SkJumper_DecalTileCtx {
+    uint32_t mask[SkJumper_kMaxStride];
+    float    limit_x;
+    float    limit_y;
+};
+
 struct SkJumper_CallbackCtx {
     MAYBE_MSABI void (*fn)(SkJumper_CallbackCtx* self, int active_pixels/*<= SkJumper_kMaxStride*/);
 

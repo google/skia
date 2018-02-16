@@ -12,11 +12,11 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-
-
 // effects
 #include "SkGradientShader.h"
 #include "SkBlurDrawLooper.h"
+
+#include "Resources.h"
 
 static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     bm->allocPixels(SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
@@ -154,6 +154,8 @@ private:
     bool fPowerOfTwoSize;
     typedef skiagm::GM INHERITED;
 };
+DEF_GM( return new TilingGM(true); )
+DEF_GM( return new TilingGM(false); )
 
 constexpr int gWidth = 32;
 constexpr int gHeight = 32;
@@ -257,10 +259,61 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM( return new TilingGM(true); )
-DEF_GM( return new TilingGM(false); )
 DEF_GM( return new Tiling2GM(make_bm, "bitmap"); )
 DEF_GM( return new Tiling2GM(make_grad, "gradient"); )
+
+////////////////////
+
+#include "SkGradientShader.h"
+
+DEF_SIMPLE_GM(tilemode_decal, canvas, 715, 560) {
+    auto img = GetResourceAsImage("images/mandrill_128.png");
+    SkPaint bgpaint;
+    bgpaint.setColor(SK_ColorYELLOW);
+
+    SkRect r = { -20, -20, img->width() + 20.0f, img->height() + 20.0f };
+    canvas->translate(25, 25);
+
+    std::function<void(SkPaint*, SkShader::TileMode, SkShader::TileMode)> shader_procs[] = {
+        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+            paint->setShader(img->makeShader(tx, ty));
+        },
+        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+            SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
+            const SkPoint pts[] = {{ 0, 0 }, {img->width()*1.0f, img->height()*1.0f }};
+            const SkScalar* pos = nullptr;
+            const int count = SK_ARRAY_COUNT(colors);
+            paint->setShader(SkGradientShader::MakeLinear(pts, colors, pos, count, tx));
+        },
+        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+            SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
+            const SkScalar* pos = nullptr;
+            const int count = SK_ARRAY_COUNT(colors);
+            paint->setShader(SkGradientShader::MakeRadial({ img->width()*0.5f, img->width()*0.5f },
+                                                      img->width()*0.5f, colors, pos, count, tx));
+        },
+    };
+
+    const struct XY {
+        SkShader::TileMode  fX;
+        SkShader::TileMode  fY;
+    } pairs[] = {
+        { SkShader::kClamp_TileMode,    SkShader::kClamp_TileMode },
+        { SkShader::kClamp_TileMode,    SkShader::kDecal_TileMode },
+        { SkShader::kDecal_TileMode,    SkShader::kClamp_TileMode },
+        { SkShader::kDecal_TileMode,    SkShader::kDecal_TileMode },
+    };
+    for (const auto& p : pairs) {
+        SkPaint paint;
+        canvas->save();
+        for (const auto& proc : shader_procs) {
+            canvas->drawRect(r, bgpaint);
+            proc(&paint, p.fX, p.fY);
+            canvas->drawRect(r, paint);
+            canvas->translate(0, r.height() + 20);
+        }
+        canvas->restore();
+        canvas->translate(r.width() + 10, 0);
+    }
+}
+
