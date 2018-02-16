@@ -660,17 +660,23 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
-                                   int width, int height,
-                                   GrPixelConfig srcConfig,
+bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width,
+                                   int height, GrColorType srcColorType,
                                    DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
+    // We don't want to introduce a sRGB conversion if we trigger a draw.
+    auto srcConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(dstSurface->config());
     if (*drawPreference != kNoDraw_DrawPreference) {
         // We assume the base class has only inserted a draw for sRGB reasons. So the temp surface
         // has the config of the original src data. There is no swizzling nor src config spoofing.
-        SkASSERT(tempDrawInfo->fWriteConfig == srcConfig);
-        SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == srcConfig);
+        SkASSERT(tempDrawInfo->fWriteColorType == srcColorType);
+        SkASSERT(GrPixelConfigToColorType(tempDrawInfo->fTempSurfaceDesc.fConfig) == srcColorType);
         SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
+        // Don't undo a sRGB conversion introduced by our caller via an intermediate draw.
+        srcConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(tempDrawInfo->fTempSurfaceDesc.fConfig);
+    }
+    if (GrColorTypeIsAlphaOnly(srcColorType)) {
+        srcConfigSRGBEncoded = GrSRGBEncoded::kNo;
     }
 
     if (SkToBool(dstSurface->asRenderTarget())) {
@@ -702,20 +708,23 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
-    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
+    auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType, srcConfigSRGBEncoded);
+    SkASSERT(srcAsConfig != kUnknown_GrPixelConfig);
+    auto dstColorType = GrPixelConfigToColorType(dstSurface->config());
+    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcAsConfig) == dstSurface->config();
 
     if (configsAreRBSwaps) {
-        if (!this->caps()->isConfigTexturable(srcConfig)) {
+        if (!this->caps()->isConfigTexturable(srcAsConfig)) {
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-            tempDrawInfo->fWriteConfig = dstSurface->config();
+            tempDrawInfo->fWriteColorType = dstColorType;
         } else if (this->glCaps().rgba8888PixelsOpsAreSlow() &&
-                   kRGBA_8888_GrPixelConfig == srcConfig) {
+                   kRGBA_8888_GrPixelConfig == srcAsConfig) {
             ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-            tempDrawInfo->fWriteConfig = dstSurface->config();
+            tempDrawInfo->fWriteColorType = dstColorType;
         } else if (kGLES_GrGLStandard == this->glStandard() &&
                    this->glCaps().bgraIsInternalFormat()) {
             // The internal format and external formats must match texture uploads so we can't
@@ -723,7 +732,7 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-            tempDrawInfo->fWriteConfig = dstSurface->config();
+            tempDrawInfo->fWriteColorType = dstColorType;
         }
     }
 
@@ -734,8 +743,7 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
     return true;
 }
 
-static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surface,
-                                           GrPixelConfig config) {
+static bool check_write_and_transfer_input(GrGLTexture* glTex) {
     if (!glTex) {
         return false;
     }
@@ -749,20 +757,27 @@ static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surfac
 }
 
 bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top,
-                            int width, int height, GrPixelConfig dstConfig,
+                            int width, int height, GrColorType srcColorType,
                             const GrMipLevel texels[], int mipLevelCount) {
-    GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
+    auto glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
-    if (!check_write_and_transfer_input(glTex, surface, dstConfig)) {
+    if (!check_write_and_transfer_input(glTex)) {
         return false;
     }
 
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
 
+    // No sRGB transformation occurs in uploadTexData. We choose to make the src config match the
+    // srgb-ness of the surface to avoid issues in ES2 where internal/external formats must match.
+    // When we're on ES2 and the dst is GL_SRGB_ALPHA by making the config be kSRGB_8888 we know
+    // that our caps will choose GL_SRGB_ALPHA as the external format, too. On ES3 or regular GL our
+    // caps knows to make the external format be GL_RGBA.
+    auto srgbEncoded = GrPixelConfigIsSRGBEncoded(surface->config());
+    auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType, srgbEncoded);
     return this->uploadTexData(glTex->config(), glTex->width(), glTex->height(), origin,
                                glTex->target(), kWrite_UploadType, left, top, width, height,
-                               dstConfig, texels, mipLevelCount);
+                               srcAsConfig, texels, mipLevelCount);
 }
 
 // For GL_[UN]PACK_ALIGNMENT.
@@ -796,13 +811,13 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
 }
 
 bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width, int height,
-                               GrPixelConfig config, GrBuffer* transferBuffer, size_t offset,
+                               GrColorType bufferColorType, GrBuffer* transferBuffer, size_t offset,
                                size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
     GrPixelConfig texConfig = glTex->config();
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
 
-    if (!check_write_and_transfer_input(glTex, texture, config)) {
+    if (!check_write_and_transfer_input(glTex)) {
         return false;
     }
 
@@ -824,7 +839,7 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width,
         SkASSERT(bounds.contains(subRect));
     )
 
-    size_t bpp = GrBytesPerPixel(config);
+    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
     const size_t trimRowBytes = width * bpp;
     if (!rowBytes) {
         rowBytes = trimRowBytes;
@@ -847,7 +862,8 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width,
     // External format and type come from the upload data.
     GrGLenum externalFormat;
     GrGLenum externalType;
-    if (!this->glCaps().getTexImageFormats(texConfig, config, &internalFormat,
+    auto bufferAsConfig = GrColorTypeToPixelConfig(bufferColorType, GrSRGBEncoded::kNo);
+    if (!this->glCaps().getTexImageFormats(texConfig, bufferAsConfig, &internalFormat,
                                            &externalFormat, &externalType)) {
         return false;
     }
@@ -1003,6 +1019,8 @@ void GrGLGpu::unbindCpuToGpuXferBuffer() {
 
 }
 
+// TODO: Make this take a GrColorType instead of dataConfig. This requires updating GrGLCaps to
+// convert from GrColorType to externalFormat/externalType GLenum values.
 bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
                             GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType,
                             int left, int top, int width, int height, GrPixelConfig dataConfig,
@@ -2160,39 +2178,50 @@ bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig rea
 }
 
 bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, int width,
-                                  int height, size_t rowBytes, GrPixelConfig dstConfig,
+                                  int height, size_t rowBytes, GrColorType dstColorType,
                                   DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
+    // We don't want to introduce a sRGB conversion if we trigger a draw.
+    auto dstConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(srcSurface->config());
     if (*drawPreference != kNoDraw_DrawPreference) {
         // We assume the base class has only inserted a draw for sRGB reasons. So the
         // the temp surface has the config of the dst data. There is no swizzling, nor dst config
         // spoofing.
-        SkASSERT(tempDrawInfo->fReadConfig == dstConfig);
-        SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == dstConfig);
+        SkASSERT(tempDrawInfo->fReadColorType == dstColorType);
+        SkASSERT(GrPixelConfigToColorType(tempDrawInfo->fTempSurfaceDesc.fConfig) == dstColorType);
         SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
+        // Don't undo a sRGB conversion introduced by our caller via an intermediate draw.
+        dstConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(tempDrawInfo->fTempSurfaceDesc.fConfig);
+    }
+    if (GrColorTypeIsAlphaOnly(dstColorType)) {
+        dstConfigSRGBEncoded = GrSRGBEncoded::kNo;
     }
     GrPixelConfig srcConfig = srcSurface->config();
 
     tempDrawInfo->fTempSurfaceFit = this->glCaps().partialFBOReadIsSlow() ? SkBackingFit::kExact
                                                                           : SkBackingFit::kApprox;
 
-    if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == dstConfig &&
+    // TODO: Update this logic to use color type.
+    auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType, dstConfigSRGBEncoded);
+
+    if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == dstAsConfig &&
         this->readPixelsSupported(kBGRA_8888_GrPixelConfig, kBGRA_8888_GrPixelConfig)) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kBGRA_8888_GrPixelConfig;
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-        tempDrawInfo->fReadConfig = kBGRA_8888_GrPixelConfig;
+        tempDrawInfo->fReadColorType = GrColorType::kBGRA_8888;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     } else if (this->glCaps().rgbaToBgraReadbackConversionsAreSlow() &&
-               GrBytesPerPixel(dstConfig) == 4 && GrPixelConfigSwapRAndB(dstConfig) == srcConfig &&
+               GrBytesPerPixel(dstAsConfig) == 4 &&
+               GrPixelConfigSwapRAndB(dstAsConfig) == srcConfig &&
                this->readPixelsSupported(srcSurface, srcConfig)) {
         // Mesa 3D takes a slow path on when reading back BGRA from an RGBA surface and vice-versa.
         // Better to do a draw with a R/B swap and then read as the original config.
         tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-        tempDrawInfo->fReadConfig = srcConfig;
+        tempDrawInfo->fReadColorType = GrPixelConfigToColorType(srcConfig);
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
-    } else if (!this->readPixelsSupported(srcSurface, dstConfig)) {
-        if (dstConfig == kBGRA_8888_GrPixelConfig &&
+    } else if (!this->readPixelsSupported(srcSurface, dstAsConfig)) {
+        if (kBGRA_8888_GrPixelConfig == dstAsConfig &&
             this->glCaps().canConfigBeFBOColorAttachment(kRGBA_8888_GrPixelConfig) &&
             this->readPixelsSupported(kRGBA_8888_GrPixelConfig, kRGBA_8888_GrPixelConfig)) {
             // We're trying to read BGRA but it's not supported. If RGBA is renderable and
@@ -2200,9 +2229,9 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
             // will effectively be BGRA).
             tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-            tempDrawInfo->fReadConfig = kRGBA_8888_GrPixelConfig;
+            tempDrawInfo->fReadColorType = GrColorType::kRGBA_8888;
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        } else if (dstConfig == kSBGRA_8888_GrPixelConfig &&
+        } else if (kSBGRA_8888_GrPixelConfig == dstAsConfig &&
                    this->glCaps().canConfigBeFBOColorAttachment(kSRGBA_8888_GrPixelConfig) &&
                    this->readPixelsSupported(kSRGBA_8888_GrPixelConfig,
                                              kSRGBA_8888_GrPixelConfig)) {
@@ -2211,9 +2240,9 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
             // will effectively be sBGRA).
             tempDrawInfo->fTempSurfaceDesc.fConfig = kSRGBA_8888_GrPixelConfig;
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-            tempDrawInfo->fReadConfig = kSRGBA_8888_GrPixelConfig;
+            tempDrawInfo->fReadColorType = GrColorType::kRGBA_8888;
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        } else if (dstConfig == kAlpha_8_GrPixelConfig) {
+        } else if (kAlpha_8_GrPixelConfig == dstAsConfig) {
             // onReadPixels implements a fallback for cases where we want to read kAlpha_8,
             // it's unsupported, but 32bit RGBA reads are supported.
             if (!this->readPixelsSupported(srcSurface, kRGBA_8888_GrPixelConfig)) {
@@ -2222,31 +2251,31 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
                 if (this->glCaps().canConfigBeFBOColorAttachment(kRGBA_8888_GrPixelConfig)) {
                     ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
                     tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
-                    tempDrawInfo->fReadConfig = kAlpha_8_GrPixelConfig;
+                    tempDrawInfo->fReadColorType = GrColorType::kAlpha_8;
                 } else {
                     return false;
                 }
             } else {
                 tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
-                SkASSERT(tempDrawInfo->fReadConfig == kAlpha_8_GrPixelConfig);
+                SkASSERT(tempDrawInfo->fReadColorType == GrColorType::kAlpha_8);
             }
-        } else if (dstConfig == kRGBA_half_GrPixelConfig &&
+        } else if (kRGBA_half_GrPixelConfig == dstAsConfig &&
                    this->readPixelsSupported(srcSurface, kRGBA_float_GrPixelConfig)) {
             // If reading in half float format is not supported, then read in float format.
             return true;
-        } else if (this->glCaps().canConfigBeFBOColorAttachment(dstConfig) &&
-                   this->readPixelsSupported(dstConfig, dstConfig)) {
+        } else if (this->glCaps().canConfigBeFBOColorAttachment(dstAsConfig) &&
+                   this->readPixelsSupported(dstAsConfig, dstAsConfig)) {
             // Do a draw to convert from the src config to the read config.
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-            tempDrawInfo->fTempSurfaceDesc.fConfig = dstConfig;
-            tempDrawInfo->fReadConfig = dstConfig;
+            tempDrawInfo->fTempSurfaceDesc.fConfig = dstAsConfig;
+            tempDrawInfo->fReadColorType = dstColorType;
         } else {
             return false;
         }
     }
 
     if ((srcSurface->asRenderTarget() || this->glCaps().canConfigBeFBOColorAttachment(srcConfig)) &&
-        read_pixels_pays_for_y_flip(srcOrigin, this->glCaps(), width, height, dstConfig,
+        read_pixels_pays_for_y_flip(srcOrigin, this->glCaps(), width, height, dstAsConfig,
                                     rowBytes)) {
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     }
@@ -2254,12 +2283,8 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
     return true;
 }
 
-bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
-                           int left, int top,
-                           int width, int height,
-                           GrPixelConfig config,
-                           void* buffer,
-                           size_t rowBytes) {
+bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
+                           int height, GrColorType dstColorType, void* buffer, size_t rowBytes) {
     SkASSERT(surface);
 
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
@@ -2267,15 +2292,17 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
         return false;
     }
 
+    // TODO: Avoid this conversion by making GrGLCaps work with color types.
+    auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kNo);
+
     // We have a special case fallback for reading eight bit alpha. We will read back all four 8
     // bit channels as RGBA and then extract A.
-    if (!this->readPixelsSupported(surface, config)) {
-        GrPixelConfig tempConfig = kRGBA_8888_GrPixelConfig;
-        if (kAlpha_8_GrPixelConfig == config &&
-            this->readPixelsSupported(surface, tempConfig)) {
+    if (!this->readPixelsSupported(surface, dstAsConfig)) {
+        if (kAlpha_8_GrPixelConfig == dstAsConfig &&
+            this->readPixelsSupported(surface, kRGBA_8888_GrPixelConfig)) {
             std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
             if (this->onReadPixels(surface, origin, left, top, width, height,
-                                   tempConfig, temp.get(), width*4)) {
+                                   GrColorType::kRGBA_8888, temp.get(), width * 4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
@@ -2288,12 +2315,11 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
 
         // If reading in half float format is not supported, then read in a temporary float buffer
         // and convert to half float.
-        if (kRGBA_half_GrPixelConfig == config &&
+        if (kRGBA_half_GrPixelConfig == dstAsConfig &&
             this->readPixelsSupported(surface, kRGBA_float_GrPixelConfig)) {
             std::unique_ptr<float[]> temp(new float[width * height * 4]);
             if (this->onReadPixels(surface, origin, left, top, width, height,
-                                   kRGBA_float_GrPixelConfig, temp.get(),
-                                   width*sizeof(float)*4)) {
+                                   GrColorType::kRGBA_F32, temp.get(), width * sizeof(float) * 4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
                 float* src = temp.get();
                 for (int j = 0; j < height; ++j) {
@@ -2313,7 +2339,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
 
     GrGLenum externalFormat;
     GrGLenum externalType;
-    if (!this->glCaps().getReadPixelsFormat(surface->config(), config, &externalFormat,
+    if (!this->glCaps().getReadPixelsFormat(surface->config(), dstAsConfig, &externalFormat,
                                             &externalType)) {
         return false;
     }
@@ -2348,7 +2374,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
     GrGLIRect readRect;
     readRect.setRelativeTo(glvp, left, top, width, height, origin);
 
-    size_t bytesPerPixel = GrBytesPerPixel(config);
+    int bytesPerPixel = GrBytesPerPixel(dstAsConfig);
     size_t tightRowBytes = bytesPerPixel * width;
 
     size_t readDstRowBytes = tightRowBytes;
@@ -2370,7 +2396,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
     if (flipY && this->glCaps().packFlipYSupport()) {
         GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, 1));
     }
-    GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, config_alignment(config)));
+    GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, config_alignment(dstAsConfig)));
 
     GL_CALL(ReadPixels(readRect.fLeft, readRect.fBottom,
                        readRect.fWidth, readRect.fHeight,
