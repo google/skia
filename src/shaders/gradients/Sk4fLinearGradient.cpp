@@ -211,6 +211,10 @@ LinearGradient4fContext::shadePremulSpan(int x, int y, dstType dst[], int count,
     case kMirror_TileMode:
         this->shadeSpanInternal<dstType, premul, kMirror_TileMode>(x, y, dst, count, bias0, bias1);
         break;
+    case kDecal_TileMode:
+        // TODO: implement decal stages
+        this->shadeSpanInternal<dstType, premul, kClamp_TileMode >(x, y, dst, count, bias0, bias1);
+        break;
     }
 }
 
