@@ -10,6 +10,7 @@
 #include "SkAndroidCodec.h"
 #include "SkAutoMalloc.h"
 #include "SkBitmap.h"
+#include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace_XYZ.h"
@@ -27,6 +28,7 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
+#include "SkUnPreMultiply.h"
 #include "SkWebpEncoder.h"
 #include "Test.h"
 
@@ -1527,4 +1529,39 @@ DEF_TEST(Codec_webp_rowsDecoded, r) {
     }
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kInvalidInput, nullptr);
+}
+
+DEF_TEST(Codec_ossfuzz6274, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* file = "invalid_images/ossfuzz6274.gif";
+    auto image = GetResourceAsImage(file);
+    if (!image) {
+        ERRORF(r, "Missing %s", file);
+        return;
+    }
+
+    REPORTER_ASSERT(r, image->width()  == 32);
+    REPORTER_ASSERT(r, image->height() == 32);
+
+    SkBitmap bm;
+    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(32, 32))) {
+        ERRORF(r, "Failed to allocate pixels");
+        return;
+    }
+
+    bm.eraseColor(SK_ColorTRANSPARENT);
+
+    SkCanvas canvas(bm);
+    canvas.drawImage(image, 0, 0, nullptr);
+
+    for (int i = 0; i < image->width();  ++i)
+    for (int j = 0; j < image->height(); ++j) {
+        SkColor actual = SkUnPreMultiply::PMColorToColor(*bm.getAddr32(i, j));
+        if (actual != SK_ColorTRANSPARENT) {
+            ERRORF(r, "did not initialize pixels! %i, %i is %x", i, j, actual);
+        }
+    }
 }

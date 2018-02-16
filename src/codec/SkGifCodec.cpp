@@ -332,6 +332,8 @@ SkCodec::Result SkGifCodec::onIncrementalDecode(int* rowsDecoded) {
 
 SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, int* rowsDecoded) {
     const SkImageInfo& dstInfo = this->dstInfo();
+    const int scaledHeight = get_scaled_dimension(dstInfo.height(), fSwizzler->sampleY());
+
     const int frameIndex = opts.fFrameIndex;
     SkASSERT(frameIndex < fReader->imagesCount());
     const SkGIFFrameContext* frameContext = fReader->frameContext(frameIndex);
@@ -354,8 +356,6 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
                     || frameContext->interlaced() || !fCurrColorTableIsReal) {
                 // fill ignores the width (replaces it with the actual, scaled width).
                 // But we need to scale in Y.
-                const int scaledHeight = get_scaled_dimension(dstInfo.height(),
-                                                              fSwizzler->sampleY());
                 auto fillInfo = dstInfo.makeWH(0, scaledHeight);
                 fSwizzler->fill(fillInfo, fDst, fDstRowBytes, this->getFillValue(dstInfo),
                                 opts.fZeroInitialized);
@@ -370,7 +370,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
         fFilledBackground = filledBackground;
         if (filledBackground) {
             // Report the full (scaled) height, since the client will never need to fill.
-            fRowsDecoded = get_scaled_dimension(dstInfo.height(), fSwizzler->sampleY());
+            fRowsDecoded = scaledHeight;
         } else {
             // This will be updated by haveDecodedRow.
             fRowsDecoded = 0;
@@ -384,7 +384,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
 
     bool frameDecoded = false;
     const bool fatalError = !fReader->decode(frameIndex, &frameDecoded);
-    if (fatalError || !frameDecoded) {
+    if (fatalError || !frameDecoded || fRowsDecoded != scaledHeight) {
         if (rowsDecoded) {
             *rowsDecoded = fRowsDecoded;
         }
