@@ -130,7 +130,7 @@ private:
 
 class ChineseZoomView : public SampleView {
 public:
-    ChineseZoomView() : fBlobs(kNumBlobs), fScale(1.0f) {}
+    ChineseZoomView() : fBlobs(kNumBlobs), fScale(15.0f), fTranslate(0.0f) {}
 
 protected:
     bool onQuery(SkEvent* evt) override {
@@ -153,6 +153,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
+        bool afterFirstFrame = fInitialized;
         if (!fInitialized) {
             this->init();
             fInitialized = true;
@@ -167,26 +168,30 @@ protected:
         paint.setTextSize(11);
         paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
 
+        if (afterFirstFrame) {
 #if SK_SUPPORT_GPU
-        GrContext* grContext = canvas->getGrContext();
-        if (grContext) {
-            sk_sp<SkImage> image =
-            grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 0);
-            canvas->drawImageRect(image,
-                                  SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0), &paint);
-            image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 1);
-            canvas->drawImageRect(image,
-                                  SkRect::MakeXYWH(1024.0f, 10.0f, 512.f, 512.0f), &paint);
-            image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 2);
-            canvas->drawImageRect(image,
-                                  SkRect::MakeXYWH(512.0f, 522.0f, 512.0f, 512.0f), &paint);
-            image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 3);
-            canvas->drawImageRect(image,
-                                  SkRect::MakeXYWH(1024.0f, 522.0f, 512.0f, 512.0f), &paint);
-        }
+            GrContext* grContext = canvas->getGrContext();
+            if (grContext) {
+                sk_sp<SkImage> image =
+                grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 0);
+                canvas->drawImageRect(image,
+                                      SkRect::MakeXYWH(10.0f, 10.0f, 512.0f, 512.0), &paint);
+                image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 1);
+                canvas->drawImageRect(image,
+                                      SkRect::MakeXYWH(522.0f, 10.0f, 512.f, 512.0f), &paint);
+                image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 2);
+                canvas->drawImageRect(image,
+                                      SkRect::MakeXYWH(10.0f, 522.0f, 512.0f, 512.0f), &paint);
+                image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 3);
+                canvas->drawImageRect(image,
+                                      SkRect::MakeXYWH(522.0f, 522.0f, 512.0f, 512.0f), &paint);
+            }
 #endif
+        }
 
         canvas->scale(fScale, fScale);
+        canvas->translate(0, fTranslate);
+        fTranslate -= 0.5f;
 
         // draw a consistent run of the 'words' - one word per line
         SkScalar y = 0;
@@ -247,6 +252,7 @@ private:
     SkTArray<sk_sp<SkTextBlob>> fBlobs;
     SkRandom                    fRand;
     SkScalar                    fScale;
+    SkScalar                    fTranslate;
     int                         fIndex;
 
     typedef SkView INHERITED;
