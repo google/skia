@@ -91,7 +91,7 @@ public:
      *                          eviction occurs
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrContext*, GrPixelConfig, int width, int height,
+    static std::unique_ptr<GrDrawOpAtlas> Make(GrPixelConfig, int width, int height,
                                                int numPlotsX, int numPlotsY,
                                                AllowMultitexturing allowMultitexturing,
                                                GrDrawOpAtlas::EvictionFunc func, void* data);
@@ -111,7 +111,6 @@ public:
     bool addToAtlas(AtlasID*, GrDeferredUploadTarget*, int width, int height, const void* image,
                     SkIPoint16* loc);
 
-    GrContext* context() const { return fContext; }
     const sk_sp<GrTextureProxy>* getProxies() const { return fProxies; }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
@@ -230,7 +229,7 @@ private:
         return AllowMultitexturing::kYes == fAllowMultitexturing ? kMaxMultitexturePages : 1;
     }
 
-    GrDrawOpAtlas(GrContext*, GrPixelConfig config, int width, int height, int numPlotsX,
+    GrDrawOpAtlas(GrPixelConfig config, int width, int height, int numPlotsX,
                   int numPlotsY, AllowMultitexturing allowMultitexturing);
 
     /**
@@ -363,7 +362,6 @@ private:
         plot->resetRects();
     }
 
-    GrContext*            fContext;
     GrPixelConfig         fPixelConfig;
     int                   fTextureWidth;
     int                   fTextureHeight;
