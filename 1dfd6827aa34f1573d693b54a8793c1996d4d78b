@@ -2,6 +2,154 @@
   "comments": [
     {
       "key": {
+        "uuid": "12b6fda1_f571294e",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "Is this intentionally different from before? And why does this return such different results from the similarly named valid_premul_color_type, below?",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d60f6662_23bc46d9",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "Incomplete sentence (and missing \u0027be\u0027 before sRGB)",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fc1378b_69a5f00e",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "Another instance of \"Is the sRGB encoding of the dstSurface relevant? (Trying to figure out if you can end up with a srcColorType that\u0027s not possible to combine with the sRGB-ness of the dstSurface).\"",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3cf5ad9_ce54af77",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "extra \u0027dst\u0027 got added?",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16f36c3c_130c948e",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "Can we just remove this now?",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 0
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9edefc76_b0a4f865",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "Ditto",
+      "range": {
+        "startLine": 74,
+        "startChar": 2,
+        "endLine": 78,
+        "endChar": 5
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ce233a9_cae61a8b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "Is the sRGB encoding of the dstSurface relevant? (Trying to figure out if you can end up with a srcColorType that\u0027s not possible to combine with the sRGB-ness of the dstSurface).",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa637018_ce7f89b1",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "remove the surface parameter here, too?",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dc6a4102_9917eda0",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 14
@@ -19,6 +167,40 @@
         "endLine": 765,
         "endChar": 98
       },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12baf154_afa44c5c",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "\u0027choose to make\u0027 ?",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "884d7d10_de0ed29a",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 2187,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T17:58:21Z",
+      "side": 1,
+      "message": "This was already done above, on line 2179.",
       "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
