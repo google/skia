@@ -461,8 +461,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                                    "Processor %s claimed output for const input doesn't match "
                                    "actual output. Error: %f, Tolerance: %f, input: (%f, %f, %f, "
                                    "%f), actual: (%f, %f, %f, %f), expected(%f, %f, %f, %f)",
-                                   fp->name(), SkTMax(rDiff, SkTMax(gDiff, SkTMax(bDiff, aDiff))),
-                                   kTol, input4f.fRGBA[0], input4f.fRGBA[1], input4f.fRGBA[2],
+                                   clone->name(),
+                                   SkTMax(rDiff, SkTMax(gDiff, SkTMax(bDiff, aDiff))), kTol,
+                                   input4f.fRGBA[0], input4f.fRGBA[1], input4f.fRGBA[2],
                                    input4f.fRGBA[3], output4f.fRGBA[0], output4f.fRGBA[1],
                                    output4f.fRGBA[2], output4f.fRGBA[3], expected4f.fRGBA[0],
                                    expected4f.fRGBA[1], expected4f.fRGBA[2], expected4f.fRGBA[3]);
