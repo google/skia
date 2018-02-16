@@ -168,7 +168,13 @@ public:
      * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
      */
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
-                                          GrMipMapped, SkBackingFit, SkBudgeted);
+                                          GrMipMapped, GrRenderTargetFlags, SkBackingFit,
+                                          SkBudgeted);
+
+    sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&& callback,
+                                          const GrSurfaceDesc& desc,
+                                          GrMipMapped mipMapped, SkBackingFit fit,
+                                          SkBudgeted budgeted);
 
     /**
      * Fully lazy proxies have unspecified width and height. Methods that rely on those values
@@ -178,7 +184,8 @@ public:
                                                Renderable, GrSurfaceOrigin, GrPixelConfig);
 
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
-                                                           const GrSurfaceDesc&, Textureable,
+                                                           const GrSurfaceDesc&,
+                                                           GrRenderTargetFlags, Textureable,
                                                            GrMipMapped, SkBackingFit, SkBudgeted);
 
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
