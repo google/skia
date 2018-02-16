@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc042465_a903ed37",
+        "filename": "samplecode/SampleChineseFling.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T18:38:17Z",
+      "side": 1,
+      "message": "indent?",
+      "range": {
+        "startLine": 173,
+        "startChar": 8,
+        "endLine": 187,
+        "endChar": 92
+      },
+      "revId": "b47d23f4a1a9d369b3e91b3e4f425c493f778e00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
