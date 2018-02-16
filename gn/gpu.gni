@@ -394,6 +394,8 @@ skia_gpu_sources = [
   # text
   "$_src/gpu/text/GrAtlasGlyphCache.cpp",
   "$_src/gpu/text/GrAtlasGlyphCache.h",
+  "$_src/gpu/text/GrAtlasManager.cpp",
+  "$_src/gpu/text/GrAtlasManager.h",
   "$_src/gpu/text/GrAtlasTextBlob.cpp",
   "$_src/gpu/text/GrAtlasTextBlobVertexRegenerator.cpp",
   "$_src/gpu/text/GrAtlasTextBlob.h",
