@@ -1661,6 +1661,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
         RefType* refType) {
         // look up Xxx_Xxx
     string undername(start, end - start);
+    if ("Paint_Stroke_Width" == undername) {
+        SkDebugf("");
+    }
     for (const auto& external : fBmhParser->fExternals) {
         if (external.fName == undername) {
             *refType = RefType::kExternal;
@@ -1779,7 +1782,7 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                     if (parent->fParent != fRootTopic) {
                         substitute = parent->fName;
                         substitute += ' ';
-                        substitute += ConvertRef(undername, false);
+                        substitute += ConvertRef(rootDef->fName, false);
                     } else {
                         substitute += ConvertRef(undername, first);
                     }
@@ -1802,6 +1805,7 @@ int IncludeWriter::lookupMethod(const PunctuationState punctuation, const Word w
         ++wordStart;
     }
     const int wordEnd = PunctuationState::kDelimiter == punctuation ||
+            PunctuationState::kParen == punctuation ||
             PunctuationState::kPeriod == punctuation ? run - 1 : run;
     string temp;
     if (hasIndirection && '(' != data[wordEnd - 1] && ')' != data[wordEnd - 1]) {
@@ -1837,6 +1841,7 @@ int IncludeWriter::lookupMethod(const PunctuationState punctuation, const Word w
 int IncludeWriter::lookupReference(const PunctuationState punctuation, const Word word,
         const int start, const int run, int lastWrite, const char last, const char* data) {
     const int end = PunctuationState::kDelimiter == punctuation ||
+            PunctuationState::kParen == punctuation ||
             PunctuationState::kPeriod == punctuation ? run - 1 : run;
     RefType refType = RefType::kUndefined;
     string resolved = string(&data[start], (size_t) (end - start));
@@ -1936,7 +1941,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                     case Word::kMixed:
                         if (hasUpper && hasLower && !hasSymbol && lastSpace > 0) {
                             lastWrite = this->lookupMethod(punctuation, word, lastSpace, run,
-                                    lastWrite, data, hasIndirection && !hasSymbol);
+                                    lastWrite, data, hasIndirection);
                         }
                         break;
                     default:
@@ -1954,7 +1959,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                 hasSymbol = false;
                 lastSpace = run;
                 break;
-            case '.':
+            case '.': case ',': case ';': case ':': case ')':
                 switch (word) {
                     case Word::kStart:
                         punctuation = PunctuationState::kDelimiter;
@@ -1966,31 +1971,13 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                                 PunctuationState::kPeriod == punctuation) {
                             word = Word::kMixed;
                         }
-                        punctuation = PunctuationState::kPeriod;
+                        punctuation = '.' == c ? PunctuationState::kPeriod :
+                                PunctuationState::kDelimiter;
                         break;
                     default:
                         SkASSERT(0);
                 }
-                embeddedIndirection = true;
-                break;
-            case ',': case ';': case ':':
-                switch (word) {
-                    case Word::kStart:
-                        punctuation = PunctuationState::kDelimiter;
-                    case Word::kCap:
-                    case Word::kFirst:
-                    case Word::kUnderline:
-                    case Word::kMixed:
-                        if (PunctuationState::kDelimiter == punctuation ||
-                                PunctuationState::kPeriod == punctuation) {
-                            word = Word::kMixed;
-                        }
-                        punctuation = PunctuationState::kDelimiter;
-                        break;
-                    default:
-                        SkASSERT(0);
-                }
-                embeddedSymbol = true;
+                ('.' == c ? embeddedIndirection : embeddedSymbol) = true;
                 break;
             case '>':
                 if ('-' == last) {
@@ -2007,14 +1994,10 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                 break;
             case '(':
                 if (' ' == last) {
-                    punctuation = PunctuationState::kDelimiter;
+                    punctuation = PunctuationState::kParen;
                 } else {
                     word = Word::kMixed;
                 }
-                embeddedSymbol = true;
-                break;
-            case ')':   // assume word type has already been set
-                punctuation = PunctuationState::kDelimiter;
                 embeddedSymbol = true;
                 break;
             case '_':

@@ -1823,6 +1823,7 @@ public:
     enum class PunctuationState {
         kStart,
         kDelimiter,
+        kParen,     // treated as a delimiter unless following a space, and followed by word
         kPeriod,
         kSpace,
     };
