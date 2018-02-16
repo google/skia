@@ -34,18 +34,27 @@ protected:
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) override;
 
 private:
+    struct Rec;
+    class FocusController;
+
     static constexpr int kDefaultColumnCount = 4;
 
-    struct Rec;
+    void cellClicked(const Rec*);
+    const Rec* findCell(float x, float y) const;
 
-    const SkTArray<sk_sp<Slide>, true> fSlides;
-    const int                          fColumns;
+    const SkTArray<sk_sp<Slide>, true>     fSlides;
+    const std::unique_ptr<FocusController> fFocusController;
+    const int                              fColumns;
 
-    SkTArray<Rec, true>          fRecs;
-    std::unique_ptr<sksg::Scene> fScene;
+    SkTArray<Rec, true>                    fRecs;
+    std::unique_ptr<sksg::Scene>           fScene;
 
-    SkISize                      fSize     = SkISize::MakeEmpty();
-    SkMSec                       fTimeBase = 0;
+    SkSize                                 fWinSize  = SkSize::MakeEmpty();
+    SkSize                                 fCellSize = SkSize::MakeEmpty();
+    SkMSec                                 fTimeBase = 0;
+
+    const Rec*                             fTrackingCell = nullptr;
+    SkPoint                                fTrackingPos  = SkPoint::Make(0, 0);
 
     using INHERITED = Slide;
 };
