@@ -60,6 +60,10 @@ extern void SkPDFImageDumpStats();
     #include <unistd.h>
 #endif
 
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
+#include <binder/IPCThreadState.h>
+#endif
+
 extern bool gSkForceRasterPipelineBlitter;
 
 DECLARE_bool(undefok);
@@ -1313,6 +1317,9 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
 int main(int argc, char** argv) {
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
+    android::ProcessState::self()->startThreadPool();
+#endif
     SkCommandLineFlags::Parse(argc, argv);
 
     if (!FLAGS_nativeFonts) {

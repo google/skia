@@ -185,6 +185,11 @@ cc_test {
     srcs: [
         $dm_srcs
     ],
+
+    shared_libs: [
+        "libbinder",
+        "libutils",
+    ],
 }
 
 cc_test {
