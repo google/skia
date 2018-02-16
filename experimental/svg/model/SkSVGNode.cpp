@@ -189,7 +189,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         }
         break;
     default:
-        SkDebugf("attribute ID <%d> ignored for node <%d>\n", attr, fTag);
+        static bool attrIgnored = false;
+        if (!attrIgnored) {
+            SkDebugf("attribute ID <%d> ignored for node <%d>\n", attr, fTag);
+            attrIgnored = true;
+        }
         break;
     }
 }
