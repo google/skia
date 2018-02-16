@@ -80,37 +80,29 @@ private:
     GrBuffer* onCreateBuffer(size_t sizeInBytes, GrBufferType, GrAccessPattern,
                              const void*) override;
 
-    bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height,
-                             size_t rowBytes, GrPixelConfig, DrawPreference*,
-                             ReadPixelTempDrawInfo*) override {
+    bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height, size_t rowBytes,
+                             GrColorType, DrawPreference*, ReadPixelTempDrawInfo*) override {
         return true;
     }
 
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin, int width,
-                              int height, GrPixelConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override {
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin, int width, int height,
+                              GrColorType, DrawPreference*, WritePixelTempDrawInfo*) override {
         return true;
     }
 
-    bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
-                      int left, int top, int width, int height,
-                      GrPixelConfig,
-                      void* buffer,
-                      size_t rowBytes) override {
+    bool onReadPixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width, int height,
+                      GrColorType, void* buffer, size_t rowBytes) override {
         return true;
     }
 
-    bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
-                       int left, int top, int width, int height,
-                       GrPixelConfig config,
-                       const GrMipLevel texels[], int mipLevelCount) override {
+    bool onWritePixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width,
+                       int height, GrColorType, const GrMipLevel texels[],
+                       int mipLevelCount) override {
         return true;
     }
 
-    bool onTransferPixels(GrTexture* texture,
-                          int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
-                          size_t offset, size_t rowBytes) override {
+    bool onTransferPixels(GrTexture* texture, int left, int top, int width, int height, GrColorType,
+                          GrBuffer* transferBuffer, size_t offset, size_t rowBytes) override {
         return true;
     }
 
