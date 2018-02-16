@@ -7,6 +7,7 @@
 
 #include "GrOpFlushState.h"
 
+#include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
@@ -188,4 +189,12 @@ void GrOpFlushState::putBackVertices(int vertices, size_t vertexStride) {
 
 GrAppliedClip GrOpFlushState::detachAppliedClip() {
     return fOpArgs->fAppliedClip ? std::move(*fOpArgs->fAppliedClip) : GrAppliedClip();
+}
+
+GrAtlasGlyphCache* GrOpFlushState::atlasGlyphCache() const {
+    return fGpu->getContext()->contextPriv().getAtlasGlyphCache();
+}
+
+GrAtlasManager* GrOpFlushState::atlasManager() const {
+    return fGpu->getContext()->contextPriv().getFullAtlasManager();
 }

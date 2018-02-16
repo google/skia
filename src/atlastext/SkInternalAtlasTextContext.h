@@ -13,11 +13,12 @@
 #include "SkArenaAllocList.h"
 #include "SkRefCnt.h"
 
+class GrAtlasGlyphCache;
+class GrContext;
+class GrTextBlobCache;
+
 class SkAtlasTextRenderer;
 class SkMatrix;
-class GrContext;
-class GrAtlasGlyphCache;
-class GrTextBlobCache;
 
 /**
  * The implementation of SkAtlasTextContext. This exists to hide the details from the public class.

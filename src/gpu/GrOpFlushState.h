@@ -90,6 +90,12 @@ public:
     const GrCaps& caps() const final;
     GrResourceProvider* resourceProvider() const final { return fResourceProvider; }
 
+    GrAtlasGlyphCache* atlasGlyphCache() const final;
+
+    // At this point we know we're flushing so full access to the GrAtlasManager is required (and
+    // permissible).
+    GrAtlasManager* atlasManager() const final;
+
 private:
     /** GrMeshDrawOp::Target override. */
     SkArenaAlloc* pipelineArena() override { return &fArena; }

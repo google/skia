@@ -15,6 +15,8 @@
 
 #include "SkTLList.h"
 
+class GrAtlasGlyphCache;
+class GrAtlasManager;
 class GrCaps;
 class GrOpFlushState;
 
@@ -151,6 +153,9 @@ public:
     virtual const GrXferProcessor::DstProxy& dstProxy() const = 0;
 
     virtual GrResourceProvider* resourceProvider() const = 0;
+
+    virtual GrAtlasGlyphCache* atlasGlyphCache() const = 0;
+    virtual GrAtlasManager* atlasManager() const = 0;
 
     virtual const GrCaps& caps() const = 0;
 
