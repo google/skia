@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3b5652d5_64eeb8be",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "No, just typed a few days apart. When I wrote the color type version I mimicked what was here before and then when I wrote this one I wrote what I thought was right. Turns out they\u0027re different. I think this is more correct but WDYT?",
+      "parentUuid": "12b6fda1_f571294e",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d60f6662_23bc46d9",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 14
@@ -33,6 +51,24 @@
       "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d4aeb09_88f6abbe",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "Removed, don\u0027t remember what this was supposed to say.",
+      "parentUuid": "d60f6662_23bc46d9",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a731c563_88c6abce",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "I\u0027m not sure we can make a determination here since we don\u0027t know whether the src data is srgb encoded. The caller told us not to do a conversion. We\u0027re not introducing a draw at this level, so unless the subclass introduces a draw no conversion will happen (since GrGpu::writePixels() never does a conversion even if the dst config is GrSRGBEncoded::kYes). Conversions only happen through draws.\n\nThe only way we could accidentally wind up with a conversion is if the subclass causes a draw. So I think the subclass has to guard against creating a converting draw.\n\nIn the future as I understand it we will want to get through here with things like F16 as we\u0027ll have data represented in F16 that *are* sRGB-gamma\u0027ed values and we\u0027ll want them to pass straight through to a GL_SRGB texure without conversion. So I\u0027m not going out of my way from preventing that from happening here.",
+      "parentUuid": "6fc1378b_69a5f00e",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d3cf5ad9_ce54af77",
         "filename": "src/gpu/GrGpu.h",
         "patchSetId": 14
@@ -67,6 +121,24 @@
       "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8d6a77c_bb9de7ae",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3cf5ad9_ce54af77",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -93,6 +165,30 @@
     },
     {
       "key": {
+        "uuid": "7cd7690b_3ded86ea",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "Ah, yes, but I should also check SkColorTypeToGrColorType() for kUnknown",
+      "parentUuid": "16f36c3c_130c948e",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 0
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9edefc76_b0a4f865",
         "filename": "src/gpu/GrSurfaceContext.cpp",
         "patchSetId": 14
@@ -116,6 +212,30 @@
     },
     {
       "key": {
+        "uuid": "633a457a_92c2b2b2",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9edefc76_b0a4f865",
+      "range": {
+        "startLine": 74,
+        "startChar": 2,
+        "endLine": 78,
+        "endChar": 5
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ce233a9_cae61a8b",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 14
@@ -133,6 +253,24 @@
     },
     {
       "key": {
+        "uuid": "d3125f83_1ac70dee",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "So what this is trying to do is prevent introducing a conversion when one wasn\u0027t requested so its treating the src as though it has the same sRGBness as the dst.\n\nThat said, I don\u0027t think this is sufficient to guard against interactions of a draw triggered below and a sRGB converting draw initiated by the base class. This should really be doing what is going on in the onGetReadPixelsInfo case where we check inside the initial if() whether to match the dst or the temp\u0027s srgbness.\n\nI\u0027ve made that change here and it the vk version.",
+      "parentUuid": "4ce233a9_cae61a8b",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa637018_ce7f89b1",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 14
@@ -147,6 +285,24 @@
       "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11fbcefd_8c05b37b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa637018_ce7f89b1",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -190,6 +346,48 @@
     },
     {
       "key": {
+        "uuid": "f4e50b17_b13ebb03",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12baf154_afa44c5c",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4cc393b_d05ce6a6",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "Brian guessed it :)",
+      "parentUuid": "dc6a4102_9917eda0",
+      "range": {
+        "startLine": 765,
+        "startChar": 78,
+        "endLine": 765,
+        "endChar": 98
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "884d7d10_de0ed29a",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 14
@@ -204,6 +402,24 @@
       "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2679e280_f9285c4d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 2187,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "Oops, first time was supposed to use srSurface not the temp surface.",
+      "parentUuid": "884d7d10_de0ed29a",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -230,6 +446,30 @@
     },
     {
       "key": {
+        "uuid": "9bbe9537_b17d3366",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 2235,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "There is no sRGB in GrColorType!",
+      "parentUuid": "9a5095dc_ee4fa35d",
+      "range": {
+        "startLine": 2235,
+        "startChar": 43,
+        "endLine": 2235,
+        "endChar": 66
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7095424e_1294caaf",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 14
@@ -250,6 +490,30 @@
       "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70d7eac0_454d3478",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 1882,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-16T19:28:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7095424e_1294caaf",
+      "range": {
+        "startLine": 1882,
+        "startChar": 11,
+        "endLine": 1882,
+        "endChar": 101
+      },
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
