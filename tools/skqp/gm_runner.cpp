@@ -91,6 +91,7 @@ std::vector<std::string> ExecuteTest(UnitTest test) {
         test->fContextOptionsProc(&options);
     }
     test->proc(&r, options);
+    gmkb::SaveUnitTestResult(test->name, r.fErrors);
     return std::move(r.fErrors);
 }
 
