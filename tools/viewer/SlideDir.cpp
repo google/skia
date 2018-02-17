@@ -13,6 +13,7 @@
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGroup.h"
+#include "SkSGRect.h"
 #include "SkSGRenderNode.h"
 #include "SkSGScene.h"
 #include "SkSGText.h"
@@ -75,22 +76,51 @@ private:
 } // namespace
 
 struct SlideDir::Rec {
+    sk_sp<Slide>        fSlide;
     sk_sp<sksg::Matrix> fMatrix;
     SkRect              fRect;
 };
 
+class SlideDir::FocusController final : public sksg::Animator {
+public:
+    void startFocus(const Rec* target) {
+        fTarget = target;
+        fTimeBase = 0;
+    }
+
+protected:
+    void onTick(float t) {
+        if (!fTarget)
+            return;
+
+        if (!fTimeBase) {
+            fTimeBase = t;
+        }
+    }
+
+private:
+    const Rec* fTarget   = nullptr;
+    float      fTimeBase = 0;
+
+    using INHERITED = sksg::Animator;
+};
+
 SlideDir::SlideDir(const SkString& name, SkTArray<sk_sp<Slide>, true>&& slides, int columns)
     : fSlides(std::move(slides))
+    , fFocusController(skstd::make_unique<FocusController>())
     , fColumns(columns) {
     fName = name;
 }
 
-static sk_sp<sksg::RenderNode> MakeLabel(const SkString& txt, const SkRect& dst) {
+static sk_sp<sksg::RenderNode> MakeLabel(const SkString& txt,
+                                         const SkPoint& pos,
+                                         const SkMatrix& dstXform) {
+    const auto size = kLabelSize / std::sqrt(dstXform.getScaleX() * dstXform.getScaleY());
     auto text = sksg::Text::Make(nullptr, txt);
     text->setFlags(SkPaint::kAntiAlias_Flag);
-    text->setSize(kLabelSize);
+    text->setSize(size);
     text->setAlign(SkPaint::kCenter_Align);
-    text->setPosition(SkPoint::Make(dst.centerX(), dst.bottom()));
+    text->setPosition(pos + SkPoint::Make(0, size));
 
     return sksg::Draw::Make(std::move(text), sksg::Color::Make(SK_ColorBLACK));
 }
@@ -114,10 +144,9 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
     //     ...
     //
 
-    fSize = SkSize::Make(winWidth, winHeight).toCeil();
-
-    const auto  cellWidth =  winWidth / fColumns,
-               cellHeight = cellWidth / kAspectRatio;
+    fWinSize = SkSize::Make(winWidth, winHeight);
+    const auto  cellWidth =  winWidth / fColumns;
+    fCellSize = SkSize::Make(cellWidth, cellWidth / kAspectRatio);
 
     sksg::AnimatorList sceneAnimators;
     auto root = sksg::Group::Make();
@@ -127,10 +156,10 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
         slide->load(winWidth, winHeight);
 
         const auto  slideSize = slide->getDimensions();
-        const auto  cell      = SkRect::MakeXYWH(cellWidth  * (i % fColumns),
-                                                 cellHeight * (i / fColumns),
-                                                 cellWidth,
-                                                 cellHeight),
+        const auto  cell      = SkRect::MakeXYWH(fCellSize.width()  * (i % fColumns),
+                                                 fCellSize.height() * (i / fColumns),
+                                                 fCellSize.width(),
+                                                 fCellSize.height()),
                     slideRect = cell.makeInset(kPadding.width(), kPadding.height());
 
         auto matrix = sksg::Matrix::Make(
@@ -140,13 +169,18 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
 
         auto adapter  = sk_make_sp<SlideAdapter>(slide);
         auto slideGrp = sksg::Group::Make();
-        slideGrp->addChild(sksg::Transform::Make(adapter, matrix));
-        slideGrp->addChild(MakeLabel(slide->getName(), cell));
+        slideGrp->addChild(sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeIWH(slideSize.width(),
+                                                                             slideSize.height())),
+                                            sksg::Color::Make(0xfff0f0f0)));
+        slideGrp->addChild(adapter);
+        slideGrp->addChild(MakeLabel(slide->getName(),
+                                     SkPoint::Make(slideSize.width() / 2, slideSize.height()),
+                                     matrix->getMatrix()));
 
         sceneAnimators.push_back(adapter->makeForwardingAnimator());
-        root->addChild(std::move(slideGrp));
+        root->addChild(sksg::Transform::Make(std::move(slideGrp), matrix));
 
-        fRecs.push_back({ matrix, slideRect });
+        fRecs.push_back({ slide, matrix, slideRect });
     }
 
     fScene = sksg::Scene::Make(std::move(root), std::move(sceneAnimators));
@@ -163,7 +197,8 @@ void SlideDir::unload() {
 }
 
 SkISize SlideDir::getDimensions() const {
-    return fSize;
+    return  SkSize::Make(fWinSize.width(),
+                         fCellSize.height() * (fSlides.count() / fColumns)).toCeil();
 }
 
 void SlideDir::draw(SkCanvas* canvas) {
@@ -175,7 +210,10 @@ bool SlideDir::animate(const SkAnimTimer& timer) {
         // Reset the animation time.
         fTimeBase = timer.msec();
     }
-    fScene->animate(timer.msec() - fTimeBase);
+
+    const auto t = timer.msec() - fTimeBase;
+    fScene->animate(t);
+    fFocusController->tick(t);
 
     return true;
 }
@@ -184,6 +222,48 @@ bool SlideDir::onChar(SkUnichar c) {
     return false;
 }
 
-bool SlideDir::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) {
+bool SlideDir::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
+                       uint32_t modifiers) {
+    if (state == sk_app::Window::kMove_InputState || modifiers)
+        return false;
+
+    const auto* cell = this->findCell(x, y);
+    if (!cell)
+        return false;
+
+    switch (state) {
+    case sk_app::Window::kDown_InputState:
+        fTrackingCell = cell;
+        fTrackingPos = SkPoint::Make(x, y);
+        break;
+    case sk_app::Window::kUp_InputState:
+        static constexpr SkScalar kClickMoveTolerance = 4;
+        if (cell == fTrackingCell &&
+            SkPoint::Distance(fTrackingPos, SkPoint::Make(x, y)) < kClickMoveTolerance) {
+            this->cellClicked(cell);
+        }
+        break;
+    default:
+        break;
+    }
+
     return false;
+}
+
+const SlideDir::Rec* SlideDir::findCell(float x, float y) const {
+    // TODO: use SG hit testing instead of layout info?
+    const auto size = this->getDimensions();
+    if (x < 0 || y < 0 || x >= size.width() || y >= size.height()) {
+        return nullptr;
+    }
+
+    const int col = static_cast<int>(x / fCellSize.width()),
+              row = static_cast<int>(y / fCellSize.height()),
+              idx = row * fColumns + col;
+
+    return idx <= fRecs.count() ? &fRecs[idx] : nullptr;
+}
+
+void SlideDir::cellClicked(const Rec* cell) {
+    // TODO
 }
