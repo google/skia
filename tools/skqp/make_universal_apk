@@ -40,9 +40,14 @@ set -e # Exit immediately
 
 cd "$(dirname "$0")/../.."
 
-
-git clean -fxd platform_tools/android/apps/skqp
-
+(
+    cd platform_tools/android/apps
+    git clean -fxd skqp/build \
+                   skqp/src/main/assets/gmkb \
+                   skqp/src/main/assets/resources \
+                   skqp/src/main/libs \
+                   .gradle build viewer/build
+)
 python tools/skqp/download_model
 if [ -z "$SKQP_EXTRA_MODELS" ]; then
     python tools/skqp/remove_unneeded_assets
@@ -61,8 +66,13 @@ if [ $# -eq 0 ]; then
 fi
 
 for ARCH in $*; do
-    BUILD=out/skqp-$ARCH
-    python tools/skqp/generate_gn_args $BUILD "$ANDROID_NDK" --arch "$ARCH"
+    if [ "$SKQP_DEBUG" ]; then
+        BUILD=out/skqp-${ARCH}-debug
+        python tools/skqp/generate_gn_args $BUILD "$ANDROID_NDK" --arch "$ARCH" --debug
+    else
+        BUILD=out/skqp-$ARCH
+        python tools/skqp/generate_gn_args $BUILD "$ANDROID_NDK" --arch "$ARCH"
+    fi
     bin/gn gen $BUILD
     ninja -C $BUILD $LIB
     case $ARCH in
@@ -79,7 +89,7 @@ done
 
 (
     cd platform_tools/android
-    apps/gradlew --daemon -p apps/$APP -P suppressNativeBuild :$APP:assembleUniversalDebug
+    apps/gradlew -p apps/$APP -P suppressNativeBuild :$APP:assembleUniversalDebug
 )
 
 mkdir -p out/skqp
