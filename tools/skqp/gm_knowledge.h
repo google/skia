@@ -8,6 +8,8 @@
 #define gm_knowledge_DEFINED
 
 #include <cstdint>
+#include <vector>
+#include <string>
 
 namespace skqp {
 class AssetManager;
@@ -55,6 +57,8 @@ float Check(const uint32_t* pixels,
             skqp::AssetManager* asset_manager,
             const char* report_directory_path,
             Error* error_out);
+
+void SaveUnitTestResult(const char* name, std::vector<std::string> errors);
 
 /**
 Call this after running all checks.

@@ -33,6 +33,7 @@
 #define PATH_ERR_PNG "errors.png"
 #define PATH_REPORT  "report.html"
 #define PATH_CSV     "out.csv"
+#define PATH_JSON    "unit_test_results.json"
 
 #ifndef SK_SKQP_GLOBAL_ERROR_TOLERANCE
 #define SK_SKQP_GLOBAL_ERROR_TOLERANCE 0
@@ -164,9 +165,15 @@ struct Run {
     int fMaxerror;
     int fBadpixels;
 };
+
+struct UnitTestResult {
+    std::string fTestName;
+    std::vector<std::string> fErrors;
+};
 }  // namespace
 
 static std::vector<Run> gErrors;
+static std::vector<UnitTestResult> gUnitTestResults;
 static std::mutex gMutex;
 
 static SkString make_path(const SkString& images_directory,
@@ -348,7 +355,8 @@ static constexpr char kDocTail[] =
     "</body>\n"
     "</html>\n";
 
-static void write(SkWStream* wStream, const SkString& text) {
+template <typename STR>
+inline void write(SkWStream* wStream, const STR& text) {
     wStream->write(text.c_str(), text.size());
 }
 
@@ -367,6 +375,31 @@ static Backend get_backend(const SkString& s) {
     return Backend::kUnknown;
 }
 
+static std::string json_encode(const std::string& s) {
+    size_t count = 0;
+    const char* const end = s.c_str() + s.size();
+    for (const char* p = s.c_str(); p < end; ++p) {
+        char c = *p;
+        if (c == '\\' || c == '\"') { ++count; }
+    }
+    std::string r;
+    r.resize(strlen("\"\"") + count + s.size());
+    unsigned i = 0;
+    r[i++] = '\"';
+    for (const char* p = s.c_str(); p < end; ++p) {
+        char c = *p;
+        if (c == '\\' || c == '\"') { r[i++] = '\\'; }
+        r[i++] = c;
+    }
+    r[i++] = '\"';
+    SkASSERT(i == r.size());
+    return r;
+}
+
+void SaveUnitTestResult(const char* name, std::vector<std::string> errors) {
+    std::lock_guard<std::mutex> lock(gMutex);
+    gUnitTestResults.push_back(UnitTestResult{std::string(name), std::move(errors)});
+}
 
 bool MakeReport(const char* report_directory_path) {
     int glesErrorCount = 0, vkErrorCount = 0, gles = 0, vk = 0;
@@ -375,8 +408,9 @@ bool MakeReport(const char* report_directory_path) {
     std::lock_guard<std::mutex> lock(gMutex);
     SkFILEWStream csvOut(SkOSPath::Join(report_directory_path, PATH_CSV).c_str());
     SkFILEWStream htmOut(SkOSPath::Join(report_directory_path, PATH_REPORT).c_str());
-    SkASSERT_RELEASE(csvOut.isValid());
-    if (!csvOut.isValid() || !htmOut.isValid()) {
+    SkFILEWStream jsonOut(SkOSPath::Join(report_directory_path, PATH_JSON).c_str());
+    if (!csvOut.isValid() || !htmOut.isValid() || !jsonOut.isValid()) {
+        SkASSERT(false);
         return false;
     }
     htmOut.writeText(kDocHead);
@@ -407,6 +441,19 @@ bool MakeReport(const char* report_directory_path) {
                                   "vk errors: %d (of %d)</p>\n",
                                   glesErrorCount, gles, vkErrorCount, vk));
     htmOut.writeText(kDocTail);
+
+    jsonOut.writeText("[\n");
+    for (unsigned i = 0; i < gUnitTestResults.size(); ++i) {
+        if (i > 0) { jsonOut.writeText(",\n"); }
+        const UnitTestResult& result = gUnitTestResults[i];
+        write(&jsonOut, SkStringPrintf("{\"name\":\"%s\",\"errors\":[", result.fTestName.c_str()));
+        for (unsigned j = 0; j < result.fErrors.size(); ++j) {
+            if (j > 0) { jsonOut.writeText(","); }
+            write(&jsonOut, json_encode(result.fErrors[j]));
+        }
+        jsonOut.writeText("]}");
+    }
+    jsonOut.writeText("]\n");
     return true;
 }
 }  // namespace gmkb
