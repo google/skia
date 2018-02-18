@@ -7,7 +7,6 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:26.+'
     compile 'com.android.support.test:runner:0.5'
 }
@@ -25,6 +24,6 @@ android {
     }
     sourceSets.main.jni.srcDirs = []
     sourceSets.main.jniLibs.srcDir "src/main/libs"
-    productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
+    productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
     setupSkiaLibraryBuild(project, applicationVariants, "libskqp_app")
 }

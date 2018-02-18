@@ -67,7 +67,7 @@ def getVariantOutDir(project, variant) {
     } else if (variant.name.startsWith("arm")) {
         variantPrefix = "arm"
         androidLibDir = "armeabi-v7a"
-    } else if (variant.name.startsWith("x86_64")) {
+    } else if (variant.name.startsWith("x64")) {
         variantPrefix = "x64"
         androidLibDir = "x86_64"
     } else if (variant.name.startsWith("x86")) {

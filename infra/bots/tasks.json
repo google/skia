@@ -96,6 +96,12 @@
         "Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework"
       ]
     },
+    "Build-Debian9-Clang-universal-devrel-Android_SKQP": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      ]
+    },
     "Build-Debian9-Clang-x64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
@@ -3635,6 +3641,33 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Debian9-Clang-universal-devrel-Android_SKQP": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux",
+        "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-universal-devrel-Android_SKQP",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Debian9-Clang-x64-Debug-Android": {
       "dependencies": [
         "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
@@ -4912,7 +4945,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4935,7 +4968,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4965,7 +4998,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4988,7 +5021,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5011,7 +5044,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5034,7 +5067,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5057,7 +5090,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5080,7 +5113,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5103,7 +5136,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5126,7 +5159,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5149,7 +5182,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5172,7 +5205,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "extra_args": [
@@ -6252,6 +6285,23 @@
         "pool:Skia"
       ],
       "isolate": "isolate_ndk_linux.isolate",
+      "priority": 0.7
+    },
+    "Housekeeper-PerCommit-IsolateAndroidSDKLinux": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_sdk_linux",
+          "path": "android_sdk_linux",
+          "version": "version:0"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "isolate": "isolate_android_sdk_linux.isolate",
       "priority": 0.7
     },
     "Housekeeper-PerCommit-IsolateSKP": {
@@ -9498,7 +9548,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -9545,7 +9595,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -9591,8 +9641,9 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+        "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -9638,8 +9689,9 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+        "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -9685,8 +9737,9 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+        "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -18872,7 +18925,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -18920,7 +18973,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -18968,7 +19021,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -19016,7 +19069,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -19063,8 +19116,9 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+        "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -19111,8 +19165,9 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+        "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -19159,8 +19214,9 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+        "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -19207,8 +19263,9 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+        "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.3",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,

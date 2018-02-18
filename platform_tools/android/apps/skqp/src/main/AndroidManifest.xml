@@ -9,8 +9,7 @@
   <application
       android:allowBackup="false"
       android:theme="@style/AppTheme"
-      android:label="SkQP"
-      android:debuggable="true">
+      android:label="SkQP">
 
       <activity android:name=".MainActivity">
           <intent-filter>
