@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "913b65d3_3f1cf3a4",
+        "filename": "bin/fetch-gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-02-18T00:09:05Z",
+      "side": 1,
+      "message": "Maybe add this:\n\n    gn_copy_path \u003d \u0027buildtools/linux64/gn\u0027 if \u0027linux\u0027  in sys.platform else \\\n                   \u0027buildtools/mac/gn\u0027     if \u0027darwin\u0027 in sys.platform else \\\n                   \u0027buildtools/win/gn.exe\u0027\n    if os.path.isdir(os.path.dirname(gn_copy_path)):\n      shutil.copy(gn_path, gn_copy_path)",
+      "revId": "0cf2e8c2930d1593cb2c9ef2983187c310bde8e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
