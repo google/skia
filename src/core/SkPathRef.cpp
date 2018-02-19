@@ -277,7 +277,6 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
     }
 
     ref->fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
-    uint8_t segmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
 
     int32_t verbCount, pointCount, conicCount;
     if (!buffer->readU32(&(ref->fGenerationID)) ||
@@ -342,8 +341,6 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
 
     ref->fBoundsIsDirty = false;
 
-    // resetToSize clears fSegmentMask and fIsOval
-    ref->fSegmentMask = segmentMask;
     return ref.release();
 }
 
@@ -424,6 +421,8 @@ void SkPathRef::writeToBuffer(SkWBuffer* buffer) const {
     // and fIsFinite are computed.
     const SkRect& bounds = this->getBounds();
 
+    // We store fSegmentMask for older readers, but current readers can't trust it, so they
+    // don't read it.
     int32_t packed = ((fIsFinite & 1) << kIsFinite_SerializationShift) |
                      (fSegmentMask << kSegmentMask_SerializationShift);
     buffer->write32(packed);
