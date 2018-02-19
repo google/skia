@@ -22,6 +22,30 @@
       "revId": "308f12f0b4b203d6c489b79ed42667b39152ea36",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17a1c1bf_6c7091e0",
+        "filename": "tools/viewer/SlideDir.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-19T18:01:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2877cddb_7ee23dbd",
+      "range": {
+        "startLine": 133,
+        "startChar": 8,
+        "endLine": 133,
+        "endChar": 15
+      },
+      "revId": "308f12f0b4b203d6c489b79ed42667b39152ea36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
