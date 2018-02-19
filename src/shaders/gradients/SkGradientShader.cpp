@@ -149,40 +149,24 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         fColorCount += dummyFirst + dummyLast;
     }
 
-    bool decal_mode = (desc.fTileMode == SkShader::kDecal_TileMode);
-    bool need_pos = (desc.fPos != nullptr);
-    if (decal_mode) {
-        fColorCount += 2;   // extra first and last stops
-        need_pos = true;
-    }
-
-    size_t storageSize = fColorCount * (sizeof(SkColor4f) + (need_pos ? sizeof(SkScalar) : 0));
+    size_t storageSize = fColorCount * (sizeof(SkColor4f) + (desc.fPos ? sizeof(SkScalar) : 0));
     fOrigColors4f      = reinterpret_cast<SkColor4f*>(fStorage.reset(storageSize));
-    fOrigPos           = need_pos ? reinterpret_cast<SkScalar*>(fOrigColors4f + fColorCount)
-                                  : nullptr;
-
-    SkASSERT(need_pos == (fOrigPos != nullptr));
+    fOrigPos           = desc.fPos ? reinterpret_cast<SkScalar*>(fOrigColors4f + fColorCount)
+                                   : nullptr;
 
     // Now copy over the colors, adding the dummies as needed
     SkColor4f* origColors = fOrigColors4f;
-    if (decal_mode) {
-        *origColors++ = { 0, 0, 0, 0 };
-    }
     if (dummyFirst) {
         *origColors++ = desc.fColors[0];
     }
     for (int i = 0; i < desc.fCount; ++i) {
-        *origColors++ = desc.fColors[i];
+        origColors[i] = desc.fColors[i];
         fColorsAreOpaque = fColorsAreOpaque && (desc.fColors[i].fA == 1);
     }
     if (dummyLast) {
-        *origColors++ = desc.fColors[desc.fCount - 1];
+        origColors += desc.fCount;
+        *origColors = desc.fColors[desc.fCount - 1];
     }
-    if (decal_mode) {
-        *origColors++ = { 0, 0, 0, 0 };
-        fColorsAreOpaque = false;
-    }
-    SkASSERT(fColorCount == (origColors - fOrigColors4f));
 
     if (!desc.fColorSpace) {
         // This happens if we were constructed from SkColors, so our colors are really sRGB
@@ -194,13 +178,9 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         fColorSpace = desc.fColorSpace;
     }
 
-    SkScalar* origPosPtr = fOrigPos;
-    if (decal_mode) {
-        *origPosPtr++ = 0;
-    }
-
     if (desc.fPos) {
         SkScalar prev = 0;
+        SkScalar* origPosPtr = fOrigPos;
         *origPosPtr++ = prev; // force the first pos to 0
 
         int startIndex = dummyFirst ? 0 : 1;
@@ -217,33 +197,9 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         }
 
         // If the stops are uniform, treat them as implicit.
-        if (uniformStops && !decal_mode) {
+        if (uniformStops) {
             fOrigPos = nullptr;
         }
-    } else if (decal_mode) {
-        // we need to create evenly spaced positions, since decal has forced extra start/ends
-        int n = fColorCount - 2;    // subtract off the extra 2 decal added
-        float dt = 1.0f / (n - 1);
-        float t = 0;
-        for (int i = 0; i < n - 1; ++i) {
-            *origPosPtr++ = t;
-            t += dt;
-        }
-        *origPosPtr++ = 1.0f;   // store the last explicitly, so we always hit 1.0 exactly
-    }
-
-    if (decal_mode) {
-        SkASSERT(origPosPtr[-1] == 1.0f);
-        *origPosPtr++ = SkBits2Float(SkFloat2Bits(1.0f) + 1);
-    }
-    if (fOrigPos) {
-        SkASSERT(fColorCount == (origPosPtr - fOrigPos));
-    }
-
-    // Now that we've munged the stops, pretend we're clamp
-    // (so we don't do this again via serialization)
-    if (decal_mode) {
-        fTileMode = SkShader::kClamp_TileMode;
     }
 }
 
@@ -323,6 +279,7 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
     SkColorSpace* dstCS = rec.fDstCS;
+    SkJumper_DecalTileCtx* decal_ctx = nullptr;
 
     SkMatrix matrix;
     if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &matrix)) {
@@ -336,12 +293,15 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
     p->append_matrix(alloc, matrix);
     this->appendGradientStages(alloc, p, &postPipeline);
 
-    switch (fTileMode) {
+    switch(fTileMode) {
         case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x_1); break;
         case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x_1); break;
         case kDecal_TileMode:
-            // TODO: need decal stages
-            // fall-through for now
+            decal_ctx = alloc->make<SkJumper_DecalTileCtx>();
+            decal_ctx->limit_x = SkBits2Float(SkFloat2Bits(1.0f) + 1);
+            // reuse mask + limit_x stage, or create a custom decal_1 that just stores the mask
+            p->append(SkRasterPipeline::decal_x, decal_ctx);
+            // fall-through to clamp
         case kClamp_TileMode:
             if (!fOrigPos) {
                 // We clamp only when the stops are evenly spaced.
@@ -350,6 +310,7 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
                 // which is the only stage that will correctly handle unclamped t.
                 p->append(SkRasterPipeline::clamp_x_1);
             }
+            break;
     }
 
     const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
@@ -440,6 +401,10 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
         }
     }
 
+    if (decal_ctx) {
+        p->append(SkRasterPipeline::check_decal_mask, decal_ctx);
+    }
+
     if (!premulGrad && !this->colorsAreOpaque()) {
         p->append(SkRasterPipeline::premul);
     }
@@ -451,7 +416,14 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
 
 
 bool SkGradientShaderBase::isOpaque() const {
-    return fColorsAreOpaque;
+    return fColorsAreOpaque && (this->getTileMode() != SkShader::kDecal_TileMode);
+}
+
+bool SkGradientShaderBase::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
+    if (this->getTileMode() == SkShader::kDecal_TileMode) {
+        return true;
+    }
+    return this->INHERITED::onIsRasterPipelineOnly(ctm);
 }
 
 static unsigned rounded_divide(unsigned numer, unsigned denom) {
@@ -557,13 +529,6 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap, GradientBitmapType
         prevIndex = nextIndex;
     }
     SkASSERT(prevIndex == kGradientTextureSize - 1);
-}
-
-bool SkGradientShaderBase::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
-    if (this->getTileMode() == SkShader::kDecal_TileMode) {
-        return true;
-    }
-    return this->INHERITED::onIsRasterPipelineOnly(ctm);
 }
 
 SkColor4f SkGradientShaderBase::getXformedColor(size_t i, SkColorSpace* dstCS) const {
