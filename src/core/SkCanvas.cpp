@@ -400,7 +400,7 @@ static sk_sp<SkColorFilter> image_to_color_filter(const SkPaint& paint) {
 
     // The paint has both a colorfilter(paintCF) and an imagefilter-which-is-a-colorfilter(imgCF)
     // and we need to combine them into a single colorfilter.
-    return SkColorFilter::MakeComposeFilter(std::move(imgCF), sk_ref_sp(paintCF));
+    return imgCF->makeComposed(sk_ref_sp(paintCF));
 }
 
 /**

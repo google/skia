@@ -164,7 +164,7 @@ void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
 }
 
 sk_sp<SkColorFilter>
-SkColorMatrixFilterRowMajor255::makeComposed(sk_sp<SkColorFilter> innerFilter) const {
+SkColorMatrixFilterRowMajor255::onMakeComposed(sk_sp<SkColorFilter> innerFilter) const {
     SkScalar innerMatrix[20];
     if (innerFilter->asColorMatrix(innerMatrix) && !needs_clamping(innerMatrix)) {
         SkScalar concat[20];
