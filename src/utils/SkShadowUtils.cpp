@@ -438,9 +438,9 @@ template <typename FACTORY>
     SkPaint paint;
     // Run the vertex color through a GaussianColorFilter and then modulate the grayscale result of
     // that against our 'color' param.
-    paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
-            SkGaussianColorFilter::Make()));
+    paint.setColorFilter(
+         SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate)->makeComposed(
+                                                                    SkGaussianColorFilter::Make()));
 
     drawProc(vertices.get(), SkBlendMode::kModulate, paint,
              context.fTranslate.fX, context.fTranslate.fY);
@@ -565,9 +565,10 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 SkPaint paint;
                 // Run the vertex color through a GaussianColorFilter and then modulate the
                 // grayscale result of that against our 'color' param.
-                paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-                    SkColorFilter::MakeModeFilter(rec.fAmbientColor, SkBlendMode::kModulate),
-                    SkGaussianColorFilter::Make()));
+                paint.setColorFilter(
+                    SkColorFilter::MakeModeFilter(rec.fAmbientColor,
+                                                  SkBlendMode::kModulate)->makeComposed(
+                                                                   SkGaussianColorFilter::Make()));
                 this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
             }
         } else {
@@ -595,9 +596,10 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 SkPaint paint;
                 // Run the vertex color through a GaussianColorFilter and then modulate the
                 // grayscale result of that against our 'color' param.
-                paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-                    SkColorFilter::MakeModeFilter(rec.fSpotColor, SkBlendMode::kModulate),
-                    SkGaussianColorFilter::Make()));
+                paint.setColorFilter(
+                    SkColorFilter::MakeModeFilter(rec.fSpotColor,
+                                                  SkBlendMode::kModulate)->makeComposed(
+                                                                SkGaussianColorFilter::Make()));
                 this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
             }
         } else {
