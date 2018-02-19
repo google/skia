@@ -76,15 +76,6 @@ public:
     */
     virtual uint32_t getFlags() const { return 0; }
 
-    /**
-     *  If this subclass can optimally createa composition with the inner filter, return it as
-     *  a new filter (which the caller must unref() when it is done). If no such optimization
-     *  is known, return NULL.
-     *
-     *  e.g. result(color) == this_filter(inner(color))
-     */
-    virtual sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter>) const { return nullptr; }
-
     SkColor filterColor(SkColor) const;
     SkColor4f filterColor4f(const SkColor4f&) const;
 
@@ -100,14 +91,20 @@ public:
     static sk_sp<SkColorFilter> MakeModeFilter(SkColor c, SkBlendMode mode);
 
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
-     *  the outer filter to the result of the inner's.
-     *  The reference counts for outer and inner are incremented.
+     *  this filter, applied to the output of the inner filter.
+     *
+     *  result = this(inner(...))
      *
      *  Due to internal limits, it is possible that this will return NULL, so the caller must
      *  always check.
      */
+    sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter> inner) const;
+
+    // DEPRECATED, call makeComposed instead
     static sk_sp<SkColorFilter> MakeComposeFilter(sk_sp<SkColorFilter> outer,
-                                                  sk_sp<SkColorFilter> inner);
+                                                  sk_sp<SkColorFilter> inner) {
+        return outer ? outer->makeComposed(inner) : inner;
+    }
 
     /** Construct a color filter that transforms a color by a 4x5 matrix. The matrix is in row-
      *  major order and the translation column is specified in unnormalized, 0...255, space.
@@ -154,6 +151,15 @@ protected:
     virtual sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const {
         return sk_ref_sp(const_cast<SkColorFilter*>(this));
     }
+
+    /**
+     *  If this subclass can optimally createa composition with the inner filter, return it as
+     *  a new filter (which the caller must unref() when it is done). If no such optimization
+     *  is known, return NULL.
+     *
+     *  e.g. result(color) == this_filter(inner(color))
+     */
+    virtual sk_sp<SkColorFilter> onMakeComposed(sk_sp<SkColorFilter>) const { return nullptr; }
 
 private:
     /*

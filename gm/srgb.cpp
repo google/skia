@@ -32,11 +32,11 @@ DEF_SIMPLE_GM(srgb_colorfilter, canvas, 512, 256*3) {
 
     p.setColorFilter(cf1);
     canvas->drawImage(img, 0, 256, &p);
-    p.setColorFilter(SkColorFilter::MakeComposeFilter(cf1, cf0));
+    p.setColorFilter(cf1->makeComposed(cf0));
     canvas->drawImage(img, 256, 256, &p);
 
     p.setColorFilter(cf2);
     canvas->drawImage(img, 0, 512, &p);
-    p.setColorFilter(SkColorFilter::MakeComposeFilter(cf2, cf0));
+    p.setColorFilter(cf2->makeComposed(cf0));
     canvas->drawImage(img, 256, 512, &p);
 }

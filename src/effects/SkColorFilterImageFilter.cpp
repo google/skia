@@ -27,8 +27,7 @@ sk_sp<SkImageFilter> SkColorFilterImageFilter::Make(sk_sp<SkColorFilter> cf,
     if (input && input->isColorFilterNode(&inputCF)) {
         // This is an optimization, as it collapses the hierarchy by just combining the two
         // colorfilters into a single one, which the new imagefilter will wrap.
-        sk_sp<SkColorFilter> newCF(SkColorFilter::MakeComposeFilter(cf,// can't move bc of fallthru
-                                                                    sk_sp<SkColorFilter>(inputCF)));
+        sk_sp<SkColorFilter> newCF = cf->makeComposed(sk_sp<SkColorFilter>(inputCF));
         if (newCF) {
             return sk_sp<SkImageFilter>(new SkColorFilterImageFilter(std::move(newCF),
                                                                      sk_ref_sp(input->getInput(0)),
