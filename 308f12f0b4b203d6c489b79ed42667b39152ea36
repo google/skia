@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2877cddb_7ee23dbd",
+        "filename": "tools/viewer/SlideDir.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-19T17:55:20Z",
+      "side": 1,
+      "message": "nitty nit nit:\n\nconst SkPoint pt \u003d xform.mapXY(x, y);",
+      "range": {
+        "startLine": 133,
+        "startChar": 8,
+        "endLine": 133,
+        "endChar": 15
+      },
+      "revId": "308f12f0b4b203d6c489b79ed42667b39152ea36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
