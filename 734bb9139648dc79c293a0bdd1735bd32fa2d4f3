@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9235268c_9d6db027",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-19T19:20:33Z",
+      "side": 1,
+      "message": "It also means the gpu impl can decide how it wants to handle decal (for which there is HW support in vulkan)",
+      "parentUuid": "6717e00a_101d8868",
+      "range": {
+        "startLine": 11,
+        "startChar": 35,
+        "endLine": 11,
+        "endChar": 62
+      },
+      "revId": "734bb9139648dc79c293a0bdd1735bd32fa2d4f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "12d71fae_40f8495c",
         "filename": "src/shaders/gradients/SkGradientShader.cpp",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2018-02-19T18:21:09Z",
       "side": 1,
       "message": "Is this intentional?",
+      "revId": "734bb9139648dc79c293a0bdd1735bd32fa2d4f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b83ba238_2ec8de99",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-19T19:20:33Z",
+      "side": 1,
+      "message": "oops, no, will re-add the decal label.",
+      "parentUuid": "12d71fae_40f8495c",
       "revId": "734bb9139648dc79c293a0bdd1735bd32fa2d4f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
