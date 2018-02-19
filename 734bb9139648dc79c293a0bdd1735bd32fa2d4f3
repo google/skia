@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6717e00a_101d8868",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-19T18:21:09Z",
+      "side": 1,
+      "message": "I like the new version for being less finicky, but out of curiosity/other than that is preserving the intent significant?",
+      "range": {
+        "startLine": 11,
+        "startChar": 35,
+        "endLine": 11,
+        "endChar": 62
+      },
+      "revId": "734bb9139648dc79c293a0bdd1735bd32fa2d4f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12d71fae_40f8495c",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-19T18:21:09Z",
+      "side": 1,
+      "message": "Is this intentional?",
+      "revId": "734bb9139648dc79c293a0bdd1735bd32fa2d4f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
