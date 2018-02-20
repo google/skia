@@ -1128,15 +1128,6 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method void setIsConvex(bool isConvex) 
-#Deprecated
-Use setConvexity.
-##
-
-#Subtopic Convexity ##
-
-# ------------------------------------------------------------------------------
-
 #Method bool isOval(SkRect* rect, Direction* dir = nullptr,
                 unsigned* start = nullptr) const 
 #In Property
