@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "53a46bb7_5032d3db",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-20T18:24:00Z",
+      "side": 1,
+      "message": "Brian, do you have an opinion on this? I\u0027d like to make them consistent. I think this one is more correct.",
+      "parentUuid": "3b5652d5_64eeb8be",
+      "revId": "1dfd6827aa34f1573d693b54a8793c1996d4d78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d60f6662_23bc46d9",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 14
