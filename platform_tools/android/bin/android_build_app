@@ -14,6 +14,7 @@ import sys
 
 parser = argparse.ArgumentParser(description='builds skia android apps')
 parser.add_argument('-C', '--output_dir', help='ninja out dir')
+parser.add_argument('--no-daemon', default=False, action='store_true', help='disable gradle daemon')
 parser.add_argument('app_name')
 
 args = parser.parse_args()
@@ -32,12 +33,14 @@ if os.path.exists(args_gn_path):
       target_cpu = m.group(1)
 
 # build the apk using gradle
+cmd = ['./apps/gradlew',
+       ':' + args.app_name + ':assemble' + target_cpu + android_buildtype,
+       '-papps/' + args.app_name,
+       '-P' + target_cpu + '.out.dir=' + os.path.abspath(args.output_dir)]
+if not args.no_daemon:
+  cmd += ['--daemon']
 try:
-    subprocess.check_call(['./apps/gradlew',
-      ':' + args.app_name + ':assemble' + target_cpu + android_buildtype,
-      '-papps/' + args.app_name,
-      '-P' + target_cpu + '.out.dir=' + os.path.abspath(args.output_dir),
-      '--daemon'], cwd=os.path.join(os.path.dirname(__file__), ".."))
+  subprocess.check_call(cmd, cwd=os.path.join(os.path.dirname(__file__), ".."))
 except subprocess.CalledProcessError as error:
   print error
   sys.exit("gradle build failed")
