@@ -64,7 +64,7 @@ How to build and run the SkQP tests
         platform_tools/android/bin/android_build_app -C out/skqp-arm skqp
         adb install -r out/skqp-arm/skqp.apk
         adb logcat -c
-        adb shell am instrument -w org.skia.skqp/android.support.test.runner.AndroidJUnitRunner
+        adb shell am instrument -w org.skia.skqp/org.skia.skqp.SkQPAndroidRunner
 
 6.  Monitor the output with:
 
@@ -80,6 +80,24 @@ How to build and run the SkQP tests
         OUTPUT_LOCATION="/storage/emulated/0/Android/data/org.skia.skqp/files/output"
         adb pull $OUTPUT_LOCATION /tmp/
         tools/skqp/sysopen.py /tmp/output/skqp_report/report.html
+
+Running a single test
+---------------------
+
+To run a sinlge test, for example `gles/aarectmodes`:
+
+    adb shell am instrument -e skqp_filter gles/aarectmodes \
+        -w org.skia.skqp/org.skia.skqp.SkQPAndroidRunner
+
+Two run multiple tests, sinple separate them with commas:
+
+    adb shell am instrument -e skqp_filter gles/aarectmodes,vk/aarectmodes \
+        -w org.skia.skqp/org.skia.skqp.SkQPAndroidRunner
+
+Unit tests can be run with the `unitTest/` prefix:
+
+    adb shell am instrument -e skqp_filter unitTest/GrSurface \
+        -w org.skia.skqp/org.skia.skqp.SkQPAndroidRunner
 
 Run as a non-APK executable
 ---------------------------

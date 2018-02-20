@@ -85,6 +85,9 @@ public class SkQPRunner extends Runner {
             String classname = SkQP.kSkiaGM + impl.mBackends[backend];
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
                 String gmName = String.format("%s/%s", impl.mBackends[backend], impl.mGMs[gm]);
+                if (!SkQPAndroidRunner.filter(gmName)) {
+                    continue;
+                }
                 Log.v(TAG, String.format("Rendering Test %s started (%d/%d).",
                                          gmName, testNumber, numberOfTests));
                 testNumber++;
@@ -113,6 +116,9 @@ public class SkQPRunner extends Runner {
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
             String utName = impl.mUnitTests[unitTest];
+            if (!SkQPAndroidRunner.filter(String.format("unitTest/%s", utName))) {
+                continue;
+            }
             Log.v(TAG, String.format("Test %s started (%d/%d).",
                                      utName, testNumber, numberOfTests));
             testNumber++;
