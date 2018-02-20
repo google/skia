@@ -279,61 +279,23 @@ public:
         this->setConvexity(isConvex ? kConvex_Convexity : kConcave_Convexity);
     }
 
-    /** Returns true if constructed by addCircle(), addOval(); and in some cases,
-        addRoundRect(), addRRect(). SkPath constructed with conicTo() or rConicTo() will not
-        return true though SkPath draws oval.
+    /**
+     *  Returns true if this path is recognized as an oval or circle.
+     *
+     *  @param bounds   If this returns true and bounds is not null, then it is set to the
+     *                  bounds of the oval that matches this path. If this returns false,
+     *                  then this parameter is ignored.
+     */
+    bool isOval(SkRect* bounds) const;
 
-        rect receives bounds of oval.
-        dir receives SkPath::Direction of oval: kCW_Direction if clockwise, kCCW_Direction if
-        counterclockwise.
-        start receives start of oval: 0 for top, 1 for right, 2 for bottom, 3 for left.
-
-        rect, dir, and start are unmodified if oval is not found.
-
-        Triggers performance optimizations on some GPU surface implementations.
-
-        @param rect   storage for bounding SkRect of oval; may be nullptr
-        @param dir    storage for SkPath::Direction; may be nullptr
-        @param start  storage for start of oval; may be nullptr
-        @return       true if SkPath was constructed by method that reduces to oval
-    */
-    bool isOval(SkRect* rect, Direction* dir = nullptr,
-                unsigned* start = nullptr) const {
-        bool isCCW = false;
-        bool result = fPathRef->isOval(rect, &isCCW, start);
-        if (dir && result) {
-            *dir = isCCW ? kCCW_Direction : kCW_Direction;
-        }
-        return result;
-    }
-
-    /** Returns true if constructed by addRoundRect(), addRRect(); and if construction
-        is not empty, not SkRect, and not oval. SkPath constructed with other calls
-        will not return true though SkPath draws SkRRect.
-
-        rrect receives bounds of SkRRect.
-        dir receives SkPath::Direction of oval: kCW_Direction if clockwise, kCCW_Direction if
-        counterclockwise.
-        start receives start of SkRRect: 0 for top, 1 for right, 2 for bottom, 3 for left.
-
-        rrect, dir, and start are unmodified if SkRRect is not found.
-
-        Triggers performance optimizations on some GPU surface implementations.
-
-        @param rrect  storage for bounding SkRect of SkRRect; may be nullptr
-        @param dir    storage for SkPath::Direction; may be nullptr
-        @param start  storage for start of SkRRect; may be nullptr
-        @return       true if SkPath contains only SkRRect
-    */
-    bool isRRect(SkRRect* rrect, Direction* dir = nullptr,
-                 unsigned* start = nullptr) const {
-        bool isCCW = false;
-        bool result = fPathRef->isRRect(rrect, &isCCW, start);
-        if (dir && result) {
-            *dir = isCCW ? kCCW_Direction : kCW_Direction;
-        }
-        return result;
-    }
+    /**
+     *  Returns true if this path is recognized as a SkRRect (but not an oval/circle or rect).
+     *
+     *  @param rrect    If this returns true and rrect is not null, then it is set to the
+     *                  SkRRect that matches this path. If this returns false, then this parameter
+     *                  is ignored.
+     */
+    bool isRRect(SkRRect* rrect) const;
 
     /** Sets SkPath to its initial state.
         Removes verb array, SkPoint array, and weights, and sets FillType to kWinding_FillType.

@@ -2508,14 +2508,16 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     SkPath::Direction dir0, dir1;
     unsigned start0, start1;
     REPORTER_ASSERT(reporter, readBack.isOval(nullptr) == p.isOval(nullptr));
-    if (p.isOval(&oval0, &dir0, &start0) && readBack.isOval(&oval1, &dir1, &start1)) {
+    if (SkPathPriv::IsOval(p, &oval0, &dir0, &start0) &&
+        SkPathPriv::IsOval(readBack, &oval1, &dir1, &start1)) {
         REPORTER_ASSERT(reporter, oval0 == oval1);
         REPORTER_ASSERT(reporter, dir0 == dir1);
         REPORTER_ASSERT(reporter, start0 == start1);
     }
     REPORTER_ASSERT(reporter, readBack.isRRect(nullptr) == p.isRRect(nullptr));
     SkRRect rrect0, rrect1;
-    if (p.isRRect(&rrect0, &dir0, &start0) && readBack.isRRect(&rrect1, &dir1, &start1)) {
+    if (SkPathPriv::IsRRect(p, &rrect0, &dir0, &start0) &&
+        SkPathPriv::IsRRect(readBack, &rrect1, &dir1, &start1)) {
         REPORTER_ASSERT(reporter, rrect0 == rrect1);
         REPORTER_ASSERT(reporter, dir0 == dir1);
         REPORTER_ASSERT(reporter, start0 == start1);
@@ -3291,7 +3293,7 @@ static void check_for_circle(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, path.isOval(&rect) == expectedCircle);
     SkPath::Direction isOvalDir;
     unsigned isOvalStart;
-    if (path.isOval(&rect, &isOvalDir, &isOvalStart)) {
+    if (SkPathPriv::IsOval(path, &rect, &isOvalDir, &isOvalStart)) {
         REPORTER_ASSERT(reporter, rect.height() == rect.width());
         REPORTER_ASSERT(reporter, SkPathPriv::AsFirstDirection(isOvalDir) == expectedDir);
         SkPath tmpPath;
@@ -3534,7 +3536,7 @@ static void test_oval(skiatest::Reporter* reporter) {
     path.transform(m, &tmp);
     // an oval rotated 90 degrees is still an oval. The start index changes from 1 to 2. Direction
     // is unchanged.
-    REPORTER_ASSERT(reporter, tmp.isOval(nullptr, &dir, &start));
+    REPORTER_ASSERT(reporter, SkPathPriv::IsOval(tmp, nullptr, &dir, &start));
     REPORTER_ASSERT(reporter, 2 == start);
     REPORTER_ASSERT(reporter, SkPath::kCW_Direction == dir);
 
@@ -3574,7 +3576,7 @@ static void test_oval(skiatest::Reporter* reporter) {
     tmp.reset();
     tmp.addOval(rect);
     path = tmp;
-    REPORTER_ASSERT(reporter, path.isOval(nullptr, &dir, &start));
+    REPORTER_ASSERT(reporter, SkPathPriv::IsOval(path, nullptr, &dir, &start));
     REPORTER_ASSERT(reporter, SkPath::kCW_Direction == dir);
     REPORTER_ASSERT(reporter, 1 == start);
 }
@@ -3739,7 +3741,7 @@ static void check_oval_arc(skiatest::Reporter* reporter, SkScalar start, SkScala
     SkRect r = SkRect::MakeEmpty();
     SkPath::Direction d = SkPath::kCCW_Direction;
     unsigned s = ~0U;
-    bool isOval = path.isOval(&r, &d, &s);
+    bool isOval = SkPathPriv::IsOval(path, &r, &d, &s);
     REPORTER_ASSERT(reporter, isOval);
     SkPath recreatedPath;
     recreatedPath.addOval(r, d, s);
