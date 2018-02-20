@@ -483,14 +483,14 @@ void GrShape::attemptToSimplifyPath() {
         fLineData.fPts[0] = pts[0];
         fLineData.fPts[1] = pts[1];
         fLineData.fInverted = inverted;
-    } else if (this->path().isRRect(&rrect, &rrectDir, &rrectStart)) {
+    } else if (SkPathPriv::IsRRect(this->path(), &rrect, &rrectDir, &rrectStart)) {
         this->changeType(Type::kRRect);
         fRRectData.fRRect = rrect;
         fRRectData.fDir = rrectDir;
         fRRectData.fStart = rrectStart;
         fRRectData.fInverted = inverted;
         SkASSERT(!fRRectData.fRRect.isEmpty());
-    } else if (this->path().isOval(&rect, &rrectDir, &rrectStart)) {
+    } else if (SkPathPriv::IsOval(this->path(), &rect, &rrectDir, &rrectStart)) {
         this->changeType(Type::kRRect);
         fRRectData.fRRect.setOval(rect);
         fRRectData.fDir = rrectDir;
