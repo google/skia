@@ -272,13 +272,6 @@ public:
         return kConvex_Convexity == this->getConvexity();
     }
 
-    /** Deprecated. Use setConvexity().
-    */
-    SK_ATTR_DEPRECATED("use setConvexity")
-    void setIsConvex(bool isConvex) {
-        this->setConvexity(isConvex ? kConvex_Convexity : kConcave_Convexity);
-    }
-
     /**
      *  Returns true if this path is recognized as an oval or circle.
      *

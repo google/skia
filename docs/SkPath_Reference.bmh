@@ -1126,13 +1126,6 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-# ------------------------------------------------------------------------------
-
-#Method void setIsConvex(bool isConvex) 
-#Deprecated
-Use setConvexity.
-##
-
 #Subtopic Convexity ##
 
 # ------------------------------------------------------------------------------
