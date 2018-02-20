@@ -1,0 +1,75 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "devrel",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP_master_branch"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport contextlib\nimport json\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nGERRIT_URL_TMPL = 'https://skia-review.googlesource.com/changes/%s/detail'\nRETRIES = 3\nTIMEOUT = 10\nWAIT_BASE = 10\n\nsocket.setdefaulttimeout(TIMEOUT)\nissue_id = int(sys.argv[1])\nfor retry in range(RETRIES):\n  try:\n    url = GERRIT_URL_TMPL % issue_id\n    with contextlib.closing(urllib2.urlopen(url, timeout=TIMEOUT)) as w:\n      # strip out the XSS prefix.\n      body = w.read().lstrip().lstrip(\")]}'\")\n      print json.loads(body)['branch']\n      break\n  except Exception as e:\n    print 'Failed to get branch for issue %s:' % issue_id\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
+      "12345"
+    ],
+    "env": {
+      "BUILDTYPE": "devrel",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP_master_branch"
+    },
+    "infra_step": true,
+    "name": "get branch for issue",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import contextlib@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@import math@@@",
+      "@@@STEP_LOG_LINE@python.inline@import socket@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@GERRIT_URL_TMPL = 'https://skia-review.googlesource.com/changes/%s/detail'@@@",
+      "@@@STEP_LOG_LINE@python.inline@RETRIES = 3@@@",
+      "@@@STEP_LOG_LINE@python.inline@TIMEOUT = 10@@@",
+      "@@@STEP_LOG_LINE@python.inline@WAIT_BASE = 10@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@socket.setdefaulttimeout(TIMEOUT)@@@",
+      "@@@STEP_LOG_LINE@python.inline@issue_id = int(sys.argv[1])@@@",
+      "@@@STEP_LOG_LINE@python.inline@for retry in range(RETRIES):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    url = GERRIT_URL_TMPL % issue_id@@@",
+      "@@@STEP_LOG_LINE@python.inline@    with contextlib.closing(urllib2.urlopen(url, timeout=TIMEOUT)) as w:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      # strip out the XSS prefix.@@@",
+      "@@@STEP_LOG_LINE@python.inline@      body = w.read().lstrip().lstrip(\")]}'\")@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print json.loads(body)['branch']@@@",
+      "@@@STEP_LOG_LINE@python.inline@      break@@@",
+      "@@@STEP_LOG_LINE@python.inline@  except Exception as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Failed to get branch for issue %s:' % issue_id@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print e@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if retry == RETRIES:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@    waittime = WAIT_BASE * math.pow(2, retry)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Retry in %d seconds.' % waittime@@@",
+      "@@@STEP_LOG_LINE@python.inline@    time.sleep(waittime)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
