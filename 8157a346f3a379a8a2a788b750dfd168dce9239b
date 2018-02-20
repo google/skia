@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a0054e2_dee4b4ee",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2018-02-20T21:09:35Z",
+      "side": 1,
+      "message": "Semantically multiPage was intended to denote a multi-page src format, even if an instantiation of that src had only 1 page.  Looking through usages though, I think we can get away with simply using pageCount() \u003e 1 and everything will still make sense.  Will rm.",
+      "parentUuid": "8efe04cc_1238f456",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 78,
+        "endChar": 52
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9dc79a1d_71aec2e9",
         "filename": "dm/DMSrcSink.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-20T14:02:53Z",
       "side": 1,
       "message": "You didn\u0027t really mean to change this line, did you?",
+      "range": {
+        "startLine": 355,
+        "startChar": 8,
+        "endLine": 355,
+        "endChar": 53
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da2e21a3_2809c6ad",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2018-02-20T21:09:35Z",
+      "side": 1,
+      "message": "No I did not :S",
+      "parentUuid": "9dc79a1d_71aec2e9",
       "range": {
         "startLine": 355,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "182a7cc3_02324246",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2018-02-20T21:09:35Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3d5c5235_8e0802b1",
+      "range": {
+        "startLine": 452,
+        "startChar": 16,
+        "endLine": 452,
+        "endChar": 28
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad0ecfca_b1ebf203",
         "filename": "tools/flags/SkCommonFlagsConfig.cpp",
         "patchSetId": 2
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "77c477d8_429f72d1",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2018-02-20T21:09:35Z",
+      "side": 1,
+      "message": "So that it\u0027s available even when #if SK_SUPPORT_GPU is false (I moved it outside the guard).",
+      "parentUuid": "ad0ecfca_b1ebf203",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "59dbbeda_e0bc22c7",
         "filename": "tools/flags/SkCommonFlagsConfig.cpp",
         "patchSetId": 2
@@ -99,6 +189,24 @@
       "writtenOn": "2018-02-20T14:02:53Z",
       "side": 1,
       "message": "I think this code may be clearer if you make ExtendedOptions its own type.  You\u0027ve got a couple free functions here that are really logically methods on that type: parseExtendedOptions() is rather like a constructor or factory method, and get_opt() too.",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfa6772a_eb152617",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2018-02-20T21:09:35Z",
+      "side": 1,
+      "message": "To address this and some of the related comments below, how about I refactor this into a class named ExtendedOptions, that lives inside SkCommonFlagsConfig.cpp.  That class could have a constructor that takes an SkString and parses them into an internal private SkTHashMap\u003cString,String\u003e.  This class could implement accessors (returns a bool to denote presence/absence, out parameters to store values) for each of the parse types, so e.g. parse_option_int would become get_option_int, parse_option_gpu_api would become get_option_gpu_api, etc.  All the out parameters would be typed in the method signatures, which would also obviate the need for using varargs.  Thoughts?",
+      "parentUuid": "59dbbeda_e0bc22c7",
       "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -139,6 +247,24 @@
       "writtenOn": "2018-02-20T14:02:53Z",
       "side": 1,
       "message": "You\u0027re not checking for this nullptr in the caller.  That seems dangerous.",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecf38840_55cf07b0",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2018-02-20T21:09:35Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "537bd8be_cad047e7",
       "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -213,6 +339,30 @@
       "writtenOn": "2018-02-20T14:02:53Z",
       "side": 1,
       "message": "Is this the default page number, or page index?  Isn\u0027t this page index -1?",
+      "range": {
+        "startLine": 465,
+        "startChar": 3,
+        "endLine": 465,
+        "endChar": 23
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20176830_6ebb492b",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2018-02-20T21:09:35Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "671a6e12_50a4572e",
       "range": {
         "startLine": 465,
         "startChar": 3,
