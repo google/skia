@@ -76,6 +76,10 @@ GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX
         , fDirty(false)
 #endif
 {
+    // We expect the allocated dimensions to be a multiple of 4 bytes
+    SkASSERT(((width*fBytesPerPixel) & 0x3) == 0);
+    // The padding for faster uploads only works for 1, 2 and 4 byte texels
+    SkASSERT(fBytesPerPixel != 3 && fBytesPerPixel <= 4);
     fDirtyRect.setEmpty();
 }
 
@@ -136,6 +140,13 @@ void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& 
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     size_t rowBytes = fBytesPerPixel * fWidth;
     const unsigned char* dataPtr = fData;
+    // Clamp to 4-byte aligned boundaries
+    unsigned int clearBits = 0x3 / fBytesPerPixel;
+    fDirtyRect.fLeft &= ~clearBits;
+    fDirtyRect.fRight += clearBits;
+    fDirtyRect.fRight &= ~clearBits;
+    SkASSERT(fDirtyRect.fRight <= fWidth);
+    // Set up dataPtr
     dataPtr += rowBytes * fDirtyRect.fTop;
     dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
     // TODO: Make GrDrawOpAtlas store a GrColorType rather than GrPixelConfig.
