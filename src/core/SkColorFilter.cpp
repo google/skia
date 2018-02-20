@@ -176,7 +176,7 @@ private:
 sk_sp<SkFlattenable> SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkColorFilter> outer(buffer.readColorFilter());
     sk_sp<SkColorFilter> inner(buffer.readColorFilter());
-    return outer->makeComposed(std::move(inner));
+    return outer ? outer->makeComposed(std::move(inner)) : inner;
 }
 
 
