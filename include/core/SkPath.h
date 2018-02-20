@@ -272,13 +272,6 @@ public:
         return kConvex_Convexity == this->getConvexity();
     }
 
-    /** Deprecated. Use setConvexity().
-    */
-    SK_ATTR_DEPRECATED("use setConvexity")
-    void setIsConvex(bool isConvex) {
-        this->setConvexity(isConvex ? kConvex_Convexity : kConcave_Convexity);
-    }
-
     /** Returns true if constructed by addCircle(), addOval(); and in some cases,
         addRoundRect(), addRRect(). SkPath constructed with conicTo() or rConicTo() will not
         return true though SkPath draws oval.
