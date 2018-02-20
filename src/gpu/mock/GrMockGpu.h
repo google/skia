@@ -120,11 +120,6 @@ private:
         return true;
     }
 
-    void onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const GrStencilSettings&,
-                                 int* effectiveSampleCnt, SamplePattern*) override {
-        *effectiveSampleCnt = rt->numStencilSamples();
-    }
-
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
     void onFinishFlush(bool insertedSemaphores) override {}
