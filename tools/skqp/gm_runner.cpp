@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-#include "../dm/DMFontMgr.h"
+#include "../tools/fonts/SkTestFontMgr.h"
 #include "GrContext.h"
 #include "GrContextOptions.h"
 #include "SkFontMgrPriv.h"
@@ -243,7 +243,7 @@ std::tuple<float, Error> EvaluateGM(SkiaBackend backend,
 
 void InitSkia(Mode mode, skqp::AssetManager* mgr) {
     SkGraphics::Init();
-    gSkFontMgr_DefaultFactory = &DM::MakeFontMgr;
+    gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
 
     gMode = mode;
     readlist(mgr, "skqp/DoNotScoreInCompatibilityTestMode.txt",

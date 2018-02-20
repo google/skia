@@ -31,13 +31,13 @@ DEFINE_bool(simpleCodec, false, "Runs of a subset of the codec tests.  "
                                 "For nanobench, this means always N32, Premul or Opaque.");
 
 DEFINE_string2(match, m, nullptr,
-               "[~][^]substring[$] [...] of GM name to run.\n"
+               "[~][^]substring[$] [...] of name to run.\n"
                "Multiple matches may be separated by spaces.\n"
-               "~ causes a matching GM to always be skipped\n"
-               "^ requires the start of the GM to match\n"
-               "$ requires the end of the GM to match\n"
+               "~ causes a matching name to always be skipped\n"
+               "^ requires the start of the name to match\n"
+               "$ requires the end of the name to match\n"
                "^ and $ requires an exact match\n"
-               "If a GM does not match any list entry,\n"
+               "If a name does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
 
 DEFINE_bool2(quiet, q, false, "if true, don't print status updates.");
@@ -53,9 +53,18 @@ DEFINE_bool(releaseAndAbandonGpuContext, false,
 DEFINE_bool(disableDriverCorrectnessWorkarounds, false, "Disables all GPU driver correctness "
             "workarounds");
 
+#ifdef SK_BUILD_FOR_ANDROID
+DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
+DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
+DEFINE_string(jsons, "/data/local/tmp/jsons", "Directory to read (Bodymovin) jsons from.");
+#else
 DEFINE_string(skps, "skps", "Directory to read skps from.");
+DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
+DEFINE_string(jsons, "jsons", "Directory to read (Bodymovin) jsons from.");
+#endif
 
-DEFINE_string(jsons, "", "Directory to read Bodymovin JSONs from, or a single JSON file.");
+DEFINE_bool(nativeFonts, true, "If true, use native font manager and rendering. "
+                               "If false, fonts will draw as portably as possible.");
 
 DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
