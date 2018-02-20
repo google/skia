@@ -95,8 +95,10 @@ public:
     void visitProxies(const VisitProxyFunc& func) const override {
         fProcessors.visitProxies(func);
 
-        const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat());
-        for (int i = 0; i < kMaxTextures; ++i) {
+        unsigned int numProxies;
+        const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat(),
+                                                                      &numProxies);
+        for (unsigned int i = 0; i < numProxies; ++i) {
             if (proxies[i]) {
                 func(proxies[i].get());
             }
@@ -183,7 +185,7 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
-    static constexpr auto kMaxTextures = 4;
+    static constexpr auto kMaxTextures1 = 4;
 
     sk_sp<GrGeometryProcessor> setupDfProcessor() const;
 
