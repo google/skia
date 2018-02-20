@@ -125,6 +125,19 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Run bot_update.
 
+    # TODO(borenet): Remove this hack after the transition to Kitchen:
+    # https://bugs.chromium.org/p/skia/issues/detail?id=7050
+    if self.m.vars.need_chromium_checkout:
+      depot_tools = self.m.vars.checkout_root.join('depot_tools')
+      res = depot_tools.join(
+        'recipes', 'recipe_modules', 'bot_update', 'resources')
+      self.m.git.checkout(
+          'https://chromium.googlesource.com/chromium/tools/depot_tools.git',
+          dir_path=depot_tools, ref='master')
+      def resource(r):
+        return res.join(r)
+      self.m.bot_update.resource = resource
+
     # Hack the patch ref if necessary.
     if self.m.bot_update._issue and self.m.bot_update._patchset:
       self.m.bot_update._gerrit_ref = 'refs/changes/%s/%d/%d' % (
@@ -154,12 +167,7 @@ class SkiaApi(recipe_api.RecipeApi):
     if self.m.vars.need_chromium_checkout:
       with self.m.context(cwd=self.m.vars.checkout_root,
                           env=self.m.vars.gclient_env):
-        # TODO(borenet): Remove this hack and replace with
-        # 'self.m.gclient.runhooks()' after the transition to Kitchen:
-        # https://bugs.chromium.org/p/skia/issues/detail?id=7050
-        depot_tools = self.m.vars.checkout_root.join('depot_tools')
-        self.m.git.checkout(
-            'https://chromium.googlesource.com/chromium/tools/depot_tools.git',
-            dir_path=depot_tools, ref='master')
+        # TODO(borenet): Replace this hack with 'self.m.gclient.runhooks' after
+        # the transition to Kitchen.
         self.m.run(self.m.step, 'gclient runhooks',
                    cmd=[depot_tools.join('gclient'), 'runhooks'])
