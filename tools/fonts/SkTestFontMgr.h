@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef DMFontMgr_DEFINED
-#define DMFontMgr_DEFINED
+#ifndef SkTestFontMgr_DEFINED
+#define SkTestFontMgr_DEFINED
 
 #include "SkFontMgr.h"
 
 // An SkFontMgr that always uses sk_tool_utils::create_portable_typeface().
 
-namespace DM {
-    sk_sp<SkFontMgr> MakeFontMgr();
-}  // namespace DM
+namespace sk_tool_utils {
+    sk_sp<SkFontMgr> MakePortableFontMgr();
+}  // namespace sk_tool_utils
 
-#endif//DMFontMgr_DEFINED
+#endif  //SkTestFontMgr_DEFINED

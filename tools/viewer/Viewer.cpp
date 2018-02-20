@@ -20,9 +20,11 @@
 #include "SkCanvas.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformCanvas.h"
+#include "SkCommonFlags.h"
 #include "SkCommandLineFlags.h"
 #include "SkCommonFlagsGpu.h"
 #include "SkEventTracingPriv.h"
+#include "SkFontMgrPriv.h"
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
 #include "SkOSFile.h"
@@ -33,6 +35,7 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
+#include "SkTestFontMgr.h"
 #include "SkThreadedBMPDevice.h"
 
 #include "imgui.h"
@@ -50,16 +53,6 @@ Application* Application::Create(int argc, char** argv, void* platformData) {
     return new Viewer(argc, argv, platformData);
 }
 
-static DEFINE_string2(match, m, nullptr,
-               "[~][^]substring[$] [...] of bench name to run.\n"
-               "Multiple matches may be separated by spaces.\n"
-               "~ causes a matching bench to always be skipped\n"
-               "^ requires the start of the bench to match\n"
-               "$ requires the end of the bench to match\n"
-               "^ and $ requires an exact match\n"
-               "If a bench does not match any list entry,\n"
-               "it is skipped unless some list entry starts with ~");
-
 static DEFINE_string(slide, "", "Start on this sample.");
 static DEFINE_bool(list, false, "List samples?");
 
@@ -67,16 +60,6 @@ static DEFINE_bool(list, false, "List samples?");
 #    define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
 #else
 #    define BACKENDS_STR "\"sw\" and \"gl\""
-#endif
-
-#ifdef SK_BUILD_FOR_ANDROID
-static DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
-static DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
-static DEFINE_string(jsons, "/data/local/tmp/jsons", "Directory to read (Bodymovin) jsons from.");
-#else
-static DEFINE_string(skps, "skps", "Directory to read skps from.");
-static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
-static DEFINE_string(jsons, "jsons", "Directory to read (Bodymovin) jsons from.");
 #endif
 
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
@@ -218,6 +201,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #ifdef SK_BUILD_FOR_ANDROID
     SetResourcePath("/data/local/tmp/resources");
 #endif
+
+    if (!FLAGS_nativeFonts) {
+        gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
+    }
 
     initializeEventTracingForTools();
     static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);

@@ -1236,6 +1236,7 @@ if (skia_enable_tools) {
     public_include_dirs = [
       "tools",
       "tools/debugger",
+      "tools/fonts",
       "tools/timer",
       "tools/trace",
     ]
@@ -1245,8 +1246,6 @@ if (skia_enable_tools) {
       "tools/LsanSuppressions.cpp",
       "tools/ProcStats.cpp",
       "tools/Resources.cpp",
-      "tools/SkRandomScalerContext.cpp",
-      "tools/SkTestScalerContext.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/SkDebugCanvas.cpp",
       "tools/debugger/SkDrawCommand.cpp",
@@ -1255,7 +1254,10 @@ if (skia_enable_tools) {
       "tools/picture_utils.cpp",
       "tools/random_parse_path.cpp",
       "tools/sk_tool_utils.cpp",
-      "tools/sk_tool_utils_font.cpp",
+      "tools/fonts/sk_tool_utils_font.cpp",
+      "tools/fonts/SkRandomScalerContext.cpp",
+      "tools/fonts/SkTestScalerContext.cpp",
+      "tools/fonts/SkTestFontMgr.cpp",
       "tools/timer/Timer.cpp",
       "tools/trace/SkChromeTracingTracer.cpp",
       "tools/trace/SkChromeTracingTracer.h",
@@ -1511,7 +1513,6 @@ if (skia_enable_tools) {
     test_app("dm") {
       sources = [
         "dm/DM.cpp",
-        "dm/DMFontMgr.cpp",
         "dm/DMGpuTestProcs.cpp",
         "dm/DMJsonWriter.cpp",
         "dm/DMSrcSink.cpp",
@@ -1629,7 +1630,7 @@ if (skia_enable_tools) {
 
   test_app("create_test_font") {
     sources = [
-      "tools/create_test_font.cpp",
+      "tools/fonts/create_test_font.cpp",
     ]
     deps = [
       ":skia",
@@ -1789,7 +1790,6 @@ if (skia_enable_tools) {
         defines += [ "SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS" ]
       }
       sources = [
-        "dm/DMFontMgr.cpp",
         "dm/DMGpuTestProcs.cpp",
         "tools/skqp/gm_knowledge.cpp",
         "tools/skqp/gm_runner.cpp",

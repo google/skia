@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "DMFontMgr.h"
 #include "DMJsonWriter.h"
 #include "DMSrcSink.h"
 #include "ProcStats.h"
@@ -37,6 +36,7 @@
 #include "SkPngEncoder.h"
 #include "SkScan.h"
 #include "SkSpinlock.h"
+#include "SkTestFontMgr.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
 #include "SkTypeface_win.h"
@@ -103,8 +103,6 @@ DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
 DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
 
-DEFINE_bool(nativeFonts, true, "If true, use native font manager and rendering. "
-                               "If false, fonts will draw as portably as possible.");
 DEFINE_bool(gdi, false, "On Windows, use GDI instead of DirectWrite for font rendering.");
 
 using namespace DM;
@@ -1323,7 +1321,7 @@ int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     if (!FLAGS_nativeFonts) {
-        gSkFontMgr_DefaultFactory = &DM::MakeFontMgr;
+        gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
