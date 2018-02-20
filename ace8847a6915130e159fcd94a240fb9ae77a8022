@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ca0dc4c_3b2ba72d",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-20T14:49:51Z",
+      "side": 1,
+      "message": "SkASSERT(numProxies)?",
+      "range": {
+        "startLine": 134,
+        "startChar": 7,
+        "endLine": 134,
+        "endChar": 8
+      },
+      "revId": "ace8847a6915130e159fcd94a240fb9ae77a8022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
