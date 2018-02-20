@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3baa70c2_eb447ae8",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T13:26:02Z",
+      "side": 1,
+      "message": "At this point, we might as well ignore the kIsFinite bit too, right?",
+      "range": {
+        "startLine": 337,
+        "startChar": 12,
+        "endLine": 337,
+        "endChar": 70
+      },
+      "revId": "b1b8ae64df3defa2096091e0071975c1cd4eb562",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42c7aed4_61fb6e88",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T13:26:02Z",
+      "side": 1,
+      "message": "// Must keep this call after validate_verb_sequence().\n\n?",
+      "revId": "b1b8ae64df3defa2096091e0071975c1cd4eb562",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
