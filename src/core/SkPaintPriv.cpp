@@ -63,11 +63,15 @@ void SkPaintPriv::ScaleFontMetrics(SkPaint::FontMetrics* metrics, SkScalar scale
     metrics->fBottom *= scale;
     metrics->fLeading *= scale;
     metrics->fAvgCharWidth *= scale;
+    metrics->fMaxCharWidth *= scale;
     metrics->fXMin *= scale;
     metrics->fXMax *= scale;
     metrics->fXHeight *= scale;
+    metrics->fCapHeight *= scale;
     metrics->fUnderlineThickness *= scale;
     metrics->fUnderlinePosition *= scale;
+    metrics->fStrikeoutThickness *= scale;
+    metrics->fStrikeoutPosition *= scale;
 }
 
 bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {

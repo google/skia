@@ -430,7 +430,7 @@ static void generate_index(const char* defaultName) {
 }
 
 int main(int , char * const []) {
-    generate_fonts("/Library/Fonts/");
+    generate_fonts("/Library/Fonts/"); // or /usr/share/fonts/truetype/ttf-liberation/
     generate_index(DEFAULT_FONT_NAME);
     return 0;
 }
