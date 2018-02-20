@@ -555,8 +555,6 @@ void Viewer::initSlides() {
 
     // JSONs
     for (const auto& json : FLAGS_jsons) {
-        fSlides.push_back(sk_make_sp<SkottieSlide2>(json));
-
         SkTArray<sk_sp<Slide>, true> dirSlides;
 
         SkOSFile::Iter it(json.c_str(), ".json");
