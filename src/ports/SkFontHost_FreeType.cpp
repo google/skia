@@ -1360,13 +1360,20 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
         leading = (SkIntToScalar(face->size->metrics.height) / (yppem * 64.0f)) + ascent - descent;
         xmin = 0.0f;
         xmax = SkIntToScalar(face->available_sizes[fStrikeIndex].width) / xppem;
-        ymin = descent + leading;
-        ymax = ascent - descent;
+        ymin = descent;
+        ymax = ascent;
         underlineThickness = 0;
         underlinePosition = 0;
-
         metrics->fFlags &= ~SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag;
         metrics->fFlags &= ~SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+
+        TT_Postscript* post = (TT_Postscript*) FT_Get_Sfnt_Table(face, ft_sfnt_post);
+        if (post) {
+            underlineThickness = SkIntToScalar(post->underlineThickness) / upem;
+            underlinePosition = -SkIntToScalar(post->underlinePosition) / upem;
+            metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag;
+            metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+        }
     } else {
         sk_bzero(metrics, sizeof(*metrics));
         return;
