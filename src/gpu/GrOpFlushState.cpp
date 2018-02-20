@@ -7,6 +7,7 @@
 
 #include "GrOpFlushState.h"
 
+#include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
@@ -26,6 +27,12 @@ GrOpFlushState::GrOpFlushState(GrGpu* gpu,
 
 const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
+}
+
+GrProxyProvider* GrOpFlushState::proxyProvider() const {
+    GrContext* context = fGpu->getContext();
+
+    return context->contextPriv().proxyProvider();
 }
 
 GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {

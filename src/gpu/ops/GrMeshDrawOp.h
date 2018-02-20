@@ -152,6 +152,8 @@ public:
 
     virtual GrResourceProvider* resourceProvider() const = 0;
 
+    virtual GrProxyProvider* proxyProvider() const = 0;
+
     virtual const GrCaps& caps() const = 0;
 
     virtual GrDeferredUploadTarget* deferredUploadTarget() = 0;
