@@ -14,6 +14,7 @@
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGroup.h"
+#include "SkSGPlane.h"
 #include "SkSGRect.h"
 #include "SkSGRenderNode.h"
 #include "SkSGScene.h"
@@ -110,7 +111,7 @@ public:
         fMap.setPts(kFocusCtrl1, kFocusCtrl0);
 
         fShadePaint = sksg::Color::Make(kFocusShade);
-        fShade = sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeSize(dir->fWinSize)), fShadePaint);
+        fShade = sksg::Draw::Make(sksg::Plane::Make(), fShadePaint);
     }
 
     bool hasFocus() const { return fState == State::kFocused; }
