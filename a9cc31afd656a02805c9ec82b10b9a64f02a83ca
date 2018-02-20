@@ -34,6 +34,24 @@
       "revId": "a9cc31afd656a02805c9ec82b10b9a64f02a83ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddf80653_6e1ed4ba",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-20T20:52:46Z",
+      "side": 1,
+      "message": "I don\u0027t see that Description is marked final.  Why can\u0027t you subclass it?",
+      "parentUuid": "70f092a4_94d893b6",
+      "revId": "a9cc31afd656a02805c9ec82b10b9a64f02a83ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
