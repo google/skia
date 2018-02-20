@@ -7,14 +7,14 @@
 
 #include "SkMatrix.h"
 #include "SkPath.h"
-//#include "SkPathRef.h"
+#include "SkPathPriv.h"
 #include "SkRRect.h"
 #include "Test.h"
 
 static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& path,
                                    SkPath::Direction* dir, unsigned* start) {
     SkRRect out;
-    REPORTER_ASSERT(reporter, path.isRRect(&out, dir, start));
+    REPORTER_ASSERT(reporter, SkPathPriv::IsRRect(path, &out, dir, start));
     SkPath recreatedPath;
     recreatedPath.addRRect(out, *dir, *start);
     REPORTER_ASSERT(reporter, path == recreatedPath);
@@ -32,7 +32,7 @@ static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& p
         SkRRect xrr = SkRRect::MakeRect(SkRect::MakeEmpty());
         SkPath::Direction xd = SkPath::kCCW_Direction;
         unsigned xs = ~0U;
-        REPORTER_ASSERT(reporter, xformed.isRRect(&xrr, &xd, &xs));
+        REPORTER_ASSERT(reporter, SkPathPriv::IsRRect(xformed, &xrr, &xd, &xs));
         recreatedPath.reset();
         recreatedPath.addRRect(xrr, xd, xs);
         REPORTER_ASSERT(reporter, recreatedPath == xformed);

@@ -1137,53 +1137,31 @@ Use setConvexity.
 
 # ------------------------------------------------------------------------------
 
-#Method bool isOval(SkRect* rect, Direction* dir = nullptr,
-                unsigned* start = nullptr) const 
+#Method bool isOval(SkRect* bounds) const
 #In Property
 #Line # returns if describes Oval ##
 
-Returns true if constructed by addCircle, addOval; and in some cases,
-addRoundRect, addRRect.  Path constructed with conicTo or rConicTo will not
-return true though Path draws Oval.
+Returns true if this path is recognized as an oval or circle.
 
-rect receives bounds of Oval.
-dir receives Direction of Oval: kCW_Direction if clockwise, kCCW_Direction if
-counterclockwise.
-start receives start of Oval: 0 for top, 1 for right, 2 for bottom, 3 for left.
+bounds receives bounds of Oval.
 
-rect, dir, and start are unmodified if Oval is not found.
+bounds is unmodified if Oval is not found.
 
-Triggers performance optimizations on some GPU_Surface implementations.
+#Param bounds  storage for bounding Rect of Oval; may be nullptr ##
 
-#Param rect  storage for bounding Rect of Oval; may be nullptr ##
-#Param dir  storage for Direction; may be nullptr ##
-#Param start  storage for start of Oval; may be nullptr ##
-
-#Return  true if Path was constructed by method that reduces to Oval ##
+#Return  true if Path is recognized as an oval or circle ##
 
 #Example
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkPath path;
-    path.addOval({20, 20, 220, 220}, SkPath::kCW_Direction, 1);
+    path.addOval({20, 20, 220, 220});
     SkRect bounds;
-    SkPath::Direction direction;
-    unsigned start;
-    path.isOval(&bounds, &direction, &start);
-    paint.setColor(0xFF9FBFFF);
-    canvas->drawRect(bounds, paint);
+    if (path.isOval(&bounds)) {
+        paint.setColor(0xFF9FBFFF);
+        canvas->drawRect(bounds, paint);
+    }
     paint.setColor(0x3f000000);
-    canvas->drawPath(path, paint);
-    paint.setColor(SK_ColorBLACK);
-    canvas->rotate(start * 90, bounds.centerX(), bounds.centerY());
-    char startText = '0' + start;
-    paint.setTextSize(20);
-    canvas->drawText(&startText, 1, bounds.centerX(), bounds.fTop + 20, paint);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(4);
-    path.reset();
-    path.addArc(bounds, -90, SkPath::kCW_Direction == direction ? 90 : -90);
-    path.rLineTo(20, -20); 
     canvas->drawPath(path, paint);
 }
 ##
@@ -1194,58 +1172,35 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method bool isRRect(SkRRect* rrect, Direction* dir = nullptr,
-                 unsigned* start = nullptr) const 
+#Method bool isRRect(SkRRect* rrect) const
 #In Property
 #Line # returns if describes Round_Rect ##
 
-Returns true if constructed by addRoundRect, addRRect; and if construction
-is not empty, not Rect, and not Oval. Path constructed with other calls
-will not return true though Path draws Round_Rect.
+Returns true if this path is recognized as a SkRRect (but not an oval/circle or rect).
 
 rrect receives bounds of Round_Rect.
-dir receives Direction of Oval: kCW_Direction if clockwise, kCCW_Direction if
-counterclockwise.
-start receives start of Round_Rect: 0 for top, 1 for right, 2 for bottom, 3 for left.
 
-rrect, dir, and start are unmodified if Round_Rect is not found.
-
-Triggers performance optimizations on some GPU_Surface implementations.
+rrect is unmodified if Round_Rect is not found.
 
 #Param rrect  storage for bounding Rect of Round_Rect; may be nullptr ##
-#Param dir  storage for Direction; may be nullptr ##
-#Param start  storage for start of Round_Rect; may be nullptr ##
 
 #Return  true if Path contains only Round_Rect ##
 
 #Example
 #Description
-Draw rounded rectangle and its bounds. Draw an arc indicating where the rounded
-rectangle starts and its direction.
+Draw rounded rectangle and its bounds.
 ##
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkPath path;
-    path.addRRect(SkRRect::MakeRectXY({20, 20, 220, 220}, 30, 50), SkPath::kCCW_Direction, 3);
+    path.addRRect(SkRRect::MakeRectXY({20, 20, 220, 220}, 30, 50));
     SkRRect rrect;
-    SkPath::Direction direction;
-    unsigned start;
-    path.isRRect(&rrect, &direction, &start);
-    const SkRect& bounds = rrect.rect();
-    paint.setColor(0xFF9FBFFF);
-    canvas->drawRect(bounds, paint);
+    if (path.isRRect(&rrect)) {
+        const SkRect& bounds = rrect.rect();
+        paint.setColor(0xFF9FBFFF);
+        canvas->drawRect(bounds, paint);
+    }
     paint.setColor(0x3f000000);
-    canvas->drawPath(path, paint);
-    paint.setColor(SK_ColorBLACK);
-    canvas->rotate(start * 90, bounds.centerX(), bounds.centerY());
-    char startText = '0' + start;
-    paint.setTextSize(20);
-    canvas->drawText(&startText, 1, bounds.centerX(), bounds.fTop + 20, paint);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(4);
-    path.reset();
-    path.addArc(bounds, -90, SkPath::kCW_Direction == direction ? 90 : -90);
-    path.rLineTo(20, -20); 
     canvas->drawPath(path, paint);
 }
 ##
