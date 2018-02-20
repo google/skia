@@ -1423,6 +1423,17 @@ public:
         fBottom = SkMaxScalar(fBottom, r.bottom());
     }
 
+    /** Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
+        Returns false if SkRect is empty.
+
+        @param x  test SkPoint x-coordinate
+        @param y  test SkPoint y-coordinate
+        @return   true if (x, y) is inside SkRect
+    */
+    bool contains(SkScalar x, SkScalar y) const {
+        return x >= fLeft && x < fRight && y >= fTop && y < fBottom;
+    }
+
     /** Returns true if SkRect contains r.
         Returns false if SkRect is empty or r is empty.
 
