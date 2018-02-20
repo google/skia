@@ -295,6 +295,7 @@ config("warnings") {
       "-Wvla",
 
       "-Wno-deprecated-declarations",
+      "-Wno-implicit-fallthrough",
       "-Wno-maybe-uninitialized",
     ]
     cflags_cc += [ "-Wnon-virtual-dtor" ]
@@ -363,7 +364,6 @@ config("warnings") {
     cflags += [
       "-Wno-covered-switch-default",
       "-Wno-deprecated",
-      "-Wno-implicit-fallthrough",
       "-Wno-missing-noreturn",
       "-Wno-old-style-cast",
       "-Wno-padded",
