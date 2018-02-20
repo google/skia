@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "DMFontMgr.h"
 #include "SkFontDescriptor.h"
+#include "SkTestFontMgr.h"
 #include "sk_tool_utils.h"
 
 namespace {
@@ -142,6 +142,6 @@ private:
 };
 }
 
-namespace DM {
-sk_sp<SkFontMgr> MakeFontMgr() { return sk_make_sp<FontMgr>(); }
-} // namespace DM
+namespace sk_tool_utils {
+sk_sp<SkFontMgr> MakePortableFontMgr() { return sk_make_sp<FontMgr>(); }
+} // namespace sk_tool_utils
