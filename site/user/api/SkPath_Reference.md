@@ -1072,40 +1072,29 @@ Use <a href="#SkPath_setConvexity">setConvexity</a>.
 ## isOval
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-bool isOval(SkRect* rect, Direction* dir = nullptr, unsigned* start = nullptr) const
+bool isOval(SkRect* bounds) const
 </pre>
 
-Returns true if constructed by <a href="#SkPath_addCircle">addCircle</a>, <a href="#SkPath_addOval">addOval</a>; and in some cases,
-<a href="#SkPath_addRoundRect">addRoundRect</a>, <a href="#SkPath_addRRect">addRRect</a>.  <a href="#Path">Path</a> constructed with <a href="#SkPath_conicTo">conicTo</a> or <a href="#SkPath_rConicTo">rConicTo</a> will not
-return true though <a href="#Path">Path</a> draws <a href="undocumented#Oval">Oval</a>.
+Returns true if this path is recognized as an oval or circle.
 
-<a href="#SkPath_isOval_rect">rect</a> receives bounds of <a href="undocumented#Oval">Oval</a>.
-<a href="#SkPath_isOval_dir">dir</a> receives <a href="#SkPath_Direction">Direction</a> of <a href="undocumented#Oval">Oval</a>: <a href="#SkPath_kCW_Direction">kCW Direction</a> if clockwise, <a href="#SkPath_kCCW_Direction">kCCW Direction</a> if
-counterclockwise.
-<a href="#SkPath_isOval_start">start</a> receives <a href="#SkPath_isOval_start">start</a> of <a href="undocumented#Oval">Oval</a>: 0 for top, 1 for right, 2 for bottom, 3 for left.
+<a href="#SkPath_isOval_bounds">bounds</a> receives <a href="#SkPath_isOval_bounds">bounds</a> of <a href="undocumented#Oval">Oval</a>.
 
-<a href="#SkPath_isOval_rect">rect</a>, <a href="#SkPath_isOval_dir">dir</a>, and <a href="#SkPath_isOval_start">start</a> are unmodified if <a href="undocumented#Oval">Oval</a> is not found.
-
-Triggers performance optimizations on some <a href="undocumented#GPU_Surface">GPU Surface</a> implementations.
+<a href="#SkPath_isOval_bounds">bounds</a> is unmodified if <a href="undocumented#Oval">Oval</a> is not found.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_isOval_rect"> <code><strong>rect </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkPath_isOval_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
 storage for bounding <a href="SkRect_Reference#Rect">Rect</a> of <a href="undocumented#Oval">Oval</a>; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_isOval_dir"> <code><strong>dir </strong></code> </a></td> <td>
-storage for <a href="#SkPath_Direction">Direction</a>; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_isOval_start"> <code><strong>start </strong></code> </a></td> <td>
-storage for <a href="#SkPath_isOval_start">start</a> of <a href="undocumented#Oval">Oval</a>; may be nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if <a href="#Path">Path</a> was constructed by method that reduces to <a href="undocumented#Oval">Oval</a>
+true if <a href="#Path">Path</a> is recognized as an oval or circle
 
 ### Example
 
-<div><fiddle-embed name="4fc7b86c9b772c5e85af480524267bde"></fiddle-embed></div>
+<div><fiddle-embed name="a51256952b183ee0f7004f2c87cbbf5b"></fiddle-embed></div>
 
 ### See Also
 
@@ -1117,30 +1106,19 @@ true if <a href="#Path">Path</a> was constructed by method that reduces to <a hr
 ## isRRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-bool isRRect(SkRRect* rrect, Direction* dir = nullptr, unsigned* start = nullptr) const
+bool isRRect(SkRRect* rrect) const
 </pre>
 
-Returns true if constructed by <a href="#SkPath_addRoundRect">addRoundRect</a>, <a href="#SkPath_addRRect">addRRect</a>; and if construction
-is not empty, not <a href="SkRect_Reference#Rect">Rect</a>, and not <a href="undocumented#Oval">Oval</a>. <a href="#Path">Path</a> constructed with other calls
-will not return true though <a href="#Path">Path</a> draws <a href="undocumented#Round_Rect">Round Rect</a>.
+Returns true if this path is recognized as a <a href="undocumented#SkRRect">SkRRect</a> (but not an oval/circle or rect).
 
 <a href="#SkPath_isRRect_rrect">rrect</a> receives bounds of <a href="undocumented#Round_Rect">Round Rect</a>.
-<a href="#SkPath_isRRect_dir">dir</a> receives <a href="#SkPath_Direction">Direction</a> of <a href="undocumented#Oval">Oval</a>: <a href="#SkPath_kCW_Direction">kCW Direction</a> if clockwise, <a href="#SkPath_kCCW_Direction">kCCW Direction</a> if
-counterclockwise.
-<a href="#SkPath_isRRect_start">start</a> receives <a href="#SkPath_isRRect_start">start</a> of <a href="undocumented#Round_Rect">Round Rect</a>: 0 for top, 1 for right, 2 for bottom, 3 for left.
 
-<a href="#SkPath_isRRect_rrect">rrect</a>, <a href="#SkPath_isRRect_dir">dir</a>, and <a href="#SkPath_isRRect_start">start</a> are unmodified if <a href="undocumented#Round_Rect">Round Rect</a> is not found.
-
-Triggers performance optimizations on some <a href="undocumented#GPU_Surface">GPU Surface</a> implementations.
+<a href="#SkPath_isRRect_rrect">rrect</a> is unmodified if <a href="undocumented#Round_Rect">Round Rect</a> is not found.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_isRRect_rrect"> <code><strong>rrect </strong></code> </a></td> <td>
 storage for bounding <a href="SkRect_Reference#Rect">Rect</a> of <a href="undocumented#Round_Rect">Round Rect</a>; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_isRRect_dir"> <code><strong>dir </strong></code> </a></td> <td>
-storage for <a href="#SkPath_Direction">Direction</a>; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_isRRect_start"> <code><strong>start </strong></code> </a></td> <td>
-storage for <a href="#SkPath_isRRect_start">start</a> of <a href="undocumented#Round_Rect">Round Rect</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -1150,8 +1128,7 @@ true if <a href="#Path">Path</a> contains only <a href="undocumented#Round_Rect"
 
 ### Example
 
-<div><fiddle-embed name="f2b7e57a385e6604475c99ec8daa2697"><div>Draw rounded rectangle and its bounds. Draw an arc indicating where the rounded
-rectangle starts and its direction.</div></fiddle-embed></div>
+<div><fiddle-embed name="2aa939b90d96aff436b145a96305132c"><div>Draw rounded rectangle and its bounds.</div></fiddle-embed></div>
 
 ### See Also
 
