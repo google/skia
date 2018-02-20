@@ -22,6 +22,30 @@
       "revId": "c8a5ea558aac0837467ccc60e5ad205368a2336b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a34f1cb0_9fa6df3c",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-20T20:15:49Z",
+      "side": 1,
+      "message": "I added an assert -- we only allocate atlases that are a multiple of 4. This did make me realize that this will pad in the RGBA case when we don\u0027t need to, so I addressed that (it handles 2-byte and 3-byte texels too). And we don\u0027t need to adjust the top and bottom.",
+      "parentUuid": "61050eaf_5aec8be7",
+      "range": {
+        "startLine": 146,
+        "startChar": 4,
+        "endLine": 147,
+        "endChar": 44
+      },
+      "revId": "c8a5ea558aac0837467ccc60e5ad205368a2336b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
