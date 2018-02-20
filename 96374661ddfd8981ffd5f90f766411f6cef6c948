@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f303137_abcb82bf",
+        "filename": "tools/skqp/gm_knowledge.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-02-20T19:32:21Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this (and the MakeReport) be in gmrunnerh.h/cpp ? \nThat would cleanly separate the model portion of the writing/evaluating results. \n\nnit: This should also have a description.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 75
+      },
+      "revId": "96374661ddfd8981ffd5f90f766411f6cef6c948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
