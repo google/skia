@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61050eaf_5aec8be7",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-20T18:51:56Z",
+      "side": 1,
+      "message": "how are you keeping this true? If you have an A8 atlas (1 byte per pixel), and the atlas size is some number no divisible by 4, and the dirty rec is the whole atlas we\u0027d pad over right?",
+      "range": {
+        "startLine": 146,
+        "startChar": 4,
+        "endLine": 147,
+        "endChar": 44
+      },
+      "revId": "c8a5ea558aac0837467ccc60e5ad205368a2336b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
