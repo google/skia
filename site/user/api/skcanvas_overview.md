@@ -67,4 +67,4 @@ In some of the calls, we pass a pointer, rather than a reference, to
 the paint. In those instances, the paint parameter may be null. In all
 other cases the paint parameter is required.
 
-Next: [SkPaint](/user/api/skpaint)
+Next: [SkPaint](/user/api/skpaint_overview)

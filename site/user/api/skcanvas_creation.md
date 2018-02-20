@@ -1,7 +1,7 @@
 SkCanvas Creation
 =========================
 
-First, read about [the SkCanvas API](skcanvas).
+First, read about [the SkCanvas API](skcanvas_overview).
 
 Skia has multiple backends which receive SkCanvas drawing commands,
 including:
