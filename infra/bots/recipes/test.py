@@ -896,19 +896,32 @@ def test_steps(api):
         api.flavor.device_dirs.dm_dir, api.vars.dm_dir)
 
 
+def test_firebase_steps(api):
+  """Run the APK in the input isolate on Firebase Testlab."""
+  args = [
+  ]
+
+  api.run(api.flavor.step, 'go run whatever.go', cmd=args, abort_on_failure=False)
+
 def RunSteps(api):
   api.core.setup()
+  is_skqp = "SKQP" in api.vars.builder_name
   env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.dm'
     env['IOS_MOUNT_POINT'] = api.vars.slave_dir.join('mnt_iosdevice')
+
   with api.context(env=env):
     try:
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
       else:
         api.flavor.install_everything()
-      test_steps(api)
+      if is_skqp:
+        # run the skqp APK on firebase.
+        test_firebase_steps(api)
+      else:
+        test_steps(api)
     finally:
       api.flavor.cleanup_steps()
     api.run.check_failure()
