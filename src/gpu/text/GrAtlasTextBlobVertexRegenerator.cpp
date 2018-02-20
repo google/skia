@@ -190,10 +190,10 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
     }
 }
 
-Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx,
-                               const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                               GrDeferredUploadTarget* uploadTarget, GrAtlasGlyphCache* glyphCache,
-                               SkAutoGlyphCache* lazyCache)
+Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx,
+                               int subRunIdx, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                               GrColor color, GrDeferredUploadTarget* uploadTarget,
+                               GrAtlasGlyphCache* glyphCache, SkAutoGlyphCache* lazyCache)
         : fViewMatrix(viewMatrix)
         , fBlob(blob)
         , fUploadTarget(uploadTarget)
