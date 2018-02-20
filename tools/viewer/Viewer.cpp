@@ -7,6 +7,7 @@
 
 #include "Viewer.h"
 
+#include "BisectSlide.h"
 #include "GMSlide.h"
 #include "ImageSlide.h"
 #include "Resources.h"
@@ -81,6 +82,8 @@ static DEFINE_string(jsons, "jsons", "Directory to read (Bodymovin) jsons from."
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
 static DEFINE_int32(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing.");
+
+DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
 
 DECLARE_int32(threads)
 
@@ -478,23 +481,36 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 void Viewer::initSlides() {
     fAllSlideNames = Json::Value(Json::arrayValue);
 
+    // Bisect slide.
+    if (!FLAGS_bisect.isEmpty()) {
+        sk_sp<BisectSlide> bisect = BisectSlide::Create(FLAGS_bisect[0]);
+        if (bisect && !SkCommandLineFlags::ShouldSkip(FLAGS_match, bisect->getName().c_str())) {
+            if (FLAGS_bisect.count() >= 2) {
+                for (const char* ch = FLAGS_bisect[1]; *ch; ++ch) {
+                    bisect->onChar(*ch);
+                }
+            }
+            fSlides.push_back(std::move(bisect));
+        }
+    }
+
+    // GMs
+    int firstGM = fSlides.count();
     const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
     while (gms) {
         std::unique_ptr<skiagm::GM> gm(gms->factory()(nullptr));
 
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
             sk_sp<Slide> slide(new GMSlide(gm.release()));
-            fSlides.push_back(slide);
+            fSlides.push_back(std::move(slide));
         }
 
         gms = gms->next();
     }
-
-    // reverse array
-    for (int i = 0; i < fSlides.count()/2; ++i) {
-        sk_sp<Slide> temp = fSlides[i];
-        fSlides[i] = fSlides[fSlides.count() - i - 1];
-        fSlides[fSlides.count() - i - 1] = temp;
+    // reverse gms
+    int numGMs = fSlides.count() - firstGM;
+    for (int i = 0; i < numGMs/2; ++i) {
+        std::swap(fSlides[firstGM + i], fSlides[fSlides.count() - i - 1]);
     }
 
     // samples
