@@ -446,13 +446,13 @@ struct SK_API SkIRect {
     }
 
     /** Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
-        Returns false if SkRect is empty.
+        Returns false if SkIRect is empty.
 
         Considers input to describe constructed SkIRect: (x, y, x + 1, y + 1) and
         returns true if constructed area is completely enclosed by SkIRect area.
 
-        @param x  test SkPoint x-coordinate
-        @param y  test SkPoint y-coordinate
+        @param x  test SkIPoint x-coordinate
+        @param y  test SkIPoint y-coordinate
         @return   true if (x, y) is inside SkIRect
     */
     bool contains(int32_t x, int32_t y) const {
@@ -1421,6 +1421,17 @@ public:
         fTop    = SkMinScalar(fTop, r.top());
         fRight  = SkMaxScalar(fRight, r.right());
         fBottom = SkMaxScalar(fBottom, r.bottom());
+    }
+
+    /** Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
+        Returns false if SkRect is empty.
+
+        @param x  test SkPoint x-coordinate
+        @param y  test SkPoint y-coordinate
+        @return   true if (x, y) is inside SkRect
+    */
+    bool contains(SkScalar x, SkScalar y) const {
+        return x >= fLeft && x < fRight && y >= fTop && y < fBottom;
     }
 
     /** Returns true if SkRect contains r.
