@@ -5,19 +5,26 @@ Skia documentation is actively under development.
 
 Full references with examples are available for:
 
-*  [SkBitmap](/user/api/SkBitmap_Reference) - two-dimensional raster pixel array
-*  [SkCanvas](/user/api/SkCanvas_Reference) - drawing context
-*  [SkIRect](/user/api/SkIRect_Reference) - integer rectangle
-*  [SkMatrix](/user/api/SkMatrix_Reference) - 3x3 transformation matrix
-*  [SkPaint](/user/api/SkPaint_Reference) - color, stroke, font, effects
-*  [SkPath](/user/api/SkPath_Reference) - series of connected lines and curves
-*  [SkPixmap](/user/api/SkPixmap_Reference) - pixel map: image info and pixel address
-*  [SkRect](/user/api/SkRect_Reference) - floating point rectangle
+*   [SkAutoCanvasRestore](/user/api/SkAutoCanvasRestore_Reference) - Canvas save stack manager
+*   [SkBitmap](/user/api/SkBitmap_Reference) - two-dimensional raster pixel array
+*   [SkCanvas](/user/api/SkCanvas_Reference) - drawing context
+*   [SkImage](/user/api/SkImage_Reference) - two dimensional array of pixels to draw
+*   [SkImageInfo](/user/api/SkImageInfo_Reference) - pixel dimensions and characteristics
+*   [SkIPoint](/user/api/SkIPoint_Reference) - two integer coordinates
+*   [SkIPoint16](/user/api/SkIPoint16_Reference) - two 16-bit integer coordinates
+*   [SkIRect](/user/api/SkIRect_Reference) - integer rectangle
+*   [SkMatrix](/user/api/SkMatrix_Reference) - 3x3 transformation matrix
+*   [SkPaint](/user/api/SkPaint_Reference) - color, stroke, font, effects
+*   [SkPath](/user/api/SkPath_Reference) - sequence of connected lines and curves
+*   [SkPixmap](/user/api/SkPixmap_Reference) - pixel map: image info and pixel address
+*   [SkPoint](/user/api/SkPoint_Reference) - two floating point coordinates
+*   [SkRect](/user/api/SkRect_Reference) - floating point rectangle
+*   [SkSurface](/user/api/SkSurface_Reference) - drawing destination
 
 Check out [a graphical overview of examples](api/catalog.htm)
 
 All public APIs are indexed by Doxygen. The Doxyen index is current, but the
-content is dated and incomplete. Doxygen content will be superceded by 
+content is dated and incomplete. Doxygen content will be superseded by
 full references with examples.
 
 *   [Skia Doxygen](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/index.html)
@@ -47,6 +54,7 @@ attributes of the drawing are controlled by the paint.
 
 Using the SkCanvas API:
 
-*  [SkCanvas Overview](/user/api/skcanvas_overivew) - the drawing context
-*  [Creating SkCanvas Objects](/user/api/creating_skcanvas)
-*  [SkPaint Overview](/user/api/skpaint_overview) - color, stroke, font, effects
+1.  [SkCanvas Overview](/user/api/skcanvas_overview) - the drawing context
+2.  [SkPaint Overview](/user/api/skpaint_overview) - color, stroke, font, effects
+3.  [SkCanvas Creation](/user/api/skcanvas_creation)
+
