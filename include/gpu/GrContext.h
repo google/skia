@@ -340,7 +340,7 @@ public:
     /** Get pointer to atlas texture for given mask format. Note that this wraps an
         actively mutating texture in an SkImage. This could yield unexpected results
         if it gets cached or used more generally. */
-    sk_sp<SkImage> getFontAtlasImage_ForTesting(GrMaskFormat format, uint32_t index = 0);
+    sk_sp<SkImage> getFontAtlasImage_ForTesting(GrMaskFormat format, unsigned int index = 0);
 
     GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
 

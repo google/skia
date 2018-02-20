@@ -218,8 +218,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     GrMaskFormat maskFormat = this->maskFormat();
 
-    uint32_t atlasPageCount = fFontCache->getAtlasPageCount(maskFormat);
-    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(maskFormat);
+    unsigned int atlasPageCount;
+    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(maskFormat, &atlasPageCount);
     if (!atlasPageCount || !proxies[0]) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
@@ -305,20 +305,23 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
     GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
     GrMaskFormat maskFormat = this->maskFormat();
-    if (gp->numTextureSamplers() != (int)fFontCache->getAtlasPageCount(maskFormat)) {
+
+    unsigned int numProxies;
+    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(maskFormat, &numProxies);
+    if (gp->numTextureSamplers() != (int) numProxies) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewProxies(
-                    fFontCache->getProxies(maskFormat), GrSamplerState::ClampBilerp());
+                    proxies, GrSamplerState::ClampBilerp());
             } else {
                 reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewProxies(
-                    fFontCache->getProxies(maskFormat), GrSamplerState::ClampBilerp());
+                    proxies, GrSamplerState::ClampBilerp());
             }
         } else {
             reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
-                fFontCache->getProxies(maskFormat), GrSamplerState::ClampNearest());
+                proxies, GrSamplerState::ClampNearest());
         }
     }
 
@@ -409,7 +412,8 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 // TODO trying to figure out why lcd is so whack
 // (see comments in GrAtlasTextContext::ComputeCanonicalColor)
 sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
-    const sk_sp<GrTextureProxy>* p = fFontCache->getProxies(this->maskFormat());
+    unsigned int numProxies;
+    const sk_sp<GrTextureProxy>* p = fFontCache->getProxies(this->maskFormat(), &numProxies);
     bool isLCD = this->isLCD();
 
     SkMatrix localMatrix = SkMatrix::I();
