@@ -16,6 +16,24 @@
       "revId": "a9cc31afd656a02805c9ec82b10b9a64f02a83ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70f092a4_94d893b6",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-02-20T20:36:49Z",
+      "side": 1,
+      "message": "Descriptions can not be subclassed.",
+      "parentUuid": "95a762f9_0046444d",
+      "revId": "a9cc31afd656a02805c9ec82b10b9a64f02a83ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
