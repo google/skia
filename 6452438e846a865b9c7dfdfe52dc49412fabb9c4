@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab34cc2f_19fdbee8",
+        "filename": "tools/skqp/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-20T20:23:57Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 92,
+        "startChar": 24,
+        "endLine": 92,
+        "endChar": 30
+      },
+      "revId": "6452438e846a865b9c7dfdfe52dc49412fabb9c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

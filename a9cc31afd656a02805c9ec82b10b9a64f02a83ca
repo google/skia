@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95a762f9_0046444d",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-20T20:23:57Z",
+      "side": 1,
+      "message": "slightly diverging from the intent of this CL, but it seems awkward to me that we create a description in the constructor and then ignore it and create it a new one here.  Can we create a subclass of Description that holds the parts that we need to run the test so that we only need to create the description once and then loop through (and filter) the list of child descriptions?",
+      "revId": "a9cc31afd656a02805c9ec82b10b9a64f02a83ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
