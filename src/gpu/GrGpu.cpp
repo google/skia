@@ -36,7 +36,6 @@ GrGpu::GrGpu(GrContext* context)
     : fResetTimestamp(kExpiredTimestamp+1)
     , fResetBits(kAll_GrBackendState)
     , fContext(context) {
-    fMultisampleSpecs.emplace_back(0, 0, nullptr); // Index 0 is an invalid unique id.
 }
 
 GrGpu::~GrGpu() {}
@@ -449,65 +448,6 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
             texture->texturePriv().markMipMapsDirty();
         }
     }
-}
-
-const GrGpu::MultisampleSpecs& GrGpu::queryMultisampleSpecs(const GrPipeline& pipeline) {
-    GrRenderTarget* rt = pipeline.renderTarget();
-    SkASSERT(rt->numStencilSamples() > 1);
-
-    GrStencilSettings stencil;
-    if (pipeline.isStencilEnabled()) {
-        // TODO: attach stencil and create settings during render target flush.
-        SkASSERT(rt->renderTargetPriv().getStencilAttachment());
-        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
-                      rt->renderTargetPriv().numStencilBits());
-    }
-
-    int effectiveSampleCnt;
-    SkSTArray<16, SkPoint, true> pattern;
-    this->onQueryMultisampleSpecs(rt, pipeline.proxy()->origin(), stencil,
-                                  &effectiveSampleCnt, &pattern);
-    SkASSERT(effectiveSampleCnt >= rt->numStencilSamples());
-
-    uint8_t id;
-    if (this->caps()->sampleLocationsSupport()) {
-        SkASSERT(pattern.count() == effectiveSampleCnt);
-        const auto& insertResult = fMultisampleSpecsIdMap.insert(
-            MultisampleSpecsIdMap::value_type(pattern, SkTMin(fMultisampleSpecs.count(), 255)));
-        id = insertResult.first->second;
-        if (insertResult.second) {
-            // This means the insert did not find the pattern in the map already, and therefore an
-            // actual insertion took place. (We don't expect to see many unique sample patterns.)
-            const SkPoint* sampleLocations = insertResult.first->first.begin();
-            SkASSERT(id == fMultisampleSpecs.count());
-            fMultisampleSpecs.emplace_back(id, effectiveSampleCnt, sampleLocations);
-        }
-    } else {
-        id = effectiveSampleCnt;
-        for (int i = fMultisampleSpecs.count(); i <= id; ++i) {
-            fMultisampleSpecs.emplace_back(i, i, nullptr);
-        }
-    }
-    SkASSERT(id > 0);
-
-    return fMultisampleSpecs[id];
-}
-
-bool GrGpu::SamplePatternComparator::operator()(const SamplePattern& a,
-                                                const SamplePattern& b) const {
-    if (a.count() != b.count()) {
-        return a.count() < b.count();
-    }
-    for (int i = 0; i < a.count(); ++i) {
-        // This doesn't have geometric meaning. We just need to define an ordering for std::map.
-        if (a[i].x() != b[i].x()) {
-            return a[i].x() < b[i].x();
-        }
-        if (a[i].y() != b[i].y()) {
-            return a[i].y() < b[i].y();
-        }
-    }
-    return false; // Equal.
 }
 
 GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,

@@ -55,16 +55,6 @@ public:
     };
 
     /**
-     * Appends the offset from the center of the pixel to a specified sample.
-     *
-     * @param sampleIdx      GLSL expression of the sample index.
-     * @param Coordinates    Coordinate space in which to emit the offset.
-     *
-     * A processor must call setWillUseSampleLocations in its constructor before using this method.
-     */
-    virtual void appendOffsetToSample(const char* sampleIdx, Coordinates) = 0;
-
-    /**
      * Fragment procs with child procs should call these functions before/after calling emitCode
      * on a child proc.
      */
@@ -112,7 +102,6 @@ public:
     virtual SkString ensureCoords2D(const GrShaderVar&) override;
 
     // GrGLSLFPFragmentBuilder interface.
-    void appendOffsetToSample(const char* sampleIdx, Coordinates) override;
     const SkString& getMangleString() const override { return fMangleString; }
     void onBeforeChildProcEmitCode() override;
     void onAfterChildProcEmitCode() override;
@@ -134,10 +123,8 @@ private:
 #ifdef SK_DEBUG
     // As GLSLProcessors emit code, there are some conditions we need to verify.  We use the below
     // state to track this.  The reset call is called per processor emitted.
-    GrProcessor::RequiredFeatures usedProcessorFeatures() const { return fUsedProcessorFeatures; }
     bool hasReadDstColor() const { return fHasReadDstColor; }
     void resetVerification() {
-        fUsedProcessorFeatures = GrProcessor::kNone_RequiredFeatures;
         fHasReadDstColor = false;
     }
 #endif
@@ -148,7 +135,6 @@ private:
     GrSurfaceOrigin getSurfaceOrigin() const;
 
     void onFinalize() override;
-    void defineSampleOffsetArray(const char* name, const SkMatrix&);
 
     static const char* kDstColorName;
 
@@ -176,13 +162,11 @@ private:
     bool fHasCustomColorOutput;
     int fCustomColorOutputIndex;
     bool fHasSecondaryOutput;
-    uint8_t fUsedSampleOffsetArrays;
     bool fForceHighPrecision;
 
 #ifdef SK_DEBUG
     // some state to verify shaders and effects are consistent, this is reset between effects by
     // the program creator
-    GrProcessor::RequiredFeatures fUsedProcessorFeatures;
     bool fHasReadDstColor;
 #endif
 
