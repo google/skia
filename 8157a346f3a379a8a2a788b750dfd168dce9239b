@@ -1,0 +1,227 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8efe04cc_1238f456",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "Isn\u0027t multiPage() the same as pageCount() \u003e 1?",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 78,
+        "endChar": 52
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dc79a1d_71aec2e9",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "You didn\u0027t really mean to change this line, did you?",
+      "range": {
+        "startLine": 355,
+        "startChar": 8,
+        "endLine": 355,
+        "endChar": 53
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d5c5235_8e0802b1",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "I think we\u0027ll be less confused in the long run if you pass the page index directly instead.",
+      "range": {
+        "startLine": 452,
+        "startChar": 16,
+        "endLine": 452,
+        "endChar": 28
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad0ecfca_b1ebf203",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "Why did this have to move?",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59dbbeda_e0bc22c7",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "I think this code may be clearer if you make ExtendedOptions its own type.  You\u0027ve got a couple free functions here that are really logically methods on that type: parseExtendedOptions() is rather like a constructor or factory method, and get_opt() too.",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88c6997f_787e942a",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "We\u0027d generally write this as a static function, named_like_this().\n\n  static std::unique_ptr\u003cExtendedOptions\u003e parse_extended_options(...) { ... }",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 202,
+        "endChar": 53
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "537bd8be_cad047e7",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "You\u0027re not checking for this nullptr in the caller.  That seems dangerous.",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cb74aa0_11e8b532",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "It looks like this function might be simpler to use if it filled out an existing map:\n\n   static bool parse_extended_options(SkString options, ExtendedOptions* out) { ... }\n\nThat way you can just put it on the stack:\n\n   ExtendedOptions opts;\n   parse_extended_options(options, \u0026opts);",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2387d4ae_103a6866",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "This can be static too, right?",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "722e40d5_ffb91407",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "Just FYI, you can write this as\n\n  *opts_ptr",
+      "range": {
+        "startLine": 436,
+        "startChar": 28,
+        "endLine": 436,
+        "endChar": 46
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "671a6e12_50a4572e",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T14:02:53Z",
+      "side": 1,
+      "message": "Is this the default page number, or page index?  Isn\u0027t this page index -1?",
+      "range": {
+        "startLine": 465,
+        "startChar": 3,
+        "endLine": 465,
+        "endChar": 23
+      },
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
