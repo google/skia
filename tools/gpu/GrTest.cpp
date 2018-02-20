@@ -305,6 +305,16 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 
 //////////////////////////////////////////////////////////////////////////////
 
+GrPixelConfig GrBackendTexture::testingOnly_getPixelConfig() const {
+    return fConfig;
+}
+
+GrPixelConfig GrBackendRenderTarget::testingOnly_getPixelConfig() const {
+    return fConfig;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 #define DRAW_OP_TEST_EXTERN(Op) \
     extern std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&&, SkRandom*, GrContext*, GrFSAAType)
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test

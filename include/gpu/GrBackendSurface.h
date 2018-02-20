@@ -144,6 +144,8 @@ public:
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
+    GrPixelConfig testingOnly_getPixelConfig() const;
+
 private:
     // Friending for access to the GrPixelConfig
     friend class SkImage;
@@ -218,6 +220,8 @@ public:
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
+    GrPixelConfig testingOnly_getPixelConfig() const;
+
 private:
     // Friending for access to the GrPixelConfig
     friend class SkSurface;
@@ -225,6 +229,7 @@ private:
     friend class SkImage_Gpu;
     friend class GrGpu;
     friend class GrGLGpu;
+    friend class GrProxyProvider;
     friend class GrVkGpu;
     GrPixelConfig config() const { return fConfig; }
 
