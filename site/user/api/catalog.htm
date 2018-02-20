@@ -6358,18 +6358,18 @@
     "name": "SkPath::isConvex"
 },
     "SkPath_isOval": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPath path;\n    path.addOval({20, 20, 220, 220}, SkPath::kCW_Direction, 1);\n    SkRect bounds;\n    SkPath::Direction direction;\n    unsigned start;\n    path.isOval(&bounds, &direction, &start);\n    paint.setColor(0xFF9FBFFF);\n    canvas->drawRect(bounds, paint);\n    paint.setColor(0x3f000000);\n    canvas->drawPath(path, paint);\n    paint.setColor(SK_ColorBLACK);\n    canvas->rotate(start * 90, bounds.centerX(), bounds.centerY());\n    char startText = '0' + start;\n    paint.setTextSize(20);\n    canvas->drawText(&startText, 1, bounds.centerX(), bounds.fTop + 20, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(4);\n    path.reset();\n    path.addArc(bounds, -90, SkPath::kCW_Direction == direction ? 90 : -90);\n    path.rLineTo(20, -20); \n    canvas->drawPath(path, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPath path;\n    path.addOval({20, 20, 220, 220});\n    SkRect bounds;\n    if (path.isOval(&bounds)) {\n        paint.setColor(0xFF9FBFFF);\n        canvas->drawRect(bounds, paint);\n    }\n    paint.setColor(0x3f000000);\n    canvas->drawPath(path, paint);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "4fc7b86c9b772c5e85af480524267bde",
+    "hash": "a51256952b183ee0f7004f2c87cbbf5b",
     "file": "SkPath_Reference",
     "name": "SkPath::isOval"
 },
     "SkPath_isRRect": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPath path;\n    path.addRRect(SkRRect::MakeRectXY({20, 20, 220, 220}, 30, 50), SkPath::kCCW_Direction, 3);\n    SkRRect rrect;\n    SkPath::Direction direction;\n    unsigned start;\n    path.isRRect(&rrect, &direction, &start);\n    const SkRect& bounds = rrect.rect();\n    paint.setColor(0xFF9FBFFF);\n    canvas->drawRect(bounds, paint);\n    paint.setColor(0x3f000000);\n    canvas->drawPath(path, paint);\n    paint.setColor(SK_ColorBLACK);\n    canvas->rotate(start * 90, bounds.centerX(), bounds.centerY());\n    char startText = '0' + start;\n    paint.setTextSize(20);\n    canvas->drawText(&startText, 1, bounds.centerX(), bounds.fTop + 20, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(4);\n    path.reset();\n    path.addArc(bounds, -90, SkPath::kCW_Direction == direction ? 90 : -90);\n    path.rLineTo(20, -20); \n    canvas->drawPath(path, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPath path;\n    path.addRRect(SkRRect::MakeRectXY({20, 20, 220, 220}, 30, 50));\n    SkRRect rrect;\n    if (path.isRRect(&rrect)) {\n        const SkRect& bounds = rrect.rect();\n        paint.setColor(0xFF9FBFFF);\n        canvas->drawRect(bounds, paint);\n    }\n    paint.setColor(0x3f000000);\n    canvas->drawPath(path, paint);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "f2b7e57a385e6604475c99ec8daa2697",
+    "hash": "2aa939b90d96aff436b145a96305132c",
     "file": "SkPath_Reference",
     "name": "SkPath::isRRect"
 },
