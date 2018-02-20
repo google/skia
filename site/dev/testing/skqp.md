@@ -23,7 +23,7 @@ To run tests:
 
     adb install -r skqp-universal-{APK_SHA_HERE}.apk
     adb logcat -c
-    adb shell am instrument -w org.skia.skqp/android.support.test.runner.AndroidJUnitRunner
+    adb shell am instrument -w org.skia.skqp
 
 Monitor the output with:
 
