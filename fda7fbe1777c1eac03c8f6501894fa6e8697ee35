@@ -45,6 +45,30 @@
       "revId": "fda7fbe1777c1eac03c8f6501894fa6e8697ee35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af1300da_5f9ead30",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-02-20T04:43:59Z",
+      "side": 1,
+      "message": "Done\nThe isssue were the case of retries, but I figured out a way to do it by always using the last line. See the inline script of get_branch.",
+      "parentUuid": "4d2dd612_3ed4cf1b",
+      "range": {
+        "startLine": 163,
+        "startChar": 16,
+        "endLine": 163,
+        "endChar": 32
+      },
+      "revId": "fda7fbe1777c1eac03c8f6501894fa6e8697ee35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
