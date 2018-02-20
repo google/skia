@@ -5,8 +5,10 @@ SkQP (Skia Quality Program) is a component of the Android CTS (Compatablity
 Test Suite) that tests an Android device's GPU and OpenGLES & Vulkan drivers
 using Skia's existing unit & rendering tests.
 
-How to run the SkQP tests
--------------------------
+See https://skia.org/dev/testing/skqp for pre-build APKs.
+
+How to build and run the SkQP tests
+-----------------------------------
 
 1.  Get the dependencies:
 
@@ -20,7 +22,7 @@ How to run the SkQP tests
     -   Install the [Android NDK](https://developer.android.com/ndk/downloads/).
 
             ( cd ~; unzip ~/Downloads/android-ndk-*.zip )
-            ANDROID_NDK=$(ls ~/android-ndk-*)   # Or wherever you installed the Android NDK.
+            ANDROID_NDK=$(ls -d ~/android-ndk-*)   # Or wherever you installed the Android NDK.
 
     -   Install the [Android SDK](https://developer.android.com/studio/#command-tools).
         Set the `ANDROID_HOME` environment variable.
