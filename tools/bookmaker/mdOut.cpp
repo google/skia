@@ -1392,6 +1392,10 @@ void MdOut::subtopicOut(const TableContents& tableContents) {
                 break;
             }
         }
+        if (!oneLiner) {
+            SkDebugf(""); // convenient place to set a breakpoint
+        }
+        // TODO: detect this earlier? throw error here?
         SkASSERT(oneLiner);
         this->rowOut(entry.first.c_str(), string(oneLiner->fContentStart,
             oneLiner->fContentEnd - oneLiner->fContentStart));

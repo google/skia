@@ -1497,6 +1497,7 @@ describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 #Method    bool contains(SkScalar x, SkScalar y) const
 
 #In Intersection
+#Line # returns true if points are equal or inside ##
 Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
 Returns false if SkRect is empty.
 
@@ -1530,7 +1531,6 @@ rect: (30, 50, 40, 60) does not contain (29, 59)
 #Method    bool contains(const SkRect& r) const
 
 #In Intersection
-#Line # returns true if points are equal or inside ##
 Returns true if Rect contains r.
 Returns false if Rect is empty or r is empty.
 
