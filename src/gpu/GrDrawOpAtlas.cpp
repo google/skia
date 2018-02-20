@@ -136,6 +136,16 @@ void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& 
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     size_t rowBytes = fBytesPerPixel * fWidth;
     const unsigned char* dataPtr = fData;
+    // Clamp to 4-byte aligned boundaries
+    fDirtyRect.fLeft &= ~0x3;
+    fDirtyRect.fTop &= ~0x3;
+    fDirtyRect.fRight += 3;
+    fDirtyRect.fRight &= ~0x3;
+    fDirtyRect.fBottom += 3;
+    fDirtyRect.fBottom &= ~0x3;
+    SkASSERT(fDirtyRect.fRight <= fWidth);
+    SkASSERT(fDirtyRect.fBottom <= fHeight);
+    // Set up dataPtr
     dataPtr += rowBytes * fDirtyRect.fTop;
     dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
     writePixels(proxy, fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
