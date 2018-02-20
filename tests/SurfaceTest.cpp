@@ -1102,12 +1102,16 @@ DEF_TEST(surface_image_unity, reporter) {
         }
     };
 
-    const int32_t sizes[] = { 0, 1, 1 << 15, 1 << 16, 1 << 28, 1 << 29, 1 << 30, -1 };
+    const int32_t sizes[] = { 0, 1, 1 << 15, 1 << 16, 1 << 18, 1 << 28, 1 << 29, 1 << 30, -1 };
     for (int cti = 0; cti <= kLastEnum_SkColorType; ++cti) {
         SkColorType ct = static_cast<SkColorType>(cti);
         for (int ati = 0; ati <= kLastEnum_SkAlphaType; ++ati) {
             SkAlphaType at = static_cast<SkAlphaType>(ati);
             for (int32_t size : sizes) {
+                // Large allocations tend to make the 32-bit bots run out of virtual address space.
+                if (sizeof(size_t) == 4 && size > (1<<20)) {
+                    continue;
+                }
                 do_test(SkImageInfo::Make(1, size, ct, at));
                 do_test(SkImageInfo::Make(size, 1, ct, at));
             }
