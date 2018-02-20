@@ -737,7 +737,7 @@ Definition* IncludeWriter::findMemberCommentBlock(const vector<Definition*>& bmh
         }
         string match = memberDef->fName;
         // if match.endsWith(name) ...
-        if (match.length() >= name.length() && 
+        if (match.length() >= name.length() &&
                 0 == match.compare(match.length() - name.length(), name.length(), name)) {
             return memberDef;
         }
