@@ -336,21 +336,27 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
-                                   int width, int height,
-                                   GrPixelConfig srcConfig, DrawPreference* drawPreference,
+bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width,
+                                   int height, GrColorType srcColorType,
+                                   DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
+    // We don't want to introduce a sRGB conversion if we trigger a draw.
+    auto srcConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(dstSurface->config());
     if (*drawPreference != kNoDraw_DrawPreference) {
         // We assume the base class has only inserted a draw for sRGB reasons. So the temp surface
         // has the config of the original src data. There is no swizzling nor src config spoofing.
-        SkASSERT(tempDrawInfo->fWriteConfig == srcConfig);
-        SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == srcConfig);
+        SkASSERT(tempDrawInfo->fWriteColorType == srcColorType);
+        SkASSERT(GrPixelConfigToColorType(tempDrawInfo->fTempSurfaceDesc.fConfig) == srcColorType);
         SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
+        // Don't undo a sRGB conversion introduced by our caller via an intermediate draw.
+        srcConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(tempDrawInfo->fTempSurfaceDesc.fConfig);
     }
-
+    if (GrColorTypeIsAlphaOnly(srcColorType)) {
+        srcConfigSRGBEncoded = GrSRGBEncoded::kNo;
+    }
     GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
 
-    if (dstSurface->config() == srcConfig) {
+    if (GrPixelConfigToColorType(dstSurface->config()) == srcColorType) {
         // We only support writing pixels to textures. Forcing a draw lets us write to pure RTs.
         if (!dstSurface->asTexture()) {
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
@@ -362,22 +368,23 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
         return true;
     }
 
-    // Any config change requires a draw
+    // Any color type change requires a draw
     ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
 
-    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
+    auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType, srcConfigSRGBEncoded);
+    SkASSERT(srcAsConfig != kUnknown_GrPixelConfig);
+    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcAsConfig) == dstSurface->config();
 
-    if (!this->vkCaps().isConfigTexturable(srcConfig) && configsAreRBSwaps) {
+    if (!this->vkCaps().isConfigTexturable(srcAsConfig) && configsAreRBSwaps) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-        tempDrawInfo->fWriteConfig = dstSurface->config();
+        tempDrawInfo->fWriteColorType = GrPixelConfigToColorType(dstSurface->config());
     }
     return true;
 }
 
-bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
-                            int left, int top, int width, int height,
-                            GrPixelConfig config,
+bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top,
+                            int width, int height, GrColorType srcColorType,
                             const GrMipLevel texels[], int mipLevelCount) {
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
@@ -405,7 +412,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
                                   false);
             this->submitCommandBuffer(kForce_SyncQueue);
         }
-        success = this->uploadTexDataLinear(vkTex, origin, left, top, width, height, config,
+        success = this->uploadTexDataLinear(vkTex, origin, left, top, width, height, srcColorType,
                                             texels[0].fPixels, texels[0].fRowBytes);
     } else {
         int currentMipLevels = vkTex->texturePriv().maxMipMapLevel() + 1;
@@ -414,16 +421,15 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
                 return false;
             }
         }
-        success = this->uploadTexDataOptimal(vkTex, origin, left, top, width, height, config,
+        success = this->uploadTexDataOptimal(vkTex, origin, left, top, width, height, srcColorType,
                                              texels, mipLevelCount);
     }
 
     return success;
 }
 
-bool GrVkGpu::onTransferPixels(GrTexture* texture,
-                               int left, int top, int width, int height,
-                               GrPixelConfig config, GrBuffer* transferBuffer,
+bool GrVkGpu::onTransferPixels(GrTexture* texture, int left, int top, int width, int height,
+                               GrColorType bufferColorType, GrBuffer* transferBuffer,
                                size_t bufferOffset, size_t rowBytes) {
     // Vulkan only supports 4-byte aligned offsets
     if (SkToBool(bufferOffset & 0x2)) {
@@ -443,9 +449,9 @@ bool GrVkGpu::onTransferPixels(GrTexture* texture,
         SkIRect bounds = SkIRect::MakeWH(texture->width(), texture->height());
         SkASSERT(bounds.contains(subRect));
     )
-    size_t bpp = GrBytesPerPixel(config);
+    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
     if (rowBytes == 0) {
-        rowBytes = bpp*width;
+        rowBytes = bpp * width;
     }
 
     // Set up copy region
@@ -535,11 +541,9 @@ void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresS
     }
 }
 
-bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
-                                  int left, int top, int width, int height,
-                                  GrPixelConfig dataConfig,
-                                  const void* data,
-                                  size_t rowBytes) {
+bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
+                                  int width, int height, GrColorType dataColorType,
+                                  const void* data, size_t rowBytes) {
     SkASSERT(data);
     SkASSERT(tex->isLinearTiled());
 
@@ -548,7 +552,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
         SkIRect bounds = SkIRect::MakeWH(tex->width(), tex->height());
         SkASSERT(bounds.contains(subRect));
     )
-    size_t bpp = GrBytesPerPixel(dataConfig);
+    int bpp = GrColorTypeBytesPerPixel(dataColorType);
     size_t trimRowBytes = width * bpp;
     if (!rowBytes) {
         rowBytes = trimRowBytes;
@@ -601,9 +605,8 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
     return true;
 }
 
-bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
-                                   int left, int top, int width, int height,
-                                   GrPixelConfig dataConfig,
+bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
+                                   int width, int height, GrColorType dataColorType,
                                    const GrMipLevel texels[], int mipLevelCount) {
     SkASSERT(!tex->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
@@ -619,7 +622,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
     }
 
     SkASSERT(this->caps()->isConfigTexturable(tex->config()));
-    size_t bpp = GrBytesPerPixel(dataConfig);
+    int bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     // texels is const.
     // But we may need to adjust the fPixels ptr based on the copyRect, or fRowBytes.
@@ -803,9 +806,10 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
         return nullptr;
     }
 
+    auto colorType = GrPixelConfigToColorType(desc.fConfig);
     if (mipLevelCount) {
         if (!this->uploadTexDataOptimal(tex.get(), desc.fOrigin, 0, 0, desc.fWidth, desc.fHeight,
-                                        desc.fConfig, texels, mipLevelCount)) {
+                                        colorType, texels, mipLevelCount)) {
             tex->unref();
             return nullptr;
         }
@@ -1851,34 +1855,41 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 }
 
 bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, int width,
-                                  int height, size_t rowBytes, GrPixelConfig dstConfig,
+                                  int height, size_t rowBytes, GrColorType dstColorType,
                                   DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
+    // We don't want to introduce a sRGB conversion if we trigger a draw.
+    auto dstConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(srcSurface->config());
     if (*drawPreference != kNoDraw_DrawPreference) {
         // We assume the base class has only inserted a draw for sRGB reasons. So the
         // the temp surface has the config of the dst data. There is no swizzling nor dst config.
         // spoofing.
-        SkASSERT(tempDrawInfo->fReadConfig == dstConfig);
-        SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == dstConfig);
+        SkASSERT(tempDrawInfo->fReadColorType == dstColorType);
+        SkASSERT(GrPixelConfigToColorType(tempDrawInfo->fTempSurfaceDesc.fConfig) == dstColorType);
         SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
+        // Don't undo a sRGB conversion introduced by our caller via an intermediate draw.
+        dstConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(tempDrawInfo->fTempSurfaceDesc.fConfig);
+    }
+    if (GrColorTypeIsAlphaOnly(dstColorType)) {
+        dstConfigSRGBEncoded = GrSRGBEncoded::kNo;
     }
 
-    if (srcSurface->config() == dstConfig) {
+    if (GrPixelConfigToColorType(srcSurface->config()) == dstColorType) {
         return true;
     }
 
     // Any config change requires a draw
     ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    tempDrawInfo->fTempSurfaceDesc.fConfig = dstConfig;
-    tempDrawInfo->fReadConfig = dstConfig;
+    tempDrawInfo->fTempSurfaceDesc.fConfig =
+            GrColorTypeToPixelConfig(dstColorType, dstConfigSRGBEncoded);
+    tempDrawInfo->fReadColorType = dstColorType;
 
-    return true;
+    return kUnknown_GrPixelConfig != tempDrawInfo->fTempSurfaceDesc.fConfig;
 }
 
 bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                           int height, GrPixelConfig dstConfig, void* buffer, size_t rowBytes) {
-    VkFormat pixelFormat;
-    if (!GrPixelConfigToVkFormat(dstConfig, &pixelFormat)) {
+                           int height, GrColorType dstColorType, void* buffer, size_t rowBytes) {
+    if (GrPixelConfigToColorType(surface->config()) != dstColorType) {
         return false;
     }
 
@@ -1913,7 +1924,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
                           VK_PIPELINE_STAGE_TRANSFER_BIT,
                           false);
 
-    size_t bpp = GrBytesPerPixel(dstConfig);
+    int bpp = GrColorTypeBytesPerPixel(dstColorType);
     size_t tightRowBytes = bpp * width;
     bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 

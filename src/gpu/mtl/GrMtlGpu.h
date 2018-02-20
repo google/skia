@@ -31,15 +31,17 @@ public:
 
     id<MTLDevice> device() const { return fDevice; }
 
-    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin origin,
-                             int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
-                             ReadPixelTempDrawInfo*) override { return false; }
+    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin origin, int readWidth,
+                             int readHeight, size_t rowBytes, GrColorType readConfig,
+                             DrawPreference*, ReadPixelTempDrawInfo*) override {
+        return false;
+    }
 
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
-                              int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override { return false; }
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width,
+                              int height, GrColorType srcColorType, DrawPreference*,
+                              WritePixelTempDrawInfo*) override {
+        return false;
+    }
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
@@ -105,24 +107,20 @@ private:
         return nullptr;
     }
 
-    bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
-                      int left, int top, int width, int height,
-                      GrPixelConfig,
-                      void* buffer,
-                      size_t rowBytes) override {
+    bool onReadPixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width, int height,
+                      GrColorType, void* buffer, size_t rowBytes) override {
         return false;
     }
 
-    bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
-                       int left, int top, int width, int height,
-                       GrPixelConfig config,
-                       const GrMipLevel texels[], int mipLevelCount) override {
+    bool onWritePixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width,
+                       int height, GrColorType, const GrMipLevel[],
+                       int) override {
         return false;
     }
 
-    bool onTransferPixels(GrTexture* texture,
+    bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrColorType, GrBuffer*,
                           size_t offset, size_t rowBytes) override {
         return false;
     }
