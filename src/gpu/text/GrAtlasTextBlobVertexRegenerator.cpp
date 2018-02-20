@@ -190,15 +190,16 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
     }
 }
 
-Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx,
-                               const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                               GrDeferredUploadTarget* uploadTarget, GrAtlasGlyphCache* glyphCache,
-                               SkAutoGlyphCache* lazyCache)
-        : fViewMatrix(viewMatrix)
+Regenerator::VertexRegenerator(GrProxyProvider* proxyProvider, GrAtlasTextBlob* blob, int runIdx,
+                               int subRunIdx, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                               GrColor color, GrDeferredUploadTarget* uploadTarget,
+                               GrAtlasGlyphCache* glyphCache, SkAutoGlyphCache* lazyCache)
+        : fProxyProvider(proxyProvider)
+        , fViewMatrix(viewMatrix)
         , fBlob(blob)
         , fUploadTarget(uploadTarget)
         , fGlyphCache(glyphCache)
-        , fLazyCache(lazyCache)
+        , fLazyCache1(lazyCache)
         , fRun(&blob->fRuns[runIdx])
         , fSubRun(&blob->fRuns[runIdx].fSubRunInfo[subRunIdx])
         , fColor(color) {
@@ -236,15 +237,15 @@ Regenerator::Result Regenerator::doRegen() {
                                            ? fRun->fOverrideDescriptor->getDesc()
                                            : fRun->fDescriptor.getDesc();
 
-        if (!*fLazyCache || (*fLazyCache)->getDescriptor() != *desc) {
+        if (!*fLazyCache1 || (*fLazyCache1)->getDescriptor() != *desc) {
             SkScalerContextEffects effects;
             effects.fPathEffect = fRun->fPathEffect.get();
             effects.fMaskFilter = fRun->fMaskFilter.get();
-            fLazyCache->reset(SkGlyphCache::DetachCache(fRun->fTypeface.get(), effects, desc));
+            fLazyCache1->reset(SkGlyphCache::DetachCache(fRun->fTypeface.get(), effects, desc));
         }
 
         if (regenGlyphs) {
-            strike = fGlyphCache->getStrike(fLazyCache->get());
+            strike = fGlyphCache->getStrike(fLazyCache1->get());
         } else {
             strike = fSubRun->strike();
         }
@@ -267,14 +268,14 @@ Regenerator::Result Regenerator::doRegen() {
                 // the glyph.
                 GrGlyph::PackedID id = fBlob->fGlyphs[glyphOffset]->fPackedID;
                 fBlob->fGlyphs[glyphOffset] =
-                        strike->getGlyph(id, fSubRun->maskFormat(), fLazyCache->get());
+                        strike->getGlyph(id, fSubRun->maskFormat(), fLazyCache1->get());
                 SkASSERT(id == fBlob->fGlyphs[glyphOffset]->fPackedID);
             }
             glyph = fBlob->fGlyphs[glyphOffset];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
             if (!fGlyphCache->hasGlyph(glyph) &&
-                !strike->addGlyphToAtlas(fUploadTarget, glyph, fLazyCache->get(),
+                !strike->addGlyphToAtlas(fUploadTarget, glyph, fLazyCache1->get(),
                                          fSubRun->maskFormat())) {
                 fBrokenRun = glyphIdx > 0;
                 result.fFinished = false;
