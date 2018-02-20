@@ -178,6 +178,24 @@
     },
     {
       "key": {
+        "uuid": "190b817b_d73f92b8",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T22:31:47Z",
+      "side": 1,
+      "message": "Oh, missed that.  Thanks.",
+      "parentUuid": "77c477d8_429f72d1",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "59dbbeda_e0bc22c7",
         "filename": "tools/flags/SkCommonFlagsConfig.cpp",
         "patchSetId": 2
@@ -207,6 +225,24 @@
       "side": 1,
       "message": "To address this and some of the related comments below, how about I refactor this into a class named ExtendedOptions, that lives inside SkCommonFlagsConfig.cpp.  That class could have a constructor that takes an SkString and parses them into an internal private SkTHashMap\u003cString,String\u003e.  This class could implement accessors (returns a bool to denote presence/absence, out parameters to store values) for each of the parse types, so e.g. parse_option_int would become get_option_int, parse_option_gpu_api would become get_option_gpu_api, etc.  All the out parameters would be typed in the method signatures, which would also obviate the need for using varargs.  Thoughts?",
       "parentUuid": "59dbbeda_e0bc22c7",
+      "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b24b673_42d545ca",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T22:31:47Z",
+      "side": 1,
+      "message": "Yes, I think that sounds like a good idea.  Thank you!",
+      "parentUuid": "cfa6772a_eb152617",
       "revId": "8157a346f3a379a8a2a788b750dfd168dce9239b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
