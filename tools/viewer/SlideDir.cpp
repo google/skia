@@ -337,8 +337,8 @@ void SlideDir::unload() {
 }
 
 SkISize SlideDir::getDimensions() const {
-    return  SkSize::Make(fWinSize.width(),
-                         fCellSize.height() * (fSlides.count() / fColumns)).toCeil();
+    return SkSize::Make(fWinSize.width(),
+                        fCellSize.height() * (1 + (fSlides.count() - 1) / fColumns)).toCeil();
 }
 
 void SlideDir::draw(SkCanvas* canvas) {
