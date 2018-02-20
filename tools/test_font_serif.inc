@@ -1264,9 +1264,8 @@ const SkFixed LiberationSerifNormalWidths[] = {
 const int LiberationSerifNormalCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSerifNormalCharCodes);
 
 const SkPaint::FontMetrics LiberationSerifNormalMetrics = {
-0x0000000f, -0.981445f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.567383f, 0.0184937f,
--0.176758f, 1.00684f, 0.458984f, 0.010231f, 0.0488281f, 0.108887f, 0.000762939f,
--0.00320435f
+0x0000000f, -0.981445f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.567383f, 1.18359f,
+-0.176758f, 1.00684f, 0.458984f, 0.654785f, 0.0488281f, 0.108887f, 0.0488281f, -0.205078f
 };
 
 const SkScalar LiberationSerifBoldPoints[] = {
@@ -2515,9 +2514,8 @@ const SkFixed LiberationSerifBoldWidths[] = {
 const int LiberationSerifBoldCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSerifBoldCharCodes);
 
 const SkPaint::FontMetrics LiberationSerifBoldMetrics = {
-0x0000000f, -1.00781f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.59375f, 0.0197983f,
--0.182129f, 1.08496f, 0.458984f, 0.010231f, 0.0952148f, 0.108887f, 0.000778198f,
--0.00404358f
+0x0000000f, -1.00781f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.59375f, 1.26709f,
+-0.182129f, 1.08496f, 0.458984f, 0.654785f, 0.0952148f, 0.108887f, 0.0498047f, -0.258789f
 };
 
 const SkScalar LiberationSerifItalicPoints[] = {
@@ -3834,9 +3832,8 @@ const SkFixed LiberationSerifItalicWidths[] = {
 const int LiberationSerifItalicCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSerifItalicCharCodes);
 
 const SkPaint::FontMetrics LiberationSerifItalicMetrics = {
-0x0000000f, -0.980957f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.559082f, 0.0197601f,
--0.176758f, 1.08789f, 0.458984f, 0.010231f, 0.0488281f, 0.108887f, 0.000778198f,
--0.00404358f
+0x0000000f, -0.980957f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.559082f, 1.26465f,
+-0.176758f, 1.08789f, 0.458984f, 0.654785f, 0.0488281f, 0.108887f, 0.0498047f, -0.258789f
 };
 
 const SkScalar LiberationSerifBoldItalicPoints[] = {
@@ -5147,8 +5144,7 @@ const SkFixed LiberationSerifBoldItalicWidths[] = {
 const int LiberationSerifBoldItalicCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSerifBoldItalicCharCodes);
 
 const SkPaint::FontMetrics LiberationSerifBoldItalicMetrics = {
-0x0000000f, -0.980957f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.578125f, 0.0207596f,
--0.178223f, 1.15039f, 0.458984f, 0.010231f, 0.0952148f, 0.108887f, 0.000778198f,
--0.00404358f
+0x0000000f, -0.980957f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.578125f, 1.32861f,
+-0.178223f, 1.15039f, 0.458984f, 0.654785f, 0.0952148f, 0.108887f, 0.0498047f, -0.258789f
 };
 
