@@ -632,6 +632,14 @@ bool SkPath::isNestedFillRects(SkRect rects[2], Direction dirs[2]) const {
     return false;
 }
 
+bool SkPath::isOval(SkRect* bounds) const {
+    return SkPathPriv::IsOval(*this, bounds, nullptr, nullptr);
+}
+
+bool SkPath::isRRect(SkRRect* rrect) const {
+    return SkPathPriv::IsRRect(*this, rrect, nullptr, nullptr);
+}
+
 int SkPath::countPoints() const {
     return fPathRef->countPoints();
 }
