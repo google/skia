@@ -93,6 +93,7 @@ private:
     GrDrawingManager* fDrawingMgr;
 
     friend class GrDrawingManager; // to construct this type.
+    friend class GrAtlasTextOp;    // to construct this type.
 };
 
 #endif
