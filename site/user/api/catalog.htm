@@ -2703,17 +2703,24 @@
         "stdout": "left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38\\n"
     },
         "SkRect_contains": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRect rect = { 30, 50, 40, 60 };\n    SkPoint tests[] = { { 30, 50 }, { 39, 49 }, { 29, 59 } };\n    for (auto contained : tests) {\n        SkDebugf(\"rect: (%g, %g, %g, %g) %s (%g, %g)\\n\",\n                 rect.left(), rect.top(), rect.right(), rect.bottom(),\n                 rect.contains(contained.x(), contained.y()) ? \"contains\" : \"does not contain\",\n                 contained.x(), contained.y());\n    }\n}",
+    "hash": "85be528a78945a6dc4f7dccb80a80746",
+    "file": "SkRect_Reference",
+    "name": "SkRect::contains()",
+        "stdout": "rect: (30, 50, 40, 60) contains (30, 50)\\nrect: (30, 50, 40, 60) does not contain (39, 49)\\nrect: (30, 50, 40, 60) does not contain (29, 59)\\n"
+    },
+        "SkRect_contains_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect rect = { 30, 50, 40, 60 };\n    SkRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };\n    for (auto contained : tests) {\n        SkDebugf(\"rect: (%g, %g, %g, %g) %s (%g, %g, %g, %g)\\n\",\n                 rect.left(), rect.top(), rect.right(), rect.bottom(),\n                 rect.contains(contained) ? \"contains\" : \"does not contain\",\n                 contained.left(), contained.top(), contained.right(), contained.bottom());\n    }\n}",
     "hash": "92f9e6aa5bb76791139a24cf7d8df99e",
     "file": "SkRect_Reference",
-    "name": "SkRect::contains()",
+    "name": "SkRect::contains_2",
         "stdout": "rect: (30, 50, 40, 60) contains (30, 50, 31, 51)\\nrect: (30, 50, 40, 60) does not contain (39, 49, 40, 50)\\nrect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)\\n"
     },
-        "SkRect_contains_2": {
+        "SkRect_contains_3": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect rect = { 30, 50, 40, 60 };\n    SkIRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };\n    for (auto contained : tests) {\n        SkDebugf(\"rect: (%g, %g, %g, %g) %s (%d, %d, %d, %d)\\n\",\n                 rect.left(), rect.top(), rect.right(), rect.bottom(),\n                 rect.contains(contained) ? \"contains\" : \"does not contain\",\n                 contained.left(), contained.top(), contained.right(), contained.bottom());\n    }\n}",
     "hash": "dd58b699551dd44026a2c6386be27d88",
     "file": "SkRect_Reference",
-    "name": "SkRect::contains_2",
+    "name": "SkRect::contains_3",
         "stdout": "rect: (30, 50, 40, 60) contains (30, 50, 31, 51)\\nrect: (30, 50, 40, 60) does not contain (39, 49, 40, 50)\\nrect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)\\n"
     },
         "SkRect_dump": {

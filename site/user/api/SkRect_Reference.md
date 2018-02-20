@@ -1943,7 +1943,7 @@ describes an area: <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRe
 | --- | --- |
 | <a href="#SkRect_Intersects">Intersects</a> | returns true if areas overlap |
 | <a href="#SkRect_contains">contains</a> | returns true if points are equal or inside |
-|  | <a href="#SkRect_contains">contains(const SkRect& r)</a> const |
+|  | <a href="#SkRect_contains">contains(SkScalar x, SkScalar y)</a> const |
 | <a href="#SkRect_intersect">intersect</a> | sets to shared area; returns true if not empty |
 |  | <a href="#SkRect_intersect">intersect(const SkRect& r)</a> |
 | <a href="#SkRect_intersects">intersects</a> | returns true if areas overlap |
@@ -1953,24 +1953,66 @@ describes an area: <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRe
 ## contains
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-bool contains(const SkRect& r) const
+bool contains(SkScalar x, SkScalar y) const
 </pre>
 
-Returns true if <a href="#Rect">Rect</a> contains <a href="#SkRect_contains_r">r</a>.
-Returns false if <a href="#Rect">Rect</a> is empty or <a href="#SkRect_contains_r">r</a> is empty.
-
-<a href="#Rect">Rect</a> contains <a href="#SkRect_contains_r">r</a> when <a href="#Rect">Rect</a> area completely includes <a href="#SkRect_contains_r">r</a> area.
+Returns true if: <a href="#SkRect_fLeft">fLeft</a> <= x < <a href="#SkRect_fRight">fRight</a> && <a href="#SkRect_fTop">fTop</a> <= y < <a href="#SkRect_fBottom">fBottom</a>.
+Returns false if <a href="#SkRect">SkRect</a> is empty.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_contains_r"> <code><strong>r </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkRect_contains_x"> <code><strong>x </strong></code> </a></td> <td>
+test <a href="SkPoint_Reference#SkPoint">SkPoint</a> x-coordinate</td>
+  </tr>  <tr>    <td><a name="SkRect_contains_y"> <code><strong>y </strong></code> </a></td> <td>
+test <a href="SkPoint_Reference#SkPoint">SkPoint</a> y-coordinate</td>
+  </tr>
+</table>
+
+### Return Value
+
+true if (x, y) is inside <a href="#SkRect">SkRect</a>
+
+### Example
+
+<div><fiddle-embed name="85be528a78945a6dc4f7dccb80a80746">
+
+#### Example Output
+
+~~~~
+rect: (30, 50, 40, 60) contains (30, 50)
+rect: (30, 50, 40, 60) does not contain (39, 49)
+rect: (30, 50, 40, 60) does not contain (29, 59)
+~~~~
+
+</fiddle-embed></div>
+
+### See Also
+
+<a href="SkIRect_Reference#SkIRect_contains">SkIRect::contains</a><sup><a href="SkIRect_Reference#SkIRect_contains_2">[2]</a></sup><sup><a href="SkIRect_Reference#SkIRect_contains_3">[3]</a></sup><sup><a href="SkIRect_Reference#SkIRect_contains_4">[4]</a></sup>
+
+---
+
+<a name="SkRect_contains_2"></a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool contains(const SkRect& r) const
+</pre>
+
+Returns true if <a href="#Rect">Rect</a> contains <a href="#SkRect_contains_2_r">r</a>.
+Returns false if <a href="#Rect">Rect</a> is empty or <a href="#SkRect_contains_2_r">r</a> is empty.
+
+<a href="#Rect">Rect</a> contains <a href="#SkRect_contains_2_r">r</a> when <a href="#Rect">Rect</a> area completely includes <a href="#SkRect_contains_2_r">r</a> area.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkRect_contains_2_r"> <code><strong>r </strong></code> </a></td> <td>
 <a href="#Rect">Rect</a> contained</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if all sides of <a href="#Rect">Rect</a> are outside <a href="#SkRect_contains_r">r</a>
+true if all sides of <a href="#Rect">Rect</a> are outside <a href="#SkRect_contains_2_r">r</a>
 
 ### Example
 
@@ -1992,27 +2034,27 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 ---
 
-<a name="SkRect_contains_2"></a>
+<a name="SkRect_contains_3"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool contains(const SkIRect& r) const
 </pre>
 
-Returns true if <a href="#Rect">Rect</a> contains <a href="#SkRect_contains_2_r">r</a>.
-Returns false if <a href="#Rect">Rect</a> is empty or <a href="#SkRect_contains_2_r">r</a> is empty.
+Returns true if <a href="#Rect">Rect</a> contains <a href="#SkRect_contains_3_r">r</a>.
+Returns false if <a href="#Rect">Rect</a> is empty or <a href="#SkRect_contains_3_r">r</a> is empty.
 
-<a href="#Rect">Rect</a> contains <a href="#SkRect_contains_2_r">r</a> when <a href="#Rect">Rect</a> area completely includes <a href="#SkRect_contains_2_r">r</a> area.
+<a href="#Rect">Rect</a> contains <a href="#SkRect_contains_3_r">r</a> when <a href="#Rect">Rect</a> area completely includes <a href="#SkRect_contains_3_r">r</a> area.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_contains_2_r"> <code><strong>r </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkRect_contains_3_r"> <code><strong>r </strong></code> </a></td> <td>
 <a href="SkIRect_Reference#IRect">IRect</a> contained</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if all sides of <a href="#Rect">Rect</a> are outside <a href="#SkRect_contains_2_r">r</a>
+true if all sides of <a href="#Rect">Rect</a> are outside <a href="#SkRect_contains_3_r">r</a>
 
 ### Example
 
