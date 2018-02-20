@@ -323,7 +323,7 @@ private:
         kLegacyIsRRect_SerializationShift = 26,             // requires 1 bit, ignored.
         kIsFinite_SerializationShift = 25,                  // requires 1 bit
         kLegacyIsOval_SerializationShift = 24,              // requires 1 bit, ignored.
-        kSegmentMask_SerializationShift = 0                 // requires 4 bits
+        kSegmentMask_SerializationShift = 0                 // requires 4 bits (deprecated)
     };
 
     SkPathRef() {
@@ -345,6 +345,9 @@ private:
     }
 
     void copy(const SkPathRef& ref, int additionalReserveVerbs, int additionalReservePoints);
+
+    // Doesn't read fSegmentMask, but (re)computes it from the verbs array
+    unsigned computeSegmentMask() const;
 
     // Return true if the computed bounds are finite.
     static bool ComputePtBounds(SkRect* bounds, const SkPathRef& ref) {
