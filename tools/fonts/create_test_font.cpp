@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-// running create_test_font generates ./tools/test_font_index.inc
-// and ./tools/test_font_<generic name>.inc which are read by ./tools/sk_tool_utils_font.cpp
+// Running create_test_font generates ./tools/fonts/test_font_index.inc
+// and ./tools/fonts/test_font_<generic name>.inc which are read by
+// ./tools/fonts/sk_tool_utils_font.cpp
 
-#include "Resources.h"
 #include "SkFontStyle.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -72,6 +72,7 @@ const char gHeader[] =
 
 static FILE* font_header(const char* family) {
     SkString outPath(SkOSPath::Join(".", "tools"));
+    outPath = SkOSPath::Join(outPath.c_str(), "fonts");
     outPath = SkOSPath::Join(outPath.c_str(), "test_font_");
     SkString fam(family);
     do {
