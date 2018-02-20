@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5a3cc08_9137510a",
+        "filename": "site/user/api/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-02-20T15:27:57Z",
+      "side": 1,
+      "message": "Canvas save stack manager",
+      "revId": "b9b252c770b48c0998b2ed8a032570ce23e99929",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1205ed9d_9f163fa0",
+        "filename": "site/user/api/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-02-20T15:27:57Z",
+      "side": 1,
+      "message": "most other descriptions are nouns, this one is a phrase. How about:\npixel dimensions and characteristics",
+      "range": {
+        "startLine": 12,
+        "startChar": 53,
+        "endLine": 12,
+        "endChar": 63
+      },
+      "revId": "b9b252c770b48c0998b2ed8a032570ce23e99929",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31c753b3_ba18b1cc",
+        "filename": "site/user/api/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-02-20T15:27:57Z",
+      "side": 1,
+      "message": "drawing destination",
+      "revId": "b9b252c770b48c0998b2ed8a032570ce23e99929",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f407ce63_0c432a95",
+        "filename": "site/user/api/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-02-20T15:27:57Z",
+      "side": 1,
+      "message": "\u0027w\u0027 truncated by mistake?",
+      "range": {
+        "startLine": 58,
+        "startChar": 34,
+        "endLine": 58,
+        "endChar": 50
+      },
+      "revId": "b9b252c770b48c0998b2ed8a032570ce23e99929",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
