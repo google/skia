@@ -79,22 +79,24 @@ void GrOpFlushState::reset() {
 
 void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
     GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* dstProxy, int left, int top,
-                                                     int width, int height, GrPixelConfig srcConfig,
-                                                     const void* buffer, size_t rowBytes) {
+                                                     int width, int height,
+                                                     GrColorType srcColorType, const void* buffer,
+                                                     size_t rowBytes) {
         // We don't allow srgb conversions via op flush state uploads.
         static constexpr auto kSRGBConversion = GrSRGBConversion::kNone;
         GrSurface* dstSurface = dstProxy->priv().peekSurface();
         GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
         GrGpu::WritePixelTempDrawInfo tempInfo;
-        if (!fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height, srcConfig,
+        if (!fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height, srcColorType,
                                       kSRGBConversion, &drawPreference, &tempInfo)) {
             return false;
         }
         if (GrGpu::kNoDraw_DrawPreference == drawPreference) {
-            return this->fGpu->writePixels(dstSurface, dstProxy->origin(),
-                                           left, top, width, height,
-                                           srcConfig, buffer, rowBytes);
+            return this->fGpu->writePixels(dstSurface, dstProxy->origin(), left, top, width, height,
+                                           srcColorType, buffer, rowBytes);
         }
+        // TODO: Shouldn't we be bailing here if a draw is really required instead of a copy?
+        // e.g. if (tempInfo.fSwizzle != "RGBA") fail.
         GrSurfaceDesc desc;
         desc.fOrigin = dstProxy->origin();
         desc.fWidth = width;
@@ -105,8 +107,8 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
         if (!temp) {
             return false;
         }
-        if (!fGpu->writePixels(temp.get(), dstProxy->origin(), 0, 0, width, height, desc.fConfig,
-                               buffer, rowBytes)) {
+        if (!fGpu->writePixels(temp.get(), dstProxy->origin(), 0, 0, width, height,
+                               tempInfo.fWriteColorType, buffer, rowBytes)) {
             return false;
         }
         return fGpu->copySurface(dstSurface, dstProxy->origin(), temp.get(), dstProxy->origin(),

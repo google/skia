@@ -48,21 +48,17 @@ bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::readPixels");
 
-    // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-
     // TODO: this seems to duplicate code in SkImage_Gpu::onReadPixels
     if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
         flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
     }
-
-    return fContext->contextPriv().readSurfacePixels(this, x, y,
-                                                     dstInfo.width(), dstInfo.height(), config,
-                                                     dstInfo.colorSpace(),
-                                                     dstBuffer, dstRowBytes, flags);
+    auto colorType = SkColorTypeToGrColorType(dstInfo.colorType());
+    if (GrColorType::kUnknown == colorType) {
+        return false;
+    }
+    return fContext->contextPriv().readSurfacePixels(this, x, y, dstInfo.width(), dstInfo.height(),
+                                                     colorType, dstInfo.colorSpace(), dstBuffer,
+                                                     dstRowBytes, flags);
 }
 
 bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
@@ -72,19 +68,16 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::writePixels");
 
-    // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(srcInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
     if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
         flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
     }
-
-    return fContext->contextPriv().writeSurfacePixels(this, x, y,
-                                                      srcInfo.width(), srcInfo.height(),
-                                                      config, srcInfo.colorSpace(),
-                                                      srcBuffer, srcRowBytes, flags);
+    auto colorType = SkColorTypeToGrColorType(srcInfo.colorType());
+    if (GrColorType::kUnknown == colorType) {
+        return false;
+    }
+    return fContext->contextPriv().writeSurfacePixels(this, x, y, srcInfo.width(), srcInfo.height(),
+                                                      colorType, srcInfo.colorSpace(), srcBuffer,
+                                                      srcRowBytes, flags);
 }
 
 bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
