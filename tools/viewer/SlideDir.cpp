@@ -9,6 +9,7 @@
 
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkCubicMap.h"
 #include "SkMakeUnique.h"
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
@@ -27,8 +28,12 @@ namespace {
 static constexpr float  kAspectRatio   = 1.5f;
 static constexpr float  kLabelSize     = 12.0f;
 static constexpr SkSize kPadding       = { 12.0f , 24.0f };
-static constexpr SkSize kFocusInset    = { 100.0f, 100.0f };
-static constexpr float  kFocusDuration = 250;
+
+static constexpr float   kFocusDuration = 500;
+static constexpr SkSize  kFocusInset    = { 100.0f, 100.0f };
+static constexpr SkPoint kFocusCtrl0    = {   0.3f,   1.0f };
+static constexpr SkPoint kFocusCtrl1    = {   0.0f,   1.0f };
+static constexpr SkColor kFocusShade    = 0xa0000000;
 
 // TODO: better unfocus binding?
 static constexpr SkUnichar kUnfocusKey = ' ';
@@ -101,23 +106,44 @@ public:
         : fDir(dir)
         , fRect(focusRect)
         , fTarget(nullptr)
-        , fState(State::kIdle) {}
+        , fState(State::kIdle) {
+        fMap.setPts(kFocusCtrl1, kFocusCtrl0);
+
+        fShadePaint = sksg::Color::Make(kFocusShade);
+        fShade = sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeSize(dir->fWinSize)), fShadePaint);
+    }
 
     bool hasFocus() const { return fState == State::kFocused; }
 
     void startFocus(const Rec* target) {
+        if (fState != State::kIdle)
+            return;
+
         fTarget = target;
+
+        // Move the shade & slide to front.
+        fDir->fRoot->removeChild(fTarget->fTransform);
+        fDir->fRoot->addChild(fShade);
+        fDir->fRoot->addChild(fTarget->fTransform);
+
         fM0 = SlideMatrix(fTarget->fSlide, fTarget->fRect);
         fM1 = SlideMatrix(fTarget->fSlide, fRect);
 
+        fOpacity0 = 0;
+        fOpacity1 = 1;
+
         fTimeBase = 0;
         fState = State::kFocusing;
+
+        // Push initial state to the scene graph.
+        this->onTick(fTimeBase);
     }
 
     void startUnfocus() {
         SkASSERT(fTarget);
 
-        SkTSwap(fM1, fM0);
+        SkTSwap(fM0, fM1);
+        SkTSwap(fOpacity0, fOpacity1);
 
         fTimeBase = 0;
         fState = State::kUnfocusing;
@@ -125,6 +151,12 @@ public:
 
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state, uint32_t modifiers) {
         SkASSERT(fTarget);
+
+        // TODO: no SkRect::contains(SkPoint) ?!
+        if (x < fRect.fLeft || x > fRect.fRight || y < fRect.fTop || y > fRect.fBottom) {
+            this->startUnfocus();
+            return true;
+        }
 
         // Map coords to slide space.
         const auto xform = SkMatrix::MakeRectToRect(fRect,
@@ -150,15 +182,19 @@ protected:
             fTimeBase = t;
         }
 
-        const auto rel_t = SkTPin((t - fTimeBase) / kFocusDuration, 0.0f, 1.0f);
+        const auto rel_t = (t - fTimeBase) / kFocusDuration,
+                   map_t = SkTPin(fMap.computeYFromX(rel_t), 0.0f, 1.0f);
 
         SkMatrix m;
         for (int i = 0; i < 9; ++i) {
-            m[i] = fM0[i] + rel_t * (fM1[i] - fM0[i]);
+            m[i] = fM0[i] + map_t * (fM1[i] - fM0[i]);
         }
 
         SkASSERT(fTarget);
         fTarget->fTransform->getMatrix()->setMatrix(m);
+
+        const auto shadeOpacity = fOpacity0 + map_t * (fOpacity1 - fOpacity0);
+        fShadePaint->setOpacity(shadeOpacity);
 
         if (rel_t < 1)
             return;
@@ -169,6 +205,7 @@ protected:
             break;
         case State::kUnfocusing:
             fState  = State::kIdle;
+            fDir->fRoot->removeChild(fShade);
             break;
 
         case State::kIdle:
@@ -188,13 +225,19 @@ private:
 
     bool isAnimating() const { return fState == State::kFocusing || fState == State::kUnfocusing; }
 
-    const SlideDir* fDir;
-    const SkRect    fRect;
-    const Rec*      fTarget;
+    const SlideDir*         fDir;
+    const SkRect            fRect;
+    const Rec*              fTarget;
+
+    SkCubicMap              fMap;
+    sk_sp<sksg::RenderNode> fShade;
+    sk_sp<sksg::PaintNode>  fShadePaint;
 
     SkMatrix        fM0       = SkMatrix::I(),
                     fM1       = SkMatrix::I();
-    float           fTimeBase = 0;
+    float           fOpacity0 = 0,
+                    fOpacity1 = 1,
+                    fTimeBase = 0;
     State           fState    = State::kIdle;
 
     using INHERITED = sksg::Animator;
@@ -350,11 +393,6 @@ bool SlideDir::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
     case sk_app::Window::kUp_InputState:
         if (cell == fTrackingCell &&
             SkPoint::Distance(fTrackingPos, SkPoint::Make(x, y)) < kClickMoveTolerance) {
-
-            // Move the slide cell to front.
-            fRoot->removeChild(cell->fTransform);
-            fRoot->addChild(cell->fTransform);
-
             fFocusController->startFocus(cell);
         }
         break;
