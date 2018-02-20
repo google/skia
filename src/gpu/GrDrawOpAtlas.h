@@ -369,7 +369,7 @@ private:
     int                   fTextureHeight;
     int                   fPlotWidth;
     int                   fPlotHeight;
-    SkDEBUGCODE(uint32_t  fNumPlots;)
+    unsigned int          fNumPlots;
 
     uint64_t              fAtlasGeneration;
     // nextTokenToFlush() value at the end of the previous flush
