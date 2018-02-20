@@ -7,6 +7,7 @@
 
 #include "GrOpFlushState.h"
 
+#include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
