@@ -14,7 +14,6 @@ import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
@@ -37,6 +36,15 @@ public class SkQPRunner extends Runner {
         File f = c.getExternalFilesDir(null);
         return new File(f, "output");
     }
+
+    private Description gmDesc(int backend, int gm) {
+        return Description.createTestDescription(
+                SkQP.kSkiaGM + impl.mBackends[backend], impl.mGMs[gm]);
+    }
+    private Description unitDesc(int test) {
+        return Description.createTestDescription(SkQP.kSkiaUnitTests, impl.mUnitTests[test]);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
 
     public SkQPRunner(Class testClass) {
@@ -54,17 +62,13 @@ public class SkQPRunner extends Runner {
         impl.nInit(mAssetManager, filesDir.getAbsolutePath(), false);
 
         mDescription = Description.createSuiteDescription(testClass);
-        Annotation annots[] = new Annotation[0];
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
-            String classname = SkQP.kSkiaGM + impl.mBackends[backend];
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
-                mDescription.addChild(
-                        Description.createTestDescription(classname, impl.mGMs[gm], annots));
+                mDescription.addChild(this.gmDesc(backend, gm));
             }
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
-            mDescription.addChild(Description.createTestDescription(SkQP.kSkiaUnitTests,
-                        impl.mUnitTests[unitTest], annots));
+            mDescription.addChild(this.unitDesc(unitTest));
         }
     }
 
@@ -80,16 +84,17 @@ public class SkQPRunner extends Runner {
     public void run(RunNotifier notifier) {
         int numberOfTests = this.testCount();
         int testNumber = 1;
-        Annotation annots[] = new Annotation[0];
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             String classname = SkQP.kSkiaGM + impl.mBackends[backend];
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
                 String gmName = String.format("%s/%s", impl.mBackends[backend], impl.mGMs[gm]);
+                if (!SkQPAndroidRunner.filter(gmName)) {
+                    continue;
+                }
                 Log.v(TAG, String.format("Rendering Test %s started (%d/%d).",
                                          gmName, testNumber, numberOfTests));
                 testNumber++;
-                Description desc =
-                        Description.createTestDescription(classname, impl.mGMs[gm], annots);
+                Description desc = this.gmDesc(backend, gm);
                 notifier.fireTestStarted(desc);
                 float value = java.lang.Float.MAX_VALUE;
                 String error = null;
@@ -113,11 +118,13 @@ public class SkQPRunner extends Runner {
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
             String utName = impl.mUnitTests[unitTest];
+            if (!SkQPAndroidRunner.filter(String.format("unitTest/%s", utName))) {
+                continue;
+            }
             Log.v(TAG, String.format("Test %s started (%d/%d).",
                                      utName, testNumber, numberOfTests));
             testNumber++;
-            Description desc = Description.createTestDescription(
-                          SkQP.kSkiaUnitTests, utName, annots);
+            Description desc = this.unitDesc(unitTest);
             notifier.fireTestStarted(desc);
             String[] errors = impl.nExecuteUnitTest(unitTest);
             if (errors != null && errors.length > 0) {
