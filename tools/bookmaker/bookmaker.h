@@ -1823,6 +1823,7 @@ public:
     enum class PunctuationState {
         kStart,
         kDelimiter,
+        kParen,     // treated as a delimiter unless following a space, and followed by word
         kPeriod,
         kSpace,
     };
@@ -1912,6 +1913,7 @@ public:
     Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
+    void structSetMembersShort(const vector<Definition*>& bmhChildren);
     void structSizeMembers(const Definition& child);
 private:
     BmhParser* fBmhParser;

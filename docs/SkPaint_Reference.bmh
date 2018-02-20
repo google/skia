@@ -1136,6 +1136,7 @@ SkDebugf("paint.isSubpixelText() %c= !!(paint.getFlags() & SkPaint::kSubpixelTex
 #Subtopic Subpixel_Text ##
 
 #Subtopic LCD_Text
+#Substitute LCD text
 #Line # text relying on the order of Color_RGB stripes ##
 #Alias LCD_Text # makes this a top level name, since it is under subtopic Device_Text
 
