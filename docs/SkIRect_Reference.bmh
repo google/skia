@@ -1182,7 +1182,7 @@ rect (7, 11, 13, 17) test(12, 16, 14, 18) quickReject false; intersects true
 #Method bool contains(int32_t x, int32_t y) const
 
 #In Intersection
-#Line # returns true if points are equal or inside ##
+#Line # returns true if IPoint (x, y) is equal or inside ##
 Returns true if:
 #Formula
 fLeft <= x < fRight && fTop <= y < fBottom
@@ -1197,8 +1197,8 @@ Considers input to describe constructed IRect:
 and
 returns true if constructed area is completely enclosed by IRect area.
 
-#Param x  test Point x-coordinate ##
-#Param y  test Point y-coordinate ##
+#Param x  test IPoint x-coordinate ##
+#Param y  test IPoint y-coordinate ##
 
 #Return true if (x, y) is inside IRect ##
 
@@ -1334,7 +1334,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 #Method bool containsNoEmptyCheck(int32_t left, int32_t top,
                               int32_t right, int32_t bottom) const
 #In Intersection
-#Line # returns true if points are equal or inside skips empty check ##
+#Line # returns true if contains unsorted IRect ##
 
 Constructs IRect from (left, top, right, bottom). Does not sort
 construction.
