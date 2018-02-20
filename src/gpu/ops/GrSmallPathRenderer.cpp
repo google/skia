@@ -400,6 +400,8 @@ private:
     bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           uint32_t dimension, SkScalar scale) const {
+        auto proxyProvider = target->proxyProvider();
+
         const SkRect& bounds = shape.bounds();
 
         // generate bounding rect for bitmap draw
@@ -488,10 +490,11 @@ private:
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
         auto uploadTarget = target->deferredUploadTarget();
-        if (!atlas->addToAtlas(&id, uploadTarget, width, height, dfStorage.get(), &atlasLocation)) {
+        if (!atlas->addToAtlas(proxyProvider, &id, uploadTarget, width, height,
+                               dfStorage.get(), &atlasLocation)) {
             this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(&id, uploadTarget, width, height, dfStorage.get(),
-                                   &atlasLocation)) {
+            if (!atlas->addToAtlas(proxyProvider, &id, uploadTarget, width, height,
+                                   dfStorage.get(), &atlasLocation)) {
                 return false;
             }
         }
@@ -530,6 +533,8 @@ private:
     bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           const SkMatrix& ctm) const {
+        auto proxyProvider = target->proxyProvider();
+
         const SkRect& bounds = shape.bounds();
         if (bounds.isEmpty()) {
             return false;
@@ -590,11 +595,11 @@ private:
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
         auto uploadTarget = target->deferredUploadTarget();
-        if (!atlas->addToAtlas(&id, uploadTarget, dst.width(), dst.height(), dst.addr(),
-                               &atlasLocation)) {
+        if (!atlas->addToAtlas(proxyProvider, &id, uploadTarget, dst.width(), dst.height(),
+                               dst.addr(), &atlasLocation)) {
             this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(&id, uploadTarget, dst.width(), dst.height(), dst.addr(),
-                                   &atlasLocation)) {
+            if (!atlas->addToAtlas(proxyProvider, &id, uploadTarget, dst.width(), dst.height(),
+                                   dst.addr(), &atlasLocation)) {
                 return false;
             }
         }
@@ -788,7 +793,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
-        fAtlas = GrDrawOpAtlas::Make(args.fContext,
+        fAtlas = GrDrawOpAtlas::Make(args.fContext->contextPriv().proxyProvider(),
                                      kAlpha_8_GrPixelConfig,
                                      ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                      NUM_PLOTS_X, NUM_PLOTS_Y,
@@ -858,7 +863,8 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     if (context->uniqueID() != gTestStruct.fContextID) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
-        gTestStruct.fAtlas = GrDrawOpAtlas::Make(context, kAlpha_8_GrPixelConfig,
+        gTestStruct.fAtlas = GrDrawOpAtlas::Make(context->contextPriv().proxyProvider(),
+                                                 kAlpha_8_GrPixelConfig,
                                                  ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                  NUM_PLOTS_X, NUM_PLOTS_Y,
                                                  GrDrawOpAtlas::AllowMultitexturing::kYes,
