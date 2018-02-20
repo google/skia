@@ -153,8 +153,7 @@ public:
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state, uint32_t modifiers) {
         SkASSERT(fTarget);
 
-        // TODO: no SkRect::contains(SkPoint) ?!
-        if (x < fRect.fLeft || x > fRect.fRight || y < fRect.fTop || y > fRect.fBottom) {
+        if (!fRect.contains(x, y)) {
             this->startUnfocus();
             return true;
         }
