@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c384ac91_69891f3d",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1324,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-20T22:26:23Z",
+      "side": 1,
+      "message": "Think this wants a new name?  MakePortableFontMgr?",
+      "range": {
+        "startLine": 1324,
+        "startChar": 52,
+        "endLine": 1324,
+        "endChar": 63
+      },
+      "revId": "b4966db6725693d60671255467598628ebe87164",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
