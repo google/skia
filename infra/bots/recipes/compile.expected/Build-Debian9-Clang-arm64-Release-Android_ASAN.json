@@ -135,9 +135,7 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android_ASAN/Release",
-      "-j",
-      "1000"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android_ASAN/Release"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

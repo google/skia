@@ -389,11 +389,6 @@ if actual_freq != str(freq):
       args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
-    ninja_args = ['-k', '0', '-C', self.out_dir]
-
-    if self.m.vars.is_linux:
-      # TODO(dogben): Experiment with this setting for other builds.
-      ninja_args.extend(['-j', '1000'])
 
     gn    = 'gn.exe'    if 'Win' in os else 'gn'
     ninja = 'ninja.exe' if 'Win' in os else 'ninja'
@@ -401,7 +396,7 @@ if actual_freq != str(freq):
 
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
     self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
-    self._run('ninja', *([ninja] + ninja_args))
+    self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
 
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,

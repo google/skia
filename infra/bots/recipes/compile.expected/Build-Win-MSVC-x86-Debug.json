@@ -131,9 +131,7 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug\\Debug",
-      "-j",
-      "1000"
+      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug\\Debug"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {

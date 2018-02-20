@@ -37,9 +37,7 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/out/Debug_x64",
-      "-j",
-      "1000"
+      "[START_DIR]/out/Debug_x64"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

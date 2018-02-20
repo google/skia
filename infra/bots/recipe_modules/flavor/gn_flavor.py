@@ -193,9 +193,6 @@ with open(sys.argv[1], 'w') as f:
         # only Goma warns about this.
         extra_cflags.append('-Wno-nonportable-include-path')
       ninja_args.extend(['-j', '2000'])
-    elif 'Win' in os:
-      # TODO(dogben): Experiment with this setting for other builds.
-      ninja_args.extend(['-j', '1000'])
 
     sanitize = ''
     for t in extra_tokens:
