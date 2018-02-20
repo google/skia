@@ -100,6 +100,7 @@ private:
 
     void changeZoomLevel(float delta);
     SkMatrix computeMatrix();
+    SkPoint mapEvent(float x, float y);
 
     void resetExecutor() {
         fExecutor = SkExecutor::MakeFIFOThreadPool(fThreadCnt == 0 ? fTileCnt : fThreadCnt);

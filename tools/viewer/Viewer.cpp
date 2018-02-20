@@ -1009,10 +1009,26 @@ void Viewer::onPaint(SkCanvas* canvas) {
     this->updateUIState();
 }
 
+SkPoint Viewer::mapEvent(float x, float y) {
+    const auto m = this->computeMatrix();
+    SkMatrix inv;
+
+    SkAssertResult(m.invert(&inv));
+
+    return inv.mapXY(x, y);
+}
+
 bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
     if (GestureDevice::kMouse == fGestureDevice) {
         return false;
     }
+
+    const auto slidePt = this->mapEvent(x, y);
+    if (fSlides[fCurrentSlide]->onMouse(slidePt.x(), slidePt.y(), state, 0)) {
+        fWindow->inval();
+        return true;
+    }
+
     void* castedOwner = reinterpret_cast<void*>(owner);
     switch (state) {
         case Window::kUp_InputState: {
@@ -1038,15 +1054,10 @@ bool Viewer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers)
         return false;
     }
 
-    const auto slideMatrix = this->computeMatrix();
-    SkMatrix slideInvMatrix;
-    if (slideMatrix.invert(&slideInvMatrix)) {
-        SkPoint slideMouse = SkPoint::Make(x, y);
-        slideInvMatrix.mapPoints(&slideMouse, 1);
-        if (fSlides[fCurrentSlide]->onMouse(slideMouse.x(), slideMouse.y(), state, modifiers)) {
-            fWindow->inval();
-            return true;
-        }
+    const auto slidePt = this->mapEvent(x, y);
+    if (fSlides[fCurrentSlide]->onMouse(slidePt.x(), slidePt.y(), state, modifiers)) {
+        fWindow->inval();
+        return true;
     }
 
     switch (state) {
