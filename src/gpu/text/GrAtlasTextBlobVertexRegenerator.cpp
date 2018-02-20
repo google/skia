@@ -190,11 +190,13 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
     }
 }
 
-Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx,
+Regenerator::VertexRegenerator(GrResourceProvider* resourceProvider, GrAtlasTextBlob* blob,
+                               int runIdx, int subRunIdx,
                                const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                                GrDeferredUploadTarget* uploadTarget, GrAtlasGlyphCache* glyphCache,
                                SkAutoGlyphCache* lazyCache)
-        : fViewMatrix(viewMatrix)
+        : fResourceProvider(resourceProvider)
+        , fViewMatrix1(viewMatrix)
         , fBlob(blob)
         , fUploadTarget(uploadTarget)
         , fGlyphCache(glyphCache)
@@ -203,7 +205,7 @@ Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx,
         , fSubRun(&blob->fRuns[runIdx].fSubRunInfo[subRunIdx])
         , fColor(color) {
     // Compute translation if any
-    fSubRun->computeTranslation(fViewMatrix, x, y, &fTransX, &fTransY);
+    fSubRun->computeTranslation(fViewMatrix1, x, y, &fTransX, &fTransY);
 
     // Because the GrAtlasGlyphCache may evict the strike a blob depends on using for
     // generating its texture coords, we have to track whether or not the strike has
@@ -274,7 +276,7 @@ Regenerator::Result Regenerator::doRegen() {
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
             if (!fGlyphCache->hasGlyph(glyph) &&
-                !strike->addGlyphToAtlas(fUploadTarget, glyph, fLazyCache->get(),
+                !strike->addGlyphToAtlas(fResourceProvider, fUploadTarget, glyph, fLazyCache->get(),
                                          fSubRun->maskFormat())) {
                 fBrokenRun = glyphIdx > 0;
                 result.fFinished = false;

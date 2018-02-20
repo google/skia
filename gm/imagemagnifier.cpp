@@ -16,7 +16,7 @@
 #define WIDTH 500
 #define HEIGHT 500
 
-DEF_SIMPLE_GM_BG(imagemagnifier, canvas, WIDTH, HEIGHT, SK_ColorBLACK) {
+DEF_SIMPLE_GM_BG(imagemagnifier2, canvas, WIDTH, HEIGHT, SK_ColorBLACK) {
         SkPaint filterPaint;
         filterPaint.setImageFilter(
             SkMagnifierImageFilter::Make(
