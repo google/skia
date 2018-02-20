@@ -1401,6 +1401,7 @@ if (skia_enable_tools) {
       "experimental/sksg/geometry/SkSGGeometryTransform.cpp",
       "experimental/sksg/geometry/SkSGMerge.cpp",
       "experimental/sksg/geometry/SkSGPath.cpp",
+      "experimental/sksg/geometry/SkSGPlane.cpp",
       "experimental/sksg/geometry/SkSGRect.cpp",
       "experimental/sksg/geometry/SkSGText.cpp",
       "experimental/sksg/geometry/SkSGTrimEffect.cpp",
