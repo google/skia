@@ -155,9 +155,10 @@ protected:
             flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
         }
 
-        SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
-                                  lightPos, lightWidth,
-                                  ambientAlpha, spotAlpha, SK_ColorBLACK, flags);
+        SkColor ambientColor = SkColorSetARGB(ambientAlpha * 255, 0, 0, 0);
+        SkColor spotColor = SkColorSetARGB(spotAlpha * 255, 0, 0, 0);
+        SkShadowUtils::DrawShadow(canvas, path, zPlaneParams, lightPos, lightWidth,
+                                  ambientColor, spotColor, flags);
 
         if (fShowObject) {
             canvas->drawPath(path, paint);

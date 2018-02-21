@@ -16,10 +16,8 @@ enum SkShadowFlags {
     kTransparentOccluder_ShadowFlag = 0x01,
     /** Don't try to use analytic shadows. */
     kGeometricOnly_ShadowFlag = 0x02,
-    /** Disable use of tonal values when applying color (deprecated) */
-    kDisableTonalColor_ShadowFlag = 0x04,
     /** mask for all shadow flags */
-    kAll_ShadowFlag = 0x07
+    kAll_ShadowFlag = 0x03
 };
 
 #endif
