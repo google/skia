@@ -522,7 +522,9 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 break;
             case SpvDim2D:
                 dim = "2D";
-                isTextureFunctionWithBias = true;
+                if (c.fArguments[0]->fType != *fContext.fSamplerExternalOES_Type) {
+                    isTextureFunctionWithBias = true;
+                }
                 if (c.fArguments[1]->fType == *fContext.fFloat2_Type) {
                     proj = false;
                 } else {
