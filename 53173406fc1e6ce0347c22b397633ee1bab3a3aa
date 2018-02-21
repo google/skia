@@ -107,6 +107,30 @@
       "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9338ac01_54dea779",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-21T18:20:32Z",
+      "side": 1,
+      "message": "So I was debating between using std::functions vs this old callback version. I settled with this old version since we\u0027ll need a release proc, and it seemed weird for this call to use a different style of release proc than all the other wrapped calls. So then if we were going to use the old release proc style it made sense to have the fulfill to also be that. Though I\u0027m not attached to either. So if there are strong preferences either way I\u0027m happy to go that route.\n\nIn terms of can these be called multiple times I guess it depends if we want to allow textureFulfillProc to return different backend textures each time. If it always has to return the same texture (or will only ever be called once) then I think we will only have call the ReleaseProc once when we are completely done with the texture. Thus the textureContext must life until we call the releaseProc once.\n\nIf we allow fulfill to return different textures each call then we\u0027ll also need to call a release proc called for each all of fulfill. If we still with the old callbacks then we\u0027ll probably also need a third superReleaseProc that controls the lifetime of textureContext. In this world the std:functions make much more sense since the fulfill and release procs can just ref the textureContext and then its lifetime inherently is tied to how long we hold onto the functions (no need for third function). There is a weird issue here if we call fulfill multiple times before calling any releases, so we would need a way to which fulfill texture we are releasing. Maybe have fulfill return some blob that gets passed to release.",
+      "parentUuid": "a4373df5_729d69d6",
+      "range": {
+        "startLine": 219,
+        "startChar": 45,
+        "endLine": 219,
+        "endChar": 74
+      },
+      "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
