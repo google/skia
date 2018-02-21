@@ -424,7 +424,7 @@ x += 512;
 }
 ##
 
-#SeeAlso MakeFromAdoptedTexture SkSurface::MakeFromBackendTexture
+#SeeAlso MakeFromAdoptedTexture MakePromiseTexture SkSurface::MakeFromBackendTexture
 
 #Method ##
 
@@ -487,7 +487,72 @@ for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
 }
 ##
 
-#SeeAlso MakeFromAdoptedTexture SkSurface::MakeFromBackendTexture
+#SeeAlso MakeFromAdoptedTexture MakePromiseTexture SkSurface::MakeFromBackendTexture
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Typedef ReleaseContext TextureContext
+
+##
+
+#Typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture)
+
+##
+
+#Method static sk_sp<SkImage> MakePromiseTexture(GrContext* context,
+                                          const GrBackendFormat& backendFormat,
+                                          int width,
+                                          int height,
+                                          GrMipMapped,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace,
+                                          TextureFulfillProc textureFulfillProc,
+                                          TextureReleaseProc textureReleaseProc,
+                                          TextureContext textureContext)
+#In Constructor
+#Line # creates Image for a lazily suppilied GrBackendTexture ##
+Create a new SkImage that is very similar to the SkImage created by MakeFromTexture. The main
+difference is that the client doesn't have the backend texture on the gpu yet but they know
+all the properties of the texture. So instead of passing in a GrBackendTexture the client
+supplies a GrBackendFormat, width, height, and GrMipMapped state.
+
+When we actually send the draw calls to the GPU, we will call the textureFulfillProc and
+the client will return a GrBackendTexture to us. The properties of the GrBackendTexture must
+match those set of the SkImage creation, and it must contain a valid backend gpu texture.
+
+All other requirements and params are treated the same as they are in the MakeFromTexture
+call. This includes compatibility between the backend format and SkColorType, the
+ReleaseProc requirements, etc.
+
+#Param context  GPU_Context ##
+#Param backendFormat  format of promised gpu texture ##
+#Param width  width of promised gpu texture ##
+#Param height  height of promised gpu texture ##
+#Param mipMapped  mip mapped state of promised gpu texture ##
+#Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+##
+#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+##
+#Param colorSpace  range of colors; may be nullptr ##
+#Param textureFulfillProc  function called to get actual gpu texture ##
+#Param textureReleaseProc  function called when texture can be released ##
+#Param textureContext  state passed to state passed to textureFulfillProc andtextureReleaseProc ##
+
+#Return created Image, or nullptr ##
+
+#NoExample
+##
+
+#SeeAlso MakeFromTexture
 
 #Method ##
 
