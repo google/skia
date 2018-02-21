@@ -1985,6 +1985,9 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
         } else {
             r.set(pts, SkToInt(count));
         }
+        if (!r.isFinite()) {
+            return;
+        }
         SkRect storage;
         if (this->quickReject(paint.computeFastStrokeBounds(r, &storage))) {
             return;
