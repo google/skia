@@ -1010,6 +1010,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
 
         static const int kSize = 10;
         GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *context->caps());
+        SkASSERT(kUnknown_GrPixelConfig != config);
 
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                 nullptr, kSize, kSize, config, true, GrMipMapped::kNo);

@@ -165,6 +165,7 @@ public:
         GrGpu* gpu = context->contextPriv().getGpu();
 
         GrPixelConfig config = SkImageInfo2GrPixelConfig(fColorType, nullptr, *context->caps());
+        SkASSERT(kUnknown_GrPixelConfig != config);
 
         *backend = gpu->createTestingOnlyBackendTexture(nullptr, fWidth, fHeight,
                                                         config, true, GrMipMapped::kNo);

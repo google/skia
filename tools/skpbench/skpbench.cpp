@@ -292,6 +292,10 @@ int main(int argc, char** argv) {
     GrPixelConfig grPixConfig = SkImageInfo2GrPixelConfig(config->getColorType(),
                                                           config->getColorSpace(),
                                                           *ctx->caps());
+    if (kUnknown_GrPixelConfig == grPixConfig) {
+        exitf(ExitErr::kUnavailable, "failed to get GrPixelConfig from SkColorType: %d",
+                                     config->getColorType());
+    }
     int supportedSampleCount =
             ctx->caps()->getRenderTargetSampleCount(config->getSamples(), grPixConfig);
     if (supportedSampleCount != config->getSamples()) {

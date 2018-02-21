@@ -199,6 +199,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
         for (auto colorType : { kAlpha_8_SkColorType, kRGBA_8888_SkColorType }) {
             for (auto numSamples : {1, 4}) {
                 GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, caps);
+                SkASSERT(kUnknown_GrPixelConfig != config);
                 int supportedNumSamples = caps.getRenderTargetSampleCount(numSamples, config);
 
                 if (!supportedNumSamples) {
