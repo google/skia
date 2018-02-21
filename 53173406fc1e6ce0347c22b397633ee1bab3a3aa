@@ -203,6 +203,30 @@
       "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfff1894_576f93c5",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-21T18:59:48Z",
+      "side": 1,
+      "message": "SGTM. I think the std::functions are much more flexable, so as long as we fine with being different for now then we should be okay. Though we may to setup a parallel release proc thing on textures that stores a std::function or covert all the old ones under the hood to std::functions",
+      "parentUuid": "014db5e3_78183bd6",
+      "range": {
+        "startLine": 219,
+        "startChar": 45,
+        "endLine": 219,
+        "endChar": 74
+      },
+      "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
