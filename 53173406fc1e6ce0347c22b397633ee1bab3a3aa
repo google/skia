@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9048b510_33709d05",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-21T16:33:47Z",
+      "side": 1,
+      "message": "overlength",
+      "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22c858d2_5efe300b",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-21T16:33:47Z",
+      "side": 1,
+      "message": "overlength",
+      "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31f6cd33_67f8a9c6",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-21T16:33:47Z",
+      "side": 1,
+      "message": "alphaType",
+      "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3658d9a5_6363bca1",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-21T16:33:47Z",
+      "side": 1,
+      "message": "missing space",
+      "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1df9892_31379b30",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-21T16:33:47Z",
+      "side": 1,
+      "message": "alaphaType",
+      "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
