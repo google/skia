@@ -48,6 +48,7 @@ enum comments should be disallowed unless after #Enum and before first #Const
 trouble with aliases, plurals
     need to keep first letter of includeWriter @param / @return lowercase
     Quad -> quad, Quads -> quads
+deprecated methods should be sorted down in md out, and show include "Deprecated." text body.
 see head of selfCheck.cpp for additional todos
  */
 
@@ -153,6 +154,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 definition->fFileName = fFileName;
                 definition->fContentStart = fChar;
                 definition->fLineCount = fLineCount;
+                if (string::npos != definition->fName.find("MakeFromTexture")) {
+                    SkDebugf("");
+                }
                 definition->fClone = fCloned;
                 if (MarkType::kConst == markType) {
                     // todo: require that fChar points to def on same line as markup
@@ -1613,10 +1617,17 @@ string BmhParser::uniqueName(const string& base, MarkType markType) {
     int number = 2;
     string numBuilder(builder);
     do {
-        for (const auto& iter : fParent->fChildren) {
+        for (auto& iter : fParent->fChildren) {
             if (markType == iter->fMarkType) {
                 if (iter->fName == numBuilder) {
-                    fCloned = true;
+                    if (string::npos != iter->fName.find("MakeFromTexture")) {
+                        SkDebugf("");
+                    }
+                    if (iter->fDeprecated) {
+                        iter->fClone = true;
+                    } else {
+                        fCloned = true;
+                    }
                     numBuilder = builder + '_' + to_string(number);
                     goto tryNext;
                 }
@@ -1668,9 +1679,18 @@ tryNext: ;
             builder = builder.substr(0, builder.length() - 2);
         }
         if (MarkType::kMethod == markType) {
+            if (string::npos != cloned->fName.find("MakeFromTexture")) {
+                SkDebugf("");
+            }
             cloned->fCloned = true;
+            if (cloned->fDeprecated) {
+                cloned->fClone = true;
+            } else {
+                fCloned = true;
+            }
+        } else {
+            fCloned = true;
         }
-        fCloned = true;
         numBuilder = builder + '_' + to_string(number);
     } while (++number);
     return numBuilder;
