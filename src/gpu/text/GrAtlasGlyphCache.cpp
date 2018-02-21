@@ -399,10 +399,9 @@ static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
     atlas and a position within that texture.
  */
 
-GrAtlasTextStrike::GrAtlasTextStrike(GrAtlasGlyphCache* owner, const SkDescriptor& key)
+GrAtlasTextStrike::GrAtlasTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key)
     , fPool(9/*start allocations at 512 bytes*/)
-    , fAtlasGlyphCache(owner) // no need to ref, it won't go away before we do
     , fAtlasedGlyphs(0)
     , fIsAbandoned(false) {}
 
@@ -447,6 +446,7 @@ void GrAtlasTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
 }
 
 bool GrAtlasTextStrike::addGlyphToAtlas(GrDeferredUploadTarget* target,
+                                        GrAtlasGlyphCache* atlasGlyphCache,
                                         GrGlyph* glyph,
                                         SkGlyphCache* cache,
                                         GrMaskFormat expectedMaskFormat) {
@@ -473,7 +473,7 @@ bool GrAtlasTextStrike::addGlyphToAtlas(GrDeferredUploadTarget* target,
         }
     }
 
-    bool success = fAtlasGlyphCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
+    bool success = atlasGlyphCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
                                                glyph->width(), glyph->height(),
                                                storage.get(), &glyph->fAtlasLocation);
     if (success) {
