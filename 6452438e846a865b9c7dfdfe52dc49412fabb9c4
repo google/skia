@@ -22,6 +22,30 @@
       "revId": "6452438e846a865b9c7dfdfe52dc49412fabb9c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18876c45_bf3a29c1",
+        "filename": "tools/skqp/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-02-21T02:57:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab34cc2f_19fdbee8",
+      "range": {
+        "startLine": 92,
+        "startChar": 24,
+        "endLine": 92,
+        "endChar": 30
+      },
+      "revId": "6452438e846a865b9c7dfdfe52dc49412fabb9c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
