@@ -103,34 +103,34 @@ processors, pixels containing 8-bit <a href="undocumented#ARGB">Color ARGB</a> c
     <td><a name="kUnknown_SkColorType"> <code><strong>kUnknown_SkColorType </strong></code> </a></td><td>0</td><td></td>
   </tr>
   <tr>
-    <td><a name="kAlpha_8_SkColorType"> <code><strong>kAlpha_8_SkColorType </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="kAlpha_8_SkColorType"> <code><strong>kAlpha_8_SkColorType </strong></code> </a></td><td>1</td><td>Encodes <a href="undocumented#Alpha">Color Alpha</a> as <a href="#Color_Type_Alpha_8">Alpha 8</a> pixel in an 8-bit byte.</td>
   </tr>
   <tr>
-    <td><a name="kRGB_565_SkColorType"> <code><strong>kRGB_565_SkColorType </strong></code> </a></td><td>2</td><td></td>
+    <td><a name="kRGB_565_SkColorType"> <code><strong>kRGB_565_SkColorType </strong></code> </a></td><td>2</td><td>Encodes <a href="undocumented#RGB">Color RGB</a> as <a href="#Color_Type_RGB_565">RGB 565</a> pixel in a 16-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kARGB_4444_SkColorType"> <code><strong>kARGB_4444_SkColorType </strong></code> </a></td><td>3</td><td></td>
+    <td><a name="kARGB_4444_SkColorType"> <code><strong>kARGB_4444_SkColorType </strong></code> </a></td><td>3</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_ABGR_4444">ABGR 4444</a> pixel in a 16-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kRGBA_8888_SkColorType"> <code><strong>kRGBA_8888_SkColorType </strong></code> </a></td><td>4</td><td></td>
+    <td><a name="kRGBA_8888_SkColorType"> <code><strong>kRGBA_8888_SkColorType </strong></code> </a></td><td>4</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_RGBA_8888">RGBA 8888</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kRGB_888x_SkColorType"> <code><strong>kRGB_888x_SkColorType </strong></code> </a></td><td>5</td><td></td>
+    <td><a name="kRGB_888x_SkColorType"> <code><strong>kRGB_888x_SkColorType </strong></code> </a></td><td>5</td><td>Encodes <a href="undocumented#RGB">Color RGB</a> as <a href="#Color_Type_RGB_888x">RGB 888x</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kBGRA_8888_SkColorType"> <code><strong>kBGRA_8888_SkColorType </strong></code> </a></td><td>6</td><td></td>
+    <td><a name="kBGRA_8888_SkColorType"> <code><strong>kBGRA_8888_SkColorType </strong></code> </a></td><td>6</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_BGRA_8888">BGRA 8888</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kRGBA_1010102_SkColorType"> <code><strong>kRGBA_1010102_SkColorType </strong></code> </a></td><td>7</td><td></td>
+    <td><a name="kRGBA_1010102_SkColorType"> <code><strong>kRGBA_1010102_SkColorType </strong></code> </a></td><td>7</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_RGBA_1010102">RGBA 1010102</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kRGB_101010x_SkColorType"> <code><strong>kRGB_101010x_SkColorType </strong></code> </a></td><td>8</td><td></td>
+    <td><a name="kRGB_101010x_SkColorType"> <code><strong>kRGB_101010x_SkColorType </strong></code> </a></td><td>8</td><td>Encodes <a href="undocumented#RGB">Color RGB</a> as <a href="#Color_Type_RGB_101010x">RGB 101010x</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kGray_8_SkColorType"> <code><strong>kGray_8_SkColorType </strong></code> </a></td><td>9</td><td></td>
+    <td><a name="kGray_8_SkColorType"> <code><strong>kGray_8_SkColorType </strong></code> </a></td><td>9</td><td>Encodes <a href="undocumented#Gray">Color Gray</a> as <a href="#Color_Type_Gray_8">Gray 8</a> in an 8-bit byte.</td>
   </tr>
   <tr>
-    <td><a name="kRGBA_F16_SkColorType"> <code><strong>kRGBA_F16_SkColorType </strong></code> </a></td><td>10</td><td></td>
+    <td><a name="kRGBA_F16_SkColorType"> <code><strong>kRGBA_F16_SkColorType </strong></code> </a></td><td>10</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_RGBA_F16">RGBA F16</a> in a 64-bit word.</td>
   </tr>
 </table>
 
@@ -138,7 +138,8 @@ processors, pixels containing 8-bit <a href="undocumented#ARGB">Color ARGB</a> c
 
 <table>
   <tr>
-    <td><a name="kN32_SkColorType"> <code><strong>kN32_SkColorType </strong></code> </a></td><td>4</td><td></td>
+    <td><a name="kN32_SkColorType"> <code><strong>kN32_SkColorType </strong></code> </a></td><td>4</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as either <a href="#Color_Type_RGBA_8888">RGBA 8888</a> or <a href="#Color_Type_BGRA_8888">BGRA 8888</a>, whichever
+is native to the platform.</td>
   </tr>
 </table>
 
@@ -151,6 +152,66 @@ processors, pixels containing 8-bit <a href="undocumented#ARGB">Color ARGB</a> c
 incomplete
 
 
+
+## <a name="Color_Type_Alpha_8"></a> Color Type Alpha 8
+
+### Example
+
+<div><fiddle-embed name="21ae21e4ce53d2018e042dd457997300"></fiddle-embed></div>
+
+## <a name="Color_Type_RGB_565"></a> Color Type RGB 565
+
+### Example
+
+<div><fiddle-embed name="54e4c690d64d73ba028c5b250c0d09f0"></fiddle-embed></div>
+
+## <a name="Color_Type_ABGR_4444"></a> Color Type ABGR 4444
+
+### Example
+
+<div><fiddle-embed name="f89e8200d225ccb839e50a1481db48e9"></fiddle-embed></div>
+
+## <a name="Color_Type_RGBA_8888"></a> Color Type RGBA 8888
+
+### Example
+
+<div><fiddle-embed name="f3b9effa700b1b95ce10caf422b020cd"></fiddle-embed></div>
+
+## <a name="Color_Type_RGB_888x"></a> Color Type RGB 888x
+
+### Example
+
+<div><fiddle-embed name="1e236c4c9ce0597c22186589fee9dc1e"></fiddle-embed></div>
+
+## <a name="Color_Type_BGRA_8888"></a> Color Type BGRA 8888
+
+### Example
+
+<div><fiddle-embed name="fcadba68a4fe7253b1726487e12b1eeb"></fiddle-embed></div>
+
+## <a name="Color_Type_RGBA_1010102"></a> Color Type RGBA 1010102
+
+### Example
+
+<div><fiddle-embed name="3eb38c5b5b340f861ff05b95d936c314"></fiddle-embed></div>
+
+## <a name="Color_Type_RGB_101010x"></a> Color Type RGB 101010x
+
+### Example
+
+<div><fiddle-embed name="d975ec17354b1297841e4a31d3f6a5d5"></fiddle-embed></div>
+
+## <a name="Color_Type_Gray_8"></a> Color Type Gray 8
+
+### Example
+
+<div><fiddle-embed name="93da0eb0b6722a4f33dc7dae094abf0b"></fiddle-embed></div>
+
+## <a name="Color_Type_RGBA_F16"></a> Color Type RGBA F16
+
+### Example
+
+<div><fiddle-embed name="1795410dffea303b08ba98ee78dc1556"></fiddle-embed></div>
 
 ## <a name="YUV_ColorSpace"></a> YUV ColorSpace
 

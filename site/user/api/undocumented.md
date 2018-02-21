@@ -135,6 +135,8 @@ int SkColorSetARGB(a, r, g, b)
 
 ## <a name="RGB-565"></a> RGB-565
 
+## <a name="Gray"></a> Gray
+
 # <a name="Color_Filter"></a> Color Filter
 
 # <a name="SkColorFilter"></a> Class SkColorFilter
