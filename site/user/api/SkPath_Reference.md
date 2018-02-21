@@ -1057,17 +1057,6 @@ true if <a href="#Convexity">Convexity</a> stored or computed is <a href="#SkPat
 
 ---
 
-<a name="SkPath_setIsConvex"></a>
-## setIsConvex
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void setIsConvex(bool isConvex)
-</pre>
-
-Use <a href="#SkPath_setConvexity">setConvexity</a>.
-
----
-
 <a name="SkPath_isOval"></a>
 ## isOval
 
