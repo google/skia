@@ -165,6 +165,9 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     fMaxRenderTargetSize = SkTMin(properties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
     fMaxTextureSize = SkTMin(properties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
 
+    // TODO: check if RT's larger than 4k incur a performance cost on ARM.
+    fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
+
     // Assuming since we will always map in the end to upload the data we might as well just map
     // from the get go. There is no hard data to suggest this is faster or slower.
     fBufferMapThreshold = 0;
