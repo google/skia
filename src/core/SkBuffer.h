@@ -9,6 +9,7 @@
 #ifndef SkBuffer_DEFINED
 #define SkBuffer_DEFINED
 
+#include "SkSafeMath.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
 
@@ -59,6 +60,12 @@ public:
     bool readU8(uint8_t* x)   { return this->read(x, 1); }
     bool readS32(int32_t* x)  { return this->read(x, 4); }
     bool readU32(uint32_t* x) { return this->read(x, 4); }
+
+    // returns nullptr on failure
+    const void* skip(size_t bytes);
+    template <typename T> const T* skipCount(size_t count) {
+        return static_cast<const T*>(this->skip(SkSafeMath::Mul(count, sizeof(T))));
+    }
 
 private:
     const char* fData;
