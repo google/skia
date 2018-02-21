@@ -9,12 +9,7 @@
 #define SkHalf_DEFINED
 
 #include "SkNx.h"
-#include "SkTypes.h"
-
-// 16-bit floating point value
-// format is 1 bit sign, 5 bits exponent, 10 bits mantissa
-// only used for storage
-typedef uint16_t SkHalf;
+#include "SkColor.h"
 
 static constexpr uint16_t SK_HalfMin     = 0x0400; // 2^-14  (minimum positive normal value)
 static constexpr uint16_t SK_HalfMax     = 0x7bff; // 65504
@@ -23,7 +18,6 @@ static constexpr uint16_t SK_Half1       = 0x3C00; // 1
 
 // convert between half and single precision floating point
 float SkHalfToFloat(SkHalf h);
-SkHalf SK_API SkFloatToHalf(float f);
 
 // Convert between half and single precision floating point,
 // assuming inputs and outputs are both finite, and may

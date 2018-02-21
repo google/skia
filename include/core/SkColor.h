@@ -188,4 +188,12 @@ struct SK_API SkColor4f {
     SkPM4f premul() const;
 };
 
+// 16-bit floating point value
+// format is 1 bit sign, 5 bits exponent, 10 bits mantissa
+// only used for storage
+typedef uint16_t SkHalf;
+
+// Converts f to format used by kRGBA_F16_SkColorType
+SkHalf SK_API SkFloatToHalf(float f);
+
 #endif
