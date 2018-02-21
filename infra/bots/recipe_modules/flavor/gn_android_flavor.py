@@ -396,12 +396,8 @@ if actual_freq != str(freq):
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
 
     # If this is the SkQP built, set up the environment and run the script
-    # build the universal APK.
+    # build the universal APK. This should only run the skqp branches.
     if 'SKQP' in extra_tokens:
-      # If this is not an SkQP branch make this a no-op or the build will fail.
-      if 'skqp' not in self.get_branch():
-        return
-
       ndk_asset = 'android_ndk_linux'
       sdk_asset = 'android_sdk_linux'
       android_ndk = self.m.vars.slave_dir.join(ndk_asset)
