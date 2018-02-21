@@ -153,6 +153,15 @@ config("skia_private") {
     "src/utils/win",
     "src/xml",
     "third_party/gif",
+    "third_party/libpng",
+    "third_party/libjpeg",
+    "third_party/libjpeg-turbo",
+    "third_party/externals/libpng",
+    "third_party/externals/libjpeg",
+    "third_party/externals/libjpeg-turbo",
+    "third_party/externals/zlib",
+    "third_party/externals/expat/lib",
+    "third_party/externals/libwebp/src",
   ]
   if (skia_llvm_path != "") {
     include_dirs += [ "$skia_llvm_path/include" ]
