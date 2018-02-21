@@ -14,6 +14,10 @@ TZ='' git log \
 -\-format='  * [`%h`](https://storage.googleapis.com/skia-skqp/skqp-universal-%h.apk)%n    | `%cd` | %<(30,trunc)%s'
 -->
 
+  * [`103b402a29`](https://storage.googleapis.com/skia-skqp/skqp-universal-103b402a29.apk)
+    | `2018-02-21 20:56:10 UTC` | SkQP: run a single test
+  * [`38efb0d355`](https://storage.googleapis.com/skia-skqp/skqp-universal-38efb0d355.apk)
+    | `2018-02-20 20:48:45 UTC` | Add SKQP bot to build univer..
   * [`d69db48840`](https://storage.googleapis.com/skia-skqp/skqp-universal-d69db48840.apk)
     | `2018-02-13 21:07:09 UTC` | SkQP: relax five tests
   * [`337919990b`](https://storage.googleapis.com/skia-skqp/skqp-universal-337919990b.apk)
