@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "e044bf16_b8006084",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-21T18:08:48Z",
+      "side": 1,
+      "message": "It\u0027s not clear to me where the first page gets instantiated. Maybe start with fNumActivePages \u003d 0 and let it instantiate through activateNewPage()?",
+      "range": {
+        "startLine": 537,
+        "startChar": 4,
+        "endLine": 537,
+        "endChar": 20
+      },
+      "revId": "9113335f7efa2c3e0465dc1d06af9d696c8a6cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0f0d6802_ae19a74d",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 20
