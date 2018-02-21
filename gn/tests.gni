@@ -60,7 +60,6 @@ tests_sources = [
   "$_tests/DiscardableMemoryTest.cpp",
   "$_tests/DrawBitmapRectTest.cpp",
   "$_tests/DrawFilterTest.cpp",
-  "$_tests/DrawOpAtlasTest.cpp",
   "$_tests/DrawPathTest.cpp",
   "$_tests/DrawTextTest.cpp",
   "$_tests/DynamicHashTest.cpp",
