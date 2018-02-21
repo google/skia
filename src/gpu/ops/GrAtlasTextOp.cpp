@@ -218,8 +218,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     GrMaskFormat maskFormat = this->maskFormat();
 
+    GrAtlasGlyphCache* atlasGlyphCache = target->atlasGlyphCache();
     unsigned int atlasPageCount;
-    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(maskFormat, &atlasPageCount);
+    const sk_sp<GrTextureProxy>* proxies = atlasGlyphCache->getProxies(maskFormat, &atlasPageCount);
     if (!atlasPageCount || !proxies[0]) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
@@ -230,7 +231,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
     SkDEBUGCODE(bool dfPerspective = false);
     if (this->usesDistanceFields()) {
-        flushInfo.fGeometryProcessor = this->setupDfProcessor();
+        flushInfo.fGeometryProcessor = this->setupDfProcessor(atlasGlyphCache);
         SkDEBUGCODE(dfPerspective = fGeoData[0].fViewMatrix.hasPerspective());
     } else {
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
@@ -263,7 +264,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         Blob* blob = args.fBlob;
         GrAtlasTextBlob::VertexRegenerator regenerator(
                 blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY, args.fColor,
-                target->deferredUploadTarget(), fFontCache, &glyphCache);
+                target->deferredUploadTarget(), atlasGlyphCache, &glyphCache);
         GrAtlasTextBlob::VertexRegenerator::Result result;
         do {
             result = regenerator.regenerate();
@@ -303,11 +304,12 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 }
 
 void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+    GrAtlasGlyphCache* atlasGlyphCache = target->atlasGlyphCache();
     GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
     GrMaskFormat maskFormat = this->maskFormat();
 
     unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(maskFormat, &numProxies);
+    const sk_sp<GrTextureProxy>* proxies = atlasGlyphCache->getProxies(maskFormat, &numProxies);
     if (gp->numTextureSamplers() != (int) numProxies) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
@@ -411,9 +413,9 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
 // TODO trying to figure out why lcd is so whack
 // (see comments in GrAtlasTextContext::ComputeCanonicalColor)
-sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
+sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(GrAtlasGlyphCache* glyphCache) const {
     unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* p = fFontCache->getProxies(this->maskFormat(), &numProxies);
+    const sk_sp<GrTextureProxy>* p = glyphCache->getProxies(this->maskFormat(), &numProxies);
     bool isLCD = this->isLCD();
 
     SkMatrix localMatrix = SkMatrix::I();

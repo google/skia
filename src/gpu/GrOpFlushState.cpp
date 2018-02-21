@@ -7,6 +7,7 @@
 
 #include "GrOpFlushState.h"
 
+#include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
@@ -26,6 +27,10 @@ GrOpFlushState::GrOpFlushState(GrGpu* gpu,
 
 const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
+}
+
+GrAtlasGlyphCache* GrOpFlushState::atlasGlyphCache() const {
+    return fGpu->getContext()->contextPriv().getAtlasGlyphCache();
 }
 
 GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {
