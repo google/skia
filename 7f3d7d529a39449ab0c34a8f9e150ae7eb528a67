@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd6f1413_3553d7ca",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-21T16:28:49Z",
+      "side": 1,
+      "message": "What\u0027s going on here? Was there a merge error?",
+      "revId": "7f3d7d529a39449ab0c34a8f9e150ae7eb528a67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
