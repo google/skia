@@ -6,6 +6,7 @@
  */
 
 #include "GrAtlasTextOp.h"
+
 #include "GrContext.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
@@ -45,6 +46,19 @@ void GrAtlasTextOp::init() {
             fDFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
             fDFGPFlags |=
                     (kLCDBGRDistanceField_MaskType == fMaskType) ? kBGR_DistanceFieldEffectFlag : 0;
+        }
+    }
+}
+
+void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
+    fProcessors.visitProxies(func);
+
+    unsigned int numProxies;
+    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat(),
+                                                                  &numProxies);
+    for (unsigned int i = 0; i < numProxies; ++i) {
+        if (proxies[i]) {
+            func(proxies[i].get());
         }
     }
 }
