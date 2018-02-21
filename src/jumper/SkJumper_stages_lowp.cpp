@@ -809,6 +809,30 @@ STAGE_GG(mirror_x_1, Ctx::None) {
     x = clamp_01(abs_( (x-1.0f) - two(floor_((x-1.0f)*0.5f)) - 1.0f ));
 }
 
+SI I16 cond_to_mask_16(I32 cond) { return cast<I16>(cond); }
+
+STAGE_GG(decal_x, SkJumper_DecalTileCtx* ctx) {
+    auto w = ctx->limit_x;
+    unaligned_store(ctx->mask, cond_to_mask_16((0 <= x) & (x < w)));
+}
+STAGE_GG(decal_y, SkJumper_DecalTileCtx* ctx) {
+    auto h = ctx->limit_y;
+    unaligned_store(ctx->mask, cond_to_mask_16((0 <= y) & (y < h)));
+}
+STAGE_GG(decal_x_and_y, SkJumper_DecalTileCtx* ctx) {
+    auto w = ctx->limit_x;
+    auto h = ctx->limit_y;
+    unaligned_store(ctx->mask, cond_to_mask_16((0 <= x) & (x < w) & (0 <= y) & (y < h)));
+}
+STAGE_PP(check_decal_mask, SkJumper_DecalTileCtx* ctx) {
+    auto mask = unaligned_load<U16>(ctx->mask);
+    r = r & mask;
+    g = g & mask;
+    b = b & mask;
+    a = a & mask;
+}
+
+
 SI U16 round_F_to_U16(F x) { return cast<U16>(x * 255.0f + 0.5f); }
 
 SI void gradient_lookup(const SkJumper_GradientCtx* c, U32 idx, F t,
