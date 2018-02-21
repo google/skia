@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42b8e097_f065448e",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T16:11:46Z",
+      "side": 1,
+      "message": "Kind of a shame that we\u0027ve deprecated SkColorFilter::MakeComposeFilter().  This would be nicer with that:\n\n  sk_sp\u003cSkColorFilter\u003e outer \u003d make_fuzz_colorfilter(fuzz, depth - 1);\n  sk_sp\u003cSkColorFilter\u003e inner \u003d make_fuzz_colorfilter(fuzz, depth - 1);\n  return SkColorFilter::MakeComposeFilter(outer, inner);",
+      "revId": "0f5f5d1dd28a65423d235dad478d998092cd4f4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
