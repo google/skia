@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f0d6802_ae19a74d",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-21T17:22:29Z",
+      "side": 1,
+      "message": "uninstantiate?",
+      "range": {
+        "startLine": 211,
+        "startChar": 21,
+        "endLine": 211,
+        "endChar": 34
+      },
+      "revId": "9113335f7efa2c3e0465dc1d06af9d696c8a6cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
