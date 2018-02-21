@@ -560,9 +560,9 @@ public:
      * SkAutoGlyphCache is reused then it can save the cost of multiple detach/attach operations of
      * SkGlyphCache.
      */
-    VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx, const SkMatrix& viewMatrix,
-                      SkScalar x, SkScalar y, GrColor color, GrDeferredUploadTarget*,
-                      GrAtlasGlyphCache*, SkAutoGlyphCache*);
+    VertexRegenerator(GrResourceProvider*, GrAtlasTextBlob*, int runIdx, int subRunIdx,
+                      const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
+                      GrDeferredUploadTarget*, GrAtlasGlyphCache*, SkAutoGlyphCache*);
 
     struct Result {
         /**
@@ -589,6 +589,7 @@ private:
     template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
     Result doRegen();
 
+    GrResourceProvider* fResourceProvider;
     const SkMatrix& fViewMatrix;
     GrAtlasTextBlob* fBlob;
     GrDeferredUploadTarget* fUploadTarget;
