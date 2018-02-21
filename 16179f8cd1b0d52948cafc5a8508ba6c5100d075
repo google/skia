@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90ea62bf_b531638f",
+        "filename": "third_party/angle2/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T21:43:38Z",
+      "side": 1,
+      "message": "may want to run `gn format third_party/angle2/BUILD.gn` ?",
+      "revId": "16179f8cd1b0d52948cafc5a8508ba6c5100d075",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
