@@ -181,7 +181,7 @@ public:
         fHelper.visitProxies(func);
 
         const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
-        for (uint32_t i = 0; i < fAtlas->numActivePages(); ++i) {
+        for (uint32_t i = 0; i < fAtlas->pageCount(); ++i) {
             SkASSERT(proxies[i]);
             func(proxies[i].get());
         }
@@ -223,7 +223,7 @@ private:
         flushInfo.fPipeline = fHelper.makePipeline(target);
         // Setup GrGeometryProcessor
         GrDrawOpAtlas* atlas = fAtlas;
-        uint32_t atlasPageCount = atlas->numActivePages();
+        uint32_t atlasPageCount = atlas->pageCount();
         if (!atlasPageCount) {
             return;
         }
@@ -400,8 +400,6 @@ private:
     bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           uint32_t dimension, SkScalar scale) const {
-        auto resourceProvider = target->resourceProvider();
-
         const SkRect& bounds = shape.bounds();
 
         // generate bounding rect for bitmap draw
@@ -490,11 +488,10 @@ private:
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
         auto uploadTarget = target->deferredUploadTarget();
-        if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, width, height,
-                               dfStorage.get(), &atlasLocation)) {
+        if (!atlas->addToAtlas(&id, uploadTarget, width, height, dfStorage.get(), &atlasLocation)) {
             this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, width, height,
-                                   dfStorage.get(), &atlasLocation)) {
+            if (!atlas->addToAtlas(&id, uploadTarget, width, height, dfStorage.get(),
+                                   &atlasLocation)) {
                 return false;
             }
         }
@@ -533,8 +530,6 @@ private:
     bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           const SkMatrix& ctm) const {
-        auto resourceProvider = target->resourceProvider();
-
         const SkRect& bounds = shape.bounds();
         if (bounds.isEmpty()) {
             return false;
@@ -595,11 +590,11 @@ private:
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
         auto uploadTarget = target->deferredUploadTarget();
-        if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, dst.width(), dst.height(),
-                               dst.addr(), &atlasLocation)) {
+        if (!atlas->addToAtlas(&id, uploadTarget, dst.width(), dst.height(), dst.addr(),
+                               &atlasLocation)) {
             this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, dst.width(), dst.height(),
-                                   dst.addr(), &atlasLocation)) {
+            if (!atlas->addToAtlas(&id, uploadTarget, dst.width(), dst.height(), dst.addr(),
+                                   &atlasLocation)) {
                 return false;
             }
         }
@@ -701,7 +696,7 @@ private:
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
         GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
-        if (gp->numTextureSamplers() != (int)fAtlas->numActivePages()) {
+        if (gp->numTextureSamplers() != (int)fAtlas->pageCount()) {
             // During preparation the number of atlas pages has increased.
             // Update the proxies used in the GP to match.
             if (fUsesDistanceField) {
@@ -793,7 +788,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
-        fAtlas = GrDrawOpAtlas::Make(args.fContext->contextPriv().proxyProvider(),
+        fAtlas = GrDrawOpAtlas::Make(args.fContext,
                                      kAlpha_8_GrPixelConfig,
                                      ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                      NUM_PLOTS_X, NUM_PLOTS_Y,
@@ -863,8 +858,7 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     if (context->uniqueID() != gTestStruct.fContextID) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
-        gTestStruct.fAtlas = GrDrawOpAtlas::Make(context->contextPriv().proxyProvider(),
-                                                 kAlpha_8_GrPixelConfig,
+        gTestStruct.fAtlas = GrDrawOpAtlas::Make(context, kAlpha_8_GrPixelConfig,
                                                  ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                  NUM_PLOTS_X, NUM_PLOTS_Y,
                                                  GrDrawOpAtlas::AllowMultitexturing::kYes,

@@ -222,8 +222,6 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
 }
 
 void GrAtlasTextOp::onPrepareDraws(Target* target) {
-    auto resourceProvider = target->resourceProvider();
-
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
     // TODO actually only invert if we don't have RGBA
     SkMatrix localMatrix;
@@ -278,8 +276,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         const Geometry& args = fGeoData[i];
         Blob* blob = args.fBlob;
         GrAtlasTextBlob::VertexRegenerator regenerator(
-                resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
-                args.fColor, target->deferredUploadTarget(), fFontCache, &glyphCache);
+                blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY, args.fColor,
+                target->deferredUploadTarget(), fFontCache, &glyphCache);
         GrAtlasTextBlob::VertexRegenerator::Result result;
         do {
             result = regenerator.regenerate();
