@@ -183,7 +183,11 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
         }
         case 2: {
             sk_sp<SkColorFilter> outer = make_fuzz_colorfilter(fuzz, depth - 1);
+            if (!outer) {
+                return nullptr;
+            }
             sk_sp<SkColorFilter> inner = make_fuzz_colorfilter(fuzz, depth - 1);
+            // makeComposed should be able to handle nullptr.
             return outer->makeComposed(std::move(inner));
         }
         case 3: {
