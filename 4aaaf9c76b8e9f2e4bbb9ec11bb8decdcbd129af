@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "14b0c7ac_9b835ae0",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1849,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2018-02-21T21:56:43Z",
+      "side": 1,
+      "message": "So the interesting thing here is, DM tries to draw a canary Src to the sink, before trying the real src: https://cs.chromium.org/chromium/src/third_party/skia/dm/DM.cpp?l\u003d840\u0026rcl\u003d1701ecea23b05d66476de4358d4ff74fd19c3a67.  Because this canary has one page only, it causes this error to be thrown when this code block isn\u0027t guarded by if (src.pageCount() \u003e 1).  It\u0027s all coming back to me now: I believe this is why I introduced the bool multiPage() method in the first patchset.  Here\u0027s a few proposals, let me know which you prefer:\n\n1. Log a message and force page index to 0 when fPageIndex \u003e pageCount - 1 (rather than returning an error).\n2. Re-introduce the bool multiPage() method on Src\u0027s and check this is a multi page document before worrying about checking fPageIndex \u003e pageCount - 1\n3. Add a bool canary() method to Src, defaulting to false and overridden to true by the canary Src.  Check if this is a canary, and if so, force page index to 0.\n\nAny preference, or alternative proposal?",
+      "parentUuid": "a3f7b45e_a936e275",
+      "range": {
+        "startLine": 1843,
+        "startChar": 0,
+        "endLine": 1849,
+        "endChar": 5
+      },
+      "revId": "4aaaf9c76b8e9f2e4bbb9ec11bb8decdcbd129af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e4046b05_c0fd2569",
         "filename": "tools/flags/SkCommonFlagsConfig.cpp",
         "patchSetId": 3
