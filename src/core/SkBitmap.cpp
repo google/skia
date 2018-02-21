@@ -500,6 +500,7 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY,
     const SkImageInfo dstInfo = this->info().makeWH(rec.fInfo.width(), rec.fInfo.height());
     SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes,
                     nullptr, behavior);
+    this->notifyPixelsChanged();
     return true;
 }
 

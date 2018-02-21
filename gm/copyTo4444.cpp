@@ -54,3 +54,28 @@ static GM* MyFactory(void*) { return new CopyTo4444GM; }
 static GMRegistry reg(MyFactory);
 
 }
+
+DEF_SIMPLE_GM(format4444, canvas, 64, 64) {
+    canvas->scale(16, 16);
+    SkBitmap bitmap;
+    SkImageInfo imageInfo = SkImageInfo::Make(1, 1, kARGB_4444_SkColorType, kPremul_SkAlphaType);
+    bitmap.allocPixels(imageInfo);
+    SkCanvas offscreen(bitmap);
+    offscreen.clear(SK_ColorRED);
+    canvas->drawBitmap(bitmap, 0, 0);
+    offscreen.clear(SK_ColorBLUE);
+    canvas->drawBitmap(bitmap, 1, 1);
+    auto pack4444 = [](unsigned a, unsigned r, unsigned g, unsigned b) -> uint16_t {
+        return (a << 0) | (b << 4) | (g << 8) | (r << 12);
+    };
+    uint16_t red4444 = pack4444(0xF, 0xF, 0x0, 0x0);
+    uint16_t blue4444 = pack4444(0xF, 0x0, 0x0, 0x0F);
+    SkPixmap redPixmap(imageInfo, &red4444, 2);
+    if (bitmap.writePixels(redPixmap, 0, 0)) {
+        canvas->drawBitmap(bitmap, 2, 2);
+    }
+    SkPixmap bluePixmap(imageInfo, &blue4444, 2);
+    if (bitmap.writePixels(bluePixmap, 0, 0)) {
+        canvas->drawBitmap(bitmap, 3, 3);
+    }
+}
