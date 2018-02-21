@@ -131,6 +131,30 @@
       "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e336d206_83853f7a",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-21T18:33:24Z",
+      "side": 1,
+      "message": "WRT to multiple calls to fulfull: If we allow for DDL replay in the future do you think we\u0027d allow the client to purge the image\u0027s texture and after the first play and then create a new one on the second play?",
+      "parentUuid": "9338ac01_54dea779",
+      "range": {
+        "startLine": 219,
+        "startChar": 45,
+        "endLine": 219,
+        "endChar": 74
+      },
+      "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
