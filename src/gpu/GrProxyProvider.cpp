@@ -214,6 +214,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     GrPixelConfig config = SkImageInfo2GrPixelConfig(as_IB(srcImage)->onImageInfo(),
                                                      *this->caps());
 
+    if (kUnknown_GrPixelConfig == config) {
+        return nullptr;
+    }
+
     if (SkToBool(flags & kRenderTarget_GrSurfaceFlag)) {
         sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
         if (!sampleCnt) {

@@ -92,6 +92,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         desc.fWidth     = 2 * S;
         desc.fHeight    = 2 * S;
         desc.fConfig    = SkImageInfo2GrPixelConfig(ii, *context->caps());
+        SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
         sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
                                                                         gTextureData.get(), 0);

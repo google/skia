@@ -159,6 +159,9 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     }
 
     GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->caps());
+    if (kUnknown_GrPixelConfig == config) {
+        return nullptr;
+    }
     // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
     // they need to be exact.
     return context->makeDeferredRenderTargetContext(

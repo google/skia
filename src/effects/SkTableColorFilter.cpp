@@ -448,6 +448,10 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
     desc.fContext = context;
     desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *context->caps());
 
+    if (kUnknown_GrPixelConfig == desc.fConfig) {
+        return nullptr;
+    }
+
     GrTextureStripAtlas* atlas = GrTextureStripAtlas::GetAtlas(desc);
     int row = atlas->lockRow(bitmap);
     sk_sp<GrTextureProxy> proxy;

@@ -187,6 +187,9 @@ GrBackendTexture GrGpu::createTestingOnlyBackendTexture(void* pixels, int w, int
                                                         SkColorType colorType, bool isRenderTarget,
                                                         GrMipMapped mipMapped) {
     GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *this->caps());
+    if (kUnknown_GrPixelConfig == config) {
+        return GrBackendTexture();
+    }
     return this->createTestingOnlyBackendTexture(pixels, w, h, config, isRenderTarget, mipMapped);
 }
 
