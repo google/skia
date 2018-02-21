@@ -394,30 +394,8 @@ if actual_freq != str(freq):
     gn      = self.m.vars.skia_dir.join('bin', gn)
 
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-
-    # If this is the SkQP built, set up the environment and run the script
-    # build the universal APK.
-    if 'SKQP' in extra_tokens:
-      # If this is not an SkQP branch make this a no-op or the build will fail.
-      if 'skqp' not in self.get_branch():
-        return
-
-      ndk_asset = 'android_ndk_linux'
-      sdk_asset = 'android_sdk_linux'
-      android_ndk = self.m.vars.slave_dir.join(ndk_asset)
-      android_home = self.m.vars.slave_dir.join(sdk_asset, 'android-sdk')
-      env = {
-        'ANDROID_NDK': android_ndk,
-        'ANDROID_HOME': android_home,
-      }
-
-      mk_universal = self.m.vars.skia_dir.join('tools', 'skqp',
-                                               'make_universal_apk')
-      with self.m.context(env=env):
-        self._run('make_universal', mk_universal)
-    else:
-      self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
-      self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
+    self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
+    self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
 
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,

@@ -114,7 +114,7 @@ TEST_BUILDERS = [
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack',
 ]
 
-# Default properties used for TEST_BUILDERS and skqp_builders.
+# Default properties used for TEST_BUILDERS.
 defaultProps = lambda buildername: dict(
   buildername=buildername,
   repository='https://skia.googlesource.com/skia.git',
@@ -138,33 +138,6 @@ def GenTests(api):
       test += api.step_data(
           'read chromecast ip',
           stdout=api.raw_io.output('192.168.1.2:5555'))
-    yield test
-
-  # Test SKQP builder with different branches and issue info.
-  skqp_builders = [
-    'Build-Debian9-Clang-universal-devrel-Android_SKQP_master_branch',
-    'Build-Debian9-Clang-universal-devrel-Android_SKQP_no_issue',
-    'Build-Debian9-Clang-universal-devrel-Android_SKQP_dev_branch',
-    'Build-Debian9-Clang-universal-devrel-Android_SKQP_release_branch',
-  ]
-  for builder in skqp_builders:
-    # should we add issue information to this tests.
-    with_issue = 'no_issue' not in builder
-    props = defaultProps(builder)
-    if with_issue:
-      props.update(patch_issue=12345, patch_set=2)
-
-    test = (
-      api.test(builder) +
-      api.properties(**props)
-    )
-
-    if ('SKQP' in builder) and with_issue:
-      branch = 'skqp/dev' if 'dev_branch' in builder else (
-               'skqp/release' if 'release_branch' in builder else
-               'master')
-      test += api.step_data('get branch for issue',
-                            stdout=api.raw_io.output(branch))
     yield test
 
   builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All'

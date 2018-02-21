@@ -518,9 +518,6 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			pkgs = append(pkgs, pkg)
 		} else {
 			deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
-			if strings.Contains(name, "SKQP") {
-				deps = append(deps, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME))
-			}
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cast_toolchain"))
