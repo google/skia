@@ -1619,19 +1619,19 @@ public:
 private:
     enum SerializationOffsets {
         kType_SerializationShift = 28,       // requires 4 bits
-        kDirection_SerializationShift = 26,  // requires 2 bits, could be reused - ignored on read.
-        kIsVolatile_SerializationShift = 25, // requires 1 bit
-        // 1 free bit at 24
-        kConvexity_SerializationShift = 16,  // requires 8 bits, could be reused - ignored on read.
+        kDirection_SerializationShift = 26,  // requires 2 bits
         kFillType_SerializationShift = 8,    // requires 8 bits
         // low-8-bits are version
+        kVersion_SerializationMask = 0xFF,
     };
 
     enum SerializationVersions {
         // kPathPrivFirstDirection_Version = 1,
         kPathPrivLastMoveToIndex_Version = 2,
         kPathPrivTypeEnumVersion = 3,
-        kCurrent_Version = 3
+        kJustPublicData_Version = 4,
+
+        kCurrent_Version = kJustPublicData_Version
     };
 
     enum SerializationType {
@@ -1658,8 +1658,10 @@ private:
      */
     void copyFields(const SkPath& that);
 
-    size_t writeToMemoryAsRRect(int32_t packedHeader, void* buffer) const;
-    size_t readFromMemoryAsRRect(const void* buffer) const;
+    size_t writeToMemoryAsRRect(void* buffer) const;
+    size_t readAsRRect(const void*, size_t);
+    size_t readFromMemory_LE3(const void*, size_t);
+    size_t readFromMemory_EQ4(const void*, size_t);
 
     friend class Iter;
     friend class SkPathPriv;

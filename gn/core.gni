@@ -213,6 +213,7 @@ skia_core_sources = [
   "$_src/core/SkPaintPriv.cpp",
   "$_src/core/SkPaintPriv.h",
   "$_src/core/SkPath.cpp",
+  "$_src/core/SkPath_serial.cpp",
   "$_src/core/SkPathEffect.cpp",
   "$_src/core/SkPathMeasure.cpp",
   "$_src/core/SkPathPriv.h",
