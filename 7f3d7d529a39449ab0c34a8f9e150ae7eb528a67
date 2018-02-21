@@ -16,6 +16,24 @@
       "revId": "7f3d7d529a39449ab0c34a8f9e150ae7eb528a67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "313c16da_59b4eff8",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-21T16:57:15Z",
+      "side": 1,
+      "message": "Added comments to clarify the different tests",
+      "parentUuid": "bd6f1413_3553d7ca",
+      "revId": "7f3d7d529a39449ab0c34a8f9e150ae7eb528a67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
