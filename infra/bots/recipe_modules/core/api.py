@@ -52,7 +52,8 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Initial cleanup.
     gclient_cfg = self.m.gclient.make_config(**cfg_kwargs)
-    main_repo = self.m.properties['repository']
+    main_repo = self.m.properties.get(
+        'repository', 'https://skia.googlesource.com/skia.git')
     if self.m.vars.need_pdfium_checkout:
       main_repo = 'https://pdfium.googlesource.com/pdfium.git'
     if self.m.vars.need_flutter_checkout:
@@ -140,7 +141,7 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Hack the patch ref if necessary.
     if self.m.bot_update._issue and self.m.bot_update._patchset:
-      self.m.bot_update._gerrit_ref = 'refs/changes/%s/%d/%d' % (
+      self.m.bot_update._gerrit_ref = 'refs/changes/%s/%s/%s' % (
           str(self.m.bot_update._issue)[-2:],
           self.m.bot_update._issue,
           self.m.bot_update._patchset,
