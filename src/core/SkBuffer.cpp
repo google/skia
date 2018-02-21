@@ -11,17 +11,22 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkRBuffer::read(void* buffer, size_t size) {
+const void* SkRBuffer::skip(size_t size) {
     if (fValid && size <= this->available()) {
-        if (buffer) {
-            memcpy(buffer, fPos, size);
-        }
+        const void* pos = fPos;
         fPos += size;
-        return true;
-    } else {
-        fValid = false;
-        return false;
+        return pos;
     }
+    fValid = false;
+    return nullptr;
+}
+
+bool SkRBuffer::read(void* buffer, size_t size) {
+    if (const void* src = this->skip(size)) {
+        memcpy(buffer, src, size);
+        return true;
+    }
+    return false;
 }
 
 bool SkRBuffer::skipToAlign4() {
