@@ -103,34 +103,115 @@ processors, pixels containing 8-bit <a href="undocumented#ARGB">Color ARGB</a> c
     <td><a name="kUnknown_SkColorType"> <code><strong>kUnknown_SkColorType </strong></code> </a></td><td>0</td><td></td>
   </tr>
   <tr>
-    <td><a name="kAlpha_8_SkColorType"> <code><strong>kAlpha_8_SkColorType </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="kAlpha_8_SkColorType"> <code><strong>kAlpha_8_SkColorType </strong></code> </a></td><td>1</td><td>Encodes pixel in one 8-bit byte. <a href="undocumented#Pixel">Pixel</a> value describes <a href="undocumented#Alpha">Color Alpha</a>.
+
+### Example
+
+<div><fiddle-embed name="9fd8701dd2160eb449360a928d6ea4f6"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
   <tr>
-    <td><a name="kRGB_565_SkColorType"> <code><strong>kRGB_565_SkColorType </strong></code> </a></td><td>2</td><td></td>
+    <td><a name="kRGB_565_SkColorType"> <code><strong>kRGB_565_SkColorType </strong></code> </a></td><td>2</td><td>Encodes pixel in one 16-bit word. <a href="undocumented#Pixel">Pixel</a> value describes <a href="undocumented#RGB_Red">Color RGB Red</a>, <a href="undocumented#RGB_Green">Color RGB Green</a>,
+and <a href="undocumented#RGB_Blue">Color RGB Blue</a>.
+
+### Example
+
+<div><fiddle-embed name="7926693bf5f98c2044d0df9ac2d48a30"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
   <tr>
-    <td><a name="kARGB_4444_SkColorType"> <code><strong>kARGB_4444_SkColorType </strong></code> </a></td><td>3</td><td></td>
+    <td><a name="kARGB_4444_SkColorType"> <code><strong>kARGB_4444_SkColorType </strong></code> </a></td><td>3</td><td>
+
+### Example
+
+<div><fiddle-embed name="bc583e5460a2f410c4b5228c3dd66278"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
   <tr>
-    <td><a name="kRGBA_8888_SkColorType"> <code><strong>kRGBA_8888_SkColorType </strong></code> </a></td><td>4</td><td></td>
+    <td><a name="kRGBA_8888_SkColorType"> <code><strong>kRGBA_8888_SkColorType </strong></code> </a></td><td>4</td><td>
+
+### Example
+
+<div><fiddle-embed name="6851aa208b17aa7ccf8d8d4f9d3fc3ab"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
   <tr>
-    <td><a name="kRGB_888x_SkColorType"> <code><strong>kRGB_888x_SkColorType </strong></code> </a></td><td>5</td><td></td>
+    <td><a name="kRGB_888x_SkColorType"> <code><strong>kRGB_888x_SkColorType </strong></code> </a></td><td>5</td><td>
+
+### Example
+
+<div><fiddle-embed name="8197c572494bf61922c5c8b3e7410172"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
   <tr>
-    <td><a name="kBGRA_8888_SkColorType"> <code><strong>kBGRA_8888_SkColorType </strong></code> </a></td><td>6</td><td></td>
+    <td><a name="kBGRA_8888_SkColorType"> <code><strong>kBGRA_8888_SkColorType </strong></code> </a></td><td>6</td><td>
+
+### Example
+
+<div><fiddle-embed name="e618256673b183522ed4bbb542412a1d"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
   <tr>
-    <td><a name="kRGBA_1010102_SkColorType"> <code><strong>kRGBA_1010102_SkColorType </strong></code> </a></td><td>7</td><td></td>
+    <td><a name="kRGBA_1010102_SkColorType"> <code><strong>kRGBA_1010102_SkColorType </strong></code> </a></td><td>7</td><td>
+
+### Example
+
+<div><fiddle-embed name="acd92f2c8b0845bc2cbff80a58104f78"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
   <tr>
-    <td><a name="kRGB_101010x_SkColorType"> <code><strong>kRGB_101010x_SkColorType </strong></code> </a></td><td>8</td><td></td>
+    <td><a name="kRGB_101010x_SkColorType"> <code><strong>kRGB_101010x_SkColorType </strong></code> </a></td><td>8</td><td>
+
+### Example
+
+<div><fiddle-embed name="ee8fcbfcd7f60863ecda7449da22e66b"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
   <tr>
-    <td><a name="kGray_8_SkColorType"> <code><strong>kGray_8_SkColorType </strong></code> </a></td><td>9</td><td></td>
+    <td><a name="kGray_8_SkColorType"> <code><strong>kGray_8_SkColorType </strong></code> </a></td><td>9</td><td>
+
+### Example
+
+<div><fiddle-embed name="f7876fd162d797535823cfaf9274102a"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
   <tr>
-    <td><a name="kRGBA_F16_SkColorType"> <code><strong>kRGBA_F16_SkColorType </strong></code> </a></td><td>10</td><td></td>
+    <td><a name="kRGBA_F16_SkColorType"> <code><strong>kRGBA_F16_SkColorType </strong></code> </a></td><td>10</td><td>
+
+### Example
+
+<div><fiddle-embed name="1a6b6a462f233e338c9e4322a12c5979"></table>
+
+</fiddle-embed></div>
+
+</td>
   </tr>
 </table>
 
