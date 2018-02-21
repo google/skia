@@ -88,5 +88,5 @@ bool SkottieSlide::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState st
         break;
     }
 
-    return true;
+    return false;
 }
