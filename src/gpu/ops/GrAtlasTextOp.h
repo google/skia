@@ -92,18 +92,7 @@ public:
 
     const char* name() const override { return "AtlasTextOp"; }
 
-    void visitProxies(const VisitProxyFunc& func) const override {
-        fProcessors.visitProxies(func);
-
-        unsigned int numProxies;
-        const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat(),
-                                                                      &numProxies);
-        for (unsigned int i = 0; i < numProxies; ++i) {
-            if (proxies[i]) {
-                func(proxies[i].get());
-            }
-        }
-    }
+    void visitProxies(const VisitProxyFunc& func) const override;
 
     SkString dumpInfo() const override;
 
