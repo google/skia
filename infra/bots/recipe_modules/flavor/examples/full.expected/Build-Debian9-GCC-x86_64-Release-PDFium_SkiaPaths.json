@@ -10,6 +10,9 @@
       "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
+    "env": {
+      "DEPOT_TOOLS_UPDATE": "0"
+    },
     "name": "git setup"
   },
   {
@@ -23,6 +26,7 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
     "env": {
+      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
     },
     "infra_step": true,
@@ -36,6 +40,9 @@
       "FETCH_HEAD"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
+    "env": {
+      "DEPOT_TOOLS_UPDATE": "0"
+    },
     "infra_step": true,
     "name": "git checkout"
   },
@@ -46,6 +53,9 @@
       "HEAD"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
+    "env": {
+      "DEPOT_TOOLS_UPDATE": "0"
+    },
     "infra_step": true,
     "name": "read revision",
     "stdout": "/path/to/tmp/",
@@ -62,6 +72,9 @@
       "-x"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
+    "env": {
+      "DEPOT_TOOLS_UPDATE": "0"
+    },
     "infra_step": true,
     "name": "git clean"
   },
@@ -72,6 +85,9 @@
       "sync"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
+    "env": {
+      "DEPOT_TOOLS_UPDATE": "0"
+    },
     "infra_step": true,
     "name": "submodule sync"
   },
@@ -84,6 +100,9 @@
       "--recursive"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
+    "env": {
+      "DEPOT_TOOLS_UPDATE": "0"
+    },
     "infra_step": true,
     "name": "submodule update"
   },
@@ -97,6 +116,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths"
     },
@@ -112,6 +132,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths"
     },
@@ -129,6 +150,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
+      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths"
     },
@@ -146,6 +168,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
+      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths"
     },
