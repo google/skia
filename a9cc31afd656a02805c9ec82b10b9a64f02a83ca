@@ -52,6 +52,24 @@
       "revId": "a9cc31afd656a02805c9ec82b10b9a64f02a83ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0782309_8c910ecf",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-02-21T01:58:47Z",
+      "side": 1,
+      "message": "the constructor is private.",
+      "parentUuid": "ddf80653_6e1ed4ba",
+      "revId": "a9cc31afd656a02805c9ec82b10b9a64f02a83ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
