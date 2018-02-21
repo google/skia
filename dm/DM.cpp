@@ -67,7 +67,7 @@ extern void SkPDFImageDumpStats();
 extern bool gSkForceRasterPipelineBlitter;
 
 DECLARE_bool(undefok);
-DEFINE_string(src, "tests gm skp image", "Source types to test.");
+DEFINE_string(src, "tests", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<sourceOptions>/<name>.png");

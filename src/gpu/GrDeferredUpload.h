@@ -96,9 +96,10 @@ public:
     GrDeferredUploadToken nextDrawToken() const { return fLastIssuedToken.next(); }
 
 private:
-    // Only these two classes get to increment the token counters
+    // Only these three classes get to increment the token counters
     friend class SkInternalAtlasTextContext;
     friend class GrOpFlushState;
+    friend class TestingUploadTarget;
 
     /** Issues the next token for a draw. */
     GrDeferredUploadToken issueDrawToken() { return ++fLastIssuedToken; }
