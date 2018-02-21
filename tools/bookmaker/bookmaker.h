@@ -1247,7 +1247,7 @@ public:
 , { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E | M(Method) }
 , { "",            nullptr,      MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",            nullptr,      MarkType::kComment,      R_N, E_N, 0 }
-, { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_N, M_E | M_ST  }
+, { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_O, M_E | M_ST  }
 , { "Define",      nullptr,      MarkType::kDefine,       R_O, E_N, M_ST }
 , { "DefinedBy",   nullptr,      MarkType::kDefinedBy,    R_N, E_N, M(Method) }
 , { "Deprecated",  nullptr,      MarkType::kDeprecated,   R_Y, E_N, 0 }
@@ -1256,7 +1256,8 @@ public:
 , { "Duration",    nullptr,      MarkType::kDuration,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Enum",        &fEnumMap,    MarkType::kEnum,         R_Y, E_O, M_CSST | M(Root) }
 , { "EnumClass",   &fClassMap,   MarkType::kEnumClass,    R_Y, E_O, M_CSST | M(Root) }
-, { "Example",     nullptr,      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M(Method) }
+, { "Example",     nullptr,      MarkType::kExample,
+                                                     R_O, E_N, M_CSST | M_E | M(Method) | M(Const) }
 , { "Experimental", nullptr,     MarkType::kExperimental, R_Y, E_N, 0 }
 , { "External",    nullptr,      MarkType::kExternal,     R_Y, E_N, M(Root) }
 , { "File",        nullptr,      MarkType::kFile,         R_N, E_N, M(Track) }
