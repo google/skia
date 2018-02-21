@@ -2528,100 +2528,6 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, origBounds == readBackBounds);
 }
 
-static void test_corrupt_flattening(skiatest::Reporter* reporter) {
-    SkPath path;
-    path.moveTo(1, 2);
-    path.lineTo(3, 2);
-    path.quadTo(4, 2, 5, 4);
-    path.conicTo(5, 6, 3, 7, 0.5f);
-    path.cubicTo(2, 6, 2, 4, 4, 1);
-    uint8_t buffer[1024];
-
-    // Make sure these properties are computed prior to serialization.
-    SkPathPriv::FirstDirection dir;
-    SkAssertResult(SkPathPriv::CheapComputeFirstDirection(path, &dir));
-    bool isConvex = path.isConvex();
-
-    SkDEBUGCODE(size_t size =) path.writeToMemory(buffer);
-    SkASSERT(size <= sizeof(buffer));
-
-    // find where the counts and verbs are stored : from the impl in SkPathRef.cpp
-    int32_t* vCount = (int32_t*)&buffer[16];
-    SkASSERT(*vCount == 5);
-    int32_t* pCount = (int32_t*)&buffer[20];
-    SkASSERT(*pCount == 9);
-    int32_t* cCount = (int32_t*)&buffer[24];
-    SkASSERT(*cCount == 1);
-    uint8_t* verbs = &buffer[28];
-
-    REPORTER_ASSERT(reporter, path.readFromMemory(buffer, sizeof(buffer)));
-
-    // check that we detect under/over-flow of counts
-
-    *vCount += 1;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *vCount -= 1;   // restore
-
-    *pCount += 1;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *pCount -= 2;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *pCount += 1;   // restore
-
-    *cCount += 1;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *cCount -= 2;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *cCount += 1;   // restore
-
-    // Check that we detect when the verbs indicate more or fewer pts/conics
-
-    uint8_t save = verbs[0];
-    SkASSERT(save == SkPath::kCubic_Verb);
-    verbs[0] = SkPath::kQuad_Verb;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    verbs[0] = save;
-
-    save = verbs[1];
-    SkASSERT(save == SkPath::kConic_Verb);
-    verbs[1] = SkPath::kQuad_Verb;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    verbs[1] = SkPath::kCubic_Verb;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    verbs[1] = save;
-
-    // Check that we detect invalid verbs
-    save = verbs[1];
-    verbs[1] = 17;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    verbs[1] = save;
-
-    // kConvexity_SerializationShift defined privately in SkPath.h
-    static constexpr int32_t kConvexityMask = 0x7 << 16;
-    int32_t* packed = (int32_t*)buffer;
-    int32_t savedPacked = *packed;
-    SkPath::Convexity wrongConvexity =
-            isConvex ? SkPath::kConcave_Convexity : SkPath::kConvex_Convexity;
-    *packed = (savedPacked & ~kConvexityMask) | (wrongConvexity << 16);
-    REPORTER_ASSERT(reporter, path.readFromMemory(buffer, sizeof(buffer)));
-    // We should ignore the stored convexity and recompute from the deserialized data.
-    REPORTER_ASSERT(reporter, path.isConvex() == isConvex);
-    *packed = savedPacked;
-
-    // kDirection_SerializationShift defined privately in SkPath.h
-    static constexpr int32_t kDirectionMask = 0x3 << 26;
-    SkPathPriv::FirstDirection wrongDir = (dir == SkPathPriv::kCW_FirstDirection)
-                                                  ? SkPathPriv::kCCW_FirstDirection
-                                                  : SkPathPriv::kCW_FirstDirection;
-    *packed = (savedPacked & ~kDirectionMask) | (wrongDir << 26);
-    REPORTER_ASSERT(reporter, path.readFromMemory(buffer, sizeof(buffer)));
-    // We should ignore the stored direction and recompute from the deserialized data.
-    SkPathPriv::FirstDirection newDir;
-    SkAssertResult(SkPathPriv::CheapComputeFirstDirection(path, &newDir));
-    REPORTER_ASSERT(reporter, newDir == dir);
-    *packed = savedPacked;
-}
-
 static void test_flattening(skiatest::Reporter* reporter) {
     SkPath p;
 
@@ -2670,8 +2576,6 @@ static void test_flattening(skiatest::Reporter* reporter) {
 
         write_and_read_back(reporter, oval);
     }
-
-    test_corrupt_flattening(reporter);
 }
 
 static void test_transform(skiatest::Reporter* reporter) {
@@ -4872,29 +4776,6 @@ DEF_TEST(PathRefSerialization, reporter) {
         size_t bytesRead = readBack.readFromMemory(data->data(), bytesWritten);
         REPORTER_ASSERT(reporter, bytesRead == bytesWritten);
         REPORTER_ASSERT(reporter, readBack == path);
-    }
-
-    // uint32_t[] offset into serialized path.
-    const size_t verbCountOffset = 4;
-    const size_t pointCountOffset = 5;
-    const size_t conicCountOffset = 6;
-
-    // Verify that this test is changing the right values.
-    const int* writtenValues = static_cast<const int*>(data->data());
-    REPORTER_ASSERT(reporter, writtenValues[verbCountOffset] == numVerbs);
-    REPORTER_ASSERT(reporter, writtenValues[pointCountOffset] == numPoints);
-    REPORTER_ASSERT(reporter, writtenValues[conicCountOffset] == numConics);
-
-    // Too many verbs, points, or conics fails to deserialize silently.
-    const int tooManyObjects = INT_MAX;
-    size_t offsets[] = {verbCountOffset, pointCountOffset, conicCountOffset};
-    for (size_t i = 0; i < 3; ++i) {
-        SkAutoMalloc storage_copy(bytesWritten);
-        memcpy(storage_copy.get(), data->data(), bytesWritten);
-        static_cast<int*>(storage_copy.get())[offsets[i]] = tooManyObjects;
-        SkPath readBack;
-        size_t bytesRead = readBack.readFromMemory(storage_copy.get(), bytesWritten);
-        REPORTER_ASSERT(reporter, !bytesRead);
     }
 
     // One less byte (rounded down to alignment) than was written will also
