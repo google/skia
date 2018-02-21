@@ -299,6 +299,14 @@ public:
         result->fCanUseFragCoord = false;
         return result;
     }
+
+    static sk_sp<GrShaderCaps> IncompleteShortIntPrecision() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 310es";
+        result->fUsesPrecisionModifiers = true;
+        result->fIncompleteShortIntPrecision = true;
+        return result;
+    }
 };
 #endif
 

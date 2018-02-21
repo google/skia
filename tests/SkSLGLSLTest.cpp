@@ -1902,4 +1902,27 @@ DEF_TEST(SkSLTernaryLValue, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLIncompleteShorIntPrecision, r) {
+    test(r,
+         "uniform sampler2D tex;"
+         "in float2 texcoord;"
+         "in short2 offset;"
+         "void main() {"
+         "    short scalar = offset.y;"
+         "    sk_FragColor = texture(tex, texcoord + float2(offset * scalar));"
+         "}",
+         *SkSL::ShaderCapsFactory::IncompleteShortIntPrecision(),
+         "#version 310es\n"
+         "precision mediump float;\n"
+         "out mediump vec4 sk_FragColor;\n"
+         "uniform sampler2D tex;\n"
+         "in highp vec2 texcoord;\n"
+         "in mediump ivec2 offset;\n" // FIXME: highp
+         "void main() {\n"
+         "    mediump int scalar = offset.y;\n" // FIXME: highp
+         "    sk_FragColor = texture(tex, texcoord + vec2(offset * scalar));\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind);
+}
+
 #endif

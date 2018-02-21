@@ -182,6 +182,16 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
 
     static const char* gCmdLine[] = {
         "viewer",
+        "--pr",
+        "ccpr",
+        "--cachePathMasks",
+        "false",
+        "--skps",
+        "/data/local/tmp/skps",
+        "-b",
+        "gl",
+        "--match",
+        "nostroke",
         // TODO: figure out how to use am start with extra params to pass in additional arguments at
         // runtime. Or better yet make an in app switch to enable
         // "--atrace",
