@@ -28,8 +28,7 @@ class GrGpu;
  */
 class GrAtlasTextStrike : public SkNVRefCnt<GrAtlasTextStrike> {
 public:
-    /** Owner is the cache that owns this strike. */
-    GrAtlasTextStrike(GrAtlasGlyphCache* owner, const SkDescriptor& fontScalerKey);
+    GrAtlasTextStrike(const SkDescriptor& fontScalerKey);
     ~GrAtlasTextStrike();
 
     inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
@@ -65,7 +64,7 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrDeferredUploadTarget*, GrGlyph*, SkGlyphCache*,
+    bool addGlyphToAtlas(GrDeferredUploadTarget*, GrAtlasGlyphCache*, GrGlyph*, SkGlyphCache*,
                          GrMaskFormat expectedMaskFormat);
 
     // testing
@@ -88,7 +87,6 @@ private:
     SkAutoDescriptor fFontScalerKey;
     SkArenaAlloc fPool{512};
 
-    GrAtlasGlyphCache* fAtlasGlyphCache;
     int fAtlasedGlyphs;
     bool fIsAbandoned;
 
@@ -246,7 +244,7 @@ private:
     bool initAtlas(GrMaskFormat);
 
     GrAtlasTextStrike* generateStrike(const SkGlyphCache* cache) {
-        GrAtlasTextStrike* strike = new GrAtlasTextStrike(this, cache->getDescriptor());
+        GrAtlasTextStrike* strike = new GrAtlasTextStrike(cache->getDescriptor());
         fCache.add(strike);
         return strike;
     }
