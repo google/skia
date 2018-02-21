@@ -99,6 +99,11 @@ SK_API int SkColorTypeBytesPerPixel(SkColorType ct);
 SK_API bool SkColorTypeIsAlwaysOpaque(SkColorType ct);
 
 /**
+ *  Returns true iff the colortype only stores alpha.
+ */
+SK_API bool SkColorTypeIsAlphaOnly(SkColorType ct);
+
+/**
  *  Tries to validate the colortype, alphatype pair. In all cases if it returns true, it
  *  will set canonical to the "canonical" answer if it is non-null, and ignore the parameter if
  *  it is set to null.

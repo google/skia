@@ -92,6 +92,16 @@ bool SkColorTypeIsAlwaysOpaque(SkColorType ct) {
     return false;
 }
 
+bool SkColorTypeIsAlphaOnly(SkColorType ct) {
+    switch (ct) {
+        case kAlpha_8_SkColorType:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 int SkImageInfo::bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
