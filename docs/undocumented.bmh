@@ -149,6 +149,9 @@ FT_Load_Glyph
     #Substitute RGB-565
     #Alias Color_RGB-565 # quit changing - to _ !
     #Subtopic ##
+
+    #Subtopic Gray
+    ##
 #Topic ##
 
 #Topic Color_Filter

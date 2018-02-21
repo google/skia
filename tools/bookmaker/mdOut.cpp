@@ -1073,7 +1073,12 @@ void MdOut::markTypeOut(Definition* def) {
             SkASSERT(0); // handle everything
             break;
     }
+    TableState preserveTableState = MarkType::kConst == def->fMarkType ? fTableState :
+            TableState::kNone;
     this->childrenOut(def, textStart);
+    if (TableState::kNone != preserveTableState) {
+        fTableState = preserveTableState;
+    }
     switch (def->fMarkType) {  // post child work, at least for tables
         case MarkType::kAnchor:
             if (fColumn > 0) {
