@@ -80,16 +80,7 @@ static SkColorType stored_to_live(unsigned stored) {
 }
 
 bool SkColorTypeIsAlwaysOpaque(SkColorType ct) {
-    switch (ct) {
-        case kRGB_565_SkColorType:
-        case kRGB_888x_SkColorType:
-        case kRGB_101010x_SkColorType:
-        case kGray_8_SkColorType:
-            return true;
-        default:
-            break;
-    }
-    return false;
+    return !(kAlpha_SkColorTypeComponentFlag & SkColorTypeComponentFlags(ct));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
