@@ -75,7 +75,6 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
                 canvas->concat(m);
 
                 if (kDebugColorNoOccluders == mode || kDebugColorOccluders == mode) {
-                    flags |= SkShadowFlags::kDisableTonalColor_ShadowFlag;
                     draw_shadow(canvas, path, kHeight, SK_ColorRED, lightPos, kLightR,
                                 true, flags);
                     draw_shadow(canvas, path, kHeight, SK_ColorBLUE, lightPos, kLightR,
