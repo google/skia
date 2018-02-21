@@ -220,7 +220,7 @@ GrContext::GrContext(GrBackend backend)
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
-    fAtlasGlyphCache = nullptr;
+    fAtlasGlyphCache1 = nullptr;
 }
 
 GrContext::GrContext(GrContextThreadSafeProxy* proxy)
@@ -230,7 +230,7 @@ GrContext::GrContext(GrContextThreadSafeProxy* proxy)
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
-    fAtlasGlyphCache = nullptr;
+    fAtlasGlyphCache1 = nullptr;
 }
 
 bool GrContext::init(const GrContextOptions& options) {
@@ -295,9 +295,9 @@ bool GrContext::init(const GrContextOptions& options) {
     } else {
         allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
     }
-    fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes,
+    fAtlasGlyphCache1 = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes,
                                              allowMultitexturing);
-    this->contextPriv().addOnFlushCallbackObject(fAtlasGlyphCache);
+    this->contextPriv().addOnFlushCallbackObject(fAtlasGlyphCache1);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
                                              this, this->uniqueID(), SkToBool(fGpu)));
@@ -329,7 +329,7 @@ GrContext::~GrContext() {
     delete fResourceProvider;
     delete fResourceCache;
     delete fProxyProvider;
-    delete fAtlasGlyphCache;
+    delete fAtlasGlyphCache1;
 }
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
@@ -388,7 +388,7 @@ void GrContext::abandonContext() {
 
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
 
-    fAtlasGlyphCache->freeAll();
+    fAtlasGlyphCache1->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -407,7 +407,7 @@ void GrContext::releaseResourcesAndAbandonContext() {
 
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
 
-    fAtlasGlyphCache->freeAll();
+    fAtlasGlyphCache1->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -421,7 +421,7 @@ void GrContext::freeGpuResources() {
 
     this->flush();
 
-    fAtlasGlyphCache->freeAll();
+    fAtlasGlyphCache1->freeAll();
 
     fDrawingManager->freeGpuResources();
 

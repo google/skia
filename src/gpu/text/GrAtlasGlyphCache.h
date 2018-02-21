@@ -216,20 +216,6 @@ public:
     GrContext* context() const { return fContext; }
 
 private:
-    static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format, const GrCaps& caps) {
-        switch (format) {
-            case kA8_GrMaskFormat:
-                return kAlpha_8_GrPixelConfig;
-            case kA565_GrMaskFormat:
-                return kRGB_565_GrPixelConfig;
-            case kARGB_GrMaskFormat:
-                return caps.srgbSupport() ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
-            default:
-                SkDEBUGFAIL("unsupported GrMaskFormat");
-                return kAlpha_8_GrPixelConfig;
-        }
-    }
-
     // There is a 1:1 mapping between GrMaskFormats and atlas indices
     static int MaskFormatToAtlasIndex(GrMaskFormat format) {
         static const int sAtlasIndices[] = {

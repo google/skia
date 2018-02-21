@@ -16,10 +16,25 @@
 #include "SkMathPriv.h"
 #include "SkString.h"
 
+static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format, const GrCaps& caps) {
+    switch (format) {
+        case kA8_GrMaskFormat:
+            return kAlpha_8_GrPixelConfig;
+        case kA565_GrMaskFormat:
+            return kRGB_565_GrPixelConfig;
+        case kARGB_GrMaskFormat:
+            return caps.srgbSupport() ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+        default:
+            SkDEBUGFAIL("unsupported GrMaskFormat");
+            return kAlpha_8_GrPixelConfig;
+    }
+}
+
+
 bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (!fAtlases[index]) {
-        GrPixelConfig config = MaskFormatToPixelConfig(format, *fContext->caps());
+        GrPixelConfig config = mask_format_to_pixel_config(format, *fContext->caps());
         int width = fAtlasConfigs[index].fWidth;
         int height = fAtlasConfigs[index].fHeight;
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
@@ -474,8 +489,8 @@ bool GrAtlasTextStrike::addGlyphToAtlas(GrDeferredUploadTarget* target,
     }
 
     bool success = fAtlasGlyphCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
-                                               glyph->width(), glyph->height(),
-                                               storage.get(), &glyph->fAtlasLocation);
+                                                glyph->width(), glyph->height(),
+                                                storage.get(), &glyph->fAtlasLocation);
     if (success) {
         SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != glyph->fID);
         fAtlasedGlyphs++;

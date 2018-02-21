@@ -89,6 +89,7 @@ public:
     GrDeferredUploadTarget* deferredUploadTarget() final { return this; }
     const GrCaps& caps() const final;
     GrResourceProvider* resourceProvider() const final { return fResourceProvider; }
+    GrAtlasGlyphCache* atlasGlyphCache() const final;
 
 private:
     /** GrMeshDrawOp::Target override. */

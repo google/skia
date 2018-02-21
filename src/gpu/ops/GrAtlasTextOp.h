@@ -40,10 +40,9 @@ public:
     };
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrPaint&& paint, GrMaskFormat maskFormat,
-                                                     int glyphCount, GrAtlasGlyphCache* fontCache) {
+                                                     int glyphCount) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
-        op->fFontCache = fontCache;
         switch (maskFormat) {
             case kA8_GrMaskFormat:
                 op->fMaskType = kGrayscaleCoverageMask_MaskType;
@@ -58,18 +57,16 @@ public:
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
         op->fLuminanceColor = 0;
-        op->fFontCache = fontCache;
         return op;
     }
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrPaint&& paint, int glyphCount, GrAtlasGlyphCache* fontCache,
+            GrPaint&& paint, int glyphCount,
             const GrDistanceFieldAdjustTable* distanceAdjustTable,
             bool useGammaCorrectDistanceTable, SkColor luminanceColor, bool isLCD, bool useBGR,
             bool isAntiAliased) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
-        op->fFontCache = fontCache;
         op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
                                        : isLCD ? (useBGR ? kLCDBGRDistanceField_MaskType
                                                          : kLCDDistanceField_MaskType)
@@ -95,9 +92,10 @@ public:
     void visitProxies(const VisitProxyFunc& func) const override {
         fProcessors.visitProxies(func);
 
-        unsigned int numProxies;
-        const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat(),
-                                                                      &numProxies);
+        //$$
+        unsigned int numProxies = 0;
+        const sk_sp<GrTextureProxy>* proxies = nullptr; //fFontCache->getProxies(this->maskFormat(),
+                                                                      //&numProxies);
         for (unsigned int i = 0; i < numProxies; ++i) {
             if (proxies[i]) {
                 func(proxies[i].get());
@@ -185,7 +183,7 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
-    sk_sp<GrGeometryProcessor> setupDfProcessor() const;
+    sk_sp<GrGeometryProcessor> setupDfProcessor(GrAtlasGlyphCache*) const;
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;
@@ -196,7 +194,6 @@ private:
     int fGeoCount;
     int fNumGlyphs;
     MaskType fMaskType;
-    GrAtlasGlyphCache* fFontCache;
     // Distance field properties
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fLuminanceColor;
