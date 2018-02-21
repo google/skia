@@ -155,6 +155,30 @@
       "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e92c19bc_c6e8eaa4",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-21T18:46:36Z",
+      "side": 1,
+      "message": "Yeah that\u0027s a discussion we\u0027ve had before. I think doing one fulfill and storing the result and calling fulfill every time (and allowing new textures), both seem like viable options. I think the reason you\u0027d want the second version is if they wanted to free up GPU resources between uses of the DDL.",
+      "parentUuid": "e336d206_83853f7a",
+      "range": {
+        "startLine": 219,
+        "startChar": 45,
+        "endLine": 219,
+        "endChar": 74
+      },
+      "revId": "53173406fc1e6ce0347c22b397633ee1bab3a3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
