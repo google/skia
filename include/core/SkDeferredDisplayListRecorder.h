@@ -30,7 +30,7 @@ class SkSurface;
  * is thread-safe (i.e., one can break a scene into tiles and perform their cpu-side
  * work in parallel ahead of time).
  */
-class SkDeferredDisplayListRecorder {
+class SK_API SkDeferredDisplayListRecorder {
 public:
     SkDeferredDisplayListRecorder(const SkSurfaceCharacterization&);
     ~SkDeferredDisplayListRecorder();
