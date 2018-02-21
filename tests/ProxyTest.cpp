@@ -227,11 +227,36 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                             gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
                                                                  kWidthHeight, colorType, true,
                                                                  GrMipMapped::kNo);
+                    sk_sp<GrSurfaceProxy> sProxy =
+                            proxyProvider->createWrappedRenderTargetProxy(backendTex, origin,
+                                                                          supportedNumSamples);
+                    if (!sProxy) {
+                        gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                        continue;  // This can fail on Mesa
+                    }
+
+                    check_surface(reporter, sProxy.get(), origin,
+                                  kWidthHeight, kWidthHeight,
+                                  backendTex.testingOnly_getPixelConfig(), SkBudgeted::kNo);
+                    check_rendertarget(reporter, caps, resourceProvider,
+                                       sProxy->asRenderTargetProxy(),
+                                       supportedNumSamples, SkBackingFit::kExact,
+                                       caps.maxWindowRectangles());
+
+                    gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                }
+
+                {
+                    GrBackendTexture backendTex =
+                            gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
+                                                                 kWidthHeight, colorType, true,
+                                                                 GrMipMapped::kNo);
 
                     sk_sp<GrSurfaceProxy> sProxy =
                             proxyProvider->createWrappedTextureProxy(backendTex, origin,
                                                                      supportedNumSamples);
                     if (!sProxy) {
+                        gpu->deleteTestingOnlyBackendTexture(&backendTex);
                         continue;  // This can fail on Mesa
                     }
 
@@ -258,6 +283,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                                      kBorrow_GrWrapOwnership,
                                                                      nullptr, nullptr);
                     if (!sProxy) {
+                        gpu->deleteTestingOnlyBackendTexture(&backendTex);
                         continue;
                     }
 
