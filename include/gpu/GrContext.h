@@ -17,6 +17,7 @@
 #include "GrContextOptions.h"
 
 class GrAtlasGlyphCache;
+class GrAtlasManager;
 class GrBackendFormat;
 class GrBackendSemaphore;
 class GrContextPriv;
@@ -367,6 +368,7 @@ private:
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
     GrAtlasGlyphCache*                      fAtlasGlyphCache;
+    GrAtlasManager*                         fFullAtlasManager;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDisableGpuYUVConversion;
