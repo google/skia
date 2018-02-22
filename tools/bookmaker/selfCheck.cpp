@@ -69,6 +69,9 @@ public:
 protected:
 
     void checkMethod(string topic, const Definition* csChild, vector<string>* reported) {
+        if (string::npos != csChild->fName.find("MakeFromTexture")) {
+            SkDebugf("");
+        }
         if (MarkType::kSubtopic == csChild->fMarkType) {
             for (auto child : csChild->fChildren) {
                 checkMethod(topic, child, reported);
