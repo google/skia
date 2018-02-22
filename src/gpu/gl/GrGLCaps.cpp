@@ -1402,6 +1402,36 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     fConfigTable[kRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
+    fConfigTable[kRGB_888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
+    fConfigTable[kRGB_888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGB8;
+    // Our external RGB data always has a byte where alpha would be. When calling read pixels we
+    // want to be sure it gets 0xFF written. Using GL_RGB would cause the extra byte to be
+    // unmodified.
+    fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_RGBA;
+    fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    fConfigTable[kRGB_888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
+    fConfigTable[kRGB_888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    if (kGL_GrGLStandard == standard) {
+        //
+        // Even in OpenGL 4.6 GL_RGB8 is required to be color renderable but not required to be a
+        // support render buffer format. Since we always use render buffers for MSAA on non-ES GL
+        // we don't support MSAA for G_RGB8. On 4.2+ we could check using
+        // glGetInternalFormativ(GL_RENDERBUFFER, GL_RGB8, GL_INTERNALFORMAT_SUPPORTED, ...).
+
+        // GL 3.0 SEEMS TO IMPLY THAT GL_RGB IS A RENDER BUFFER FORMAT? IT IS COLOR-RENDERABLE.
+        SkASSERT(kNone_MSFBOType == fMSFBOType || this->usesMSAARenderBuffers());
+        fConfigTable[kRGB_888_GrPixelConfig].fFlags |= nonMSAARenderFlags;
+    } else {
+        // 3.0 and the extension support this as a render buffer format.
+        if (version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_OES_rgb8_rgba8")) {
+            fConfigTable[kRGB_888_GrPixelConfig].fFlags |= allRenderFlags;
+        }
+    }
+    if (texStorageSupported) {
+        fConfigTable[kRGB_888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
+    fConfigTable[kRGB_888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
+
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
         GR_GL_BGRA;
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalType  = GR_GL_UNSIGNED_BYTE;
@@ -1855,6 +1885,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         // in ES 2.0, because there is no <internalFormat> we can use. So just make that format
         // unsupported. (If we have no sRGB support at all, this will get overwritten below).
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = 0;
+
+        // On ES 2.0 we have to use GL_RGB with glTexImage as the internal/external formats must
+        // be the same.
+        fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage] =
+            GR_GL_RGB;
     }
 
     // If BGRA is supported as an internal format it must always be specified to glTex[Sub]Image
@@ -2471,7 +2506,10 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
             }
             break;
         case kRGB_888x_SkColorType:
-            return false;
+            if (GR_GL_RGB8 == format) {
+                *config = kRGB_888_GrPixelConfig;
+            }
+            break;
         case kBGRA_8888_SkColorType:
             if (GR_GL_RGBA8 == format) {
                 if (kGL_GrGLStandard == standard) {
