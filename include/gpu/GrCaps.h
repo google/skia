@@ -133,7 +133,13 @@ public:
     int maxVertexAttributes() const { return fMaxVertexAttributes; }
 
     int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
+
+    /** This is the largest render target size that can be used without incurring extra perfomance
+        cost. It is usually the max RT size, unless larger render targets are known to be slower. */
+    int maxPreferredRenderTargetSize() const { return fMaxPreferredRenderTargetSize; }
+
     int maxTextureSize() const { return fMaxTextureSize; }
+
     /** This is the maximum tile size to use by GPU devices for rendering sw-backed images/bitmaps.
         It is usually the max texture size, unless we're overriding it for testing. */
     int maxTileSize() const { SkASSERT(fMaxTileSize <= fMaxTextureSize); return fMaxTileSize; }
@@ -276,6 +282,7 @@ protected:
     int fBufferMapThreshold;
 
     int fMaxRenderTargetSize;
+    int fMaxPreferredRenderTargetSize;
     int fMaxVertexAttributes;
     int fMaxTextureSize;
     int fMaxTileSize;
