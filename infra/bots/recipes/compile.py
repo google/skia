@@ -43,7 +43,10 @@ def get_extra_env_vars(vars_api):
 
 
 def RunSteps(api):
-  api.core.setup()
+  bot_update=True
+  if 'NoDEPS' in api.properties['buildername']:
+    bot_update = False
+  api.core.setup(bot_update=bot_update)
 
   env = get_extra_env_vars(api.vars)
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
@@ -88,6 +91,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-Chromebook_GLES',
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
+  'Build-Debian9-Clang-x86_64-Release-NoDEPS',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
   'Build-Debian9-Clang-x86_64-Release-Vulkan_Coverage',
   'Build-Debian9-EMCC-wasm-Release',

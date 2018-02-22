@@ -20,7 +20,7 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
-  api.core.checkout_steps()
+  api.core.checkout_bot_update()
   api.infra.update_go_deps()
 
   # Run the infra tests.

@@ -1,0 +1,56 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/bin/gn",
+      "gen",
+      "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS/Release",
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false is_official_build=true skia_enable_effects=false skia_enable_fontmgr_empty=true skia_enable_gpu=true skia_enable_pdf=false skia_use_expat=false skia_use_freetype=false skia_use_libjpeg_turbo=false skia_use_libpng=false skia_use_libwebp=false skia_use_vulkan=false skia_use_zlib=false target_cpu=\"x86_64\""
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-k",
+      "0",
+      "-C",
+      "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS/Release"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS"
+    },
+    "name": "ninja"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

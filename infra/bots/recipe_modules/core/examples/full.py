@@ -11,7 +11,10 @@ DEPS = [
 
 
 def RunSteps(api):
-  api.core.setup()
+  bot_update = True
+  if 'NoDEPS' in api.properties['buildername']:
+    bot_update = False
+  api.core.setup(bot_update=bot_update)
 
 
 def GenTests(api):
@@ -127,6 +130,21 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(api.path['start_dir'].join('skp_output'))
+  )
+
+  builder = 'Build-Debian9-Clang-x86_64-Release-NoDEPS'
+  yield (
+      api.test(builder) +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     patch_issue=500,
+                     patch_repo='https://skia.googlesource.com/skia.git',
+                     patch_set=1,
+                     patch_storage='gerrit') +
       api.path.exists(api.path['start_dir'].join('skp_output'))
   )
 
