@@ -23,6 +23,7 @@ class SkAutoDescriptor;
 class SkDescriptor;
 class SkMaskFilter;
 class SkPathEffect;
+class SkScalerContext;
 
 enum SkScalerContextFlags : uint32_t {
     kNone                      = 0,
@@ -54,17 +55,21 @@ enum SkAxisAlignment {
  *  than a nested struct inside SkScalerContext (where it started).
  */
 struct SkScalerContextRec {
+
     uint32_t    fFontID;
     SkScalar    fTextSize, fPreScaleX, fPreSkewX;
     SkScalar    fPost2x2[2][2];
     SkScalar    fFrameWidth, fMiterLimit;
 
+private:
     //These describe the parameters to create (uniquely identify) the pre-blend.
-    uint32_t    fLumBits;
-    uint8_t     fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
-    uint8_t     fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
-    uint8_t     fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
-    uint8_t     fReservedAlign;
+    uint32_t      fLumBits;
+    uint8_t       fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+    uint8_t       fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+    uint8_t       fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
+    const uint8_t fReservedAlign{0};
+
+public:
 
     SkScalar getDeviceGamma() const {
         return SkIntToScalar(fDeviceGamma) / (1 << 6);
@@ -110,13 +115,28 @@ struct SkScalerContextRec {
     }
 
     uint8_t     fMaskFormat;
+private:
     uint8_t     fStrokeJoin : 4;
     uint8_t     fStrokeCap : 4;
+
+public:
     uint16_t    fFlags;
+
     // Warning: when adding members note that the size of this structure
     // must be a multiple of 4. SkDescriptor requires that its arguments be
     // multiples of four and this structure is put in an SkDescriptor in
     // SkPaint::MakeRecAndEffects.
+
+    SkString dump() const {
+        SkString msg;
+        msg.appendf("Rec\n");
+        msg.appendf("  textsize %g prescale %g preskew %g post [%g %g %g %g]\n",
+                   fTextSize, fPreScaleX, fPreSkewX, fPost2x2[0][0],
+                   fPost2x2[0][1], fPost2x2[1][0], fPost2x2[1][1]);
+        msg.appendf("  frame %g miter %g format %d join %d cap %d flags %#hx\n",
+                   fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
+        return msg;
+    }
 
     void    getMatrixFrom2x2(SkMatrix*) const;
     void    getLocalMatrix(SkMatrix*) const;
@@ -173,6 +193,9 @@ struct SkScalerContextRec {
     SkMask::Format getFormat() const {
         return static_cast<SkMask::Format>(fMaskFormat);
     }
+
+private:
+    friend class SkScalerContext;
 
     SkColor getLuminanceColor() const {
         return fLumBits;
@@ -281,6 +304,9 @@ public:
                                   SkScalerContextFlags scalerContextFlags,
                                   SkScalerContextRec* rec,
                                   SkScalerContextEffects* effects);
+
+    static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
+                                                 SkAutoDescriptor* ad);
 
     static SkDescriptor* AutoDescriptorGivenRecAndEffects(
         const SkScalerContextRec& rec,
