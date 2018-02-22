@@ -23,7 +23,12 @@ class SkiaApi(recipe_api.RecipeApi):
     self.m.vars.setup()
 
     # Check out the Skia code.
-    self.checkout_steps()
+    if 'NoDEPS' in self.m.vars.builder_name:
+      self.m.git.checkout(
+          self.m.properties['repository'], dir_path=self.m.vars.skia_dir,
+          ref=self.m.properties['revision'])
+    else:
+      self.checkout_steps()
 
     if not self.m.path.exists(self.m.vars.tmp_dir):
       self.m.run.run_once(self.m.file.ensure_directory,
