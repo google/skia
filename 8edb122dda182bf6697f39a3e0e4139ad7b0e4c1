@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52427aae_f5f6c248",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-22T20:48:48Z",
+      "side": 1,
+      "message": "A comment here might be good -- I wasn\u0027t sure why you were doing it this way until I saw the use of offsetDiff below.",
+      "range": {
+        "startLine": 588,
+        "startChar": 8,
+        "endLine": 589,
+        "endChar": 36
+      },
+      "revId": "8edb122dda182bf6697f39a3e0e4139ad7b0e4c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
