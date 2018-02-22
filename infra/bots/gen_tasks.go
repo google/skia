@@ -31,6 +31,7 @@ import (
 
 const (
 	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_GCLOUD_LINUX_NAME   = "Housekeeper-PerCommit-IsolateGCloudLinux"
 	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
@@ -430,6 +431,10 @@ type isolateAssetCfg struct {
 }
 
 var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
+	ISOLATE_GCLOUD_LINUX_NAME: {
+		isolateFile: "isolate_gcloud_linux.isolate",
+		cipdPkg:     "gcloud_linux",
+	},
 	ISOLATE_SKIMAGE_NAME: {
 		isolateFile: "isolate_skimage.isolate",
 		cipdPkg:     "skimage",
