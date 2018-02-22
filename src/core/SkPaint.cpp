@@ -1214,7 +1214,7 @@ SkRect SkPaint::getFontBounds() const {
 
 // return true if the paint is just a single color (i.e. not a shader). If its
 // a shader, then we can't compute a const luminance for it :(
-static bool justAColor(const SkPaint& paint, SkColor* color) {
+static bool just_a_color(const SkPaint& paint, SkColor* color) {
     SkColor c = paint.getColor();
 
     const auto* shader = as_SB(paint.getShader());
@@ -1232,13 +1232,11 @@ static bool justAColor(const SkPaint& paint, SkColor* color) {
 
 SkColor SkPaint::computeLuminanceColor() const {
     SkColor c;
-    if (!justAColor(*this, &c)) {
+    if (!just_a_color(*this, &c)) {
         c = SkColorSetRGB(0x7F, 0x80, 0x7F);
     }
     return c;
 }
-
-#define assert_byte(x)  SkASSERT(0 == ((x) >> 8))
 
 /**
  * In order to call cachedDeviceLuminance, cachedPaintLuminance, or
@@ -1252,11 +1250,13 @@ static SkMaskGamma* gMaskGamma = nullptr;
 static SkScalar gContrast = SK_ScalarMin;
 static SkScalar gPaintGamma = SK_ScalarMin;
 static SkScalar gDeviceGamma = SK_ScalarMin;
+
 /**
  * The caller must hold the gMaskGammaCacheMutex and continue to hold it until
  * the returned SkMaskGamma pointer is refed or forgotten.
  */
-static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma) {
+static const SkMaskGamma& cached_mask_gamma(SkScalar contrast, SkScalar paintGamma,
+                                            SkScalar deviceGamma) {
     gMaskGammaCacheMutex.assertHeld();
     if (0 == contrast && SK_Scalar1 == paintGamma && SK_Scalar1 == deviceGamma) {
         if (nullptr == gLinearMaskGamma) {
@@ -1274,25 +1274,23 @@ static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma
     return *gMaskGamma;
 }
 
-
 /**
  * Expands fDeviceGamma, fPaintGamma, fContrast, and fLumBits into a mask pre-blend.
  */
-//static
 SkMaskGamma::PreBlend SkScalerContext::GetMaskPreBlend(const SkScalerContextRec& rec) {
     SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
-    const SkMaskGamma& maskGamma = cachedMaskGamma(rec.getContrast(),
-                                                   rec.getPaintGamma(),
-                                                   rec.getDeviceGamma());
+    const SkMaskGamma& maskGamma = cached_mask_gamma(rec.getContrast(),
+                                                     rec.getPaintGamma(),
+                                                     rec.getDeviceGamma());
     return maskGamma.preBlend(rec.getLuminanceColor());
 }
 
 size_t SkScalerContext::GetGammaLUTSize(SkScalar contrast, SkScalar paintGamma,
                                         SkScalar deviceGamma, int* width, int* height) {
     SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
-    const SkMaskGamma& maskGamma = cachedMaskGamma(contrast,
-                                                   paintGamma,
-                                                   deviceGamma);
+    const SkMaskGamma& maskGamma = cached_mask_gamma(contrast,
+                                                     paintGamma,
+                                                     deviceGamma);
 
     maskGamma.getGammaTableDimensions(width, height);
     size_t size = (*width)*(*height)*sizeof(uint8_t);
@@ -1303,9 +1301,9 @@ size_t SkScalerContext::GetGammaLUTSize(SkScalar contrast, SkScalar paintGamma,
 bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
                                       uint8_t* data) {
     SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
-    const SkMaskGamma& maskGamma = cachedMaskGamma(contrast,
-                                                   paintGamma,
-                                                   deviceGamma);
+    const SkMaskGamma& maskGamma = cached_mask_gamma(contrast,
+                                                     paintGamma,
+                                                     deviceGamma);
     const uint8_t* gammaTables = maskGamma.getGammaTables();
     if (!gammaTables) {
         return false;
