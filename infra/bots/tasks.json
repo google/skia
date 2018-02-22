@@ -11245,8 +11245,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11292,8 +11292,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11339,8 +11339,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11386,8 +11386,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11433,8 +11433,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11480,8 +11480,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21441,8 +21441,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21489,8 +21489,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21537,8 +21537,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21585,8 +21585,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21633,8 +21633,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21681,8 +21681,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "gpu:1002:6646-23.20.15017.4003",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
