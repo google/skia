@@ -398,6 +398,10 @@ if actual_freq != str(freq):
     # If this is the SkQP built, set up the environment and run the script
     # build the universal APK. This should only run the skqp branches.
     if 'SKQP' in extra_tokens:
+      # Build the helper Go code.
+      self.m.infra.update_go_deps()
+
+      # Build the APK.
       ndk_asset = 'android_ndk_linux'
       sdk_asset = 'android_sdk_linux'
       android_ndk = self.m.vars.slave_dir.join(ndk_asset)

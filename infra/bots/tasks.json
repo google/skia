@@ -2296,6 +2296,12 @@
         "Upload-Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All"
       ]
     },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP"
+      ]
+    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "priority": 0.8,
       "tasks": [
@@ -17357,6 +17363,54 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:112"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-universal-devrel-Android_SKQP",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "cipd_packages": [
         {
@@ -29632,6 +29686,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP": {
+      "dependencies": [
+        "Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
