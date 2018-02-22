@@ -10,6 +10,7 @@
 #include "SkGpuBlurUtils.h"
 #include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
+#include "SkRRectPriv.h"
 #include "SkWriteBuffer.h"
 #include "SkMaskFilter.h"
 #include "SkRRect.h"
@@ -828,7 +829,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
-    if (devRRect.isRect() || devRRect.isCircle()) {
+    if (devRRect.isRect() || SkRRectPriv::IsCircle(devRRect)) {
         std::unique_ptr<GrFragmentProcessor> fp;
         if (devRRect.isRect()) {
             SkScalar pad = 3.0f * xformedSigma;
@@ -924,7 +925,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
     }
 
     // We always do circles and simple circular rrects on the GPU
-    if (!devRRect.isCircle() && !devRRect.isSimpleCircular()) {
+    if (!SkRRectPriv::IsCircle(devRRect) && !SkRRectPriv::IsSimpleCircular(devRRect)) {
         static const SkScalar kMIN_GPU_BLUR_SIZE  = SkIntToScalar(64);
         static const SkScalar kMIN_GPU_BLUR_SIGMA = SkIntToScalar(32);
 

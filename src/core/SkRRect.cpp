@@ -6,7 +6,7 @@
  */
 
 #include <cmath>
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkScopeExit.h"
 #include "SkBuffer.h"
 #include "SkMalloc.h"
@@ -257,11 +257,11 @@ bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {
     return dist <= SkScalarSquare(fRadii[index].fX * fRadii[index].fY);
 }
 
-bool SkRRect::allCornersCircular(SkScalar tolerance) const {
-    return SkScalarNearlyEqual(fRadii[0].fX, fRadii[0].fY, tolerance) &&
-           SkScalarNearlyEqual(fRadii[1].fX, fRadii[1].fY, tolerance) &&
-           SkScalarNearlyEqual(fRadii[2].fX, fRadii[2].fY, tolerance) &&
-           SkScalarNearlyEqual(fRadii[3].fX, fRadii[3].fY, tolerance);
+bool SkRRectPriv::AllCornersCircular(const SkRRect& rr, SkScalar tolerance) {
+    return SkScalarNearlyEqual(rr.fRadii[0].fX, rr.fRadii[0].fY, tolerance) &&
+           SkScalarNearlyEqual(rr.fRadii[1].fX, rr.fRadii[1].fY, tolerance) &&
+           SkScalarNearlyEqual(rr.fRadii[2].fX, rr.fRadii[2].fY, tolerance) &&
+           SkScalarNearlyEqual(rr.fRadii[3].fX, rr.fRadii[3].fY, tolerance);
 }
 
 bool SkRRect::contains(const SkRect& rect) const {

@@ -8,7 +8,7 @@
 #include "GrShadowRRectOp.h"
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "effects/GrShadowGeoProc.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -651,8 +651,7 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
                                SkScalar insetWidth,
                                SkScalar blurClamp) {
     // Shadow rrect ops only handle simple circular rrects.
-    SkASSERT(viewMatrix.isSimilarity() &&
-             (rrect.isSimpleCircular() || rrect.isRect() || rrect.isCircle()));
+    SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
 
     // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
@@ -660,7 +659,7 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
     viewMatrix.mapRect(&bounds, rrectBounds);
 
     // Map radius and inset. As the matrix is a similarity matrix, this should be isotropic.
-    SkScalar radius = rrect.getSimpleRadii().fX;
+    SkScalar radius = SkRRectPriv::GetSimpleRadii(rrect).fX;
     SkScalar matrixFactor = viewMatrix[SkMatrix::kMScaleX] + viewMatrix[SkMatrix::kMSkewX];
     SkScalar scaledRadius = SkScalarAbs(radius*matrixFactor);
     SkScalar scaledInsetWidth = SkScalarAbs(insetWidth*matrixFactor);
@@ -703,7 +702,7 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
         do {
             // This may return a rrect with elliptical corners, which we don't support.
             rrect = GrTest::TestRRectSimple(random);
-        } while (!rrect.isSimpleCircular());
+        } while (!SkRRectPriv::IsSimpleCircular(rrect));
         return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
     }
 }

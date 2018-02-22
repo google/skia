@@ -15,10 +15,11 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
                                                              float xformedSigma,
                                                              const SkRRect& srcRRect,
                                                              const SkRRect& devRRect) {
-    SkASSERT(!devRRect.isCircle() && !devRRect.isRect());  // Should've been caught up-stream
+    SkASSERT(!SkRRectPriv::IsCircle(devRRect) &&
+             !devRRect.isRect());  // Should've been caught up-stream
 
     // TODO: loosen this up
-    if (!devRRect.isSimpleCircular()) {
+    if (!SkRRectPriv::IsSimpleCircular(devRRect)) {
         return nullptr;
     }
 
@@ -44,8 +45,9 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
         return nullptr;
     }
 
-    return std::unique_ptr<GrFragmentProcessor>(new GrRRectBlurEffect(
-            xformedSigma, devRRect.getBounds(), devRRect.getSimpleRadii().fX, std::move(mask)));
+    return std::unique_ptr<GrFragmentProcessor>(
+            new GrRRectBlurEffect(xformedSigma, devRRect.getBounds(),
+                                  SkRRectPriv::GetSimpleRadii(devRRect).fX, std::move(mask)));
 }
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
