@@ -13,7 +13,7 @@
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
 #include "GrStyle.h"
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkStrokeRec.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -2317,7 +2317,7 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrPaint&& paint,
     SkRect bounds;
     viewMatrix.mapRect(&bounds, rrectBounds);
 
-    SkVector radii = rrect.getSimpleRadii();
+    SkVector radii = SkRRectPriv::GetSimpleRadii(rrect);
     SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX] * radii.fX +
                                    viewMatrix[SkMatrix::kMSkewY] * radii.fY);
     SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX] * radii.fX +
