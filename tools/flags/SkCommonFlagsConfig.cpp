@@ -185,6 +185,29 @@ SkCommandLineConfig::SkCommandLineConfig(const SkString& tag, const SkString& ba
 SkCommandLineConfig::~SkCommandLineConfig() {
 }
 
+static bool parse_option_int(const SkString& value, int* outInt) {
+    if (value.isEmpty()) {
+        return false;
+    }
+    char* endptr = nullptr;
+    long intValue = strtol(value.c_str(), &endptr, 10);
+    if (*endptr != '\0') {
+        return false;
+    }
+    *outInt = static_cast<int>(intValue);
+    return true;
+}
+static bool parse_option_bool(const SkString& value, bool* outBool) {
+    if (value.equals("true")) {
+        *outBool = true;
+        return true;
+    }
+    if (value.equals("false")) {
+        *outBool = false;
+        return true;
+    }
+    return false;
+}
 #if SK_SUPPORT_GPU
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType, bool useNVPR,
@@ -220,29 +243,6 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     if (!useStencilBuffers) {
         fContextOverrides |= ContextOverrides::kAvoidStencilBuffers;
     }
-}
-static bool parse_option_int(const SkString& value, int* outInt) {
-    if (value.isEmpty()) {
-        return false;
-    }
-    char* endptr = nullptr;
-    long intValue = strtol(value.c_str(), &endptr, 10);
-    if (*endptr != '\0') {
-        return false;
-    }
-    *outInt = static_cast<int>(intValue);
-    return true;
-}
-static bool parse_option_bool(const SkString& value, bool* outBool) {
-    if (value.equals("true")) {
-        *outBool = true;
-        return true;
-    }
-    if (value.equals("false")) {
-        *outBool = false;
-        return true;
-    }
-    return false;
 }
 static bool parse_option_gpu_api(const SkString& value,
                                  SkCommandLineConfigGpu::ContextType* outContextType) {
@@ -380,72 +380,136 @@ static bool parse_option_gpu_color(const SkString& value,
     return false;
 }
 
+// Extended options take form --config item[key1=value1,key2=value2,...]
+// Example: --config gpu[api=gl,color=8888]
+class ExtendedOptions {
+public:
+    ExtendedOptions(const SkString& optionsString, bool* outParseSucceeded) {
+        SkTArray<SkString> optionParts;
+        SkStrSplit(optionsString.c_str(), ",", kStrict_SkStrSplitMode, &optionParts);
+        for (int i = 0; i < optionParts.count(); ++i) {
+            SkTArray<SkString> keyValueParts;
+            SkStrSplit(optionParts[i].c_str(), "=", kStrict_SkStrSplitMode, &keyValueParts);
+            if (keyValueParts.count() != 2) {
+                *outParseSucceeded = false;
+                return;
+            }
+            const SkString& key = keyValueParts[0];
+            const SkString& value = keyValueParts[1];
+            if (fOptionsMap.find(key) == nullptr) {
+                fOptionsMap.set(key, value);
+            }
+        }
+        *outParseSucceeded = true;
+    }
+
+#if SK_SUPPORT_GPU
+    bool get_option_gpu_color(const char* optionKey,
+                              SkColorType* outColorType,
+                              SkAlphaType* alphaType,
+                              sk_sp<SkColorSpace>* outColorSpace,
+                              bool optional = true) {
+        SkString* optionValue = fOptionsMap.find(SkString(optionKey));
+        if (optionValue == nullptr) {
+            return optional;
+        }
+        return parse_option_gpu_color(*optionValue, outColorType, alphaType, outColorSpace);
+    }
+
+    bool get_option_gpu_api(const char* optionKey,
+                            SkCommandLineConfigGpu::ContextType* outContextType,
+                            bool optional = true) {
+        SkString* optionValue = fOptionsMap.find(SkString(optionKey));
+        if (optionValue == nullptr) {
+            return optional;
+        }
+        return parse_option_gpu_api(*optionValue, outContextType);
+    }
+#endif
+
+    bool get_option_int(const char* optionKey, int* outInt, bool optional = true) {
+        SkString* optionValue = fOptionsMap.find(SkString(optionKey));
+        if (optionValue == nullptr) {
+            return optional;
+        }
+        return parse_option_int(*optionValue, outInt);
+    }
+
+    bool get_option_bool(const char* optionKey, bool* outBool, bool optional = true) {
+        SkString* optionValue = fOptionsMap.find(SkString(optionKey));
+        if (optionValue == nullptr) {
+            return optional;
+        }
+        return parse_option_bool(*optionValue, outBool);
+    }
+
+private:
+    SkTHashMap<SkString, SkString> fOptionsMap;
+};
+
 SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
                                                       const SkTArray<SkString>& vias,
                                                       const SkString& options) {
     // Defaults for GPU backend.
-    bool seenAPI = false;
     SkCommandLineConfigGpu::ContextType contextType = GrContextFactory::kGL_ContextType;
-    bool seenUseNVPR = false;
     bool useNVPR = false;
-    bool seenUseDIText =false;
     bool useDIText = false;
-    bool seenSamples = false;
     int samples = 1;
-    bool seenColor = false;
     SkColorType colorType = kRGBA_8888_SkColorType;
     SkAlphaType alphaType = kPremul_SkAlphaType;
     sk_sp<SkColorSpace> colorSpace = nullptr;
-    bool seenUseStencils = false;
     bool useStencils = true;
-    bool seenTestThreading = false;
     bool testThreading = false;
 
-    SkTArray<SkString> optionParts;
-    SkStrSplit(options.c_str(), ",", kStrict_SkStrSplitMode, &optionParts);
-    for (int i = 0; i < optionParts.count(); ++i) {
-        SkTArray<SkString> keyValueParts;
-        SkStrSplit(optionParts[i].c_str(), "=", kStrict_SkStrSplitMode, &keyValueParts);
-        if (keyValueParts.count() != 2) {
-            return nullptr;
-        }
-        const SkString& key = keyValueParts[0];
-        const SkString& value = keyValueParts[1];
-        bool valueOk = false;
-        if (key.equals("api") && !seenAPI) {
-            valueOk = parse_option_gpu_api(value, &contextType);
-            seenAPI = true;
-        } else if (key.equals("nvpr") && !seenUseNVPR) {
-            valueOk = parse_option_bool(value, &useNVPR);
-            seenUseNVPR = true;
-        } else if (key.equals("dit") && !seenUseDIText) {
-            valueOk = parse_option_bool(value, &useDIText);
-            seenUseDIText = true;
-        } else if (key.equals("samples") && !seenSamples) {
-            valueOk = parse_option_int(value, &samples);
-            seenSamples = true;
-        } else if (key.equals("color") && !seenColor) {
-            valueOk = parse_option_gpu_color(value, &colorType, &alphaType, &colorSpace);
-            seenColor = true;
-        } else if (key.equals("stencils") && !seenUseStencils) {
-            valueOk = parse_option_bool(value, &useStencils);
-            seenUseStencils = true;
-        } else if (key.equals("testThreading") && !seenTestThreading) {
-            valueOk = parse_option_bool(value, &testThreading);
-            seenTestThreading = true;
-        }
-        if (!valueOk) {
-            return nullptr;
-        }
-    }
-    if (!seenAPI) {
+    bool parseSucceeded = false;
+    ExtendedOptions extendedOptions(options, &parseSucceeded);
+    if (!parseSucceeded) {
         return nullptr;
     }
+
+    bool validOptions =
+            extendedOptions.get_option_gpu_api("api", &contextType, false) &&
+            extendedOptions.get_option_bool("nvpr", &useNVPR) &&
+            extendedOptions.get_option_bool("dit", &useDIText) &&
+            extendedOptions.get_option_int("samples", &samples) &&
+            extendedOptions.get_option_gpu_color("color", &colorType, &alphaType, &colorSpace) &&
+            extendedOptions.get_option_bool("stencils", &useStencils) &&
+            extendedOptions.get_option_bool("testThreading", &testThreading);
+
+    if (!validOptions) {
+        return nullptr;
+    }
+
     return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText,
                                       samples, colorType, alphaType, colorSpace, useStencils,
                                       testThreading);
 }
 #endif
+
+SkCommandLineConfigSvg::SkCommandLineConfigSvg(const SkString& tag,
+                                               const SkTArray<SkString>& viaParts, int pageIndex)
+        : SkCommandLineConfig(tag, SkString("svg"), viaParts), fPageIndex(pageIndex) {}
+
+SkCommandLineConfigSvg* parse_command_line_config_svg(const SkString& tag,
+                                                      const SkTArray<SkString>& vias,
+                                                      const SkString& options) {
+    // Defaults for SVG backend.
+    int pageIndex = 0;
+
+    bool parseSucceeded = false;
+    ExtendedOptions extendedOptions(options, &parseSucceeded);
+    if (!parseSucceeded) {
+        return nullptr;
+    }
+
+    bool validOptions = extendedOptions.get_option_int("page", &pageIndex);
+
+    if (!validOptions) {
+        return nullptr;
+    }
+
+    return new SkCommandLineConfigSvg(tag, vias, pageIndex);
+}
 
 void ParseConfigs(const SkCommandLineFlags::StringArray& configs,
                   SkCommandLineConfigArray* outResult) {
@@ -496,6 +560,9 @@ void ParseConfigs(const SkCommandLineFlags::StringArray& configs,
             parsedConfig = parse_command_line_config_gpu(tag, vias, extendedOptions);
         }
 #endif
+        if (extendedBackend.equals("svg")) {
+            parsedConfig = parse_command_line_config_svg(tag, vias, extendedOptions);
+        }
         if (!parsedConfig) {
             parsedConfig = new SkCommandLineConfig(tag, simpleBackend, vias);
         }
