@@ -486,7 +486,8 @@ GrCCAtlas* GrCoverageCountingPathRenderer::placeParsedPathInAtlas(
             auto coverageCountBatchID = fPerFlushPathParser->closeCurrentBatch();
             fPerFlushAtlases.back().setCoverageCountBatchID(coverageCountBatchID);
         }
-        fPerFlushAtlases.emplace_back(*onFlushRP->caps(), w, h).addRect(w, h, &atlasLocation);
+        fPerFlushAtlases.emplace_back(*onFlushRP->caps(), SkTMax(w, h));
+        SkAssertResult(fPerFlushAtlases.back().addRect(w, h, &atlasLocation));
     }
 
     *atlasOffsetX = atlasLocation.x() - static_cast<int16_t>(clippedPathIBounds.left());
