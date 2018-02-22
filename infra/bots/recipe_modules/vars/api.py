@@ -39,7 +39,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
     self.persistent_checkout = False
     # Compile bots keep a persistent checkout.
-    if self.is_compile_bot:
+    if self.is_compile_bot and 'NoDEPS' not in self.builder_name:
       self.persistent_checkout = True
     if 'Housekeeper' in self.builder_name:
       self.persistent_checkout = True
