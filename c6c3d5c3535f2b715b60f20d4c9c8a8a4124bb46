@@ -46,6 +46,29 @@
       "revId": "c6c3d5c3535f2b715b60f20d4c9c8a8a4124bb46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38452818_b4de03db",
+        "filename": "src/core/SkPath_serial.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-22T15:00:55Z",
+      "side": 1,
+      "message": "But even here, the expression (c \u0026\u0026 ((cnx -\u003d c) \u003c 0) should be equivalent to just ((cnx -\u003d c) \u003c 0), right?  If c \u003d\u003d 0, (cnx -\u003d c) is (cnx -\u003d 0) is (cnx).  It can\u0027t be below zero...",
+      "range": {
+        "startLine": 230,
+        "startChar": 12,
+        "endLine": 230,
+        "endChar": 33
+      },
+      "revId": "c6c3d5c3535f2b715b60f20d4c9c8a8a4124bb46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
