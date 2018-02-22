@@ -84,15 +84,11 @@ Running a single test
 
 To run a single test, for example `gles/aarectmodes`:
 
-    adb shell am instrument -e skqp_filter gles/aarectmodes -w org.skia.skqp
-
-Two run multiple tests, simply separate them with commas:
-
-    adb shell am instrument -e skqp_filter gles/aarectmodes,vk/aarectmodes -w org.skia.skqp
+    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#gles/aarectmodes' -w org.skia.skqp
 
 Unit tests can be run with the `unitTest/` prefix:
 
-    adb shell am instrument -e skqp_filter unitTest/GrSurface -w org.skia.skqp
+    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#unitTest/GrSurface -w org.skia.skqp
 
 Run as a non-APK executable
 ---------------------------
