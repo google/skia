@@ -28,6 +28,17 @@ void FuzzPathDeserialize(SkReadBuffer& buf) {
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    if (size < 4) {
+        return 0;
+    }
+    uint32_t packed;
+    memcpy(&packed, data, 4);
+    unsigned version = packed & 0xFF;
+    if (version != 4) {
+        // Chrome only will produce version 4, so guide the fuzzer to
+        // only focus on those branches.
+        return 0;
+    }
     SkReadBuffer buf(data, size);
     FuzzPathDeserialize(buf);
     return 0;
