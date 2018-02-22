@@ -13,7 +13,7 @@ template("third_party") {
     } else {
         cflags = []
         foreach(dir, invoker.public_include_dirs) {
-            cflags += ["-isystem", rebase_path(dir)]
+            cflags += ["-isystem", rebase_path(dir, root_build_dir)]
         }
     }
   }
