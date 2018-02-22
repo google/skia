@@ -17,13 +17,16 @@ from recipe_engine import config_types
 
 class SkiaApi(recipe_api.RecipeApi):
 
-  def setup(self):
+  def setup(self, bot_update=True):
     """Prepare the bot to run."""
     # Setup dependencies.
     self.m.vars.setup()
 
     # Check out the Skia code.
-    self.checkout_steps()
+    if bot_update:
+      self.checkout_bot_update()
+    else:
+      self.checkout_git()
 
     if not self.m.path.exists(self.m.vars.tmp_dir):
       self.m.run.run_once(self.m.file.ensure_directory,
@@ -32,8 +35,23 @@ class SkiaApi(recipe_api.RecipeApi):
 
     self.m.flavor.setup()
 
-  def checkout_steps(self):
-    """Run the steps to obtain a checkout of Skia."""
+  def patch_ref(self, issue, patchset):
+    """Build a ref for the given issue and patchset."""
+    return 'refs/changes/%s/%s/%s' % (issue[-2:], issue, patchset)
+
+  def checkout_git(self):
+    """Run the steps to perform a pure-git checkout without DEPS."""
+    self.m.git.checkout(
+        self.m.properties['repository'], dir_path=self.m.vars.skia_dir,
+        ref=self.m.properties['revision'], submodules=False)
+    if self.m.vars.is_trybot:
+      ref = self.patch_ref(str(self.m.vars.issue), str(self.m.vars.patchset))
+      self.m.git('fetch', 'origin', ref)
+      self.m.git('checkout', 'FETCH_HEAD')
+      self.m.git('rebase', self.m.properties['revision'])
+
+  def checkout_bot_update(self):
+    """Run the steps to obtain a checkout using bot_update."""
     cfg_kwargs = {}
     is_parent_revision = 'ParentRevision' in self.m.vars.extra_tokens
     if not self.m.vars.persistent_checkout:
@@ -140,11 +158,8 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Hack the patch ref if necessary.
     if self.m.bot_update._issue and self.m.bot_update._patchset:
-      self.m.bot_update._gerrit_ref = 'refs/changes/%s/%d/%d' % (
-          str(self.m.bot_update._issue)[-2:],
-          self.m.bot_update._issue,
-          self.m.bot_update._patchset,
-      )
+      self.m.bot_update._gerrit_ref = self.patch_ref(
+          str(self.m.bot_update._issue), str(self.m.bot_update._patchset))
       self.m.bot_update._repository = patch_repo
 
     if not self.m.vars.is_trybot and is_parent_revision:
