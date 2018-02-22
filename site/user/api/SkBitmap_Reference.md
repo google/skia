@@ -3464,7 +3464,7 @@ bool extractAlpha(SkBitmap* dst, const SkPaint* paint, SkIPoint* offset) const
 Sets <a href="#SkBitmap_extractAlpha_2_dst">dst</a> to <a href="undocumented#Alpha">Alpha</a> described by pixels. Returns false if <a href="#SkBitmap_extractAlpha_2_dst">dst</a> cannot be written to
 or <a href="#SkBitmap_extractAlpha_2_dst">dst</a> pixels cannot be allocated.
 
-If <a href="#SkBitmap_extractAlpha_2_paint">paint</a> is not nullptr and contains <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#SkMaskFilter_filterMask">SkMaskFilter::filterMask</a>
+If <a href="#SkBitmap_extractAlpha_2_paint">paint</a> is not nullptr and contains <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#SkMaskFilter">SkMaskFilter</a>
 generates <a href="undocumented#Mask_Alpha">Mask Alpha</a> from <a href="#Bitmap">Bitmap</a>. Uses <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> to reserve memory for <a href="#SkBitmap_extractAlpha_2_dst">dst</a>
 <a href="undocumented#Pixel_Ref">Pixel Ref</a>. Sets <a href="#SkBitmap_extractAlpha_2_offset">offset</a> to top-left position for <a href="#SkBitmap_extractAlpha_2_dst">dst</a> for alignment with <a href="#Bitmap">Bitmap</a>;
 (0, 0) unless <a href="undocumented#SkMaskFilter">SkMaskFilter</a> generates mask.
@@ -3503,7 +3503,7 @@ bool extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator, SkI
 Sets <a href="#SkBitmap_extractAlpha_3_dst">dst</a> to <a href="undocumented#Alpha">Alpha</a> described by pixels. Returns false if <a href="#SkBitmap_extractAlpha_3_dst">dst</a> cannot be written to
 or <a href="#SkBitmap_extractAlpha_3_dst">dst</a> pixels cannot be allocated.
 
-If <a href="#SkBitmap_extractAlpha_3_paint">paint</a> is not nullptr and contains <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#SkMaskFilter_filterMask">SkMaskFilter::filterMask</a>
+If <a href="#SkBitmap_extractAlpha_3_paint">paint</a> is not nullptr and contains <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#SkMaskFilter">SkMaskFilter</a>
 generates <a href="undocumented#Mask_Alpha">Mask Alpha</a> from <a href="#Bitmap">Bitmap</a>. <a href="#SkBitmap_extractAlpha_3_allocator">allocator</a> may reference a custom allocation
 class or be set to nullptr to use <a href="#SkBitmap_HeapAllocator">HeapAllocator</a>. Sets <a href="#SkBitmap_extractAlpha_3_offset">offset</a> to top-left
 position for <a href="#SkBitmap_extractAlpha_3_dst">dst</a> for alignment with <a href="#Bitmap">Bitmap</a>; (0, 0) unless <a href="undocumented#SkMaskFilter">SkMaskFilter</a> generates

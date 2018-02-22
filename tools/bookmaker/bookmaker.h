@@ -106,6 +106,7 @@ enum class MarkType {
     kFormula,
     kFunction,
     kHeight,
+    kIllustration,
     kImage,
 	kIn,
     kLegend,
@@ -1247,7 +1248,7 @@ public:
 , { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E | M(Method) }
 , { "",            nullptr,      MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",            nullptr,      MarkType::kComment,      R_N, E_N, 0 }
-, { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_N, M_E | M_ST  }
+, { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_O, M_E | M_ST  }
 , { "Define",      nullptr,      MarkType::kDefine,       R_O, E_N, M_ST }
 , { "DefinedBy",   nullptr,      MarkType::kDefinedBy,    R_N, E_N, M(Method) }
 , { "Deprecated",  nullptr,      MarkType::kDeprecated,   R_Y, E_N, 0 }
@@ -1256,7 +1257,8 @@ public:
 , { "Duration",    nullptr,      MarkType::kDuration,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Enum",        &fEnumMap,    MarkType::kEnum,         R_Y, E_O, M_CSST | M(Root) }
 , { "EnumClass",   &fClassMap,   MarkType::kEnumClass,    R_Y, E_O, M_CSST | M(Root) }
-, { "Example",     nullptr,      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M(Method) }
+, { "Example",     nullptr,      MarkType::kExample,
+                                                     R_O, E_N, M_CSST | M_E | M(Method) | M(Const) }
 , { "Experimental", nullptr,     MarkType::kExperimental, R_Y, E_N, 0 }
 , { "External",    nullptr,      MarkType::kExternal,     R_Y, E_N, M(Root) }
 , { "File",        nullptr,      MarkType::kFile,         R_N, E_N, M(Track) }
@@ -1264,6 +1266,7 @@ public:
                                                     M(Column) | M_ST | M(Member) | M(Method) | M_D }
 , { "Function",    nullptr,      MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
 , { "Height",      nullptr,      MarkType::kHeight,       R_N, E_N, M(Example) | M(NoExample) }
+, { "Illustration", nullptr,     MarkType::kIllustration, R_N, E_N, M(Subtopic) }
 , { "Image",       nullptr,      MarkType::kImage,        R_N, E_N, M(Example) | M(NoExample) }
 , { "In",          nullptr,      MarkType::kIn,           R_N, E_N,
                                                              M_CSST | M_E | M(Method) | M(Typedef) }
@@ -1341,6 +1344,7 @@ public:
     }
 
     bool findDefinitions();
+    Definition* findExample(string name) const;
     MarkType getMarkType(MarkLookup lookup) const;
     bool hasEndToken() const;
     string memberName();
@@ -1461,6 +1465,7 @@ public:
         , { nullptr,        MarkType::kFormula }
         , { nullptr,        MarkType::kFunction }
         , { nullptr,        MarkType::kHeight }
+        , { nullptr,        MarkType::kIllustration }
 		, { nullptr,        MarkType::kImage }
 		, { nullptr,        MarkType::kIn }
 		, { nullptr,        MarkType::kLegend }
@@ -1954,7 +1959,7 @@ protected:
         INHERITED::resetCommon();
     }
 
-    Definition* findExample(const string& name) const;
+    Definition* findExample(string name) const { return fBmhParser->findExample(name); }
     bool parseFiddles();
     virtual bool pngOut(Definition* example) = 0;
     virtual bool textOut(Definition* example, const char* stdOutStart,
