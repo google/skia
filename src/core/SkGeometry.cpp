@@ -1350,8 +1350,7 @@ bool SkConic::findMaxCurvature(SkScalar* t) const {
 }
 #endif
 
-SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w,
-                             const SkMatrix& matrix) {
+SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w, const SkMatrix& matrix) {
     if (!matrix.hasPerspective()) {
         return w;
     }
@@ -1363,11 +1362,11 @@ SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w,
     matrix.mapHomogeneousPoints(dst, src, 3);
 
     // w' = sqrt(w1*w1/w0*w2)
-    SkScalar w0 = dst[0].fZ;
-    SkScalar w1 = dst[1].fZ;
-    SkScalar w2 = dst[2].fZ;
-    w = SkScalarSqrt((w1 * w1) / (w0 * w2));
-    return w;
+    // use doubles temporarily, to handle small numer/denom
+    double w0 = dst[0].fZ;
+    double w1 = dst[1].fZ;
+    double w2 = dst[2].fZ;
+    return sk_double_to_float(sqrt((w1 * w1) / (w0 * w2)));
 }
 
 int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotationDirection dir,
