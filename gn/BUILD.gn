@@ -40,7 +40,7 @@ config("default") {
   if (is_win) {
     cflags += [
       "/bigobj",  # Some of our files are bigger than the regular limits.
-      "/WX",  # Treat warnings as errors.
+      # "/WX",  # Treat warnings as errors.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
     if (is_clang) {
@@ -94,7 +94,7 @@ config("default") {
     cflags += [
       "-fstrict-aliasing",
       "-fPIC",
-      "-Werror",
+      # "-Werror",
     ]
     cflags_cc += [ "-std=c++14" ]
 
