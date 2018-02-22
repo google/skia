@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8c4e1d5_aedc6679",
+        "filename": "src/core/SkPath_serial.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-22T13:47:39Z",
+      "side": 1,
+      "message": "these first checks aren\u0027t really necessary, right?",
+      "range": {
+        "startLine": 227,
+        "startChar": 12,
+        "endLine": 227,
+        "endChar": 17
+      },
+      "revId": "c6c3d5c3535f2b715b60f20d4c9c8a8a4124bb46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
