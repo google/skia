@@ -11,12 +11,16 @@
 #include "SkResourceCache.h"
 #include "SkShadowUtils.h"
 
-void draw_shadow(SkCanvas* canvas, const SkPath& path, int height, SkColor color, SkPoint3 lightPos,
-                 SkScalar lightR, bool isAmbient, uint32_t flags) {
+void draw_shadow(SkCanvas* canvas, const SkPath& path, SkScalar height, SkColor color,
+                 SkPoint3 lightPos, SkScalar lightR, bool isAmbient, uint32_t flags) {
     SkScalar ambientAlpha = isAmbient ? .5f : 0.f;
     SkScalar spotAlpha = isAmbient ? 0.f : .5f;
-    SkShadowUtils::DrawShadow(canvas, path, height, lightPos, lightR, ambientAlpha, spotAlpha,
-                              color, flags);
+    SkColor ambientColor = SkColorSetARGB(ambientAlpha*SkColorGetA(color), SkColorGetR(color),
+                                          SkColorGetG(color), SkColorGetB(color));
+    SkColor spotColor = SkColorSetARGB(spotAlpha*SkColorGetA(color), SkColorGetR(color),
+                                       SkColorGetG(color), SkColorGetB(color));
+    SkShadowUtils::DrawShadow(canvas, path, SkPoint3{ 0, 0, height}, lightPos, lightR,
+                              ambientColor, spotColor, flags);
 }
 
 static constexpr int kW = 800;
@@ -75,14 +79,15 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
                 canvas->concat(m);
 
                 if (kDebugColorNoOccluders == mode || kDebugColorOccluders == mode) {
-                    flags |= SkShadowFlags::kDisableTonalColor_ShadowFlag;
                     draw_shadow(canvas, path, kHeight, SK_ColorRED, lightPos, kLightR,
                                 true, flags);
                     draw_shadow(canvas, path, kHeight, SK_ColorBLUE, lightPos, kLightR,
                                 false, flags);
                 } else if (kGrayscale == mode) {
-                    SkShadowUtils::DrawShadow(canvas, path, kHeight, lightPos, kLightR,
-                                              0.1f, 0.25f, SK_ColorBLACK, flags);
+                    SkColor ambientColor = SkColorSetARGB(0.1f * 255, 0, 0, 0);
+                    SkColor spotColor = SkColorSetARGB(0.25f * 255, 0, 0, 0);
+                    SkShadowUtils::DrawShadow(canvas, path, SkPoint3{0, 0, kHeight}, lightPos,
+                                              kLightR, ambientColor, spotColor, flags);
                 }
 
                 SkPaint paint;
