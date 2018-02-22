@@ -105,18 +105,8 @@ public:
     inline bool isRect() const { return kRect_Type == this->getType(); }
     inline bool isOval() const { return kOval_Type == this->getType(); }
     inline bool isSimple() const { return kSimple_Type == this->getType(); }
-    // TODO: should isSimpleCircular & isCircle take a tolerance? This could help
-    // instances where the mapping to device space is noisy.
-    inline bool isSimpleCircular() const {
-        return this->isSimple() && SkScalarNearlyEqual(fRadii[0].fX, fRadii[0].fY);
-    }
-    inline bool isCircle() const {
-        return this->isOval() && SkScalarNearlyEqual(fRadii[0].fX, fRadii[0].fY);
-    }
     inline bool isNinePatch() const { return kNinePatch_Type == this->getType(); }
     inline bool isComplex() const { return kComplex_Type == this->getType(); }
-
-    bool allCornersCircular(SkScalar tolerance = SK_ScalarNearlyZero) const;
 
     SkScalar width() const { return fRect.width(); }
     SkScalar height() const { return fRect.height(); }
@@ -206,17 +196,8 @@ public:
     };
 
     const SkRect& rect() const { return fRect; }
-    const SkVector& radii(Corner corner) const { return fRadii[corner]; }
+    SkVector radii(Corner corner) const { return fRadii[corner]; }
     const SkRect& getBounds() const { return fRect; }
-
-    /**
-     *  When a rrect is simple, all of its radii are equal. This returns one
-     *  of those radii. This call requires the rrect to be non-complex.
-     */
-    const SkVector& getSimpleRadii() const {
-        SkASSERT(!this->isComplex());
-        return fRadii[0];
-    }
 
     friend bool operator==(const SkRRect& a, const SkRRect& b) {
         return a.fRect == b.fRect && SkScalarsEqual(&a.fRadii[0].fX, &b.fRadii[0].fX, 8);
@@ -279,7 +260,6 @@ public:
     bool contains(const SkRect& rect) const;
 
     bool isValid() const;
-    static bool AreRectAndRadiiValid(const SkRect&, const SkVector[4]);
 
     enum {
         kSizeInMemory = 12 * sizeof(SkScalar)
@@ -323,6 +303,8 @@ public:
     void dumpHex() const { this->dump(true); }
 
 private:
+    static bool AreRectAndRadiiValid(const SkRect&, const SkVector[4]);
+
     SkRRect(const SkRect& rect, const SkVector radii[4], int32_t type)
         : fRect(rect)
         , fRadii{radii[0], radii[1], radii[2], radii[3]}
@@ -347,6 +329,7 @@ private:
 
     // to access fRadii directly
     friend class SkPath;
+    friend class SkRRectPriv;
 };
 
 #endif

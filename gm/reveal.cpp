@@ -12,7 +12,7 @@
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkStroke.h"
 
 constexpr int kNumCols = 2;
@@ -61,7 +61,7 @@ public:
         SkRect devRect;
         ctm.mapRect(&devRect, fRRect.rect());
 
-        SkScalar scaledRad = scales[0] * fRRect.getSimpleRadii().fX;
+        SkScalar scaledRad = scales[0] * SkRRectPriv::GetSimpleRadii(fRRect).fX;
 
         *rr = SkRRect::MakeRectXY(devRect, scaledRad, scaledRad);
         return true;
