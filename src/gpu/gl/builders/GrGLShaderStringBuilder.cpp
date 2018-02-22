@@ -152,7 +152,11 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
                 SkDebugf("Errors:\n%s\n", (const char*) log.get());
             }
-            SkDEBUGFAIL("GLSL compilation failed!");
+            // In Chrome we may have failed due to context-loss. So we should just continue along
+            // wihthout asserting until the GrContext gets abandoned.
+            if (kChromium_GrGLDriver != glCtx.driver()) {
+                SkDEBUGFAIL("GLSL compilation failed!");
+            }
             GR_GL_CALL(gli, DeleteShader(shaderId));
             return 0;
         }
