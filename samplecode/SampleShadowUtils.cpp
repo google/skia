@@ -121,16 +121,15 @@ protected:
         if (!fShowSpot) {
             spotAlpha = 0;
         }
-        flags |= SkShadowFlags::kDisableTonalColor_ShadowFlag;
         if (fUseAlt) {
             flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
         }
+
+        SkColor ambientColor = SkColorSetARGB(ambientAlpha * 255, 255, 0, 0);
+        SkColor spotColor = SkColorSetARGB(spotAlpha * 255, 0, 0, 255);
         SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
                                   lightPos, lightWidth,
-                                  ambientAlpha, 0, SK_ColorRED, flags);
-        SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
-                                  lightPos, lightWidth,
-                                  0, spotAlpha, SK_ColorBLUE, flags);
+                                  ambientColor, spotColor, flags);
 
         if (fShowObject) {
             canvas->drawPath(path, paint);
