@@ -86,19 +86,9 @@ sk_sp<GrPathRange> GrPathRendering::createGlyphs(const SkTypeface* typeface,
         return this->createPathRange(generator.get(), style);
     }
 
-    SkScalerContextRec rec;
-    memset(&rec, 0, sizeof(rec));
-    rec.fFontID = typeface->uniqueID();
-    rec.fTextSize = SkPaint::kCanonicalTextSizeForPaths;
-    rec.fPreScaleX = rec.fPost2x2[0][0] = rec.fPost2x2[1][1] = SK_Scalar1;
-    // Don't bake stroke information into the glyphs, we'll let the GPU do the stroking.
-
-    SkAutoDescriptor ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
-    SkDescriptor*    genericDesc = ad.getDesc();
-
-    genericDesc->init();
-    genericDesc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-    genericDesc->computeChecksum();
+    SkAutoDescriptor ad;
+    SkDescriptor*    genericDesc =
+        SkScalerContext::MakeDescriptorForPaths(typeface->uniqueID(), &ad);
 
     // No effects, so we make a dummy struct
     SkScalerContextEffects noEffects;

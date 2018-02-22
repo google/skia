@@ -81,15 +81,9 @@ SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerConte
                                      : SkMaskGamma::PreBlend())
 {
 #ifdef DUMP_REC
-    desc->assertChecksum();
     SkDebugf("SkScalerContext checksum %x count %d length %d\n",
              desc->getChecksum(), desc->getCount(), desc->getLength());
-    SkDebugf(" textsize %g prescale %g preskew %g post [%g %g %g %g]\n",
-        rec->fTextSize, rec->fPreScaleX, rec->fPreSkewX, rec->fPost2x2[0][0],
-        rec->fPost2x2[0][1], rec->fPost2x2[1][0], rec->fPost2x2[1][1]);
-    SkDebugf("  frame %g miter %g hints %d framefill %d format %d join %d cap %d\n",
-        rec->fFrameWidth, rec->fMiterLimit, rec->fHints, rec->fFrameAndFill,
-        rec->fMaskFormat, rec->fStrokeJoin, rec->fStrokeCap);
+    SkDebugf("%s", fRec.dump().c_str());
     SkDebugf("  pathEffect %x maskFilter %x\n",
              desc->findEntry(kPathEffect_SkDescriptorTag, nullptr),
         desc->findEntry(kMaskFilter_SkDescriptorTag, nullptr));
@@ -1052,8 +1046,6 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
     rec->setContrast(0.5f);
 #endif
 
-    rec->fReservedAlign = 0;
-
     // Allow the fonthost to modify our rec before we use it as a key into the
     // cache. This way if we're asking for something that they will ignore,
     // they can modify our rec up front, so we don't create duplicate cache
@@ -1111,6 +1103,15 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
     }
 }
 
+SkDescriptor* SkScalerContext::MakeDescriptorForPaths(SkFontID typefaceID,
+                                                      SkAutoDescriptor* ad) {
+    SkScalerContextRec rec;
+    memset(&rec, 0, sizeof(rec));
+    rec.fFontID = typefaceID;
+    rec.fTextSize = SkPaint::kCanonicalTextSizeForPaths;
+    rec.fPreScaleX = rec.fPost2x2[0][0] = rec.fPost2x2[1][1] = SK_Scalar1;
+    return AutoDescriptorGivenRecAndEffects(rec, SkScalerContextEffects(), ad);
+}
 
 SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
     const SkPaint& paint, const SkSurfaceProps* surfaceProps,

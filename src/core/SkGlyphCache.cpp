@@ -391,13 +391,9 @@ void SkGlyphCache::dump() const {
 
     SkString msg;
     SkFontStyle style = face->fontStyle();
-    msg.printf("cache typeface:%x %25s:(%d,%d,%d) size:%2g [%g %g %g %g] lum:%02X devG:%d pntG:%d cntr:%d glyphs:%3d",
+    msg.printf("cache typeface:%x %25s:(%d,%d,%d)\n %s glyphs:%3d",
                face->uniqueID(), name.c_str(), style.weight(), style.width(), style.slant(),
-               rec.fTextSize,
-               matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewX],
-               matrix[SkMatrix::kMSkewY], matrix[SkMatrix::kMScaleY],
-               rec.fLumBits & 0xFF, rec.fDeviceGamma, rec.fPaintGamma, rec.fContrast,
-               fGlyphMap.count());
+               rec.dump().c_str(), fGlyphMap.count());
     SkDebugf("%s\n", msg.c_str());
 }
 
@@ -557,10 +553,8 @@ static void dump_visitor(const SkGlyphCache& cache, void* context) {
 
     const SkScalerContextRec& rec = cache.getScalerContext()->getRec();
 
-    SkDebugf("[%3d] ID %3d, glyphs %3d, size %g, scale %g, skew %g, [%g %g %g %g]\n",
-             index, rec.fFontID, cache.countCachedGlyphs(),
-             rec.fTextSize, rec.fPreScaleX, rec.fPreSkewX,
-             rec.fPost2x2[0][0], rec.fPost2x2[0][1], rec.fPost2x2[1][0], rec.fPost2x2[1][1]);
+    SkDebugf("index %d\n", index);
+    SkDebugf("%s", rec.dump().c_str());
 }
 
 void SkGlyphCache::Dump() {
