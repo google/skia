@@ -17,12 +17,17 @@ import java.io.IOException;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.Filterable;
+import org.junit.runner.manipulation.NoTestsRemainException;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
 @RunWith(SkQPRunner.class)
-public class SkQPRunner extends Runner {
-    private Description mDescription;
+public class SkQPRunner extends Runner implements Filterable {
+    private int mShouldRunTestCount;
+    private Description[] mTests;
+    private boolean[] mShouldSkipTest;
     private SkQP impl;
     private static final String TAG = SkQP.LOG_PREFIX;
 
@@ -37,14 +42,6 @@ public class SkQPRunner extends Runner {
         return new File(f, "output");
     }
 
-    private Description gmDesc(int backend, int gm) {
-        return Description.createTestDescription(
-                SkQP.kSkiaGM + impl.mBackends[backend], impl.mGMs[gm]);
-    }
-    private Description unitDesc(int test) {
-        return Description.createTestDescription(SkQP.kSkiaUnitTests, impl.mUnitTests[test]);
-    }
-
     ////////////////////////////////////////////////////////////////////////////
 
     public SkQPRunner(Class testClass) {
@@ -55,25 +52,52 @@ public class SkQPRunner extends Runner {
         } catch (IOException e) {
             Log.w(TAG, "ensureEmtpyDirectory: " + e.getMessage());
         }
-        Log.i(TAG, "output path = " + filesDir.getAbsolutePath());
+        Log.i(TAG, String.format("output written to \"%s\"", filesDir.getAbsolutePath()));
 
         Resources resources = InstrumentationRegistry.getTargetContext().getResources();
         AssetManager mAssetManager = resources.getAssets();
         impl.nInit(mAssetManager, filesDir.getAbsolutePath(), false);
 
-        mDescription = Description.createSuiteDescription(testClass);
+        mTests = new Description[this.testCount()];
+        mShouldSkipTest = new boolean[mTests.length]; // = {false, false, ....};
+        int index = 0;
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
-                mDescription.addChild(this.gmDesc(backend, gm));
+                mTests[index++] = Description.createTestDescription(SkQPRunner.class,
+                    impl.mBackends[backend] + "/" + impl.mGMs[gm]);
             }
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
-            mDescription.addChild(this.unitDesc(unitTest));
+            mTests[index++] = Description.createTestDescription(SkQPRunner.class,
+                    "unitTest/" + impl.mUnitTests[unitTest]);
+        }
+        assert(index == mTests.length);
+        mShouldRunTestCount = mTests.length;
+    }
+
+    @Override
+    public void filter(Filter filter) throws NoTestsRemainException {
+        int count = 0;
+        for (int i = 0; i < mTests.length; ++i) {
+            mShouldSkipTest[i] = !filter.shouldRun(mTests[i]);
+            if (!mShouldSkipTest[i]) {
+                ++count;
+            }
+        }
+        mShouldRunTestCount = count;
+        if (0 == count) {
+            throw new NoTestsRemainException();
         }
     }
 
     @Override
-    public Description getDescription() { return mDescription; }
+    public Description getDescription() {
+        Description d = Description.createSuiteDescription(SkQP.class);
+        for (int i = 0; i < mTests.length; ++i) {
+            d.addChild(mTests[i]);
+        }
+        return d;
+    }
 
     @Override
     public int testCount() {
@@ -82,19 +106,17 @@ public class SkQPRunner extends Runner {
 
     @Override
     public void run(RunNotifier notifier) {
-        int numberOfTests = this.testCount();
-        int testNumber = 1;
+        int testNumber = 1;  // out of number of actually run tests.
+        int testIndex = 0;  // out of potential tests.
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
-            String classname = SkQP.kSkiaGM + impl.mBackends[backend];
-            for (int gm = 0; gm < impl.mGMs.length; gm++) {
-                String gmName = String.format("%s/%s", impl.mBackends[backend], impl.mGMs[gm]);
-                if (!SkQPAndroidRunner.filter(gmName)) {
+            for (int gm = 0; gm < impl.mGMs.length; gm++, testIndex++) {
+                Description desc = mTests[testIndex];
+                String name = desc.getMethodName();
+                if (mShouldSkipTest[testIndex]) {
                     continue;
                 }
-                Log.v(TAG, String.format("Rendering Test %s started (%d/%d).",
-                                         gmName, testNumber, numberOfTests));
-                testNumber++;
-                Description desc = this.gmDesc(backend, gm);
+                Log.v(TAG, String.format("Rendering Test '%s' started (%d/%d).",
+                                         name, testNumber++, mShouldRunTestCount));
                 notifier.fireTestStarted(desc);
                 float value = java.lang.Float.MAX_VALUE;
                 String error = null;
@@ -105,36 +127,36 @@ public class SkQPRunner extends Runner {
                 }
                 if (error != null) {
                     SkQPRunner.Fail(desc, notifier, String.format("Exception: %s", error));
-                    Log.w(TAG, String.format("[ERROR] %s: %s", gmName, error));
+                    Log.w(TAG, String.format("[ERROR] '%s': %s", name, error));
                 } else if (value != 0) {
                     SkQPRunner.Fail(desc, notifier, String.format(
                                 "Image mismatch: max channel diff = %f", value));
-                    Log.w(TAG, String.format("[FAIL] %s: %f > 0", gmName, value));
+                    Log.w(TAG, String.format("[FAIL] '%s': %f > 0", name, value));
                 } else {
-                    Log.i(TAG, String.format("Rendering Test %s passed", gmName));
+                    Log.i(TAG, String.format("Rendering Test '%s' passed", name));
                 }
                 notifier.fireTestFinished(desc);
             }
         }
-        for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
-            String utName = impl.mUnitTests[unitTest];
-            if (!SkQPAndroidRunner.filter(String.format("unitTest/%s", utName))) {
+        for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++, testIndex++) {
+            Description desc = mTests[testIndex];
+            String name = desc.getMethodName();
+            if (mShouldSkipTest[testIndex]) {
                 continue;
             }
-            Log.v(TAG, String.format("Test %s started (%d/%d).",
-                                     utName, testNumber, numberOfTests));
-            testNumber++;
-            Description desc = this.unitDesc(unitTest);
+
+            Log.v(TAG, String.format("Test '%s' started (%d/%d).",
+                                     name, testNumber++, mShouldRunTestCount));
             notifier.fireTestStarted(desc);
             String[] errors = impl.nExecuteUnitTest(unitTest);
             if (errors != null && errors.length > 0) {
-                Log.w(TAG, String.format("[FAIL] Test %s had %d failures.", utName, errors.length));
+                Log.w(TAG, String.format("[FAIL] Test '%s' had %d failures.", name, errors.length));
                 for (String error : errors) {
                     SkQPRunner.Fail(desc, notifier, error);
-                    Log.w(TAG, String.format("[FAIL] %s: %s", utName, error));
+                    Log.w(TAG, String.format("[FAIL] '%s': %s", name, error));
                 }
             } else {
-                Log.i(TAG, String.format("Test %s passed.", utName));
+                Log.i(TAG, String.format("Test '%s' passed.", name));
             }
             notifier.fireTestFinished(desc);
         }
