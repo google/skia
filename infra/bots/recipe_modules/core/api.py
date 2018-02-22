@@ -23,7 +23,18 @@ class SkiaApi(recipe_api.RecipeApi):
     self.m.vars.setup()
 
     # Check out the Skia code.
-    self.checkout_steps()
+    if 'NoDEPS' in self.m.vars.builder_name:
+      self.m.git.checkout(
+          self.m.properties['repository'], dir_path=self.m.vars.skia_dir,
+          ref=self.m.properties['revision'], submodules=False)
+      # TODO(borenet): if self.m.vars.is_tryjob: apply the patch!
+      if self.m.vars.is_trybot:
+        ref = self.patch_ref(str(self.m.vars.issue), str(self.m.vars.patchset))
+        self.m.git('fetch', 'origin', ref)
+        self.m.git('checkout', 'FETCH_HEAD')
+        self.m.git('rebase', self.m.properties['revision'])
+    else:
+      self.checkout_steps()
 
     if not self.m.path.exists(self.m.vars.tmp_dir):
       self.m.run.run_once(self.m.file.ensure_directory,
@@ -31,6 +42,10 @@ class SkiaApi(recipe_api.RecipeApi):
                           self.m.vars.tmp_dir)
 
     self.m.flavor.setup()
+
+  def patch_ref(self, issue, patchset):
+    """Build a ref for the given issue and patchset."""
+    return 'refs/changes/%s/%s/%s' % (issue[-2:], issue, patchset)
 
   def checkout_steps(self):
     """Run the steps to obtain a checkout of Skia."""
@@ -140,11 +155,8 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Hack the patch ref if necessary.
     if self.m.bot_update._issue and self.m.bot_update._patchset:
-      self.m.bot_update._gerrit_ref = 'refs/changes/%s/%d/%d' % (
-          str(self.m.bot_update._issue)[-2:],
-          self.m.bot_update._issue,
-          self.m.bot_update._patchset,
-      )
+      self.m.bot_update._gerrit_ref = self.patch_ref(
+          str(self.m.bot_update._issue), str(self.m.bot_update._patchset))
       self.m.bot_update._repository = patch_repo
 
     if not self.m.vars.is_trybot and is_parent_revision:
