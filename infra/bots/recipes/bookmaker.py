@@ -43,7 +43,7 @@ def go_get_fiddlecli(api):
 
 def RunSteps(api):
   api.vars.setup()
-  api.core.checkout_steps()
+  api.core.checkout_bot_update()
   api.infra.go_version()
   go_get_fiddlecli(api)
 
