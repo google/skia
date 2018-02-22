@@ -28,6 +28,7 @@
 #include "SkGr.h"
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
+#include "SkRRectPriv.h"
 #include "SkShadowUtils.h"
 #include "SkSurfacePriv.h"
 #include "effects/GrRRectEffect.h"
@@ -965,7 +966,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
     SkRRect rrect;
     SkRect rect;
     // we can only handle rects, circles, and rrects with circular corners
-    bool isRRect = path.isRRect(&rrect) && rrect.isSimpleCircular() &&
+    bool isRRect = path.isRRect(&rrect) && SkRRectPriv::IsSimpleCircular(rrect) &&
         rrect.radii(SkRRect::kUpperLeft_Corner).fX > SK_ScalarNearlyZero;
     if (!isRRect &&
         path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height()) &&
@@ -1014,7 +1015,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
         if (rrect.isOval()) {
             ambientRRect = SkRRect::MakeOval(outsetRect);
         } else {
-            SkScalar outsetRad = rrect.getSimpleRadii().fX + ambientPathOutset;
+            SkScalar outsetRad = SkRRectPriv::GetSimpleRadii(rrect).fX + ambientPathOutset;
             ambientRRect = SkRRect::MakeRectXY(outsetRect, outsetRad, outsetRad);
         }
 
@@ -1064,7 +1065,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
         SkMatrix shadowTransform;
         shadowTransform.setScaleTranslate(spotScale, spotScale, spotOffset.fX, spotOffset.fY);
         rrect.transform(shadowTransform, &spotShadowRRect);
-        SkScalar spotRadius = spotShadowRRect.getSimpleRadii().fX;
+        SkScalar spotRadius = SkRRectPriv::GetSimpleRadii(spotShadowRRect).fX;
 
         // Compute the insetWidth
         SkScalar blurOutset = srcSpaceSpotBlur;
@@ -1097,7 +1098,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                                           SkTAbs(spotShadowRRect.rect().fBottom -
                                                  rrect.rect().fBottom)));
             } else {
-                SkScalar dr = spotRadius - rrect.getSimpleRadii().fX;
+                SkScalar dr = spotRadius - SkRRectPriv::GetSimpleRadii(rrect).fX;
                 SkPoint upperLeftOffset = SkPoint::Make(spotShadowRRect.rect().fLeft -
                                                         rrect.rect().fLeft + dr,
                                                         spotShadowRRect.rect().fTop -
@@ -1153,7 +1154,8 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
         return false;
     }
 
-    if (GrAAType::kCoverage == aaType && inner->isCircle() && outer->isCircle()) {
+    if (GrAAType::kCoverage == aaType && SkRRectPriv::IsCircle(*inner)
+                                      && SkRRectPriv::IsCircle(*outer)) {
         auto outerR = outer->width() / 2.f;
         auto innerR = inner->width() / 2.f;
         auto cx = outer->getBounds().fLeft + outerR;

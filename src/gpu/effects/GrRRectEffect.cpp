@@ -11,7 +11,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrOvalEffect.h"
 #include "GrShaderCaps.h"
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkTLazy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -298,8 +298,8 @@ void GLCircularRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
         SkScalar radius = 0;
         switch (crre.getCircularCornerFlags()) {
             case CircularRRectEffect::kAll_CornerFlags:
-                SkASSERT(rrect.isSimpleCircular());
-                radius = rrect.getSimpleRadii().fX;
+                SkASSERT(SkRRectPriv::IsSimpleCircular(rrect));
+                radius = SkRRectPriv::GetSimpleRadii(rrect).fX;
                 SkASSERT(radius >= kRadiusMin);
                 rect.inset(radius, radius);
                 break;
@@ -680,12 +680,13 @@ std::unique_ptr<GrFragmentProcessor> GrRRectEffect::Make(GrClipEdgeType edgeType
     }
 
     if (rrect.isSimple()) {
-        if (rrect.getSimpleRadii().fX < kRadiusMin || rrect.getSimpleRadii().fY < kRadiusMin) {
+        if (SkRRectPriv::GetSimpleRadii(rrect).fX < kRadiusMin ||
+            SkRRectPriv::GetSimpleRadii(rrect).fY < kRadiusMin) {
             // In this case the corners are extremely close to rectangular and we collapse the
             // clip to a rectangular clip.
             return GrConvexPolyEffect::Make(edgeType, rrect.getBounds());
         }
-        if (rrect.getSimpleRadii().fX == rrect.getSimpleRadii().fY) {
+        if (SkRRectPriv::GetSimpleRadii(rrect).fX == SkRRectPriv::GetSimpleRadii(rrect).fY) {
             return CircularRRectEffect::Make(edgeType, CircularRRectEffect::kAll_CornerFlags,
                                                rrect);
         } else {

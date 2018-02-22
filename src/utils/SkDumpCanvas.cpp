@@ -13,7 +13,7 @@
 #include "SkPicture.h"
 #include "SkPixelRef.h"
 #include "SkRegion.h"
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkString.h"
 #include "SkTextBlob.h"
 #include <stdarg.h>
@@ -44,7 +44,7 @@ static void toString(const SkRRect& rrect, SkString* str) {
     if (rrect.isOval()) {
         str->append("()");
     } else if (rrect.isSimple()) {
-        const SkVector& rad = rrect.getSimpleRadii();
+        const SkVector rad = SkRRectPriv::GetSimpleRadii(rrect);
         str->appendf("(%g,%g)", rad.x(), rad.y());
     } else if (rrect.isComplex()) {
         SkVector radii[4] = {

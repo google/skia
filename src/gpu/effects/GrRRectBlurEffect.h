@@ -22,6 +22,7 @@
 #include "GrStyle.h"
 #include "SkBlurMaskFilter.h"
 #include "SkGpuBlurUtils.h"
+#include "SkRRectPriv.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrRRectBlurEffect : public GrFragmentProcessor {
