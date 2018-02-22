@@ -658,6 +658,7 @@ DEF_TEST(Codec_Empty, r) {
     test_invalid(r, "invalid_images/b37623797.ico");
     test_invalid(r, "invalid_images/osfuzz6295.webp");
     test_invalid(r, "invalid_images/osfuzz6288.bmp");
+    test_invalid(r, "invalid_images/ossfuzz6347");
 }
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
