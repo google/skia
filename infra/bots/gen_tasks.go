@@ -213,7 +213,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		if os == "Win10" {
 			// Transition to new Win image by model name.
 			_, ok = map[string]bool{
-				"NUC6i5SYK": true,
+				"NUC5i7RYH":     true,
+				"NUC6i5SYK":     true,
+				"NUCD34010WYKH": true,
 			}[parts["model"]]
 			if ok {
 				d["os"] = "Windows-10-16299.248"
@@ -300,11 +302,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"GTX1070":       "10de:1ba1-23.21.13.8813",
 					"GTX660":        "10de:11c0-23.21.13.8813",
 					"GTX960":        "10de:1401-23.21.13.8813",
-					"IntelHD530":    "8086:1912-21.20.16.4590",
-					"IntelHD4400":   "8086:0a16-20.19.15.4703",
-					"IntelHD4600":   "8086:0412-20.19.15.4703",
+					"IntelHD4400":   "8086:0a16-20.19.15.4835",
 					"IntelIris540":  "8086:1926-23.20.16.4901",
-					"IntelIris6100": "8086:162b-20.19.15.4703",
+					"IntelIris6100": "8086:162b-20.19.15.4835",
 					"RadeonHD7770":  "1002:683d-22.19.165.512",
 					"RadeonR9M470X": "1002:6646-22.19.165.512",
 					"QuadroP400":    "10de:1cb3-22.21.13.8205",
