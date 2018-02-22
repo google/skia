@@ -61,6 +61,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Chromebook_GLES',
   'Build-Debian9-Clang-arm-Release-Android_ASAN',
   'Build-Debian9-Clang-arm64-Release-Android_ASAN',
+  'Build-Debian9-Clang-universal-devrel-Android_SKQP',
   'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
   'Build-Debian9-Clang-x86_64-Release-Fast',
@@ -138,33 +139,6 @@ def GenTests(api):
       test += api.step_data(
           'read chromecast ip',
           stdout=api.raw_io.output('192.168.1.2:5555'))
-    yield test
-
-  # Test SKQP builder with different branches and issue info.
-  skqp_builders = [
-    'Build-Debian9-Clang-universal-devrel-Android_SKQP_master_branch',
-    'Build-Debian9-Clang-universal-devrel-Android_SKQP_no_issue',
-    'Build-Debian9-Clang-universal-devrel-Android_SKQP_dev_branch',
-    'Build-Debian9-Clang-universal-devrel-Android_SKQP_release_branch',
-  ]
-  for builder in skqp_builders:
-    # should we add issue information to this tests.
-    with_issue = 'no_issue' not in builder
-    props = defaultProps(builder)
-    if with_issue:
-      props.update(patch_issue=12345, patch_set=2)
-
-    test = (
-      api.test(builder) +
-      api.properties(**props)
-    )
-
-    if ('SKQP' in builder) and with_issue:
-      branch = 'skqp/dev' if 'dev_branch' in builder else (
-               'skqp/release' if 'release_branch' in builder else
-               'master')
-      test += api.step_data('get branch for issue',
-                            stdout=api.raw_io.output(branch))
     yield test
 
   builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All'
