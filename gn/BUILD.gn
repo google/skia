@@ -372,7 +372,6 @@ config("warnings") {
       cflags += [
         "-Wno-covered-switch-default",
         "-Wno-deprecated",
-        "-Wno-implicit-fallthrough",
         "-Wno-missing-noreturn",
         "-Wno-old-style-cast",
         "-Wno-padded",
@@ -387,6 +386,9 @@ config("warnings") {
         "-Wno-objc-interface-ivars",
       ]
     }
+  }
+  if (!is_win || is_clang) {
+    cflags += [ "-Wno-implicit-fallthrough" ]
   }
 }
 config("warnings_except_public_headers") {
