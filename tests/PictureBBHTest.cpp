@@ -105,3 +105,25 @@ DEF_TEST(RTreeMakeLargest, r) {
     bbh->insert(rects, SK_ARRAY_COUNT(rects));
     REPORTER_ASSERT(r, bbh->getRootBound() == SkRect::MakeWH(15,15));
 }
+
+DEF_TEST(NegativeContentInAPicture, r) {
+    // If we record a picture (maybe using an R-tree) with content at negative
+    // (x,y) coordinates, does it play back correctly?
+
+    SkPictureRecorder recorder;
+    SkRTreeFactory    factory;
+
+    for (int draw_ops  = 0; draw_ops  < 3; draw_ops++ )
+    for (int use_rtree = 0; use_rtree < 2; use_rtree++) {
+        auto canvas = recorder.beginRecording(SkRect{-2,-2,+2,+2},
+                                              use_rtree ? &factory : nullptr);
+        for (int i = 0; i < draw_ops; i++) {
+            canvas->drawRect(SkRect{-2,-2,-1,-1}, SkPaint());
+        }
+        auto pic = recorder.finishRecordingAsPicture();
+
+        REPORTER_ASSERT(r, pic->cullRect() == (draw_ops == 0 ? SkRect::MakeEmpty() :
+                                                   use_rtree ? SkRect{-2,-2,-1,-1} :
+                                                               SkRect{-2,-2,+2,+2}));
+    }
+}
