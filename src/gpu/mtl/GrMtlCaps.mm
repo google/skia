@@ -118,6 +118,7 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
             }
         }
     }
+    fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
     fMaxTextureSize = fMaxRenderTargetSize;
 
     // Init sample counts. All devices support 1 (i.e. 0 in skia).

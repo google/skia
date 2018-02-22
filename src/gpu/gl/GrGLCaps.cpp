@@ -483,6 +483,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // Our render targets are always created with textures as the color
     // attachment, hence this min:
     fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
+    fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
+
+    if (kARM_GrGLVendor == ctxInfo.vendor()) {
+        // On Mali G71, RT's above 4k have been observed to incur a performance cost.
+        fMaxPreferredRenderTargetSize = SkTMin(4096, fMaxPreferredRenderTargetSize);
+    }
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 
