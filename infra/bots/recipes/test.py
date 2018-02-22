@@ -648,6 +648,8 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'resizeimagefilter'])
     blacklist(['vk', 'gm', '_', 'rotate_imagefilter'])
     blacklist(['vk', 'gm', '_', 'savelayer_lcdtext'])
+    blacklist(['vk', 'gm', '_', 'scaled_tilemodes_npot'])
+    blacklist(['vk', 'gm', '_', 'scaled_tilemodes'])
     blacklist(['vk', 'gm', '_', 'shadermaskfilter_image'])
     blacklist(['vk', 'gm', '_', 'srcmode'])
     blacklist(['vk', 'gm', '_', 'surfaceprops'])
