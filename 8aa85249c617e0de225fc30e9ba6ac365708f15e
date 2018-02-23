@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83013512_cc083c24",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-23T17:37:56Z",
+      "side": 1,
+      "message": "Looks like the Windows ScalerContext wants access to this.",
+      "range": {
+        "startLine": 200,
+        "startChar": 12,
+        "endLine": 200,
+        "endChar": 29
+      },
+      "revId": "8aa85249c617e0de225fc30e9ba6ac365708f15e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
