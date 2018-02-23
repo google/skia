@@ -51,7 +51,7 @@ void SkFlexibleTaskGroup2D::work(int threadId) {
 
     // Only keep fHeight - numRowsCompleted number of threads looping. When rows are about to
     // complete, this strategy keeps the contention low.
-    while (threadId >= numRowsCompleted) {
+    while (threadId < fHeight - numRowsCompleted) {
         RowData& rowData = fRowData[row];
 
         // The Android roller somehow gets a false-positive compile warning/error about the try-lock

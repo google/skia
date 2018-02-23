@@ -41,6 +41,8 @@ DECLARE_bool(deltaAA);
 DECLARE_bool(forceDeltaAA);
 DECLARE_string(key);
 DECLARE_string(properties);
+DECLARE_int32(backendTiles);
+DECLARE_int32(backendThreads)
 
 /**
  *  Helper to assist in collecting image paths from |dir| specified through a command line flag.
