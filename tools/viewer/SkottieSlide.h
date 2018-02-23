@@ -30,11 +30,11 @@ public:
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) override;
 
 private:
-    SkString                            fPath;
-    std::unique_ptr<skottie::Animation> fAnimation;
-    SkSize                              fWinSize = SkSize::MakeEmpty();
-    SkMSec                              fTimeBase  = 0;
-    bool                                fShowAnimationInval = false;
+    SkString                  fPath;
+    sk_sp<skottie::Animation> fAnimation;
+    SkSize                    fWinSize = SkSize::MakeEmpty();
+    SkMSec                    fTimeBase  = 0;
+    bool                      fShowAnimationInval = false;
 
     typedef Slide INHERITED;
 };

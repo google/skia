@@ -55,6 +55,7 @@ using AssetMap = SkTHashMap<SkString, const Json::Value*>;
 struct AttachContext {
     const ResourceProvider& fResources;
     const AssetMap&         fAssets;
+    const float             fFrameRate;
     sksg::AnimatorList&     fAnimators;
 };
 
@@ -676,6 +677,66 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContex
     return draws.empty() ? nullptr : shape_wrapper;
 }
 
+sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* ctx) {
+    class SkottieSGAdapter final : public sksg::RenderNode {
+    public:
+        explicit SkottieSGAdapter(sk_sp<Animation> animation)
+            : fAnimation(std::move(animation)) {
+            SkASSERT(fAnimation);
+        }
+
+    protected:
+        SkRect onRevalidate(sksg::InvalidationController*, const SkMatrix&) override {
+            return SkRect::MakeSize(fAnimation->size());
+        }
+
+        void onRender(SkCanvas* canvas) const override {
+            fAnimation->render(canvas);
+        }
+
+    private:
+        const sk_sp<Animation> fAnimation;
+    };
+
+    class SkottieAnimatorAdapter final : public sksg::Animator {
+    public:
+        SkottieAnimatorAdapter(sk_sp<Animation> animation, float frameRate)
+            : fAnimation(std::move(animation))
+            , fFrameRate(frameRate) {
+            SkASSERT(fAnimation);
+            SkASSERT(fFrameRate > 0);
+        }
+
+    protected:
+        void onTick(float t) {
+            // map back from frame # to ms.
+            const auto t_ms = t * 1000 / fFrameRate;
+            fAnimation->animationTick(t_ms);
+        }
+
+    private:
+        const sk_sp<Animation> fAnimation;
+        const float            fFrameRate;
+    };
+
+    const auto resStream  = ctx->fResources.openStream(path);
+    if (!resStream || !resStream->hasLength()) {
+        LOG("!! Could not open: %s\n", path);
+        return nullptr;
+    }
+
+    auto animation = Animation::Make(resStream.get(), ctx->fResources);
+    if (!animation) {
+        LOG("!! Could not load nested animation: %s\n", path);
+        return nullptr;
+    }
+
+    ctx->fAnimators.push_back(skstd::make_unique<SkottieAnimatorAdapter>(animation,
+                                                                         ctx->fFrameRate));
+
+    return sk_make_sp<SkottieSGAdapter>(std::move(animation));
+}
+
 sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& jlayer, AttachContext* ctx,
                                         float* time_bias, float* time_scale) {
     SkASSERT(jlayer.isObject());
@@ -686,12 +747,6 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& jlayer, AttachContext
         return nullptr;
     }
 
-    const auto* comp = ctx->fAssets.find(refId);
-    if (!comp) {
-        LOG("!! Pre-comp not found: '%s'\n", refId.c_str());
-        return nullptr;
-    }
-
     const auto start_time = ParseDefault(jlayer["st"], 0.0f),
              stretch_time = ParseDefault(jlayer["sr"], 1.0f);
 
@@ -699,6 +754,16 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& jlayer, AttachContext
     *time_scale = 1 / stretch_time;
     if (SkScalarIsNaN(*time_scale)) {
         *time_scale = 1;
+    }
+
+    if (refId.startsWith("$")) {
+        return AttachNestedAnimation(refId.c_str() + 1, ctx);
+    }
+
+    const auto* comp = ctx->fAssets.find(refId);
+    if (!comp) {
+        LOG("!! Pre-comp not found: '%s'\n", refId.c_str());
+        return nullptr;
     }
 
     // TODO: cycle detection
@@ -937,8 +1002,10 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
     }
 
     sksg::AnimatorList layer_animators;
-    AttachContext local_ctx =
-        { layerCtx->fCtx->fResources, layerCtx->fCtx->fAssets, layer_animators};
+    AttachContext local_ctx = { layerCtx->fCtx->fResources,
+                                layerCtx->fCtx->fAssets,
+                                layerCtx->fCtx->fFrameRate,
+                                layer_animators};
 
     // Layer attachers may adjust these.
     float time_bias  = 0,
@@ -1070,7 +1137,7 @@ sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext
 
 } // namespace
 
-std::unique_ptr<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res) {
+sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res) {
     if (!stream->hasLength()) {
         // TODO: handle explicit buffering?
         LOG("!! cannot parse streaming content\n");
@@ -1099,16 +1166,16 @@ std::unique_ptr<Animation> Animation::Make(SkStream* stream, const ResourceProvi
                                       ParseDefault(json["h"], 0.0f));
     const auto fps     = ParseDefault(json["fr"], -1.0f);
 
-    if (size.isEmpty() || version.isEmpty() || fps < 0) {
+    if (size.isEmpty() || version.isEmpty() || fps <= 0) {
         LOG("!! invalid animation params (version: %s, size: [%f %f], frame rate: %f)",
             version.c_str(), size.width(), size.height(), fps);
         return nullptr;
     }
 
-    return std::unique_ptr<Animation>(new Animation(res, std::move(version), size, fps, json));
+    return sk_sp<Animation>(new Animation(res, std::move(version), size, fps, json));
 }
 
-std::unique_ptr<Animation> Animation::MakeFromFile(const char path[], const ResourceProvider* res) {
+sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvider* res) {
     class DirectoryResourceProvider final : public ResourceProvider {
     public:
         explicit DirectoryResourceProvider(SkString dir) : fDir(std::move(dir)) {}
@@ -1152,7 +1219,7 @@ Animation::Animation(const ResourceProvider& resources,
     }
 
     sksg::AnimatorList animators;
-    AttachContext ctx = { resources, assets, animators };
+    AttachContext ctx = { resources, assets, fFrameRate, animators };
     auto root = AttachComposition(json, &ctx);
 
     LOG("** Attached %d animators\n", animators.size());

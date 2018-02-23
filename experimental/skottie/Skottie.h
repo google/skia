@@ -34,13 +34,12 @@ public:
     virtual std::unique_ptr<SkStream> openStream(const char resource[]) const = 0;
 };
 
-class Animation : public SkNoncopyable {
+class Animation : public SkRefCnt {
 public:
-    static std::unique_ptr<Animation> Make(SkStream*, const ResourceProvider&);
-    static std::unique_ptr<Animation> MakeFromFile(const char path[],
-                                                   const ResourceProvider* = nullptr);
+    static sk_sp<Animation> Make(SkStream*, const ResourceProvider&);
+    static sk_sp<Animation> MakeFromFile(const char path[], const ResourceProvider* = nullptr);
 
-    ~Animation();
+    ~Animation() override;
 
     void render(SkCanvas*, const SkRect* dst = nullptr) const;
 
@@ -67,7 +66,7 @@ private:
 
     std::unique_ptr<sksg::Scene> fScene;
 
-    typedef SkNoncopyable INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 } // namespace skottie
