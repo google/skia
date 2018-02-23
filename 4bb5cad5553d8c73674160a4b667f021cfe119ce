@@ -22,6 +22,30 @@
       "revId": "4bb5cad5553d8c73674160a4b667f021cfe119ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be91e63d_849ecf30",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-02-23T19:02:29Z",
+      "side": 1,
+      "message": "I\u0027m trying to avoid getters and setter. These flags imply other fields need to be changed. At this point, I\u0027m not trying to make everything private, which is the eventual goal, but I\u0027m encapsulate the invariants around gamma and contrast. While doing this, I tried to capture some additional easy cases. The ultimate goal is to turn rec into a real class that encapsulates its invariants.",
+      "parentUuid": "66542169_2aa3f884",
+      "range": {
+        "startLine": 118,
+        "startChar": 4,
+        "endLine": 118,
+        "endChar": 27
+      },
+      "revId": "4bb5cad5553d8c73674160a4b667f021cfe119ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
