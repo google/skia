@@ -130,6 +130,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
                                fBackendContext->fFeatures, fBackendContext->fExtensions));
     fCaps.reset(SkRef(fVkCaps.get()));
 
+    VK_CALL(GetPhysicalDeviceProperties(fBackendContext->fPhysicalDevice, &fPhysDevProps));
     VK_CALL(GetPhysicalDeviceMemoryProperties(fBackendContext->fPhysicalDevice, &fPhysDevMemProps));
 
     const VkCommandPoolCreateInfo cmdPoolInfo = {
@@ -578,12 +579,27 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
     int texTop = kBottomLeft_GrSurfaceOrigin == texOrigin ? tex->height() - top - height : top;
     const GrVkAlloc& alloc = tex->alloc();
     VkDeviceSize offset = alloc.fOffset + texTop*layout.rowPitch + left*bpp;
+    VkDeviceSize offsetDiff = 0;
     VkDeviceSize size = height*layout.rowPitch;
+    // For Noncoherent buffers we want to make sure the range that we map, both offset and size,
+    // are aligned to the nonCoherentAtomSize limit. We may have to move the initial offset back to
+    // meet the alignment requirements. So we track how far we move back and then adjust the mapped
+    // ptr back up so that this is opaque to the caller.
+    if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+        VkDeviceSize alignment = this->physicalDeviceProperties().limits.nonCoherentAtomSize;
+        offsetDiff = offset & (alignment - 1);
+        offset = offset - offsetDiff;
+        // Make size of the map aligned to nonCoherentAtomSize
+        size = (size + alignment - 1) & ~(alignment - 1);
+    }
+    SkASSERT(offset >= alloc.fOffset);
+    SkASSERT(size <= alloc.fOffset + alloc.fSize);
     void* mapPtr;
     err = GR_VK_CALL(interface, MapMemory(fDevice, alloc.fMemory, offset, size, 0, &mapPtr));
     if (err) {
         return false;
     }
+    mapPtr = reinterpret_cast<char*>(mapPtr) + offsetDiff;
 
     if (kBottomLeft_GrSurfaceOrigin == texOrigin) {
         // copy into buffer by rows
@@ -1108,13 +1124,30 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 
 bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc, size_t bufferOffset,
                        size_t srcRowBytes, size_t dstRowBytes, int h) {
+    // For Noncoherent buffers we want to make sure the range that we map, both offset and size,
+    // are aligned to the nonCoherentAtomSize limit. We may have to move the initial offset back to
+    // meet the alignment requirements. So we track how far we move back and then adjust the mapped
+    // ptr back up so that this is opaque to the caller.
+    VkDeviceSize mapSize = dstRowBytes * h;
+    VkDeviceSize mapOffset = alloc.fOffset + bufferOffset;
+    VkDeviceSize offsetDiff = 0;
+    if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+        VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
+        offsetDiff = mapOffset & (alignment - 1);
+        mapOffset = mapOffset - offsetDiff;
+        // Make size of the map aligned to nonCoherentAtomSize
+        mapSize = (mapSize + alignment - 1) & ~(alignment - 1);
+    }
+    SkASSERT(mapOffset >= alloc.fOffset);
+    SkASSERT(mapSize + mapOffset <= alloc.fOffset + alloc.fSize);
     void* mapPtr;
     VkResult err = GR_VK_CALL(gpu->vkInterface(), MapMemory(gpu->device(),
                                                             alloc.fMemory,
-                                                            alloc.fOffset + bufferOffset,
-                                                            dstRowBytes * h,
+                                                            mapOffset,
+                                                            mapSize,
                                                             0,
                                                             &mapPtr));
+    mapPtr = reinterpret_cast<char*>(mapPtr) + offsetDiff;
     if (err) {
         return false;
     }
@@ -1179,7 +1212,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, 
     }
 
     VkImage image = VK_NULL_HANDLE;
-    GrVkAlloc alloc = { VK_NULL_HANDLE, 0, 0, 0 };
+    GrVkAlloc alloc;
 
     VkImageTiling imageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
     VkImageLayout initialLayout = (VK_IMAGE_TILING_LINEAR == imageTiling)
@@ -1224,7 +1257,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, 
     }
 
     // We need to declare these early so that we can delete them at the end outside of the if block.
-    GrVkAlloc bufferAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
+    GrVkAlloc bufferAlloc;
     VkBuffer buffer = VK_NULL_HANDLE;
 
     VkResult err;
@@ -1978,8 +2011,8 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
     // We need to submit the current command buffer to the Queue and make sure it finishes before
     // we can copy the data out of the buffer.
     this->submitCommandBuffer(kForce_SyncQueue);
-    GrVkMemory::InvalidateMappedAlloc(this, transferBuffer->alloc());
     void* mappedMemory = transferBuffer->map();
+    GrVkMemory::InvalidateMappedAlloc(this, transferBuffer->alloc());
 
     if (copyFromOrigin) {
         uint32_t skipRows = region.imageExtent.height - height;
