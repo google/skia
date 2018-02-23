@@ -10,19 +10,20 @@
 
 #include "SkRRect.h"
 
+static bool nearly_square(const SkRect& r) {
+    return SkScalarNearlyEqual(r.width(), r.height());
+}
+
 class SkRRectPriv {
 public:
-    static bool IsCircle(const SkRRect& rr) {
-        return rr.isOval() && SkScalarNearlyEqual(rr.fRadii[0].fX, rr.fRadii[0].fY);
-    }
+    static SkVector GetSimpleRadii(const SkRRect& rr) { return rr.getSimpleRadii(); }
 
-    static SkVector GetSimpleRadii(const SkRRect& rr) {
-        SkASSERT(!rr.isComplex());
-        return rr.fRadii[0];
+    static bool IsCircle(const SkRRect& rr) {
+        return rr.isOval() && nearly_square(rr.fRect);
     }
 
     static bool IsSimpleCircular(const SkRRect& rr) {
-        return rr.isSimple() && SkScalarNearlyEqual(rr.fRadii[0].fX, rr.fRadii[0].fY);
+        return rr.isSimple() && nearly_square(rr.fRect);
     }
 
     static bool EqualRadii(const SkRRect& rr) {
