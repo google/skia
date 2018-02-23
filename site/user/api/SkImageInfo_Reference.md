@@ -89,7 +89,8 @@ kLastEnum_SkColorType = <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</
 <a href="#kN32_SkColorType">kN32_SkColorType</a> = <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>,
 };</pre>
 
-Describes how to interpret the components of a pixel.
+Describes how pixel bits encode color. A pixel may be an alpha mask, a
+gray level, <a href="undocumented#RGB">Color RGB</a>, or <a href="undocumented#ARGB">Color ARGB</a>.
 
 <a href="#kN32_SkColorType">kN32_SkColorType</a> selects the native 32-bit <a href="undocumented#ARGB">Color ARGB</a> format. On Little_Endian
 processors, pixels containing 8-bit <a href="undocumented#ARGB">Color ARGB</a> components pack into 32-bit
@@ -103,34 +104,34 @@ processors, pixels containing 8-bit <a href="undocumented#ARGB">Color ARGB</a> c
     <td><a name="kUnknown_SkColorType"> <code><strong>kUnknown_SkColorType </strong></code> </a></td><td>0</td><td></td>
   </tr>
   <tr>
-    <td><a name="kAlpha_8_SkColorType"> <code><strong>kAlpha_8_SkColorType </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="kAlpha_8_SkColorType"> <code><strong>kAlpha_8_SkColorType </strong></code> </a></td><td>1</td><td>Encodes <a href="undocumented#Alpha">Color Alpha</a> as <a href="#Color_Type_Alpha_8">Alpha 8</a> pixel in an 8-bit byte.</td>
   </tr>
   <tr>
-    <td><a name="kRGB_565_SkColorType"> <code><strong>kRGB_565_SkColorType </strong></code> </a></td><td>2</td><td></td>
+    <td><a name="kRGB_565_SkColorType"> <code><strong>kRGB_565_SkColorType </strong></code> </a></td><td>2</td><td>Encodes <a href="undocumented#RGB">Color RGB</a> as <a href="#Color_Type_BGR_565">BGR 565</a> pixel in a 16-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kARGB_4444_SkColorType"> <code><strong>kARGB_4444_SkColorType </strong></code> </a></td><td>3</td><td></td>
+    <td><a name="kARGB_4444_SkColorType"> <code><strong>kARGB_4444_SkColorType </strong></code> </a></td><td>3</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_ABGR_4444">ABGR 4444</a> pixel in a 16-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kRGBA_8888_SkColorType"> <code><strong>kRGBA_8888_SkColorType </strong></code> </a></td><td>4</td><td></td>
+    <td><a name="kRGBA_8888_SkColorType"> <code><strong>kRGBA_8888_SkColorType </strong></code> </a></td><td>4</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_RGBA_8888">RGBA 8888</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kRGB_888x_SkColorType"> <code><strong>kRGB_888x_SkColorType </strong></code> </a></td><td>5</td><td></td>
+    <td><a name="kRGB_888x_SkColorType"> <code><strong>kRGB_888x_SkColorType </strong></code> </a></td><td>5</td><td>Encodes <a href="undocumented#RGB">Color RGB</a> as <a href="#Color_Type_RGB_888x">RGB 888x</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kBGRA_8888_SkColorType"> <code><strong>kBGRA_8888_SkColorType </strong></code> </a></td><td>6</td><td></td>
+    <td><a name="kBGRA_8888_SkColorType"> <code><strong>kBGRA_8888_SkColorType </strong></code> </a></td><td>6</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_BGRA_8888">BGRA 8888</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kRGBA_1010102_SkColorType"> <code><strong>kRGBA_1010102_SkColorType </strong></code> </a></td><td>7</td><td></td>
+    <td><a name="kRGBA_1010102_SkColorType"> <code><strong>kRGBA_1010102_SkColorType </strong></code> </a></td><td>7</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_RGBA_1010102">RGBA 1010102</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kRGB_101010x_SkColorType"> <code><strong>kRGB_101010x_SkColorType </strong></code> </a></td><td>8</td><td></td>
+    <td><a name="kRGB_101010x_SkColorType"> <code><strong>kRGB_101010x_SkColorType </strong></code> </a></td><td>8</td><td>Encodes <a href="undocumented#RGB">Color RGB</a> as <a href="#Color_Type_RGB_101010x">RGB 101010x</a> pixel in a 32-bit word.</td>
   </tr>
   <tr>
-    <td><a name="kGray_8_SkColorType"> <code><strong>kGray_8_SkColorType </strong></code> </a></td><td>9</td><td></td>
+    <td><a name="kGray_8_SkColorType"> <code><strong>kGray_8_SkColorType </strong></code> </a></td><td>9</td><td>Encodes <a href="undocumented#Gray">Color Gray</a> as <a href="#Color_Type_Gray_8">Gray 8</a> in an 8-bit byte.</td>
   </tr>
   <tr>
-    <td><a name="kRGBA_F16_SkColorType"> <code><strong>kRGBA_F16_SkColorType </strong></code> </a></td><td>10</td><td></td>
+    <td><a name="kRGBA_F16_SkColorType"> <code><strong>kRGBA_F16_SkColorType </strong></code> </a></td><td>10</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as <a href="#Color_Type_RGBA_F16">RGBA F16</a> in a 64-bit word.</td>
   </tr>
 </table>
 
@@ -138,7 +139,8 @@ processors, pixels containing 8-bit <a href="undocumented#ARGB">Color ARGB</a> c
 
 <table>
   <tr>
-    <td><a name="kN32_SkColorType"> <code><strong>kN32_SkColorType </strong></code> </a></td><td>4</td><td></td>
+    <td><a name="kN32_SkColorType"> <code><strong>kN32_SkColorType </strong></code> </a></td><td>4</td><td>Encodes <a href="undocumented#ARGB">Color ARGB</a> as either <a href="#Color_Type_RGBA_8888">RGBA 8888</a> or <a href="#Color_Type_BGRA_8888">BGRA 8888</a>, whichever
+is native to the platform.</td>
   </tr>
 </table>
 
@@ -151,6 +153,167 @@ processors, pixels containing 8-bit <a href="undocumented#ARGB">Color ARGB</a> c
 incomplete
 
 
+
+## <a name="Color_Type_Alpha_8"></a> Color Type Alpha 8
+
+<a href="#Color_Type_Alpha_8">Alpha 8</a> is an 8-bit byte pixel encoding that represents transparency. A value of zero is
+completely transparent; a value of 255 is completely opaque. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> with <a href="#Color_Type_Alpha_8">Alpha 8</a>
+pixels does not visibly draw, because its pixels have no color information.
+The paired <a href="#SkAlphaType">SkAlphaType</a> is ignored.
+
+### Example
+
+<div><fiddle-embed name="21ae21e4ce53d2018e042dd457997300"><div><a href="#Color_Type_Alpha_8">Alpha 8</a> pixels can modify another draw. orangePaint fills the bounds of bitmap,
+with its transparency set to alpha8 pixel value.</div></fiddle-embed></div>
+
+## <a name="Color_Type_BGR_565"></a> Color Type BGR 565
+
+<a href="#Color_Type_BGR_565">BGR 565</a> is a 16-bit word pixel encoding that contains five bits of blue,
+six bits of green, and five bits of red. <a href="#Color_Type_BGR_565">BGR 565</a> is fully opaque as if its
+<a href="undocumented#Alpha">Color Alpha</a> was set to one, and should always be paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>.
+
+![Color_Type_BGR_565](https://fiddle.skia.org/i/b674a54eb4188d5ce66c04cebdb61089_raster.png "")
+
+### Example
+
+<div><fiddle-embed name="54e4c690d64d73ba028c5b250c0d09f0"></fiddle-embed></div>
+
+## <a name="Color_Type_ABGR_4444"></a> Color Type ABGR 4444
+
+<a href="#Color_Type_ABGR_4444">ABGR 4444</a> is a 16-bit word pixel encoding that contains four bits of alpha,
+four bits of blue, four bits of green, and four bits of red.
+
+![Color_Type_ABGR_4444](https://fiddle.skia.org/i/0441bdba65a19aa72b75b7fa62d22121_raster.png "")
+
+If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: blue, green, and red components are
+premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+the drawn result is undefined.
+
+If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: alpha, blue, green, and red components
+may have any value. There may be a performance penalty with unpremultipled
+pixels.
+
+If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
+blue, green, and red components are fully opaque. If any alpha component is
+less than 15, the drawn result is undefined.
+
+### Example
+
+<div><fiddle-embed name="f89e8200d225ccb839e50a1481db48e9"></fiddle-embed></div>
+
+## <a name="Color_Type_RGBA_8888"></a> Color Type RGBA 8888
+
+<a href="#Color_Type_RGBA_8888">RGBA 8888</a> is a 32-bit word pixel encoding that contains eight bits of red,
+eight bits of green, eight bits of blue, and eight bits of alpha.
+
+![Color_Type_RGBA_8888](https://fiddle.skia.org/i/4ccd35f27fe73dce8cce8c75e18df23c_raster.png "")
+
+If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: red, green, and blue components are
+premultiplied by the alpha value. If red, green, or blue is greater than alpha,
+the drawn result is undefined.
+
+If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: alpha, red, green, and blue components
+may have any value. There may be a performance penalty with unpremultipled
+pixels.
+
+If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
+red, green, and blue components are fully opaque. If any alpha component is
+less than 255, the drawn result is undefined.
+
+On Big_Endian platforms, <a href="#Color_Type_RGBA_8888">RGBA 8888</a> is the native <a href="#Color_Type">Color Type</a>, and will have
+the best performance. Use <a href="#kN32_SkColorType">kN32_SkColorType</a> to choose the best <a href="#Color_Type">Color Type</a> for
+the platform at compile time.
+
+### Example
+
+<div><fiddle-embed name="f3b9effa700b1b95ce10caf422b020cd"></fiddle-embed></div>
+
+## <a name="Color_Type_RGB_888x"></a> Color Type RGB 888x
+
+<a href="#Color_Type_RGB_888x">RGB 888x</a> is a 32-bit word pixel encoding that contains eight bits of red,
+eight bits of green, eight bits of blue, and eight unused bits. <a href="#Color_Type_RGB_888x">RGB 888x</a> is fully
+opaque as if its <a href="undocumented#Alpha">Color Alpha</a> was set to one, and should always be paired with
+<a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>.
+
+![Color_Type_RGB_888x](https://fiddle.skia.org/i/fecfe58c25cfc1b1e411e5eb50f7d8d1_raster.png "")
+
+### Example
+
+<div><fiddle-embed name="1e236c4c9ce0597c22186589fee9dc1e"></fiddle-embed></div>
+
+## <a name="Color_Type_BGRA_8888"></a> Color Type BGRA 8888
+
+<a href="#Color_Type_BGRA_8888">BGRA 8888</a> is a 32-bit word pixel encoding that contains eight bits of blue,
+eight bits of green, eight bits of red, and eight bits of alpha.
+
+![Color_Type_BGRA_8888](https://fiddle.skia.org/i/babd0e12db21a88c74d4e88aa40268ab_raster.png "")
+
+If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: blue, green, and red components are
+premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+the drawn result is undefined.
+
+If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: blue, green, red, and alpha components
+may have any value. There may be a performance penalty with unpremultipled
+pixels.
+
+If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
+blue, green, and red components are fully opaque. If any alpha component is
+less than 255, the drawn result is undefined.
+
+On Little_Endian platforms, <a href="#Color_Type_BGRA_8888">BGRA 8888</a> is the native <a href="#Color_Type">Color Type</a>, and will have
+the best performance. Use <a href="#kN32_SkColorType">kN32_SkColorType</a> to choose the best <a href="#Color_Type">Color Type</a> for
+the platform at compile time.
+
+### Example
+
+<div><fiddle-embed name="fcadba68a4fe7253b1726487e12b1eeb"></fiddle-embed></div>
+
+## <a name="Color_Type_RGBA_1010102"></a> Color Type RGBA 1010102
+
+<a href="#Color_Type_RGBA_1010102">RGBA 1010102</a> is a 32-bit word pixel encoding that contains ten bits of red,
+ten bits of green, ten bits of blue, and two bits of alpha. Possible alpha
+values are zero: fully transparent; one: 33% opaque; two: 67% opaque;
+three: fully opaque.
+
+![Color_Type_RGBA_1010102](https://fiddle.skia.org/i/6c470410001ad8f1ee9f58204c66f1bb_raster.png "")
+
+If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: red, green, and blue components are
+premultiplied by the alpha value. If red, green, or blue is greater than the
+alpha replicated to ten bits, the drawn result is undefined.
+
+If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: alpha, red, green, and blue components
+may have any value. There may be a performance penalty with unpremultipled
+pixels.
+
+If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
+red, green, and blue components are fully opaque. If any alpha component is
+less than 3, the drawn result is undefined.
+
+### Example
+
+<div><fiddle-embed name="1bf1a6f087b4f2f93962960902061a7a"></fiddle-embed></div>
+
+## <a name="Color_Type_RGB_101010x"></a> Color Type RGB 101010x
+
+![Color_Type_RGB_101010x](https://fiddle.skia.org/i/c22477b11dabaa3e3a0b5bb33a7733cd_raster.png "")
+
+### Example
+
+<div><fiddle-embed name="d975ec17354b1297841e4a31d3f6a5d5"></fiddle-embed></div>
+
+## <a name="Color_Type_Gray_8"></a> Color Type Gray 8
+
+### Example
+
+<div><fiddle-embed name="93da0eb0b6722a4f33dc7dae094abf0b"></fiddle-embed></div>
+
+## <a name="Color_Type_RGBA_F16"></a> Color Type RGBA F16
+
+![Color_Type_RGBA_F16](https://fiddle.skia.org/i/9344796c059ff5e4f057595e781905b3_raster.png "")
+
+### Example
+
+<div><fiddle-embed name="1795410dffea303b08ba98ee78dc1556"></fiddle-embed></div>
 
 ## <a name="YUV_ColorSpace"></a> YUV ColorSpace
 
