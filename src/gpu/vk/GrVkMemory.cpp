@@ -89,9 +89,12 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
         alloc->fFlags = mpf & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ? 0x0
                                                                    : GrVkAlloc::kNoncoherent_Flag;
         if (SkToBool(alloc->fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+            SkDebugf("WILL BE ALLOCATIONG NON COHERENT\n");
+            SkDebugf("memReq alignment: %d, atom align: %d\n", memReqs.alignment, phDevProps.limits.nonCoherentAtomSize);
             SkASSERT(SkIsPow2(memReqs.alignment));
             SkASSERT(SkIsPow2(phDevProps.limits.nonCoherentAtomSize));
             memReqs.alignment = SkTMax(memReqs.alignment, phDevProps.limits.nonCoherentAtomSize);
+            SkDebugf("new align: %d\n", memReqs.alignment);
         }
     } else {
         // device-local memory should always be available for static buffers
@@ -115,6 +118,14 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
             return false;
         }
     }
+    if (SkToBool(alloc->fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+        VkDeviceSize alignment = phDevProps.limits.nonCoherentAtomSize;
+        if (0 != ((alignment-1) & alloc->fOffset)) {
+            SkDebugf("failure, alignment: %d, offset: %d\n", alignment, alloc->fOffset);
+        }
+        SkASSERT(0 == ((alignment-1) & alloc->fOffset));
+    }
+        SkDebugf("____Done ALLOCATIONG NON COHERENT______\n");
 
     // Bind buffer
     VkResult err = GR_VK_CALL(iface, BindBufferMemory(device, buffer,
@@ -159,6 +170,7 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
     uint32_t heapIndex = 0;
     GrVkHeap* heap;
     const VkPhysicalDeviceMemoryProperties& phDevMemProps = gpu->physicalDeviceMemoryProperties();
+    const VkPhysicalDeviceProperties& phDevProps = gpu->physicalDeviceProperties();
     if (linearTiling) {
         VkMemoryPropertyFlags desiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                                 VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
@@ -178,6 +190,14 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
         VkMemoryPropertyFlags mpf = phDevMemProps.memoryTypes[typeIndex].propertyFlags;
         alloc->fFlags = mpf & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ? 0x0
                                                                    : GrVkAlloc::kNoncoherent_Flag;
+        if (SkToBool(alloc->fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+            SkDebugf("WILL BE ALLOCATIONG NON COHERENT IMage\n");
+            SkDebugf("image memReq alignment: %d, atom align: %d\n", memReqs.alignment, phDevProps.limits.nonCoherentAtomSize);
+            SkASSERT(SkIsPow2(memReqs.alignment));
+            SkASSERT(SkIsPow2(phDevProps.limits.nonCoherentAtomSize));
+            memReqs.alignment = SkTMax(memReqs.alignment, phDevProps.limits.nonCoherentAtomSize);
+            SkDebugf("image new align: %d\n", memReqs.alignment);
+        }
     } else {
         // this memory type should always be available
         SkASSERT_RELEASE(get_valid_memory_type_index(phDevMemProps,
@@ -322,6 +342,7 @@ bool GrVkFreeListAlloc::alloc(VkDeviceSize requestedSize,
                               VkDeviceSize* allocOffset, VkDeviceSize* allocSize) {
     VkDeviceSize alignedSize = align_size(requestedSize, fAlignment);
 
+    SkDebugf("free list alloc, alignment: %d\n", fAlignment);
     // find the smallest block big enough for our allocation
     FreeList::Iter iter = fFreeList.headIter();
     FreeList::Iter bestFitIter;
@@ -347,6 +368,7 @@ bool GrVkFreeListAlloc::alloc(VkDeviceSize requestedSize,
     Block* bestFit = bestFitIter.get();
     if (bestFit) {
         SkASSERT(align_size(bestFit->fOffset, fAlignment) == bestFit->fOffset);
+        SkDebugf("in free alloc: offset: %d, alignment: %d\n", bestFit->fOffset, fAlignment);
         *allocOffset = bestFit->fOffset;
         *allocSize = alignedSize;
         // adjust or remove current block
@@ -521,7 +543,9 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
     VkDeviceSize alignedSize = align_size(size, alignment);
 
     // if requested is larger than our subheap allocation, just alloc directly
+    SkDebugf("subAlloc, alignment: %d\n", alignment);
     if (alignedSize > fSubHeapSize) {
+        SkDebugf("subAlloc, Doing heap alloc\n");
         VkMemoryAllocateInfo allocInfo = {
             VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,      // sType
             nullptr,                                     // pNext
@@ -562,6 +586,7 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
 
     if (bestFitIndex >= 0) {
         SkASSERT(fSubHeaps[bestFitIndex]->alignment() == alignment);
+        SkDebugf("subAlloc, found bestFit, alignment: %d\n", alignment);
         if (fSubHeaps[bestFitIndex]->alloc(size, alloc)) {
             fUsedSize += alloc->fSize;
             return true;
@@ -569,6 +594,7 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
         return false;
     }
 
+    SkDebugf("subAlloc, making new subheap, alignment: %d\n", alignment);
     // need to allocate a new subheap
     std::unique_ptr<GrVkSubHeap>& subHeap = fSubHeaps.push_back();
     subHeap.reset(new GrVkSubHeap(fGpu, memoryTypeIndex, heapIndex, fSubHeapSize, alignment));
