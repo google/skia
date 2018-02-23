@@ -170,6 +170,8 @@ private:
     SkExecutor* fExecutor = nullptr;
     std::unique_ptr<SkExecutor> fInternalExecutor;
 
+    SkSTArenaAlloc<8 << 10> fAlloc; // so we can allocate memory that lives until flush
+
     DrawQueue fQueue;
 
     friend struct SkInitOnceData;   // to access DrawElement
