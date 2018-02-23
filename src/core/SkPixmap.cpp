@@ -123,7 +123,7 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
           && width == this->rowBytesAsPixels()
           && inArea == this->bounds()) {
         // All formats represent SkColor(0) as byte 0.
-        memset(this->writable_addr(), 0, height * rowBytes);
+        memset(this->writable_addr(), 0, (int64_t)height * rowBytes);
         return true;
     }
 
