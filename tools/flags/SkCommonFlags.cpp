@@ -99,6 +99,9 @@ DEFINE_bool(deltaAA, kDefaultDeltaAA,
 
 DEFINE_bool(forceDeltaAA, false, "Force delta anti-aliasing for all paths.");
 
+DEFINE_int32(backendTiles, 3, "Number of tiles in the experimental threaded backend.");
+DEFINE_int32(backendThreads, 2, "Number of threads in the experimental threaded backend.");
+
 bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);
 
