@@ -972,6 +972,9 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
         SkStrokeRec::InitStyle style = doFill ? SkStrokeRec::kFill_InitStyle
         : SkStrokeRec::kHairline_InitStyle;
         if (as_MFB(paint.getMaskFilter())->filterPath(devPath, *fMatrix, *fRC, blitter, style)) {
+            if (iData) {
+                iData->setEmptyDrawFn();
+            }
             return; // filterPath() called the blitter, so we're done
         }
     }
@@ -1053,6 +1056,9 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
 
     // nothing to draw
     if (fRC->isEmpty()) {
+        if (iData) {
+            iData->setEmptyDrawFn();
+        }
         return;
     }
 
