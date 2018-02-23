@@ -159,6 +159,7 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
     uint32_t heapIndex = 0;
     GrVkHeap* heap;
     const VkPhysicalDeviceMemoryProperties& phDevMemProps = gpu->physicalDeviceMemoryProperties();
+    const VkPhysicalDeviceProperties& phDevProps = gpu->physicalDeviceProperties();
     if (linearTiling) {
         VkMemoryPropertyFlags desiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                                 VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
@@ -178,6 +179,11 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
         VkMemoryPropertyFlags mpf = phDevMemProps.memoryTypes[typeIndex].propertyFlags;
         alloc->fFlags = mpf & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ? 0x0
                                                                    : GrVkAlloc::kNoncoherent_Flag;
+        if (SkToBool(alloc->fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+            SkASSERT(SkIsPow2(memReqs.alignment));
+            SkASSERT(SkIsPow2(phDevProps.limits.nonCoherentAtomSize));
+            memReqs.alignment = SkTMax(memReqs.alignment, phDevProps.limits.nonCoherentAtomSize);
+        }
     } else {
         // this memory type should always be available
         SkASSERT_RELEASE(get_valid_memory_type_index(phDevMemProps,
