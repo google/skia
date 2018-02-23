@@ -9,19 +9,32 @@ These are universal APKs that contain native libraries for armeabi-v7a,
 arm64-v8a, x86, and x86\_64 architectures. The most recent is listed first:
 
 <!--
-TZ='' git log \
--\-date='format-local:%Y-%m-%d %H:%M:%S %Z' -5 origin/skqp/dev \
--\-format='  * [`%h`](https://storage.googleapis.com/skia-skqp/skqp-universal-%h.apk)%n    | `%cd` | %<(30,trunc)%s'
+#!/bin/sh
+BRANCH=origin/skqp/dev
+for commit in $(git log $BRANCH -30 -\-format=%H) ; do
+    U='https://storage.googleapis.com/skia-skqp/skqp-universal-'
+    URL="${U}$(git log -1 -\-format=%h $commit).apk"
+    if [ 200 -ne "$(curl -s -o /dev/null -w "%{http_code}" "$URL")" ] ; then
+        continue
+    fi
+    TZ='' git log \
+        -\-date='format-local:%Y-%m-%d %H:%M:%S %Z' -1 $commit \
+        -\-format="  * [\`%h\`](${U}%h.apk)%n    | \`%cd\` | %<(50,trunc)%s"
+done
 -->
 
+  * [`120ffdd88c`](https://storage.googleapis.com/skia-skqp/skqp-universal-120ffdd88c.apk)
+    | `2018-02-23 19:08:26 UTC` | SkQP:  do test filtering correctly
+  * [`5eff3287c9`](https://storage.googleapis.com/skia-skqp/skqp-universal-5eff3287c9.apk)
+    | `2018-02-22 14:00:28 UTC` | Remove branch lookup from skqp-dev
   * [`103b402a29`](https://storage.googleapis.com/skia-skqp/skqp-universal-103b402a29.apk)
     | `2018-02-21 20:56:10 UTC` | SkQP: run a single test
   * [`38efb0d355`](https://storage.googleapis.com/skia-skqp/skqp-universal-38efb0d355.apk)
-    | `2018-02-20 20:48:45 UTC` | Add SKQP bot to build univer..
+    | `2018-02-20 20:48:45 UTC` | Add SKQP bot to build universal APK to master
   * [`d69db48840`](https://storage.googleapis.com/skia-skqp/skqp-universal-d69db48840.apk)
     | `2018-02-13 21:07:09 UTC` | SkQP: relax five tests
   * [`337919990b`](https://storage.googleapis.com/skia-skqp/skqp-universal-337919990b.apk)
-    | `2018-02-13 19:33:12 UTC` | SkQP:  debug option, and fix..
+    | `2018-02-13 19:33:12 UTC` | SkQP:  debug option, and fix a bug
 
 To run tests:
 
