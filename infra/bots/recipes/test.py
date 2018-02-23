@@ -890,6 +890,19 @@ def test_steps(api):
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.dm_dir, api.vars.dm_dir)
 
+# def test_firebase_steps(api):
+#   """Test an APK on Firebase Testlab."""
+#   args = [
+#     'testlab_runner',
+#     '--', api.flavor.device_dirs.resource_dir,
+#     '--skps', api.flavor.device_dirs.skp_dir,
+#     '--images', api.flavor.device_path_join(
+#         api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
+#     '--nameByHash',
+#     '--properties'
+#   ]
+
+#   api.run(api.flavor.step, 'firebase testlab run', cmd=args)
 
 def RunSteps(api):
   api.core.setup()
