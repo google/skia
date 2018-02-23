@@ -47,9 +47,12 @@ if [ -z "${APK_OUTPUT_DIR}" ]; then
 fi
 
 cd "$(dirname "$0")/../.."
-python tools/skqp/download_model
-if [ -z "$SKQP_EXTRA_MODELS" ]; then
-    python tools/skqp/remove_unneeded_assets
+
+if [ -f platform_tools/android/apps/skqp/src/main/assets/files.checksum ]; then
+    python tools/skqp/download_model
+    if [ -z "$SKQP_EXTRA_MODELS" ]; then
+        python tools/skqp/remove_unneeded_assets
+    fi
 fi
 
 python tools/skqp/setup_resources
