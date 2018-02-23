@@ -66,6 +66,10 @@ public:
         return 0;
     }
 
+    bool renderTargetWritePixelsSupported(bool isAlsoTexture, int sampleCnt) const override {
+        return true;
+    }
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
         return false;
