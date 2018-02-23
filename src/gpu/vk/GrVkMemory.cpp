@@ -115,6 +115,13 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
             return false;
         }
     }
+    if (SkToBool(alloc->fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+        VkDeviceSize alignment = phDevProps.limits.nonCoherentAtomSize;
+        if (0 != ((alignment-1) & alloc->fOffset)) {
+            SkDebugf("failure, alignment: %d, offset: %d\n", alignment, alloc->fOffset);
+        }
+        SkASSERT(0 == ((alignment-1) & alloc->fOffset));
+    }
 
     // Bind buffer
     VkResult err = GR_VK_CALL(iface, BindBufferMemory(device, buffer,
