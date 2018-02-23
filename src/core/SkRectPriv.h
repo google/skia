@@ -52,6 +52,10 @@ public:
         return SkFitsInFixed(r.fLeft) && SkFitsInFixed(r.fTop) &&
                SkFitsInFixed(r.fRight) && SkFitsInFixed(r.fBottom);
     }
+
+    static bool InclusiveNoEmptyCheckContains(const SkRect& r, SkScalar x, SkScalar y) {
+        return r.fLeft <= x && x <= r.fRight && r.fTop <= y && y <= r.fBottom;
+    }
 };
 
 
