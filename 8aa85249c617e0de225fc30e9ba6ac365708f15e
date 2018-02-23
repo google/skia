@@ -22,6 +22,30 @@
       "revId": "8aa85249c617e0de225fc30e9ba6ac365708f15e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27ebb283_f43d92b3",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-02-23T18:58:34Z",
+      "side": 1,
+      "message": "Add to the bad friends list.",
+      "parentUuid": "83013512_cc083c24",
+      "range": {
+        "startLine": 200,
+        "startChar": 12,
+        "endLine": 200,
+        "endChar": 29
+      },
+      "revId": "8aa85249c617e0de225fc30e9ba6ac365708f15e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
