@@ -179,6 +179,22 @@ public:
         return this->getRenderTargetSampleCount(requestedCount, config);
     }
 
+    /**
+     * Some backends have restrictions on what types of render targets GrGpu::writePixels() will
+     * succeed on. If this returns false the caller should create a temporary texture and draw
+     * that to the render target to effectively implement the writePixels.
+     */
+    virtual bool renderTargetWritePixelsSupported(bool isAlsoTexture, int sampleCnt) const = 0;
+
+    /**
+     * Given a dst pixel config and a src color type what color type must the caller coax the
+     * the data into in order to use GrGpu::writePixels().
+     */
+    virtual GrColorType supportedWritePixelsColorType(GrPixelConfig config,
+                                                      GrColorType /*srcColorType*/) const {
+        return GrPixelConfigToColorType(config);
+    }
+
     bool suppressPrints() const { return fSuppressPrints; }
 
     size_t bufferMapThreshold() const {
