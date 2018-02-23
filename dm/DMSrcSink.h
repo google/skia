@@ -274,11 +274,11 @@ public:
 
 private:
     // Generates a kTileCount x kTileCount filmstrip with evenly distributed frames.
-    static constexpr int               kTileCount = 5;
+    static constexpr int      kTileCount = 5;
 
-    Name                               fName;
-    SkISize                            fTileSize = SkISize::MakeEmpty();
-    std::unique_ptr<skottie::Animation> fAnimation;
+    Name                      fName;
+    SkISize                   fTileSize = SkISize::MakeEmpty();
+    sk_sp<skottie::Animation> fAnimation;
 };
 #endif
 
