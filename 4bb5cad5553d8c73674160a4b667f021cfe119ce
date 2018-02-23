@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66542169_2aa3f884",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-23T18:58:22Z",
+      "side": 1,
+      "message": "Is there a reason this and fFlags need to be public? It seems inconsistent. Maybe add getters and setters?",
+      "range": {
+        "startLine": 118,
+        "startChar": 4,
+        "endLine": 118,
+        "endChar": 27
+      },
+      "revId": "4bb5cad5553d8c73674160a4b667f021cfe119ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
