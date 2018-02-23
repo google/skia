@@ -973,14 +973,16 @@ public:
         const SkScalar R = bounds.fRight;
         const SkScalar B = bounds.fBottom;
 
-        fPts[0] = SkPoint::Make(L + rrect.radii(SkRRect::kUpperLeft_Corner).fX, T);
-        fPts[1] = SkPoint::Make(R - rrect.radii(SkRRect::kUpperRight_Corner).fX, T);
-        fPts[2] = SkPoint::Make(R, T + rrect.radii(SkRRect::kUpperRight_Corner).fY);
-        fPts[3] = SkPoint::Make(R, B - rrect.radii(SkRRect::kLowerRight_Corner).fY);
-        fPts[4] = SkPoint::Make(R - rrect.radii(SkRRect::kLowerRight_Corner).fX, B);
-        fPts[5] = SkPoint::Make(L + rrect.radii(SkRRect::kLowerLeft_Corner).fX, B);
-        fPts[6] = SkPoint::Make(L, B - rrect.radii(SkRRect::kLowerLeft_Corner).fY);
-        fPts[7] = SkPoint::Make(L, T + rrect.radii(SkRRect::kUpperLeft_Corner).fY);
+        SkPoint center[4];
+        rrect.getCenters(center);
+        fPts[0] = SkPoint::Make(center[SkRRect::kUpperLeft_Corner].fX, T);
+        fPts[1] = SkPoint::Make(center[SkRRect::kUpperRight_Corner].fX, T);
+        fPts[2] = SkPoint::Make(R, center[SkRRect::kUpperRight_Corner].fY);
+        fPts[3] = SkPoint::Make(R, center[SkRRect::kLowerRight_Corner].fY);
+        fPts[4] = SkPoint::Make(center[SkRRect::kLowerRight_Corner].fX, B);
+        fPts[5] = SkPoint::Make(center[SkRRect::kLowerLeft_Corner].fX, B);
+        fPts[6] = SkPoint::Make(L, center[SkRRect::kLowerLeft_Corner].fY);
+        fPts[7] = SkPoint::Make(L, center[SkRRect::kUpperLeft_Corner].fY);
     }
 };
 

@@ -117,7 +117,7 @@ public:
      *  this still returns that corner's radii, but it is not indicative of the other corners.
      */
     SkVector getSimpleRadii() const {
-        return fRadii[0];
+        return { fInner[0].fX - fRect.fLeft, fInner[0].fY - fRect.fTop };
     }
 
     /**
@@ -128,16 +128,7 @@ public:
     /**
      * Set this RR to match the supplied rect. All radii will be 0.
      */
-    void setRect(const SkRect& rect) {
-        if (!this->initializeRect(rect)) {
-            return;
-        }
-
-        memset(fRadii, 0, sizeof(fRadii));
-        fType = kRect_Type;
-
-        SkASSERT(this->isValid());
-    }
+    void setRect(const SkRect& rect);
 
     /** Makes an empty rrect at the origin with zero width and height. */
     static SkRRect MakeEmpty() { return SkRRect(); }
@@ -169,14 +160,17 @@ public:
             return;
         }
 
-        SkScalar xRad = SkScalarHalf(fRect.width());
-        SkScalar yRad = SkScalarHalf(fRect.height());
-
+        SkScalar cx = fRect.centerX();
+        SkScalar cy = fRect.centerY();
         for (int i = 0; i < 4; ++i) {
-            fRadii[i].set(xRad, yRad);
+            fInner[i].set(cx, cy);
         }
         fType = kOval_Type;
 
+        if (!this->isValid()) {
+            SkRRect tmp(*this);
+            tmp.computeType();
+        }
         SkASSERT(this->isValid());
     }
 
@@ -205,15 +199,17 @@ public:
     };
 
     const SkRect& rect() const { return fRect; }
-    SkVector radii(Corner corner) const { return fRadii[corner]; }
     const SkRect& getBounds() const { return fRect; }
 
+    SkVector radii(Corner corner) const;
+    void getCenters(SkPoint[4]) const;
+
     friend bool operator==(const SkRRect& a, const SkRRect& b) {
-        return a.fRect == b.fRect && SkScalarsEqual(&a.fRadii[0].fX, &b.fRadii[0].fX, 8);
+        return a.fRect == b.fRect && SkScalarsEqual(&a.fInner[0].fX, &b.fInner[0].fX, 8);
     }
 
     friend bool operator!=(const SkRRect& a, const SkRRect& b) {
-        return a.fRect != b.fRect || !SkScalarsEqual(&a.fRadii[0].fX, &b.fRadii[0].fX, 8);
+        return !(a == b);
     }
 
     /**
@@ -244,9 +240,7 @@ public:
      *
      *  It is valid for dst == this.
      */
-    void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
-        this->inset(-dx, -dy, dst);
-    }
+    void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const;
     void outset(SkScalar dx, SkScalar dy) {
         this->inset(-dx, -dy, this);
     }
@@ -255,12 +249,10 @@ public:
      * Translate the rrect by (dx, dy).
      */
     void offset(SkScalar dx, SkScalar dy) {
-        fRect.offset(dx, dy);
+        *this = this->makeOffset(dx, dy);
     }
 
-    SkRRect SK_WARN_UNUSED_RESULT makeOffset(SkScalar dx, SkScalar dy) const {
-        return SkRRect(fRect.makeOffset(dx, dy), fRadii, fType);
-    }
+    SkRRect SK_WARN_UNUSED_RESULT makeOffset(SkScalar dx, SkScalar dy) const;
 
     /**
      *  Returns true if 'rect' is wholy inside the RR, and both
@@ -314,29 +306,26 @@ public:
 private:
     static bool AreRectAndRadiiValid(const SkRect&, const SkVector[4]);
 
-    SkRRect(const SkRect& rect, const SkVector radii[4], int32_t type)
-        : fRect(rect)
-        , fRadii{radii[0], radii[1], radii[2], radii[3]}
-        , fType(type) {}
-
     /**
      * Initializes fRect. If the passed in rect is not finite or empty the rrect will be fully
      * initialized and false is returned. Otherwise, just fRect is initialized and true is returned.
      */
     bool initializeRect(const SkRect&);
-
+    void getRadii(SkVector[4]) const;
     void computeType();
     bool checkCornerContainment(SkScalar x, SkScalar y) const;
-    void scaleRadii();
+    void scaleRadii(const SkVector[4]);
+
+    // legacy storage format
+    size_t readFromMemory_radii_version(const void* storage, size_t);
 
     SkRect fRect = SkRect::MakeEmpty();
-    // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
-    SkVector fRadii[4] = {{0, 0}, {0, 0}, {0,0}, {0,0}};
+    // Radii order is UL, UR, LR, LL. Use Corner enum to index into fInner[]
+    SkPoint fInner[4] = {{0,0}, {0,0}, {0,0}, {0,0}};
     // use an explicitly sized type so we're sure the class is dense (no uninitialized bytes)
     int32_t fType = kEmpty_Type;
     // TODO: add padding so we can use memcpy for flattening and not copy uninitialized data
 
-    // to access fRadii directly
     friend class SkPath;
     friend class SkRRectPriv;
 };
