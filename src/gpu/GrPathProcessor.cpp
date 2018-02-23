@@ -83,7 +83,7 @@ public:
         while (const GrCoordTransform* coordTransform = transformIter.next()) {
             SkASSERT(fInstalledTransforms[t].fHandle.isValid());
             const SkMatrix& m = GetTransformMatrix(pathProc.localMatrix(), *coordTransform);
-            if (fInstalledTransforms[t].fCurrentValue.cheapEqualTo(m)) {
+            if (SkMatrixPriv::CheapEqualTo(fInstalledTransforms[t].fCurrentValue, m)) {
                 continue;
             }
             fInstalledTransforms[t].fCurrentValue = m;

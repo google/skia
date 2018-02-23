@@ -6,7 +6,7 @@
  */
 
 #include "GrDefaultGeoProcFactory.h"
-
+#include "SkMatrixPriv.h"
 #include "SkRefCnt.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -193,7 +193,8 @@ public:
                      FPCoordTransformIter&& transformIter) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
-            if (!dgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dgp.viewMatrix())) {
+            if (!dgp.viewMatrix().isIdentity() &&
+                !SkMatrixPriv::CheapEqualTo(fViewMatrix, dgp.viewMatrix())) {
                 fViewMatrix = dgp.viewMatrix();
                 float viewMatrix[3 * 3];
                 GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);

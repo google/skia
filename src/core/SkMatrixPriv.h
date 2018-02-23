@@ -174,6 +174,14 @@ public:
             mx.mapPoints(quad, quad, 4);
         }
     }
+
+    static void MapHomogeneousPoints(const SkMatrix&, SkPoint3 dst[], const SkPoint3 src[], int count);
+
+    static bool CheapEqualTo(const SkMatrix& a, const SkMatrix& b);
+
+    static bool IsSimilarity(const SkMatrix&);
+    static bool PreservesRightAngles(const SkMatrix&);
+    static bool PreservesAxisAlignment(const SkMatrix&);
 };
 
 #endif

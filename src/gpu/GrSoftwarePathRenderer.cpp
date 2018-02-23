@@ -16,6 +16,7 @@
 #include "GrProxyProvider.h"
 #include "GrSWMaskHelper.h"
 #include "SkMakeUnique.h"
+#include "SkMatrixPriv.h"
 #include "SkSemaphore.h"
 #include "SkTaskGroup.h"
 #include "SkTraceEvent.h"
@@ -245,7 +246,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkIRect unclippedDevShapeBounds, clippedDevShapeBounds, devClipBounds;
     // To prevent overloading the cache with entries during animations we limit the cache of masks
     // to cases where the matrix preserves axis alignment.
-    bool useCache = fAllowCaching && !inverseFilled && args.fViewMatrix->preservesAxisAlignment() &&
+    bool useCache = fAllowCaching && !inverseFilled && SkMatrixPriv::PreservesAxisAlignment(*args.fViewMatrix) &&
                     args.fShape->hasUnstyledKey() && GrAAType::kCoverage == args.fAAType;
 
     if (!get_shape_and_clip_bounds(args.fRenderTargetContext->width(),

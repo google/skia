@@ -6,7 +6,7 @@
  */
 
 #include "SkGeometry.h"
-#include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "SkNx.h"
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
@@ -1360,7 +1360,7 @@ SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w,
 
     ratquad_mapTo3D(pts, w, src);
 
-    matrix.mapHomogeneousPoints(dst, src, 3);
+    SkMatrixPriv::MapHomogeneousPoints(matrix, dst, src, 3);
 
     // w' = sqrt(w1*w1/w0*w2)
     SkScalar w0 = dst[0].fZ;

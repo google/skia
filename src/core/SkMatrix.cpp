@@ -771,6 +771,7 @@ static double sk_inv_determinant(const float mat[9], int isPerspective) {
     return 1.0 / det;
 }
 
+#if 0
 void SkMatrix::SetAffineIdentity(SkScalar affine[6]) {
     affine[kAScaleX] = 1;
     affine[kASkewY] = 0;
@@ -779,6 +780,7 @@ void SkMatrix::SetAffineIdentity(SkScalar affine[6]) {
     affine[kATransX] = 0;
     affine[kATransY] = 0;
 }
+#endif
 
 bool SkMatrix::asAffine(SkScalar affine[6]) const {
     if (this->hasPerspective()) {

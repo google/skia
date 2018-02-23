@@ -22,7 +22,7 @@
 GR_DECLARE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
 static inline bool view_matrix_ok_for_aa_fill_rect(const SkMatrix& viewMatrix) {
-    return viewMatrix.preservesRightAngles();
+    return SkMatrixPriv::PreservesRightAngles(viewMatrix);
 }
 
 static inline void set_inset_fan(SkPoint* pts, size_t stride, const SkRect& r, SkScalar dx,

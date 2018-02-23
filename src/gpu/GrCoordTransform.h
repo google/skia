@@ -8,7 +8,7 @@
 #ifndef GrCoordTransform_DEFINED
 #define GrCoordTransform_DEFINED
 
-#include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
 
@@ -96,7 +96,7 @@ public:
     bool hasSameEffectAs(const GrCoordTransform& that) const {
         if (fNormalize != that.fNormalize ||
             fReverseY != that.fReverseY ||
-            !fMatrix.cheapEqualTo(that.fMatrix)) {
+            !SkMatrixPriv::CheapEqualTo(fMatrix, that.fMatrix)) {
             return false;
         }
 

@@ -6,6 +6,7 @@
  */
 
 #include "SkMatrix44.h"
+#include "SkMatrixPriv.h"
 #include "SkPoint3.h"
 #include "Test.h"
 
@@ -561,7 +562,7 @@ static void test_3x3_conversion(skiatest::Reporter* reporter) {
     SkPoint3 vec3transformed;
     SkScalar vec4transformed2[4];
     a44.mapScalars(vec4, vec4transformed);
-    a33.mapHomogeneousPoints(&vec3transformed, &vec3, 1);
+    SkMatrixPriv::MapHomogeneousPoints(a33, &vec3transformed, &vec3, 1);
     a44flattened.mapScalars(vec4, vec4transformed2);
     REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[0], vec3transformed.fX));
     REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[1], vec3transformed.fY));

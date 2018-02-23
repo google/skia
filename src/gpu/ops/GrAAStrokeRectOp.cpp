@@ -11,6 +11,7 @@
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
+#include "SkMatrixPriv.h"
 #include "SkPointPriv.h"
 #include "SkStrokeRec.h"
 
@@ -409,7 +410,7 @@ bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
     // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
     // local coords then we won't be able to combine. TODO: Upload local coords as an attribute.
-    if (fHelper.usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+    if (fHelper.usesLocalCoords() && !SkMatrixPriv::CheapEqualTo(this->viewMatrix(), that->viewMatrix())) {
         return false;
     }
 

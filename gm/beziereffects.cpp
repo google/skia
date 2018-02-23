@@ -18,6 +18,7 @@
 #include "GrTest.h"
 #include "SkColorPriv.h"
 #include "SkGeometry.h"
+#include "SkMatrixPriv.h"
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
 #include "effects/GrBezierEffect.h"
@@ -273,7 +274,7 @@ private:
                                      rect.fBottom, sizeof(Vertex));
         for (int v = 0; v < 4; ++v) {
             SkPoint3 pt3 = {verts[v].fPosition.x(), verts[v].fPosition.y(), 1.f};
-            fKLM.mapHomogeneousPoints((SkPoint3* ) verts[v].fKLM, &pt3, 1);
+            SkMatrixPriv::MapHomogeneousPoints(fKLM, (SkPoint3* ) verts[v].fKLM, &pt3, 1);
         }
         helper.recordDraw(target, this->gp(), this->makePipeline(target));
     }

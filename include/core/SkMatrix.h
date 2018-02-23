@@ -216,7 +216,9 @@ public:
 
         @return  true if SkMatrix maps one SkRect into another
     */
+private:
     bool preservesAxisAlignment() const { return this->rectStaysRect(); }
+public:
 
     /** Returns true if the matrix contains perspective elements. SkMatrix form is:
 
@@ -248,7 +250,9 @@ public:
         @param tol  to be deprecated
         @return     true if SkMatrix only rotates, uniformly scales, translates
     */
+private:
     bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const;
+public:
 
     /** Returns true if SkMatrix contains only translation, rotation, reflection, and
         scale. Scale may differ along rotated axes.
@@ -261,7 +265,9 @@ public:
         @param tol  to be deprecated
         @return     true if SkMatrix only rotates, scales, translates
     */
+private:
     bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const;
+public:
 
     /** \enum
         SkMatrix organizes its values in row order. These members correspond to
@@ -1289,8 +1295,9 @@ public:
         @param src    SkPoint3 array to transform
         @param count  items in SkPoint3 array to transform
     */
+private:
     void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const;
-
+public:
     /** Maps SkPoint (x, y) to result. SkPoint is mapped by multiplying by SkMatrix. Given:
 
                      | A B C |        | x |
@@ -1517,6 +1524,7 @@ public:
 
         @return  true if SkMatrix does not have complex perspective
     */
+private:
     bool isFixedStepInX() const;
 
     /** Returns vector representing a unit step in x at y mapped through SkMatrix.
@@ -1543,6 +1551,8 @@ public:
     bool cheapEqualTo(const SkMatrix& m) const {
         return 0 == memcmp(fMat, m.fMat, sizeof(fMat));
     }
+public:
+
 
     /** Compares a and b; returns true if a and b are numerically equal. Returns true
         even if sign of zero values are different. Returns false if either SkMatrix
