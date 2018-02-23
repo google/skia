@@ -210,6 +210,16 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
+		if os == "Win10" {
+			// Transition to new Win image by model name.
+			_, ok = map[string]bool{
+				"NUC5i7RYH":     true,
+				"NUCD34010WYKH": true,
+			}[parts["model"]]
+			if ok {
+				d["os"] = "Windows-10-16299.248"
+			}
+		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
