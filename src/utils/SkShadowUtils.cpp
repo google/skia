@@ -389,9 +389,9 @@ static void* kNamespace;
  * they are first found in SkResourceCache.
  */
 template <typename FACTORY>
-    void draw_shadow(const FACTORY& factory,
-                     std::function<void(const SkVertices*, SkBlendMode, const SkPaint&,
-                     SkScalar tx, SkScalar ty)> drawProc, ShadowedPath& path, SkColor color) {
+bool draw_shadow(const FACTORY& factory,
+                 std::function<void(const SkVertices*, SkBlendMode, const SkPaint&,
+                 SkScalar tx, SkScalar ty)> drawProc, ShadowedPath& path, SkColor color) {
     FindContext<FACTORY> context(&path.viewMatrix(), &factory);
 
     SkResourceCache::Key* key = nullptr;
@@ -422,7 +422,7 @@ template <typename FACTORY>
             vertices = tessellations->add(path.path(), factory, path.viewMatrix(),
                                           &context.fTranslate);
             if (!vertices) {
-                return;
+                return false;
             }
             auto rec = new CachedTessellationsRec(*key, std::move(tessellations));
             SkResourceCache::Add(rec);
@@ -430,7 +430,7 @@ template <typename FACTORY>
             vertices = factory.makeVertices(path.path(), path.viewMatrix(),
                                             &context.fTranslate);
             if (!vertices) {
-                return;
+                return false;
             }
         }
     }
@@ -444,6 +444,8 @@ template <typename FACTORY>
 
     drawProc(vertices.get(), SkBlendMode::kModulate, paint,
              context.fTranslate.fX, context.fTranslate.fY);
+
+    return true;
 }
 }
 
@@ -456,6 +458,17 @@ static SkPoint3 map(const SkMatrix& m, const SkPoint3& pt) {
     m.mapXY(pt.fX, pt.fY, (SkPoint*)&result.fX);
     result.fZ = pt.fZ;
     return result;
+}
+
+static void draw_blur_ambient(SkBaseDevice* dev, const SkPath& path, const SkDrawShadowRec& rec) {
+}
+
+static void draw_blur_spot(SkBaseDevice* dev, const SkPath& path, const SkDrawShadowRec& rec) {
+    //SkAutoDeviceCTMRestore adr(dev, SkMatrix::Concat(dev->ctm(),
+    //                                                  SkMatrix::MakeTrans(tx, ty)));
+
+    SkPaint paint;
+    paint.setColor(rec.fSpotColor);
 }
 
 void SkShadowUtils::ComputeTonalColors(SkColor inAmbientColor, SkColor inSpotColor,
@@ -557,6 +570,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     float lightRadius = rec.fLightRadius;
 
     if (SkColorGetA(rec.fAmbientColor) > 0) {
+        bool success = false;
         if (uncached) {
             sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix,
                                                                           zPlaneParams,
@@ -570,8 +584,11 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                                                   SkBlendMode::kModulate)->makeComposed(
                                                                    SkGaussianColorFilter::Make()));
                 this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+                success = true;
             }
-        } else {
+        }
+
+        if (!success) {
             AmbientVerticesFactory factory;
             factory.fOccluderHeight = zPlaneParams.fZ;
             factory.fTransparent = transparent;
@@ -582,42 +599,49 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 factory.fOffset.fY = viewMatrix.getTranslateY();
             }
 
-            draw_shadow(factory, drawVertsProc, shadowedPath, rec.fAmbientColor);
+            if (!draw_shadow(factory, drawVertsProc, shadowedPath, rec.fAmbientColor)) {
+                // draw with blur
+
+            }
         }
+
     }
 
     if (SkColorGetA(rec.fSpotColor) > 0) {
-        if (uncached) {
-            sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix,
-                                                                       zPlaneParams,
-                                                                       devLightPos, lightRadius,
-                                                                       transparent);
-            if (vertices) {
-                SkPaint paint;
-                // Run the vertex color through a GaussianColorFilter and then modulate the
-                // grayscale result of that against our 'color' param.
-                paint.setColorFilter(
-                    SkColorFilter::MakeModeFilter(rec.fSpotColor,
-                                                  SkBlendMode::kModulate)->makeComposed(
-                                                                SkGaussianColorFilter::Make()));
-                this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
-            }
-        } else {
-            SpotVerticesFactory factory;
-            SkScalar occluderHeight = zPlaneParams.fZ;
-            float zRatio = SkTPin(occluderHeight / (devLightPos.fZ - occluderHeight), 0.0f, 0.95f);
-            SkScalar radius = lightRadius * zRatio;
+        bool success = false;
+        //if (uncached) {
+        //    sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix,
+        //                                                               zPlaneParams,
+        //                                                               devLightPos, lightRadius,
+        //                                                               transparent);
+        //    if (vertices) {
+        //        SkPaint paint;
+        //        // Run the vertex color through a GaussianColorFilter and then modulate the
+        //        // grayscale result of that against our 'color' param.
+        //        paint.setColorFilter(
+        //            SkColorFilter::MakeModeFilter(rec.fSpotColor,
+        //                                          SkBlendMode::kModulate)->makeComposed(
+        //                                              SkGaussianColorFilter::Make()));
+        //        this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+        //        success = true;
+        //    }
+        //}
 
-            // Compute the scale and translation for the spot shadow.
-            SkScalar scale = devLightPos.fZ / (devLightPos.fZ - occluderHeight);
+        if (!success) {
+            SpotVerticesFactory factory;
+            factory.fOccluderHeight = zPlaneParams.fZ;
+            factory.fDevLightPos = devLightPos;
+            factory.fLightRadius = lightRadius;
+
             SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
             factory.fLocalCenter = center;
             viewMatrix.mapPoints(&center, 1);
-            factory.fOffset = SkVector::Make(zRatio * (center.fX - devLightPos.fX),
-                                             zRatio * (center.fY - devLightPos.fY));
-            factory.fOccluderHeight = occluderHeight;
-            factory.fDevLightPos = devLightPos;
-            factory.fLightRadius = lightRadius;
+            SkScalar radius, scale;
+            SkVector translate;
+            SkDrawShadowMetrics::GetSpotParams(zPlaneParams.fZ, devLightPos.fX - center.fX,
+                                               devLightPos.fY - center.fY, devLightPos.fZ,
+                                               lightRadius, &radius, &scale, &translate);
+            factory.fOffset = translate;
             SkRect devBounds;
             viewMatrix.mapRect(&devBounds, path.getBounds());
             if (transparent ||
@@ -635,6 +659,8 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             // need to add this after we classify the shadow
             factory.fOffset.fX += viewMatrix.getTranslateX();
             factory.fOffset.fY += viewMatrix.getTranslateY();
+
+            SkColor color = rec.fSpotColor;
 #ifdef DEBUG_SHADOW_CHECKS
             switch (factory.fOccluderType) {
                 case SpotVerticesFactory::OccluderType::kTransparent:
@@ -648,7 +674,17 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     break;
             }
 #endif
-            draw_shadow(factory, drawVertsProc, shadowedPath, rec.fSpotColor);
+            //if (!draw_shadow(factory, drawVertsProc, shadowedPath, color)) {
+                // draw with blur
+                SkPaint paint;
+                paint.setColor(rec.fSpotColor);
+                SkMatrix shadowMatrix = SkMatrix::MakeScale(scale);
+                shadowMatrix.postTranslate(translate.fX,
+                                           translate.fY);
+                SkAutoDeviceCTMRestore adr(this, SkMatrix::Concat(viewMatrix, shadowMatrix));
+
+                this->drawPath(path, paint);
+            //}
         }
     }
 }
