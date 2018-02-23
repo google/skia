@@ -68,6 +68,7 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
     uint32_t typeIndex = 0;
     uint32_t heapIndex = 0;
     const VkPhysicalDeviceMemoryProperties& phDevMemProps = gpu->physicalDeviceMemoryProperties();
+    const VkPhysicalDeviceProperties& phDevProps = gpu->physicalDeviceProperties();
     if (dynamic) {
         // try to get cached and ideally non-coherent memory first
         if (!get_valid_memory_type_index(phDevMemProps,
@@ -87,6 +88,11 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
         VkMemoryPropertyFlags mpf = phDevMemProps.memoryTypes[typeIndex].propertyFlags;
         alloc->fFlags = mpf & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ? 0x0
                                                                    : GrVkAlloc::kNoncoherent_Flag;
+        if (SkToBool(alloc->fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+            SkASSERT(SkIsPow2(memReqs.alignment));
+            SkASSERT(SkIsPow2(phDevProps.limits.nonCoherentAtomSize));
+            memReqs.alignment = SkTMax(memReqs.alignment, phDevProps.limits.nonCoherentAtomSize);
+        }
     } else {
         // device-local memory should always be available for static buffers
         SkASSERT_RELEASE(get_valid_memory_type_index(phDevMemProps,
@@ -293,7 +299,7 @@ void GrVkMemory::FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc) {
         mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
         mappedMemoryRange.memory = alloc.fMemory;
         mappedMemoryRange.offset = alloc.fOffset;
-        mappedMemoryRange.size = alloc.fSize;
+        mappedMemoryRange.size = VK_WHOLE_SIZE; // Size of what we mapped
         GR_VK_CALL(gpu->vkInterface(), FlushMappedMemoryRanges(gpu->device(),
                                                                1, &mappedMemoryRange));
     }
@@ -306,7 +312,7 @@ void GrVkMemory::InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& allo
         mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
         mappedMemoryRange.memory = alloc.fMemory;
         mappedMemoryRange.offset = alloc.fOffset;
-        mappedMemoryRange.size = alloc.fSize;
+        mappedMemoryRange.size = VK_WHOLE_SIZE; // Size of what we mapped
         GR_VK_CALL(gpu->vkInterface(), InvalidateMappedMemoryRanges(gpu->device(),
                                                                1, &mappedMemoryRange));
     }
@@ -519,7 +525,7 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
         VkMemoryAllocateInfo allocInfo = {
             VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,      // sType
             nullptr,                                     // pNext
-            size,                                        // allocationSize
+            alignedSize,                                 // allocationSize
             memoryTypeIndex,                             // memoryTypeIndex
         };
 
@@ -531,7 +537,8 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
             return false;
         }
         alloc->fOffset = 0;
-        alloc->fSize = 0;    // hint that this is not a subheap allocation
+        alloc->fSize = alignedSize;
+        alloc->fUsesSystemHeap = true;
 #ifdef SK_DEBUG
         gHeapUsage[VK_MAX_MEMORY_HEAPS] += alignedSize;
 #endif
@@ -624,7 +631,7 @@ bool GrVkHeap::singleAlloc(VkDeviceSize size, VkDeviceSize alignment,
 
 bool GrVkHeap::free(const GrVkAlloc& alloc) {
     // a size of 0 means we're using the system heap
-    if (0 == alloc.fSize) {
+    if (alloc.fUsesSystemHeap) {
         const GrVkInterface* iface = fGpu->vkInterface();
         GR_VK_CALL(iface, FreeMemory(fGpu->device(), alloc.fMemory, nullptr));
         return true;

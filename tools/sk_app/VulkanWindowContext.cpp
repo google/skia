@@ -287,7 +287,7 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
 
         GrVkImageInfo info;
         info.fImage = fImages[i];
-        info.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
+        info.fAlloc = GrVkAlloc();
         info.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;
