@@ -22,6 +22,30 @@
       "revId": "dbfe8ba6508feaefd6078c83fb2f154dbf35505f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0139e8f_1df00939",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-02-23T20:30:43Z",
+      "side": 1,
+      "message": "On size_t \u003d 32bit machine, the allocation should fail, and it won\u0027t get here.\n\nA 32-bit x 32-bit multiply will never overflow an int64_t, so no safe math is needed.",
+      "parentUuid": "b13efecf_ab0b1a4e",
+      "range": {
+        "startLine": 126,
+        "startChar": 41,
+        "endLine": 126,
+        "endChar": 67
+      },
+      "revId": "dbfe8ba6508feaefd6078c83fb2f154dbf35505f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
