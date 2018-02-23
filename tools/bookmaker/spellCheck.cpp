@@ -191,6 +191,8 @@ bool SpellCheck::check(Definition* def) {
             break;
         case MarkType::kHeight:
             break;
+        case MarkType::kIllustration:
+            break;
         case MarkType::kImage:
             break;
         case MarkType::kIn:
