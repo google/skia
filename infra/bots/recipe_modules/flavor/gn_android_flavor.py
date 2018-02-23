@@ -398,6 +398,16 @@ if actual_freq != str(freq):
     # If this is the SkQP built, set up the environment and run the script
     # build the universal APK. This should only run the skqp branches.
     if 'SKQP' in extra_tokens:
+      # Build the helper Go code.
+      self.m.infra.update_go_deps()
+
+      output_binary = self.out_dir.join('run_testlab')
+      pkg_dir = self.m.vars.skia_dir.join('infra', 'cts', '...')
+      build_cmd = ['go', 'build', '-o', output_binary, pkg_dir]
+      with self.m.context(env=self.m.infra.go_env):
+        self.m.run(self.m.step, 'build firebase runner', cmd=build_cmd)
+
+      # Build the APK.
       ndk_asset = 'android_ndk_linux'
       sdk_asset = 'android_sdk_linux'
       android_ndk = self.m.vars.slave_dir.join(ndk_asset)
@@ -405,6 +415,7 @@ if actual_freq != str(freq):
       env = {
         'ANDROID_NDK': android_ndk,
         'ANDROID_HOME': android_home,
+        'APK_OUTPUT_DIR': self.out_dir,
       }
 
       mk_universal = self.m.vars.skia_dir.join('tools', 'skqp',
