@@ -1132,12 +1132,16 @@ bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc, size
     VkDeviceSize mapOffset = alloc.fOffset + bufferOffset;
     VkDeviceSize offsetDiff = 0;
     if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+        SkDebugf("Start, mapSize: %d, mapOffset: %d, allocOffset: %d\n", mapSize, mapOffset, alloc.fOffset);
         VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
+        SkDebugf("alignment: %d\n", alignment);
         offsetDiff = mapOffset & (alignment - 1);
         mapOffset = mapOffset - offsetDiff;
         // Make size of the map aligned to nonCoherentAtomSize
         mapSize = (mapSize + alignment - 1) & ~(alignment - 1);
+        SkDebugf("End, mapSize: %d, mapOffset: %d, offsetDiff: %d\n", mapSize, mapOffset, offsetDiff);
     }
+    SkDebugf("ASSERT: mapOffset: %d, allocOffset: %d\n", mapOffset, alloc.fOffset);
     SkASSERT(mapOffset >= alloc.fOffset);
     SkASSERT(mapSize + mapOffset <= alloc.fOffset + alloc.fSize);
     void* mapPtr;
