@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b13efecf_ab0b1a4e",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-23T20:19:44Z",
+      "side": 1,
+      "message": "So this will quiet UBSan, but then we\u0027re casting to size_t for memset, which may overflow on 32-bit - no?  Which in turn may leave the pixmap only partly erased/initialized.\n\nAny reason to not use SkSafeMath instead?",
+      "range": {
+        "startLine": 126,
+        "startChar": 41,
+        "endLine": 126,
+        "endChar": 67
+      },
+      "revId": "dbfe8ba6508feaefd6078c83fb2f154dbf35505f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
