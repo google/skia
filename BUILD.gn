@@ -1817,7 +1817,7 @@ if (skia_enable_tools) {
 
   if (!is_win) {
     test_lib("skqp_lib") {
-      public_include_dirs = [ "tools/skqp" ]
+      public_include_dirs = [ "tools/skqp/src" ]
       defines =
           [ "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance" ]
       if (skia_skqp_enable_driver_correctness_workarounds) {
@@ -1825,8 +1825,8 @@ if (skia_enable_tools) {
       }
       sources = [
         "dm/DMGpuTestProcs.cpp",
-        "tools/skqp/gm_knowledge.cpp",
-        "tools/skqp/gm_runner.cpp",
+        "tools/skqp/src/skqp.cpp",
+        "tools/skqp/src/skqp_model.cpp",
       ]
       deps = [
         ":gm",
@@ -1838,13 +1838,12 @@ if (skia_enable_tools) {
     }
     test_app("skqp") {
       sources = [
-        "tools/skqp/skqp.cpp",
+        "tools/skqp/src/skqp_main.cpp",
       ]
       deps = [
         ":skia",
         ":skqp_lib",
         ":tool_utils",
-        "//third_party/googletest",
       ]
     }
   }
@@ -1852,7 +1851,7 @@ if (skia_enable_tools) {
     test_app("skqp_app") {
       is_shared_library = true
       sources = [
-        "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "tools/skqp/src/jni_skqp.cpp",
       ]
       deps = [
         ":skia",
