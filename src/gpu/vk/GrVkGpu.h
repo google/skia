@@ -51,9 +51,6 @@ public:
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
     VkCommandPool cmdPool() const { return fCmdPool; }
-    VkPhysicalDeviceProperties physicalDeviceProperties() const {
-        return fPhysDevProps;
-    }
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties() const {
         return fPhysDevMemProps;
     }
@@ -256,7 +253,6 @@ private:
     SkSTArray<1, GrVkSemaphore::Resource*>       fSemaphoresToWaitOn;
     SkSTArray<1, GrVkSemaphore::Resource*>       fSemaphoresToSignal;
 
-    VkPhysicalDeviceProperties                   fPhysDevProps;
     VkPhysicalDeviceMemoryProperties             fPhysDevMemProps;
 
     std::unique_ptr<GrVkHeap>                    fHeaps[kHeapCount];
