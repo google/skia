@@ -722,6 +722,8 @@ def dm_flags(api, bot):
     args.append('--blacklist')
     args.extend(blacklisted)
 
+  match = []
+  match.append('ApplyGamma')
   if match:
     args.append('--match')
     args.extend(match)
