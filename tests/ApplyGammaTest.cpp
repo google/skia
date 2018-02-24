@@ -107,7 +107,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     // We allow more error on GPUs with lower precision shader variables.
     float error = context->caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
 
-    for (auto toSRGB : { false, true }) {
+    for (auto toSRGB : { /*false,*/ true }) {
         sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
 
         if (!dst) {
@@ -133,6 +133,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
             ERRORF(reporter, "Error calling readPixels");
             continue;
         }
+
+#if 1
+        for (int y = 0; y < kH; ++y) {
+            for (int x = 0; x < kW; ++x) {
+                uint32_t r = read.get()[y * kW + x];
+                uint32_t s = srcPixels.get()[y * kW + x];
+                uint32_t expected;
+                check_gamma(s, r, toSRGB, error, &expected);
+                    SkDebugf("Testing Expected dst %d,%d to contain 0x%08x "
+                           "from src 0x%08x and mode %s. Got %08x", x, y, expected, s,
+                           toSRGB ? "ToSRGB" : "ToLinear", r);
+            }
+        }
+#endif
 
         bool abort = false;
         // Validate that pixels were copied/transformed correctly.
