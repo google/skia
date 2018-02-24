@@ -31,10 +31,11 @@ bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance,
-    SkScalar phase, Style style) : fPath(path)
-{
+SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkScalar phase,
+                                       Style style) : fPath(path) {
     SkASSERT(advance > 0 && !path.isEmpty());
+    SkASSERT((unsigned)style <= kMorph_Style);
+
     // cleanup their phase parameter, inverting it so that it becomes an
     // offset along the path (to match the interpretation in PostScript)
     if (phase < 0) {
@@ -65,11 +66,8 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance,
 
 bool SkPath1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec* rec, const SkRect* cullRect) const {
-    if (fAdvance > 0) {
-        rec->setFillStyle();
-        return this->INHERITED::filterPath(dst, src, rec, cullRect);
-    }
-    return false;
+    rec->setFillStyle();
+    return this->INHERITED::filterPath(dst, src, rec, cullRect);
 }
 
 static bool morphpoints(SkPoint dst[], const SkPoint src[], int count,
@@ -152,23 +150,18 @@ SkScalar SkPath1DPathEffect::begin(SkScalar contourLength) const {
 
 sk_sp<SkFlattenable> SkPath1DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkScalar advance = buffer.readScalar();
-    if (advance > 0) {
-        SkPath path;
-        buffer.readPath(&path);
-        SkScalar phase = buffer.readScalar();
-        Style style = (Style)buffer.readUInt();
-        return SkPath1DPathEffect::Make(path, advance, phase, style);
-    }
-    return nullptr;
+    SkPath path;
+    buffer.readPath(&path);
+    SkScalar phase = buffer.readScalar();
+    Style style = buffer.read32LE(kLastEnum_Style);
+    return buffer.isValid() ? SkPath1DPathEffect::Make(path, advance, phase, style) : nullptr;
 }
 
 void SkPath1DPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fAdvance);
-    if (fAdvance > 0) {
-        buffer.writePath(fPath);
-        buffer.writeScalar(fInitialOffset);
-        buffer.writeUInt(fStyle);
-    }
+    buffer.writePath(fPath);
+    buffer.writeScalar(fInitialOffset);
+    buffer.writeUInt(fStyle);
 }
 
 SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
@@ -210,8 +203,7 @@ void SkPath1DPathEffect::toString(SkString* str) const {
 
 sk_sp<SkPathEffect> SkPath1DPathEffect::Make(const SkPath& path, SkScalar advance, SkScalar phase,
                                              Style style) {
-    if (advance <= 0 || !SkScalarIsFinite(advance) ||
-        !SkScalarIsFinite(phase) || path.isEmpty()) {
+    if (advance <= 0 || !SkScalarIsFinite(advance) || !SkScalarIsFinite(phase) || path.isEmpty()) {
         return nullptr;
     }
     return sk_sp<SkPathEffect>(new SkPath1DPathEffect(path, advance, phase, style));
