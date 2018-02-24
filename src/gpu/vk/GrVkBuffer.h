@@ -86,6 +86,7 @@ protected:
     }
 
     void* vkMap(GrVkGpu* gpu) {
+        SkDebugf("going from vkMap, desc size: %d\n", fDesc.fSizeInBytes);
         this->internalMap(gpu, fDesc.fSizeInBytes);
         return fMapPtr;
     }
