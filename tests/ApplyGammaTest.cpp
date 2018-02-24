@@ -134,6 +134,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
             continue;
         }
 
+#if 0
+        for (int y = 0; y < kH; ++y) {
+            for (int x = 0; x < kW && !abort; ++x) {
+                uint32_t r = read.get()[y * kW + x];
+                uint32_t s = srcPixels.get()[y * kW + x];
+                uint32_t expected;
+                check_gamma(s, r, toSRGB, error, &expected)
+                    SkDebugf("Testing Expected dst %d,%d to contain 0x%08x "
+                           "from src 0x%08x and mode %s. Got %08x", x, y, expected, s,
+                           toSRGB ? "ToSRGB" : "ToLinear", r);
+            }
+        }
+#endif
+
         bool abort = false;
         // Validate that pixels were copied/transformed correctly.
         for (int y = 0; y < kH && !abort; ++y) {
