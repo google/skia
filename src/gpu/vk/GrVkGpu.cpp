@@ -586,6 +586,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
     // meet the alignment requirements. So we track how far we move back and then adjust the mapped
     // ptr back up so that this is opaque to the caller.
     if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+        SkDebugf("upload tex linear no co\n");
         VkDeviceSize alignment = this->physicalDeviceProperties().limits.nonCoherentAtomSize;
         offsetDiff = offset & (alignment - 1);
         offset = offset - offsetDiff;
@@ -595,6 +596,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
     SkASSERT(offset >= alloc.fOffset);
     SkASSERT(size <= alloc.fOffset + alloc.fSize);
     void* mapPtr;
+    SkDebugf("upload tex linear mapping memory\n");
     err = GR_VK_CALL(interface, MapMemory(fDevice, alloc.fMemory, offset, size, 0, &mapPtr));
     if (err) {
         return false;
@@ -694,6 +696,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
         return false;
     }
 
+    SkDebugf("upload tex optimal mapping trans buffer\n");
     char* buffer = (char*) transferBuffer->map();
     SkTArray<VkBufferImageCopy> regions(mipLevelCount);
 
@@ -1132,6 +1135,7 @@ bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc, size
     VkDeviceSize mapOffset = alloc.fOffset + bufferOffset;
     VkDeviceSize offsetDiff = 0;
     if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+        SkDebugf("In copy testin data non coherent\n");
         VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
         offsetDiff = mapOffset & (alignment - 1);
         mapOffset = mapOffset - offsetDiff;
@@ -2011,6 +2015,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
     // We need to submit the current command buffer to the Queue and make sure it finishes before
     // we can copy the data out of the buffer.
     this->submitCommandBuffer(kForce_SyncQueue);
+    SkDebugf("read pixels mapping trans buffer\n");
     void* mappedMemory = transferBuffer->map();
     GrVkMemory::InvalidateMappedAlloc(this, transferBuffer->alloc());
 
