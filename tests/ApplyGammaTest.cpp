@@ -85,11 +85,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     static const int kH = 256;
     static const size_t kRowBytes = sizeof(uint32_t) * kW;
 
-    GrSurfaceDesc baseDesc;
-    baseDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    baseDesc.fWidth = kW;
-    baseDesc.fHeight = kH;
-
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(kW, kH);
 
     SkAutoTMalloc<uint32_t> srcPixels(kW * kH);
@@ -117,7 +112,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
 
         SkCanvas* dstCanvas = dst->getCanvas();
 
-        dstCanvas->clear(SK_ColorRED);
+        dstCanvas->clear(SK_ColorGREEN);
         dstCanvas->flush();
 
         SkPaint gammaPaint;
@@ -125,14 +120,55 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
         gammaPaint.setColorFilter(toSRGB ? SkColorFilter::MakeLinearToSRGBGamma()
                                          : SkColorFilter::MakeSRGBToLinearGamma());
 
+        SkDebugf("******calling drawBitmap********\n");
+        //SkRect rect = SkRect::MakeWH(kW, 2);
+        //SkRect rect2 = SkRect::MakeXYWH(0, 253, kW, 2);
+        //SkPaint rectPaint;
+        //rectPaint.setColor(SK_ColorBLUE);
+        //if (toSRGB) {
+        //    dstCanvas->drawRect(rect, rectPaint);
+        //}
         dstCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
+        //if (toSRGB) {
+        //    rectPaint.setColor(SK_ColorRED);
+        //    dstCanvas->drawRect(rect2, rectPaint);
+        //}
+        SkDebugf("calling flush\n");
         dstCanvas->flush();
 
         sk_memset32(read.get(), 0, kW * kH);
+        SkDebugf("calling read pixels\n");
         if (!dst->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
             ERRORF(reporter, "Error calling readPixels");
             continue;
         }
+
+#if 1
+        if (toSRGB) {
+        for (int y = 0; y < 3; ++y) {
+            for (int x = 0; x < kW; ++x) {
+                uint32_t r = read.get()[y * kW + x];
+                uint32_t s = srcPixels.get()[y * kW + x];
+                uint32_t expected;
+                check_gamma(s, r, toSRGB, error, &expected);
+                    SkDebugf("Testing Expected dst %d,%d to contain 0x%08x "
+                           "from src 0x%08x and mode %s. Got %08x\n", x, y, expected, s,
+                           toSRGB ? "ToSRGB" : "ToLinear", r);
+            }
+        }
+        for (int y = 253; y < kH; ++y) {
+            for (int x = 0; x < kW; ++x) {
+                uint32_t r = read.get()[y * kW + x];
+                uint32_t s = srcPixels.get()[y * kW + x];
+                uint32_t expected;
+                check_gamma(s, r, toSRGB, error, &expected);
+                    SkDebugf("Testing Expected dst %d,%d to contain 0x%08x "
+                           "from src 0x%08x and mode %s. Got %08x\n", x, y, expected, s,
+                           toSRGB ? "ToSRGB" : "ToLinear", r);
+            }
+        }
+        }
+#endif
 
         bool abort = false;
         // Validate that pixels were copied/transformed correctly.
