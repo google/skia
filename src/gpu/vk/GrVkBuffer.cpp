@@ -175,6 +175,7 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
         // are aligned to the nonCoherentAtomSize limit. The offset should have been correctly
         // aligned by our memory allocator. For size we pad out to make the range also aligned.
         if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+            SkDebugf("buffer internal map non co\n");
             // Currently we always have the internal offset as 0.
             SkASSERT(0 == fOffset);
             VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
