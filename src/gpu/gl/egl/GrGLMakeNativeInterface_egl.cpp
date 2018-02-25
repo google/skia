@@ -9,7 +9,6 @@
 #include "gl/GrGLUtil.h"
 
 #include <EGL/egl.h>
-#include <GLES2/gl2.h>
 
 static GrGLFuncPtr egl_get_gl_proc(void* ctx, const char name[]) {
     SkASSERT(nullptr == ctx);
