@@ -20,7 +20,7 @@ deps = {
   "third_party/externals/piex"          : "https://android.googlesource.com/platform/external/piex.git@f7fc905cff18c7b883712bbfaffabd5d187bc787",
   "third_party/externals/sdl"           : "https://skia.googlesource.com/third_party/sdl@5d7cfcca344034aff9327f77fc181ae3754e7a90",
   "third_party/externals/sfntly"        : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@b18b09b6114b9b7fe6fc2f96d8b15e8a72f66916",
-  "third_party/externals/skcms"         : "https://skia.googlesource.com/skcms@0d1aefed6e836c3f65fcf340c9abd9d694f28ab9",
+  "third_party/externals/skcms"         : "https://skia.googlesource.com/skcms@e496333d5e72077d92e282aed563defaa65cb5a0",
   "third_party/externals/spirv-headers" : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@661ad91124e6af2272afd00f804d8aa276e17107",
   "third_party/externals/spirv-tools"   : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@e9e4393b1c5aad7553c05782acefbe32b42644bd",
  #"third_party/externals/v8"            : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
