@@ -1037,18 +1037,19 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 }
 
 static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, const SkPaint* paint) {
-    // need to force L32 for now if we have an image filter. Once filters support other colortypes
-    // e.g. sRGB or F16, we can remove this check
-    // SRGBTODO: Can we remove this check now?
-    const bool hasImageFilter = paint && paint->getImageFilter();
-
-    if ((prev.bytesPerPixel() < 4) || hasImageFilter) {
-        // force to L32
+    // Need to force L32 for now if we have an image filter.
+    // If filters ever support other colortypes, e.g. sRGB or F16, we can remove this check.
+    if (paint && paint->getImageFilter()) {
         return SkImageInfo::MakeN32Premul(w, h);
-    } else {
-        // keep the same characteristics as the prev
-        return SkImageInfo::Make(w, h, prev.colorType(), kPremul_SkAlphaType, prev.refColorSpace());
     }
+
+    SkColorType ct = prev.colorType();
+    if (prev.bytesPerPixel() <= 4) {
+        // "Upgrade" A8, G8, 565, 4444, 1010102, 101010x, and 888x to 8888,
+        // ensuring plenty of alpha bits for the layer, perhaps losing some color bits in return.
+        ct = kN32_SkColorType;
+    }
+    return SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType, prev.refColorSpace());
 }
 
 void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
