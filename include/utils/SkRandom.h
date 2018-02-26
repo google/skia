@@ -154,6 +154,10 @@ private:
         }
         SkASSERT(0 != fK && 0 != fJ);
     }
+
+#ifdef __clang__
+    __attribute__((no_sanitize("integer")))
+#endif
     static uint32_t NextLCG(uint32_t seed) { return kMul*seed + kAdd; }
 
     /** Return the next pseudo random number expressed as an unsigned SkFixed

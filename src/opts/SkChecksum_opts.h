@@ -41,7 +41,7 @@ static inline T unaligned_load(const uint8_t* src) {
                      b = hash,
                      c = hash;
             size_t steps = bytes/24;
-            while (steps --> 0) {
+            for (size_t i = 0; i < steps; i++) {
                 a = _mm_crc32_u64(a, unaligned_load<uint64_t>(data+ 0));
                 b = _mm_crc32_u64(b, unaligned_load<uint64_t>(data+ 8));
                 c = _mm_crc32_u64(c, unaligned_load<uint64_t>(data+16));
