@@ -490,6 +490,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
                                                                           &pipelineCreateInfo,
                                                                           nullptr, &vkPipeline));
     if (err) {
+        SkDebugf("Failed to create pipeline. Error: %d\n", err);
         return nullptr;
     }
 
