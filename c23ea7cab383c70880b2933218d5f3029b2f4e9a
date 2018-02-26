@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6639e75d_596222da",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-26T16:55:36Z",
+      "side": 1,
+      "message": "can you have this respect the grContext option to ignore workarounds?",
+      "revId": "c23ea7cab383c70880b2933218d5f3029b2f4e9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
