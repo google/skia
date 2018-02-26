@@ -78,6 +78,8 @@ var (
 	dryRun             = flag.Bool("dryrun", false, "Print out the command and quit without triggering tests.")
 	minAPIVersion      = flag.Int("min_api", 22, "Minimum API version required by device.")
 	maxAPIVersion      = flag.Int("max_api", 23, "Maximum API version required by device.")
+	devicesFile        = flag.String("devices", "", "JSON file that maps device ids to versions to run on. Same format as produced by the dump_devices flag.")
+	dumpDevFile        = flag.String("dump_devices", "", "Creates a JSON file with all physical devices that are not deprecated.")
 )
 
 const (
@@ -100,18 +102,43 @@ const (
 func main() {
 	common.Init()
 
-	// Get the apk.
-	args := flag.Args()
-	apk_path := args[0]
+	// Get the available devices.
+	fbDevices, deviceList, err := getAvailableDevices()
+	if err != nil {
+		sklog.Fatalf("Error retrieving devices: %s", err)
+	}
 
-	// Make sure we can get the service account client.
+	// If we just want to dump the devices we don't have to further.
+	if *dumpDevFile != "" {
+		if err := writeDeviceList(*dumpDevFile, deviceList); err != nil {
+			sklog.Fatalf("Unable to write devices: %s", err)
+		}
+		return
+	}
+
+	// Get the apk.
+	apk_path := flag.Arg(0)
+	if apk_path == "" {
+		sklog.Fatalf("Missing APK. The APK file needs to be passed as the positional argument.")
+	}
+
+	// If no devices are explicitly listed. Use all of them.
+	whiteList := deviceList
+	if *devicesFile != "" {
+		whiteList, err = readDeviceList(*devicesFile)
+		if err != nil {
+			sklog.Fatalf("Error reading device file: %s", err)
+		}
+	}
+
+	// Make sure we can authenticate locally and in the cloud.
 	client, err := auth.NewJWTServiceAccountClient("", *serviceAccountFile, nil, gstorage.CloudPlatformScope, "https://www.googleapis.com/auth/userinfo.email")
 	if err != nil {
 		sklog.Fatalf("Failed to authenticate service account: %s. Run 'get_service_account' to obtain a service account file.", err)
 	}
 
-	// Get list of all available devices.
-	devices, ignoredDevices, err := getAvailableDevices(WHITELIST_DEV_IDS, *minAPIVersion, *maxAPIVersion)
+	// Filter the devices according the white list and other parameters.
+	devices, ignoredDevices := filterDevices(fbDevices, whiteList, *minAPIVersion, *maxAPIVersion)
 	if err != nil {
 		sklog.Fatalf("Unable to retrieve available devices: %s", err)
 	}
@@ -127,7 +154,7 @@ func main() {
 // getAvailableDevices is given a whitelist. It queries Firebase Testlab for all
 // available devices and then returns a list of devices to be tested and the list
 // of ignored devices.
-func getAvailableDevices(whiteList map[string][]string, minAPIVersion, maxAPIVersion int) ([]*tsuite.DeviceVersions, []*tsuite.DeviceVersions, error) {
+func getAvailableDevices() ([]*tsuite.FirebaseDevice, DeviceList, error) {
 	// Get the list of all devices in JSON format from Firebase testlab.
 	var buf bytes.Buffer
 	cmd := parseCommand(CMD_AVAILABE_DEVICES)
@@ -139,39 +166,49 @@ func getAvailableDevices(whiteList map[string][]string, minAPIVersion, maxAPIVer
 
 	// Unmarshal the result.
 	foundDevices := []*tsuite.FirebaseDevice{}
+	devList := DeviceList{}
 	bufBytes := buf.Bytes()
 	if err := json.Unmarshal(bufBytes, &foundDevices); err != nil {
 		return nil, nil, sklog.FmtErrorf("Unmarshal of device information failed: %s \nJSON Input: %s\n", err, string(bufBytes))
 	}
 
+	for i := 0; i < len(foundDevices); {
+		if foundDevices[i].Form != "PHYSICAL" {
+			foundDevices = append(foundDevices[:i], foundDevices[i+1:]...)
+		} else {
+			i++
+		}
+	}
+
+	return foundDevices, devList, nil
+}
+
+func filterDevices(foundDevices []*tsuite.FirebaseDevice, whiteList DeviceList, minAPIVersion, maxAPIVersion int) ([]*tsuite.DeviceVersions, []*tsuite.DeviceVersions) {
 	// iterate over the available devices and partition them.
 	allDevices := make([]*tsuite.DeviceVersions, 0, len(foundDevices))
 	ret := make([]*tsuite.DeviceVersions, 0, len(foundDevices))
 	ignored := make([]*tsuite.DeviceVersions, 0, len(foundDevices))
 	for _, dev := range foundDevices {
-		// Filter out all the virtual devices.
-		if dev.Form == "PHYSICAL" {
-			// Only include devices that are on the whitelist and have versions defined.
-			if foundVersions, ok := whiteList[dev.ID]; ok && (len(foundVersions) > 0) {
-				versionSet := util.NewStringSet(dev.VersionIDs)
-				reqVersions := util.NewStringSet(filterVersions(foundVersions, minAPIVersion, maxAPIVersion))
-				whiteListVersions := versionSet.Intersect(reqVersions).Keys()
-				ignoredVersions := versionSet.Complement(reqVersions).Keys()
-				sort.Strings(whiteListVersions)
-				sort.Strings(ignoredVersions)
-				ret = append(ret, &tsuite.DeviceVersions{Device: dev, Versions: whiteListVersions})
-				ignored = append(ignored, &tsuite.DeviceVersions{Device: dev, Versions: ignoredVersions})
-			} else {
-				ignored = append(ignored, &tsuite.DeviceVersions{Device: dev, Versions: dev.VersionIDs})
-			}
-			allDevices = append(allDevices, &tsuite.DeviceVersions{Device: dev, Versions: dev.VersionIDs})
+		// Only include devices that are on the whitelist and have versions defined.
+		if foundVersions, ok := whiteList[dev.ID]; ok && (len(foundVersions) > 0) {
+			versionSet := util.NewStringSet(dev.VersionIDs)
+			reqVersions := util.NewStringSet(filterVersions(foundVersions, minAPIVersion, maxAPIVersion))
+			whiteListVersions := versionSet.Intersect(reqVersions).Keys()
+			ignoredVersions := versionSet.Complement(reqVersions).Keys()
+			sort.Strings(whiteListVersions)
+			sort.Strings(ignoredVersions)
+			ret = append(ret, &tsuite.DeviceVersions{Device: dev, Versions: whiteListVersions})
+			ignored = append(ignored, &tsuite.DeviceVersions{Device: dev, Versions: ignoredVersions})
+		} else {
+			ignored = append(ignored, &tsuite.DeviceVersions{Device: dev, Versions: dev.VersionIDs})
 		}
+		allDevices = append(allDevices, &tsuite.DeviceVersions{Device: dev, Versions: dev.VersionIDs})
 	}
 
 	sklog.Infof("All devices:")
 	logDevices(allDevices)
 
-	return ret, ignored, nil
+	return ret, ignored
 }
 
 // filterVersions returns the elements in versionIDs where minVersion <= element <= maxVersion.
@@ -248,9 +285,11 @@ func runTests(apk_path string, devices, ignoredDevices []*tsuite.DeviceVersions,
 
 // logDevices logs the given list of devices.
 func logDevices(devices []*tsuite.DeviceVersions) {
+	devMap := map[string][]string{}
 	sklog.Infof("Found %d devices.", len(devices))
 	for _, dev := range devices {
 		sklog.Infof("%-15s %-30s %v / %v", dev.Device.ID, dev.Device.Name, dev.Device.VersionIDs, dev.Versions)
+		devMap[dev.Device.ID] = append(devMap[dev.Device.ID], dev.Device.VersionIDs...)
 	}
 }
 
@@ -261,4 +300,33 @@ func parseCommand(cmdStr string) *exec.Cmd {
 		cmdArgs[idx] = strings.TrimSpace(cmdArgs[idx])
 	}
 	return exec.Command(cmdArgs[0], cmdArgs[1:]...)
+}
+
+type DeviceList map[string][]string
+
+func writeDeviceList(fileName string, devList DeviceList) error {
+	outFile, err := os.Create(fileName)
+	if err != nil {
+		return sklog.FmtErrorf("Unable to create file '%s': %s", fileName, err)
+	}
+	defer util.Close(outFile)
+
+	if err := json.NewEncoder(outFile).Encode(devList); err != nil {
+		return sklog.FmtErrorf("Unable to write JSON to '%s': %s", fileName, err)
+	}
+	return nil
+}
+
+func readDeviceList(fileName string) (DeviceList, error) {
+	inFile, err := os.Create(fileName)
+	if err != nil {
+		return nil, sklog.FmtErrorf("Unable to open file '%s': %s", fileName, err)
+	}
+	defer util.Close(inFile)
+
+	var devList DeviceList
+	if err := json.NewDecoder(inFile).Decode(&devList); err != nil {
+		return nil, sklog.FmtErrorf("Unable to decode JSON from '%s': %s", fileName, err)
+	}
+	return devList, nil
 }
