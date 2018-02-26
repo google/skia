@@ -316,6 +316,13 @@ public:
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
+    bool renderTargetWritePixelsSupported(bool isAlsoTexture, int sampleCnt) const override {
+        if (sampleCnt > 1 && this->usesMSAARenderBuffers()) {
+            return false;
+        }
+        return isAlsoTexture;
+    }
+
     /// Does ReadPixels support reading readConfig pixels from a FBO that is surfaceConfig?
     bool readPixelsSupported(GrPixelConfig surfaceConfig,
                              GrPixelConfig readConfig,

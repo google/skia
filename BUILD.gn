@@ -60,6 +60,8 @@ declare_args() {
   skia_use_sfntly = skia_use_icu
   skia_enable_atlas_text = is_skia_dev_build && skia_enable_gpu
 
+  skia_use_legacy_gpu_pixel_ops = is_skia_dev_build && is_win  # Arbitrary to keep old code path tested until deletion.
+
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
   } else if (is_fuchsia) {
@@ -604,6 +606,9 @@ optional("gpu") {
         public_defines += [ "SK_VULKAN_HEADER=\"GrVulkanDefines.h\"" ]
       }
     }
+  }
+  if (skia_use_legacy_gpu_pixel_ops) {
+    public_defines += [ "SK_LEGACY_GPU_PIXEL_OPS" ]
   }
   if (skia_enable_spirv_validation) {
     deps += [ "//third_party/spirv-tools" ]
@@ -1251,13 +1256,13 @@ if (skia_enable_tools) {
       "tools/debugger/SkDrawCommand.cpp",
       "tools/debugger/SkJsonWriteBuffer.cpp",
       "tools/debugger/SkObjectParser.cpp",
+      "tools/fonts/SkRandomScalerContext.cpp",
+      "tools/fonts/SkTestFontMgr.cpp",
+      "tools/fonts/SkTestScalerContext.cpp",
+      "tools/fonts/sk_tool_utils_font.cpp",
       "tools/picture_utils.cpp",
       "tools/random_parse_path.cpp",
       "tools/sk_tool_utils.cpp",
-      "tools/fonts/sk_tool_utils_font.cpp",
-      "tools/fonts/SkRandomScalerContext.cpp",
-      "tools/fonts/SkTestScalerContext.cpp",
-      "tools/fonts/SkTestFontMgr.cpp",
       "tools/timer/Timer.cpp",
       "tools/trace/SkChromeTracingTracer.cpp",
       "tools/trace/SkChromeTracingTracer.h",

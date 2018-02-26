@@ -297,6 +297,16 @@ public:
                      GrColorType, const void* buffer, size_t rowBytes);
 
     /**
+     * This version of writePixels doesn't take an origin. TODO: Remove origin handling from
+     * GrGpu::writePixels entirely.
+     */
+    bool writePixels(GrSurface* surface, int left, int top, int width, int height,
+                     GrColorType srcColorType, const void* buffer, size_t rowBytes) {
+        return this->writePixels(surface, kTopLeft_GrSurfaceOrigin, left, top, width, height,
+                                 srcColorType, buffer, rowBytes);
+    }
+
+    /**
      * Updates the pixels in a rectangle of a texture using a buffer
      *
      * There are a couple of assumptions here. First, we only update the top miplevel.
