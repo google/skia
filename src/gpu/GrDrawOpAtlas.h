@@ -91,8 +91,7 @@ public:
      *                          eviction occurs
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*, GrPixelConfig,
-                                               int width, int height,
+    static std::unique_ptr<GrDrawOpAtlas> Make(GrContext*, GrPixelConfig, int width, int height,
                                                int numPlotsX, int numPlotsY,
                                                AllowMultitexturing allowMultitexturing,
                                                GrDrawOpAtlas::EvictionFunc func, void* data);
@@ -109,21 +108,19 @@ public:
      * 'setUseToken' with the currentToken from the GrDrawOp::Target, otherwise the next call to
      * addToAtlas might cause the previous data to be overwritten before it has been read.
      */
-    bool addToAtlas(GrResourceProvider*, AtlasID*, GrDeferredUploadTarget*, int width, int height,
-                    const void* image, SkIPoint16* loc);
+    bool addToAtlas(AtlasID*, GrDeferredUploadTarget*, int width, int height, const void* image,
+                    SkIPoint16* loc);
 
+    GrContext* context() const { return fContext; }
     const sk_sp<GrTextureProxy>* getProxies() const { return fProxies; }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
     inline bool hasID(AtlasID id) {
-        if (kInvalidAtlasID == id) {
-            return false;
-        }
         uint32_t plot = GetPlotIndexFromID(id);
         SkASSERT(plot < fNumPlots);
         uint32_t page = GetPageIndexFromID(id);
-        SkASSERT(page < fNumActivePages);
+        SkASSERT(page < fNumPages);
         return fPages[page].fPlotArray[plot]->genID() == GetGenerationFromID(id);
     }
 
@@ -133,7 +130,7 @@ public:
         uint32_t plotIdx = GetPlotIndexFromID(id);
         SkASSERT(plotIdx < fNumPlots);
         uint32_t pageIdx = GetPageIndexFromID(id);
-        SkASSERT(pageIdx < fNumActivePages);
+        SkASSERT(pageIdx < fNumPages);
         Plot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
         this->makeMRU(plot, pageIdx);
         plot->setLastUseToken(token);
@@ -145,7 +142,7 @@ public:
         data->fData = userData;
     }
 
-    uint32_t numActivePages() { return fNumActivePages; }
+    uint32_t pageCount() { return fNumPages; }
 
     /**
      * A class which can be handed back to GrDrawOpAtlas for updating last use tokens in bulk.  The
@@ -207,7 +204,7 @@ public:
             const BulkUseTokenUpdater::PlotData& pd = updater.fPlotsToUpdate[i];
             // it's possible we've added a plot to the updater and subsequently the plot's page
             // was deleted -- so we check to prevent a crash
-            if (pd.fPageIndex < fNumActivePages) {
+            if (pd.fPageIndex < fNumPages) {
                 Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
                 this->makeMRU(plot, pd.fPageIndex);
                 plot->setLastUseToken(token);
@@ -228,14 +225,12 @@ public:
 
     void instantiate(GrOnFlushResourceProvider*);
 
+private:
     uint32_t maxPages() const {
         return AllowMultitexturing::kYes == fAllowMultitexturing ? kMaxMultitexturePages : 1;
     }
 
-    int numAllocated_TestingOnly() const;
-
-private:
-    GrDrawOpAtlas(GrProxyProvider*, GrPixelConfig, int width, int height, int numPlotsX,
+    GrDrawOpAtlas(GrContext*, GrPixelConfig config, int width, int height, int numPlotsX,
                   int numPlotsY, AllowMultitexturing allowMultitexturing);
 
     /**
@@ -359,9 +354,8 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
-    bool createPages(GrProxyProvider*);
-    bool activateNewPage(GrResourceProvider*);
-    void deactivateLastPage();
+    bool createNewPage();
+    void deleteLastPage();
 
     void processEviction(AtlasID);
     inline void processEvictionAndResetRects(Plot* plot) {
@@ -369,6 +363,7 @@ private:
         plot->resetRects();
     }
 
+    GrContext*            fContext;
     GrPixelConfig         fPixelConfig;
     int                   fTextureWidth;
     int                   fTextureHeight;
@@ -397,8 +392,7 @@ private:
     sk_sp<GrTextureProxy> fProxies[kMaxMultitexturePages];
     Page fPages[kMaxMultitexturePages];
     AllowMultitexturing fAllowMultitexturing;
-
-    uint32_t fNumActivePages;
+    uint32_t fNumPages;
 };
 
 #endif

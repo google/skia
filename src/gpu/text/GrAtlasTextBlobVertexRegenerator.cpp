@@ -190,13 +190,11 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
     }
 }
 
-Regenerator::VertexRegenerator(GrResourceProvider* resourceProvider, GrAtlasTextBlob* blob,
-                               int runIdx, int subRunIdx,
+Regenerator::VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx,
                                const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                                GrDeferredUploadTarget* uploadTarget, GrAtlasGlyphCache* glyphCache,
                                SkAutoGlyphCache* lazyCache)
-        : fResourceProvider(resourceProvider)
-        , fViewMatrix(viewMatrix)
+        : fViewMatrix(viewMatrix)
         , fBlob(blob)
         , fUploadTarget(uploadTarget)
         , fGlyphCache(glyphCache)
@@ -276,8 +274,8 @@ Regenerator::Result Regenerator::doRegen() {
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
             if (!fGlyphCache->hasGlyph(glyph) &&
-                !strike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGlyphCache, glyph,
-                                         fLazyCache->get(), fSubRun->maskFormat())) {
+                !strike->addGlyphToAtlas(fUploadTarget, fGlyphCache, glyph, fLazyCache->get(),
+                                         fSubRun->maskFormat())) {
                 fBrokenRun = glyphIdx > 0;
                 result.fFinished = false;
                 return result;
