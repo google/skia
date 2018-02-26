@@ -66,12 +66,12 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("determinant")]   = ALL_GLSL(Determinant);
     fIntrinsicMap[String("matrixInverse")] = ALL_GLSL(MatrixInverse);
     fIntrinsicMap[String("mod")]           = SPECIAL(Mod);
-    fIntrinsicMap[String("min")]           = BY_TYPE_GLSL(FMin, SMin, UMin);
-    fIntrinsicMap[String("max")]           = BY_TYPE_GLSL(FMax, SMax, UMax);
-    fIntrinsicMap[String("clamp")]         = BY_TYPE_GLSL(FClamp, SClamp, UClamp);
+    fIntrinsicMap[String("min")]           = SPECIAL(Min);
+    fIntrinsicMap[String("max")]           = SPECIAL(Max);
+    fIntrinsicMap[String("clamp")]         = SPECIAL(Clamp);
     fIntrinsicMap[String("dot")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDot,
                                                              SpvOpUndef, SpvOpUndef, SpvOpUndef);
-    fIntrinsicMap[String("mix")]           = ALL_GLSL(FMix);
+    fIntrinsicMap[String("mix")]           = SPECIAL(Mix);
     fIntrinsicMap[String("step")]          = ALL_GLSL(Step);
     fIntrinsicMap[String("smoothstep")]    = ALL_GLSL(SmoothStep);
     fIntrinsicMap[String("fma")]           = ALL_GLSL(Fma);
@@ -871,6 +871,177 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             this->writeWord(result, out);
             this->writeWord(arg1, out);
             this->writeWord(arg2, out);
+            break;
+        }
+        case kClamp_SpecialIntrinsic: {
+            ASSERT(c.fArguments.size() == 3);
+            SpvId arg1 = this->writeExpression(*c.fArguments[0], out);
+            SpvId arg2 = this->writeExpression(*c.fArguments[1], out);
+            SpvId arg3 = this->writeExpression(*c.fArguments[2], out);
+
+            // Assert the clamp values are the same
+            ASSERT(c.fArguments[1]->fType == c.fArguments[2]->fType);
+            if (c.fArguments[0]->fType != c.fArguments[1]->fType) {
+                // we have clamp(vec, scalar, scalar), but SPIR-V wants clamp(vec, vec, vec)
+                ASSERT(c.fArguments[0]->fType.componentType() == c.fArguments[1]->fType);
+                SpvId scalarMin = arg2;
+                SpvId scalarMax = arg3;
+                const Type& type = c.fArguments[0]->fType;
+                arg2 = this->nextId();
+                this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(), out);
+                this->writeWord(this->getType(type), out);
+                this->writeWord(arg2, out);
+                for (int i = 0; i < type.columns(); i++) {
+                    this->writeWord(scalarMin, out);
+                }
+
+                arg3 = this->nextId();
+                this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(), out);
+                this->writeWord(this->getType(type), out);
+                this->writeWord(arg3, out);
+                for (int i = 0; i < type.columns(); i++) {
+                    this->writeWord(scalarMax, out);
+                }
+            }
+
+            this->writeOpCode(SpvOpExtInst, 8, out);
+            this->writeWord(this->getType(c.fType), out);
+            this->writeWord(result, out);
+            this->writeWord(fGLSLExtendedInstructions, out);
+
+            const Type& operandType = c.fArguments[0]->fType;
+            if (is_float(fContext, operandType)) {
+                this->writeWord(GLSLstd450FClamp, out);
+            } else if (is_signed(fContext, operandType)) {
+                this->writeWord(GLSLstd450SClamp, out);
+            } else if (is_unsigned(fContext, operandType)) {
+                this->writeWord(GLSLstd450UClamp, out);
+            } else {
+                ASSERT(false);
+                return 0;
+            }
+
+            this->writeWord(arg1, out);
+            this->writeWord(arg2, out);
+            this->writeWord(arg3, out);
+
+            break;
+        }
+        case kMax_SpecialIntrinsic: {
+            ASSERT(c.fArguments.size() == 2);
+            SpvId arg1 = this->writeExpression(*c.fArguments[0], out);
+            SpvId arg2 = this->writeExpression(*c.fArguments[1], out);
+
+            if (c.fArguments[0]->fType != c.fArguments[1]->fType) {
+                // we have max(vector, scalar), but SPIR-V wants max(vector, vector)
+                ASSERT(c.fArguments[0]->fType.componentType() == c.fArguments[1]->fType);
+                SpvId scalarMax = arg2;
+                const Type& type = c.fArguments[0]->fType;
+                arg2 = this->nextId();
+                this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(), out);
+                this->writeWord(this->getType(type), out);
+                this->writeWord(arg2, out);
+                for (int i = 0; i < type.columns(); i++) {
+                    this->writeWord(scalarMax, out);
+                }
+            }
+
+            this->writeOpCode(SpvOpExtInst, 7, out);
+            this->writeWord(this->getType(c.fType), out);
+            this->writeWord(result, out);
+            this->writeWord(fGLSLExtendedInstructions, out);
+
+            const Type& operandType = c.fArguments[0]->fType;
+            if (is_float(fContext, operandType)) {
+                this->writeWord(GLSLstd450FMax, out);
+            } else if (is_signed(fContext, operandType)) {
+                this->writeWord(GLSLstd450SMax, out);
+            } else if (is_unsigned(fContext, operandType)) {
+                this->writeWord(GLSLstd450UMax, out);
+            } else {
+                ASSERT(false);
+                return 0;
+            }
+
+            this->writeWord(arg1, out);
+            this->writeWord(arg2, out);
+
+            break;
+        }
+        case kMin_SpecialIntrinsic: {
+            ASSERT(c.fArguments.size() == 2);
+            SpvId arg1 = this->writeExpression(*c.fArguments[0], out);
+            SpvId arg2 = this->writeExpression(*c.fArguments[1], out);
+
+            if (c.fArguments[0]->fType != c.fArguments[1]->fType) {
+                // we have max(vector, scalar), but SPIR-V wants max(vector, vector)
+                ASSERT(c.fArguments[0]->fType.componentType() == c.fArguments[1]->fType);
+                SpvId scalarMin = arg2;
+                const Type& type = c.fArguments[0]->fType;
+                arg2 = this->nextId();
+                this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(), out);
+                this->writeWord(this->getType(type), out);
+                this->writeWord(arg2, out);
+                for (int i = 0; i < type.columns(); i++) {
+                    this->writeWord(scalarMin, out);
+                }
+            }
+
+            this->writeOpCode(SpvOpExtInst, 7, out);
+            this->writeWord(this->getType(c.fType), out);
+            this->writeWord(result, out);
+            this->writeWord(fGLSLExtendedInstructions, out);
+
+            const Type& operandType = c.fArguments[0]->fType;
+            if (is_float(fContext, operandType)) {
+                this->writeWord(GLSLstd450FMin, out);
+            } else if (is_signed(fContext, operandType)) {
+                this->writeWord(GLSLstd450SMin, out);
+            } else if (is_unsigned(fContext, operandType)) {
+                this->writeWord(GLSLstd450UMin, out);
+            } else {
+                ASSERT(false);
+                return 0;
+            }
+
+            this->writeWord(arg1, out);
+            this->writeWord(arg2, out);
+
+            break;
+        }
+        case kMix_SpecialIntrinsic: {
+            ASSERT(c.fArguments.size() == 3);
+            SpvId arg1 = this->writeExpression(*c.fArguments[0], out);
+            SpvId arg2 = this->writeExpression(*c.fArguments[1], out);
+            SpvId arg3 = this->writeExpression(*c.fArguments[2], out);
+
+            // Assert the mix values are the same
+            ASSERT(c.fArguments[0]->fType == c.fArguments[1]->fType);
+            // Check to see if the interpalent is a scalar by mixed values are vectors
+            if (c.fArguments[0]->fType != c.fArguments[2]->fType) {
+                // we have mix(vec, vec, scalar), but SPIR-V wants mix(vec, vec, vec)
+                ASSERT(c.fArguments[0]->fType.componentType() == c.fArguments[2]->fType);
+                SpvId scalarMix = arg3;
+                const Type& type = c.fArguments[0]->fType;
+                arg3 = this->nextId();
+                this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(), out);
+                this->writeWord(this->getType(type), out);
+                this->writeWord(arg3, out);
+                for (int i = 0; i < type.columns(); i++) {
+                    this->writeWord(scalarMix, out);
+                }
+            }
+
+            this->writeOpCode(SpvOpExtInst, 8, out);
+            this->writeWord(this->getType(c.fType), out);
+            this->writeWord(result, out);
+            this->writeWord(fGLSLExtendedInstructions, out);
+            this->writeWord(GLSLstd450FMix, out);
+            this->writeWord(arg1, out);
+            this->writeWord(arg2, out);
+            this->writeWord(arg3, out);
+
+            break;
         }
     }
     return result;

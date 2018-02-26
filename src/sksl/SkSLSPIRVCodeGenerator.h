@@ -90,6 +90,10 @@ private:
 
     enum SpecialIntrinsic {
         kAtan_SpecialIntrinsic,
+        kClamp_SpecialIntrinsic,
+        kMax_SpecialIntrinsic,
+        kMin_SpecialIntrinsic,
+        kMix_SpecialIntrinsic,
         kMod_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
         kTexelFetch_SpecialIntrinsic,
