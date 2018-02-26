@@ -342,6 +342,10 @@ def dm_flags(api, bot):
     blacklist('_ image gen_platf rle8-height-negative.bmp')
     blacklist('_ image gen_platf rle4-height-negative.bmp')
 
+  if 'Nexus7' in bot:
+    # skia:7658. This test fails on Nexus 7.
+    blacklist('_ test _ CopySurface')
+
   if 'Android' in bot or 'iOS' in bot or 'Chromecast' in bot:
     # This test crashes the N9 (perhaps because of large malloc/frees). It also
     # is fairly slow and not platform-specific. So we just disable it on all of
