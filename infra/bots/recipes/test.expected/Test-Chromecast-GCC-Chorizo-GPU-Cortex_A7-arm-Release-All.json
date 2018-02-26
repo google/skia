@@ -598,7 +598,6 @@
       "~lighting",
       "~imageblur2",
       "~animated-image-blurs",
-      "~readpixels",
       "~GM_animated-image-blurs",
       "~verylarge",
       "~ImageFilterBlurLargeImage",
