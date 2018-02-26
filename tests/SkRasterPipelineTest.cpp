@@ -137,13 +137,13 @@ DEF_TEST(SkRasterPipeline_tail, r) {
     }
 
     {
-        uint16_t data[][4] = {
+        alignas(8) uint16_t data[][4] = {
             {h(00), h(01), h(02), h(03)},
             {h(10), h(11), h(12), h(13)},
             {h(20), h(21), h(22), h(23)},
             {h(30), h(31), h(32), h(33)},
         };
-        uint16_t buffer[4][4];
+        alignas(8) uint16_t buffer[4][4];
         SkJumper_MemoryCtx src = { &data[0][0], 0 },
                            dst = { &buffer[0][0], 0 };
 
