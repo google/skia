@@ -8,15 +8,14 @@
 #ifndef GrAtlasGlyphCache_DEFINED
 #define GrAtlasGlyphCache_DEFINED
 
-#include "GrCaps.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGlyph.h"
-#include "GrOnFlushResourceProvider.h"
 #include "SkArenaAlloc.h"
 #include "SkGlyphCache.h"
 #include "SkTDynamicHash.h"
 
 class GrAtlasGlyphCache;
+class GrAtlasManager;
 class GrGpu;
 
 /**
@@ -64,7 +63,8 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrResourceProvider*, GrDeferredUploadTarget*, GrAtlasGlyphCache*, GrGlyph*,
+    bool addGlyphToAtlas(GrResourceProvider*, GrDeferredUploadTarget*, GrAtlasGlyphCache*,
+                         GrAtlasManager*, GrGlyph*,
                          SkGlyphCache*, GrMaskFormat expectedMaskFormat);
 
     // testing
@@ -103,15 +103,18 @@ private:
 
 /**
  * GrAtlasGlyphCache manages strikes which are indexed by a SkGlyphCache. These strikes can then be
- * used to generate individual Glyph Masks. The GrAtlasGlyphCache also manages GrDrawOpAtlases,
- * though this is more or less transparent to the client(aside from atlasGeneration, described
- * below).
+ * used to generate individual Glyph Masks.
  */
-class GrAtlasGlyphCache : public GrOnFlushCallbackObject {
+class GrAtlasGlyphCache {
 public:
-    GrAtlasGlyphCache(GrProxyProvider*, float maxTextureBytes,
-                      GrDrawOpAtlas::AllowMultitexturing);
-    ~GrAtlasGlyphCache() override;
+    GrAtlasGlyphCache();
+    ~GrAtlasGlyphCache();
+
+    void setGlyphSizeLimit(SkScalar sizeLimit) { fGlyphSizeLimit = sizeLimit; }
+    SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
+
+    void setStrikeToPreserve(GrAtlasTextStrike* strike) { fPreserveStrike = strike; }
+
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrAtlasTextStrike::isAbandoned() if there are other
@@ -126,144 +129,19 @@ public:
 
     void freeAll();
 
-    // if getProxies returns nullptr, the client must not try to use other functions on the
-    // GrAtlasGlyphCache which use the atlas.  This function *must* be called first, before other
-    // functions which use the atlas.
-    const sk_sp<GrTextureProxy>* getProxies(GrMaskFormat format, unsigned int* numProxies) {
-        SkASSERT(numProxies);
-
-        if (this->initAtlas(format)) {
-            *numProxies = this->getAtlas(format)->numActivePages();
-            return this->getAtlas(format)->getProxies();
-        }
-        *numProxies = 0;
-        return nullptr;
-    }
-
-    SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
-
-    bool hasGlyph(GrGlyph* glyph) {
-        SkASSERT(glyph);
-        return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fID);
-    }
-
-    // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
-    // the client must pass in the current op token along with the GrGlyph.
-    // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
-    // For convenience, this function will also set the use token for the current glyph if required
-    // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater* updater, GrGlyph* glyph,
-                                      GrDeferredUploadToken token) {
-        SkASSERT(glyph);
-        updater->add(glyph->fID);
-        this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
-    }
-
-    void setUseTokenBulk(const GrDrawOpAtlas::BulkUseTokenUpdater& updater,
-                         GrDeferredUploadToken token,
-                         GrMaskFormat format) {
-        this->getAtlas(format)->setLastUseTokenBulk(updater, token);
-    }
-
-    // add to texture atlas that matches this format
-    bool addToAtlas(GrResourceProvider* resourceProvider, GrAtlasTextStrike* strike,
-                    GrDrawOpAtlas::AtlasID* id,
-                    GrDeferredUploadTarget* target, GrMaskFormat format, int width, int height,
-                    const void* image, SkIPoint16* loc) {
-        fPreserveStrike = strike;
-        return this->getAtlas(format)->addToAtlas(resourceProvider, id, target,
-                                                  width, height, image, loc);
-    }
-
-    // Some clients may wish to verify the integrity of the texture backing store of the
-    // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which
-    // changes every time something is removed from the texture backing store.
-    uint64_t atlasGeneration(GrMaskFormat format) const {
-        return this->getAtlas(format)->atlasGeneration();
-    }
-
-    // GrOnFlushCallbackObject overrides
-
-    void preFlush(GrOnFlushResourceProvider* onFlushResourceProvider, const uint32_t*, int,
-                  SkTArray<sk_sp<GrRenderTargetContext>>*) override {
-        for (int i = 0; i < kMaskFormatCount; ++i) {
-            if (fAtlases[i]) {
-                fAtlases[i]->instantiate(onFlushResourceProvider);
-            }
-        }
-    }
-
-    void postFlush(GrDeferredUploadToken startTokenForNextFlush, const uint32_t*, int) override {
-        for (int i = 0; i < kMaskFormatCount; ++i) {
-            if (fAtlases[i]) {
-                fAtlases[i]->compact(startTokenForNextFlush);
-            }
-        }
-    }
-
-    // The AtlasGlyph cache always survives freeGpuResources so we want it to remain in the active
-    // OnFlushCallbackObject list
-    bool retainOnFreeGpuResources() override { return true; }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Functions intended debug only
-#ifdef SK_DEBUG
-    void dump(GrContext*) const;
-#endif
-
-    void setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]);
+    static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
 
 private:
-    static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format, const GrCaps& caps) {
-        switch (format) {
-            case kA8_GrMaskFormat:
-                return kAlpha_8_GrPixelConfig;
-            case kA565_GrMaskFormat:
-                return kRGB_565_GrPixelConfig;
-            case kARGB_GrMaskFormat:
-                return caps.srgbSupport() ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
-            default:
-                SkDEBUGFAIL("unsupported GrMaskFormat");
-                return kAlpha_8_GrPixelConfig;
-        }
-    }
-
-    // There is a 1:1 mapping between GrMaskFormats and atlas indices
-    static int MaskFormatToAtlasIndex(GrMaskFormat format) {
-        static const int sAtlasIndices[] = {
-            kA8_GrMaskFormat,
-            kA565_GrMaskFormat,
-            kARGB_GrMaskFormat,
-        };
-        static_assert(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, "array_size_mismatch");
-
-        SkASSERT(sAtlasIndices[format] < kMaskFormatCount);
-        return sAtlasIndices[format];
-    }
-
-    bool initAtlas(GrMaskFormat);
-
     GrAtlasTextStrike* generateStrike(const SkGlyphCache* cache) {
         GrAtlasTextStrike* strike = new GrAtlasTextStrike(cache->getDescriptor());
         fCache.add(strike);
         return strike;
     }
 
-    GrDrawOpAtlas* getAtlas(GrMaskFormat format) const {
-        int atlasIndex = MaskFormatToAtlasIndex(format);
-        SkASSERT(fAtlases[atlasIndex]);
-        return fAtlases[atlasIndex].get();
-    }
-
-    static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
-
     using StrikeHash = SkTDynamicHash<GrAtlasTextStrike, SkDescriptor>;
-    GrProxyProvider* fProxyProvider;
+
     StrikeHash fCache;
-    GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
-    std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
     GrAtlasTextStrike* fPreserveStrike;
-    GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];
     SkScalar fGlyphSizeLimit;
 };
 

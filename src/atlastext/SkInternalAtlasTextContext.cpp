@@ -38,9 +38,9 @@ SkInternalAtlasTextContext::SkInternalAtlasTextContext(sk_sp<SkAtlasTextRenderer
 SkInternalAtlasTextContext::~SkInternalAtlasTextContext() {
     if (fDistanceFieldAtlas.fProxy) {
 #ifdef SK_DEBUG
-        auto atlasGlyphCache = fGrContext->contextPriv().getAtlasGlyphCache();
+        auto restrictedAtlasManager = fGrContext->contextPriv().getRestrictedAtlasManager();
         unsigned int numProxies;
-        atlasGlyphCache->getProxies(kA8_GrMaskFormat, &numProxies);
+        restrictedAtlasManager->getProxies(kA8_GrMaskFormat, &numProxies);
         SkASSERT(1 == numProxies);
 #endif
         fRenderer->deleteTexture(fDistanceFieldAtlas.fTextureHandle);
@@ -86,11 +86,11 @@ void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyph
 }
 
 void SkInternalAtlasTextContext::flush() {
-    auto* atlasGlyphCache = fGrContext->contextPriv().getAtlasGlyphCache();
+    auto* restrictedAtlasManager = fGrContext->contextPriv().getRestrictedAtlasManager();
     if (!fDistanceFieldAtlas.fProxy) {
         unsigned int numProxies;
-        fDistanceFieldAtlas.fProxy = atlasGlyphCache->getProxies(kA8_GrMaskFormat,
-                                                                 &numProxies)->get();
+        fDistanceFieldAtlas.fProxy = restrictedAtlasManager->getProxies(kA8_GrMaskFormat,
+                                                                        &numProxies)->get();
         SkASSERT(1 == numProxies);
         fDistanceFieldAtlas.fTextureHandle =
                 fRenderer->createTexture(SkAtlasTextRenderer::AtlasFormat::kA8,
