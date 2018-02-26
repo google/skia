@@ -538,6 +538,7 @@ def dm_flags(api, bot):
     match.append('~savelayer_clipmask')
     match.append('~DrawBitmapRect')
     match.append('~drawbitmaprect')
+    blacklist(['gles', 'gm', '_', 'textblobrandomfont'])
 
   if 'GalaxyS6' in bot:
     match.append('~SpecialImage') # skia:6338
