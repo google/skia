@@ -64,8 +64,8 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrDeferredUploadTarget*, GrAtlasGlyphCache*, GrGlyph*, SkGlyphCache*,
-                         GrMaskFormat expectedMaskFormat);
+    bool addGlyphToAtlas(GrResourceProvider*, GrDeferredUploadTarget*, GrAtlasGlyphCache*, GrGlyph*,
+                         SkGlyphCache*, GrMaskFormat expectedMaskFormat);
 
     // testing
     int countGlyphs() const { return fCache.count(); }
@@ -109,7 +109,8 @@ private:
  */
 class GrAtlasGlyphCache : public GrOnFlushCallbackObject {
 public:
-    GrAtlasGlyphCache(GrContext*, float maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
+    GrAtlasGlyphCache(GrProxyProvider*, float maxTextureBytes,
+                      GrDrawOpAtlas::AllowMultitexturing);
     ~GrAtlasGlyphCache() override;
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.
@@ -132,7 +133,7 @@ public:
         SkASSERT(numProxies);
 
         if (this->initAtlas(format)) {
-            *numProxies = this->getAtlas(format)->pageCount();
+            *numProxies = this->getAtlas(format)->numActivePages();
             return this->getAtlas(format)->getProxies();
         }
         *numProxies = 0;
@@ -165,11 +166,13 @@ public:
     }
 
     // add to texture atlas that matches this format
-    bool addToAtlas(GrAtlasTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
+    bool addToAtlas(GrResourceProvider* resourceProvider, GrAtlasTextStrike* strike,
+                    GrDrawOpAtlas::AtlasID* id,
                     GrDeferredUploadTarget* target, GrMaskFormat format, int width, int height,
                     const void* image, SkIPoint16* loc) {
         fPreserveStrike = strike;
-        return this->getAtlas(format)->addToAtlas(id, target, width, height, image, loc);
+        return this->getAtlas(format)->addToAtlas(resourceProvider, id, target,
+                                                  width, height, image, loc);
     }
 
     // Some clients may wish to verify the integrity of the texture backing store of the
@@ -190,8 +193,7 @@ public:
         }
     }
 
-    void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                   const uint32_t* opListIDs, int numOpListIDs) override {
+    void postFlush(GrDeferredUploadToken startTokenForNextFlush, const uint32_t*, int) override {
         for (int i = 0; i < kMaskFormatCount; ++i) {
             if (fAtlases[i]) {
                 fAtlases[i]->compact(startTokenForNextFlush);
@@ -206,12 +208,10 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended debug only
 #ifdef SK_DEBUG
-    void dump() const;
+    void dump(GrContext*) const;
 #endif
 
     void setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]);
-
-    GrContext* context() const { return fContext; }
 
 private:
     static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format, const GrCaps& caps) {
@@ -258,7 +258,7 @@ private:
     static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
 
     using StrikeHash = SkTDynamicHash<GrAtlasTextStrike, SkDescriptor>;
-    GrContext* fContext;
+    GrProxyProvider* fProxyProvider;
     StrikeHash fCache;
     GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
     std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
