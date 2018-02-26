@@ -46,9 +46,11 @@ static const struct {
     { "gl4444",                "gpu", "api=gl,color=4444" },
     { "gl565",                 "gpu", "api=gl,color=565" },
     { "glf16",                 "gpu", "api=gl,color=f16" },
+    { "gl1010102",             "gpu", "api=gl,color=1010102" },
     { "glsrgb",                "gpu", "api=gl,color=srgb" },
     { "glsrgbnl",              "gpu", "api=gl,color=srgbnl" },
     { "glesf16",               "gpu", "api=gles,color=f16" },
+    { "gles1010102",           "gpu", "api=gles,color=1010102" },
     { "glessrgb",              "gpu", "api=gles,color=srgb" },
     { "glessrgbnl",            "gpu", "api=gles,color=srgbnl" },
     { "glsrgb",                "gpu", "api=gl,color=srgb" },
@@ -77,6 +79,7 @@ static const struct {
     { "mock",                  "gpu", "api=mock" }
 #ifdef SK_VULKAN
     ,{ "vk",                   "gpu", "api=vulkan" }
+    ,{ "vk1010102",            "gpu", "api=vulkan,color=1010102" }
     ,{ "vksrgb",               "gpu", "api=vulkan,color=srgb" }
     ,{ "vkwide",               "gpu", "api=vulkan,color=f16_wide" }
     ,{ "vkmsaa4",              "gpu", "api=vulkan,samples=4" }
@@ -84,6 +87,7 @@ static const struct {
 #endif
 #ifdef SK_METAL
     ,{ "mtl",                   "gpu", "api=metal" }
+    ,{ "mtl1010102",            "gpu", "api=metal,color=1010102" }
     ,{ "mtlsrgb",               "gpu", "api=metal,color=srgb" }
     ,{ "mtlwide",               "gpu", "api=metal,color=f16_wide" }
     ,{ "mtlmsaa4",              "gpu", "api=metal,samples=4" }
@@ -140,6 +144,7 @@ static const char configExtendedHelp[] =
     "\t\t4444\t\t\tLinear 4444.\n"
     "\t\t565\t\t\tLinear 565.\n"
     "\t\tf16{_gamut}\t\tLinear 16-bit floating point.\n"
+    "\t\t1010102\t\tLinear 1010102.\n"
     "\t\tsrgb{_gamut}\t\tsRGB 8888.\n"
     "\t  gamut\ttype: string\tdefault: srgb.\n"
     "\t    Select color gamut for f16 or sRGB format buffers.\n"
@@ -319,6 +324,10 @@ static bool parse_option_gpu_color(const SkString& value,
     } else if (value.equals("565")) {
         *outColorType = kRGB_565_SkColorType;
         *alphaType = kOpaque_SkAlphaType;
+        *outColorSpace = nullptr;
+        return true;
+    } else if (value.equals("1010102")) {
+        *outColorType = kRGBA_1010102_SkColorType;
         *outColorSpace = nullptr;
         return true;
     }
