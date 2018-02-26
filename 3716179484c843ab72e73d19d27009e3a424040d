@@ -57,6 +57,30 @@
       "revId": "3716179484c843ab72e73d19d27009e3a424040d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8aed0007_aa556af6",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-26T20:18:16Z",
+      "side": 0,
+      "message": "I had copy and pasted it from the initial creation path but the \u0027x\u0027 \u0026 \u0027y\u0027 aren\u0027t necessary for the deactivation path.",
+      "parentUuid": "be1631c4_d8c9cd70",
+      "range": {
+        "startLine": 568,
+        "startChar": 9,
+        "endLine": 568,
+        "endChar": 55
+      },
+      "revId": "3716179484c843ab72e73d19d27009e3a424040d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
