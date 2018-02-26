@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76805cb5_fc328365",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-26T19:46:44Z",
+      "side": 1,
+      "message": "I prefer match.append(\u0027~textblobrandomfont\u0027) to conform with what else has been done.",
+      "range": {
+        "startLine": 541,
+        "startChar": 4,
+        "endLine": 541,
+        "endChar": 13
+      },
+      "revId": "1a0d21dd941f1f733096263f8613011124231c27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
