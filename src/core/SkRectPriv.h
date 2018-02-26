@@ -47,7 +47,8 @@ public:
         r->fBottom = SkMaxScalar(pt.fY, r->fBottom);
     }
 
-    // conservative check. will return false for very large values that "could" fit
+    // Conservative check if r can be expressed in fixed-point.
+    // Will return false for very large values that might have fit
     static bool FitsInFixed(const SkRect& r) {
         return SkFitsInFixed(r.fLeft) && SkFitsInFixed(r.fTop) &&
                SkFitsInFixed(r.fRight) && SkFitsInFixed(r.fBottom);

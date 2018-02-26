@@ -233,7 +233,8 @@ struct PtProcRec {
     const SkRasterClip* fRC;
 
     // computed values
-    SkFixed fRadius;
+    SkRect   fClipBounds;
+    SkScalar fRadius;
 
     typedef void (*Proc)(const PtProcRec&, const SkPoint devPts[], int count,
                          SkBlitter*);
@@ -341,37 +342,38 @@ static void aa_poly_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
 
 // square procs (strokeWidth > 0 but matrix is square-scale (sx == sy)
 
+static SkRect make_square_rad(SkPoint center, SkScalar radius) {
+    return {
+        center.fX - radius, center.fY - radius,
+        center.fX + radius, center.fY + radius
+    };
+}
+
+static SkXRect make_xrect(const SkRect& r) {
+    SkASSERT(SkRectPriv::FitsInFixed(r));
+    return {
+        SkScalarToFixed(r.fLeft), SkScalarToFixed(r.fTop),
+        SkScalarToFixed(r.fRight), SkScalarToFixed(r.fBottom)
+    };
+}
+
 static void bw_square_proc(const PtProcRec& rec, const SkPoint devPts[],
                            int count, SkBlitter* blitter) {
-    const SkFixed radius = rec.fRadius;
     for (int i = 0; i < count; i++) {
-        SkFixed x = SkScalarToFixed(devPts[i].fX);
-        SkFixed y = SkScalarToFixed(devPts[i].fY);
-
-        SkXRect r;
-        r.fLeft = x - radius;
-        r.fTop = y - radius;
-        r.fRight = x + radius;
-        r.fBottom = y + radius;
-
-        SkScan::FillXRect(r, *rec.fRC, blitter);
+        SkRect r = make_square_rad(devPts[i], rec.fRadius);
+        if (r.intersect(rec.fClipBounds)) {
+            SkScan::FillXRect(make_xrect(r), *rec.fRC, blitter);
+        }
     }
 }
 
 static void aa_square_proc(const PtProcRec& rec, const SkPoint devPts[],
                            int count, SkBlitter* blitter) {
-    const SkFixed radius = rec.fRadius;
     for (int i = 0; i < count; i++) {
-        SkFixed x = SkScalarToFixed(devPts[i].fX);
-        SkFixed y = SkScalarToFixed(devPts[i].fY);
-
-        SkXRect r;
-        r.fLeft = x - radius;
-        r.fTop = y - radius;
-        r.fRight = x + radius;
-        r.fBottom = y + radius;
-
-        SkScan::AntiFillXRect(r, *rec.fRC, blitter);
+        SkRect r = make_square_rad(devPts[i], rec.fRadius);
+        if (r.intersect(rec.fClipBounds)) {
+            SkScan::AntiFillXRect(make_xrect(r), *rec.fRC, blitter);
+        }
     }
 }
 
@@ -398,16 +400,18 @@ bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
         }
     }
     if (radius > 0) {
+        SkRect clipBounds = SkRect::Make(rc->getBounds());
         // if we return true, the caller may assume that the constructed shapes can be represented
-        // using SkFixed, so we preflight that here, looking at the radius and clip-bounds
-        if (!SkRectPriv::FitsInFixed(SkRect::Make(rc->getBounds()).makeOutset(radius, radius))) {
+        // using SkFixed (after clipping), so we preflight that here.
+        if (!SkRectPriv::FitsInFixed(clipBounds)) {
             return false;
         }
         fMode = mode;
         fPaint = &paint;
         fClip = nullptr;
         fRC = rc;
-        fRadius = SkScalarToFixed(radius);
+        fClipBounds = clipBounds;
+        fRadius = radius;
         return true;
     }
     return false;
@@ -443,7 +447,7 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter** blitterPtr) {
             proc = aa_square_proc;
         }
     } else {    // BW
-        if (fRadius <= SK_FixedHalf) {    // small radii and hairline
+        if (fRadius <= 0.5f) {    // small radii and hairline
             if (SkCanvas::kPoints_PointMode == fMode && fClip->isRect()) {
                 uint32_t value;
                 const SkPixmap* bm = blitter->justAnOpaqueColor(&value);
