@@ -1982,8 +1982,9 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
     }
 
     size_t transBufferRowBytes = bpp * region.imageExtent.width;
+    size_t imageRows = bpp * region.imageExtent.height;
     GrVkTransferBuffer* transferBuffer =
-            static_cast<GrVkTransferBuffer*>(this->createBuffer(transBufferRowBytes * height,
+            static_cast<GrVkTransferBuffer*>(this->createBuffer(transBufferRowBytes * imageRows,
                                                                 kXferGpuToCpu_GrBufferType,
                                                                 kStream_GrAccessPattern));
 
