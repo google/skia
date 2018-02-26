@@ -135,8 +135,8 @@ struct Fuzzable {
 };
 
 #define DEF_FUZZ(name, f)                                               \
-    static void fuzz_##name(Fuzz*);                                     \
+    void fuzz_##name(Fuzz*);                                            \
     sk_tools::Registry<Fuzzable> register_##name({#name, fuzz_##name}); \
-    static void fuzz_##name(Fuzz* f)
+    void fuzz_##name(Fuzz* f)
 
 #endif//Fuzz_DEFINED
