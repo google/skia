@@ -396,7 +396,7 @@ private:
         size_t newReserve = sizeof(uint8_t) * reserveVerbs + sizeof(SkPoint) * reservePoints;
         size_t minSize = newSize + newReserve;
 
-        ptrdiff_t sizeDelta = this->currSize() - minSize;
+        ptrdiff_t sizeDelta = (ptrdiff_t)this->currSize() - (ptrdiff_t)minSize;
 
         if (sizeDelta < 0 || static_cast<size_t>(sizeDelta) >= 3 * minSize) {
             sk_free(fPoints);

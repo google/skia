@@ -26,6 +26,10 @@ public:
      *
      * This is the Murmur3 finalizer.
      */
+
+#ifdef __clang__
+    __attribute__((no_sanitize("integer")))
+#endif
     static uint32_t Mix(uint32_t hash) {
         hash ^= hash >> 16;
         hash *= 0x85ebca6b;
@@ -41,6 +45,9 @@ public:
      *
      *  This version is 2-lines cheaper than Mix, but seems to be sufficient for the font cache.
      */
+#ifdef __clang__
+    __attribute__((no_sanitize("integer")))
+#endif
     static uint32_t CheapMix(uint32_t hash) {
         hash ^= hash >> 16;
         hash *= 0x85ebca6b;

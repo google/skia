@@ -470,29 +470,26 @@ void GrResourceCache::purgeAsNeeded() {
 
     this->processFreedGpuResources();
 
-    if (fMaxUnusedFlushes > 0) {
+    if (fMaxUnusedFlushes > 0 && fExternalFlushCnt > (uint32_t)fMaxUnusedFlushes) {
         // We want to know how many complete flushes have occurred without the resource being used.
         // If the resource was tagged when fExternalFlushCnt was N then this means it became
         // purgeable during activity that became the N+1th flush. So when the flush count is N+2
         // it has sat in the purgeable queue for one entire flush.
         uint32_t oldestAllowedFlushCnt = fExternalFlushCnt - fMaxUnusedFlushes - 1;
-        // check for underflow
-        if (oldestAllowedFlushCnt < fExternalFlushCnt) {
-            while (fPurgeableQueue.count()) {
-                uint32_t flushWhenResourceBecamePurgeable =
-                        fPurgeableQueue.peek()->cacheAccess().flushCntWhenResourceBecamePurgeable();
-                if (oldestAllowedFlushCnt < flushWhenResourceBecamePurgeable) {
-                    // Resources were given both LRU timestamps and tagged with a flush cnt when
-                    // they first became purgeable. The LRU timestamp won't change again until the
-                    // resource is made non-purgeable again. So, at this point all the remaining
-                    // resources in the timestamp-sorted queue will have a flush count >= to this
-                    // one.
-                    break;
-                }
-                GrGpuResource* resource = fPurgeableQueue.peek();
-                SkASSERT(resource->isPurgeable());
-                resource->cacheAccess().release();
+        while (fPurgeableQueue.count()) {
+            uint32_t flushWhenResourceBecamePurgeable =
+                    fPurgeableQueue.peek()->cacheAccess().flushCntWhenResourceBecamePurgeable();
+            if (oldestAllowedFlushCnt < flushWhenResourceBecamePurgeable) {
+                // Resources were given both LRU timestamps and tagged with a flush cnt when
+                // they first became purgeable. The LRU timestamp won't change again until the
+                // resource is made non-purgeable again. So, at this point all the remaining
+                // resources in the timestamp-sorted queue will have a flush count >= to this
+                // one.
+                break;
             }
+            GrGpuResource* resource = fPurgeableQueue.peek();
+            SkASSERT(resource->isPurgeable());
+            resource->cacheAccess().release();
         }
     }
 
