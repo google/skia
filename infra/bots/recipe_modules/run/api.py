@@ -27,6 +27,8 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'skiaserve',
   'lib/*.so',
   'vulkan-1.dll',
+  'run_testlab',
+  'skqp-universal-debug.apk',
 ]
 
 

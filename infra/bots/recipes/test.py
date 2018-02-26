@@ -890,9 +890,22 @@ def test_steps(api):
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.dm_dir, api.vars.dm_dir)
 
+def test_firebase_steps(api):
+  """Test an APK on Firebase Testlab."""
+  wlist_file = api.vars.skia_dir.join('infra', 'cts',  'whitelist_devices.json')
+  args = [
+    'run_testlab',
+    '--devices', wlist_file,
+    'skqp-universal-debug.apk'
+  ]
+  api.run(api.flavor.step, 'run firebase testlab', cmd=args)
 
 def RunSteps(api):
   api.core.setup()
+
+  if 'SKQP' in api.vars.builder_name:
+    test_firebase_steps(api)
+
   env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.dm'
