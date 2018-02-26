@@ -598,6 +598,7 @@
       "~lighting",
       "~imageblur2",
       "~animated-image-blurs",
+      "~textblobrandomfont",
       "~readpixels",
       "~GM_animated-image-blurs",
       "~verylarge",
