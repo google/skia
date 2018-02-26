@@ -264,6 +264,7 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkColorType type, SkColorSpace* cs
             return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
         case kRGBA_1010102_SkColorType:
+            return kRGBA_1010102_GrPixelConfig;
             return kUnknown_GrPixelConfig;
         case kRGB_101010x_SkColorType:
             return kUnknown_GrPixelConfig;
