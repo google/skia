@@ -22,6 +22,30 @@
       "revId": "1a0d21dd941f1f733096263f8613011124231c27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c20d3fd0_fa8eb8a1",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-26T19:55:55Z",
+      "side": 1,
+      "message": "Done.\n\nI don\u0027t like using match because it omits the GM for all configs even if it\u0027s failing for only one config. Also, people seem to be opposed to using $ and ^ with match, so we end up omitting other tests/GMs that contain the omitted GM\u0027s name. Unfortunately, the only way to omit a unit test is with match.",
+      "parentUuid": "76805cb5_fc328365",
+      "range": {
+        "startLine": 541,
+        "startChar": 4,
+        "endLine": 541,
+        "endChar": 13
+      },
+      "revId": "1a0d21dd941f1f733096263f8613011124231c27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
