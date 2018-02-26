@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21775242_7b8e7384",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-26T16:35:12Z",
+      "side": 1,
+      "message": "The reason I made a separate function rather than changing the entire defn of writeSurfacePixels() based on the macro is because I plan to make RGB_888x always take the writeSurfacePixels2() code path regardless of the macro so that I don\u0027t have to try to make it work with the old more complicated path.",
+      "range": {
+        "startLine": 644,
+        "startChar": 0,
+        "endLine": 647,
+        "endChar": 6
+      },
+      "revId": "5b121a45fba57a291123bfa0a3ad7f81a324e22c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
