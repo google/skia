@@ -102,12 +102,17 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fMustSubmitCommandsBeforeCopyOp = true;
     }
 
-    if (kQualcomm_VkVendor != properties.vendorID) {
+    if (kQualcomm_VkVendor != properties.vendorID &&
+        kARM_VkVendor != properties.vendorID) {
         fSupportsCopiesAsDraws = true;
     }
 
     if (fSupportsCopiesAsDraws) {
         fCrossContextTextureSupport = true;
+    }
+
+    if (kARM_VkVendor == properties.vendorID) {
+        fInstanceAttribSupport = false;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
