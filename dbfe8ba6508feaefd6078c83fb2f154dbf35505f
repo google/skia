@@ -70,6 +70,30 @@
       "revId": "dbfe8ba6508feaefd6078c83fb2f154dbf35505f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe823833_89c489d5",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-02-26T17:33:46Z",
+      "side": 1,
+      "message": "And thanks for the quick review.",
+      "parentUuid": "e0139e8f_1df00939",
+      "range": {
+        "startLine": 126,
+        "startChar": 41,
+        "endLine": 126,
+        "endChar": 67
+      },
+      "revId": "dbfe8ba6508feaefd6078c83fb2f154dbf35505f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
