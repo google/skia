@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4768e68_aa977258",
+        "filename": "BUILD.gn",
+        "patchSetId": 8
+      },
+      "lineNbr": 1259,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-26T15:46:06Z",
+      "side": 1,
+      "message": "The gn formatter required this change. I assume a rule has been added since the last time someone touched this file.",
+      "revId": "e01e4e36310ed34a42b7ef66d595df16d6385091",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d98d63c8_d447561c",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-26T15:46:06Z",
+      "side": 1,
+      "message": "I made this virtual and added the srcColorType because I think there are some pretty trivial improvements that could be made in subclasses. E.g. In desktop GL we implement both kBGRA_8888 and kRGBA_8888 using GL_RGB8 textures and when the config/srcColorType are any combination of those two formats we could return srcColorType. I left that for future work, though.",
+      "range": {
+        "startLine": 200,
+        "startChar": 4,
+        "endLine": 201,
+        "endChar": 89
+      },
+      "revId": "e01e4e36310ed34a42b7ef66d595df16d6385091",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
