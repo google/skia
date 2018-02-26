@@ -23,6 +23,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fMustSubmitCommandsBeforeCopyOp = false;
     fMustSleepOnTearDown  = false;
     fNewCBOnPipelineChange = false;
+    fCanUseWholeSizeOnFlushMappedMemory = true;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -181,6 +182,10 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     // Current workaround is to use a different secondary command buffer for each new VkPipeline.
     if (kAMD_VkVendor == properties.vendorID) {
         fNewCBOnPipelineChange = true;
+    }
+
+    if (kIntel_VkVendor == properties.vendorID) {
+        fCanUseWholeSizeOnFlushMappedMemory = false;
     }
 
 #if defined(SK_CPU_X86)
