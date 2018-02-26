@@ -214,6 +214,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			// Transition to new Win image by model name.
 			_, ok = map[string]bool{
 				"NUC5i7RYH":     true,
+				"NUC6i5SYK":     true,
 				"NUCD34010WYKH": true,
 			}[parts["model"]]
 			if ok {
