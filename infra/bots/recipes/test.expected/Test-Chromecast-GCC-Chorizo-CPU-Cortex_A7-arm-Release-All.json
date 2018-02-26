@@ -495,7 +495,6 @@
       "_",
       "GrShape",
       "--match",
-      "~readpixels",
       "~GM_animated-image-blurs",
       "~verylarge",
       "~ImageFilterBlurLargeImage",
