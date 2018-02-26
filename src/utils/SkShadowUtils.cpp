@@ -535,6 +535,11 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoi
     canvas->private_draw_shadow_rec(path, rec);
 }
 
+static bool validate_rec(const SkDrawShadowRec& rec) {
+    return rec.fLightPos.isFinite() && rec.fZPlaneParams.isFinite() &&
+           SkScalarIsFinite(rec.fLightRadius);
+}
+
 void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     auto drawVertsProc = [this](const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint,
                                 SkScalar tx, SkScalar ty) {
@@ -542,6 +547,10 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                                                           SkMatrix::MakeTrans(tx, ty)));
         this->drawVertices(vertices, mode, paint);
     };
+
+    if (!validate_rec(rec)) {
+        return;
+    }
 
     SkMatrix viewMatrix = this->ctm();
     SkAutoDeviceCTMRestore adr(this, SkMatrix::I());

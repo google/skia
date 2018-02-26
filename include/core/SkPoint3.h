@@ -107,6 +107,24 @@ struct SK_API SkPoint3 {
         fZ -= v.fZ;
     }
 
+    /** Returns true if fX, fY, and fZ are measurable values.
+
+     @return  true for values other than infinities and NaN
+     */
+    bool isFinite() const {
+        SkScalar accum = 0;
+        accum *= fX;
+        accum *= fY;
+        accum *= fZ;
+
+        // accum is either NaN or it is finite (zero).
+        SkASSERT(0 == accum || SkScalarIsNaN(accum));
+
+        // value==value will be true iff value is not NaN
+        // TODO: is it faster to say !accum or accum==accum?
+        return !SkScalarIsNaN(accum);
+    }
+
     /** Returns the dot product of a and b, treating them as 3D vectors
     */
     static SkScalar DotProduct(const SkPoint3& a, const SkPoint3& b) {
