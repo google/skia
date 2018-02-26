@@ -8,14 +8,7 @@ template("third_party") {
     if (defined(invoker.public_defines)) {
       defines = invoker.public_defines
     }
-    if (is_win) {
-        include_dirs = invoker.public_include_dirs
-    } else {
-        cflags = []
-        foreach(dir, invoker.public_include_dirs) {
-            cflags += ["-isystem", rebase_path(dir, root_build_dir)]
-        }
-    }
+    include_dirs = invoker.public_include_dirs
   }
   source_set(target_name) {
     forward_variables_from(invoker, "*", [ "public_include_dirs" ])
