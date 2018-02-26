@@ -526,6 +526,7 @@ def dm_flags(api, bot):
       match.append('~lighting')
       match.append('~imageblur2')
       match.append('~animated-image-blurs')
+      match.append('~textblobrandomfont')
     # skia:7497
     match.append('~readpixels') # dies with "Caught signal 7 [Bus error]"
     match.append('~SkRasterPipeline_tail')
