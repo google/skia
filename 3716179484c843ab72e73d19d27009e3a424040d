@@ -16,6 +16,47 @@
       "revId": "3716179484c843ab72e73d19d27009e3a424040d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17d9a83e_35a5c71d",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-26T20:16:07Z",
+      "side": 0,
+      "message": "Ack",
+      "parentUuid": "22bde020_5c436327",
+      "revId": "3716179484c843ab72e73d19d27009e3a424040d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "be1631c4_d8c9cd70",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-26T20:16:07Z",
+      "side": 0,
+      "message": "I\u0027m not sure why this was this way...",
+      "range": {
+        "startLine": 568,
+        "startChar": 9,
+        "endLine": 568,
+        "endChar": 55
+      },
+      "revId": "3716179484c843ab72e73d19d27009e3a424040d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
