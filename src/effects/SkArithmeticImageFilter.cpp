@@ -379,6 +379,8 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
     SkASSERT(ctm.getType() <= SkMatrix::kTranslate_Mask);
     const int dx = SkScalarRoundToInt(ctm.getTranslateX());
     const int dy = SkScalarRoundToInt(ctm.getTranslateY());
+    // be sure to perform this offset using SkIRect, since it saturates to avoid overflows
+    const SkIRect fgoffset = fgBounds.makeOffset(dx, dy);
 
     if (img) {
         SkBitmap srcBM;
@@ -392,7 +394,7 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
 
         auto proc = fEnforcePMColor ? arith_span<true> : arith_span<false>;
         SkPixmap tmpDst = dst;
-        if (intersect(&tmpDst, &src, fgBounds.fLeft + dx, fgBounds.fTop + dy)) {
+        if (intersect(&tmpDst, &src, fgoffset.fLeft, fgoffset.fTop)) {
             for (int y = 0; y < tmpDst.height(); ++y) {
                 proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), tmpDst.width());
             }
@@ -401,7 +403,7 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
 
     // Now apply the mode with transparent-color to the outside of the fg image
     SkRegion outside(SkIRect::MakeWH(dst.width(), dst.height()));
-    outside.op(fgBounds.makeOffset(dx, dy), SkRegion::kDifference_Op);
+    outside.op(fgoffset, SkRegion::kDifference_Op);
     auto proc = fEnforcePMColor ? arith_transparent<true> : arith_transparent<false>;
     for (SkRegion::Iterator iter(outside); !iter.done(); iter.next()) {
         const SkIRect r = iter.rect();
