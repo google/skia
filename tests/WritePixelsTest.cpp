@@ -423,22 +423,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo)
         for (int sampleCnt : {1, 4}) {
             GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                     nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
-            SkColorType colorType;
-            if (kRGBA_8888_GrPixelConfig == kSkia8888_GrPixelConfig) {
-                colorType = kRGBA_8888_SkColorType;
-            } else {
-                colorType = kBGRA_8888_SkColorType;
-            }
+            SkColorType colorType = kN32_SkColorType;
             sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
                     context, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
-            if (!surface) {
-                gpu->deleteTestingOnlyBackendTexture(&backendTex);
-                continue;
+            if (surface) {
+                test_write_pixels(reporter, surface.get());
             }
-
-            test_write_pixels(reporter, surface.get());
-
-            surface.reset();
             gpu->deleteTestingOnlyBackendTexture(&backendTex);
         }
     }
