@@ -17,18 +17,36 @@
   },
   {
     "cmd": [
-      "[CUSTOM_/_B_WORK]/skia/tools/skqp/make_universal_apk"
+      "[CUSTOM_/_B_WORK]/skia/bin/gn",
+      "gen",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel",
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false target_cpu=\"universal\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "ANDROID_HOME": "[START_DIR]/android_sdk_linux/android-sdk",
-      "ANDROID_NDK": "[START_DIR]/android_ndk_linux",
       "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
-    "name": "make_universal"
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-k",
+      "0",
+      "-C",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "devrel",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+    },
+    "name": "ninja"
   },
   {
     "name": "$result",

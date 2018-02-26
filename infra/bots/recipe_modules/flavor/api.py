@@ -50,6 +50,9 @@ def is_ios(vars_api):
 def is_pdfium(vars_api):
   return 'PDFium' in vars_api.extra_tokens
 
+def is_skqp(vars_api):
+  return 'SKQP' in vars_api.extra_tokens
+
 def is_valgrind(vars_api):
   return 'Valgrind' in vars_api.extra_tokens
 
@@ -63,7 +66,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return gn_chromecast_flavor.GNChromecastFlavorUtils(self)
     if is_chromebook(vars_api):
       return gn_chromebook_flavor.GNChromebookFlavorUtils(self)
-    if is_android(vars_api):
+    if is_android(vars_api) and not is_skqp(vars_api):
       return gn_android_flavor.GNAndroidFlavorUtils(self)
     elif is_ios(vars_api):
       return ios_flavor.iOSFlavorUtils(self)
