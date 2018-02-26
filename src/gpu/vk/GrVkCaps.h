@@ -98,6 +98,13 @@ public:
         return fNewCBOnPipelineChange;
     }
 
+    // On certain Intel devices/drivers (IntelHD405) there is a bug if we try to flush non-coherent
+    // memory and pass in VK_WHOLE_SIZE. This returns whether or not it is safe to use VK_WHOLE_SIZE
+    // or not.
+    bool canUseWholeSizeOnFlushMappedMemory() const {
+        return fCanUseWholeSizeOnFlushMappedMemory;
+    }
+
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
@@ -119,7 +126,9 @@ public:
 private:
     enum VkVendor {
         kAMD_VkVendor = 4098,
+        kARM_VkVendor = 5045,
         kImagination_VkVendor = 4112,
+        kIntel_VkVendor = 32902,
         kNvidia_VkVendor = 4318,
         kQualcomm_VkVendor = 20803,
     };
@@ -170,6 +179,8 @@ private:
     bool fMustSleepOnTearDown;
 
     bool fNewCBOnPipelineChange;
+
+    bool fCanUseWholeSizeOnFlushMappedMemory;
 
     typedef GrCaps INHERITED;
 };
