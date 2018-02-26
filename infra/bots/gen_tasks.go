@@ -31,6 +31,8 @@ import (
 
 const (
 	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_GCLOUD_LINUX_NAME   = "Housekeeper-PerCommit-IsolateGCloudLinux"
+	ISOLATE_GO_LINUX_NAME       = "Housekeeper-PerCommit-IsolateGoLinux"
 	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
@@ -430,6 +432,14 @@ type isolateAssetCfg struct {
 }
 
 var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
+	ISOLATE_GCLOUD_LINUX_NAME: {
+		isolateFile: "isolate_gcloud_linux.isolate",
+		cipdPkg:     "gcloud_linux",
+	},
+	ISOLATE_GO_LINUX_NAME: {
+		isolateFile: "isolate_go_linux.isolate",
+		cipdPkg:     "go",
+	},
 	ISOLATE_SKIMAGE_NAME: {
 		isolateFile: "isolate_skimage.isolate",
 		cipdPkg:     "skimage",
@@ -518,7 +528,8 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		} else {
 			deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
 			if strings.Contains(name, "SKQP") {
-				deps = append(deps, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME))
+				deps = append(deps, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME),
+					isolateCIPDAsset(b, ISOLATE_GO_LINUX_NAME))
 			}
 		}
 	} else if strings.Contains(name, "Chromecast") {
@@ -889,6 +900,10 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	deps := []string{compileTaskName}
 	if strings.Contains(name, "Android_ASAN") {
 		deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+	}
+
+	if strings.Contains(name, "SKQP") {
+		deps = append(deps, isolateCIPDAsset(b, ISOLATE_GCLOUD_LINUX_NAME))
 	}
 
 	s := &specs.TaskSpec{
