@@ -147,13 +147,16 @@ public:
                            size_t rowBytes = 0, uint32_t pixelOpsFlags = 0);
 
     /**
-     * Writes a rectangle of pixels to a surface.
+     * Writes a rectangle of pixels to a surface. There are currently two versions of this.
+     * writeSurfacePixels() is the older version which will be replaced by the more robust and
+     * maintainable (but perhaps slower) writeSurfacePixels2().
+     *
      * @param dst           the surface context to write to.
      * @param left          left edge of the rectangle to write (inclusive)
      * @param top           top edge of the rectangle to write (inclusive)
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
-     * @param srcConfig     the pixel config of the source buffer
+     * @param srcColorType  the color type of the source buffer
      * @param srcColorSpace color space of the source buffer
      * @param buffer        memory to read pixels from
      * @param rowBytes      number of bytes between consecutive rows. Zero
@@ -165,6 +168,9 @@ public:
     bool writeSurfacePixels(GrSurfaceContext* dst, int left, int top, int width, int height,
                             GrColorType srcColorType, SkColorSpace* srcColorSpace,
                             const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
+    bool writeSurfacePixels2(GrSurfaceContext* dst, int left, int top, int width, int height,
+                             GrColorType srcColorType, SkColorSpace* srcColorSpace,
+                             const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
 
     GrBackend getBackend() const { return fContext->fBackend; }
 
