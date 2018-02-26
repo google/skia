@@ -364,6 +364,9 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             shaderFP = std::move(*shaderProcessor);
         } else if (const auto* shader = as_SB(skPaint.getShader())) {
             shaderFP = shader->asFragmentProcessor(fpArgs);
+            if (!shaderFP) {
+                return false;
+            }
         }
     }
 
