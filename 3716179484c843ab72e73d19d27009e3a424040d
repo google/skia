@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22bde020_5c436327",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-26T18:49:39Z",
+      "side": 0,
+      "message": "I don\u0027t think we were hitting this but I didn\u0027t like it.",
+      "revId": "3716179484c843ab72e73d19d27009e3a424040d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
