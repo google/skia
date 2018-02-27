@@ -153,28 +153,8 @@ void GrVkGpuRTCommandBuffer::submit() {
     }
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
-
-    // Change layout of our render target so it can be used as the color attachment. Currently
-    // we don't attach the resolve to the framebuffer so no need to change its layout.
     GrVkImage* targetImage = vkRT->msaaImage() ? vkRT->msaaImage() : vkRT;
-
-    // Change layout of our render target so it can be used as the color attachment
-    targetImage->setImageLayout(fGpu,
-                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                false);
-
-    // If we are using a stencil attachment we also need to update its layout
-    if (GrStencilAttachment* stencil = fRenderTarget->renderTargetPriv().getStencilAttachment()) {
-        GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
-        vkStencil->setImageLayout(fGpu,
-                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                  false);
-    }
+    GrStencilAttachment* stencil = fRenderTarget->renderTargetPriv().getStencilAttachment();
 
     for (int i = 0; i < fCommandBufferInfos.count(); ++i) {
         CommandBufferInfo& cbInfo = fCommandBufferInfos[i];
@@ -188,6 +168,28 @@ void GrVkGpuRTCommandBuffer::submit() {
             CopyInfo& copyInfo = cbInfo.fPreCopies[j];
             fGpu->copySurface(fRenderTarget, fOrigin, copyInfo.fSrc, copyInfo.fSrcOrigin,
                               copyInfo.fSrcRect, copyInfo.fDstPoint);
+        }
+
+        // Make sure we do the following layout changes after all copies, uploads, or any other pre
+        // work is done since we may change the layouts in the pre-work. Also since the draws will
+        // be submitted in different render passes, we need to guard againts write and write issues.
+
+        // Change layout of our render target so it can be used as the color attachment.
+        targetImage->setImageLayout(fGpu,
+                                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                    false);
+
+        // If we are using a stencil attachment we also need to update its layout
+        if (stencil) {
+            GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+            vkStencil->setImageLayout(fGpu,
+                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                      false);
         }
 
         // TODO: We can't add this optimization yet since many things create a scratch texture which
