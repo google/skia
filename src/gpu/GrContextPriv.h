@@ -184,16 +184,13 @@ public:
 
     GrAtlasGlyphCache* getAtlasGlyphCache() { return fContext->fAtlasGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
-    GrRestrictedAtlasManager* getRestrictedAtlasManager() { return fContext->fFullAtlasManager; }
+    GrRestrictedAtlasManager* getRestrictedAtlasManager() {
+        return fContext->onGetRestrictedAtlasManager();
+    }
 
     // This accessor should only ever be called by the GrOpFlushState.
     GrAtlasManager* getFullAtlasManager() {
-        if (fContext->fResourceProvider) {
-            // Disallow access to the full atlasManager when recording DDLs
-            return fContext->fFullAtlasManager;
-        }
-
-        return nullptr;
+        return fContext->onGetFullAtlasManager();
     }
 
     void moveOpListsToDDL(SkDeferredDisplayList*);
