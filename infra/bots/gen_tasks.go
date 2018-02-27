@@ -217,6 +217,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"NUC5i7RYH":     true,
 				"NUC6i5SYK":     true,
 				"NUCD34010WYKH": true,
+				"ShuttleC":      true,
 			}[parts["model"]]
 			if ok {
 				d["os"] = "Windows-10-16299.248"
