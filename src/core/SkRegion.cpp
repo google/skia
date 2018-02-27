@@ -1503,6 +1503,49 @@ bool SkRegion::Spanerator::next(int* left, int* right) {
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void visit_pairs(int pairCount, int y, const int32_t pairs[],
+                        const std::function<void(const SkIRect&)>& visitor) {
+    for (int i = 0; i < pairCount; ++i) {
+        visitor({ pairs[0], y, pairs[1], y + 1 });
+        pairs += 2;
+    }
+}
+
+void SkRegionPriv::VisitSpans(const SkRegion& rgn,
+                              const std::function<void(const SkIRect&)>& visitor) {
+    if (rgn.isEmpty()) {
+        return;
+    }
+    if (rgn.isRect()) {
+        visitor(rgn.getBounds());
+    } else {
+        const int32_t* p = rgn.fRunHead->readonly_runs();
+        int32_t top = *p++;
+        int32_t bot = *p++;
+        do {
+            int pairCount = *p++;
+            if (pairCount == 1) {
+                visitor({ p[0], top, p[1], bot });
+                p += 2;
+            } else if (pairCount > 1) {
+                // we have to loop repeated in Y, sending each interval in Y -> X order
+                for (int y = top; y < bot; ++y) {
+                    visit_pairs(pairCount, y, p, visitor);
+                }
+                p += pairCount * 2;
+            }
+            assert_sentinel(*p, true);
+            p += 1; // skip sentinel
+
+            // read next bottom or sentinel
+            top = bot;
+            bot = *p++;
+        } while (!SkRegionValueIsSentinel(bot));
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
