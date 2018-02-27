@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "6f52c978_6c3e3125",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-27T22:01:50Z",
+      "side": 1,
+      "message": "Yup.\n\nAnother idea: emit a warning at build time if cc !\u003d clang?",
+      "parentUuid": "3e94ea25_e2baf6c4",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 54
+      },
+      "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f552c6f_56a881b7",
         "filename": "/COMMIT_MSG",
         "patchSetId": 17
