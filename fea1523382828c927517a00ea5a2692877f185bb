@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fc6e3d8_34b389d2",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-27T21:03:10Z",
+      "side": 1,
+      "message": "how about we just returning INHERITED::init(options) or are you planning on soon adding more code here?",
+      "range": {
+        "startLine": 165,
+        "startChar": 8,
+        "endLine": 167,
+        "endChar": 9
+      },
+      "revId": "fea1523382828c927517a00ea5a2692877f185bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f592d042_56bc7449",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-27T21:03:10Z",
+      "side": 1,
+      "message": "is this ever set anywhere?",
+      "range": {
+        "startLine": 184,
+        "startChar": 30,
+        "endLine": 184,
+        "endChar": 53
+      },
+      "revId": "fea1523382828c927517a00ea5a2692877f185bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
