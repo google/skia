@@ -415,23 +415,29 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContext* context,
+                                          int sampleCnt) {
     GrGpu* gpu = context->contextPriv().getGpu();
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        for (int sampleCnt : {1, 4}) {
-            GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                    nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
-            SkColorType colorType = kN32_SkColorType;
-            sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
-                    context, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
-            if (surface) {
-                test_write_pixels(reporter, surface.get());
-            }
-            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
+        SkColorType colorType = kN32_SkColorType;
+        sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
+                context, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
+        if (surface) {
+            test_write_pixels(reporter, surface.get());
         }
+        gpu->deleteTestingOnlyBackendTexture(&backendTex);
     }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo) {
+    test_write_pixels_non_texture(reporter, ctxInfo.grContext(), 1);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTextureMSAA_Gpu, reporter, ctxInfo) {
+    test_write_pixels_non_texture(reporter, ctxInfo.grContext(), 4);
 }
 
 static sk_sp<SkSurface> create_surf(GrContext* context, int width, int height) {

@@ -31,9 +31,7 @@ public:
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
     int maxRenderTargetSampleCount(GrPixelConfig) const override;
 
-    bool renderTargetWritePixelsSupported(bool isAlsoTexture, int sampleCnt) const override {
-        return true;
-    }
+    bool surfaceSupportsWritePixels(const GrSurface* surface) const override { return true; }
 
     bool isConfigCopyable(GrPixelConfig config) const override {
         return true;

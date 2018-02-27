@@ -288,11 +288,6 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     VkDescriptorSet vkDescSets[] = { uniformDS->descriptorSet(), samplerDS->descriptorSet() };
 
-    GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(srcTex->asRenderTarget());
-    if (texRT) {
-        gpu->onResolveRenderTarget(texRT);
-    }
-
     GrVkPrimaryCommandBuffer* cmdBuffer = gpu->currentCommandBuffer();
 
     // TODO: Make tighter bounds and then adjust bounds for origin and granularity if we see
