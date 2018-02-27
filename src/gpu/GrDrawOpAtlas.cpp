@@ -14,6 +14,7 @@
 #include "GrRectanizer.h"
 #include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTracing.h"
 
@@ -336,8 +337,8 @@ bool GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceProvider,
     // With c+14 we could move sk_sp into lambda to only ref once.
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
 
-    SkASSERT(fProxies[pageIdx]->priv().isInstantiated());
     GrTextureProxy* proxy = fProxies[pageIdx].get();
+    SkASSERT(proxy->priv().isInstantiated());
 
     GrDeferredUploadToken lastUploadToken = target->addInlineUpload(
             [plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {

@@ -11,7 +11,7 @@
 
 #include "GrContextPriv.h"
 #include "Test.h"
-#include "text/GrAtlasGlyphCache.h"
+#include "text/GrGlyphCache.h"
 
 static const int kNumPlots = 2;
 static const int kPlotSize = 32;
