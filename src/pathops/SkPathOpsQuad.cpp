@@ -21,11 +21,14 @@ static bool pointInTriangle(const SkDPoint fPts[3], const SkDPoint& test) {
     double dot11 = v1.dot(v1);
     double dot12 = v1.dot(v2);
     // Compute barycentric coordinates
-    double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-    double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-    double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+    double denom = dot00 * dot11 - dot01 * dot01;
+    double u = dot11 * dot02 - dot01 * dot12;
+    double v = dot00 * dot12 - dot01 * dot02;
     // Check if point is in triangle
-    return u >= 0 && v >= 0 && u + v < 1;
+    if (denom >= 0) {
+        return u >= 0 && v >= 0 && u + v < denom;
+    }
+    return u <= 0 && v <= 0 && u + v > denom;
 }
 
 static bool matchesEnd(const SkDPoint fPts[3], const SkDPoint& test) {
