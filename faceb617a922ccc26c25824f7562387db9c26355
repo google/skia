@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76db6226_cde06c93",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-27T21:41:51Z",
+      "side": 1,
+      "message": "render target -\u003e surface?",
+      "range": {
+        "startLine": 192,
+        "startChar": 90,
+        "endLine": 193,
+        "endChar": 13
+      },
+      "revId": "faceb617a922ccc26c25824f7562387db9c26355",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

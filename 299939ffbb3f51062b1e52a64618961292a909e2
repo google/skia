@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85fe28af_27d77e54",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 2416,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-27T21:41:51Z",
+      "side": 1,
+      "message": "Previously this was checking usesMSAARenderBuffers. Is dropping that intentional?",
+      "revId": "299939ffbb3f51062b1e52a64618961292a909e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
