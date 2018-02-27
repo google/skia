@@ -366,13 +366,13 @@ protected:
     virtual GrGpu* onGetGpu() = 0;
 
     sk_sp<const GrCaps>                     fCaps;
+    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
 private:
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
     GrProxyProvider*                        fProxyProvider;
 
-    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
     GrGlyphCache*                           fGlyphCache;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
@@ -495,9 +495,9 @@ private:
     const GrBackend        fBackend;
     const GrContextOptions fOptions;
 
-    friend class GrContext;     // DDL TODO: remove this access
-    friend class GrContextPriv; // for access to 'fOptions' in MakeDDL
-    friend class GrDDLContext;  // to implement the GrDDLContext ctor
+    friend class GrDirectContext; // To construct this object
+    friend class GrContextPriv;   // for access to 'fOptions' in MakeDDL
+    friend class GrDDLContext;    // to implement the GrDDLContext ctor (access to all members)
 
     typedef SkRefCnt INHERITED;
 };
