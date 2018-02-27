@@ -15,19 +15,13 @@
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
 
-// Externally facing functions (start_pipeline) are called a little specially on Windows.
-#if defined(JUMPER_IS_OFFLINE) && defined(WIN) && defined(__x86_64__)
-    #define MAYBE_MSABI __attribute__((ms_abi))                   // Use MS' ABI, not System V.
-#elif defined(JUMPER_IS_OFFLINE) && defined(WIN) && defined(__i386__)
-    #define MAYBE_MSABI __attribute__((force_align_arg_pointer))  // Re-align stack 4 -> 16 bytes.
-#else
-    #define MAYBE_MSABI
-#endif
-
 // Any custom ABI to use for all non-externally-facing stage functions.
 #if defined(__ARM_NEON) && defined(__arm__)
     // This lets us pass vectors more efficiently on 32-bit ARM.
     #define ABI __attribute__((pcs("aapcs-vfp")))
+#elif defined(__clang__) && defined(_MSC_VER)
+    // TODO: can we use sysv_abi here instead?  It'd allow more registers.
+    #define ABI __attribute__((vectorcall))
 #else
     #define ABI
 #endif
@@ -76,7 +70,7 @@ struct SkJumper_DecalTileCtx {
 };
 
 struct SkJumper_CallbackCtx {
-    MAYBE_MSABI void (*fn)(SkJumper_CallbackCtx* self, int active_pixels/*<= SkJumper_kMaxStride*/);
+    void (*fn)(SkJumper_CallbackCtx* self, int active_pixels/*<= SkJumper_kMaxStride*/);
 
     // When called, fn() will have our active pixels available in rgba.
     // When fn() returns, the pipeline will read back those active pixels from read_from.
