@@ -175,8 +175,7 @@ public:
         by the client.
 
         @param buffer  serialized data describing SkPaint content
-        @return false if the buffer contained invalid data to initialize the paint, in which case
-                      the paint will be reset().
+        @return        false if the buffer contains invalid data
     */
     bool unflatten(SkReadBuffer& buffer);
 
@@ -255,7 +254,7 @@ public:
         kLinearText_Flag         = 0x40,   //!< mask for setting linear text
         kSubpixelText_Flag       = 0x80,   //!< mask for setting subpixel text
         kDevKernText_Flag        = 0x100,  //!< mask for setting full hinting spacing
-        kLCDRenderText_Flag      = 0x200,  //!< mask for setting lcd text
+        kLCDRenderText_Flag      = 0x200,  //!< mask for setting LCD text
         kEmbeddedBitmapText_Flag = 0x400,  //!< mask for setting font embedded bitmaps
         kAutoHinting_Flag        = 0x800,  //!< mask for setting auto-hinting
         kVerticalText_Flag       = 0x1000, //!< mask for setting vertical text
@@ -269,8 +268,8 @@ public:
 
     #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     enum ReserveFlags {
-        kUnderlineText_ReserveFlag  = 0x08, //!< mask for underline text
-        kStrikeThruText_ReserveFlag = 0x10, //!< mask for strike-thru text
+        kUnderlineText_ReserveFlag  = 0x08, //!< deprecated
+        kStrikeThruText_ReserveFlag = 0x10, //!< deprecated
     };
     #endif
 
@@ -657,6 +656,8 @@ public:
         kDefault_Cap = kButt_Cap,
     };
 
+    /** The number of different SkPaint::Cap values defined.
+        May be used to verify that SkPaint::Cap is a legal value.*/
     static constexpr int kCapCount = kLast_Cap + 1;
 
     /** \enum SkPaint::Join
@@ -689,6 +690,8 @@ public:
         kDefault_Join = kMiter_Join,
     };
 
+    /** The number of different SkPaint::Join values defined.
+        May be used to verify that SkPaint::Join is a legal value.*/
     static constexpr int kJoinCount = kLast_Join + 1;
 
     /** The geometry drawn at the beginning and end of strokes.
@@ -852,6 +855,8 @@ public:
         SkMaskFilter. Pass nullptr to clear SkMaskFilter and leave SkMaskFilter effect on
         mask alpha unaltered.
 
+        Increments maskFilter SkRefCnt by one.
+
         @param maskFilter  modifies clipping mask generated from drawn geometry
     */
     void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
@@ -895,6 +900,8 @@ public:
         SkImageFilter. Pass nullptr to clear SkImageFilter, and remove SkImageFilter effect
         on drawing.
 
+        Increments imageFilter SkRefCnt by one.
+
         @param imageFilter  how SkImage is sampled when transformed
     */
     void setImageFilter(sk_sp<SkImageFilter> imageFilter);
@@ -914,9 +921,7 @@ public:
     sk_sp<SkDrawLooper> refDrawLooper() const;
 
     /** Deprecated.
-        (see bug.skia.org/6259)
-
-        @return  SkDrawLooper if previously set, nullptr otherwise
+        (see skbug.com/6259)
     */
     SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
 
@@ -931,9 +936,7 @@ public:
     void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
 
     /** Deprecated.
-        (see bug.skia.org/6259)
-
-        @param drawLooper  sets SkDrawLooper to drawLooper
+        (see skbug.com/6259)
     */
     void setLooper(sk_sp<SkDrawLooper> drawLooper);
 
