@@ -204,6 +204,15 @@ public:
         return GrPixelConfigToColorType(config);
     }
 
+    /**
+     * Given a src pixel config and a dst color type what color type must the caller read to using
+     * GrGpu::readPixels() and then coax into dstColorType.
+     */
+    virtual GrColorType supportedReadPixelsColorType(GrPixelConfig config,
+                                                     GrColorType /*dstColorType*/) const {
+        return GrPixelConfigToColorType(config);
+    }
+
     bool suppressPrints() const { return fSuppressPrints; }
 
     size_t bufferMapThreshold() const {
