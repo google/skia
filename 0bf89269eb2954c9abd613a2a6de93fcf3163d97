@@ -22,6 +22,30 @@
       "revId": "0bf89269eb2954c9abd613a2a6de93fcf3163d97",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fefe1dea_54ed1b38",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-27T21:10:41Z",
+      "side": 0,
+      "message": "Right, this is left over cleanup from the \"always start with no active pages\" change. All pages are now activated/instantiated when the glyphs are added so this preFlush step is no longer required.",
+      "parentUuid": "2fb22368_989d6715",
+      "range": {
+        "startLine": 191,
+        "startChar": 21,
+        "endLine": 191,
+        "endChar": 29
+      },
+      "revId": "0bf89269eb2954c9abd613a2a6de93fcf3163d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
