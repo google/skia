@@ -15,6 +15,7 @@
 #include "SkMask.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
+#include "SkRegionPriv.h"
 #include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkTLazy.h"
@@ -343,13 +344,9 @@ void SkBlitter::blitRectRegion(const SkIRect& rect, const SkRegion& clip) {
 }
 
 void SkBlitter::blitRegion(const SkRegion& clip) {
-    SkRegion::Iterator iter(clip);
-
-    while (!iter.done()) {
-        const SkIRect& cr = iter.rect();
-        this->blitRect(cr.fLeft, cr.fTop, cr.width(), cr.height());
-        iter.next();
-    }
+    SkRegionPriv::VisitSpans(clip, [this](const SkIRect& r) {
+        this->blitRect(r.left(), r.top(), r.width(), r.height());
+    });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
