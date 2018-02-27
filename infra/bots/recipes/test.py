@@ -890,9 +890,23 @@ def test_steps(api):
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.dm_dir, api.vars.dm_dir)
 
+def test_firebase_steps(api):
+  """Test an APK on Firebase Testlab."""
+  # wlist_file = api.vars.skia_dir.join('infra', 'cts',  'whitelist_devices.json')
+  wlist_file = api.vars.slave_dir.join('whitelist_devices.json')
+  apk_file = api.vars.slave_dir.join('out', 'devrel', 'skqp-universal-debug.apk')
+  args = [
+    'run_testlab',
+    '--devices', wlist_file, apk_file
+  ]
+  api.run(api.flavor.step, 'run firebase testlab', cmd=args)
 
 def RunSteps(api):
   api.core.setup()
+
+  if 'SKQP' in api.vars.extra_tokens:
+    test_firebase_steps(api)
+
   env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.dm'
@@ -931,6 +945,7 @@ TEST_BUILDERS = [
    'arm-Debug-All'),
   'Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
