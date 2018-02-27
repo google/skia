@@ -48,10 +48,6 @@ declare_args() {
   skia_compile_processors = false
   skia_lex = false
 
-  skia_jumper_clang = ""
-  skia_jumper_objdump = ""
-  skia_jumper_ccache = ""
-
   skia_skqp_enable_driver_correctness_workarounds = false
   skia_skqp_global_error_tolerance = 0
 }
@@ -311,6 +307,20 @@ opts("avx") {
     cflags = [ "/arch:AVX" ]
   } else {
     cflags = [ "-mavx" ]
+  }
+}
+
+opts("hsw") {
+  enabled = is_x86
+  sources = skia_opts.hsw_sources
+  if (!is_clang && is_win) {
+    cflags = [ "/arch:AVX2" ]
+  } else {
+    cflags = [
+      "-mavx2",
+      "-mf16c",
+      "-mfma",
+    ]
   }
 }
 
@@ -775,6 +785,7 @@ component("skia") {
     ":fontmgr_fuchsia",
     ":gpu",
     ":heif",
+    ":hsw",
     ":jpeg",
     ":none",
     ":pdf",
@@ -2099,30 +2110,5 @@ if (skia_enable_tools) {
         "$root_out_dir/gdbserver",
       ]
     }
-  }
-}
-
-if (skia_jumper_clang != "") {
-  action("regen_jumper") {
-    script = "src/jumper/build_stages.py"
-
-    inputs = [
-      "src/jumper/SkJumper_stages.cpp",
-      "src/jumper/SkJumper_stages_lowp.cpp",
-    ]
-
-    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it.
-    outputs = [
-      "$target_out_dir/" +
-          rebase_path("src/jumper/SkJumper_generated.S", target_out_dir),
-      "$target_out_dir/" +
-          rebase_path("src/jumper/SkJumper_generated_win.S", target_out_dir),
-    ]
-
-    args = [
-             skia_jumper_clang,
-             skia_jumper_objdump,
-             skia_jumper_ccache,
-           ] + rebase_path(inputs) + rebase_path(outputs)
   }
 }
