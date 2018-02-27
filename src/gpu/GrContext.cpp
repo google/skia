@@ -116,6 +116,9 @@ protected:
 
         fGpu = std::move(gpu);
         fCaps = fGpu->refCaps();
+        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(),
+                                                            this->contextPriv().getBackend(),
+                                                            options));
 
         if (!INHERITED::initCommon(options)) {
             return false;
@@ -158,10 +161,11 @@ private:
  */
 class SK_API GrDDLContext : public GrContext {
 public:
-    GrDDLContext(GrContextThreadSafeProxy* proxy)
+    GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
             : INHERITED(proxy->fBackend, proxy->fContextUniqueID)
             , fRestrictedAtlasManager(nullptr) {
         fCaps = proxy->fCaps;
+        fThreadSafeProxy = std::move(proxy);
     }
 
     ~GrDDLContext() override {
@@ -191,7 +195,8 @@ public:
 protected:
     bool init(sk_sp<GrGpu> gpu, const GrContextOptions& options) override {
         SkASSERT(!gpu);
-        SkASSERT(fCaps);  // should be set in ctor
+        SkASSERT(fCaps);  // should've been set in ctor
+        SkASSERT(fThreadSafeProxy); // should've been set in the ctor
 
         if (!INHERITED::initCommon(options)) {
             return false;
@@ -343,7 +348,7 @@ static int32_t next_id() {
     return id;
 }
 
-sk_sp<GrContext> GrContextPriv::MakeDDL(GrContextThreadSafeProxy* proxy) {
+sk_sp<GrContext> GrContextPriv::MakeDDL(sk_sp<GrContextThreadSafeProxy> proxy) {
     sk_sp<GrContext> context(new GrDDLContext(proxy));
 
     // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
@@ -367,6 +372,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(fCaps);  // needs to have been initialized by derived classes
+    SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
 
     // DDL TODO: move this conditional initialization of the resourceCache and resourceProvider
     // to the DirectContext
@@ -384,11 +390,6 @@ bool GrContext::initCommon(const GrContextOptions& options) {
     }
 
     // DDL TODO: do not create a new GrContextThreadSafeProxy
-
-    // DDL TODO: we need to think through how the task group & persistent cache
-    // get passed on to/shared between all the DDLRecorders created with this context.
-    fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(), fBackend,
-                                                        options));
 
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
     fSharpenMipmappedTextures = options.fSharpenMipmappedTextures;
@@ -428,6 +429,8 @@ bool GrContext::initCommon(const GrContextOptions& options) {
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
                                              this, this->uniqueID(), SkToBool(gpu)));
 
+    // DDL TODO: we need to think through how the task group & persistent cache
+    // get passed on to/shared between all the DDLRecorders created with this context.
     if (options.fExecutor) {
         fTaskGroup = skstd::make_unique<SkTaskGroup>(*options.fExecutor);
     }
