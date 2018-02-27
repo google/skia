@@ -94,7 +94,10 @@ void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
 }
 
 void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
-    fFullAtlasManager->setAtlasSizes_ForTesting(configs);
+    GrAtlasManager* atlasManager = this->contextPriv().getFullAtlasManager();
+    if (atlasManager) {
+        atlasManager->setAtlasSizes_ForTesting(configs);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
