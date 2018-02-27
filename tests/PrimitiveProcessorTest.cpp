@@ -134,6 +134,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
+    // Adding discard to appease vulkan validation warning about loading uninitialized data on draw
+    renderTargetContext->discard();
+
     GrPaint grPaint;
     // This one should succeed.
     renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(attribCnt));
