@@ -1,0 +1,10 @@
+{
+  'includes': [
+    'compile_skia.isolate',
+  ],
+  'variables': {
+    'command': [
+      '/bin/cp', 'infra/cts/whitelist_devices.json', '${ISOLATED_OUTDIR}',
+    ],
+  },
+}
