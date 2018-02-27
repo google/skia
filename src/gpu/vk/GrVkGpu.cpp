@@ -1845,6 +1845,8 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     }
 
     if (fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect, dstPoint)) {
+        auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
+        this->didWriteToSurface(dst, dstOrigin, &dstRect);
         return true;
     }
 
