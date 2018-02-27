@@ -342,10 +342,6 @@ def dm_flags(api, bot):
     blacklist('_ image gen_platf rle8-height-negative.bmp')
     blacklist('_ image gen_platf rle4-height-negative.bmp')
 
-  if 'Nexus7' in bot:
-    # skia:7658. This test fails on Nexus 7.
-    blacklist('_ test _ CopySurface')
-
   if 'Android' in bot or 'iOS' in bot or 'Chromecast' in bot:
     # This test crashes the N9 (perhaps because of large malloc/frees). It also
     # is fairly slow and not platform-specific. So we just disable it on all of
@@ -355,7 +351,9 @@ def dm_flags(api, bot):
   if api.vars.internal_hardware_label == 1:
     # skia:7046
     blacklist('_ test _ WritePixelsNonTexture_Gpu')
+    blacklist('_ test _ WritePixelsNonTextureMSAA_Gpu')
     blacklist('_ test _ WritePixels_Gpu')
+    blacklist('_ test _ WritePixelsMSAA_Gpu')
     blacklist('_ test _ GrSurfaceRenderability')
     blacklist('_ test _ ES2BlendWithNoTexture')
 
@@ -565,6 +563,11 @@ def dm_flags(api, bot):
       # skia:5777
       match.extend(['~CopySurface'])
 
+  if 'Vulkan' in bot and 'Adreno' in bot:
+      # skia:7663
+      match.extend(['~WritePixelsNonTextureMSAA_Gpu'])
+      match.extend(['~WritePixelsMSAA_Gpu'])
+
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     # skia:6132
     match.append('~^tilemodes$')
@@ -606,7 +609,9 @@ def dm_flags(api, bot):
     match.append('~^SRGBReadWritePixels$')
     match.append('~^VkUploadPixelsTests$')
     match.append('~^WritePixelsNonTexture_Gpu$')
+    match.append('~^WritePixelsNonTextureMSAA_Gpu$')
     match.append('~^WritePixels_Gpu$')
+    match.append('~^WritePixelsMSAA_Gpu$')
     match.append('~^skbug6653$')
 
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
@@ -679,7 +684,9 @@ def dm_flags(api, bot):
     match.append('~SpecialImage_DeferredGpu')
     match.append('~SpecialImage_Gpu')
     match.append('~WritePixels_Gpu')
+    match.append('~WritePixelsMSAA_Gpu')
     match.append('~WritePixelsNonTexture_Gpu')
+    match.append('~WritePixelsNonTextureMSAA_Gpu')
     match.append('~XfermodeImageFilterCroppedInput_Gpu')
     match.append('~GrDefaultPathRendererTest') #skia:7244
     match.append('~GrMSAAPathRendererTest') #skia:7244
