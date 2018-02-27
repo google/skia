@@ -94,10 +94,10 @@ public:
      * within the underlying 3D API's context/device/whatever. This call informs
      * the context that the state was modified and it should resend. Shouldn't
      * be called frequently for good performance.
-     * The flag bits, state, is dpendent on which backend is used by the
+     * The flag bits, state, is dependent on which backend is used by the
      * context, either GL or D3D (possible in future).
      */
-    void resetContext(uint32_t state = kAll_GrBackendState);
+    virtual void resetContext(uint32_t state = kAll_GrBackendState) = 0;
 
     /**
      * Callback function to allow classes to cleanup on GrContext destruction.
@@ -313,7 +313,7 @@ public:
     bool abandoned() const;
 
     /** Reset GPU stats */
-    void resetGpuStats() const ;
+    void resetGpuStats();
 
     /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
     void dumpCacheStats(SkString*) const;
@@ -356,18 +356,18 @@ public:
     const GrContextPriv contextPriv() const;
 
 protected:
-    GrContext(GrContextThreadSafeProxy*);
-    GrContext(GrBackend);
+    GrContext(GrBackend, int32_t id = SK_InvalidGenID);
 
-    virtual bool init(const GrContextOptions&); // init must be called after either constructor.
+    bool initCommon(const GrContextOptions&);
+    virtual bool init(sk_sp<GrGpu>, const GrContextOptions&) = 0; // must be called after the ctor!
 
     virtual GrAtlasManager* onGetFullAtlasManager() = 0;
     virtual GrRestrictedAtlasManager* onGetRestrictedAtlasManager() = 0;
+    virtual GrGpu* onGetGpu() = 0;
 
     sk_sp<const GrCaps>                     fCaps;
 
 private:
-    sk_sp<GrGpu>                            fGpu;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
     GrProxyProvider*                        fProxyProvider;
@@ -495,9 +495,9 @@ private:
     const GrBackend        fBackend;
     const GrContextOptions fOptions;
 
-    friend class GrContext;
-    friend class GrContextPriv;
-    friend class SkImage;
+    friend class GrContext;     // DDL TODO: remove this access
+    friend class GrContextPriv; // for access to 'fOptions' in MakeDDL
+    friend class GrDDLContext;  // to implement the GrDDLContext ctor
 
     typedef SkRefCnt INHERITED;
 };
