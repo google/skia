@@ -17,11 +17,11 @@ class SkRRect;
 class SkWStream;
 
 /** \class SkPath
-    Paths contain geometry. Paths may be empty, or contain one or more verbs that
+    SkPath contain geometry. SkPath may be empty, or contain one or more verbs that
     outline a figure. SkPath always starts with a move verb to a Cartesian_Coordinate,
     and may be followed by additional verbs that add lines or curves.
     Adding a close verb makes the geometry into a continuous loop, a closed contour.
-    Paths may contain any number of contours, each beginning with a move verb.
+    SkPath may contain any number of contours, each beginning with a move verb.
 
     SkPath contours may contain only a move verb, or may also contain lines,
     quadratic beziers, conics, and cubic beziers. SkPath contours may be open or
@@ -55,7 +55,7 @@ public:
         kCCW_Direction, //!< Contour travels in a counterclockwise direction
     };
 
-    /** By default, SkPath has no verbs, no points, and no weights.
+    /** By default, SkPath has no verbs, no SkPoint, and no weights.
         SkPath::FillType is set to kWinding_FillType.
 
         @return  empty SkPath
@@ -67,7 +67,7 @@ public:
         and weights are copied when modified.
 
         Creating a SkPath copy is very efficient and never allocates memory.
-        Paths are always copied by value from the interface; the underlying shared
+        SkPath are always copied by value from the interface; the underlying shared
         pointers are not exposed.
 
         @param path  SkPath to copy by value
@@ -83,8 +83,8 @@ public:
         shares pointer values. The underlying verb array, SkPoint array and weights
         are copied when modified.
 
-        Copying paths by assignment is very efficient and never allocates memory.
-        Paths are always copied by value from the interface; the underlying shared
+        Copying SkPath by assignment is very efficient and never allocates memory.
+        SkPath are always copied by value from the interface; the underlying shared
         pointers are not exposed.
 
         @param path  verb array, SkPoint array, weights, and SkPath::FillType to copy
@@ -112,21 +112,21 @@ public:
         return !(a == b);
     }
 
-    /** Return true if paths contain equal verbs and equal weights.
-        If paths contain one or more conics, the weights must match.
+    /** Return true if SkPath contain equal verbs and equal weights.
+        If SkPath contain one or more conics, the weights must match.
 
         conicTo() may add different verbs depending on conic weight, so it is not
-        trivial to interpolate a pair of paths containing conics with different
+        trivial to interpolate a pair of SkPath containing conics with different
         conic weight values.
 
         @param compare  SkPath to compare
-        @return         true if paths verb array and weights are equivalent
+        @return         true if SkPath verb array and weights are equivalent
     */
     bool isInterpolatable(const SkPath& compare) const;
 
-    /** Interpolate between paths with SkPoint array of equal size.
+    /** Interpolate between SkPath with SkPoint array of equal size.
         Copy verb array and weights to out, and set out SkPoint array to a weighted
-        average of this SkPoint array and ending SkPoint array, using the formula: (this->points * weight) + ending->points * (1 - weight).
+        average of this SkPoint array and ending SkPoint array, using the formula: (Path Point * weight) + ending Point * (1 - weight).
 
         weight is most useful when between zero (ending SkPoint array) and
         one (this Point_Array); will work with values outside of this
@@ -140,14 +140,13 @@ public:
         @param weight  contribution of this SkPoint array, and
                        one minus contribution of ending SkPoint array
         @param out     SkPath replaced by interpolated averages
-        @return        true if paths contain same number of points
+        @return        true if SkPath contain same number of SkPoint
     */
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    /** To be deprecated; only valid for Android framework.
-
-        @return  true if SkPath has one owner
+    /** To be deprecated soon.
+        Only valid for Android framework.
     */
     bool unique() const { return fPathRef->unique(); }
 #endif
@@ -272,22 +271,26 @@ public:
         return kConvex_Convexity == this->getConvexity();
     }
 
-    /**
-     *  Returns true if this path is recognized as an oval or circle.
-     *
-     *  @param bounds   If this returns true and bounds is not null, then it is set to the
-     *                  bounds of the oval that matches this path. If this returns false,
-     *                  then this parameter is ignored.
-     */
+    /** Returns true if this path is recognized as an oval or circle.
+
+        bounds receives bounds of oval.
+
+        bounds is unmodified if oval is not found.
+
+        @param bounds  storage for bounding SkRect of oval; may be nullptr
+        @return        true if SkPath is recognized as an oval or circle
+    */
     bool isOval(SkRect* bounds) const;
 
-    /**
-     *  Returns true if this path is recognized as a SkRRect (but not an oval/circle or rect).
-     *
-     *  @param rrect    If this returns true and rrect is not null, then it is set to the
-     *                  SkRRect that matches this path. If this returns false, then this parameter
-     *                  is ignored.
-     */
+    /** Returns true if this path is recognized as a SkRRect (but not an oval/circle or rect).
+
+        rrect receives bounds of SkRRect.
+
+        rrect is unmodified if SkRRect is not found.
+
+        @param rrect  storage for bounding SkRect of SkRRect; may be nullptr
+        @return       true if SkPath contains only SkRRect
+    */
     bool isRRect(SkRRect* rrect) const;
 
     /** Sets SkPath to its initial state.
@@ -334,7 +337,7 @@ public:
     }
 
     /** Returns true if the path is volatile; it will not be altered or discarded
-        by the caller after it is drawn. Paths by default have volatile set false, allowing
+        by the caller after it is drawn. SkPath by default have volatile set false, allowing
         SkSurface to attach a cache of data which speeds repeated drawing. If true, SkSurface
         may not speed repeated drawing.
 
@@ -345,7 +348,7 @@ public:
     }
 
     /** Specify whether SkPath is volatile; whether it will be altered or discarded
-        by the caller after it is drawn. Paths by default have volatile set false, allowing
+        by the caller after it is drawn. SkPath by default have volatile set false, allowing
         SkBaseDevice to attach a cache of data which speeds repeated drawing.
 
         Mark temporary paths, discarded or modified after use, as volatile
@@ -464,7 +467,7 @@ public:
         it is lightweight and does not allocate memory.
 
         swap() usage has largely been replaced by operator=(const SkPath& path).
-        Paths do not copy their content on assignment until they are written to,
+        SkPath do not copy their content on assignment until they are written to,
         making assignment as efficient as swap().
 
         @param other  SkPath exchanged by value
@@ -475,10 +478,10 @@ public:
         Returns (0, 0, 0, 0) if SkPath contains no points. Returned bounds width and height may
         be larger or smaller than area affected when SkPath is drawn.
 
-        SkRect returned includes all points added to SkPath, including points associated with
+        SkRect returned includes all SkPoint added to SkPath, including SkPoint associated with
         kMove_Verb that define empty contours.
 
-        @return  bounds of all points in SkPoint array
+        @return  bounds of all SkPoint in SkPoint array
     */
     const SkRect& getBounds() const {
         return fPathRef->getBounds();
@@ -502,7 +505,7 @@ public:
         Returned bounds width and height may be larger or smaller than area affected
         when SkPath is drawn.
 
-        Includes points associated with kMove_Verb that define empty
+        Includes SkPoint associated with kMove_Verb that define empty
         contours.
 
         Behaves identically to getBounds() when SkPath contains
@@ -527,11 +530,11 @@ public:
     */
     bool conservativelyContainsRect(const SkRect& rect) const;
 
-    /** grows SkPath verb array and SkPoint array to contain extraPtCount additional points.
+    /** grows SkPath verb array and SkPoint array to contain extraPtCount additional SkPoint.
         May improve performance and use less memory by
         reducing the number and size of allocations when creating SkPath.
 
-        @param extraPtCount  number of additional points to allocate
+        @param extraPtCount  number of additional SkPoint to allocate
     */
     void incReserve(unsigned extraPtCount);
 
@@ -616,7 +619,7 @@ public:
         before adding quad.
 
         Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
-        then appends kQuad_Verb to verb array; and points p1, p2
+        then appends kQuad_Verb to verb array; and SkPoint p1, p2
         to SkPoint array.
 
         @param p1  control SkPoint of added quad
@@ -675,13 +678,13 @@ public:
         Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed.
 
         If w is finite and not one, appends kConic_Verb to verb array;
-        and points p1, p2 to SkPoint array; and w to conic weights.
+        and SkPoint p1, p2 to SkPoint array; and w to conic weights.
 
-        If w is one, appends kQuad_Verb to verb array, and points p1, p2
+        If w is one, appends kQuad_Verb to verb array, and SkPoint p1, p2
         to SkPoint array.
 
         If w is not finite, appends kLine_Verb twice to verb array, and
-        points p1, p2 to SkPoint array.
+        SkPoint p1, p2 to SkPoint array.
 
         @param p1  control SkPoint of added conic
         @param p2  end SkPoint of added conic
@@ -703,7 +706,7 @@ public:
         kQuad_Verb to verb array; or if w is not finite, appends kLine_Verb
         twice to verb array.
 
-        In all cases appends points control and end to SkPoint array.
+        In all cases appends SkPoint control and end to SkPoint array.
         control is last point plus vector (dx1, dy1).
         end is last point plus vector (dx2, dy2).
 
@@ -741,7 +744,7 @@ public:
         (0, 0) before adding cubic.
 
         Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
-        then appends kCubic_Verb to verb array; and points p1, p2, p3
+        then appends kCubic_Verb to verb array; and SkPoint p1, p2, p3
         to SkPoint array.
 
         @param p1  first control SkPoint of cubic
@@ -1174,7 +1177,7 @@ public:
         kAppend_AddPathMode,
 
         /** is not empty, add line from last point to added SkPath first SkPoint. Skip added
-            SkPath initial kMove_Verb, then append remining verbs, points, and conic weights.
+            SkPath initial kMove_Verb, then append remining verbs, SkPoint, and conic weights.
         */
         kExtend_AddPathMode,
     };
@@ -1183,9 +1186,9 @@ public:
 
         If mode is kAppend_AddPathMode, src verb array, SkPoint array, and conic weights are
         added unaltered. If mode is kExtend_AddPathMode, add line before appending
-        verbs, points, and conic weights.
+        verbs, SkPoint, and conic weights.
 
-        @param src   SkPath verbs, points, and conic weights to add
+        @param src   SkPath verbs, SkPoint, and conic weights to add
         @param dx    offset added to src SkPoint array x coordinates
         @param dy    offset added to src SkPoint array y coordinates
         @param mode  kAppend_AddPathMode or kExtend_AddPathMode
@@ -1197,9 +1200,9 @@ public:
 
         If mode is kAppend_AddPathMode, src verb array, SkPoint array, and conic weights are
         added unaltered. If mode is kExtend_AddPathMode, add line before appending
-        verbs, points, and conic weights.
+        verbs, SkPoint, and conic weights.
 
-        @param src   SkPath verbs, points, and conic weights to add
+        @param src   SkPath verbs, SkPoint, and conic weights to add
         @param mode  kAppend_AddPathMode or kExtend_AddPathMode
     */
     void addPath(const SkPath& src, AddPathMode mode = kAppend_AddPathMode) {
@@ -1209,13 +1212,13 @@ public:
     }
 
     /** Append src to SkPath, transformed by matrix. Transformed curves may have different
-        verbs, points, and conic weights.
+        verbs, SkPoint, and conic weights.
 
         If mode is kAppend_AddPathMode, src verb array, SkPoint array, and conic weights are
         added unaltered. If mode is kExtend_AddPathMode, add line before appending
-        verbs, points, and conic weights.
+        verbs, SkPoint, and conic weights.
 
-        @param src     SkPath verbs, points, and conic weights to add
+        @param src     SkPath verbs, SkPoint, and conic weights to add
         @param matrix  transform applied to src
         @param mode    kAppend_AddPathMode or kExtend_AddPathMode
     */
@@ -1224,7 +1227,7 @@ public:
     /** Append src to SkPath, from back to front.
         Reversed src always appends a new contour to SkPath.
 
-        @param src  SkPath verbs, points, and conic weights to add
+        @param src  SkPath verbs, SkPoint, and conic weights to add
     */
     void reverseAddPath(const SkPath& src);
 
@@ -1270,7 +1273,7 @@ public:
         storing (0, 0) if lastPt is not nullptr.
 
         @param lastPt  storage for final SkPoint in SkPoint array; may be nullptr
-        @return        true if SkPoint array contains one or more points
+        @return        true if SkPoint array contains one or more SkPoint
     */
     bool getLastPt(SkPoint* lastPt) const;
 
@@ -1340,7 +1343,7 @@ public:
         */
         kConic_Verb,
 
-        /** Adds cubic from last point, using two control points, and end SkPoint.
+        /** Adds cubic from last point, using two control SkPoint, and end SkPoint.
             Cubic is a third-order Bezier_Curve section within tangents from last point
             to first control SkPoint, and from second control SkPoint to end SkPoint.
         */
@@ -1354,25 +1357,25 @@ public:
     class SK_API Iter {
     public:
 
-        /** Initializes iter with an empty SkPath. next() on iter returns kDone_Verb.
-            Call setPath to initialize iter at a later time.
+        /** Initializes SkPath::Iter with an empty SkPath. next() on SkPath::Iter returns kDone_Verb.
+            Call setPath to initialize SkPath::Iter at a later time.
 
-            @return  iter of empty SkPath
+            @return  SkPath::Iter of empty SkPath
         */
         Iter();
 
-        /** Sets iter to return elements of verb array, SkPoint array, and conic weight in path.
-            If forceClose is true, iter will add kLine_Verb and kClose_Verb after each
+        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in path.
+            If forceClose is true, SkPath::Iter will add kLine_Verb and kClose_Verb after each
             open contour. path is not altered.
 
             @param path        SkPath to iterate
             @param forceClose  true if open contours generate kClose_Verb
-            @return            iter of path
+            @return            SkPath::Iter of path
         */
         Iter(const SkPath& path, bool forceClose);
 
-        /** Sets iter to return elements of verb array, SkPoint array, and conic weight in path.
-            If forceClose is true, iter will add kLine_Verb and kClose_Verb after each
+        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in path.
+            If forceClose is true, SkPath::Iter will add kLine_Verb and kClose_Verb after each
             open contour. path is not altered.
 
             @param path        SkPath to iterate
@@ -1380,10 +1383,10 @@ public:
         */
         void setPath(const SkPath& path, bool forceClose);
 
-        /** Returns next SkPath::Verb in verb array, and advances iter.
+        /** Returns next SkPath::Verb in verb array, and advances SkPath::Iter.
             When verb array is exhausted, returns kDone_Verb.
 
-            Zero to four points are stored in pts, depending on the returned SkPath::Verb.
+            Zero to four SkPoint are stored in pts, depending on the returned SkPath::Verb.
 
             If doConsumeDegenerates is true, skip consecutive kMove_Verb entries, returning
             only the last in the series; and skip very small lines, quads, and conics; and
@@ -1408,7 +1411,7 @@ public:
             If next() has not been called, or next() did not return kConic_Verb,
             result is undefined.
 
-            @return  conic weight for conic points returned by next()
+            @return  conic weight for conic SkPoint returned by next()
         */
         SkScalar conicWeight() const { return *fConicWeights; }
 
@@ -1424,8 +1427,8 @@ public:
         bool isCloseLine() const { return SkToBool(fCloseLine); }
 
         /** Returns true if subsequent calls to next() return kClose_Verb before returning
-            kMove_Verb. if true, contour iter is processing may end with kClose_Verb, or
-            iter may have been initialized with force close set to true.
+            kMove_Verb. if true, contour SkPath::Iter is processing may end with kClose_Verb, or
+            SkPath::Iter may have been initialized with force close set to true.
 
             @return  true if contour is closed
         */
@@ -1456,7 +1459,7 @@ public:
     public:
 
         /** Initializes RawIter with an empty SkPath. next() on RawIter returns kDone_Verb.
-            Call setPath to initialize iter at a later time.
+            Call setPath to initialize SkPath::Iter at a later time.
 
             @return  RawIter of empty SkPath
         */
@@ -1471,7 +1474,7 @@ public:
             setPath(path);
         }
 
-        /** Sets iter to return elements of verb array, SkPoint array, and conic weight in path.
+        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in path.
 
             @param path  SkPath to iterate
         */
@@ -1481,7 +1484,7 @@ public:
 
         /** Returns next SkPath::Verb in verb array, and advances RawIter.
             When verb array is exhausted, returns kDone_Verb.
-            Zero to four points are stored in pts, depending on the returned SkPath::Verb.
+            Zero to four SkPoint are stored in pts, depending on the returned SkPath::Verb.
 
             @param pts  storage for SkPoint data describing returned SkPath::Verb
             @return     next SkPath::Verb from verb array
@@ -1503,7 +1506,7 @@ public:
             If next() has not been called, or next() did not return kConic_Verb,
             result is undefined.
 
-            @return  conic weight for conic points returned by next()
+            @return  conic weight for conic SkPoint returned by next()
         */
         SkScalar conicWeight() const {
             return fRawIter.conicWeight();
@@ -1592,12 +1595,14 @@ public:
     */
     size_t readFromMemory(const void* buffer, size_t length);
 
-    /** Returns a non-zero, globally unique value. A different value is returned
+    /** (see skbug.com/1762)
+        Returns a non-zero, globally unique value. A different value is returned
         if verb array, SkPoint array, or conic weight changes.
 
         Setting SkPath::FillType does not change generation id.
 
         Each time the path is modified, a different generation id will be returned.
+        SkPath::FillType does affect generation id on Android framework.
 
         @return  non-zero, globally unique value
     */

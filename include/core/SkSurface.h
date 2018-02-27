@@ -23,94 +23,193 @@ class GrBackendSemaphore;
 class GrContext;
 class GrRenderTarget;
 
-/**
- *  SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
- *  allocated either in CPU memory (a Raster surface) or on the GPU (a RenderTarget surface).
- *
- *  SkSurface takes care of allocating a SkCanvas that will draw into the surface. Call
- *  surface->getCanvas() to use that canvas (but don't delete it, it is owned by the surface).
- *
- *  SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
- *  of the requested dimensions are zero, then NULL will be returned.
- */
+/** \class SkSurface
+    SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
+    allocated either in CPU memory (a raster surface) or on the GPU (a GrRenderTarget surface).
+    SkSurface takes care of allocating a SkCanvas that will draw into the surface. Call
+    surface->getCanvas() to use that canvas (but don't delete it, it is owned by the surface).
+    SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
+    of the requested dimensions are zero, then nullptr will be returned.
+*/
 class SK_API SkSurface : public SkRefCnt {
 public:
-    /**
-     *  Create a new surface, using the specified pixels/rowbytes as its
-     *  backend.
-     *
-     *  If the requested surface cannot be created, or the request is not a
-     *  supported configuration, NULL will be returned.
-     *
-     *  Callers are responsible for initialiazing the surface pixels.
-     */
+
+    /** Allocates raster SkSurface. SkCanvas returned by SkSurface draws directly into pixels.
+
+        SkSurface is returned if all parameters are valid.
+        Valid parameters include:
+        info dimensions are greater than zero;
+        info contains SkColorType and SkAlphaType supported by raster surface;
+        pixels is not nullptr;
+        rowBytes is large enough to contain info width pixels of SkColorType.
+
+        Pixel buffer size should be info height times computed rowBytes.
+        Pixels are not initialized.
+        To access pixels after drawing, call flush() or peekPixels().
+
+        @param imageInfo     width, height, SkColorType, SkAlphaType, SkColorSpace,
+                             of raster surface; width and height must be greater than zero
+        @param pixels        pointer to destination pixels buffer
+        @param rowBytes      interval from one SkSurface row to the next
+        @param surfaceProps  LCD striping orientation and setting for device independent fonts;
+                             may be nullptr
+        @return              SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels,
                                              size_t rowBytes,
                                              const SkSurfaceProps* surfaceProps = nullptr);
 
-    /**
-     *  The same as NewRasterDirect, but also accepts a call-back routine, which is invoked
-     *  when the surface is deleted, and is passed the pixel memory and the specified context.
-     */
+    /** Allocates raster SkSurface. SkCanvas returned by SkSurface draws directly into pixels.
+        releaseProc is called with pixels and context when SkSurface is deleted.
+
+        SkSurface is returned if all parameters are valid.
+        Valid parameters include:
+        info dimensions are greater than zero;
+        info contains SkColorType and SkAlphaType supported by raster surface;
+        pixels is not nullptr;
+        rowBytes is large enough to contain info width pixels of SkColorType.
+
+        Pixel buffer size should be info height times computed rowBytes.
+        Pixels are not initialized.
+        To access pixels after drawing, call flush() or peekPixels().
+
+        @param imageInfo     width, height, SkColorType, SkAlphaType, SkColorSpace,
+                             of raster surface; width and height must be greater than zero
+        @param pixels        pointer to destination pixels buffer
+        @param rowBytes      interval from one SkSurface row to the next
+        @param releaseProc   called when SkSurface is deleted; may be nullptr
+        @param context       passed to releaseProc; may be nullptr
+        @param surfaceProps  LCD striping orientation and setting for device independent fonts;
+                             may be nullptr
+        @return              SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeRasterDirectReleaseProc(const SkImageInfo& imageInfo, void* pixels,
                                     size_t rowBytes,
                                     void (*releaseProc)(void* pixels, void* context),
                                     void* context, const SkSurfaceProps* surfaceProps = nullptr);
 
-    /**
-     *  Return a new surface, with the memory for the pixels automatically allocated and
-     *  zero-initialized, but respecting the specified rowBytes. If rowBytes==0, then a default
-     *  value will be chosen. If a non-zero rowBytes is specified, then any images snapped off of
-     *  this surface (via makeImageSnapshot()) are guaranteed to have the same rowBytes.
-     *
-     *  If the requested surface cannot be created, or the request is not a
-     *  supported configuration, NULL will be returned.
-     */
+    /** Allocates raster SkSurface. SkCanvas returned by SkSurface draws directly into pixels.
+        Allocates and zeroes pixel memory. Pixel memory size is imageInfo.height() times
+        rowBytes, or times imageInfo.minRowBytes() if rowBytes is zero.
+        Pixel memory is deleted when SkSurface is deleted.
+
+        SkSurface is returned if all parameters are valid.
+        Valid parameters include:
+        info dimensions are greater than zero;
+        info contains SkColorType and SkAlphaType supported by raster surface;
+        rowBytes is large enough to contain info width pixels of SkColorType, or is zero.
+
+        If rowBytes is not zero, subsequent images returned by makeImageSnapshot()
+        have the same rowBytes.
+
+        @param imageInfo     width, height, SkColorType, SkAlphaType, SkColorSpace,
+                             of raster surface; width and height must be greater than zero
+        @param rowBytes      interval from one SkSurface row to the next; may be zero
+        @param surfaceProps  LCD striping orientation and setting for device independent fonts;
+                             may be nullptr
+        @return              SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, size_t rowBytes,
                                        const SkSurfaceProps* surfaceProps);
 
-    /**
-     *  Allocate a new surface, automatically computing the rowBytes.
-     */
+    /** Allocates raster SkSurface. SkCanvas returned by SkSurface draws directly into pixels.
+        Allocates and zeroes pixel memory. Pixel memory size is imageInfo.height() times
+        imageInfo.minRowBytes().
+        Pixel memory is deleted when SkSurface is deleted.
+
+        SkSurface is returned if all parameters are valid.
+        Valid parameters include:
+        info dimensions are greater than zero;
+        info contains SkColorType and SkAlphaType supported by raster surface.
+
+        @param imageInfo  width, height, SkColorType, SkAlphaType, SkColorSpace,
+                          of raster surface; width and height must be greater than zero
+        @param props      LCD striping orientation and setting for device independent fonts;
+                          may be nullptr
+        @return           SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo,
                                        const SkSurfaceProps* props = nullptr) {
         return MakeRaster(imageInfo, 0, props);
     }
 
-    /**
-     *  Helper version of NewRaster. It creates a SkImageInfo with the
-     *  specified width and height, and populates the rest of info to match
-     *  pixels in SkPMColor format.
-     */
+    /** Allocates raster SkSurface. SkCanvas returned by SkSurface draws directly into pixels.
+        Allocates and zeroes pixel memory. Pixel memory size is height times width times
+        four. Pixel memory is deleted when SkSurface is deleted.
+
+        Internally, sets SkImageInfo to width, height, native SkColorType, and
+        kPremul_SkAlphaType.
+
+        SkSurface is returned if width and height are greater than zero.
+
+        Use to create SkSurface that matches SkPMColor, the native pixel arrangement on
+        the platform. SkSurface drawn to output device skips converting its pixel format.
+
+        @param width         pixel column count; must be greater than zero
+        @param height        pixel row count; must be greater than zero
+        @param surfaceProps  LCD striping orientation and setting for device independent
+                             fonts; may be nullptr
+        @return              SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
                                                 const SkSurfaceProps* surfaceProps = nullptr) {
         return MakeRaster(SkImageInfo::MakeN32Premul(width, height), surfaceProps);
     }
 
-    /**
-     *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. Skia will not assume
-     *  ownership of the texture and the client must ensure the texture is valid for the lifetime
-     *  of the SkSurface. If sampleCnt > 1, then we will create an intermediate mssa surface which
-     *  we will use for rendering. We then resolve into the passed in texture.
-     */
+    /** Wraps a GPU-backed texture into SkSurface. Caller must ensure the texture is
+        valid for the lifetime of returned SkSurface. If sampleCnt greater than zero,
+        creates an intermediate MSAA SkSurface which is used for drawing backendTexture.
+
+        SkSurface is returned if all parameters are valid. backendTexture is valid if
+        its pixel configuration agrees with colorSpace and context; for instance, if
+        backendTexture has an sRGB configuration, then context must support sRGB,
+        and colorSpace must be present. Further, backendTexture width and height must
+        not exceed context capabilities, and the context must be able to support
+        back-end textures.
+
+        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
+
+        @param context         GPU context
+        @param backendTexture  texture residing on GPU
+        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
+        @param colorSpace      range of colors
+        @param surfaceProps    LCD striping orientation and setting for device independent
+                               fonts; may be nullptr
+        @return                SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
                                                    const GrBackendTexture& backendTexture,
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps);
 
-    /**
-     *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. Skia will not assume
-     *  ownership of the texture and the client must ensure the texture is valid for the lifetime
-     *  of the SkSurface. If sampleCnt > 1, then we will create an intermediate mssa surface which
-     *  we will use for rendering. We then resolve into the passed in texture.
-     *
-     *  The GrBackendTexture must have a valid backend format supplied (GrGLTextureInfo::fFormat,
-     *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
-     *  interpret the backend format supplied by the GrBackendTexture. If the format in the
-     *  GrBackendTexture is not compatible with the sampleCnt, SkColorType, and SkColorSpace we
-     *  will return nullptr.
-     */
+    /** Wraps a GPU-backed texture into SkSurface. Caller must ensure the texture is
+        valid for the lifetime of returned SkSurface. If sampleCnt greater than zero,
+        creates an intermediate MSAA SkSurface which is used for drawing backendTexture.
+
+        SkSurface is returned if all parameters are valid. backendTexture is valid if
+        its pixel configuration agrees with colorSpace and context; for instance, if
+        backendTexture has an sRGB configuration, then context must support sRGB,
+        and colorSpace must be present. Further, backendTexture width and height must
+        not exceed context capabilities, and the context must be able to support
+        back-end textures.
+
+        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
+
+        @param context         GPU context
+        @param backendTexture  texture residing on GPU
+        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
+        @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                               kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+                               kGray_8_SkColorType, kRGBA_F16_SkColorType
+        @param colorSpace      range of colors
+        @param surfaceProps    LCD striping orientation and setting for device independent
+                               fonts; may be nullptr
+        @return                SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
                                                    const GrBackendTexture& backendTexture,
                                                    GrSurfaceOrigin origin, int sampleCnt,
@@ -118,19 +217,56 @@ public:
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps);
 
+    /** Wraps a GPU-backed buffer into SkSurface. Caller must ensure render target is
+        valid for the lifetime of returned SkSurface.
+
+        SkSurface is returned if all parameters are valid. backendRenderTarget is valid if
+        its pixel configuration agrees with colorSpace and context; for instance, if
+        backendRenderTarget has an sRGB configuration, then context must support sRGB,
+        and colorSpace must be present. Further, backendRenderTarget width and height must
+        not exceed context capabilities, and the context must be able to support
+        back-end render targets.
+
+        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
+
+        @param context              GPU context
+        @param backendRenderTarget  GPU intermediate memory buffer
+        @param origin               one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param colorSpace           range of colors
+        @param surfaceProps         LCD striping orientation and setting for device independent
+                                    fonts; may be nullptr
+        @return                     SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
                                                 const GrBackendRenderTarget& backendRenderTarget,
                                                 GrSurfaceOrigin origin,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps);
 
-    /**
-     *  The GrBackendRenderTarget must have a valid backend format set (GrGLTextureInfo::fFormat,
-     *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
-     *  interpret the backend format supplied by the GrBackendRenderTarget. If the format in the
-     *  GrBackendRenderTarget is not compatible with the sampleCnt, SkColorType, and SkColorSpace
-     *  we will return nullptr.
-     */
+    /** Wraps a GPU-backed buffer into SkSurface. Caller must ensure render target is
+        valid for the lifetime of returned SkSurface.
+
+        SkSurface is returned if all parameters are valid. backendRenderTarget is valid if
+        its pixel configuration agrees with colorSpace and context; for instance, if
+        backendRenderTarget has an sRGB configuration, then context must support sRGB,
+        and colorSpace must be present. Further, backendRenderTarget width and height must
+        not exceed context capabilities, and the context must be able to support
+        back-end render targets.
+
+        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
+
+        @param context              GPU context
+        @param backendRenderTarget  GPU intermediate memory buffer
+        @param origin               one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param colorType            one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                                    kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                                    kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+                                    kGray_8_SkColorType, kRGBA_F16_SkColorType
+        @param colorSpace           range of colors
+        @param surfaceProps         LCD striping orientation and setting for device independent
+                                    fonts; may be nullptr
+        @return                     SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
                                                 const GrBackendRenderTarget& backendRenderTarget,
                                                 GrSurfaceOrigin origin,
@@ -138,13 +274,23 @@ public:
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps);
 
-    /**
-     *  Used to wrap a pre-existing 3D API texture as a SkSurface. Skia will treat the texture as
-     *  a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
-     *  the associated render target objects (but not the provided texture). Skia will not assume
-     *  ownership of the texture and the client must ensure the texture is valid for the lifetime
-     *  of the SkSurface.
-     */
+    /** Used to wrap a GPU-backed texture as a SkSurface. Skia will treat the texture as
+        a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
+        the associated render target objects (but not the provided texture). Skia will not assume
+        ownership of the texture and the client must ensure the texture is valid for the lifetime
+        of the SkSurface.
+
+        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
+
+        @param context         GPU context
+        @param backendTexture  texture residing on GPU
+        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
+        @param colorSpace      range of colors
+        @param surfaceProps    LCD striping orientation and setting for device independent
+                               fonts; may be nullptr
+        @return                SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                             const GrBackendTexture& backendTexture,
                                                             GrSurfaceOrigin origin,
@@ -152,19 +298,27 @@ public:
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps);
 
-    /**
-     *  Used to wrap a pre-existing 3D API texture as a SkSurface. Skia will treat the texture as
-     *  a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
-     *  the associated render target objects (but not the provided texture). Skia will not assume
-     *  ownership of the texture and the client must ensure the texture is valid for the lifetime
-     *  of the SkSurface.
-     *
-     *  The GrBackendTexture must have a valid backend format supplied (GrGLTextureInfo::fFormat,
-     *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
-     *  interpret the backend format supplied by the GrBackendTexture. If the format in the
-     *  GrBackendTexture is not compatible with the sampleCnt, SkColorType, and SkColorSpace we
-     *  will return nullptr.
-     */
+    /** Used to wrap a GPU-backed texture as a SkSurface. Skia will treat the texture as
+        a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
+        the associated render target objects (but not the provided texture). Skia will not assume
+        ownership of the texture and the client must ensure the texture is valid for the lifetime
+        of the SkSurface.
+
+        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
+
+        @param context         GPU context
+        @param backendTexture  texture residing on GPU
+        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
+        @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                               kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+                               kGray_8_SkColorType, kRGBA_F16_SkColorType
+        @param colorSpace      range of colors
+        @param surfaceProps    LCD striping orientation and setting for device independent
+                               fonts; may be nullptr
+        @return                SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                             const GrBackendTexture& backendTexture,
                                                             GrSurfaceOrigin origin,
@@ -173,18 +327,62 @@ public:
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps);
 
-    /**
-     *  Return a new surface whose contents will be drawn to an offscreen
-     *  render target, allocated by the surface. The optional shouldCreateWithMips flag is a hint
-     *  that this surface may be snapped to an SkImage which will be used with mip maps so we should
-     *  create the backend gpu RenderTarget with mips to avoid a copy later on.
-     */
+    /** Returns SkSurface on GPU indicated by context. Allocates memory for
+        pixels, based on the width, height, and SkColorType in ImageInfo.  budgeted
+        selects whether allocation for pixels is tracked by context. imageInfo
+        describes the pixel format in SkColorType, and transparency in
+        SkAlphaType, and color matching in SkColorSpace.
+
+        sampleCount requests the number of samples per pixel.
+        Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
+        up to the next supported count, or rounded down if it is larger than the
+        maximum supported count.
+
+        surfaceOrigin pins either the top-left or the bottom-left corner to the origin.
+
+        shouldCreateWithMips hints that SkImage returned by makeImageSnapshot() is Mip_Map.
+
+        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
+
+        @param context               GPU context
+        @param budgeted              one of: SkBudgeted::kNo, SkBudgeted::kYes
+        @param imageInfo             width, height, SkColorType, SkAlphaType, SkColorSpace;
+                                     width, or height, or both, may be zero
+        @param sampleCount           samples per pixel, or 0 to disable full scene anti-aliasing
+        @param surfaceOrigin         one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param surfaceProps          LCD striping orientation and setting for device independent
+                                     fonts; may be nullptr
+        @param shouldCreateWithMips  hint that SkSurface will host Mip_Map images
+        @return                      SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo,
                                              int sampleCount, GrSurfaceOrigin surfaceOrigin,
                                              const SkSurfaceProps* surfaceProps,
                                              bool shouldCreateWithMips = false);
 
+    /** Returns SkSurface on GPU indicated by context. Allocates memory for
+        pixels, based on the width, height, and SkColorType in ImageInfo.  budgeted
+        selects whether allocation for pixels is tracked by context. imageInfo
+        describes the pixel format in SkColorType, and transparency in
+        SkAlphaType, and color matching in SkColorSpace.
+
+        sampleCount requests the number of samples per pixel.
+        Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
+        up to the next supported count, or rounded down if it is larger than the
+        maximum supported count.
+
+        SkSurface bottom-left corner is pinned to the origin.
+
+        @param context      GPU context
+        @param budgeted     one of: SkBudgeted::kNo, SkBudgeted::kYes
+        @param imageInfo    width, height, SkColorType, SkAlphaType, SkColorSpace,
+                            of raster surface; width, or height, or both, may be zero
+        @param sampleCount  samples per pixel, or 0 to disable Multi_Sample_Anti_Aliasing
+        @param props        LCD striping orientation and setting for device independent
+                            fonts; may be nullptr
+        @return             SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo, int sampleCount,
                                              const SkSurfaceProps* props) {
@@ -192,6 +390,20 @@ public:
                                 kBottomLeft_GrSurfaceOrigin, props);
     }
 
+    /** Returns SkSurface on GPU indicated by context. Allocates memory for
+        pixels, based on the width, height, and SkColorType in ImageInfo.  budgeted
+        selects whether allocation for pixels is tracked by context. imageInfo
+        describes the pixel format in SkColorType, and transparency in
+        SkAlphaType, and color matching in SkColorSpace.
+
+        SkSurface bottom-left corner is pinned to the origin.
+
+        @param context    GPU context
+        @param budgeted   one of: SkBudgeted::kNo, SkBudgeted::kYes
+        @param imageInfo  width, height, SkColorType, SkAlphaType, SkColorSpace,
+                          of raster surface; width, or height, or both, may be zero
+        @return           SkSurface if all parameters are valid; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo) {
         if (!imageInfo.width() || !imageInfo.height()) {
@@ -201,234 +413,358 @@ public:
                                 nullptr);
     }
 
-    /**
-     *  Returns a surface that stores no pixels. It can be drawn to via its canvas, but that
-     *  canvas does not draw anything. Calling makeImageSnapshot() will return nullptr.
-     */
+    /** Returns SkSurface without backing pixels. Drawing to SkCanvas returned from SkSurface
+        has no effect. Calling makeImageSnapshot() on returned SkSurface returns nullptr.
+
+        @param width   one or greater
+        @param height  one or greater
+        @return        SkSurface if width and height are positive; otherwise, nullptr
+    */
     static sk_sp<SkSurface> MakeNull(int width, int height);
 
+    /** Returns pixel count in each row; may be zero or greater.
+
+        @return  number of pixel columns
+    */
     int width() const { return fWidth; }
+
+    /** Returns pixel row count; may be zero or greater.
+
+        @return  number of pixel rows
+    */
     int height() const { return fHeight; }
 
-    /**
-     *  Returns a unique non-zero, unique value identifying the content of this
-     *  surface. Each time the content is changed changed, either by drawing
-     *  into this surface, or explicitly calling notifyContentChanged()) this
-     *  method will return a new value.
-     *
-     *  If this surface is empty (i.e. has a zero-dimention), this will return
-     *  0.
-     */
+    /** Returns unique value identifying the content of SkSurface. Returned value changes
+        each time the content changes. Content is changed by drawing, or by calling
+        notifyContentWillChange().
+
+        @return  unique content identifier
+    */
     uint32_t generationID();
 
-    /**
-     *  Modes that can be passed to notifyContentWillChange
-     */
+    /** \enum SkSurface::ContentChangeMode
+        ContentChangeMode members are parameters to notifyContentWillChange().
+    */
     enum ContentChangeMode {
-        /**
-         *  Use this mode if it is known that the upcoming content changes will
-         *  clear or overwrite prior contents, thus making them discardable.
-         */
-        kDiscard_ContentChangeMode,
-        /**
-         *  Use this mode if prior surface contents need to be preserved or
-         *  if in doubt.
-         */
+        kDiscard_ContentChangeMode, //!< the surface is cleared or overwritten.
+
+        /** If a snapshot has been generated, this copies the SkSurface contents. */
         kRetain_ContentChangeMode,
     };
 
-    /**
-     *  Call this if the contents are about to change. This will (lazily) force a new
-     *  value to be returned from generationID() when it is called next.
-     *
-     *  CAN WE DEPRECATE THIS?
-     */
+    /** Notifies that SkSurface contents will be changed by code outside of Skia.
+        Subsequent calls to generationID() return a different value.
+
+        mode is normally passed as kRetain_ContentChangeMode.
+        CAN WE DEPRECATE THIS?
+
+        @param mode  one of: kDiscard_ContentChangeMode, kRetain_ContentChangeMode
+    */
     void notifyContentWillChange(ContentChangeMode mode);
 
     enum BackendHandleAccess {
-        kFlushRead_BackendHandleAccess,     //!< caller may read from the backend object
-        kFlushWrite_BackendHandleAccess,    //!< caller may write to the backend object
-        kDiscardWrite_BackendHandleAccess,  //!< caller must over-write the entire backend object
+        kFlushRead_BackendHandleAccess,    //!< Caller may read from the back-end object.
+        kFlushWrite_BackendHandleAccess,   //!< Caller may write to the back-end object.
+        kDiscardWrite_BackendHandleAccess, //!< Caller must overwrite the entire back-end object.
     };
 
-    /*
-     * These are legacy aliases which will be removed soon
-     */
+    /** Deprecated.
+    */
     static const BackendHandleAccess kFlushRead_TextureHandleAccess =
             kFlushRead_BackendHandleAccess;
+
+    /** Deprecated.
+    */
     static const BackendHandleAccess kFlushWrite_TextureHandleAccess =
             kFlushWrite_BackendHandleAccess;
+
+    /** Deprecated.
+    */
     static const BackendHandleAccess kDiscardWrite_TextureHandleAccess =
             kDiscardWrite_BackendHandleAccess;
 
+    /** Returns the GPU back-end reference of the texture used by SkSurface, or zero
+        if SkSurface is not backed by a GPU texture.
 
-    /**
-     *  Retrieves the backend API handle of the texture used by this surface, or 0 if the surface
-     *  is not backed by a GPU texture.
-     *
-     *  The returned texture-handle is only valid until the next draw-call into the surface,
-     *  or the surface is deleted.
-     */
+        The returned texture handle is only valid until the next draw into SkSurface,
+        or when SkSurface is deleted.
+
+        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
+                                    kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
+        @return                     GPU texture reference
+    */
     GrBackendObject getTextureHandle(BackendHandleAccess backendHandleAccess);
 
-    /**
-     *  Retrieves the backend API handle of the RenderTarget backing this surface.  Callers must
-     *  ensure this function returns 'true' or else the GrBackendObject will be invalid
-     *
-     *  In OpenGL this will return the FramebufferObject ID.
-     */
+    /** Returns true and stores the GPU back-end reference of the render target used
+        by SkSurface in backendObject.
+
+        Return false if SkSurface is not backed by a GPU render target, and leaves
+        backendObject unchanged.
+
+        The returned render target handle is only valid until the next draw into SkSurface,
+        or when SkSurface is deleted.
+
+        In OpenGL this returns the frame buffer object ID.
+
+        @param backendObject        GPU intermediate memory buffer
+        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
+                                    kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
+        @return                     true if SkSurface is backed by GPU texture
+    */
     bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess);
 
-    /**
-     *  Return a canvas that will draw into this surface. This will always
-     *  return the same canvas for a given surface, and is manged/owned by the
-     *  surface. It should not be used when its parent surface has gone out of
-     *  scope.
-     */
+    /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
+        SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface
+        is deleted.
+
+        @return  drawing SkCanvas for SkSurface
+    */
     SkCanvas* getCanvas();
 
-    /**
-     *  Return a new surface that is "compatible" with this one, in that it will
-     *  efficiently be able to be drawn into this surface. Typical calling
-     *  pattern:
-     *
-     *  SkSurface* A = SkSurface::New...();
-     *  SkCanvas* canvasA = surfaceA->newCanvas();
-     *  ...
-     *  SkSurface* surfaceB = surfaceA->newSurface(...);
-     *  SkCanvas* canvasB = surfaceB->newCanvas();
-     *  ... // draw using canvasB
-     *  canvasA->drawSurface(surfaceB); // <--- this will always be optimal!
-     */
+    /** Returns a compatible SkSurface, or nullptr. Returned SkSurface contains
+        the same raster, GPU, or null properties as the original. Returned SkSurface
+        does not share the same pixels.
+
+        Returns nullptr if imageInfo width or height are zero, or if imageInfo
+        is incompatible with SkSurface.
+
+        @param imageInfo  width, height, SkColorType, SkAlphaType, SkColorSpace,
+                          of SkSurface; width and height must be greater than zero
+        @return           compatible SkSurface or nullptr
+    */
     sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo);
 
-    /**
-     *  Returns an image of the current state of the surface pixels up to this
-     *  point. Subsequent changes to the surface (by drawing into its canvas)
-     *  will not be reflected in this image. For the GPU-backend, the budgeting
-     *  decision for the snapped image will match that of the surface.
-     */
+    /** Returns SkImage capturing SkSurface contents. Subsequent drawing to SkSurface contents
+        are not captured. SkImage allocation is accounted for if SkSurface was created with
+        SkBudgeted::kYes.
+
+        @return  SkImage initialized with SkSurface contents
+    */
     sk_sp<SkImage> makeImageSnapshot();
 
-    /**
-     *  Though the caller could get a snapshot image explicitly, and draw that,
-     *  it seems that directly drawing a surface into another canvas might be
-     *  a common pattern, and that we could possibly be more efficient, since
-     *  we'd know that the "snapshot" need only live until we've handed it off
-     *  to the canvas.
-     */
+    /** Draws SkSurface contents to canvas, with its top-left corner at (x, y).
+
+        If SkPaint paint is not nullptr, apply SkColorFilter, color alpha, SkImageFilter,
+        SkBlendMode, and SkDrawLooper.
+
+        @param canvas  SkCanvas drawn into
+        @param x       horizontal offset in SkCanvas
+        @param y       vertical offset in SkCanvas
+        @param paint   SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
+                       and so on; or nullptr
+    */
     void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint);
 
-    /**
-     *  If the surface has direct access to its pixels (i.e. they are in local
-     *  RAM) return true, and if not null, set the pixmap parameter to point to the information
-     *  about the surface's pixels. The pixel address in the pixmap is only valid while
-     *  the surface object is in scope, and no API call is made on the surface
-     *  or its canvas.
-     *
-     *  On failure, returns false and the pixmap parameter is ignored.
-     */
+    /** Copies SkSurface pixel address, row bytes, and SkImageInfo to SkPixmap, if address
+        is available, and returns true. If pixel address is not available, return
+        false and leave SkPixmap unchanged.
+
+        pixmap contents become invalid on any future change to SkSurface.
+
+        @param pixmap  storage for pixel state if pixels are readable; otherwise, ignored
+        @return        true if SkSurface has direct access to pixels
+    */
     bool peekPixels(SkPixmap* pixmap);
 
-    /**
-     *  Copy the pixels from the surface into the specified pixmap,
-     *  converting them into the pixmap's format. The surface pixels are read
-     *  starting at the specified (srcX,srcY) location.
-     *
-     *  The pixmap and (srcX,srcY) offset specifies a source rectangle
-     *
-     *      srcR.setXYWH(srcX, srcY, pixmap.width(), pixmap.height());
-     *
-     *  srcR is intersected with the bounds of the base-layer. If this intersection is not empty,
-     *  then we have two sets of pixels (of equal size). Replace the dst pixels with the
-     *  corresponding src pixels, performing any colortype/alphatype transformations needed
-     *  (in the case where the src and dst have different colortypes or alphatypes).
-     *
-     *  This call can fail, returning false, for several reasons:
-     *  - If srcR does not intersect the surface bounds.
-     *  - If the requested colortype/alphatype cannot be converted from the surface's types.
-     */
+    /** Copies SkRect of pixels to dst.
+
+        Source SkRect corners are (srcX, srcY) and SkSurface (width(), height()).
+        Destination SkRect corners are (0, 0) and (dst.width(), dst.height()).
+        Copies each readable pixel intersecting both rectangles, without scaling,
+        converting to dst.colorType() and dst.alphaType() if required.
+
+        Pixels are readable when SkSurface is raster, or backed by a GPU.
+
+        The destination pixel storage must be allocated by the caller.
+
+        Pixel values are converted only if SkColorType and SkAlphaType
+        do not match. Only pixels within both source and destination rectangles
+        are copied. dst contents outside SkRect intersection are unchanged.
+
+        Pass negative values for srcX or srcY to offset pixels across or down destination.
+
+        Does not copy, and returns false if:
+        - Source and destination rectangles do not intersect.
+        - SkPixmap pixels could not be allocated.
+        - dst.rowBytes() is too small to contain one row of pixels.
+
+        @param dst   storage for pixels copied from SkSurface
+        @param srcX  offset into readable pixels in x; may be negative
+        @param srcY  offset into readable pixels in y; may be negative
+        @return      true if pixels were copied
+    */
     bool readPixels(const SkPixmap& dst, int srcX, int srcY);
+
+    /** Copies SkRect of pixels from SkCanvas into dstPixels.
+
+        Source SkRect corners are (srcX, srcY) and SkSurface (width(), height()).
+        Destination SkRect corners are (0, 0) and (dstInfo.width(), dstInfo.height()).
+        Copies each readable pixel intersecting both rectangles, without scaling,
+        converting to dstInfo.colorType() and dstInfo.alphaType() if required.
+
+        Pixels are readable when SkSurface is raster, or backed by a GPU.
+
+        The destination pixel storage must be allocated by the caller.
+
+        Pixel values are converted only if SkColorType and SkAlphaType
+        do not match. Only pixels within both source and destination rectangles
+        are copied. dstPixels contents outside SkRect intersection are unchanged.
+
+        Pass negative values for srcX or srcY to offset pixels across or down destination.
+
+        Does not copy, and returns false if:
+        - Source and destination rectangles do not intersect.
+        - SkSurface pixels could not be converted to dstInfo.colorType() or dstInfo.alphaType().
+        - dstRowBytes is too small to contain one row of pixels.
+
+        @param dstInfo      width, height, SkColorType, and SkAlphaType of dstPixels
+        @param dstPixels    storage for pixels; dstInfo.height() times dstRowBytes, or larger
+        @param dstRowBytes  size of one destination row; dstInfo.width() times pixel size, or larger
+        @param srcX         offset into readable pixels in x; may be negative
+        @param srcY         offset into readable pixels in y; may be negative
+        @return             true if pixels were copied
+    */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY);
+
+    /** Copies SkRect of pixels from SkSurface into bitmap.
+
+        Source SkRect corners are (srcX, srcY) and SkSurface (width(), height()).
+        Destination SkRect corners are (0, 0) and (bitmap.width(), bitmap.height()).
+        Copies each readable pixel intersecting both rectangles, without scaling,
+        converting to bitmap.colorType() and bitmap.alphaType() if required.
+
+        Pixels are readable when SkSurface is raster, or backed by a GPU.
+
+        The destination pixel storage must be allocated by the caller.
+
+        Pixel values are converted only if SkColorType and SkAlphaType
+        do not match. Only pixels within both source and destination rectangles
+        are copied. dst contents outside SkRect intersection are unchanged.
+
+        Pass negative values for srcX or srcY to offset pixels across or down destination.
+
+        Does not copy, and returns false if:
+        - Source and destination rectangles do not intersect.
+        - SkSurface pixels could not be converted to dst.colorType() or dst.alphaType().
+        - dst pixels could not be allocated.
+        - dst.rowBytes() is too small to contain one row of pixels.
+
+        @param dst   storage for pixels copied from SkSurface
+        @param srcX  offset into readable pixels in x; may be negative
+        @param srcY  offset into readable pixels in y; may be negative
+        @return      true if pixels were copied
+    */
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
-    /**
-     *  Special version of drawing a pixmap to the surface (without going through the canvas).
-     *  - the implied blendmode is kSrc (overwrite the surface pixel values)
-     *  - any settings on the surface's canvas are ignored: matrix, clipping, etc.
-     */
+    /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
+
+        Source SkRect corners are (0, 0) and (src.width(), src.height()).
+        Destination SkRect corners are (dstX, dstY) and (dstX + Surface width(), dstY + Surface height()).
+        Copies each readable pixel intersecting both rectangles, without scaling,
+        converting to SkSurface colorType() and SkSurface alphaType() if required.
+
+        @param src   storage for pixels to copy to SkSurface
+        @param dstX  x position relative to SkSurface to begin copy; may be negative
+        @param dstY  x position relative to SkSurface to begin copy; may be negative
+    */
     void writePixels(const SkPixmap& src, int dstX, int dstY);
 
-    /**
-     *  Helper that extracts the pixmap from the bitmap (if possible), and then calls writePixels
-     *  with that pixmap.
-     */
+    /** Copies SkRect of pixels from the src SkBitmap to the SkSurface.
+
+        Source SkRect corners are (0, 0) and (src.width(), src.height()).
+        Destination SkRect corners are (dstX, dstY) and (dstX + Surface width(), dstY + Surface height()).
+        Copies each readable pixel intersecting both rectangles, without scaling,
+        converting to SkSurface colorType() and SkSurface alphaType() if required.
+
+        @param src   storage for pixels to copy to SkSurface
+        @param dstX  x position relative to SkSurface to begin copy; may be negative
+        @param dstY  x position relative to SkSurface to begin copy; may be negative
+    */
     void writePixels(const SkBitmap& src, int dstX, int dstY);
 
+    /** Returns SkSurfaceProps for surface.
+
+        @return  LCD striping orientation and setting for device independent fonts
+    */
     const SkSurfaceProps& props() const { return fProps; }
 
-    /**
-     * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
-     *
-     * The flush calls below are the new preferred way to flush calls to a surface, and this call
-     * will eventually be removed.
-     */
+    /** To be deprecated soon.
+    */
     void prepareForExternalIO();
 
-    /**
-     * Issue any pending surface IO to the current backend 3D API
-     */
+    /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
+
+        Skia flushes as needed, so it is not necessary to call this if Skia manages
+        drawing and object lifetime. Call when interleaving Skia calls with native
+        GPU calls.
+    */
     void flush();
 
-    /**
-     * Issue any pending surface IO to the current backend 3D API. After issuing all commands,
-     * numSemaphore semaphores will be signaled by the gpu. The client passes in an array of
-     * numSemaphores GrBackendSemaphores. In general these GrBackendSemaphore's can be either
-     * initialized or not. If they are initialized, the backend uses the passed in semaphore.
-     * If it is not initialized, a new semaphore is created and the GrBackendSemaphore object
-     * is initialized with that semaphore.
-     *
-     * The client will own and be responsible for deleting the underlying semaphores that are stored
-     * and returned in initialized GrBackendSemaphore objects. The GrBackendSemaphore objects
-     * themselves can be deleted as soon as this function returns.
-     *
-     * If the backend API is OpenGL only uninitialized GrBackendSemaphores are supported.
-     * If the backend API is Vulkan either initialized or unitialized semaphores are supported.
-     * If unitialized, the semaphores which are created will be valid for use only with the VkDevice
-     * with which they were created.
-     *
-     * If this call returns GrSemaphoresSubmited::kNo, the GPU backend will not have created or
-     * added any semaphores to signal on the GPU. Thus the client should not have the GPU wait on
-     * any of the semaphores. However, any pending surface IO will still be flushed.
-     */
+    /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
+        After issuing all commands, signalSemaphores of count numSemaphores semaphores
+        are signaled by the GPU.
+
+        For each GrBackendSemaphore in signalSemaphores:
+        if GrBackendSemaphore is initialized, the GPU back-end uses the semaphore as is;
+        otherwise, a new semaphore is created and initializes GrBackendSemaphore.
+
+        The caller must delete the semaphores created and returned in signalSemaphores.
+        GrBackendSemaphore can be deleted as soon as this function returns.
+
+        If the back-end API is OpenGL only uninitialized backend semaphores are supported.
+
+        If the back-end API is Vulkan semaphores may be initialized or uninitialized.
+        If uninitialized, created semaphores are valid only with the VkDevice
+        with which they were created.
+
+        If GrSemaphoresSubmitted::kNo is returned, the GPU back-end did not create or
+        add any semaphores to signal on the GPU; the caller should not instruct the GPU
+        to wait on any of the semaphores.
+
+        Pending surface commands are flushed regardless of the return result.
+
+        @param numSemaphores     size of signalSemaphores array
+        @param signalSemaphores  array of semaphore containers
+        @return                  one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
+    */
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]);
 
-    /**
-     * Inserts a list of GPU semaphores that the current backend 3D API must wait on before
-     * executing any more commands on the GPU for this surface. Skia will take ownership of the
-     * underlying semaphores and delete them once they have been signaled and waited on.
-     *
-     * If this call returns false, then the GPU backend will not wait on any passed in semaphores,
-     * and the client will still own the semaphores.
-     */
+    /** Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
+        executing any more commands on the GPU for this surface. Skia will take ownership of the
+        underlying semaphores and delete them once they have been signaled and waited on.
+        If this call returns false, then the GPU back-end will not wait on any passed in semaphores,
+        and the client will still own the semaphores.
+
+        @param numSemaphores   size of waitSemaphores array
+        @param waitSemaphores  array of semaphore containers
+        @return                true if GPU is waiting on semaphores
+    */
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
 
-    /**
-     * This creates a characterization of this SkSurface's properties that can
-     * be used to perform gpu-backend preprocessing in a separate thread (via
-     * the SkDeferredDisplayListRecorder).
-     * It will return false on failure (e.g., if the SkSurface is cpu-backed).
-     */
+    /** Initializes SkSurfaceCharacterization that can be used to perform GPU back-end
+        processing in a separate thread. Typically this is used to divide drawing
+        into multiple tiles. DeferredDisplayListRecorder records the drawing commands
+        for each tile.
+
+        Return true if SkSurface supports characterization. raster surface returns false.
+
+        @param characterization  properties for parallel drawing
+        @return                  true if supported
+    */
     bool characterize(SkSurfaceCharacterization* characterization) const;
 
-    /**
-     * Draw a deferred display list (created via SkDeferredDisplayListRecorder).
-     * The draw will be skipped if the characterization stored in the display list
-     * isn't compatible with this surface.
-     */
+    /** Draws deferred display list created using SkDeferredDisplayListRecorder.
+        Has no effect and returns false if SkSurfaceCharacterization stored in
+        deferredDisplayList is not compatible with SkSurface.
+
+        raster surface returns false.
+
+        @param deferredDisplayList  drawing commands
+        @return                     false if deferredDisplayList is not compatible
+    */
     bool draw(SkDeferredDisplayList* deferredDisplayList);
 
 protected:
