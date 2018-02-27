@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70a300c3_c91adf80",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-27T20:16:38Z",
+      "side": 1,
+      "message": "I think you can just pass \u0027proxies\u0027 and \u0027atlasPageCount\u0027 into here, rather than getting them again in setupDfProcessor().",
+      "range": {
+        "startLine": 258,
+        "startChar": 62,
+        "endLine": 258,
+        "endChar": 78
+      },
+      "revId": "57ed42c5772d302a38fe0bf2cfa4f7d634f45af7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
