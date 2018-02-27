@@ -1054,10 +1054,7 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
         return false;
     }
 
-    auto dstRTProxy = dstProxy->asRenderTargetProxy();
-    if (dstRTProxy &&
-        !fContext->caps()->renderTargetWritePixelsSupported(SkToBool(dstProxy->asTextureProxy()),
-                                                            dstRTProxy->numColorSamples())) {
+    if (!fContext->caps()->surfaceSupportsWritePixels(dstSurface)) {
         GrSurfaceDesc desc;
         desc.fConfig = dstProxy->config();
         desc.fWidth = width;
@@ -1078,14 +1075,7 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
                                        srcColorSpace, buffer, rowBytes, pixelOpsFlags)) {
             return false;
         }
-        GrPaint paint;
-        paint.setAllowSRGBInputs(true);
-        paint.addColorTextureProcessor(std::move(tempProxy), SkMatrix::I());
-        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        dst->asRenderTargetContext()->drawRect(GrNoClip(), std::move(paint), GrAA::kNo,
-                                               SkMatrix::MakeTrans(left, top),
-                                               SkRect::MakeIWH(width, height));
-        return true;
+        return dst->copy(tempProxy.get(), SkIRect::MakeWH(width, height), {left, top});
     }
 
     // TODO: Make GrSurfaceContext know its alpha type and pass src buffer's alpha type.

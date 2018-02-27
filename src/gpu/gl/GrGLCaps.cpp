@@ -2391,9 +2391,6 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fUseDrawInsteadOfAllRenderTargetWrites);
         SkASSERT(!fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines);
     }
-    if (options.fUseDrawInsteadOfPartialRenderTargetWrite) {
-        fUseDrawInsteadOfAllRenderTargetWrites = true;
-    }
     if (GrContextOptions::Enable::kNo == options.fUseDrawInsteadOfGLClear) {
         fUseDrawToClearColor = false;
     } else if (GrContextOptions::Enable::kYes == options.fUseDrawInsteadOfGLClear) {
@@ -2402,6 +2399,26 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
     if (options.fDoManualMipmapping) {
         fDoManualMipmapping = true;
     }
+}
+
+bool GrGLCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
+    if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
+        if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
+            if (tex->hasBaseLevelBeenBoundToFBO()) {
+                return false;
+            }
+        }
+    }
+    if (auto rt = surface->asRenderTarget()) {
+        if (fUseDrawInsteadOfAllRenderTargetWrites) {
+            return false;
+        }
+        if (rt->numColorSamples() > 1 && this->usesMSAARenderBuffers()) {
+            return false;
+        }
+        return SkToBool(surface->asTexture());
+    }
+    return true;
 }
 
 bool GrGLCaps::onIsMixedSamplesSupportedForRT(const GrBackendRenderTarget& backendRT) const {

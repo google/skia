@@ -390,7 +390,9 @@
       "~^SRGBReadWritePixels$",
       "~^VkUploadPixelsTests$",
       "~^WritePixelsNonTexture_Gpu$",
+      "~^WritePixelsNonTextureMSAA_Gpu$",
       "~^WritePixels_Gpu$",
+      "~^WritePixelsMSAA_Gpu$",
       "~^skbug6653$",
       "--nonativeFonts",
       "--verbose"

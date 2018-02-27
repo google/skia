@@ -6,9 +6,9 @@
  */
 
 #include "GrVkCaps.h"
-
 #include "GrBackendSurface.h"
 #include "GrRenderTargetProxy.h"
+#include "GrRenderTarget.h"
 #include "GrShaderCaps.h"
 #include "GrVkUtil.h"
 #include "vk/GrVkBackendContext.h"
@@ -427,6 +427,13 @@ int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
         return 0;
     }
     return table[table.count() - 1];
+}
+
+bool GrVkCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
+    if (auto rt = surface->asRenderTarget()) {
+        return rt->numColorSamples() <= 1 && SkToBool(surface->asTexture());
+    }
+    return true;
 }
 
 bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config) {
