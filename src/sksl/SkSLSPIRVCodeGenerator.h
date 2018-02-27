@@ -90,6 +90,10 @@ private:
 
     enum SpecialIntrinsic {
         kAtan_SpecialIntrinsic,
+        kClamp_SpecialIntrinsic,
+        kMax_SpecialIntrinsic,
+        kMin_SpecialIntrinsic,
+        kMix_SpecialIntrinsic,
         kMod_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
         kTexelFetch_SpecialIntrinsic,
@@ -148,6 +152,20 @@ private:
     SpvId writeIntrinsicCall(const FunctionCall& c, OutputStream& out);
 
     SpvId writeFunctionCall(const FunctionCall& c, OutputStream& out);
+
+
+    void writeGLSLExtendedInstruction(const Type& type, SpvId id, SpvId floatInst,
+                                      SpvId signedInst, SpvId unsignedInst,
+                                      const std::vector<SpvId>& args, OutputStream& out);
+
+    /**
+     * Given a list of potentially mixed scalars and vectors, promotes the scalars to match the
+     * size of the vectors and returns the ids of the written expressions. e.g. given (float, vec2),
+     * returns (vec2(float), vec2). It is an error to use mismatched vector sizes, e.g. (float,
+     * vec2, vec3).
+     */
+    std::vector<SpvId> vectorize(const std::vector<std::unique_ptr<Expression>>& args,
+                                 OutputStream& out);
 
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
 
