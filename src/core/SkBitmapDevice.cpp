@@ -23,6 +23,30 @@
 #include "SkTLazy.h"
 #include "SkVertices.h"
 
+class SkDrawTiler {
+    SkBitmapDevice
+    SkDraw          fDraw;
+    SkPixmap        fPixmap;
+    SkMatrix        fMatrix;
+    SkRasterClip    fRC;
+public:
+    SkDrawTiler(SkBitmapDevice* dev) {
+        // we need fDst to be set, and if we're actually drawing, to dirty the genID
+        if (!dev->accessPixels(&fDst)) {
+            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
+            fDst.reset(dev->imageInfo(), nullptr, 0);
+        }
+        fMatrix = &dev->ctm();
+        fRC = &dev->fRCStack.rc();
+    }
+
+    const SkDraw* next() {
+        if (fDone) {
+            return nullptr;
+        }
+    }
+};
+
 class SkColorTable;
 
 static bool valid_for_bitmap_device(const SkImageInfo& info,
@@ -359,7 +383,10 @@ void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPa
 
 void SkBitmapDevice::drawText(const void* text, size_t len,
                               SkScalar x, SkScalar y, const SkPaint& paint) {
-    BDDraw(this).drawText((const char*)text, len, x, y, paint, &fSurfaceProps);
+    SkDrawTiler tiler(this);
+    while (SkDraw* draw = tiler.next()) {
+        draw->drawText((const char*)text, len, x, y, paint, &fSurfaceProps);
+    }
 }
 
 void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
