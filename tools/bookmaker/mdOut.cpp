@@ -257,6 +257,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
     return result;
 }
 
+
+
 bool MdOut::buildReferences(const char* docDir, const char* mdFileOrPath) {
     if (!sk_isdir(mdFileOrPath)) {
         SkString mdFile = SkOSPath::Basename(mdFileOrPath);
@@ -272,15 +274,8 @@ bool MdOut::buildReferences(const char* docDir, const char* mdFileOrPath) {
         SkOSFile::Iter it(docDir, ".bmh");
         for (SkString file; it.next(&file); ) {
             SkString p = SkOSPath::Join(docDir, file.c_str());
-            const char* hunk = p.c_str();
-            if (!SkStrEndsWith(hunk, ".bmh")) {
-                continue;
-            }
-            if (SkStrEndsWith(hunk, "markup.bmh")) {  // don't look inside this for now
-                continue;
-            }
-            if (!this->buildRefFromFile(hunk, mdFileOrPath)) {
-                SkDebugf("failed to parse %s\n", hunk);
+            if (!this->buildRefFromFile(p.c_str(), mdFileOrPath)) {
+                SkDebugf("failed to parse %s\n", p.c_str());
                 return false;
             }
         }
@@ -302,6 +297,15 @@ bool MdOut::buildStatus(const char* statusFile, const char* outDir) {
 }
 
 bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
+    if (!SkStrEndsWith(name, ".bmh")) {
+        return true;
+    }
+    if (SkStrEndsWith(name, "markup.bmh")) {  // don't look inside this for now
+        return true;
+    }
+    if (SkStrEndsWith(name, "illustrations.bmh")) {  // don't look inside this for now
+        return true;
+    }
     fFileName = string(name);
     string filename(name);
     if (filename.substr(filename.length() - 4) == ".bmh") {
@@ -882,6 +886,23 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kHeight:
             break;
+        case MarkType::kIllustration: {
+            string illustName = "Illustrations_" + def->fParent->fFiddle;
+            auto illustIter = fBmhParser.fTopicMap.find(illustName);
+            SkASSERT(fBmhParser.fTopicMap.end() != illustIter);
+            Definition* illustDef = illustIter->second;
+            SkASSERT(MarkType::kSubtopic == illustDef->fMarkType);
+            SkASSERT(1 == illustDef->fChildren.size());
+            Definition* illustExample = illustDef->fChildren[0];
+            SkASSERT(MarkType::kExample == illustExample->fMarkType);
+            string hash = illustExample->fHash;
+            SkASSERT("" != hash);
+            string title;
+            this->writePending();
+            FPRINTF("![%s](https://fiddle.skia.org/i/%s_raster.png \"%s\")",
+                    def->fName.c_str(), hash.c_str(), title.c_str());
+            this->lf(2);
+        } break;
         case MarkType::kImage:
             break;
         case MarkType::kIn:
