@@ -28,7 +28,7 @@ public:
     /**
      * Create a GrContext without a resource cache
      */
-    static sk_sp<GrContext> MakeDDL(GrContextThreadSafeProxy*);
+    static sk_sp<GrContext> MakeDDL(sk_sp<GrContextThreadSafeProxy>);
 
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
