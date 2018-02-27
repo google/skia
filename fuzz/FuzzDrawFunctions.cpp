@@ -81,7 +81,7 @@ static void init_bitmap(Fuzz* fuzz, SkBitmap* bmp) {
                                          (SkColorType)colorType,
                                          b ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     if (!bmp->tryAllocPixels(info)) {
-        SkDebugf("Bitmap not allocated\n");
+        SkDEBUGF(("Bitmap not allocated\n"));
     }
     SkColor c;
     fuzz->next(&c);
@@ -103,6 +103,11 @@ static void init_surface(Fuzz* fuzz, sk_sp<SkSurface>* s) {
     fuzz->nextRange(&x, 1, kMaxX);
     fuzz->nextRange(&y, 1, kMaxY);
     *s = SkSurface::MakeRasterN32Premul(x, y);
+
+    if (!*s) {
+        // Was possibly too big for the memory constrained fuzzing environments
+        *s = SkSurface::MakeNull(x, y);
+    }
 }
 
 
@@ -313,36 +318,36 @@ DEF_FUZZ(DrawFunctions, fuzz) {
               SkDebugf("Could not initialize font.\n");
               fuzz->signalBug();
             }
-            SkDebugf("Fuzz DrawText\n");
+            SkDEBUGF(("Fuzz DrawText\n"));
             fuzz_drawText(fuzz, f);
             return;
         }
         case 1:
-            SkDebugf("Fuzz DrawRect\n");
+            SkDEBUGF(("Fuzz DrawRect\n"));
             fuzz_drawRect(fuzz);
             return;
         case 2:
-            SkDebugf("Fuzz DrawCircle\n");
+            SkDEBUGF(("Fuzz DrawCircle\n"));
             fuzz_drawCircle(fuzz);
             return;
         case 3:
-            SkDebugf("Fuzz DrawLine\n");
+            SkDEBUGF(("Fuzz DrawLine\n"));
             fuzz_drawLine(fuzz);
             return;
         case 4:
-            SkDebugf("Fuzz DrawPath\n");
+            SkDEBUGF(("Fuzz DrawPath\n"));
             fuzz_drawPath(fuzz);
             return;
         case 5:
-            SkDebugf("Fuzz DrawImage/DrawImageRect\n");
+            SkDEBUGF(("Fuzz DrawImage/DrawImageRect\n"));
             fuzz_drawImage(fuzz);
             return;
         case 6:
-            SkDebugf("Fuzz DrawBitmap\n");
+            SkDEBUGF(("Fuzz DrawBitmap\n"));
             fuzz_drawBitmap(fuzz);
             return;
         case 7:
-            SkDebugf("Fuzz DrawPaint\n");
+            SkDEBUGF(("Fuzz DrawPaint\n"));
             fuzz_drawPaint(fuzz);
             return;
     }

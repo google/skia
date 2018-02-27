@@ -109,6 +109,7 @@ inline void Fuzz::nextRange(T* n, Min min, Max max) {
     }
     if (min > max) {
         // Avoid misuse of nextRange
+        SkDebugf("min > max (%d > %d) \n", min, max);
         this->signalBug();
     }
     if (*n < 0) { // Handle negatives
