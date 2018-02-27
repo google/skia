@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fcabc32_e4eaa706",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-27T16:02:06Z",
+      "side": 1,
+      "message": "Can\u0027t we just swap them?",
+      "revId": "838d5d2ea7ebb844c513e580bdfe265734ab1a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
