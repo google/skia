@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3e94ea25_e2baf6c4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-27T21:54:46Z",
+      "side": 1,
+      "message": "Yeah, what are you thinking?  A note on https://skia.org/user/build?",
+      "parentUuid": "9829af74_08c68da2",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 54
+      },
+      "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f552c6f_56a881b7",
         "filename": "/COMMIT_MSG",
         "patchSetId": 17
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-27T21:52:01Z",
       "side": 1,
       "message": "My only concern is branching this Thu.  If you are confident you can clean up by then, SGTM.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 54
+      },
+      "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8db3fa45_063f03ec",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-27T21:54:46Z",
+      "side": 1,
+      "message": "Oh yes definitely!  I will wait until after the branch to land this.  (Though really, AVX-512 is kind of not a big deal... but the change is significant enough, even ignoring that.)",
+      "parentUuid": "5f552c6f_56a881b7",
       "range": {
         "startLine": 14,
         "startChar": 0,
