@@ -2120,6 +2120,7 @@ void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBu
     clears[1].depthStencil.depth = 0.0f;
     clears[1].depthStencil.stencil = 0;
 
+    SkDebugf("calling begin Render Pass for image: %d\n", target->image());
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, clears, *target, *pBounds, true);
     for (int i = 0; i < buffers.count(); ++i) {
         fCurrentCmdBuffer->executeCommands(this, buffers[i]);

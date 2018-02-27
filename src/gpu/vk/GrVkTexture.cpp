@@ -162,6 +162,7 @@ GrBackendObject GrVkTexture::getTextureHandle() const {
 }
 
 GrBackendTexture GrVkTexture::getBackendTexture() const {
+    SkDebugf("called getBackendTexture image: %d\n", fInfo.fImage);
     return GrBackendTexture(this->width(), this->height(), fInfo);
 }
 
