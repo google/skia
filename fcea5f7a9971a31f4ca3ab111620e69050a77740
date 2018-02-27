@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e9e9436_217a8397",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1528,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-02-27T20:41:28Z",
+      "side": 1,
+      "message": "\"pairCount\" seems to be a little more readable and less confusing than \"pairs\".",
+      "revId": "fcea5f7a9971a31f4ca3ab111620e69050a77740",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
