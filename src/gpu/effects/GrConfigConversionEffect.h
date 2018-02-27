@@ -53,6 +53,10 @@ public:
         if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
             return false;
         }
+        // Adding discard to appease vulkan validation warning about loading uninitialized data on
+        // draw
+        readRTC->discard();
+
         GrSurfaceDesc desc;
         desc.fOrigin = kTopLeft_GrSurfaceOrigin;
         desc.fWidth = kSize;
@@ -90,6 +94,10 @@ public:
         if (!readRTC->readPixels(ii, firstRead, 0, 0, 0)) {
             return false;
         }
+
+        // Adding discard to appease vulkan validation warning about loading uninitialized data on
+        // draw
+        tempRTC->discard();
 
         paint2.addColorTextureProcessor(readRTC->asTextureProxyRef(), SkMatrix::I());
         paint2.addColorFragmentProcessor(std::move(upmToPM));

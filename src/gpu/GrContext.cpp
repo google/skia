@@ -871,6 +871,9 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                                                           GrMipMapped::kNo,
                                                           tempDrawInfo.fTempSurfaceDesc.fOrigin);
         if (tempRTC) {
+            // Adding discard to appease vulkan validation warning about loading uninitialized data
+            // on draw
+            tempRTC->discard();
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
             sk_sp<GrTextureProxy> proxy = src->asTextureProxyRef();
             auto fp = GrSimpleTextureEffect::Make(std::move(proxy), textureMatrix);
