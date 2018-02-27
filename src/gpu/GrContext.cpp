@@ -77,14 +77,26 @@ public:
         delete fFullAtlasManager;
     }
 
+    void resetContext(uint32_t state = kAll_GrBackendState) override {
+        INHERITED::resetContext(state);
+
+        fGpu->markContextDirty(state);
+    }
+
+
     void abandonContext() override {
         INHERITED::abandonContext();
+
         fFullAtlasManager->freeAll();
+
+        fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
     }
 
     void releaseResourcesAndAbandonContext() override {
         INHERITED::releaseResourcesAndAbandonContext();
         fFullAtlasManager->freeAll();
+
+        fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
     }
 
     void freeGpuResources() override {
@@ -94,9 +106,18 @@ public:
         INHERITED::freeGpuResources();
     }
 
+    GrGpu* onGetGpu() override {
+        return fGpu.get();
+    }
+
 protected:
-    bool init(const GrContextOptions& options) override {
-        if (!INHERITED::init(options)) {
+    bool init(sk_sp<GrGpu> gpu, const GrContextOptions& options) override {
+        SkASSERT(gpu && !fGpu);
+
+        fGpu = std::move(gpu);
+        fCaps = fGpu->refCaps();
+
+        if (!INHERITED::initCommon(options)) {
             return false;
         }
 
@@ -125,6 +146,7 @@ protected:
     GrAtlasManager* onGetFullAtlasManager() override { return fFullAtlasManager; }
 
 private:
+    sk_sp<GrGpu>    fGpu;
     GrAtlasManager* fFullAtlasManager;
 
     typedef GrContext INHERITED;
@@ -137,12 +159,18 @@ private:
 class SK_API GrDDLContext : public GrContext {
 public:
     GrDDLContext(GrContextThreadSafeProxy* proxy)
-            : INHERITED(proxy)
+            : INHERITED(proxy->fBackend, proxy->fContextUniqueID)
             , fRestrictedAtlasManager(nullptr) {
+        fCaps = proxy->fCaps;
     }
 
     ~GrDDLContext() override {
         // The GrDDLContext doesn't actually own the fRestrictedAtlasManager so don't delete it
+    }
+
+    void resetContext(uint32_t state = kAll_GrBackendState) override {
+        SkASSERT(0); // this doesn't make sense during DDL Recording
+        INHERITED::resetContext(state);
     }
 
     void abandonContext() override {
@@ -161,8 +189,11 @@ public:
     }
 
 protected:
-    bool init(const GrContextOptions& options) override {
-        if (!INHERITED::init(options)) {
+    bool init(sk_sp<GrGpu> gpu, const GrContextOptions& options) override {
+        SkASSERT(!gpu);
+        SkASSERT(fCaps);  // should be set in ctor
+
+        if (!INHERITED::initCommon(options)) {
             return false;
         }
 
@@ -180,6 +211,10 @@ protected:
         return nullptr;
     }
 
+    GrGpu* onGetGpu() override {
+        return nullptr;
+    }
+
 private:
     GrRestrictedAtlasManager* fRestrictedAtlasManager;
 
@@ -193,15 +228,14 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext)
 
 GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
                              const GrContextOptions& options) {
-
     sk_sp<GrContext> context(new GrDirectContext(backend));
 
-    context->fGpu = GrGpu::Make(backend, backendContext, options, context.get());
-    if (!context->fGpu) {
+    sk_sp<GrGpu> gpu = GrGpu::Make(backend, backendContext, options, context.get());
+    if (!gpu) {
         return nullptr;
     }
 
-    if (!context->init(options)) {
+    if (!context->init(std::move(gpu), options)) {
         return nullptr;
     }
 
@@ -217,11 +251,12 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
                                    const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrDirectContext(kOpenGL_GrBackend));
 
-    context->fGpu = GrGLGpu::Make(std::move(interface), options, context.get());
-    if (!context->fGpu) {
+    sk_sp<GrGpu> gpu = GrGLGpu::Make(std::move(interface), options, context.get());
+    if (!gpu) {
         return nullptr;
     }
-    if (!context->init(options)) {
+
+    if (!context->init(std::move(gpu), options)) {
         return nullptr;
     }
     return context;
@@ -245,13 +280,15 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrDirectContext(kMock_GrBackend));
 
-    context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
-    if (!context->fGpu) {
+    sk_sp<GrGpu> gpu = GrMockGpu::Make(mockOptions, options, context.get());
+    if (!gpu) {
         return nullptr;
     }
-    if (!context->init(options)) {
+
+    if (!context->init(std::move(gpu), options)) {
         return nullptr;
     }
+
     return context;
 }
 
@@ -265,11 +302,12 @@ sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendCo
                                        const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrDirectContext(kVulkan_GrBackend));
 
-    context->fGpu = GrVkGpu::Make(std::move(backendContext), options, context.get());
-    if (!context->fGpu) {
+    sk_sp<GrGpu> gpu = GrVkGpu::Make(std::move(backendContext), options, context.get());
+    if (!gpu) {
         return nullptr;
     }
-    if (!context->init(options)) {
+
+    if (!context->init(std::move(gpu), options)) {
         return nullptr;
     }
     return context;
@@ -310,14 +348,14 @@ sk_sp<GrContext> GrContextPriv::MakeDDL(GrContextThreadSafeProxy* proxy) {
 
     // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
     // also not be created
-    if (!context->init(proxy->fOptions)) {
+    if (!context->init(nullptr, proxy->fOptions)) {
         return nullptr;
     }
     return context;
 }
 
-GrContext::GrContext(GrBackend backend)
-        : fUniqueID(next_id())
+GrContext::GrContext(GrBackend backend, int32_t id)
+        : fUniqueID(SK_InvalidGenID == id ? next_id() : id)
         , fBackend(backend) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
@@ -325,23 +363,15 @@ GrContext::GrContext(GrBackend backend)
     fAtlasGlyphCache = nullptr;
 }
 
-GrContext::GrContext(GrContextThreadSafeProxy* proxy)
-        : fCaps(proxy->fCaps)
-        , fUniqueID(proxy->fContextUniqueID)
-        , fBackend(proxy->fBackend) {
-    fResourceCache = nullptr;
-    fResourceProvider = nullptr;
-    fProxyProvider = nullptr;
-    fAtlasGlyphCache = nullptr;
-}
-
-bool GrContext::init(const GrContextOptions& options) {
+bool GrContext::initCommon(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
 
-    if (fGpu) {
-        fCaps = fGpu->refCaps();
+    SkASSERT(fCaps);  // needs to have been initialized by derived classes
+
+    GrGpu* gpu = this->contextPriv().getGpu();
+    if (gpu) {
         fResourceCache = new GrResourceCache(fCaps.get(), fUniqueID);
-        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner,
+        fResourceProvider = new GrResourceProvider(gpu, fResourceCache, &fSingleOwner,
                                                    options.fExplicitlyAllocateGPUResources);
     }
 
@@ -392,7 +422,7 @@ bool GrContext::init(const GrContextOptions& options) {
     fAtlasGlyphCache = new GrAtlasGlyphCache;
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
-                                             this, this->uniqueID(), SkToBool(fGpu)));
+                                             this, this->uniqueID(), SkToBool(gpu)));
 
     if (options.fExecutor) {
         fTaskGroup = skstd::make_unique<SkTaskGroup>(*options.fExecutor);
@@ -474,8 +504,6 @@ void GrContext::abandonContext() {
     // don't try to free the resources in the API.
     fResourceCache->abandonAll();
 
-    fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
-
     fAtlasGlyphCache->freeAll();
     fTextBlobCache->freeAll();
 }
@@ -493,15 +521,12 @@ void GrContext::releaseResourcesAndAbandonContext() {
     // Release all resources in the backend 3D API.
     fResourceCache->releaseAll();
 
-    fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
-
     fAtlasGlyphCache->freeAll();
     fTextBlobCache->freeAll();
 }
 
 void GrContext::resetContext(uint32_t state) {
     ASSERT_SINGLE_OWNER
-    fGpu->markContextDirty(state);
 }
 
 void GrContext::freeGpuResources() {
@@ -737,6 +762,13 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     ASSERT_OWNED_PROXY_PRIV(dst->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "writeSurfacePixels", fContext);
 
+    GrGpu* gpu = this->getGpu();
+    if (!gpu) {
+        // DDL TODO: these should be buffered up prior to this call. This is low priority,
+        // however, and more for debugging purposes.
+        return false;
+    }
+
     if (!dst->asSurfaceProxy()->instantiate(this->resourceProvider())) {
         return false;
     }
@@ -776,9 +808,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     GrSRGBConversion srgbConversion = determine_write_pixels_srgb_conversion(
             srcColorType, srcColorSpace, GrPixelConfigIsSRGBEncoded(dstProxy->config()),
             dst->colorSpaceInfo().colorSpace(), *fContext->caps());
-    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
-                                            srcColorType, srgbConversion, &drawPreference,
-                                            &tempDrawInfo)) {
+    if (!gpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
+                                 srcColorType, srgbConversion, &drawPreference, &tempDrawInfo)) {
         return false;
     }
 
@@ -830,8 +861,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
             this->flush(tempProxy.get());
         }
 
-        if (!fContext->fGpu->writePixels(texture, tempProxy->origin(), 0, 0, width, height,
-                                         tempDrawInfo.fWriteColorType, buffer, rowBytes)) {
+        if (!gpu->writePixels(texture, tempProxy->origin(), 0, 0, width, height,
+                              tempDrawInfo.fWriteColorType, buffer, rowBytes)) {
             return false;
         }
         tempProxy = nullptr;
@@ -855,8 +886,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
             this->flushSurfaceWrites(renderTargetContext->asRenderTargetProxy());
         }
     } else {
-        return fContext->fGpu->writePixels(dstSurface, dstProxy->origin(), left, top, width, height,
-                                           srcColorType, buffer, rowBytes);
+        return gpu->writePixels(dstSurface, dstProxy->origin(), left, top, width, height,
+                                srcColorType, buffer, rowBytes);
     }
     return true;
 }
@@ -872,6 +903,13 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     SkASSERT(src);
     ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
+
+    GrGpu* gpu = this->getGpu();
+    if (!gpu) {
+        // DDL TODO: these should be buffered up prior to this call. This is low priority,
+        // however, and more for debugging purposes.
+        return false;
+    }
 
     // MDB TODO: delay this instantiation until later in the method
     if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
@@ -915,9 +953,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
             GrPixelConfigIsSRGBEncoded(srcProxy->config()), src->colorSpaceInfo().colorSpace(),
             dstColorType, dstColorSpace, *fContext->caps());
 
-    if (!fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
-                                           dstColorType, srgbConversion, &drawPreference,
-                                           &tempDrawInfo)) {
+    if (!gpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
+                                dstColorType, srgbConversion, &drawPreference, &tempDrawInfo)) {
         return false;
     }
 
@@ -1000,8 +1037,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
 
     GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
 
-    if (!fContext->fGpu->readPixels(surfaceToRead, proxyToRead->origin(), left, top, width, height,
-                                    colorTypeToRead, buffer, rowBytes)) {
+    if (!gpu->readPixels(surfaceToRead, proxyToRead->origin(), left, top, width, height,
+                         colorTypeToRead, buffer, rowBytes)) {
         return false;
     }
 
@@ -1355,7 +1392,9 @@ SkString GrContext::dump() const {
     fCaps->dumpJSON(&writer);
 
     writer.appendName("gpu");
-    fGpu->dumpJSON(&writer);
+    if (const GrGpu* gpu = this->contextPriv().getGpu()) {
+        gpu->dumpJSON(&writer);
+    }
 
     // Flush JSON to the memory stream
     writer.endObject();

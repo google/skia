@@ -408,8 +408,8 @@ public:
         void incStencilAttachmentCreates() { fStencilAttachmentCreates++; }
         void incNumDraws() { fNumDraws++; }
         void incNumFailedDraws() { ++fNumFailedDraws; }
-        void dump(SkString*);
-        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
+        void dump(SkString*) const;
+        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
         int numDraws() const { return fNumDraws; }
         int numFailedDraws() const { return fNumFailedDraws; }
     private:
@@ -436,6 +436,7 @@ public:
     };
 
     Stats* stats() { return &fStats; }
+    const Stats* stats() const { return &fStats; }
     void dumpJSON(SkJSONWriter*) const;
 
     /** Creates a texture directly in the backend API without wrapping it in a GrTexture. This is
