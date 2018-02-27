@@ -457,6 +457,7 @@ private:
     friend struct RunHead;
     friend class Iterator;
     friend class Spanerator;
+    friend class SkRegionPriv;
     friend class SkRgnBuilder;
     friend class SkFlatRegion;
 };
