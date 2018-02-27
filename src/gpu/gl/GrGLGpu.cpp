@@ -692,11 +692,13 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
              // We don't currently support writing pixels to EXTERNAL textures.
              return false;
         }
+        /*
         if (GrPixelConfigIsUnorm(texture->config()) && texture->hasBaseLevelBeenBoundToFBO() &&
             this->glCaps().disallowTexSubImageForUnormConfigTexturesEverBoundToFBO() &&
             (width < dstSurface->width() || height < dstSurface->height())) {
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
         }
+         */
     } else {
         // This subclass only allows writes to textures. If the dst is not a texture we have to draw
         // into it. We could use glDrawPixels on GLs that have it, but we don't today.

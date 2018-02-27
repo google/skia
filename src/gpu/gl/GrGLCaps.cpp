@@ -2404,6 +2404,23 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
     }
 }
 
+bool GrGLCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
+    if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
+        if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
+            if (tex->hasBaseLevelBeenBoundToFBO()) {
+                return false;
+            }
+        }
+    }
+    if (auto rt = surface->asRenderTarget()) {
+        if (rt->numColorSamples() > 1) {
+            return false;
+        }
+        return SkToBool(surface->asTexture());
+    }
+    return true;
+}
+
 bool GrGLCaps::onIsMixedSamplesSupportedForRT(const GrBackendRenderTarget& backendRT) const {
     const GrGLFramebufferInfo* fbInfo = backendRT.getGLFramebufferInfo();
     SkASSERT(fbInfo);
