@@ -48,6 +48,7 @@ enum comments should be disallowed unless after #Enum and before first #Const
 trouble with aliases, plurals
     need to keep first letter of includeWriter @param / @return lowercase
     Quad -> quad, Quads -> quads
+deprecated methods should be sorted down in md out, and show include "Deprecated." text body.
 see head of selfCheck.cpp for additional todos
  */
 
@@ -60,7 +61,7 @@ see head of selfCheck.cpp for additional todos
  */
 
 bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markType,
-        const vector<string>& typeNameBuilder) {
+        const vector<string>& typeNameBuilder, HasTag hasTag) {
     Definition* definition = nullptr;
     switch (markType) {
         case MarkType::kComment:
@@ -144,6 +145,11 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                         return false;
                     }
                 }
+                if (HasTag::kYes == hasTag) {
+                    if (!this->checkEndMarker(markType, definition->fName)) {
+                        return false;
+                    }
+                }
                 if (!this->popParentStack(definition)) {
                     return false;
                 }
@@ -153,6 +159,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 definition->fFileName = fFileName;
                 definition->fContentStart = fChar;
                 definition->fLineCount = fLineCount;
+                if (string::npos != definition->fName.find("MakeFromTexture")) {
+                    SkDebugf("");
+                }
                 definition->fClone = fCloned;
                 if (MarkType::kConst == markType) {
                     // todo: require that fChar points to def on same line as markup
@@ -221,6 +230,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 string fullTopic = hasEnd ? fParent->fFiddle : definition->fFiddle;
                 Definition* defPtr = fTopicMap[fullTopic];
                 if (hasEnd) {
+                    if (HasTag::kYes == hasTag && !this->checkEndMarker(markType, fullTopic)) {
+                        return false;
+                    }
                     if (!definition) {
                         definition = defPtr;
                     } else if (definition != defPtr) {
@@ -366,6 +378,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kDuration:
         case MarkType::kFile:
         case MarkType::kHeight:
+        case MarkType::kIllustration:
         case MarkType::kImage:
 		case MarkType::kIn:
 		case MarkType::kLine:
@@ -469,6 +482,33 @@ void BmhParser::reportDuplicates(const Definition& def, const string& dup) const
     }
 }
 
+
+static Definition* find_fiddle(Definition* def, string name) {
+    if (MarkType::kExample == def->fMarkType && name == def->fFiddle) {
+        return def;
+    }
+    for (auto& child : def->fChildren) {
+        Definition* result = find_fiddle(child, name);
+        if (result) {
+            return result;
+        }
+    }
+    return nullptr;
+}
+
+Definition* BmhParser::findExample(string name) const {
+    for (const auto& topic : fTopicMap) {
+        if (topic.second->fParent) {
+            continue;
+        }
+        Definition* def = find_fiddle(topic.second, name);
+        if (def) {
+            return def;
+        }
+    }
+    return nullptr;
+}
+
 static void find_examples(const Definition& def, vector<string>* exampleNames) {
     if (MarkType::kExample == def.fMarkType) {
         exampleNames->push_back(def.fFiddle);
@@ -476,6 +516,39 @@ static void find_examples(const Definition& def, vector<string>* exampleNames) {
     for (auto& child : def.fChildren ) {
         find_examples(*child, exampleNames);
     }
+}
+
+bool BmhParser::checkEndMarker(MarkType markType, string match) const {
+    TextParser tp(fFileName, fLine, fChar, fLineCount);
+    tp.skipSpace();
+    if (fMC != tp.next()) {
+        return this->reportError<bool>("mismatched end marker expect #");
+    }
+    const char* nameStart = tp.fChar;
+    tp.skipToNonAlphaNum();
+    string markName(nameStart, tp.fChar - nameStart);
+    if (fMaps[(int) markType].fName != markName) {
+        return this->reportError<bool>("expected #XXX ## to match");
+    }
+    tp.skipSpace();
+    nameStart = tp.fChar;
+    tp.skipToNonAlphaNum();
+    markName = string(nameStart, tp.fChar - nameStart);
+    if ("" == markName) {
+        if (fMC != tp.next() || fMC != tp.next()) {
+            return this->reportError<bool>("expected ##");
+        }
+        return true;
+    }
+    std::replace(markName.begin(), markName.end(), '-', '_');
+    auto defPos = match.rfind(markName);
+    if (string::npos == defPos) {
+        return this->reportError<bool>("mismatched end marker v1");
+    }
+    if (markName.size() != match.size() - defPos) {
+        return this->reportError<bool>("mismatched end marker v2");
+    }
+    return true;
 }
 
 bool BmhParser::checkExamples() const {
@@ -731,7 +804,8 @@ bool BmhParser::findDefinitions() {
                     } else {
                         vector<string> parentName;
                         parentName.push_back(fParent->fName);
-                        if (!this->addDefinition(fChar - 1, true, fParent->fMarkType, parentName)) {
+                        if (!this->addDefinition(fChar - 1, true, fParent->fMarkType, parentName,
+                                HasTag::kNo)) {
                             return false;
                         }
                     }
@@ -775,7 +849,8 @@ bool BmhParser::findDefinitions() {
                 if (hasEnd && expectEnd) {
                     SkASSERT(fMC != this->peek());
                 }
-                if (!this->addDefinition(defStart, hasEnd, markType, typeNameBuilder)) {
+                if (!this->addDefinition(defStart, hasEnd, markType, typeNameBuilder,
+                        HasTag::kYes)) {
                     return false;
                 }
                 continue;
@@ -1527,6 +1602,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kDuration:
         case MarkType::kFile:
         case MarkType::kHeight:
+        case MarkType::kIllustration:
         case MarkType::kImage:
 		case MarkType::kIn:
         case MarkType::kLiteral:
@@ -1613,10 +1689,17 @@ string BmhParser::uniqueName(const string& base, MarkType markType) {
     int number = 2;
     string numBuilder(builder);
     do {
-        for (const auto& iter : fParent->fChildren) {
+        for (auto& iter : fParent->fChildren) {
             if (markType == iter->fMarkType) {
                 if (iter->fName == numBuilder) {
-                    fCloned = true;
+                    if (string::npos != iter->fName.find("MakeFromTexture")) {
+                        SkDebugf("");
+                    }
+                    if (iter->fDeprecated) {
+                        iter->fClone = true;
+                    } else {
+                        fCloned = true;
+                    }
                     numBuilder = builder + '_' + to_string(number);
                     goto tryNext;
                 }
@@ -1668,9 +1751,18 @@ tryNext: ;
             builder = builder.substr(0, builder.length() - 2);
         }
         if (MarkType::kMethod == markType) {
+            if (string::npos != cloned->fName.find("MakeFromTexture")) {
+                SkDebugf("");
+            }
             cloned->fCloned = true;
+            if (cloned->fDeprecated) {
+                cloned->fClone = true;
+            } else {
+                fCloned = true;
+            }
+        } else {
+            fCloned = true;
         }
-        fCloned = true;
         numBuilder = builder + '_' + to_string(number);
     } while (++number);
     return numBuilder;
