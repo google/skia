@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10b9a942_c826f79e",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-27T16:32:13Z",
+      "side": 1,
+      "message": "should we have some helper function for GLSLExtendedInstructions that takes the function name (e.g. GLSLstd450FClamp) and the vector for args and does this all instead of repeating it?",
+      "range": {
+        "startLine": 896,
+        "startChar": 12,
+        "endLine": 915,
+        "endChar": 42
+      },
+      "revId": "ee7e32cfbdf999dbe6ff3e3d0f8add535f004ffe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
