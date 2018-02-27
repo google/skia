@@ -10,6 +10,7 @@
 
 #include "../private/GrTypesPriv.h"
 #include "GrBlend.h"
+#include "GrCaps.h"
 #include "GrShaderCaps.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
@@ -20,6 +21,7 @@ class GrBackendRenderTarget;
 class GrBackendTexture;
 struct GrContextOptions;
 class GrRenderTargetProxy;
+class GrSurface;
 class SkJSONWriter;
 
 /**
@@ -186,12 +188,12 @@ public:
     }
 
     /**
-     * Some backends have restrictions on what types of render targets for which
-     * GrGpu::writePixels() will succeed. If this returns false then the caller should implement a
-     * fallback where a temporary texture is created, pixels are written to it, and then that is
-     * copied or drawn into the the render target.
+     * Backends may have restrictions on what types of surfaces support GrGpu::writePixels().
+     * If this returns false then the caller should implement a fallback where a temporary texture
+     * is created, pixels are written to it, and then that is copied or drawn into the the render
+     * target. If the surface is not a render target then we simply fail.
      */
-    virtual bool renderTargetWritePixelsSupported(bool isAlsoTexture, int sampleCnt) const = 0;
+    virtual bool surfaceSupportsWritePixels(const GrSurface* surface) const = 0;
 
     /**
      * Given a dst pixel config and a src color type what color type must the caller coax the

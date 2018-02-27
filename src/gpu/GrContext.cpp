@@ -965,10 +965,10 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
         return false;
     }
 
-    auto dstRTProxy = dstProxy->asRenderTargetProxy();
-    if (dstRTProxy &&
-        !fContext->caps()->renderTargetWritePixelsSupported(SkToBool(dstProxy->asTextureProxy()),
-                                                            dstRTProxy->numColorSamples())) {
+    if (!fContext->caps()->surfaceSupportsWritePixels(dstSurface)) {
+        if (!dstSurface->asRenderTarget()) {
+            return false;
+        }
         GrSurfaceDesc desc;
         desc.fConfig = dstProxy->config();
         desc.fWidth = width;
