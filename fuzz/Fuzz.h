@@ -134,9 +134,10 @@ struct Fuzzable {
     void (*fn)(Fuzz*);
 };
 
+// Not static so that we can link these into oss-fuzz harnesses if we like.
 #define DEF_FUZZ(name, f)                                               \
-    static void fuzz_##name(Fuzz*);                                     \
+    void fuzz_##name(Fuzz*);                                            \
     sk_tools::Registry<Fuzzable> register_##name({#name, fuzz_##name}); \
-    static void fuzz_##name(Fuzz* f)
+    void fuzz_##name(Fuzz* f)
 
 #endif//Fuzz_DEFINED
