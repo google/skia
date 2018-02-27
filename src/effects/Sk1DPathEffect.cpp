@@ -12,13 +12,18 @@
 #include "SkPathMeasure.h"
 #include "SkStrokeRec.h"
 
+// Since we are stepping by a float, the do/while loop might go on forever (or nearly so).
+// Put in a governor to limit crash values from looping too long (and allocating too much ram).
+#define MAX_REASONABLE_ITERATIONS   100000
+
 bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
                                 SkStrokeRec*, const SkRect*) const {
     SkPathMeasure   meas(src, false);
     do {
+        int governor = MAX_REASONABLE_ITERATIONS;
         SkScalar    length = meas.getLength();
         SkScalar    distance = this->begin(length);
-        while (distance < length) {
+        while (distance < length && --governor >= 0) {
             SkScalar delta = this->next(dst, distance, meas);
             if (delta <= 0) {
                 break;
