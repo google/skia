@@ -3186,7 +3186,7 @@ replace <a href="SkPath_Reference#Path">Path</a> with a modification when drawn<
 ## <a name="Mask_Filter_Methods"></a> Mask Filter Methods
 
 <a href="undocumented#Mask_Filter">Mask Filter</a> uses coverage of the shape drawn to create <a href="undocumented#Mask_Alpha">Mask Alpha</a>.
-<a href="undocumented#Mask_Filter">Mask Filter</a> takes a <a href="undocumented#Mask">Mask</a>, and returns a <a href="undocumented#Mask">Mask</a>.
+<a href="undocumented#Mask_Filter">Mask Filter</a> takes a Mask, and returns a Mask.
 
 <a href="undocumented#Mask_Filter">Mask Filter</a> may change the geometry and transparency of the shape, such as
 creating a blur effect. Set <a href="undocumented#Mask_Filter">Mask Filter</a> to nullptr to prevent <a href="undocumented#Mask_Filter">Mask Filter</a> from

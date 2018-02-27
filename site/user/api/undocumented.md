@@ -99,6 +99,15 @@ int SkColorSetARGB(a, r, g, b)
 
 ---
 
+<a name="SkPreMultiplyARGB"></a>
+## SkPreMultiplyARGB
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+</pre>
+
+---
+
 ### Constants
 
 <table>
@@ -134,6 +143,8 @@ int SkColorSetARGB(a, r, g, b)
 ## <a name="RBG"></a> RBG
 
 ## <a name="RGB-565"></a> RGB-565
+
+## <a name="Gray"></a> Gray
 
 # <a name="Color_Filter"></a> Color Filter
 
@@ -421,47 +432,11 @@ static sk_sp&lt;SkPixelRef&gt; MakeAllocate(const SkImageInfo&, size_t rowBytes)
 
 ---
 
-# <a name="Mask"></a> Mask
-
-# <a name="SkMask"></a> Class SkMask
-
-## <a name="SkMask_Format"></a> Enum SkMask::Format
-
-### Constants
-
-<table>
-  <tr>
-    <td><a name="SkMask_kBW_Format"> <code><strong>SkMask::kBW_Format </strong></code> </a></td><td>0</td><td></td>
-  </tr>
-  <tr>
-    <td><a name="SkMask_kA8_Format"> <code><strong>SkMask::kA8_Format </strong></code> </a></td><td>1</td><td></td>
-  </tr>
-  <tr>
-    <td><a name="SkMask_k3D_Format"> <code><strong>SkMask::k3D_Format </strong></code> </a></td><td>2</td><td></td>
-  </tr>
-  <tr>
-    <td><a name="SkMask_kARGB32_Format"> <code><strong>SkMask::kARGB32_Format </strong></code> </a></td><td>3</td><td></td>
-  </tr>
-k  <tr>
-    <td><a name="SkMask_LCD16_Format"> <code><strong>SkMask::LCD16_Format </strong></code> </a></td><td>4</td><td></td>
-  </tr>
-
-</table>
-
 # <a name="Mask_Alpha"></a> Mask Alpha
 
 # <a name="Mask_Filter"></a> Mask Filter
 
 # <a name="SkMaskFilter"></a> Class SkMaskFilter
-
-<a name="SkMaskFilter_filterMask"></a>
-## filterMask
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&, SkIPoint* margin) const
-</pre>
-
----
 
 <a name="SkMaskFilter_toString"></a>
 ## toString

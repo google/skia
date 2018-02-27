@@ -1234,9 +1234,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 case KeyWord::kStruct:
                 case KeyWord::kClass:
                     fStructMemberTab = 0;
-                    if ("FontMetrics" == child.fName) {
-                        SkDebugf("");
-                    }
                     // if struct contains members, compute their name and comment tabs
                     if (child.fChildren.size() > 0) {
                         const ParentPair* testPair = &pair;
@@ -1407,9 +1404,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                         return false;
                     }
                 } else {
-                    if ("FontMetrics" == child.fName) {
-                        SkDebugf("");
-                    }
                     if (!this->populate(&child, &pair, root)) {
                         return false;
                     }
@@ -1660,9 +1654,6 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
         RefType* refType) {
         // look up Xxx_Xxx
     string undername(start, end - start);
-    if ("Paint_Stroke_Width" == undername) {
-        SkDebugf("");
-    }
     for (const auto& external : fBmhParser->fExternals) {
         if (external.fName == undername) {
             *refType = RefType::kExternal;

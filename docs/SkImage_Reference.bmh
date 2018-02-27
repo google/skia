@@ -381,7 +381,8 @@ for (int quality : { 100, 50, 10, 1} ) {
                                           SkColorType colorType,
                                           SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace)
-
+#In Constructor
+#Line # creates Image from GPU_Texture ##
 Creates Image from GPU_Texture associated with context. Caller is responsible for
 managing the lifetime of GPU_Texture.
 

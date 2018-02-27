@@ -3275,7 +3275,7 @@ Uses HeapAllocator to reserve memory for dst Pixel_Ref.
 Sets dst to Alpha described by pixels. Returns false if dst cannot be written to
 or dst pixels cannot be allocated.
 
-If paint is not nullptr and contains Mask_Filter, SkMaskFilter::filterMask 
+If paint is not nullptr and contains Mask_Filter, SkMaskFilter 
 generates Mask_Alpha from Bitmap. Uses HeapAllocator to reserve memory for dst
 Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
 (0, 0) unless SkMaskFilter generates mask.
@@ -3322,7 +3322,7 @@ Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
 Sets dst to Alpha described by pixels. Returns false if dst cannot be written to
 or dst pixels cannot be allocated.
 
-If paint is not nullptr and contains Mask_Filter, SkMaskFilter::filterMask 
+If paint is not nullptr and contains Mask_Filter, SkMaskFilter 
 generates Mask_Alpha from Bitmap. allocator may reference a custom allocation
 class or be set to nullptr to use HeapAllocator. Sets offset to top-left  
 position for dst for alignment with Bitmap; (0, 0) unless SkMaskFilter generates

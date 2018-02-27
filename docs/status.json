@@ -29,6 +29,7 @@
             "SkMatrix_Reference.bmh",
             "SkPixmap_Reference.bmh",
             "SkSurface_Reference.bmh",
+            "illustrations.bmh",
             "undocumented.bmh"
         ]
     },

@@ -111,6 +111,8 @@ FT_Load_Glyph
     ##
     #Method int SkColorSetARGB(a, r, g, b)
     ##
+    #Method SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+    ##
 
     #Const SK_ColorBLACK 0xFF000000 
     ##
@@ -149,6 +151,9 @@ FT_Load_Glyph
     #Substitute RGB-565
     #Alias Color_RGB-565 # quit changing - to _ !
     #Subtopic ##
+
+    #Subtopic Gray
+    ##
 #Topic ##
 
 #Topic Color_Filter
@@ -377,31 +382,11 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic Mask
-#Class SkMask
-    #Enum Format
-        #Const kBW_Format 0
-        ##
-        #Const kA8_Format 1
-        ##
-        #Const k3D_Format 2
-        ##
-        #Const kARGB32_Format 3
-        ##
-        k#Const LCD16_Format 4
-        ##
-    ##
-##
-#Topic ##
-
 #Topic Mask_Alpha
 #Topic ##
 
 #Topic Mask_Filter
 #Class SkMaskFilter
-#Method virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
-                            SkIPoint* margin) const
-##
 #Method void toString(SkString* str) const 
 ##
 #Class ##
