@@ -26,7 +26,7 @@ enum SerializationVersions {
     // kPathPrivFirstDirection_Version = 1,
     kPathPrivLastMoveToIndex_Version = 2,
     kPathPrivTypeEnumVersion = 3,
-    kJustPublicData_Version = 4,
+    kJustPublicData_Version = 4,    // introduced Feb/2018
 
     kCurrent_Version = kJustPublicData_Version
 };
