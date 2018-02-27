@@ -40,6 +40,7 @@
 #include "SkBlitRow_opts.h"
 #include "SkChecksum_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
+#include "SkRasterPipeline_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
@@ -81,11 +82,26 @@ namespace SkOpts {
 
 #undef DEFINE_DEFAULT
 
+#define M(st) (StageFn)SK_OPTS_NS::st,
+    StageFn stages_highp[] = { SK_RASTER_PIPELINE_STAGES(M) };
+    StageFn just_return_highp = (StageFn)SK_OPTS_NS::just_return;
+    void (*start_pipeline_highp)(size_t,size_t,size_t,size_t,void**)
+        = SK_OPTS_NS::start_pipeline;
+#undef M
+
+#define M(st) (StageFn)SK_OPTS_NS::lowp::st,
+    StageFn stages_lowp[] = { SK_RASTER_PIPELINE_STAGES(M) };
+    StageFn just_return_lowp = (StageFn)SK_OPTS_NS::lowp::just_return;
+    void (*start_pipeline_lowp)(size_t,size_t,size_t,size_t,void**)
+        = SK_OPTS_NS::lowp::start_pipeline;
+#undef M
+
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
     void Init_sse41();
     void Init_sse42();
     void Init_avx();
+    void Init_hsw();
     void Init_crc32();
 
     static void init() {
@@ -104,7 +120,8 @@ namespace SkOpts {
         #endif
 
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX
-            if (SkCpu::Supports(SkCpu::AVX  )) { Init_avx();   }
+            if (SkCpu::Supports(SkCpu::AVX)) { Init_avx();   }
+            if (SkCpu::Supports(SkCpu::HSW)) { Init_hsw();   }
         #endif
 
     #elif defined(SK_CPU_ARM64)
