@@ -40,6 +40,7 @@
 #include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
 #include "SkTraceEvent.h"
+#include "SkYUVImage.h"
 
 SkImage_Gpu::SkImage_Gpu(GrContext* context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy,
@@ -512,7 +513,7 @@ static sk_sp<SkImage> make_from_yuv_objects_copy(GrContext* ctx, SkYUVColorSpace
                                        std::move(imageColorSpace));
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
+sk_sp<SkImage> SkYUVImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                 const GrBackendObject yuvTextureHandles[3],
                                                 const SkISize yuvSizes[3], GrSurfaceOrigin origin,
                                                 sk_sp<SkColorSpace> imageColorSpace) {
@@ -520,7 +521,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
                                       std::move(imageColorSpace));
 }
 
-sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
+sk_sp<SkImage> SkYUVImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                  const GrBackendObject yuvTextureHandles[2],
                                                  const SkISize yuvSizes[2],
                                                  GrSurfaceOrigin origin,
@@ -529,7 +530,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
                                       std::move(imageColorSpace));
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
+sk_sp<SkImage> SkYUVImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                 const GrBackendTexture yuvBackendTextures[3],
                                                 const SkISize yuvSizes[3], GrSurfaceOrigin origin,
                                                 sk_sp<SkColorSpace> imageColorSpace) {
@@ -537,7 +538,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
                                        std::move(imageColorSpace));
 }
 
-sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
+sk_sp<SkImage> SkYUVImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                  const GrBackendTexture yuvBackendTextures[2],
                                                  const SkISize yuvSizes[2],
                                                  GrSurfaceOrigin origin,

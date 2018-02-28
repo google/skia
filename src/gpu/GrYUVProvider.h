@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "SkImageInfo.h"
+#include "SkYUVImageInfo.h"
 #include "SkYUVSizeInfo.h"
 
 class GrContext;
