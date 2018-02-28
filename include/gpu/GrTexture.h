@@ -18,6 +18,7 @@
 #include "../private/GrTypesPriv.h"
 
 class GrTexturePriv;
+enum class SkDestinationSurfaceColorMode;
 
 class GrTexture : virtual public GrSurface {
 public:
