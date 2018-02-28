@@ -55,7 +55,7 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
     // alloc is null
     {
         GrVkImageInfo backendCopy = *imageInfo;
-        backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
+        backendCopy.fAlloc = GrVkAlloc();
         GrBackendTexture backendTex = GrBackendTexture(kW, kH, backendCopy);
         tex = gpu->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership);
         REPORTER_ASSERT(reporter, !tex);
@@ -100,7 +100,7 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     // alloc is null
     {
         GrVkImageInfo backendCopy = *imageInfo;
-        backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
+        backendCopy.fAlloc = GrVkAlloc();
         // can wrap null alloc
         GrBackendRenderTarget backendRT(kW, kH, 1, 0, backendCopy);
         rt = gpu->wrapBackendRenderTarget(backendRT);
@@ -138,7 +138,7 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
     // alloc is null
     {
         GrVkImageInfo backendCopy = *imageInfo;
-        backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
+        backendCopy.fAlloc = GrVkAlloc();
         GrBackendTexture backendTex = GrBackendTexture(kW, kH, backendCopy);
         tex = gpu->wrapRenderableBackendTexture(backendTex, 1, kBorrow_GrWrapOwnership);
         REPORTER_ASSERT(reporter, !tex);
