@@ -378,6 +378,11 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         : INHERITED(zPlaneParams, transparent)
         , fSplitFirstEdge(false)
         , fSplitPreviousEdge(false) {
+    // TODO: support some concave paths
+    if (!path.isConvex()) {
+        return;
+    }
+
     // Set base colors
     SkScalar umbraAlpha = SkScalarInvert(SkDrawShadowMetrics::AmbientRecipAlpha(heightFunc(0, 0)));
     // umbraColor is the interior value, penumbraColor the exterior value.
@@ -800,6 +805,11 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     , fPrevUmbraOutside(false)
     , fFirstUmbraOutside(false)
     , fValidUmbra(true) {
+
+    // TODO: support some concave paths
+    if (!path.isConvex()) {
+        return;
+    }
 
     // make sure we're not below the canvas plane
     if (this->setZOffset(path.getBounds(), ctm.hasPerspective())) {
