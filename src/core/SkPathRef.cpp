@@ -563,8 +563,12 @@ SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
         }
     }
 
-    fVerbCnt += numVbs;
-    fPointCnt += pCnt;
+    SkSafeMath safe;
+    fVerbCnt = safe.addInt(fVerbCnt, numVbs);
+    fPointCnt = safe.addInt(fPointCnt, pCnt);
+    if (!safe) {
+        SK_ABORT("cannot grow path");
+    }
     fFreeSpace -= space;
     fBoundsIsDirty = true;  // this also invalidates fIsFinite
     if (dirtyAfterEdit) {
