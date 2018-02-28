@@ -103,25 +103,33 @@ void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* c
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrContext::purgeAllUnlockedResources() {
-    fResourceCache->purgeAllUnlocked();
+    if (GrResourceCache* resourceCache = this->contextPriv().getResourceCache()) {
+        resourceCache->purgeAllUnlocked();
+    }
 }
 
-void GrContext::resetGpuStats() const {
+void GrContext::resetGpuStats() {
 #if GR_GPU_STATS
-    fGpu->stats()->reset();
+    if (GrGpu* gpu = this->contextPriv().getGpu()) {
+        gpu->stats()->reset();
+    }
 #endif
 }
 
 void GrContext::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
-    fResourceCache->dumpStats(out);
+    if (const GrResourceCache* resourceCache = this->contextPriv().getResourceCache()) {
+        resourceCache->dumpStats(out);
+    }
 #endif
 }
 
 void GrContext::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
                                             SkTArray<double>* values) const {
 #if GR_CACHE_STATS
-    fResourceCache->dumpStatsKeyValuePairs(keys, values);
+    if (const GrResourceCache* resourceCache = this->contextPriv().getResourceCache()) {
+        resourceCache->dumpStatsKeyValuePairs(keys, values);
+    }
 #endif
 }
 
@@ -133,14 +141,18 @@ void GrContext::printCacheStats() const {
 
 void GrContext::dumpGpuStats(SkString* out) const {
 #if GR_GPU_STATS
-    return fGpu->stats()->dump(out);
+    if (const GrGpu* gpu = this->contextPriv().getGpu()) {
+        gpu->stats()->dump(out);
+    }
 #endif
 }
 
 void GrContext::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
                                           SkTArray<double>* values) const {
 #if GR_GPU_STATS
-    return fGpu->stats()->dumpKeyValuePairs(keys, values);
+    if (const GrGpu* gpu = this->contextPriv().getGpu()) {
+        gpu->stats()->dumpKeyValuePairs(keys, values);
+    }
 #endif
 }
 
@@ -166,7 +178,7 @@ sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, unsi
 }
 
 #if GR_GPU_STATS
-void GrGpu::Stats::dump(SkString* out) {
+void GrGpu::Stats::dump(SkString* out) const {
     out->appendf("Render Target Binds: %d\n", fRenderTargetBinds);
     out->appendf("Shader Compilations: %d\n", fShaderCompilations);
     out->appendf("Textures Created: %d\n", fTextureCreates);
@@ -176,7 +188,7 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Number of draws: %d\n", fNumDraws);
 }
 
-void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
+void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const {
     keys->push_back(SkString("render_target_binds")); values->push_back(fRenderTargetBinds);
     keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
     keys->push_back(SkString("texture_uploads")); values->push_back(fTextureUploads);

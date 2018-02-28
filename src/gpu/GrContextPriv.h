@@ -180,13 +180,14 @@ public:
     GrProxyProvider* proxyProvider() { return fContext->fProxyProvider; }
     const GrProxyProvider* proxyProvider() const { return fContext->fProxyProvider; }
 
-    GrResourceProvider* resourceProvider() { return fContext->fResourceProvider; }
-    const GrResourceProvider* resourceProvider() const { return fContext->fResourceProvider; }
+    GrResourceProvider* resourceProvider() { return fContext->onGetResourceProvider(); }
+    const GrResourceProvider* resourceProvider() const { return fContext->onGetResourceProvider(); }
 
-    GrResourceCache* getResourceCache() { return fContext->fResourceCache; }
+    GrResourceCache* getResourceCache() { return fContext->onGetResourceCache(); }
+    const GrResourceCache* getResourceCache() const { return fContext->onGetResourceCache(); }
 
-    GrGpu* getGpu() { return fContext->fGpu.get(); }
-    const GrGpu* getGpu() const { return fContext->fGpu.get(); }
+    GrGpu* getGpu() { return fContext->onGetGpu(); }
+    const GrGpu* getGpu() const { return fContext->onGetGpu(); }
 
     GrGlyphCache* getGlyphCache() { return fContext->fGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
