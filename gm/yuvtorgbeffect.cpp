@@ -19,6 +19,7 @@
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
+#include "SkYUVImageInfo.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrRectOpFactory.h"

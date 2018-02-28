@@ -12,6 +12,8 @@
 #define GrYUVtoRGBEffect_DEFINED
 #include "SkTypes.h"
 #if SK_SUPPORT_GPU
+
+#include "SkYUVImageInfo.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrYUVtoRGBEffect : public GrFragmentProcessor {

@@ -12,6 +12,7 @@
 #include "SkColor.h"
 #include "SkImage.h"
 #include "SkImageInfo.h"
+#include "SkYUVImageInfo.h"
 #include "SkYUVSizeInfo.h"
 
 class GrContext;

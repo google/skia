@@ -17,7 +17,7 @@
 #include "GrTest.h"
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
-#include "SkImage.h"
+#include "SkYUVImage.h"
 
 namespace skiagm {
 class ImageFromYUVTextures : public GM {
@@ -147,7 +147,7 @@ protected:
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             GrBackendTexture yuvTextures[3];
             this->createYUVTextures(context, yuvTextures);
-            images.push_back(SkImage::MakeFromYUVTexturesCopy(context,
+            images.push_back(SkYUVImage::MakeFromYUVTexturesCopy(context,
                                                               static_cast<SkYUVColorSpace>(space),
                                                               yuvTextures, sizes,
                                                               kTopLeft_GrSurfaceOrigin));

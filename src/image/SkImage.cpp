@@ -23,6 +23,11 @@
 #include "SkSpecialImage.h"
 #include "SkString.h"
 #include "SkSurface.h"
+#include "SkYUVImage.h"
+
+#ifdef SK_SUPPORT_LEGACY_YUV_COLORSPACE
+typedef SkImage SkYUVImage;
+#endif
 
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
@@ -370,7 +375,7 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
+sk_sp<SkImage> SkYUVImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
                                                 const GrBackendObject yuvTextureHandles[3],
                                                 const SkISize yuvSizes[3],
                                                 GrSurfaceOrigin origin,
@@ -378,7 +383,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
+sk_sp<SkImage> SkYUVImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
                                                 const GrBackendTexture yuvTextureHandles[3],
                                                 const SkISize yuvSizes[3],
                                                 GrSurfaceOrigin origin,

@@ -36,6 +36,10 @@ layout(key) in bool nv12;
     GrSamplerState uvSamplerParams
 }
 
+@header {
+    #include "SkYUVImageInfo.h"
+}
+
 @class {
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> yProxy,
                                                      sk_sp<GrTextureProxy> uProxy,

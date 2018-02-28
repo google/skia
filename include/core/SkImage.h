@@ -326,6 +326,7 @@ public:
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
 
+#ifdef SK_SUPPORT_LEGACY_YUV_COLORSPACE
     /** Creates SkImage from copy of yuvTextureHandles, an array of textures on GPU.
         yuvTextureHandles contain pixels for YUV planes of SkImage.
         yuvSizes contain dimensions for each pixel plane. Dimensions must be greater than
@@ -415,6 +416,7 @@ public:
                                                    const SkISize nv12Sizes[2],
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr);
+#endif
 
     enum class BitDepth {
         kU8,  //!< Use 8 bits per ARGB component using unsigned integer format.

@@ -20,6 +20,7 @@
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkTypes.h"
+#include "SkYUVImageInfo.h"
 #include "SkYUVSizeInfo.h"
 
 #include <vector>
