@@ -94,10 +94,10 @@ public:
      * within the underlying 3D API's context/device/whatever. This call informs
      * the context that the state was modified and it should resend. Shouldn't
      * be called frequently for good performance.
-     * The flag bits, state, is dpendent on which backend is used by the
+     * The flag bits, state, is dependent on which backend is used by the
      * context, either GL or D3D (possible in future).
      */
-    void resetContext(uint32_t state = kAll_GrBackendState);
+    virtual void resetContext(uint32_t state = kAll_GrBackendState) = 0;
 
     /**
      * Callback function to allow classes to cleanup on GrContext destruction.
@@ -152,7 +152,7 @@ public:
      *  @param maxResourceBytes If non-null, returns maximum number of bytes of
      *                          video memory that can be held in the cache.
      */
-    void getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const;
+    virtual void getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const = 0;
 
     /**
      *  Gets the current GPU resource cache usage.
@@ -162,12 +162,12 @@ public:
      *  @param maxResourceBytes If non-null, returns the total number of bytes of video memory held
      *                          in the cache.
      */
-    void getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const;
+    virtual void getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const = 0;
 
     /**
      *  Gets the number of bytes in the cache consumed by purgeable (e.g. unlocked) resources.
      */
-    size_t getResourceCachePurgeableBytes() const;
+    virtual size_t getResourceCachePurgeableBytes() const = 0;
 
     /**
      *  Specify the GPU resource cache limits. If the current cache exceeds either
@@ -178,7 +178,7 @@ public:
      *  @param maxResourceBytes The maximum number of bytes of video memory
      *                          that can be held in the cache.
      */
-    void setResourceCacheLimits(int maxResources, size_t maxResourceBytes);
+    virtual void setResourceCacheLimits(int maxResources, size_t maxResourceBytes) = 0;
 
     /**
      * Frees GPU created by the context. Can be called to reduce GPU memory
@@ -197,7 +197,7 @@ public:
      * Purge GPU resources that haven't been used in the past 'msNotUsed' milliseconds or are
      * otherwise marked for deletion, regardless of whether the context is under budget.
      */
-    void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
+    virtual void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
 
     // Temporary compatibility API for Android.
     void purgeResourcesNotUsedInMs(std::chrono::milliseconds msNotUsed) {
@@ -214,7 +214,7 @@ public:
      * @param preferScratchResources If true scratch resources will be purged prior to other
      *                               resource types.
      */
-    void purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources);
+    virtual void purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources) = 0;
 
     /** Access the context capabilities */
     const GrCaps* caps() const { return fCaps.get(); }
@@ -313,7 +313,7 @@ public:
     bool abandoned() const;
 
     /** Reset GPU stats */
-    void resetGpuStats() const ;
+    void resetGpuStats();
 
     /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
     void dumpCacheStats(SkString*) const;
@@ -356,20 +356,25 @@ public:
     const GrContextPriv contextPriv() const;
 
 protected:
-    GrContext(GrContextThreadSafeProxy*);
-    GrContext(GrBackend);
+    GrContext(GrBackend, int32_t id = SK_InvalidGenID);
 
-    virtual bool init(const GrContextOptions&); // init must be called after either constructor.
+    bool initCommon(const GrContextOptions&);
+    virtual bool init(sk_sp<GrGpu>, const GrContextOptions&) = 0; // must be called after the ctor!
 
     virtual GrAtlasManager* onGetFullAtlasManager() = 0;
     virtual GrRestrictedAtlasManager* onGetRestrictedAtlasManager() = 0;
+    virtual GrGpu* onGetGpu() = 0;
+    virtual GrResourceCache* onGetResourceCache() = 0;
+    virtual GrResourceProvider* onGetResourceProvider() = 0;
 
     sk_sp<const GrCaps>                     fCaps;
 
+    // In debug builds we guard against improper thread handling
+    // This guard is passed to the GrDrawingManager and, from there to all the
+    // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
+    mutable GrSingleOwner                   fSingleOwner;
+
 private:
-    sk_sp<GrGpu>                            fGpu;
-    GrResourceCache*                        fResourceCache;
-    GrResourceProvider*                     fResourceProvider;
     GrProxyProvider*                        fProxyProvider;
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
@@ -382,11 +387,6 @@ private:
     bool                                    fDidTestPMConversions;
     // true if the PM/UPM conversion succeeded; false otherwise
     bool                                    fPMUPMConversionsRoundTrip;
-
-    // In debug builds we guard against improper thread handling
-    // This guard is passed to the GrDrawingManager and, from there to all the
-    // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
-    mutable GrSingleOwner                   fSingleOwner;
 
     std::unique_ptr<SkTaskGroup>            fTaskGroup;
 
@@ -495,9 +495,9 @@ private:
     const GrBackend        fBackend;
     const GrContextOptions fOptions;
 
-    friend class GrContext;
-    friend class GrContextPriv;
-    friend class SkImage;
+    friend class GrContext;     // DDL TODO: remove this access
+    friend class GrContextPriv; // for access to 'fOptions' in MakeDDL
+    friend class GrDDLContext;  // to implement the GrDDLContext ctor
 
     typedef SkRefCnt INHERITED;
 };
