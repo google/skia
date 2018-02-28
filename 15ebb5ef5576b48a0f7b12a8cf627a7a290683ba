@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63d37150_6af464c4",
+        "filename": "gm/shadowutils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-28T19:30:51Z",
+      "side": 1,
+      "message": "rm this from the loop?",
+      "revId": "15ebb5ef5576b48a0f7b12a8cf627a7a290683ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86ebd806_18c72a84",
+        "filename": "samplecode/SampleShadowUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-28T19:30:51Z",
+      "side": 1,
+      "message": "rm ?",
+      "revId": "15ebb5ef5576b48a0f7b12a8cf627a7a290683ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c70375c_2f9fa703",
+        "filename": "samplecode/SampleShadowUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-28T19:30:51Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "15ebb5ef5576b48a0f7b12a8cf627a7a290683ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
