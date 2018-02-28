@@ -759,8 +759,14 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 
 #Struct SkImageInfo
 
-Describes Image dimensions and pixel type.
-Used for both source images and render-targets (surfaces).
+Describes pixel dimensions and encoding. Bitmap, Image, PixMap, and Surface 
+can be created from Image_Info. Image_Info can be retrieved from Bitmap and
+Pixmap, but not from Image and Surface. For example, Image and Surface
+implementations may defer pixel depth, so may not completely specify Image_Info.
+
+Image_Info contains dimensions, the pixel integral width and height. It encodes
+how pixel bits describe Color_Alpha, transparency; Color components red, blue,
+and green; and Color_Space, the range and linearity of colors.
 
 #Subtopic Member_Function
 #Populate
@@ -775,18 +781,33 @@ Used for both source images and render-targets (surfaces).
 #Populate
 ##
 
-
 #Method SkImageInfo()
 
 #In Constructor
 #Line # creates with zero dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
-#Return incomplete ##
+Creates an empty Image_Info with kUnknown_SkColorType,  kUnknown_SkAlphaType,
+a width and height of zero, and no Color_Space.
+
+#Return empty Image_Info ##
 
 #Example
-// incomplete
+#Height 32
+#Description
+An empty Image_Info may be passed to SkCanvas::accessTopLayerPixels as storage
+for the Canvas actual Image_Info.
+##
+  SkImageInfo imageInfo;
+  size_t rowBytes;
+  SkIPoint origin;
+  uint32_t* access = (uint32_t*) canvas->accessTopLayerPixels(&imageInfo, &rowBytes, &origin);
+  const char* alphaType[] = { "Unknown", "Opaque", "Premul", "Unpremul" };
+  SkString string;
+  string.printf("k%s_SkAlphaType", alphaType[(int) imageInfo.alphaType()]);
+  SkPaint paint;
+  canvas->drawString(string, 20, 20, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso Make MakeN32
 
 #Method ##
 
@@ -796,20 +817,40 @@ Used for both source images and render-targets (surfaces).
                             sk_sp<SkColorSpace> cs = nullptr)
 #In Constructor
 #Line # creates Image_Info from dimensions, Color_Type, Alpha_Type, Color_Space ##
+Creates Image_Info from integral dimensions width and height, Color_Type ct,
+Alpha_Type at, and optionally Color_Space cs.
 
-#Param width  incomplete ##
-#Param height  incomplete ##
-#Param ct  incomplete ##
-#Param at  incomplete ##
-#Param cs  incomplete ##
+Parameters are not validated to see if their values are legal, or that the
+combination is supported.
 
-#Return incomplete ##
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+#Param ct  one of: kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+        kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+        kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+        kGray_8_SkColorType, kRGBA_F16_SkColorType
+##
+#Param at  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                   kUnpremul_SkAlphaType
+##
+#Param cs  range of colors; may be nullptr ##
+
+#Return created Image_Info ##
 
 #Example
-// incomplete
+    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },
+                            { 0xAC, 0xA8, 0x89, 0xA7, 0x87 },
+                            { 0x9B, 0xB5, 0xE5, 0x95, 0x46 },
+                            { 0x90, 0x81, 0xC5, 0x71, 0x33 },
+                            { 0x75, 0x55, 0x44, 0x40, 0x30 }};
+    SkImageInfo imageInfo = SkImageInfo::Make(5, 5, kGray_8_SkColorType, kOpaque_SkAlphaType);
+    SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);
+    SkBitmap bitmap;
+    bitmap.installPixels(pixmap);
+    canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeN32  MakeS32
 
 #Method ##
 
@@ -819,21 +860,27 @@ Used for both source images and render-targets (surfaces).
                                sk_sp<SkColorSpace> cs = nullptr)
 #In Constructor
 #Line # creates Image_Info with Native_Color_Type ##
+Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
+Alpha_Type at, and optionally Color_Space cs. kN32_SkColorType will equal either
+kBGRA_8888_SkColorType or kRGBA_8888_SkColorType, whichever is optimal.
 
-Sets Color_Type to kN32_SkColorType.
+Parameters are not validated to see if their values are legal, or that the
+combination is supported.
 
-#Param width  incomplete ##
-#Param height  incomplete ##
-#Param at  incomplete ##
-#Param cs  incomplete ##
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+#Param at  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                   kUnpremul_SkAlphaType
+##
+#Param cs  range of colors; may be nullptr ##
 
-#Return incomplete ##
+#Return created Image_Info ##
 
 #Example
 // incomplete
 ##
 
-#SeeAlso incomplete
+#SeeAlso Make MakeS32
 
 #Method ##
 
@@ -843,19 +890,25 @@ Sets Color_Type to kN32_SkColorType.
 
 #In Constructor
 #Line # creates Image_Info with Native_Color_Type, sRGB Color_Space ##
-Creates Image_Info marked as sRGB with kN32_SkColorType swizzle.
+Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
+Alpha_Type at, with sRGB Color_Space.
 
-#Param width  incomplete ##
-#Param height  incomplete ##
-#Param at  incomplete ##
+Parameters are not validated to see if their values are legal, or that the
+combination is supported.
 
-#Return incomplete ##
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+#Param at  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                   kUnpremul_SkAlphaType
+##
+
+#Return created Image_Info ##
 
 #Example
 // incomplete
 ##
 
-#SeeAlso incomplete
+#SeeAlso Make MakeN32
 
 #Method ##
 
@@ -867,11 +920,11 @@ Creates Image_Info marked as sRGB with kN32_SkColorType swizzle.
 #Line # creates Image_Info with Native_Color_Type, kPremul_SkAlphaType ##
 Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 
-#Param width  incomplete ##
-#Param height  incomplete ##
-#Param cs  incomplete ##
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+#Param cs  range of colors; may be nullptr ##
 
-#Return incomplete ##
+#Return created Image_Info ##
 
 #Example
 // incomplete
