@@ -181,7 +181,7 @@ public:
     void appendGlyph(int runIndex,
                      const SkRect& positions,
                      GrColor color,
-                     GrAtlasTextStrike* strike,
+                     sk_sp<GrAtlasTextStrike> strike,
                      GrGlyph* glyph,
                      SkGlyphCache*, const SkGlyph& skGlyph,
                      SkScalar x, SkScalar y, SkScalar scale, bool preTransformed);
@@ -371,8 +371,9 @@ private:
             // TODO when this object is more internal, drop the privacy
             void resetBulkUseToken() { fBulkUseToken.reset(); }
             GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken() { return &fBulkUseToken; }
-            void setStrike(GrAtlasTextStrike* strike) { fStrike.reset(SkRef(strike)); }
+            void setStrike(sk_sp<GrAtlasTextStrike> strike) { fStrike = std::move(strike); }
             GrAtlasTextStrike* strike() const { return fStrike.get(); }
+            sk_sp<GrAtlasTextStrike> refStrike() const { return fStrike; }
 
             void setAtlasGeneration(uint64_t atlasGeneration) { fAtlasGeneration = atlasGeneration;}
             uint64_t atlasGeneration() const { return fAtlasGeneration; }
