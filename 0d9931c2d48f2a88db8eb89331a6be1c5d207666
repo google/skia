@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dd62f2f_69650996",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-28T19:19:24Z",
+      "side": 1,
+      "message": "assert numProxies \u003c\u003d kMaxTextures?",
+      "revId": "0d9931c2d48f2a88db8eb89331a6be1c5d207666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05b1c2a4_88947ab6",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-28T19:19:24Z",
+      "side": 1,
+      "message": "assert \u003c\u003d kMaxTextures?",
+      "range": {
+        "startLine": 233,
+        "startChar": 24,
+        "endLine": 233,
+        "endChar": 34
+      },
+      "revId": "0d9931c2d48f2a88db8eb89331a6be1c5d207666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
