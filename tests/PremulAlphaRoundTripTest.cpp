@@ -34,6 +34,18 @@ static uint32_t pack_unpremul_bgra(SkColor c) {
     return packed;
 }
 
+static uint32_t pack_unpremul_rgba_1010102(SkColor c) {
+    uint32_t r = SkColorGetR(c);
+    uint32_t g = SkColorGetG(c);
+    uint32_t b = SkColorGetB(c);
+    uint32_t a = SkColorGetA(c);
+    r = (r << 2) | (r >> 6);
+    g = (g << 2) | (g >> 6);
+    b = (b << 2) | (b >> 6);
+    a = (a >> 6);
+    return r | (g << 10) | (b << 20) | (a << 30);
+}
+
 typedef uint32_t (*PackUnpremulProc)(SkColor);
 
 const struct {
@@ -42,6 +54,7 @@ const struct {
 } gUnpremul[] = {
     { kRGBA_8888_SkColorType, pack_unpremul_rgba },
     { kBGRA_8888_SkColorType, pack_unpremul_bgra },
+    { kRGBA_1010102_SkColorType, pack_unpremul_rgba_1010102 },
 };
 
 static void fill_surface(SkSurface* surf, SkColorType colorType, PackUnpremulProc proc) {
