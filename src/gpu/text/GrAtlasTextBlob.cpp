@@ -76,7 +76,7 @@ SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
 void GrAtlasTextBlob::appendGlyph(int runIndex,
                                   const SkRect& positions,
                                   GrColor color,
-                                  GrAtlasTextStrike* strike,
+                                  sk_sp<GrAtlasTextStrike> strike,
                                   GrGlyph* glyph,
                                   SkGlyphCache* cache, const SkGlyph& skGlyph,
                                   SkScalar x, SkScalar y, SkScalar scale, bool preTransformed) {
@@ -104,9 +104,9 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     Run::SubRunInfo* subRun = &run.fSubRunInfo.back();
     if (run.fInitialized && subRun->maskFormat() != format) {
         subRun = &run.push_back();
-        subRun->setStrike(strike);
+        subRun->setStrike(std::move(strike));
     } else if (!run.fInitialized) {
-        subRun->setStrike(strike);
+        subRun->setStrike(std::move(strike));
     }
 
     run.fInitialized = true;
