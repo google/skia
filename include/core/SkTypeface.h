@@ -283,6 +283,14 @@ public:
      */
     SkRect getBounds() const;
 
+    /**
+     * There is a convention that the nullptr means the default font. Use this to maintain the
+     * invariant.
+     */
+    static SkTypeface* NormalizeTypeface(SkTypeface* typeface) {
+        return typeface != nullptr ? typeface : SkTypeface::GetDefaultTypeface();
+    }
+
     // PRIVATE / EXPERIMENTAL -- do not call
     void filterRec(SkScalerContextRec* rec) const {
         this->onFilterRec(rec);
