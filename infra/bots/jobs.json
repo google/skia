@@ -396,6 +396,7 @@
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_CPU_LIMIT_SSE41",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN",
+  "Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP",
   "Test-Debian9-Clang-GCE-CPU-AVX512-x86_64-Debug-All",
   "Test-Debian9-Clang-GCE-CPU-AVX512-x86_64-Release-All",
   "Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug-All",
