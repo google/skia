@@ -2124,7 +2124,9 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     return true;
 }
 
-void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo, const GrContextOptions& contextOptions, GrShaderCaps* shaderCaps) {
+void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
+                                                 const GrContextOptions& contextOptions,
+                                                 GrShaderCaps* shaderCaps) {
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {

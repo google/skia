@@ -493,6 +493,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     }
 
     ctx->flush();
+    // Adding discard to appease vulkan validation warning about loading uninitialized data on draw
+    rtc->discard();
+
     test_path(ctx, rtc.get(), create_path_0());
     test_path(ctx, rtc.get(), create_path_1());
     test_path(ctx, rtc.get(), create_path_2());
