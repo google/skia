@@ -23,7 +23,8 @@
 ////////////////////////////////////////////////////////////////////////////
 
 class ShadowUtilsView : public SampleView {
-    SkTArray<SkPath> fPaths;
+    SkTArray<SkPath> fConvexPaths;
+    SkTArray<SkPath> fConcavePaths;
     SkScalar         fZDelta;
 
     bool      fShowAmbient;
@@ -43,14 +44,34 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fPaths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
+        fConvexPaths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
         SkRRect oddRRect;
         oddRRect.setNinePatch(SkRect::MakeWH(50, 50), 9, 13, 6, 16);
-        fPaths.push_back().addRRect(oddRRect);
-        fPaths.push_back().addRect(SkRect::MakeWH(50, 50));
-        fPaths.push_back().addCircle(25, 25, 25);
-        fPaths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
-        fPaths.push_back().addOval(SkRect::MakeWH(20, 60));
+        fConvexPaths.push_back().addRRect(oddRRect);
+        fConvexPaths.push_back().addRect(SkRect::MakeWH(50, 50));
+        fConvexPaths.push_back().addCircle(25, 25, 25);
+        fConvexPaths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
+        fConvexPaths.push_back().addOval(SkRect::MakeWH(20, 60));
+
+        // star
+        fConcavePaths.push_back().moveTo(0.0f, -33.3333f);
+        fConcavePaths.back().lineTo(9.62f, -16.6667f);
+        fConcavePaths.back().lineTo(28.867f, -16.6667f);
+        fConcavePaths.back().lineTo(19.24f, 0.0f);
+        fConcavePaths.back().lineTo(28.867f, 16.6667f);
+        fConcavePaths.back().lineTo(9.62f, 16.6667f);
+        fConcavePaths.back().lineTo(0.0f, 33.3333f);
+        fConcavePaths.back().lineTo(-9.62f, 16.6667f);
+        fConcavePaths.back().lineTo(-28.867f, 16.6667f);
+        fConcavePaths.back().lineTo(-19.24f, 0.0f);
+        fConcavePaths.back().lineTo(-28.867f, -16.6667f);
+        fConcavePaths.back().lineTo(-9.62f, -16.6667f);
+        fConcavePaths.back().close();
+
+        // dumbbell
+        fConcavePaths.push_back().moveTo(50, 0);
+        fConcavePaths.back().cubicTo(100, 25, 60, 50, 50, 0);
+        fConcavePaths.back().cubicTo(0, -25, 40, -50, 50, 0);
     }
 
     // overrides from SkEventSink
@@ -167,9 +188,11 @@ protected:
         paint.setColor(SK_ColorGREEN);
         paint.setAntiAlias(true);
         SkPoint3 zPlaneParams = SkPoint3::Make(0, 0, SkTMax(1.0f, kHeight + fZDelta));
+
+        // convex paths
         for (auto& m : matrices) {
             for (auto flags : { kNone_ShadowFlag, kTransparentOccluder_ShadowFlag }) {
-                for (const auto& path : fPaths) {
+                for (const auto& path : fConvexPaths) {
                     SkRect postMBounds = path.getBounds();
                     m.mapRect(&postMBounds);
                     SkScalar w = postMBounds.width() + kHeight;
@@ -184,8 +207,8 @@ protected:
 
                     canvas->save();
                     canvas->concat(m);
-                    drawShadowedPath(canvas, path, zPlaneParams, paint, kAmbientAlpha, lightPos,
-                                     kLightR, kSpotAlpha, flags);
+                    this->drawShadowedPath(canvas, path, zPlaneParams, paint, kAmbientAlpha,
+                                           lightPos, kLightR, kSpotAlpha, flags);
                     canvas->restore();
 
                     canvas->translate(dx, 0);
@@ -194,6 +217,32 @@ protected:
                 }
             }
         }
+
+        // concave paths
+        canvas->restore();
+        canvas->translate(kPad, dy);
+        canvas->save();
+        x = kPad;
+        dy = 0;
+        for (auto& m : matrices) {
+            for (const auto& path : fConcavePaths) {
+                SkRect postMBounds = path.getBounds();
+                m.mapRect(&postMBounds);
+                SkScalar w = postMBounds.width();
+                SkScalar dx = w + kPad;
+
+                canvas->save();
+                canvas->concat(m);
+                this->drawShadowedPath(canvas, path, zPlaneParams, paint, kAmbientAlpha, lightPos,
+                                       kLightR, kSpotAlpha, kNone_ShadowFlag);
+                canvas->restore();
+
+                canvas->translate(dx, 0);
+                x += dx;
+                dy = SkTMax(dy, postMBounds.height() + kPad + kHeight);
+            }
+        }
+
         // Show where the light is in x,y as a circle (specified in device space).
         SkMatrix invCanvasM = canvas->getTotalMatrix();
         if (invCanvasM.invert(&invCanvasM)) {
