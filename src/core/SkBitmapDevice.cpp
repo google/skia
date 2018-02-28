@@ -23,6 +23,108 @@
 #include "SkTLazy.h"
 #include "SkVertices.h"
 
+class SkDrawTiler {
+    enum {
+        kMaxDim = 256
+    };
+
+    SkBitmapDevice* fDevice;
+    SkPixmap        fRootPixmap;
+
+    // Used for tiling and non-tiling
+    SkDraw          fDraw;
+
+    // fCurr... are only used if fNeedTiling
+    SkMatrix        fTileMatrix;
+    SkRasterClip    fTileRC;
+    SkIPoint        fOrigin;
+
+    bool            fDone, fNeedsTiling;
+
+public:
+    SkDrawTiler(SkBitmapDevice* dev) : fDevice(dev) {
+        // we need fDst to be set, and if we're actually drawing, to dirty the genID
+        if (!dev->accessPixels(&fRootPixmap)) {
+            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
+            fRootPixmap.reset(dev->imageInfo(), nullptr, 0);
+        }
+
+        fDone = false;
+        fNeedsTiling = fRootPixmap.width() > kMaxDim || fRootPixmap.height() > kMaxDim;
+        fOrigin.set(0, 0);  // only needed by tiling
+
+        if (fNeedsTiling) {
+            // fDraw.fDst is reset each time in setupTileDraw()
+            fDraw.fMatrix = &fTileMatrix;
+            fDraw.fRC = &fTileRC;
+        } else {
+            fDraw.fDst = fRootPixmap;
+            fDraw.fMatrix = &dev->ctm();
+            fDraw.fRC = &dev->fRCStack.rc();
+        }
+    }
+
+    const SkDraw* next() {
+        if (fDone) {
+            return nullptr;
+        }
+        if (fNeedsTiling) {
+            do {
+                this->setupTileDraw();  // might set the clip to empty
+                this->stepOrigin();     // might set fDone to true for next iteration
+            } while (!fDone && fTileRC.isEmpty());
+            // if we exit the loop and we're still empty, we're (past) done
+            if (fTileRC.isEmpty()) {
+                SkASSERT(fDone);
+                return nullptr;
+            }
+        } else {
+            fDone = true;   // only draw untiled once
+        }
+        return &fDraw;
+    }
+
+    void setupTileDraw() {
+        SkASSERT(!fDone);
+        SkIRect bounds = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(),
+                                           SkMin32(fRootPixmap.width(),  kMaxDim),
+                                           SkMin32(fRootPixmap.height(), kMaxDim));
+        SkASSERT(!bounds.isEmpty());
+        bool success = fRootPixmap.extractSubset(&fDraw.fDst, bounds);
+        SkASSERT_RELEASE(success);
+
+        fTileMatrix = fDevice->ctm();
+        fTileMatrix.postTranslate(SkIntToScalar(-fOrigin.x()), SkIntToScalar(-fOrigin.y()));
+        fDevice->fRCStack.rc().translate(-fOrigin.x(), -fOrigin.y(), &fTileRC);
+        fTileRC.op(SkIRect::MakeWH(fDraw.fDst.width(), fDraw.fDst.height()),
+                   SkRegion::kIntersect_Op);
+    }
+
+    bool more_x() const { return fOrigin.x() + fDraw.fDst.width()  < fRootPixmap.width(); }
+    bool more_y() const { return fOrigin.y() + fDraw.fDst.height() < fRootPixmap.height(); }
+
+    void stepOrigin() {
+        SkASSERT(!fDone);
+        SkASSERT(fNeedsTiling);
+        if (this->more_x()) {
+            SkASSERT(fDraw.fDst.width() == kMaxDim);
+            fOrigin.fX += fDraw.fDst.width();
+        } else if (this->more_y()) {
+            SkASSERT(fDraw.fDst.height() == kMaxDim);
+            fOrigin.fY += fDraw.fDst.height();
+            fOrigin.fX = 0;
+        }
+        fDone = !this->more_x() && !this->more_y();
+    }
+};
+
+#define LOOP_TILER(code)                                    \
+    SkDrawTiler priv_tiler(this);                           \
+    while (const SkDraw* priv_draw = priv_tiler.next()) {   \
+        priv_draw->code;                                    \
+    }
+
+
 class SkColorTable;
 
 static bool valid_for_bitmap_device(const SkImageInfo& info,
@@ -173,30 +275,17 @@ bool SkBitmapDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkBitmapDevice::BDDraw : public SkDraw {
-public:
-    BDDraw(SkBitmapDevice* dev) {
-        // we need fDst to be set, and if we're actually drawing, to dirty the genID
-        if (!dev->accessPixels(&fDst)) {
-            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
-            fDst.reset(dev->imageInfo(), nullptr, 0);
-        }
-        fMatrix = &dev->ctm();
-        fRC = &dev->fRCStack.rc();
-    }
-};
-
 void SkBitmapDevice::drawPaint(const SkPaint& paint) {
-    BDDraw(this).drawPaint(paint);
+    LOOP_TILER( drawPaint(paint))
 }
 
 void SkBitmapDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
                                 const SkPoint pts[], const SkPaint& paint) {
-    BDDraw(this).drawPoints(mode, count, pts, paint, nullptr);
+    LOOP_TILER( drawPoints(mode, count, pts, paint, nullptr))
 }
 
 void SkBitmapDevice::drawRect(const SkRect& r, const SkPaint& paint) {
-    BDDraw(this).drawRect(r, paint);
+    LOOP_TILER( drawRect(r, paint))
 }
 
 void SkBitmapDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
@@ -216,21 +305,21 @@ void SkBitmapDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     // required to override drawRRect.
     this->drawPath(path, paint, nullptr, true);
 #else
-    BDDraw(this).drawRRect(rrect, paint);
+    LOOP_TILER( drawRRect(rrect, paint))
 #endif
 }
 
 void SkBitmapDevice::drawPath(const SkPath& path,
                               const SkPaint& paint, const SkMatrix* prePathMatrix,
                               bool pathIsMutable) {
-    BDDraw(this).drawPath(path, paint, prePathMatrix, pathIsMutable);
+    LOOP_TILER( drawPath(path, paint, prePathMatrix, pathIsMutable))
 }
 
 void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                                 const SkPaint& paint) {
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
     LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
-    BDDraw(this).drawBitmap(bitmap, matrix, nullptr, paint);
+    LOOP_TILER( drawBitmap(bitmap, matrix, nullptr, paint))
 }
 
 static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& paint) {
@@ -325,7 +414,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
         // matrix with the CTM, and try to call drawSprite if it can. If not,
         // it will make a shader and call drawRect, as we do below.
         if (CanApplyDstMatrixAsCTM(matrix, paint)) {
-            BDDraw(this).drawBitmap(*bitmapPtr, matrix, dstPtr, paint);
+            LOOP_TILER( drawBitmap(*bitmapPtr, matrix, dstPtr, paint))
             return;
         }
     }
@@ -354,25 +443,25 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
 }
 
 void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
-    BDDraw(this).drawSprite(bitmap, x, y, paint);
+    LOOP_TILER( drawSprite(bitmap, x, y, paint))
 }
 
 void SkBitmapDevice::drawText(const void* text, size_t len,
                               SkScalar x, SkScalar y, const SkPaint& paint) {
-    BDDraw(this).drawText((const char*)text, len, x, y, paint, &fSurfaceProps);
+    LOOP_TILER( drawText((const char*)text, len, x, y, paint, &fSurfaceProps))
 }
 
 void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
                                  int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
-    BDDraw(this).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint,
-                             &fSurfaceProps);
+    LOOP_TILER( drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint,
+                            &fSurfaceProps))
 }
 
 void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                                   const SkPaint& paint) {
-    BDDraw(this).drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                              vertices->texCoords(), vertices->colors(), bmode,
-                              vertices->indices(), vertices->indexCount(), paint);
+    LOOP_TILER( drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
+                             vertices->texCoords(), vertices->colors(), bmode,
+                             vertices->indices(), vertices->indexCount(), paint))
 }
 
 void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& origPaint) {
@@ -384,7 +473,7 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
         paint.writable()->setMaskFilter(paint->getMaskFilter()->makeWithLocalMatrix(this->ctm()));
     }
 
-    BDDraw(this).drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, *paint);
+    LOOP_TILER( drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, *paint))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
