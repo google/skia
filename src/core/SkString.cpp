@@ -378,30 +378,43 @@ void SkString::setUTF16(const uint16_t src[]) {
     this->setUTF16(src, count);
 }
 
-void SkString::setUTF16(const uint16_t src[], size_t count) {
-    count = trim_size_t_to_u32(count);
-
-    if (0 == count) {
-        this->reset();
-    } else if (count <= fRec->fLength) {
-        // should we resize if len <<<< fLength, to save RAM? (e.g. len < (fLength>>1))
-        if (count < fRec->fLength) {
-            this->resize(count);
+static SkString utf8_from_utf16(const uint16_t src[], size_t count) {
+    SkString ret;
+    if (count > 0) {
+        SkASSERT(src);
+        size_t n = 0;
+        const uint16_t* end = src + count;
+        for (const uint16_t* ptr = src; ptr < end;) {
+            SkDEBUGCODE(const uint16_t* last = ptr);
+            SkUnichar u = SkUTF16_NextUnichar(&ptr);
+            SkASSERT(ptr > last); // Always increment.
+            size_t s = SkUTF8_FromUnichar(u);
+            static const bool kSize64 = sizeof(size_t) > sizeof(uint32_t);
+            if ((kSize64  && n + s > SK_MaxU32) ||
+                (!kSize64 && n + s < n)) {
+                end = ptr;  // truncate input string
+                break;
+            }
+            n += s;
         }
-        char* p = this->writable_str();
-        for (size_t i = 0; i < count; i++) {
-            p[i] = SkToU8(src[i]);
+        SkASSERT(n <= trim_size_t_to_u32(n));
+        ret = SkString(n);
+        char* out = ret.writable_str();
+        for (const uint16_t* ptr = src; ptr < end;) {
+            char utf8[4];
+            unsigned l = SkToUInt(SkUTF8_FromUnichar(SkUTF16_NextUnichar(&ptr), utf8));
+            SkASSERT(l <= 4);
+            for (unsigned i = 0; i < l; ++i) {
+                *out++ = utf8[i];
+            }
         }
-        p[count] = 0;
-    } else {
-        SkString tmp(count); // puts a null terminator at the end of the string
-        char*    p = tmp.writable_str();
-
-        for (size_t i = 0; i < count; i++) {
-            p[i] = SkToU8(src[i]);
-        }
-        this->swap(tmp);
+        SkASSERT(out == ret.writable_str());
     }
+    return ret;
+}
+
+void SkString::setUTF16(const uint16_t src[], size_t count) {
+    *this = utf8_from_utf16(src, count);
 }
 
 void SkString::insert(size_t offset, const char text[]) {
