@@ -16,7 +16,7 @@
 #include "../private/GrSingleOwner.h"
 #include "GrContextOptions.h"
 
-class GrAtlasManager;
+class GrAtlasGlyphCache;
 class GrBackendFormat;
 class GrBackendSemaphore;
 class GrContextPriv;
@@ -25,7 +25,6 @@ class GrDrawingManager;
 struct GrDrawOpAtlasConfig;
 class GrFragmentProcessor;
 struct GrGLInterface;
-class GrGlyphCache;
 class GrGpu;
 class GrIndexBuffer;
 struct GrMockOptions;
@@ -367,8 +366,7 @@ private:
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
-    GrGlyphCache*                           fGlyphCache;
-    GrAtlasManager*                         fFullAtlasManager;
+    GrAtlasGlyphCache*                      fAtlasGlyphCache;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDisableGpuYUVConversion;

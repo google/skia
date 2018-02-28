@@ -77,7 +77,6 @@ public:
     GrDDLContext(GrContextThreadSafeProxy* proxy) : INHERITED(proxy) {}
 
 protected:
-    // DDL TODO: grab a GrRestrictedAtlasManager from the proxy
 
 private:
     typedef GrContext INHERITED;
@@ -219,8 +218,7 @@ GrContext::GrContext(GrBackend backend)
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
-    fGlyphCache = nullptr;
-    fFullAtlasManager = nullptr;
+    fAtlasGlyphCache = nullptr;
 }
 
 GrContext::GrContext(GrContextThreadSafeProxy* proxy)
@@ -230,8 +228,7 @@ GrContext::GrContext(GrContextThreadSafeProxy* proxy)
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
-    fGlyphCache = nullptr;
-    fFullAtlasManager = nullptr;
+    fAtlasGlyphCache = nullptr;
 }
 
 bool GrContext::init(const GrContextOptions& options) {
@@ -296,17 +293,9 @@ bool GrContext::init(const GrContextOptions& options) {
     } else {
         allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
     }
-
-    fGlyphCache = new GrGlyphCache;
-
-    // DDL TODO: in DDL-mode grab a GrRestrictedAtlasManager from the thread-proxy and
-    // do not add an onFlushCB
-    fFullAtlasManager = new GrAtlasManager(fProxyProvider, fGlyphCache,
-                                           options.fGlyphCacheTextureMaximumBytes,
-                                           allowMultitexturing);
-    this->contextPriv().addOnFlushCallbackObject(fFullAtlasManager);
-
-    fGlyphCache->setGlyphSizeLimit(fFullAtlasManager->getGlyphSizeLimit());
+    fAtlasGlyphCache = new GrAtlasGlyphCache(fProxyProvider, options.fGlyphCacheTextureMaximumBytes,
+                                             allowMultitexturing);
+    this->contextPriv().addOnFlushCallbackObject(fAtlasGlyphCache);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
                                              this, this->uniqueID(), SkToBool(fGpu)));
@@ -338,8 +327,7 @@ GrContext::~GrContext() {
     delete fResourceProvider;
     delete fResourceCache;
     delete fProxyProvider;
-    delete fGlyphCache;
-    delete fFullAtlasManager;
+    delete fAtlasGlyphCache;
 }
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
@@ -398,8 +386,7 @@ void GrContext::abandonContext() {
 
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
 
-    fGlyphCache->freeAll();
-    fFullAtlasManager->freeAll();
+    fAtlasGlyphCache->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -418,8 +405,7 @@ void GrContext::releaseResourcesAndAbandonContext() {
 
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
 
-    fGlyphCache->freeAll();
-    fFullAtlasManager->freeAll();
+    fAtlasGlyphCache->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -433,8 +419,7 @@ void GrContext::freeGpuResources() {
 
     this->flush();
 
-    fGlyphCache->freeAll();
-    fFullAtlasManager->freeAll();
+    fAtlasGlyphCache->freeAll();
 
     fDrawingManager->freeGpuResources();
 

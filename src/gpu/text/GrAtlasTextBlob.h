@@ -8,9 +8,9 @@
 #ifndef GrAtlasTextBlob_DEFINED
 #define GrAtlasTextBlob_DEFINED
 
+#include "GrAtlasGlyphCache.h"
 #include "GrColor.h"
 #include "GrDrawOpAtlas.h"
-#include "GrGlyphCache.h"
 #include "GrMemoryPool.h"
 #include "GrTextUtils.h"
 #include "SkDescriptor.h"
@@ -22,13 +22,8 @@
 #include "SkSurfaceProps.h"
 #include "SkTInternalLList.h"
 
-class GrAtlasManager;
 struct GrDistanceFieldAdjustTable;
-struct GrGlyph;
-class GrGlyphCache;
 class GrMemoryPool;
-class GrRestrictedAtlasManager;
-
 class SkDrawFilter;
 class SkTextBlob;
 class SkTextBlobRunIterator;
@@ -206,7 +201,7 @@ public:
     bool mustRegenerate(const GrTextUtils::Paint&, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
-    void flush(GrRestrictedAtlasManager*, GrTextUtils::Target*, const SkSurfaceProps& props,
+    void flush(GrAtlasGlyphCache*, GrTextUtils::Target*, const SkSurfaceProps& props,
                const GrDistanceFieldAdjustTable* distanceAdjustTable,
                const GrTextUtils::Paint& paint, const GrClip& clip,
                const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
@@ -281,8 +276,8 @@ public:
     std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, uint16_t run, uint16_t subRun,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                           const GrTextUtils::Paint&, const SkSurfaceProps&,
-                                          const GrDistanceFieldAdjustTable*,
-                                          GrRestrictedAtlasManager*, GrTextUtils::Target*);
+                                          const GrDistanceFieldAdjustTable*, GrAtlasGlyphCache*,
+                                          GrTextUtils::Target*);
 
 private:
     GrAtlasTextBlob()
@@ -511,8 +506,9 @@ private:
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
             const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
-            const GrTextUtils::Paint&, const SkSurfaceProps&,
-            const GrDistanceFieldAdjustTable*, GrRestrictedAtlasManager* , GrTextUtils::Target*);
+            const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
+            const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
+            GrTextUtils::Target*);
 
     struct StrokeInfo {
         SkScalar fFrameWidth;
@@ -566,8 +562,7 @@ public:
      */
     VertexRegenerator(GrResourceProvider*, GrAtlasTextBlob*, int runIdx, int subRunIdx,
                       const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                      GrDeferredUploadTarget*, GrGlyphCache*, GrAtlasManager*,
-                      SkAutoGlyphCache*);
+                      GrDeferredUploadTarget*, GrAtlasGlyphCache*, SkAutoGlyphCache*);
 
     struct Result {
         /**
@@ -598,8 +593,7 @@ private:
     const SkMatrix& fViewMatrix;
     GrAtlasTextBlob* fBlob;
     GrDeferredUploadTarget* fUploadTarget;
-    GrGlyphCache* fGlyphCache;
-    GrAtlasManager* fFullAtlasManager;
+    GrAtlasGlyphCache* fGlyphCache;
     SkAutoGlyphCache* fLazyCache;
     Run* fRun;
     Run::SubRunInfo* fSubRun;

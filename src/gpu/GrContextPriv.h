@@ -10,7 +10,6 @@
 
 #include "GrContext.h"
 #include "GrSurfaceContext.h"
-#include "text/GrAtlasManager.h"
 
 class GrBackendRenderTarget;
 class GrOnFlushCallbackObject;
@@ -188,19 +187,8 @@ public:
     GrGpu* getGpu() { return fContext->fGpu.get(); }
     const GrGpu* getGpu() const { return fContext->fGpu.get(); }
 
-    GrGlyphCache* getGlyphCache() { return fContext->fGlyphCache; }
+    GrAtlasGlyphCache* getAtlasGlyphCache() { return fContext->fAtlasGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
-    GrRestrictedAtlasManager* getRestrictedAtlasManager() { return fContext->fFullAtlasManager; }
-
-    // This accessor should only ever be called by the GrOpFlushState.
-    GrAtlasManager* getFullAtlasManager() {
-        if (fContext->fResourceProvider) {
-            // Disallow access to the full atlasManager when recording DDLs
-            return fContext->fFullAtlasManager;
-        }
-
-        return nullptr;
-    }
 
     void moveOpListsToDDL(SkDeferredDisplayList*);
     void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
