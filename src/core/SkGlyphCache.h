@@ -34,6 +34,13 @@ class SkGlyphCache_Globals;
 */
 class SkGlyphCache {
 public:
+    // Return true if glyph is cached.
+    bool isGlyphIdCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const;
+
+    // Get the SkGlyph possibly uninitialized. This is used to fill in glyph data from an outside
+    // source.
+    SkGlyph* getUninitializedGlyph(SkPackedGlyphID glyphID);
+    
     /** Returns a glyph with valid fAdvance and fDevKern fields. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getUnicharMetrics or
         getGlyphIDMetrics instead.
@@ -118,7 +125,9 @@ public:
     */
     static SkGlyphCache* VisitCache(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*,
                                     bool (*proc)(const SkGlyphCache*, void*),
-                                    void* context);
+                                    void* context, SkPaint::FontMetrics* fontMetrics = nullptr);
+
+    static SkGlyphCache* DetatchCacheOrNull(const SkDescriptor&);
 
     /** Given a strike that was returned by either VisitCache() or DetachCache() add it back into
         the global cache list (after which the caller should not reference it anymore.
@@ -133,9 +142,11 @@ public:
         more than 1 strike for the same descriptor, but that will eventually get purged, and the
         win is that different thread will never block each other while a strike is being used.
     */
-    static SkGlyphCache* DetachCache(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                                     const SkDescriptor* desc) {
-        return VisitCache(typeface, effects, desc, DetachProc, nullptr);
+    static SkGlyphCache* DetachCache(
+        SkTypeface* typeface, const SkScalerContextEffects& effects,
+        const SkDescriptor* desc, SkPaint::FontMetrics* fontMetrics = nullptr)
+    {
+        return VisitCache(typeface, effects, desc, DetachProc, nullptr, fontMetrics);
     }
 
     static SkGlyphCache* DetachCacheUsingPaint(const SkPaint& paint,
@@ -182,6 +193,7 @@ private:
     friend class SkGlyphCache_Globals;
 
     enum MetricsType {
+        kNothing_MetricsType,
         kJustAdvance_MetricsType,
         kFull_MetricsType
     };
@@ -197,7 +209,7 @@ private:
         SkPackedGlyphID fPackedGlyphID;
     };
 
-    SkGlyphCache(const SkDescriptor*, std::unique_ptr<SkScalerContext>);
+    SkGlyphCache(const SkDescriptor*, std::unique_ptr<SkScalerContext>, SkPaint::FontMetrics*);
     ~SkGlyphCache();
 
     // Return the SkGlyph* associated with MakeID. The id parameter is the
