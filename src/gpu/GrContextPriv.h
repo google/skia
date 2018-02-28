@@ -185,8 +185,8 @@ public:
 
     GrResourceCache* getResourceCache() { return fContext->fResourceCache; }
 
-    GrGpu* getGpu() { return fContext->fGpu.get(); }
-    const GrGpu* getGpu() const { return fContext->fGpu.get(); }
+    GrGpu* getGpu() { return fContext->onGetGpu(); }
+    const GrGpu* getGpu() const { return fContext->onGetGpu(); }
 
     GrGlyphCache* getGlyphCache() { return fContext->fGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
