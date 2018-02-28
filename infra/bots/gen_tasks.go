@@ -308,7 +308,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelIris540":  "8086:1926-23.20.16.4901",
 					"IntelIris6100": "8086:162b-20.19.15.4835",
 					"RadeonHD7770":  "1002:683d-22.19.165.512",
-					"RadeonR9M470X": "1002:6646-22.19.165.512",
+					"RadeonR9M470X": "1002:6646-23.20.15017.4003",
 					"QuadroP400":    "10de:1cb3-22.21.13.8205",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
