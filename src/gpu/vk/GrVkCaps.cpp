@@ -88,12 +88,38 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initConfigTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
-    if (SkToBool(extensionFlags & kNV_glsl_shader_GrVkExtensionFlag)) {
-        // Currently disabling this feature since it does not play well with validation layers which
-        // expect a SPIR-V shader
-        // fCanUseGLSLForShaderModule = true;
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+        this->applyDriverCorrectnessWorkarounds(properties);
     }
 
+    this->applyOptionsOverrides(contextOptions);
+    fShaderCaps->applyOptionsOverrides(contextOptions);
+}
+
+int get_max_sample_count(VkSampleCountFlags flags) {
+    SkASSERT(flags & VK_SAMPLE_COUNT_1_BIT);
+    if (!(flags & VK_SAMPLE_COUNT_2_BIT)) {
+        return 0;
+    }
+    if (!(flags & VK_SAMPLE_COUNT_4_BIT)) {
+        return 2;
+    }
+    if (!(flags & VK_SAMPLE_COUNT_8_BIT)) {
+        return 4;
+    }
+    if (!(flags & VK_SAMPLE_COUNT_16_BIT)) {
+        return 8;
+    }
+    if (!(flags & VK_SAMPLE_COUNT_32_BIT)) {
+        return 16;
+    }
+    if (!(flags & VK_SAMPLE_COUNT_64_BIT)) {
+        return 32;
+    }
+    return 64;
+}
+
+void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
     }
@@ -124,32 +150,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fMustSleepOnTearDown = true;
     }
 #endif
-
-    this->applyOptionsOverrides(contextOptions);
-    fShaderCaps->applyOptionsOverrides(contextOptions);
-}
-
-int get_max_sample_count(VkSampleCountFlags flags) {
-    SkASSERT(flags & VK_SAMPLE_COUNT_1_BIT);
-    if (!(flags & VK_SAMPLE_COUNT_2_BIT)) {
-        return 0;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_4_BIT)) {
-        return 2;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_8_BIT)) {
-        return 4;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_16_BIT)) {
-        return 8;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_32_BIT)) {
-        return 16;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_64_BIT)) {
-        return 32;
-    }
-    return 64;
 }
 
 void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
