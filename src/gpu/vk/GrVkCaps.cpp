@@ -19,7 +19,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     : INHERITED(contextOptions) {
     fCanUseGLSLForShaderModule = false;
     fMustDoCopiesFromOrigin = false;
-    fSupportsCopiesAsDraws = false;
+    fSupportsCopiesAsDraws = true;
     fMustSubmitCommandsBeforeCopyOp = false;
     fMustSleepOnTearDown  = false;
     fNewCBOnPipelineChange = false;
@@ -40,7 +40,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fBlacklistCoverageCounting = true; // blacklisting ccpr until we work through a few issues.
     fFenceSyncSupport = true;   // always available in Vulkan
-    fCrossContextTextureSupport = false;
+    fCrossContextTextureSupport = true;
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
@@ -88,12 +88,15 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initConfigTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
-    if (SkToBool(extensionFlags & kNV_glsl_shader_GrVkExtensionFlag)) {
-        // Currently disabling this feature since it does not play well with validation layers which
-        // expect a SPIR-V shader
-        // fCanUseGLSLForShaderModule = true;
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+        this->applyDriverCorrectnessWorkarounds(properties);
     }
 
+    this->applyOptionsOverrides(contextOptions);
+    fShaderCaps->applyOptionsOverrides(contextOptions);
+}
+
+void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
     }
@@ -102,13 +105,11 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fMustSubmitCommandsBeforeCopyOp = true;
     }
 
-    if (kQualcomm_VkVendor != properties.vendorID &&
-        kARM_VkVendor != properties.vendorID) {
-        fSupportsCopiesAsDraws = true;
-    }
-
-    if (fSupportsCopiesAsDraws) {
-        fCrossContextTextureSupport = true;
+    if (kQualcomm_VkVendor == properties.vendorID ||
+        kARM_VkVendor == properties.vendorID) {
+        fSupportsCopiesAsDraws = false;
+        // We require copies as draws to support cross context textures.
+        fCrossContextTextureSupport = false;
     }
 
     if (kARM_VkVendor == properties.vendorID) {
@@ -124,9 +125,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fMustSleepOnTearDown = true;
     }
 #endif
-
-    this->applyOptionsOverrides(contextOptions);
-    fShaderCaps->applyOptionsOverrides(contextOptions);
 }
 
 int get_max_sample_count(VkSampleCountFlags flags) {
