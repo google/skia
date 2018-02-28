@@ -195,3 +195,30 @@ DEF_TEST(SkPDF_pdfa_document, r) {
         }
     }
 }
+
+
+DEF_TEST(SkPDF_unicode_metadata, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_unicode_metadata, r);
+    SkDocument::PDFMetadata pdfMetadata;
+    pdfMetadata.fTitle   = "𝓐𝓑𝓒𝓓𝓔 𝓕𝓖𝓗𝓘𝓙"; // Out of basic multilingual plane
+    pdfMetadata.fAuthor  = "ABCDE FGHIJ"; // ASCII
+    pdfMetadata.fSubject = "αβγδε ζηθικ"; // inside  basic multilingual plane
+    pdfMetadata.fPDFA = true;
+    SkDynamicMemoryWStream wStream;
+    {
+        auto doc = SkDocument::MakePDF(&wStream, pdfMetadata);
+        doc->beginPage(612, 792)->drawColor(SK_ColorCYAN);
+    }
+    sk_sp<SkData> data(wStream.detachAsData());
+    static const char* expectations[] = {
+        "<</Title <FEFFD835DCD0D835DCD1D835DCD2D835DCD3D835DCD40020"
+            "D835DCD5D835DCD6D835DCD7D835DCD8D835DCD9>",
+        "/Author (ABCDE FGHIJ)",
+        "Subject <FEFF03B103B203B303B403B5002003B603B703B803B903BA>",
+    };
+    for (const char* expectation : expectations) {
+        if (!contains(data->bytes(), data->size(), expectation)) {
+            ERRORF(r, "PDF expectation missing: '%s'.", expectation);
+        }
+    }
+}

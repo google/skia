@@ -32,6 +32,72 @@ static SkString pdf_date(const SkTime::DateTime& dt) {
             timeZoneMinutes);
 }
 
+static bool utf8_is_pdfdocencoding(const char* src, size_t len) {
+    const uint8_t* end = (const uint8_t*)src + len;
+    for (const uint8_t* ptr = (const uint8_t*)src; ptr < end; ++ptr) {
+        uint8_t v = *ptr;
+        // See Table D.2 (PDFDocEncoding Character Set) in the PDF3200_2008 spec.
+        if ((v > 23 && v < 32) || v > 126) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void write_utf16be(char** ptr, uint16_t value) {
+    *(*ptr)++ = (value >> 8);
+    *(*ptr)++ = (value & 0xFF);
+}
+
+// Please Note:  This "abuses" the SkString, which "should" only hold UTF8.
+// But the SkString is written as if it is really just a ref-counted array of
+// chars, so this works, as long as we handle endiness and conversions ourselves.
+//
+// Input:  UTF-8
+// Output  UTF-16-BE
+static SkString to_utf16be(const char* src, size_t len) {
+    SkString ret;
+    const char* const end = src + len;
+    size_t n = 1;  // BOM
+    for (const char* ptr = src; ptr < end;) {
+        SkUnichar u = SkUTF8_NextUnicharWithError(&ptr, end);
+        if (u < 0) {
+            break;
+        }
+        n += SkUTF16_FromUnichar(u);
+    }
+    ret.resize(2 * n);
+    char* out = ret.writable_str();
+    write_utf16be(&out, 0xFEFF);  // BOM
+    for (const char* ptr = src; ptr < end;) {
+        SkUnichar u = SkUTF8_NextUnicharWithError(&ptr, end);
+        if (u < 0) {
+            break;
+        }
+        uint16_t utf16[2];
+        size_t l = SkUTF16_FromUnichar(u, utf16);
+        write_utf16be(&out, utf16[0]);
+        if (l == 2) {
+            write_utf16be(&out, utf16[1]);
+        }
+    }
+    SkASSERT(out == ret.writable_str() + 2 * n);
+    return ret;
+}
+
+// Input:  UTF-8
+// Output  UTF-16-BE OR PDFDocEncoding (if that encoding is identical to ASCII encoding).
+//
+// See sections 14.3.3 (Document Information Dictionary) and 7.9.2.2 (Text String Type)
+// of the PDF32000_2008 spec.
+static SkString convert(const SkString& s) {
+    return utf8_is_pdfdocencoding(s.c_str(), s.size()) ? s : to_utf16be(s.c_str(), s.size());
+}
+static SkString convert(const char* src) {
+    size_t len = strlen(src);
+    return utf8_is_pdfdocencoding(src, len) ? SkString(src, len) : to_utf16be(src, len);
+}
+
 namespace {
 static const struct {
     const char* const key;
@@ -51,18 +117,17 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
     for (const auto keyValuePtr : gMetadataKeys) {
         const SkString& value = metadata.*(keyValuePtr.valuePtr);
         if (value.size() > 0) {
-            dict->insertString(keyValuePtr.key, value);
+            dict->insertString(keyValuePtr.key, convert(value));
         }
     }
     if (metadata.fProducer.isEmpty()) {
-        dict->insertString("Producer", SKPDF_PRODUCER);
+        dict->insertString("Producer", convert(SKPDF_PRODUCER));
     } else {
-        dict->insertString("Producer", metadata.fProducer);
-        dict->insertString(SKPDF_CUSTOM_PRODUCER_KEY, SKPDF_PRODUCER);
+        dict->insertString("Producer", convert(metadata.fProducer));
+        dict->insertString(SKPDF_CUSTOM_PRODUCER_KEY, convert(SKPDF_PRODUCER));
     }
     if (metadata.fCreation.fEnabled) {
-        dict->insertString("CreationDate",
-                           pdf_date(metadata.fCreation.fDateTime));
+        dict->insertString("CreationDate", pdf_date(metadata.fCreation.fDateTime));
     }
     if (metadata.fModified.fEnabled) {
         dict->insertString("ModDate", pdf_date(metadata.fModified.fDateTime));
