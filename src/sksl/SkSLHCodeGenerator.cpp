@@ -277,7 +277,7 @@ bool HCodeGenerator::generateCode() {
                  fFullName.c_str(),
                  fFullName.c_str());
     this->writef("#include \"SkTypes.h\"\n"
-                 "#if SK_SUPPORT_GPU\n");
+            "#if SK_SUPPORT_GPU\n");
     this->writeSection(HEADER_SECTION);
     this->writef("#include \"GrFragmentProcessor.h\"\n"
                  "#include \"GrCoordTransform.h\"\n");
