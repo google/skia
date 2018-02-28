@@ -221,7 +221,7 @@ static inline void calc_loop_intersect_padding_pts(float padRadius, const Sk2f& 
     Sk2f discr = qqq*bloat*2 + bloat*bloat;
 
     float numRoots[2], D[2];
-    (discr < 0).thenElse(3, 1).store(numRoots);
+    (discr < 0).thenElse<float>(3, 1).store(numRoots);
     (T2 - q).store(D);
 
     // Values for calculating one root.
@@ -237,7 +237,7 @@ static inline void calc_loop_intersect_padding_pts(float padRadius, const Sk2f& 
     float P[2], cosTheta3[2];
     if ((discr < 0).anyTrue()) {
         (q.abs() * -2).store(P);
-        ((q >= 0).thenElse(1, -1) + bloat / qqq.abs()).store(cosTheta3);
+        ((q >= 0).thenElse<float>(1, -1) + bloat / qqq.abs()).store(cosTheta3);
     }
 
     for (int i = 0; i < 2; ++i) {
