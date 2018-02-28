@@ -186,6 +186,8 @@ public:
     void set(const SkString& src) { *this = src; }
     void set(const char text[]);
     void set(const char text[], size_t len);
+    
+    // deprecated: use 
     void setUTF16(const uint16_t[]);
     void setUTF16(const uint16_t[], size_t len);
 
