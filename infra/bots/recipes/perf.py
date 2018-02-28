@@ -171,6 +171,9 @@ def nanobench_flags(api, bot):
     match.append('~desk_skbug6850overlay2')
     match.append('~desk_googlespreadsheet')
     match.append('~desk_carsvg')
+  if 'Vulkan' in bot and 'RadeonR9M470X' in bot and 'Win' in bot:
+    # skia:7677
+    match.append('~path_text_clipped_uncached')
   if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
@@ -354,6 +357,7 @@ TEST_BUILDERS = [
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
    'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
+  'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan',
   'Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE',
