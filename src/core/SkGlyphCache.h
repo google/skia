@@ -120,6 +120,15 @@ public:
                                     bool (*proc)(const SkGlyphCache*, void*),
                                     void* context);
 
+    static SkGlyphCache* DetatchCacheOrNull(const SkDescriptor& desc);
+    template <typename ScalerContextCreator>
+    static SkGlyphCache* CreateScalerContext(
+        const SkDescriptor& desc, ScalerContextCreator&& creator);
+
+    template <typename ScalerContextCreator>
+    static SkGlyphCache* DetachCacheOrCreate(
+        const SkDescriptor& desc, ScalerContextCreator&& creator);
+
     /** Given a strike that was returned by either VisitCache() or DetachCache() add it back into
         the global cache list (after which the caller should not reference it anymore.
     */

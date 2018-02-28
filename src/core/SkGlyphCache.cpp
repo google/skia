@@ -45,6 +45,8 @@ SkGlyphCache::SkGlyphCache(const SkDescriptor* desc, std::unique_ptr<SkScalerCon
     fScalerContext->getFontMetrics(&fFontMetrics);
 
     fMemoryUsed = sizeof(*this);
+
+    AutoValidate av(this);
 }
 
 SkGlyphCache::~SkGlyphCache() {
@@ -475,6 +477,7 @@ void SkGlyphCache_Globals::purgeAll() {
     - try to acquire the mutext again
     - call a fontscaler (which might call into the cache)
 */
+
 SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
                                        const SkScalerContextEffects& effects,
                                        const SkDescriptor* desc,
@@ -515,26 +518,60 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
         }
     }
 
-    // Check if we can create a scaler-context before creating the glyphcache.
-    // If not, we may have exhausted OS/font resources, so try purging the
-    // cache once and try again.
-    {
-        // pass true the first time, to notice if the scalercontext failed,
-        // so we can try the purge.
-        std::unique_ptr<SkScalerContext> ctx = typeface->createScalerContext(effects, desc, true);
-        if (!ctx) {
-            get_globals().purgeAll();
-            ctx = typeface->createScalerContext(effects, desc, false);
-            SkASSERT(ctx);
-        }
-        cache = new SkGlyphCache(desc, std::move(ctx));
-    }
+    auto creator = [&typeface, &effects](const SkDescriptor& descriptor, bool canFail) {
+        typeface->createScalerContext(effects, &descriptor, false);
+    };
 
-    AutoValidate av(cache);
+    cache = CreateScalerContext(*desc, creator);
 
     if (!proc(cache, context)) {   // need to reattach
         globals.attachCacheToHead(cache);
         cache = nullptr;
+    }
+    return cache;
+}
+
+SkGlyphCache* SkGlyphCache::DetatchCacheOrNull(const SkDescriptor& desc) {
+    SkGlyphCache_Globals& globals = get_globals();
+    SkGlyphCache*         cache;
+    SkAutoExclusive       ac(globals.fLock);
+
+    for (cache = globals.internalGetHead(); cache != nullptr; cache = cache->fNext) {
+        if (*cache->fDesc == desc) {
+            globals.internalDetachCache(cache);
+            return cache;
+        }
+    }
+
+    return nullptr;
+}
+
+template <typename ScalerContextCreator>
+static SkGlyphCache* SkGlyphCache::CreateScalerContext(
+    const SkDescriptor& desc, ScalerContextCreator&& creator)
+{
+    // Check if we can create a scaler-context before creating the glyphcache.
+    // If not, we may have exhausted OS/font resources, so try purging the
+    // cache once and try again
+    // pass true the first time, to notice if the scalercontext failed,
+    // so we can try the purge.
+    auto context = creator(desc, true);
+    if (!context) {
+        get_globals().purgeAll();
+        context = creator(desc, false);
+        SkASSERT(context);
+    }
+
+    return new SkGlyphCache(&desc, std::move(context));
+}
+
+template <typename ScalerContextCreator>
+static SkGlyphCache* SkGlyphCache::DetachCacheOrCreate(
+    const SkDescriptor& desc, ScalerContextCreator&& creator)
+{
+    auto cache = DetatchCacheOrNull(desc);
+    if (cache == nullptr) {
+        cache = CreateScalerContext(desc, creator);
     }
     return cache;
 }
