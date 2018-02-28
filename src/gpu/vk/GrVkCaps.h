@@ -145,6 +145,8 @@ private:
     void initConfigTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
 
+    void applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties&);
+
     struct ConfigInfo {
         ConfigInfo() : fOptimalFlags(0), fLinearFlags(0) {}
 

@@ -88,12 +88,15 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initConfigTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
-    if (SkToBool(extensionFlags & kNV_glsl_shader_GrVkExtensionFlag)) {
-        // Currently disabling this feature since it does not play well with validation layers which
-        // expect a SPIR-V shader
-        // fCanUseGLSLForShaderModule = true;
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+        this->applyDriverCorrectnessWorkarounds(properties);
     }
 
+    this->applyOptionsOverrides(contextOptions);
+    fShaderCaps->applyOptionsOverrides(contextOptions);
+}
+
+void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
     }
@@ -124,9 +127,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fMustSleepOnTearDown = true;
     }
 #endif
-
-    this->applyOptionsOverrides(contextOptions);
-    fShaderCaps->applyOptionsOverrides(contextOptions);
 }
 
 int get_max_sample_count(VkSampleCountFlags flags) {
