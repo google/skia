@@ -11,7 +11,6 @@
 #include "ops/GrMeshDrawOp.h"
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
-#include "text/GrGlyphCache.h"
 
 class SkAtlasTextTarget;
 
@@ -40,12 +39,11 @@ public:
         GrColor  fColor;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(
-                                GrPaint&& paint, GrMaskFormat maskFormat,
-                                int glyphCount, GrRestrictedAtlasManager* restrictedAtlasManager) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(restrictedAtlasManager,
-                                                            std::move(paint)));
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrPaint&& paint, GrMaskFormat maskFormat,
+                                                     int glyphCount, GrAtlasGlyphCache* fontCache) {
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
+        op->fFontCache = fontCache;
         switch (maskFormat) {
             case kA8_GrMaskFormat:
                 op->fMaskType = kGrayscaleCoverageMask_MaskType;
@@ -60,17 +58,18 @@ public:
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
         op->fLuminanceColor = 0;
+        op->fFontCache = fontCache;
         return op;
     }
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrPaint&& paint, int glyphCount, GrRestrictedAtlasManager* restrictedAtlasManager,
+            GrPaint&& paint, int glyphCount, GrAtlasGlyphCache* fontCache,
             const GrDistanceFieldAdjustTable* distanceAdjustTable,
             bool useGammaCorrectDistanceTable, SkColor luminanceColor, bool isLCD, bool useBGR,
             bool isAntiAliased) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(restrictedAtlasManager,
-                                                            std::move(paint)));
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
+        op->fFontCache = fontCache;
         op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
                                        : isLCD ? (useBGR ? kLCDBGRDistanceField_MaskType
                                                          : kLCDDistanceField_MaskType)
@@ -121,9 +120,8 @@ private:
     // The minimum number of Geometry we will try to allocate.
     static constexpr auto kMinGeometryAllocated = 12;
 
-    GrAtlasTextOp(GrRestrictedAtlasManager* restrictedAtlasManager, GrPaint&& paint)
+    GrAtlasTextOp(GrPaint&& paint)
             : INHERITED(ClassID())
-            , fRestrictedAtlasManager(restrictedAtlasManager)
             , fGeoDataAllocSize(kMinGeometryAllocated)
             , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
             , fProcessors(std::move(paint)) {}
@@ -176,9 +174,8 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
-    sk_sp<GrGeometryProcessor> setupDfProcessor(GrRestrictedAtlasManager*) const;
+    sk_sp<GrGeometryProcessor> setupDfProcessor() const;
 
-    GrRestrictedAtlasManager* fRestrictedAtlasManager;
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;
     uint32_t fSRGBFlags;
@@ -188,6 +185,7 @@ private:
     int fGeoCount;
     int fNumGlyphs;
     MaskType fMaskType;
+    GrAtlasGlyphCache* fFontCache;
     // Distance field properties
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fLuminanceColor;

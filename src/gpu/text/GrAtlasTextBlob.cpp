@@ -250,8 +250,8 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
         const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
         const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
-        const GrDistanceFieldAdjustTable* distanceAdjustTable,
-        GrRestrictedAtlasManager* restrictedAtlasManager, GrTextUtils::Target* target) {
+        const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
+        GrTextUtils::Target* target) {
     GrMaskFormat format = info.maskFormat();
 
     GrPaint grPaint;
@@ -260,12 +260,11 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
     if (info.drawAsDistanceFields()) {
         bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         op = GrAtlasTextOp::MakeDistanceField(
-                std::move(grPaint), glyphCount, restrictedAtlasManager, distanceAdjustTable,
+                std::move(grPaint), glyphCount, cache, distanceAdjustTable,
                 target->colorSpaceInfo().isGammaCorrect(), paint.luminanceColor(),
                 info.hasUseLCDText(), useBGR, info.isAntiAliased());
     } else {
-        op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format,
-                                       glyphCount, restrictedAtlasManager);
+        op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount, cache);
     }
     GrAtlasTextOp::Geometry& geometry = op->geometry();
     geometry.fViewMatrix = viewMatrix;
@@ -301,8 +300,8 @@ static void calculate_translation(bool applyVM,
     }
 }
 
-void GrAtlasTextBlob::flush(GrRestrictedAtlasManager* restrictedAtlasManager,
-                            GrTextUtils::Target* target, const SkSurfaceProps& props,
+void GrAtlasTextBlob::flush(GrAtlasGlyphCache* atlasGlyphCache, GrTextUtils::Target* target,
+                            const SkSurfaceProps& props,
                             const GrDistanceFieldAdjustTable* distanceAdjustTable,
                             const GrTextUtils::Paint& paint, const GrClip& clip,
                             const SkMatrix& viewMatrix, const SkIRect& clipBounds,
@@ -377,7 +376,7 @@ void GrAtlasTextBlob::flush(GrRestrictedAtlasManager* restrictedAtlasManager,
             if (submitOp) {
                 auto op = this->makeOp(info, glyphCount, runIndex, subRun, viewMatrix, x, y,
                                        clipRect, std::move(paint), props, distanceAdjustTable,
-                                       restrictedAtlasManager, target);
+                                       atlasGlyphCache, target);
                 if (op) {
                     if (skipClip) {
                         target->addDrawOp(GrNoClip(), std::move(op));
@@ -395,12 +394,12 @@ void GrAtlasTextBlob::flush(GrRestrictedAtlasManager* restrictedAtlasManager,
 std::unique_ptr<GrDrawOp> GrAtlasTextBlob::test_makeOp(
         int glyphCount, uint16_t run, uint16_t subRun, const SkMatrix& viewMatrix,
         SkScalar x, SkScalar y, const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
-        const GrDistanceFieldAdjustTable* distanceAdjustTable,
-        GrRestrictedAtlasManager* restrictedAtlasManager, GrTextUtils::Target* target) {
+        const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
+        GrTextUtils::Target* target) {
     const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
     SkIRect emptyRect = SkIRect::MakeEmpty();
     return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, emptyRect, paint, props,
-                        distanceAdjustTable, restrictedAtlasManager, target);
+                        distanceAdjustTable, cache, target);
 }
 
 void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlob& r) {

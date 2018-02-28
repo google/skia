@@ -26,7 +26,7 @@
 #include "SkMathPriv.h"
 #include "SkString.h"
 #include "ops/GrMeshDrawOp.h"
-#include "text/GrGlyphCache.h"
+#include "text/GrAtlasGlyphCache.h"
 #include "text/GrTextBlobCache.h"
 
 namespace GrTest {
@@ -94,7 +94,7 @@ void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
 }
 
 void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
-    fFullAtlasManager->setAtlasSizes_ForTesting(configs);
+    fAtlasGlyphCache->setAtlasSizes_ForTesting(configs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,11 +147,11 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, unsigned int index) {
-    auto restrictedAtlasManager = this->contextPriv().getRestrictedAtlasManager();
+sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, uint32_t index) {
+    GrAtlasGlyphCache* cache = this->contextPriv().getAtlasGlyphCache();
 
     unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* proxies = restrictedAtlasManager->getProxies(format, &numProxies);
+    const sk_sp<GrTextureProxy>* proxies = cache->getProxies(format, &numProxies);
     if (index >= numProxies || !proxies[index]) {
         return nullptr;
     }

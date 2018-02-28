@@ -16,13 +16,13 @@
 #include "SkTextToPathIter.h"
 #include "SkTLazy.h"
 
+class GrAtlasGlyphCache;
 class GrAtlasTextBlob;
 class GrAtlasTextOp;
 class GrAtlasTextStrike;
 class GrClip;
 class GrColorSpaceXform;
 class GrContext;
-class GrGlyphCache;
 class GrPaint;
 class GrShaderCaps;
 class SkColorSpace;

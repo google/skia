@@ -13,8 +13,8 @@
 #include "SkArenaAllocList.h"
 #include "SkRefCnt.h"
 
+class GrAtlasGlyphCache;
 class GrContext;
-class GrGlyphCache;
 class GrTextBlobCache;
 
 class SkAtlasTextRenderer;
@@ -33,7 +33,7 @@ public:
     SkAtlasTextRenderer* renderer() const { return fRenderer.get(); }
 
     GrContext* grContext() const { return fGrContext.get(); }
-    GrGlyphCache* glyphCache();
+    GrAtlasGlyphCache* atlasGlyphCache();
     GrTextBlobCache* textBlobCache();
 
     const GrTokenTracker* tokenTracker() final { return &fTokenTracker; }
