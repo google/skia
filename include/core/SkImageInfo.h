@@ -139,11 +139,6 @@ enum SkYUVColorSpace {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum class SkDestinationSurfaceColorMode {
-    kLegacy,
-    kGammaAndColorSpaceAware,
-};
-
 /**
  *  Describe an image's dimensions and pixel type.
  *  Used for both src images and render-targets (surfaces).

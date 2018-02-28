@@ -12,7 +12,7 @@
 #include "GrContextOptions.h"
 #include "GrPathRange.h"
 #include "GrResourceCache.h"
-#include "SkImageInfo.h"
+#include "SkImageInfoPriv.h"
 #include "SkScalerContext.h"
 
 class GrBackendRenderTarget;
