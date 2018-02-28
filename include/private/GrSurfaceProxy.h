@@ -57,17 +57,6 @@ public:
     }
 #endif
 
-    void release() {
-        SkASSERT(1 == fRefCnt);
-        SkASSERT(0 == fPendingReads);
-        SkASSERT(0 == fPendingWrites);
-
-        SkASSERT(fTarget->internalHasUniqueRef());
-        SkASSERT(!fTarget->internalHasPendingIO());
-        fTarget->unref();
-        fTarget = nullptr;
-    }
-
     void validate() const {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt >= 0);
@@ -140,7 +129,7 @@ protected:
     }
     virtual ~GrIORefProxy() {
         // We don't unref 'fTarget' here since the 'unref' method will already
-        // have forwarded on the unref call that got us here.
+        // have forwarded on the unref call that got use here.
     }
 
     // This GrIORefProxy was deferred before but has just been instantiated. To
@@ -289,8 +278,6 @@ public:
     }
 
     virtual bool instantiate(GrResourceProvider* resourceProvider) = 0;
-
-    void deInstantiate();
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
