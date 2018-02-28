@@ -66,8 +66,6 @@ public:
  */
 class GrOnFlushResourceProvider {
 public:
-    explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
-
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(const GrSurfaceDesc&,
                                                          sk_sp<SkColorSpace>,
                                                          const SkSurfaceProps*);
@@ -88,10 +86,13 @@ public:
     const GrCaps* caps() const;
 
 private:
+    explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
     GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;
     GrOnFlushResourceProvider& operator=(const GrOnFlushResourceProvider&) = delete;
 
     GrDrawingManager* fDrawingMgr;
+
+    friend class GrDrawingManager; // to construct this type.
 };
 
 #endif
