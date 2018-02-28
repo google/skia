@@ -20,6 +20,7 @@
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkTypes.h"
+#include "SkYUVImageInfo.h"
 #include "SkYUVSizeInfo.h"
 
 #include <vector>
@@ -352,46 +353,6 @@ public:
     }
 
     /**
-     *  If decoding to YUV is supported, this returns true.  Otherwise, this
-     *  returns false and does not modify any of the parameters.
-     *
-     *  @param sizeInfo   Output parameter indicating the sizes and required
-     *                    allocation widths of the Y, U, and V planes.
-     *  @param colorSpace Output parameter.  If non-NULL this is set to kJPEG,
-     *                    otherwise this is ignored.
-     */
-    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
-        if (nullptr == sizeInfo) {
-            return false;
-        }
-
-        return this->onQueryYUV8(sizeInfo, colorSpace);
-    }
-
-    /**
-     *  Returns kSuccess, or another value explaining the type of failure.
-     *  This always attempts to perform a full decode.  If the client only
-     *  wants size, it should call queryYUV8().
-     *
-     *  @param sizeInfo   Needs to exactly match the values returned by the
-     *                    query, except the WidthBytes may be larger than the
-     *                    recommendation (but not smaller).
-     *  @param planes     Memory for each of the Y, U, and V planes.
-     */
-    Result getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
-        if (nullptr == planes || nullptr == planes[0] || nullptr == planes[1] ||
-                nullptr == planes[2]) {
-            return kInvalidInput;
-        }
-
-        if (!this->rewindIfNeeded()) {
-            return kCouldNotRewind;
-        }
-
-        return this->onGetYUV8Planes(sizeInfo, planes);
-    }
-
-    /**
      *  Prepare for an incremental decode with the specified options.
      *
      *  This may require a rewind.
@@ -711,6 +672,46 @@ protected:
     virtual Result onGetPixels(const SkImageInfo& info,
                                void* pixels, size_t rowBytes, const Options&,
                                int* rowsDecoded) = 0;
+
+    /**
+    *  If decoding to YUV is supported, this returns true.  Otherwise, this
+    *  returns false and does not modify any of the parameters.
+    *
+    *  @param sizeInfo   Output parameter indicating the sizes and required
+    *                    allocation widths of the Y, U, and V planes.
+    *  @param colorSpace Output parameter.  If non-NULL this is set to kJPEG,
+    *                    otherwise this is ignored.
+    */
+    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+        if (nullptr == sizeInfo) {
+            return false;
+        }
+
+        return this->onQueryYUV8(sizeInfo, colorSpace);
+    }
+
+    /**
+    *  Returns kSuccess, or another value explaining the type of failure.
+    *  This always attempts to perform a full decode.  If the client only
+    *  wants size, it should call queryYUV8().
+    *
+    *  @param sizeInfo   Needs to exactly match the values returned by the
+    *                    query, except the WidthBytes may be larger than the
+    *                    recommendation (but not smaller).
+    *  @param planes     Memory for each of the Y, U, and V planes.
+    */
+    Result getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
+        if (nullptr == planes || nullptr == planes[0] || nullptr == planes[1] ||
+            nullptr == planes[2]) {
+            return kInvalidInput;
+        }
+
+        if (!this->rewindIfNeeded()) {
+            return kCouldNotRewind;
+        }
+
+        return this->onGetYUV8Planes(sizeInfo, planes);
+    }
 
     virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const {
         return false;

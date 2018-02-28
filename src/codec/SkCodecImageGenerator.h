@@ -10,9 +10,9 @@
 #include "SkCodec.h"
 #include "SkColorTable.h"
 #include "SkData.h"
-#include "SkImageGenerator.h"
+#include "SkYUVImageGenerator.h"
 
-class SkCodecImageGenerator : public SkImageGenerator {
+class SkCodecImageGenerator : public SkYUVImageGenerator {
 public:
     /*
      * If this data represents an encoded image that we know how to decode,

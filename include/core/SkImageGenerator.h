@@ -12,7 +12,6 @@
 #include "SkColor.h"
 #include "SkImage.h"
 #include "SkImageInfo.h"
-#include "SkYUVSizeInfo.h"
 
 class GrContext;
 class GrContextThreadSafeProxy;
@@ -96,28 +95,6 @@ public:
      */
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
-    /**
-     *  If decoding to YUV is supported, this returns true.  Otherwise, this
-     *  returns false and does not modify any of the parameters.
-     *
-     *  @param sizeInfo   Output parameter indicating the sizes and required
-     *                    allocation widths of the Y, U, and V planes.
-     *  @param colorSpace Output parameter.
-     */
-    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const;
-
-    /**
-     *  Returns true on success and false on failure.
-     *  This always attempts to perform a full decode.  If the client only
-     *  wants size, it should call queryYUV8().
-     *
-     *  @param sizeInfo   Needs to exactly match the values returned by the
-     *                    query, except the WidthBytes may be larger than the
-     *                    recommendation (but not smaller).
-     *  @param planes     Memory for each of the Y, U, and V planes.
-     */
-    bool getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]);
-
 #if SK_SUPPORT_GPU
     /**
      *  If the generator can natively/efficiently return its pixels as a GPU image (backed by a
@@ -179,8 +156,6 @@ protected:
     virtual SkData* onRefEncodedData() { return nullptr; }
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrContext*) const { return true; }
-    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }
-    virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) { return false; }
 
 #if SK_SUPPORT_GPU
     enum class TexGenType {

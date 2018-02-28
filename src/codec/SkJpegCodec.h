@@ -8,7 +8,7 @@
 #ifndef SkJpegCodec_DEFINED
 #define SkJpegCodec_DEFINED
 
-#include "SkCodec.h"
+#include "SkYUVCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpaceXform.h"
 #include "SkImageInfo.h"
@@ -23,7 +23,7 @@ class JpegDecoderMgr;
  * This class implements the decoding for jpeg images
  *
  */
-class SkJpegCodec : public SkCodec {
+class SkJpegCodec : public SkYUVCodec {
 public:
     static bool IsJpeg(const void*, size_t);
 
@@ -151,7 +151,7 @@ private:
 
     friend class SkRawCodec;
 
-    typedef SkCodec INHERITED;
+    typedef SkYUVCodec INHERITED;
 };
 
 #endif
