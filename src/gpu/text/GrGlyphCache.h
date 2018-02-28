@@ -33,7 +33,7 @@ public:
     inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                              SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
-        if (nullptr == glyph) {
+        if (!glyph) {
             glyph = this->generateGlyph(skGlyph, packed, cache);
         }
         return glyph;
@@ -47,7 +47,7 @@ public:
                              GrMaskFormat expectedMaskFormat,
                              SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
-        if (nullptr == glyph) {
+        if (!glyph) {
             // We could return this to the caller, but in practice it adds code complexity for
             // potentially little benefit(ie, if the glyph is not in our font cache, then its not
             // in the atlas and we're going to be doing a texture upload anyways).
@@ -119,9 +119,9 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrAtlasTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    inline GrAtlasTextStrike* getStrike(const SkGlyphCache* cache) {
-        GrAtlasTextStrike* strike = fCache.find(cache->getDescriptor());
-        if (nullptr == strike) {
+    inline sk_sp<GrAtlasTextStrike> getStrike(const SkGlyphCache* cache) {
+        sk_sp<GrAtlasTextStrike> strike = sk_ref_sp(fCache.find(cache->getDescriptor()));
+        if (!strike) {
             strike = this->generateStrike(cache);
         }
         return strike;
@@ -132,9 +132,10 @@ public:
     static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
 
 private:
-    GrAtlasTextStrike* generateStrike(const SkGlyphCache* cache) {
-        GrAtlasTextStrike* strike = new GrAtlasTextStrike(cache->getDescriptor());
-        fCache.add(strike);
+    sk_sp<GrAtlasTextStrike> generateStrike(const SkGlyphCache* cache) {
+        // 'fCache' get the construction ref
+        sk_sp<GrAtlasTextStrike> strike = sk_ref_sp(new GrAtlasTextStrike(cache->getDescriptor()));
+        fCache.add(strike.get());
         return strike;
     }
 
