@@ -121,6 +121,7 @@ SK_API bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alph
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_YUV_COLORSPACE
 /**
  *  Describes the color space a YUV pixel.
  */
@@ -136,6 +137,7 @@ enum SkYUVColorSpace {
 
     kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
 };
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
