@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67033e06_a45b7f63",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-28T02:30:39Z",
+      "side": 1,
+      "message": "maybe name this resultID?",
+      "range": {
+        "startLine": 757,
+        "startChar": 78,
+        "endLine": 757,
+        "endChar": 80
+      },
+      "revId": "ddff1b0abce8b11e0b53f8069231b0a025121e62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

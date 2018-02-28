@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "3eeec415_fca7b484",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-28T02:30:39Z",
+      "side": 1,
+      "message": "should this use the helper? If so you\u0027d have to either pass in the instruction to use directly or have a way to pass in invalid instructions for the non float ones (and assert in the switch statement we don\u0027t pick an invalid one).",
+      "range": {
+        "startLine": 766,
+        "startChar": 11,
+        "endLine": 773,
+        "endChar": 13
+      },
+      "revId": "ee7e32cfbdf999dbe6ff3e3d0f8add535f004ffe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "10b9a942_c826f79e",
         "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
         "patchSetId": 2
