@@ -36,11 +36,10 @@ static SkGlyphCache_Globals& get_globals() {
 
 SkGlyphCache::SkGlyphCache(const SkDescriptor* desc, std::unique_ptr<SkScalerContext> ctx)
     : fDesc(desc->copy())
-    , fScalerContext(std::move(ctx)) {
+    , fScalerContext(std::move(ctx))
+{
     SkASSERT(desc);
     SkASSERT(fScalerContext);
-
-    fPrev = fNext = nullptr;
 
     fScalerContext->getFontMetrics(&fFontMetrics);
 
@@ -53,6 +52,10 @@ SkGlyphCache::~SkGlyphCache() {
             delete g->fPathData->fPath;
         }
     });
+}
+
+void SkGlyphCache::PurgeAll() {
+    get_globals().purgeAll();
 }
 
 SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(SkPackedUnicharID packedUnicharID) {
@@ -101,6 +104,15 @@ int SkGlyphCache::countCachedGlyphs() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool SkGlyphCache::isGlyphIdCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
+    SkPackedGlyphID packedGlyphID{glyphID, x, y};
+    return fGlyphMap.find(packedGlyphID) != nullptr;
+}
+
+SkGlyph* SkGlyphCache::getRawGlyphByID(SkPackedGlyphID id) {
+    return lookupByPackedGlyphID(id, kNothing_MetricsType);
+}
 
 const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
     VALIDATE();
@@ -170,7 +182,9 @@ SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsTy
         glyphPtr = fGlyphMap.set(glyph);
     }
 
-    if (kJustAdvance_MetricsType == mtype) {
+    if (kNothing_MetricsType == mtype) {
+        return glyphPtr;
+    } else if (kJustAdvance_MetricsType == mtype) {
         fScalerContext->getAdvance(glyphPtr);
     } else {
         SkASSERT(kFull_MetricsType == mtype);
@@ -469,12 +483,13 @@ void SkGlyphCache_Globals::purgeAll() {
     this->internalPurge(fTotalMemoryUsed);
 }
 
-/*  This guy calls the visitor from within the mutext lock, so the visitor
+/*  This guy calls the visitor from within the mutex lock, so the visitor
     cannot:
     - take too much time
     - try to acquire the mutext again
     - call a fontscaler (which might call into the cache)
 */
+
 SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
                                        const SkScalerContextEffects& effects,
                                        const SkDescriptor* desc,
@@ -515,22 +530,11 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
         }
     }
 
-    // Check if we can create a scaler-context before creating the glyphcache.
-    // If not, we may have exhausted OS/font resources, so try purging the
-    // cache once and try again.
-    {
-        // pass true the first time, to notice if the scalercontext failed,
-        // so we can try the purge.
-        std::unique_ptr<SkScalerContext> ctx = typeface->createScalerContext(effects, desc, true);
-        if (!ctx) {
-            get_globals().purgeAll();
-            ctx = typeface->createScalerContext(effects, desc, false);
-            SkASSERT(ctx);
-        }
-        cache = new SkGlyphCache(desc, std::move(ctx));
-    }
+    auto creator = [&typeface, &effects](const SkDescriptor& descriptor, bool canFail) {
+        return typeface->createScalerContext(effects, &descriptor, canFail);
+    };
 
-    AutoValidate av(cache);
+    cache = CreateStrike(*desc, creator).release();
 
     if (!proc(cache, context)) {   // need to reattach
         globals.attachCacheToHead(cache);
@@ -539,8 +543,25 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     return cache;
 }
 
+SkStrikePtr SkGlyphCache::FindStrike(const SkDescriptor& desc) {
+    SkGlyphCache_Globals& globals = get_globals();
+    SkGlyphCache*         cache;
+    SkAutoExclusive       ac(globals.fLock);
+
+    for (cache = globals.internalGetHead(); cache != nullptr; cache = cache->fNext) {
+        if (*cache->fDesc == desc) {
+            globals.internalDetachCache(cache);
+            return SkStrikePtr(cache);
+        }
+    }
+
+    return SkStrikePtr(nullptr);
+}
+
 void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
-    SkASSERT(cache);
+    if (cache == nullptr) {
+        return;
+    }
     SkASSERT(cache->fNext == nullptr);
 
     get_globals().attachCacheToHead(cache);
