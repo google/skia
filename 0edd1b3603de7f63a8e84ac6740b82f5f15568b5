@@ -16,6 +16,24 @@
       "revId": "0edd1b3603de7f63a8e84ac6740b82f5f15568b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1694b4f3_2a9d0197",
+        "filename": "include/ports/SkYUVImage.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-02-28T19:20:21Z",
+      "side": 1,
+      "message": "Nope; leftover from when I was considering returning an SkYUVImage for no reason.",
+      "parentUuid": "d5ba1aa4_8bd02c77",
+      "revId": "0edd1b3603de7f63a8e84ac6740b82f5f15568b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
