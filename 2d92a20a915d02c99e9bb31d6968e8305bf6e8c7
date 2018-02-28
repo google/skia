@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09658f43_219615e9",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-02-28T20:01:22Z",
+      "side": 1,
+      "message": "Doc comment for consistency?",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 6
+      },
+      "revId": "2d92a20a915d02c99e9bb31d6968e8305bf6e8c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
