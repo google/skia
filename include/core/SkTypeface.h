@@ -365,6 +365,9 @@ private:
     };
     static SkFontStyle FromOldStyle(Style oldStyle);
     static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
+    static SkTypeface* NormalizeTypeface(SkTypeface* typeface) {
+        return typeface != nullptr ? typeface : SkTypeface::GetDefaultTypeface();
+    }
     friend class GrPathRendering;  // GetDefaultTypeface
     friend class SkGlyphCache;     // GetDefaultTypeface
     friend class SkPaint;          // GetDefaultTypeface
