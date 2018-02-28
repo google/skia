@@ -80,12 +80,15 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 #if SK_SUPPORT_GPU
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
-    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.grContext(),
-                                                                    kSmallerSize, kSmallerSize,
-                                                                    kRGBA_8888_GrPixelConfig,
-                                                                    nullptr));
-
-    test_surface(surf, reporter, 0);
+    for (auto config : { kRGBA_8888_GrPixelConfig, kRGBA_1010102_GrPixelConfig }) {
+        if (!ctxInfo.grContext()->caps()->isConfigRenderable(config)) {
+            continue;
+        }
+        sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.grContext(),
+                                                                        kSmallerSize, kSmallerSize,
+                                                                        config, nullptr));
+        test_surface(surf, reporter, 0);
+    }
 }
 
 #endif
