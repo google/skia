@@ -164,6 +164,7 @@
       "--nocpu",
       "--config",
       "vk",
+      "vk1010102",
       "--src",
       "tests",
       "gm",
