@@ -617,6 +617,7 @@ def dm_flags(api, bot):
 
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
+    blacklist(['vk', 'gm', '_', 'scaled_tilemodes_npot'])
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
     blacklist(['vk', 'gm', '_', 'aaxfermodes'])
     blacklist(['vk', 'gm', '_', 'arithmode'])
