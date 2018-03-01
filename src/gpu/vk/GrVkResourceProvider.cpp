@@ -88,6 +88,9 @@ GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
                                             dst->numColorSamples(),
                                             *dst->simpleRenderPass(),
                                             fPipelineCache);
+        if (!pipeline) {
+            return nullptr;
+        }
         fCopyPipelines.push_back(pipeline);
     }
     SkASSERT(pipeline);
