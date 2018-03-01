@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3f88ffe_8c5dd52e",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-01T21:35:00Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be a gl cap?",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 73
+      },
+      "revId": "67f19cc5664c79e5202342b81550841845bc5ab8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
