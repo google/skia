@@ -107,9 +107,9 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 
     if (kQualcomm_VkVendor == properties.vendorID ||
         kARM_VkVendor == properties.vendorID) {
-        fSupportsCopiesAsDraws = false;
+//        fSupportsCopiesAsDraws = false;
         // We require copies as draws to support cross context textures.
-        fCrossContextTextureSupport = false;
+ //       fCrossContextTextureSupport = false;
     }
 
     if (kARM_VkVendor == properties.vendorID) {
