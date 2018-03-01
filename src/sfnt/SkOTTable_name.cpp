@@ -8,7 +8,7 @@
 #include "SkOTTable_name.h"
 
 #include "SkEndian.h"
-#include "SkString.h"
+#include "SkStringUtils.h"
 #include "SkTSearch.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"

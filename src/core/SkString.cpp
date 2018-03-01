@@ -369,45 +369,6 @@ void SkString::set(const char text[], size_t len) {
     }
 }
 
-void SkString::setUTF16(const uint16_t src[]) {
-    int count = 0;
-
-    while (src[count]) {
-        count += 1;
-    }
-    this->setUTF16(src, count);
-}
-
-static SkString utf8_from_utf16(const uint16_t src[], size_t count) {
-    SkString ret;
-    if (count > 0) {
-        SkASSERT(src);
-        size_t n = 0;
-        const uint16_t* end = src + count;
-        for (const uint16_t* ptr = src; ptr < end;) {
-            const uint16_t* last = ptr;
-            SkUnichar u = SkUTF16_NextUnichar(&ptr);
-            size_t s = SkUTF8_FromUnichar(u);
-            if (n > SK_MaxU32 - s) {
-                end = last;  // truncate input string
-                break;
-            }
-            n += s;
-        }
-        ret = SkString(n);
-        char* out = ret.writable_str();
-        for (const uint16_t* ptr = src; ptr < end;) {
-            out += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&ptr), out);
-        }
-        SkASSERT(out == ret.writable_str() + n);
-    }
-    return ret;
-}
-
-void SkString::setUTF16(const uint16_t src[], size_t count) {
-    *this = utf8_from_utf16(src, count);
-}
-
 void SkString::insert(size_t offset, const char text[]) {
     this->insert(offset, text, text ? strlen(text) : 0);
 }

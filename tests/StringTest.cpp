@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+
 #include <stdarg.h>
 #include <stdio.h>
-#include "SkString.h"
-#include "Test.h"
 #include <thread>
 
+#include "SkString.h"
+#include "SkStringUtils.h"
 
 DEF_TEST(String, reporter) {
     SkString    a;
@@ -304,28 +306,22 @@ DEF_TEST(String_huge, r) {
     }
 }
 
-static SkString utf16_to_utf8(const uint16_t* utf16, size_t len) {
-    SkString s;
-    s.setUTF16(utf16, len);
-    return s;
-}
-
 DEF_TEST(String_fromUTF16, r) {
     // test data produced with `iconv`.
     const uint16_t test1[] = {
         0xD835, 0xDCD0, 0xD835, 0xDCD1, 0xD835, 0xDCD2, 0xD835, 0xDCD3, 0xD835, 0xDCD4, 0x0020,
         0xD835, 0xDCD5, 0xD835, 0xDCD6, 0xD835, 0xDCD7, 0xD835, 0xDCD8, 0xD835, 0xDCD9
     };
-    REPORTER_ASSERT(r, utf16_to_utf8(test1, SK_ARRAY_COUNT(test1)).equals("𝓐𝓑𝓒𝓓𝓔 𝓕𝓖𝓗𝓘𝓙"));
+    REPORTER_ASSERT(r, SkStringFromUTF16(test1, SK_ARRAY_COUNT(test1)).equals("𝓐𝓑𝓒𝓓𝓔 𝓕𝓖𝓗𝓘𝓙"));
 
     const uint16_t test2[] = {
         0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0020, 0x0046, 0x0047, 0x0048, 0x0049, 0x004A,
     };
-    REPORTER_ASSERT(r, utf16_to_utf8(test2, SK_ARRAY_COUNT(test2)).equals("ABCDE FGHIJ"));
+    REPORTER_ASSERT(r, SkStringFromUTF16(test2, SK_ARRAY_COUNT(test2)).equals("ABCDE FGHIJ"));
 
     const uint16_t test3[] = {
         0x03B1, 0x03B2, 0x03B3, 0x03B4, 0x03B5, 0x0020, 0x03B6, 0x03B7, 0x03B8, 0x03B9, 0x03BA,
     };
-    REPORTER_ASSERT(r, utf16_to_utf8(test3, SK_ARRAY_COUNT(test3)).equals("αβγδε ζηθικ"));
+    REPORTER_ASSERT(r, SkStringFromUTF16(test3, SK_ARRAY_COUNT(test3)).equals("αβγδε ζηθικ"));
 }
 
