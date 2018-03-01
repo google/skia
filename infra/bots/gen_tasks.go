@@ -200,7 +200,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Ubuntu17":   "Ubuntu-17.04",
 			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-15063",
+			"Win10":      "Windows-10-16299.248",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
@@ -209,6 +209,11 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		}[os]
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
+		}
+		if os == "Win10" && parts["model"] == "Golo" {
+			// Golo/MTV lab bots have Windows 10 version 1703, whereas Skolo bots have Windows 10 version
+			// 1709.
+			d["os"] = "Windows-10-15063"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
