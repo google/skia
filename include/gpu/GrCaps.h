@@ -79,6 +79,7 @@ public:
     bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
 
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
+    bool useBufferDataNullHint() const { return fUseBufferDataNullHint; }
 
     /**
      * Indicates the capabilities of the fixed function blend unit.
@@ -280,6 +281,7 @@ protected:
     // Driver workaround
     bool fBlacklistCoverageCounting                  : 1;
     bool fAvoidStencilBuffers                        : 1;
+    bool fUseBufferDataNullHint                      : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
