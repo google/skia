@@ -85,7 +85,9 @@ std::vector<std::string> ExecuteTest(UnitTest test) {
         }
     } r;
     GrContextOptions options;
-    // options.fDisableDriverCorrectnessWorkarounds = true;
+    #ifndef SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS
+    options.fDisableDriverCorrectnessWorkarounds = true;
+    #endif
     if (test->fContextOptionsProc) {
         test->fContextOptionsProc(&options);
     }
