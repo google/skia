@@ -926,7 +926,7 @@
       "/path/to/tmp/json",
       "copy",
       " ",
-      "/home/chrome-bot/force_quarantine"
+      "/home/chrome-bot/build123-m2--device5.force_quarantine"
     ],
     "infra_step": true,
     "name": "Quarantining Bot"
