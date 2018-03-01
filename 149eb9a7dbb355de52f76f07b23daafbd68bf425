@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "32114db7_4809c181",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-01T16:31:05Z",
+      "side": 1,
+      "message": "There actually already is an SkDebug one layer down the stack in GrVkCopyPipeline::Create. So I think that is good enough documentation and I don\u0027t think say \"returning null here since we failed to create the pipeline\" adds anything that isn\u0027t obvious.",
+      "parentUuid": "6c0dc15d_7137880c",
+      "revId": "149eb9a7dbb355de52f76f07b23daafbd68bf425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2e345a89_d1a22708",
         "filename": "tests/VkMakeCopyPipelineTest.cpp",
         "patchSetId": 3
