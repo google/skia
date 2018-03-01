@@ -22,6 +22,30 @@
       "revId": "67f19cc5664c79e5202342b81550841845bc5ab8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8498c884_9c581e54",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-01T21:52:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3f88ffe_8c5dd52e",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 73
+      },
+      "revId": "67f19cc5664c79e5202342b81550841845bc5ab8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
