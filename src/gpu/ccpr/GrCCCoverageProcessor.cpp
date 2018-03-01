@@ -44,6 +44,19 @@ void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuil
     s->codeAppendf("%s = float3(-n, dot(n, %s) - .5);", outputDistanceEquation, leftPt);
 }
 
+void GrCCCoverageProcessor::Shader::CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGeoBuilder* s,
+                                                                  const char* leftPt,
+                                                                  const char* rightPt,
+                                                                  const char* bloatDir,
+                                                                  const char* outputCoverage) {
+    s->codeAppendf("float2 n = float2(%s.y - %s.y, %s.x - %s.x);",
+                   rightPt, leftPt, leftPt, rightPt);
+    s->codeAppend ("float nwidth = abs(n.x) + abs(n.y);");
+    s->codeAppendf("float t = dot(n, %s);", bloatDir);
+    // The below conditional clamps our output, as well as ensuring we don't ever divide by zero.
+    s->codeAppendf("%s = (abs(t) >= nwidth ? sign(t) : t / nwidth) * -.5 - .5;", outputCoverage);
+}
+
 int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f,
                                                              const char* samplesName) {
     // Standard DX11 sample locations.
