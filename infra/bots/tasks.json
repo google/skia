@@ -10884,7 +10884,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -10931,7 +10931,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -10978,7 +10978,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11025,7 +11025,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11072,7 +11072,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11119,7 +11119,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11683,7 +11683,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11730,7 +11730,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11777,7 +11777,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11824,7 +11824,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11871,7 +11871,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11918,7 +11918,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11965,7 +11965,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12012,7 +12012,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12059,7 +12059,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12106,7 +12106,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12153,7 +12153,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12200,7 +12200,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12247,7 +12247,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12294,7 +12294,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12341,7 +12341,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12388,7 +12388,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12435,7 +12435,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12482,7 +12482,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12529,7 +12529,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12576,7 +12576,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12623,7 +12623,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12670,7 +12670,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12717,7 +12717,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12764,7 +12764,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12811,7 +12811,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12858,7 +12858,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12906,7 +12906,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12954,7 +12954,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13002,7 +13002,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13050,7 +13050,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13098,7 +13098,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13146,7 +13146,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13193,7 +13193,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13240,7 +13240,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13287,7 +13287,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13334,7 +13334,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13381,7 +13381,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13428,7 +13428,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20708,7 +20708,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20756,7 +20756,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20804,7 +20804,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20852,7 +20852,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20900,7 +20900,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20948,7 +20948,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21572,7 +21572,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-i7-5557U",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21620,7 +21620,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21668,7 +21668,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21716,7 +21716,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21764,7 +21764,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21812,7 +21812,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21860,7 +21860,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21908,7 +21908,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21956,7 +21956,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22004,7 +22004,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22052,7 +22052,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-21.20.16.4590",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22100,7 +22100,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22148,7 +22148,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22196,7 +22196,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22244,7 +22244,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4703",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22292,7 +22292,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22340,7 +22340,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22388,7 +22388,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22436,7 +22436,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22484,7 +22484,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22532,7 +22532,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22580,7 +22580,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22628,7 +22628,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22676,7 +22676,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22724,7 +22724,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22772,7 +22772,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22820,7 +22820,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-22.19.165.512",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22869,7 +22869,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22918,7 +22918,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22967,7 +22967,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23016,7 +23016,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23065,7 +23065,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23114,7 +23114,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23162,7 +23162,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23210,7 +23210,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23258,7 +23258,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23306,7 +23306,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23354,7 +23354,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23402,7 +23402,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.8813",
-        "os:Windows-10-15063",
+        "os:Windows-10-16299.248",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
