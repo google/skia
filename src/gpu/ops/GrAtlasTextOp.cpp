@@ -222,6 +222,8 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
 }
 
 void GrAtlasTextOp::onPrepareDraws(Target* target) {
+    auto resourceProvider = target->resourceProvider();
+
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
     // TODO actually only invert if we don't have RGBA
     SkMatrix localMatrix;
@@ -234,7 +236,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     unsigned int atlasPageCount;
     const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(maskFormat, &atlasPageCount);
-    if (!atlasPageCount || !proxies[0]) {
+    if (!proxies[0]) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
     }
@@ -248,7 +250,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         SkDEBUGCODE(dfPerspective = fGeoData[0].fViewMatrix.hasPerspective());
     } else {
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-            this->color(), proxies, GrSamplerState::ClampNearest(), maskFormat,
+            this->color(), proxies, atlasPageCount, GrSamplerState::ClampNearest(), maskFormat,
             localMatrix, this->usesLocalCoords());
     }
 
@@ -276,8 +278,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         const Geometry& args = fGeoData[i];
         Blob* blob = args.fBlob;
         GrAtlasTextBlob::VertexRegenerator regenerator(
-                blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY, args.fColor,
-                target->deferredUploadTarget(), fFontCache, &glyphCache);
+                resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
+                args.fColor, target->deferredUploadTarget(), fFontCache, &glyphCache);
         GrAtlasTextBlob::VertexRegenerator::Result result;
         do {
             result = regenerator.regenerate();
@@ -328,14 +330,14 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewProxies(
-                    proxies, GrSamplerState::ClampBilerp());
+                    proxies, numProxies, GrSamplerState::ClampBilerp());
             } else {
                 reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewProxies(
-                    proxies, GrSamplerState::ClampBilerp());
+                    proxies, numProxies, GrSamplerState::ClampBilerp());
             }
         } else {
             reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
-                proxies, GrSamplerState::ClampNearest());
+                proxies, numProxies, GrSamplerState::ClampNearest());
         }
     }
 
@@ -427,7 +429,7 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 // (see comments in GrAtlasTextContext::ComputeCanonicalColor)
 sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
     unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* p = fFontCache->getProxies(this->maskFormat(), &numProxies);
+    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat(), &numProxies);
     bool isLCD = this->isLCD();
 
     SkMatrix localMatrix = SkMatrix::I();
@@ -451,7 +453,8 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
-        return GrDistanceFieldLCDTextGeoProc::Make(p, GrSamplerState::ClampBilerp(), widthAdjust,
+        return GrDistanceFieldLCDTextGeoProc::Make(proxies, numProxies,
+                                                   GrSamplerState::ClampBilerp(), widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -462,10 +465,12 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(p, GrSamplerState::ClampBilerp(),
+        return GrDistanceFieldA8TextGeoProc::Make(proxies, numProxies,
+                                                  GrSamplerState::ClampBilerp(),
                                                   correction, fDFGPFlags, localMatrix);
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(p, GrSamplerState::ClampBilerp(),
+        return GrDistanceFieldA8TextGeoProc::Make(proxies, numProxies,
+                                                  GrSamplerState::ClampBilerp(),
                                                   fDFGPFlags, localMatrix);
 #endif
     }

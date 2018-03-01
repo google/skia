@@ -53,22 +53,22 @@ enum GrDistanceFieldEffectFlags {
  */
 class GrDistanceFieldA8TextGeoProc : public GrGeometryProcessor {
 public:
-    static constexpr int kMaxTextures = 4;
-
     /** The local matrix should be identity if local coords are not required by the GrPipeline. */
 #ifdef SK_GAMMA_APPLY_TO_A8
-    static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy>* proxies,
+                                           int numProxies,
                                            const GrSamplerState& params, float lum, uint32_t flags,
                                            const SkMatrix& localMatrixIfUsesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(new GrDistanceFieldA8TextGeoProc(
-                proxies, params, lum, flags, localMatrixIfUsesLocalCoords));
+                proxies, numProxies, params, lum, flags, localMatrixIfUsesLocalCoords));
     }
 #else
-    static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy>* proxies,
+                                           int numProxies,
                                            const GrSamplerState& params, uint32_t flags,
                                            const SkMatrix& localMatrixIfUsesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(new GrDistanceFieldA8TextGeoProc(
-                proxies, params, flags, localMatrixIfUsesLocalCoords));
+                proxies, numProxies, params, flags, localMatrixIfUsesLocalCoords));
     }
 #endif
 
@@ -85,19 +85,22 @@ public:
 #endif
     uint32_t getFlags() const { return fFlags; }
 
-    void addNewProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures], const GrSamplerState& p);
+    void addNewProxies(const sk_sp<GrTextureProxy>* proxies, int numProxies, const GrSamplerState&);
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldA8TextGeoProc(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    GrDistanceFieldA8TextGeoProc(const sk_sp<GrTextureProxy>* proxies,
+                                 int numProxies,
                                  const GrSamplerState& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  float distanceAdjust,
 #endif
                                  uint32_t flags, const SkMatrix& localMatrix);
+
+    static constexpr int kMaxTextures = 4;
 
     TextureSampler   fTextureSamplers[kMaxTextures];
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -122,14 +125,14 @@ private:
  */
 class GrDistanceFieldPathGeoProc : public GrGeometryProcessor {
 public:
-    static constexpr int kMaxTextures = 4;
 
     /** The local matrix should be identity if local coords are not required by the GrPipeline. */
     static sk_sp<GrGeometryProcessor> Make(const SkMatrix& matrix,
-                                           const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+                                           const sk_sp<GrTextureProxy>* proxies,
+                                           int numProxies,
                                            const GrSamplerState& params, uint32_t flags) {
         return sk_sp<GrGeometryProcessor>(
-            new GrDistanceFieldPathGeoProc(matrix, proxies, params, flags));
+            new GrDistanceFieldPathGeoProc(matrix, proxies, numProxies, params, flags));
     }
 
     ~GrDistanceFieldPathGeoProc() override {}
@@ -142,15 +145,18 @@ public:
     const SkMatrix& matrix() const { return fMatrix; }
     uint32_t getFlags() const { return fFlags; }
 
-    void addNewProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures], const GrSamplerState& p);
+    void addNewProxies(const sk_sp<GrTextureProxy>* proxies, int numProxies, const GrSamplerState&);
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
+    static constexpr int kMaxTextures = 4;
+
     GrDistanceFieldPathGeoProc(const SkMatrix& matrix,
-                               const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+                               const sk_sp<GrTextureProxy>* proxies,
+                               int numProxies,
                                const GrSamplerState&, uint32_t flags);
 
     SkMatrix         fMatrix;      // view matrix if perspective, local matrix otherwise
@@ -188,15 +194,14 @@ public:
         }
     };
 
-    static constexpr int kMaxTextures = 4;
-
-    static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy>* proxies,
+                                           int numProxies,
                                            const GrSamplerState& params,
                                            DistanceAdjust distanceAdjust,
                                            uint32_t flags,
                                            const SkMatrix& localMatrixIfUsesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(new GrDistanceFieldLCDTextGeoProc(
-                proxies, params, distanceAdjust, flags, localMatrixIfUsesLocalCoords));
+                proxies, numProxies, params, distanceAdjust, flags, localMatrixIfUsesLocalCoords));
     }
 
     ~GrDistanceFieldLCDTextGeoProc() override {}
@@ -210,16 +215,18 @@ public:
     uint32_t getFlags() const { return fFlags; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
-    void addNewProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures], const GrSamplerState& p);
+    void addNewProxies(const sk_sp<GrTextureProxy>* proxies, int numProxies, const GrSamplerState&);
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldLCDTextGeoProc(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    GrDistanceFieldLCDTextGeoProc(const sk_sp<GrTextureProxy>* proxies, int numProxies,
                                   const GrSamplerState& params, DistanceAdjust wa, uint32_t flags,
                                   const SkMatrix& localMatrix);
+
+    static constexpr int kMaxTextures = 4;
 
     TextureSampler   fTextureSamplers[kMaxTextures];
     DistanceAdjust   fDistanceAdjust;
