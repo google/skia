@@ -169,6 +169,7 @@
       "gldft",
       "glsrgb",
       "glmsaa8",
+      "gl1010102",
       "--src",
       "tests",
       "gm",

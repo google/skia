@@ -110,7 +110,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "mtl",
         "gl4444",
         "gl565",
-        "gltestthreading"
+        "gltestthreading",
+        "gl1010102",
     });
 
     SkCommandLineConfigArray configs;
@@ -200,6 +201,9 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getAlphaType() == kOpaque_SkAlphaType);
     REPORTER_ASSERT(reporter, configs[36]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getTestThreading());
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getColorType() ==
+                              kRGBA_1010102_SkColorType);
 #endif
 }
 

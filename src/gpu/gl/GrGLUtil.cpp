@@ -504,6 +504,8 @@ GrPixelConfig GrGLSizedFormatToPixelConfig(GrGLenum sizedFormat) {
             return kRGB_565_GrPixelConfig;
         case GR_GL_RGBA4:
             return kRGBA_4444_GrPixelConfig;
+        case GR_GL_RGB10_A2:
+            return kRGBA_1010102_GrPixelConfig;
         case GR_GL_LUMINANCE8:
             return kGray_8_GrPixelConfig;
         case GR_GL_RGBA32F:

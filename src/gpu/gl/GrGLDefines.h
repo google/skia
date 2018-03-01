@@ -508,6 +508,7 @@
 #define GR_GL_RGBA4                          0x8056
 #define GR_GL_RGB5_A1                        0x8057
 #define GR_GL_RGBA8                          0x8058
+#define GR_GL_RGB10_A2                       0x8059
 #define GR_GL_SRGB8_ALPHA8                   0x8C43
 #define GR_GL_RGBA16F                        0x881A
 #define GR_GL_RGBA32F                        0x8814
@@ -529,6 +530,7 @@
 #define GR_GL_UNSIGNED_SHORT_4_4_4_4         0x8033
 #define GR_GL_UNSIGNED_SHORT_5_5_5_1         0x8034
 #define GR_GL_UNSIGNED_SHORT_5_6_5           0x8363
+#define GR_GL_UNSIGNED_INT_2_10_10_10_REV    0x8368
 
 /* Shaders */
 #define GR_GL_FRAGMENT_SHADER                          0x8B30
