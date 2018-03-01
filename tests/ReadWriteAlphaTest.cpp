@@ -119,7 +119,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 canvas->drawRect(rect, paint);
 
-                memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
+                if (nonZeroRowBytes) {
+                    memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
+                }
                 result = surf->readPixels(ii, readback.get(), nonZeroRowBytes, 0, 0);
                 REPORTER_ASSERT(reporter, result, "A8 readPixels after clear failed");
 
