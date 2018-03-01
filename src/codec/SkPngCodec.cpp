@@ -22,7 +22,6 @@
 #include "SkTemplates.h"
 #include "SkUtils.h"
 
-#define PNG_SET_OPTION_SUPPORTED
 #include "png.h"
 #include <algorithm>
 
@@ -788,9 +787,11 @@ static SkCodec::Result read_header(SkStream* stream, SkPngChunkReader* chunkRead
         return SkCodec::kInternalError;
     }
 
+#ifdef PNG_SET_OPTION_SUPPORTED
     // This setting ensures that we display images with incorrect CMF bytes.
     // See crbug.com/807324.
     png_set_option(png_ptr, PNG_MAXIMUM_INFLATE_WINDOW, PNG_OPTION_ON);
+#endif
 
     AutoCleanPng autoClean(png_ptr, stream, chunkReader, outCodec);
 
