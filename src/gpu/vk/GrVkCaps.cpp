@@ -102,7 +102,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     }
 
     if (kNvidia_VkVendor == properties.vendorID) {
-        fMustSubmitCommandsBeforeCopyOp = true;
+//        fMustSubmitCommandsBeforeCopyOp = true;
     }
 
     if (kQualcomm_VkVendor == properties.vendorID ||
@@ -118,11 +118,11 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 
 #if defined(SK_BUILD_FOR_WIN)
     if (kNvidia_VkVendor == properties.vendorID) {
-        fMustSleepOnTearDown = true;
+ //       fMustSleepOnTearDown = true;
     }
 #elif defined(SK_BUILD_FOR_ANDROID)
     if (kImagination_VkVendor == properties.vendorID) {
-        fMustSleepOnTearDown = true;
+  //      fMustSleepOnTearDown = true;
     }
 #endif
 }
