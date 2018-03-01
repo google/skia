@@ -157,3 +157,9 @@ class DefaultFlavorUtils(object):
   def cleanup_steps(self):
     """Run any device-specific cleanup steps."""
     pass
+
+  def skqp_model_exists(self):
+    """Returns true the hash of the SKQP model exists"""
+    return false
+    # model_path = self.m.skia_dir.join()
+    # self.m.path.exists(win_toolchain_asset_path)
