@@ -8,13 +8,13 @@
 #ifndef GrProxyProvider_DEFINED
 #define GrProxyProvider_DEFINED
 
+#include "GrCaps.h"
 #include "GrResourceKey.h"
 #include "GrTextureProxy.h"
 #include "GrTypes.h"
 #include "SkRefCnt.h"
 #include "SkTDynamicHash.h"
 
-class GrCaps;
 class GrResourceProvider;
 class GrSingleOwner;
 class GrBackendRenderTarget;
@@ -207,6 +207,7 @@ public:
     void processInvalidProxyUniqueKey(const GrUniqueKey&, GrTextureProxy*, bool invalidateSurface);
 
     const GrCaps* caps() const { return fCaps.get(); }
+    sk_sp<const GrCaps> refCaps() const { return fCaps; }
 
     void abandon() {
         fResourceCache = nullptr;
