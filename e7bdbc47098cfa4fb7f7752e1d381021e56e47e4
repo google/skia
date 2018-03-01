@@ -117,6 +117,40 @@
       "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adb353c7_7417edd5",
+        "filename": "src/jumper/SkJumper.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7914
+      },
+      "writtenOn": "2018-03-01T02:23:28Z",
+      "side": 1,
+      "message": "Looks like this comment is completely out of date now. Is it worth keeping anymore?",
+      "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7aa3c7d_8fbe9b6c",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 2774,
+      "author": {
+        "id": 7914
+      },
+      "writtenOn": "2018-03-01T02:23:28Z",
+      "side": 1,
+      "message": "Kill the 1? If so, two more below.",
+      "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
