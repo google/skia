@@ -85,6 +85,16 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     this->initGrCaps(properties, memoryProperties, featureFlags);
     this->initShaderCaps(properties, featureFlags);
+
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+#if defined(SK_CPU_X86)
+        // We need to do this before initing the config table since it uses fSRGBSupport
+        if (kImagination_VkVendor == properties.vendorID) {
+            fSRGBSupport = false;
+        }
+#endif
+    }
+
     this->initConfigTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
@@ -144,12 +154,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     if (kIntel_VkVendor == properties.vendorID) {
         fCanUseWholeSizeOnFlushMappedMemory = false;
     }
-
-#if defined(SK_CPU_X86)
-    if (kImagination_VkVendor == properties.vendorID) {
-        fSRGBSupport = false;
-    }
-#endif
 
     ////////////////////////////////////////////////////////////////////////////
     // GrShaderCaps workarounds
