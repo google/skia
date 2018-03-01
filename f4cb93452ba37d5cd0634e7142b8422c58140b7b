@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86bc1e5f_ae4c4e35",
+        "filename": "tools/skpbench/_hardware_pixel.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-01T18:50:04Z",
+      "side": 1,
+      "message": "I might first try not calling _devfreq_lock_cmds\n\nIf that doesn\u0027t help, then start disabling the GPU ones above as well.",
+      "revId": "f4cb93452ba37d5cd0634e7142b8422c58140b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
