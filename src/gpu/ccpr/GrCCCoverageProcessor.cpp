@@ -57,6 +57,23 @@ void GrCCCoverageProcessor::Shader::CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGe
     s->codeAppendf("%s = (abs(t) >= nwidth ? sign(t) : t / nwidth) * -.5 - .5;", outputCoverage);
 }
 
+void GrCCCoverageProcessor::Shader::CalcEdgeCoveragesAtBloatVertices(GrGLSLVertexGeoBuilder* s,
+                                                                     const char* leftPt,
+                                                                     const char* rightPt,
+                                                                     const char* bloatDir1,
+                                                                     const char* bloatDir2,
+                                                                     const char* outputCoverages) {
+    s->codeAppendf("float2 n = float2(%s.y - %s.y, %s.x - %s.x);",
+                   rightPt, leftPt, leftPt, rightPt);
+    s->codeAppend ("float nwidth = abs(n.x) + abs(n.y);");
+    s->codeAppendf("float2 t = n * float2x2(%s, %s);", bloatDir1, bloatDir2);
+    s->codeAppendf("for (int i = 0; i < 2; ++i) {");
+    // The below conditional clamps our output, as well as ensuring we don't ever divide by zero.
+    s->codeAppendf(    "%s[i] = (abs(t[i]) >= nwidth ? sign(t[i]) : t[i] / nwidth) * -.5 - .5;",
+                       outputCoverages);
+    s->codeAppendf("}");
+}
+
 int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f,
                                                              const char* samplesName) {
     // Standard DX11 sample locations.
@@ -99,10 +116,8 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
     switch (fRenderPass) {
         case RenderPass::kTriangleHulls:
         case RenderPass::kTriangleEdges:
-            shader = skstd::make_unique<GrCCTriangleShader>();
-            break;
         case RenderPass::kTriangleCorners:
-            shader = skstd::make_unique<GrCCTriangleCornerShader>();
+            shader = skstd::make_unique<GrCCTriangleShader>();
             break;
         case RenderPass::kQuadraticHulls:
             shader = skstd::make_unique<GrCCQuadraticHullShader>();
