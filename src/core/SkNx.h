@@ -397,6 +397,8 @@ typedef SkNx<4, uint32_t> Sk4u;
     #include "../opts/SkNx_sse.h"
 #elif !defined(SKNX_NO_SIMD) && defined(SK_ARM_HAS_NEON)
     #include "../opts/SkNx_neon.h"
+#elif !defined(SKNX_NO_SIMD) && defined(SK_MIPS_HAS_MMI)
+    #include "../opts/SkNx_mmi.h"
 #else
 
 AI static Sk4i Sk4f_round(const Sk4f& x) {

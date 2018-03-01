@@ -233,6 +233,8 @@ private:
         #include "../opts/Sk4px_SSE2.h"
     #elif defined(SK_ARM_HAS_NEON)
         #include "../opts/Sk4px_NEON.h"
+    #elif defined(SK_MIPS_HAS_MMI)
+        #include "../opts/Sk4px_MMI.h"
     #else
         #include "../opts/Sk4px_none.h"
     #endif
