@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f4949c5_9f1a5e7f",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-01T20:51:02Z",
+      "side": 1,
+      "message": "Seems like this is unconditionally defined?",
+      "revId": "66f5ba6dc746e3f9656729567c1945cb7d9116ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
