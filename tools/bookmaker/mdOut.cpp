@@ -1088,6 +1088,8 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kWidth:
             break;
+        case MarkType::kPhraseDef:
+            break;
         default:
             SkDebugf("fatal error: MarkType::k%s unhandled in %s()\n",
                     fBmhParser.fMaps[(int) def->fMarkType].fName, __func__);
@@ -1194,6 +1196,8 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kTable:
             this->lf(2);
+            break;
+        case MarkType::kPhraseDef:
             break;
         case MarkType::kPrivate:
             break;
