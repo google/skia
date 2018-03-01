@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "935a7ffd_a08afcad",
+        "filename": "gm/scaledemoji.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-01T20:29:19Z",
+      "side": 1,
+      "message": "private: ?",
+      "revId": "1d67614e75666ca1c9f94a140581382a939361fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f51fdc1e_46218070",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-01T20:29:19Z",
+      "side": 1,
+      "message": "// comment ?",
+      "revId": "1d67614e75666ca1c9f94a140581382a939361fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
