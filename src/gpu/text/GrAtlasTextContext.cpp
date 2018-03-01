@@ -384,7 +384,8 @@ void GrAtlasTextContext::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
                            text, byteLength, x, y);
         return;
     }
-    GrAtlasTextStrike* currStrike = nullptr;
+
+    sk_sp<GrTextStrike> currStrike;
     SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, paint, &viewMatrix);
     SkFindAndPlaceGlyph::ProcessText(paint.skPaint().getTextEncoding(), text, byteLength, {x, y},
                                      viewMatrix, paint.skPaint().getTextAlign(), cache,
@@ -424,8 +425,7 @@ void GrAtlasTextContext::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
         return;
     }
 
-    GrAtlasTextStrike* currStrike = nullptr;
-
+    sk_sp<GrTextStrike> currStrike;
     SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, paint, &viewMatrix);
     SkFindAndPlaceGlyph::ProcessPosText(
             paint.skPaint().getTextEncoding(), text, byteLength, offset, viewMatrix, pos,
@@ -541,7 +541,8 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
 }
 
 void GrAtlasTextContext::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
-                                        GrGlyphCache* grGlyphCache, GrAtlasTextStrike** strike,
+                                        GrGlyphCache* grGlyphCache,
+                                        sk_sp<GrTextStrike>* strike,
                                         const SkGlyph& skGlyph, SkScalar sx, SkScalar sy,
                                         GrColor color, SkGlyphCache* skGlyphCache,
                                         SkScalar textRatio) {
@@ -777,7 +778,7 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                                           glyphCache->getGlyphSizeLimit(),
                                           textRatio);
 
-    GrAtlasTextStrike* currStrike = nullptr;
+    sk_sp<GrTextStrike> currStrike;
 
     // We apply the fake-gamma by altering the distance in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
@@ -820,7 +821,7 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
 
 // TODO: merge with BmpAppendGlyph
 void GrAtlasTextContext::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
-                                       GrGlyphCache* grGlyphCache, GrAtlasTextStrike** strike,
+                                       GrGlyphCache* grGlyphCache, sk_sp<GrTextStrike>* strike,
                                        const SkGlyph& skGlyph, SkScalar sx, SkScalar sy,
                                        GrColor color, SkGlyphCache* skGlyphCache,
                                        SkScalar textRatio) {
@@ -905,7 +906,7 @@ void GrAtlasTextContext::FallbackTextHelper::drawText(GrAtlasTextBlob* blob, int
                                      &fViewMatrix);
         }
 
-        GrAtlasTextStrike* currStrike = nullptr;
+        sk_sp<GrTextStrike> currStrike;
         const char* text = fFallbackTxt.begin();
         const char* stop = text + fFallbackTxt.count();
         SkPoint* glyphPos = fFallbackPos.begin();

@@ -41,13 +41,13 @@ void GrGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
 
     StrikeHash::Iter iter(&glyphCache->fCache);
     for (; !iter.done(); ++iter) {
-        GrAtlasTextStrike* strike = &*iter;
+        GrTextStrike* strike = &*iter;
         strike->removeID(id);
 
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
         // triggered the eviction
         if (strike != glyphCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
-            glyphCache->fCache.remove(GrAtlasTextStrike::GetKey(*strike));
+            glyphCache->fCache.remove(GrTextStrike::GetKey(*strike));
             strike->fIsAbandoned = true;
             strike->unref();
         }
@@ -246,13 +246,13 @@ static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
     atlas and a position within that texture.
  */
 
-GrAtlasTextStrike::GrAtlasTextStrike(const SkDescriptor& key)
+GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key)
     , fPool(9/*start allocations at 512 bytes*/)
     , fAtlasedGlyphs(0)
     , fIsAbandoned(false) {}
 
-GrAtlasTextStrike::~GrAtlasTextStrike() {
+GrTextStrike::~GrTextStrike() {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
     while (!iter.done()) {
         (*iter).reset();
@@ -260,8 +260,8 @@ GrAtlasTextStrike::~GrAtlasTextStrike() {
     }
 }
 
-GrGlyph* GrAtlasTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
-                                          SkGlyphCache* cache) {
+GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
+                                     SkGlyphCache* cache) {
     SkIRect bounds;
     if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(packed)) {
         if (!get_packed_glyph_df_bounds(cache, skGlyph, &bounds)) {
@@ -280,7 +280,7 @@ GrGlyph* GrAtlasTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::Packe
     return glyph;
 }
 
-void GrAtlasTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
+void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
     while (!iter.done()) {
         if (id == (*iter).fID) {
@@ -292,13 +292,13 @@ void GrAtlasTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     }
 }
 
-bool GrAtlasTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
-                                        GrDeferredUploadTarget* target,
-                                        GrGlyphCache* glyphCache,
-                                        GrAtlasManager* fullAtlasManager,
-                                        GrGlyph* glyph,
-                                        SkGlyphCache* cache,
-                                        GrMaskFormat expectedMaskFormat) {
+bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
+                                   GrDeferredUploadTarget* target,
+                                   GrGlyphCache* glyphCache,
+                                   GrAtlasManager* fullAtlasManager,
+                                   GrGlyph* glyph,
+                                   SkGlyphCache* cache,
+                                   GrMaskFormat expectedMaskFormat) {
     SkASSERT(glyph);
     SkASSERT(cache);
     SkASSERT(fCache.find(glyph->fPackedID));

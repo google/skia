@@ -18,7 +18,7 @@
 
 class GrAtlasTextBlob;
 class GrAtlasTextOp;
-class GrAtlasTextStrike;
+class GrTextStrike;
 class GrClip;
 class GrColorSpaceXform;
 class GrContext;

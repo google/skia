@@ -174,11 +174,11 @@ private:
                                 const SkMatrix& viewMatrix) const;
 
     static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
-                               GrAtlasTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
+                               sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
                                GrColor color, SkGlyphCache*, SkScalar textRatio);
 
     static void DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
-                              GrAtlasTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
+                              sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
                               GrColor color, SkGlyphCache* cache, SkScalar textRatio);
 
     const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable.get(); }

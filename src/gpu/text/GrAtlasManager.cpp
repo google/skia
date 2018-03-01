@@ -96,7 +96,7 @@ bool GrAtlasManager::hasGlyph(GrGlyph* glyph) {
 // add to texture atlas that matches this format
 bool GrAtlasManager::addToAtlas(GrResourceProvider* resourceProvider,
                                 GrGlyphCache* glyphCache,
-                                GrAtlasTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
+                                GrTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
                                 GrDeferredUploadTarget* target, GrMaskFormat format,
                                 int width, int height, const void* image, SkIPoint16* loc) {
     glyphCache->setStrikeToPreserve(strike);
