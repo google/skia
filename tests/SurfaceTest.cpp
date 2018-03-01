@@ -932,7 +932,6 @@ static void test_surface_creation_and_snapshot_with_color_space(
     skiatest::Reporter* reporter,
     const char* prefix,
     bool f16Support,
-    bool supports1010102,
     std::function<sk_sp<SkSurface>(const SkImageInfo&)> surfaceMaker) {
 
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
@@ -961,7 +960,6 @@ static void test_surface_creation_and_snapshot_with_color_space(
         { kRGBA_F16_SkColorType,  oddColorSpace,    false, "F16-odd"     },
         { kRGB_565_SkColorType,   srgbColorSpace,   false, "565-srgb"    },
         { kAlpha_8_SkColorType,   srgbColorSpace,   false, "A8-srgb"     },
-        { kRGBA_1010102_SkColorType, nullptr,       true,  "1010102-nullptr" },
     };
 
     for (auto& testConfig : testConfigs) {
@@ -972,8 +970,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
         // For some GPU contexts (eg ANGLE), we don't have f16 support, so we should fail to create
         // any surface of that type:
         bool shouldWork = testConfig.fShouldWork &&
-                          (f16Support || kRGBA_F16_SkColorType != testConfig.fColorType) &&
-                          (supports1010102 || kRGBA_1010102_SkColorType != testConfig.fColorType);
+                          (f16Support || kRGBA_F16_SkColorType != testConfig.fColorType);
 
         auto surface(surfaceMaker(info));
         REPORTER_ASSERT(reporter, SkToBool(surface) == shouldWork, fullTestName.c_str());
@@ -993,8 +990,7 @@ DEF_TEST(SurfaceCreationWithColorSpace, reporter) {
         return SkSurface::MakeRaster(info);
     };
 
-    test_surface_creation_and_snapshot_with_color_space(reporter, "raster", true, true,
-                                                        surfaceMaker);
+    test_surface_creation_and_snapshot_with_color_space(reporter, "raster", true, surfaceMaker);
 }
 
 #if SK_SUPPORT_GPU
@@ -1002,13 +998,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
     GrContext* context = ctxInfo.grContext();
 
     bool f16Support = context->caps()->isConfigRenderable(kRGBA_half_GrPixelConfig);
-    bool supports1010102 = context->caps()->isConfigRenderable(kRGBA_1010102_GrPixelConfig);
     auto surfaceMaker = [context](const SkImageInfo& info) {
         return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
     };
 
-    test_surface_creation_and_snapshot_with_color_space(reporter, "gpu", f16Support,
-                                                        supports1010102, surfaceMaker);
+    test_surface_creation_and_snapshot_with_color_space(reporter, "gpu", f16Support, surfaceMaker);
 
     std::vector<GrBackendTexture> backendTextures;
     auto wrappedSurfaceMaker = [ context, &backendTextures ](const SkImageInfo& info) {
@@ -1034,7 +1028,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
     };
 
     test_surface_creation_and_snapshot_with_color_space(reporter, "wrapped", f16Support,
-                                                        supports1010102, wrappedSurfaceMaker);
+                                                        wrappedSurfaceMaker);
 
     context->flush();
 

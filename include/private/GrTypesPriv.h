@@ -797,7 +797,6 @@ static inline GrSRGBEncoded GrPixelConfigIsSRGBEncoded(GrPixelConfig config) {
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
@@ -833,7 +832,6 @@ static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
         case kGray_8_as_Red_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
@@ -863,7 +861,6 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
             return 4;
         case kRGBA_half_GrPixelConfig:
             return 8;
@@ -896,7 +893,6 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kUnknown_GrPixelConfig:
@@ -924,7 +920,6 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
@@ -955,7 +950,6 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
             return false;
     }
     SK_ABORT("Invalid pixel config");
@@ -976,7 +970,6 @@ static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
             return true;
         case kUnknown_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
@@ -1015,7 +1008,6 @@ static inline GrSLPrecision GrSLSamplerPrecision(GrPixelConfig config) {
         case kAlpha_half_GrPixelConfig:
         case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
             return kMedium_GrSLPrecision;
     }
     SK_ABORT("Unexpected type");
@@ -1041,7 +1033,6 @@ enum class GrColorType {
     kABGR_4444,  // This name differs from SkColorType. kARGB_4444_SkColorType is misnamed.
     kRGBA_8888,
     kBGRA_8888,
-    kRGBA_1010102,
     kGray_8,
     kAlpha_F16,
     kRGBA_F16,
@@ -1051,18 +1042,17 @@ enum class GrColorType {
 
 static inline SkColorType GrColorTypeToSkColorType(GrColorType ct) {
     switch (ct) {
-        case GrColorType::kUnknown:      return kUnknown_SkColorType;
-        case GrColorType::kAlpha_8:      return kAlpha_8_SkColorType;
-        case GrColorType::kRGB_565:      return kRGB_565_SkColorType;
-        case GrColorType::kABGR_4444:    return kARGB_4444_SkColorType;
-        case GrColorType::kRGBA_8888:    return kRGBA_8888_SkColorType;
-        case GrColorType::kBGRA_8888:    return kBGRA_8888_SkColorType;
-        case GrColorType::kRGBA_1010102: return kRGBA_1010102_SkColorType;
-        case GrColorType::kGray_8:       return kGray_8_SkColorType;
-        case GrColorType::kAlpha_F16:    return kUnknown_SkColorType;
-        case GrColorType::kRGBA_F16:     return kRGBA_F16_SkColorType;
-        case GrColorType::kRG_F32:       return kUnknown_SkColorType;
-        case GrColorType::kRGBA_F32:     return kUnknown_SkColorType;
+        case GrColorType::kUnknown:   return kUnknown_SkColorType;
+        case GrColorType::kAlpha_8:   return kAlpha_8_SkColorType;
+        case GrColorType::kRGB_565:   return kRGB_565_SkColorType;
+        case GrColorType::kABGR_4444: return kARGB_4444_SkColorType;
+        case GrColorType::kRGBA_8888: return kRGBA_8888_SkColorType;
+        case GrColorType::kBGRA_8888: return kBGRA_8888_SkColorType;
+        case GrColorType::kGray_8:    return kGray_8_SkColorType;
+        case GrColorType::kAlpha_F16: return kUnknown_SkColorType;
+        case GrColorType::kRGBA_F16:  return kRGBA_F16_SkColorType;
+        case GrColorType::kRG_F32:    return kUnknown_SkColorType;
+        case GrColorType::kRGBA_F32:  return kUnknown_SkColorType;
     }
     SK_ABORT("Invalid GrColorType");
     return kUnknown_SkColorType;
@@ -1079,7 +1069,7 @@ static inline GrColorType SkColorTypeToGrColorType(SkColorType ct) {
         case kRGB_888x_SkColorType:     return GrColorType::kUnknown;
         case kGray_8_SkColorType:       return GrColorType::kGray_8;
         case kRGBA_F16_SkColorType:     return GrColorType::kRGBA_F16;
-        case kRGBA_1010102_SkColorType: return GrColorType::kRGBA_1010102;
+        case kRGBA_1010102_SkColorType: return GrColorType::kUnknown;
         case kRGB_101010x_SkColorType:  return GrColorType::kUnknown;
     }
     SK_ABORT("Invalid SkColorType");
@@ -1088,18 +1078,17 @@ static inline GrColorType SkColorTypeToGrColorType(SkColorType ct) {
 
 static inline int GrColorTypeBytesPerPixel(GrColorType ct) {
     switch (ct) {
-        case GrColorType::kUnknown:      return 0;
-        case GrColorType::kAlpha_8:      return 1;
-        case GrColorType::kRGB_565:      return 2;
-        case GrColorType::kABGR_4444:    return 2;
-        case GrColorType::kRGBA_8888:    return 4;
-        case GrColorType::kBGRA_8888:    return 4;
-        case GrColorType::kRGBA_1010102: return 4;
-        case GrColorType::kGray_8:       return 1;
-        case GrColorType::kAlpha_F16:    return 2;
-        case GrColorType::kRGBA_F16:     return 8;
-        case GrColorType::kRG_F32:       return 8;
-        case GrColorType::kRGBA_F32:     return 16;
+        case GrColorType::kUnknown:   return 0;
+        case GrColorType::kAlpha_8:   return 1;
+        case GrColorType::kRGB_565:   return 2;
+        case GrColorType::kABGR_4444: return 2;
+        case GrColorType::kRGBA_8888: return 4;
+        case GrColorType::kBGRA_8888: return 4;
+        case GrColorType::kGray_8:    return 1;
+        case GrColorType::kAlpha_F16: return 2;
+        case GrColorType::kRGBA_F16:  return 8;
+        case GrColorType::kRG_F32:    return 8;
+        case GrColorType::kRGBA_F32:  return 16;
     }
     SK_ABORT("Invalid GrColorType");
     return 0;
@@ -1107,18 +1096,17 @@ static inline int GrColorTypeBytesPerPixel(GrColorType ct) {
 
 static inline int GrColorTypeIsAlphaOnly(GrColorType ct) {
     switch (ct) {
-        case GrColorType::kUnknown:      return false;
-        case GrColorType::kAlpha_8:      return true;
-        case GrColorType::kRGB_565:      return false;
-        case GrColorType::kABGR_4444:    return false;
-        case GrColorType::kRGBA_8888:    return false;
-        case GrColorType::kBGRA_8888:    return false;
-        case GrColorType::kRGBA_1010102: return false;
-        case GrColorType::kGray_8:       return false;
-        case GrColorType::kAlpha_F16:    return true;
-        case GrColorType::kRGBA_F16:     return false;
-        case GrColorType::kRG_F32:       return false;
-        case GrColorType::kRGBA_F32:     return false;
+        case GrColorType::kUnknown:   return false;
+        case GrColorType::kAlpha_8:   return true;
+        case GrColorType::kRGB_565:   return false;
+        case GrColorType::kABGR_4444: return false;
+        case GrColorType::kRGBA_8888: return false;
+        case GrColorType::kBGRA_8888: return false;
+        case GrColorType::kGray_8:    return false;
+        case GrColorType::kAlpha_F16: return true;
+        case GrColorType::kRGBA_F16:  return false;
+        case GrColorType::kRG_F32:    return false;
+        case GrColorType::kRGBA_F32:  return false;
     }
     SK_ABORT("Invalid GrColorType");
     return false;
@@ -1154,9 +1142,6 @@ static inline GrColorType GrPixelConfigToColorTypeAndEncoding(GrPixelConfig conf
         case kSBGRA_8888_GrPixelConfig:
             *srgbEncoded = GrSRGBEncoded::kYes;
             return GrColorType::kBGRA_8888;
-        case kRGBA_1010102_GrPixelConfig:
-            *srgbEncoded = GrSRGBEncoded::kNo;
-            return GrColorType::kRGBA_1010102;
         case kRGBA_float_GrPixelConfig:
             *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGBA_F32;
@@ -1222,10 +1207,6 @@ static inline GrPixelConfig GrColorTypeToPixelConfig(GrColorType config,
         case GrColorType::kBGRA_8888:
             return (GrSRGBEncoded::kYes == srgbEncoded) ? kSBGRA_8888_GrPixelConfig
                                                         : kBGRA_8888_GrPixelConfig;
-
-        case GrColorType::kRGBA_1010102:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGBA_1010102_GrPixelConfig;
 
         case GrColorType::kRGBA_F32:
             return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig

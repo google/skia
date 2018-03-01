@@ -212,13 +212,6 @@ def dm_flags(api, bot):
     if 'Vulkan' in bot:
       configs = ['vk']
 
-    # Test 1010102 on our Linux/NVIDIA bots
-    if 'QuadroP400' in bot and api.vars.is_linux:
-      if 'Vulkan' in bot:
-        configs.append('vk1010102')
-      else:
-        configs.append('gl1010102')
-
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
       configs = ['gles']
