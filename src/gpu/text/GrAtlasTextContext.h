@@ -61,14 +61,14 @@ private:
     class FallbackTextHelper {
     public:
         FallbackTextHelper(const SkMatrix& viewMatrix,
-                           SkScalar textSize,
-                           SkScalar maxTextSize,
+                           const SkPaint& pathPaint,
+                           const GrAtlasGlyphCache* fontCache,
                            SkScalar textRatio)
             : fViewMatrix(viewMatrix)
+            , fTextSize(pathPaint.getTextSize())
+            , fMaxTextSize(fontCache->getGlyphSizeLimit())
             , fTextRatio(textRatio)
-            , fTextSize(textSize)
-            , fMaxTextSize(maxTextSize)
-            , fScaledFallbackTextSize(maxTextSize)
+            , fScaledFallbackTextSize(fMaxTextSize)
             , fUseScaledFallback(false) {
             fMaxScale = viewMatrix.getMaxScale();
         }
@@ -83,9 +83,9 @@ private:
         SkTDArray<SkPoint> fFallbackPos;
 
         const SkMatrix& fViewMatrix;
-        SkScalar fTextRatio;
         SkScalar fTextSize;
         SkScalar fMaxTextSize;
+        SkScalar fTextRatio;
         SkScalar fScaledFallbackTextSize;
         SkScalar fMaxScale;
         bool fUseScaledFallback;
