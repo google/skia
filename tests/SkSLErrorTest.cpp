@@ -489,4 +489,12 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "error: 1: static switch contains non-static conditional break\n1 error\n");
 }
 
+DEF_TEST(SkSLInterfaceBlockScope, r) {
+    test_failure(r,
+                 "uniform testBlock {"
+                 "float x;"
+                 "} test[x];",
+                 "error: 1: unknown identifier 'x'\n1 error\n");
+}
+
 #endif

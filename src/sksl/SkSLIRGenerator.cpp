@@ -286,6 +286,9 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                 return nullptr;
             }
             value = this->coerce(std::move(value), *type);
+            if (!value) {
+                return nullptr;
+            }
             var->fWriteCount = 1;
             var->fInitialValue = value.get();
         }
@@ -761,7 +764,8 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
 
 std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInterfaceBlock& intf) {
     std::shared_ptr<SymbolTable> old = fSymbolTable;
-    AutoSymbolTable table(this);
+    this->pushSymbolTable();
+    std::shared_ptr<SymbolTable> symbols = fSymbolTable;
     std::vector<Type::Field> fields;
     bool haveRuntimeArray = false;
     bool foundRTAdjust = false;
@@ -804,6 +808,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             }
         }
     }
+    this->popSymbolTable();
     Type* type = new Type(intf.fOffset, intf.fTypeName, fields);
     old->takeOwnership(type);
     std::vector<std::unique_ptr<Expression>> sizes;
@@ -826,11 +831,11 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                 name += "[]";
             }
             type = new Type(name, Type::kArray_Kind, *type, (int) count);
-            fSymbolTable->takeOwnership((Type*) type);
+            symbols->takeOwnership((Type*) type);
             sizes.push_back(std::move(converted));
         } else {
             type = new Type(type->name() + "[]", Type::kArray_Kind, *type, -1);
-            fSymbolTable->takeOwnership((Type*) type);
+            symbols->takeOwnership((Type*) type);
             sizes.push_back(nullptr);
         }
     }
@@ -858,7 +863,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                                                               intf.fTypeName,
                                                               intf.fInstanceName,
                                                               std::move(sizes),
-                                                              fSymbolTable));
+                                                              symbols));
 }
 
 void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {

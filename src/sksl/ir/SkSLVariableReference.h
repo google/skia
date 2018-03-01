@@ -45,6 +45,9 @@ struct VariableReference : public Expression {
     }
 
     ~VariableReference() override {
+        if (fRefKind != kRead_RefKind) {
+            fVariable.fWriteCount--;
+        }
         if (fRefKind != kWrite_RefKind) {
             fVariable.fReadCount--;
         }
