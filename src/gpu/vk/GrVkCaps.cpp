@@ -485,10 +485,7 @@ bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config)
             }
             break;
         case kRGBA_1010102_SkColorType:
-            if (VK_FORMAT_A2B10G10R10_UNORM_PACK32 == format) {
-                *config = kRGBA_1010102_GrPixelConfig;
-            }
-            break;
+            return false;
         case kRGB_101010x_SkColorType:
             return false;
         case kGray_8_SkColorType:

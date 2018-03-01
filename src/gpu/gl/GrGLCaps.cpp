@@ -1603,25 +1603,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     fConfigTable[kRGBA_4444_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
-    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
-    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGB10_A2;
-    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
-        GR_GL_RGBA;
-    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fExternalType =
-        GR_GL_UNSIGNED_INT_2_10_10_10_REV;
-    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3, 0)) {
-        fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
-                                                           allRenderFlags;
-    }
-    if (texStorageSupported) {
-        fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
-    if (texelBufferSupport) {
-        fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
-    }
-    fConfigTable[kRGBA_1010102_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
-
     bool alpha8IsValidForGL = kGL_GrGLStandard == standard &&
             (!fIsCoreProfile || version <= GR_GL_VER(3, 0));
 
@@ -2530,10 +2511,7 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
             }
             break;
         case kRGBA_1010102_SkColorType:
-            if (GR_GL_RGB10_A2 == format) {
-                *config = kRGBA_1010102_GrPixelConfig;
-            }
-            break;
+            return false;
         case kRGB_101010x_SkColorType:
             return false;
         case kGray_8_SkColorType:

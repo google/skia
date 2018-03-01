@@ -104,7 +104,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto widthHeight : { 100, 128, 1048576 }) {
             for (auto config : { kAlpha_8_GrPixelConfig, kRGB_565_GrPixelConfig,
-                                 kRGBA_8888_GrPixelConfig, kRGBA_1010102_GrPixelConfig }) {
+                                 kRGBA_8888_GrPixelConfig }) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : {1, 4, 16, 128}) {
@@ -196,8 +196,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
         return;
     }
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
-        for (auto colorType : { kAlpha_8_SkColorType, kRGBA_8888_SkColorType,
-                                kRGBA_1010102_SkColorType }) {
+        for (auto colorType : { kAlpha_8_SkColorType, kRGBA_8888_SkColorType }) {
             for (auto numSamples : {1, 4}) {
                 GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, caps);
                 SkASSERT(kUnknown_GrPixelConfig != config);
