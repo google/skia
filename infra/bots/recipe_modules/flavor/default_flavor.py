@@ -157,3 +157,9 @@ class DefaultFlavorUtils(object):
   def cleanup_steps(self):
     """Run any device-specific cleanup steps."""
     pass
+
+  def skqp_model_exists(self):
+    """Returns true the hash of the SKQP model exists"""
+    p = 'platform_tools/android/apps/skqp/src/main/assets/files.checksum'
+    model_path = self.m.vars.skia_dir.join(*p.split('/'))
+    self.m.path.exists(model_path)
