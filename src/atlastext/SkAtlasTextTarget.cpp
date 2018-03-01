@@ -181,20 +181,17 @@ void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
 
 void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     FlushInfo flushInfo;
-    SkAutoGlyphCache glyphCache;
+    SkAutoGlyphCache autoGlyphCache;
     auto& context = target->context()->internal();
-    auto atlasGlyphCache = context.grContext()->contextPriv().getAtlasGlyphCache();
+    auto glyphCache = context.grContext()->contextPriv().getGlyphCache();
+    auto fullAtlasManager = context.grContext()->contextPriv().getFullAtlasManager();
     auto resourceProvider = context.grContext()->contextPriv().resourceProvider();
-    auto drawingManager = context.grContext()->contextPriv().drawingManager();
-
-    GrOnFlushResourceProvider onFlushResourceProvider(drawingManager);
-    atlasGlyphCache->preFlush(&onFlushResourceProvider, nullptr, 0, nullptr);
 
     for (int i = 0; i < fGeoCount; ++i) {
         GrAtlasTextBlob::VertexRegenerator regenerator(
                 resourceProvider, fGeoData[i].fBlob, fGeoData[i].fRun, fGeoData[i].fSubRun,
                 fGeoData[i].fViewMatrix, fGeoData[i].fX, fGeoData[i].fY, fGeoData[i].fColor,
-                &context, atlasGlyphCache, &glyphCache);
+                &context, glyphCache, fullAtlasManager, &autoGlyphCache);
         GrAtlasTextBlob::VertexRegenerator::Result result;
         do {
             result = regenerator.regenerate();
