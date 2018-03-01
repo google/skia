@@ -172,6 +172,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Blacklist Coverage Counting Path Renderer [workaround]",
                        fBlacklistCoverageCounting);
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
+    writer->appendBool("Avoid stencil buffers [workaround]", fAvoidStencilBuffers);
 
     if (this->advancedBlendEquationSupport()) {
         writer->appendHexU32("Advanced Blend Equation Blacklist", fAdvBlendEqBlacklist);

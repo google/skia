@@ -48,6 +48,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fPartialFBOReadIsSlow = false;
     fMipMapLevelAndLodControlSupport = false;
     fRGBAToBGRAReadbackConversionsAreSlow = false;
+    fUseBufferDataNullHint = SkToBool(GR_GL_USE_BUFFER_DATA_NULL_HINT);
     fDoManualMipmapping = false;
     fSRGBDecodeDisableAffectsMipmaps = false;
     fClearToBoundaryValuesIsBroken = false;
@@ -259,6 +260,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // Both mesa and mac have reduced performance if reading back an RGBA framebuffer as BGRA or
     // vis-versa.
     fRGBAToBGRAReadbackConversionsAreSlow = isMESA || isMAC;
+
+    if (GrContextOptions::Enable::kNo == contextOptions.fUseGLBufferDataNullHint) {
+        fUseBufferDataNullHint = false;
+    } else if (GrContextOptions::Enable::kYes == contextOptions.fUseGLBufferDataNullHint) {
+        fUseBufferDataNullHint = true;
+    }
 
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(4,4) || ctxInfo.hasExtension("GL_ARB_clear_texture")) {
@@ -1145,6 +1152,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Texture swizzle support", fTextureSwizzleSupport);
     writer->appendBool("BGRA to RGBA readback conversions are slow",
                        fRGBAToBGRAReadbackConversionsAreSlow);
+    writer->appendBool("Use buffer data null hint", fUseBufferDataNullHint);
     writer->appendBool("Draw To clear color", fUseDrawToClearColor);
     writer->appendBool("Draw To clear stencil clip", fUseDrawToClearStencilClip);
     writer->appendBool("Intermediate texture for partial updates of unorm textures ever bound to FBOs",
