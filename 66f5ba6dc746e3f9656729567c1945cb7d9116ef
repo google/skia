@@ -16,6 +16,24 @@
       "revId": "66f5ba6dc746e3f9656729567c1945cb7d9116ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3f97485_09d25993",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-01T21:00:04Z",
+      "side": 1,
+      "message": "Oh shoot, you\u0027re right. The Chromium change needed this because the define didn\u0027t propagate to its decoder. But this defeats the purpose of ifdef\u0027ing below. Removed.",
+      "parentUuid": "9f4949c5_9f1a5e7f",
+      "revId": "66f5ba6dc746e3f9656729567c1945cb7d9116ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
