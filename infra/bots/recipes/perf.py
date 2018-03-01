@@ -485,6 +485,8 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
+    api.step_data('get swarming bot id',
+                  stdout=api.raw_io.output('skia-rpi-022')) +
     api.step_data('Scale CPU 0 to 0.600000', retcode=1)+
     api.step_data('Scale CPU 0 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 0 to 0.600000 (attempt 3)', retcode=1)
@@ -508,6 +510,8 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
+    api.step_data('get swarming bot id',
+                  stdout=api.raw_io.output('build123-m2--device5')) +
     api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)

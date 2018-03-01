@@ -160,6 +160,8 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('get swarming bot id',
+                    stdout=api.raw_io.output('build123-m2--device5')) +
       api.step_data('dump log', retcode=1)
   )
 
@@ -196,6 +198,8 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('get swarming bot id',
+                    stdout=api.raw_io.output('build123-m2--device5')) +
       api.step_data(fail_step_name, retcode=1) +
       api.step_data(fail_step_name + ' (attempt 2)', retcode=1) +
       api.step_data(fail_step_name + ' (attempt 3)', retcode=1)
