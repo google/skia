@@ -19,14 +19,53 @@
 #ifdef _WIN32
 #include <direct.h>
 #include <io.h>
+#include <vector>
+#include "SkUtils.h"
 #endif
 
 #ifdef SK_BUILD_FOR_IOS
 #include "SkOSFile_ios.h"
 #endif
 
+#ifdef _WIN32
+static bool is_ascii(const char* s) {
+    while (char v = *s++) {
+        if ((v & 0x80) != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static FILE* fopen_win(const char* utf8path, const char* perm) {
+    if (is_ascii(utf8path)) {
+        return fopen(utf8path, perm);
+    }
+
+    const char* ptr = utf8path;
+    const char* end = utf8path + strlen(utf8path);
+    size_t n = 0;
+    while (ptr < end) {
+        SkUnichar u = SkUTF8_NextUnicharWithError(&ptr, end);
+        if (u < 0) {
+            return nullptr;  // malformed UTF-8
+        }
+        n += SkUTF16_FromUnichar(u);
+    }
+    std::vector<uint16_t> wchars(n + 1);
+    uint16_t* out = wchars.data();
+    for (const char* ptr = utf8path; ptr < end;) {
+        out += SkUTF16_FromUnichar(SkUTF8_NextUnicharWithError(&ptr, end), out);
+    }
+    SkASSERT(out == &wchars[n]);
+    *out = 0; // final null
+    wchar_t wperms[4] = {(wchar_t)perm[0], (wchar_t)perm[1], (wchar_t)perm[2], (wchar_t)perm[3]};
+    return _wfopen((wchar_t*)wchars.data(), wperms);
+}
+#endif
+
 FILE* sk_fopen(const char path[], SkFILE_Flags flags) {
-    char    perm[4];
+    char    perm[4] = {0, 0, 0, 0};
     char*   p = perm;
 
     if (flags & kRead_SkFILE_Flag) {
@@ -35,13 +74,14 @@ FILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     if (flags & kWrite_SkFILE_Flag) {
         *p++ = 'w';
     }
-    *p++ = 'b';
-    *p = 0;
+    *p = 'b';
 
-    //TODO: on Windows fopen is just ASCII or the current code page,
-    //convert to utf16 and use _wfopen
     FILE* file = nullptr;
+#ifdef _WIN32
+    file = fopen_win(path, perm);
+#else
     file = fopen(path, perm);
+#endif
 #ifdef SK_BUILD_FOR_IOS
     // if not found in default path and read-only, try to open from bundle
     if (!file && kRead_SkFILE_Flag == flags) {
