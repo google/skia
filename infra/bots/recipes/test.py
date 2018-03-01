@@ -522,23 +522,24 @@ def dm_flags(api, bot):
   if 'Chromecast' in bot:
     if 'GPU' in bot:
       # skia:6687
-      match.append('~matrixconvolution')
-      match.append('~blur_image_filter')
-      match.append('~blur_0.01')
-      match.append('~lighting')
-      match.append('~imageblur2')
       match.append('~animated-image-blurs')
+      match.append('~blur_0.01')
+      match.append('~blur_image_filter')
+      match.append('~imageblur2')
+      match.append('~lighting')
+      match.append('~longpathdash')
+      match.append('~matrixconvolution')
       match.append('~textblobmixedsizes_df')
       match.append('~textblobrandomfont')
     # Blacklisted to avoid OOM (we see DM just end with "broken pipe")
-    match.append('~GM_animated-image-blurs')
-    match.append('~verylarge')
-    match.append('~ImageFilterBlurLargeImage')
-    match.append('~TextBlobCache')
     match.append('~bigbitmaprect_')
-    match.append('~savelayer_clipmask')
     match.append('~DrawBitmapRect')
     match.append('~drawbitmaprect')
+    match.append('~GM_animated-image-blurs')
+    match.append('~ImageFilterBlurLargeImage')
+    match.append('~savelayer_clipmask')
+    match.append('~TextBlobCache')
+    match.append('~verylarge')
 
   if 'GalaxyS6' in bot:
     match.append('~SpecialImage') # skia:6338
