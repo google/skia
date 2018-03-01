@@ -459,9 +459,7 @@ void GrAtlasTextContext::DrawBmpTextAsPaths(GrAtlasTextBlob* blob, int runIndex,
     pathPaint.setPathEffect(nullptr);
 
     GrTextUtils::PathTextIter iter(text, byteLength, pathPaint, true);
-    FallbackTextHelper fallbackTextHelper(viewMatrix, pathPaint.getTextSize(),
-                                          glyphCache->getGlyphSizeLimit(),
-                                          iter.getPathScale());
+    FallbackTextHelper fallbackTextHelper(viewMatrix, pathPaint, glyphCache, iter.getPathScale());
 
     const SkGlyph* iterGlyph;
     const SkPath* iterPath;
@@ -499,8 +497,7 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
     // setup our std paint, in hopes of getting hits in the cache
     SkPaint pathPaint(origPaint);
     SkScalar matrixScale = pathPaint.setupForAsPaths();
-    FallbackTextHelper fallbackTextHelper(viewMatrix, pathPaint.getTextSize(), matrixScale,
-                                          glyphCache->getGlyphSizeLimit());
+    FallbackTextHelper fallbackTextHelper(viewMatrix, origPaint, glyphCache, matrixScale);
 
     // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
     pathPaint.setStyle(SkPaint::kFill_Style);
@@ -772,10 +769,7 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     blob->setSubRunHasDistanceFields(runIndex, paint.skPaint().isLCDRenderText(),
                                      paint.skPaint().isAntiAlias(), hasWCoord);
 
-    FallbackTextHelper fallbackTextHelper(viewMatrix,
-                                          paint.skPaint().getTextSize(),
-                                          glyphCache->getGlyphSizeLimit(),
-                                          textRatio);
+    FallbackTextHelper fallbackTextHelper(viewMatrix, paint, glyphCache, textRatio);
 
     GrAtlasTextStrike* currStrike = nullptr;
 
@@ -856,6 +850,8 @@ void GrAtlasTextContext::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
 
 void GrAtlasTextContext::FallbackTextHelper::appendText(const SkGlyph& glyph, int count,
                                                         const char* text, SkPoint glyphPos) {
+    static constexpr SkScalar kMinFallbackTextSize = 64;
+
     SkScalar maxDim = SkTMax(glyph.fWidth, glyph.fHeight)*fTextRatio;
     if (!fUseScaledFallback) {
         SkScalar scaledGlyphSize = maxDim * fMaxScale;
@@ -867,7 +863,8 @@ void GrAtlasTextContext::FallbackTextHelper::appendText(const SkGlyph& glyph, in
     fFallbackTxt.append(count, text);
     if (fUseScaledFallback) {
         SkScalar glyphTextSize = SkScalarFloorToScalar(fMaxTextSize*fTextSize / maxDim);
-        fScaledFallbackTextSize = SkTMin(glyphTextSize, fScaledFallbackTextSize);
+        fScaledFallbackTextSize = SkTMax(SkTMin(glyphTextSize, fScaledFallbackTextSize),
+                                         kMinFallbackTextSize);
     }
     *fFallbackPos.append() = glyphPos;
 }
