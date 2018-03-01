@@ -91,6 +91,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fBufferMapThreshold = options.fBufferMapThreshold;
     fBlacklistCoverageCounting = false;
     fAvoidStencilBuffers = false;
+    fUseBufferDataNullHint = SkToBool(GR_GL_USE_BUFFER_DATA_NULL_HINT);
 
     fPreferVRAMUseOverFlushes = true;
 }
@@ -122,6 +123,13 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
     }
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
+
+    if (GrContextOptions::Enable::kNo == options.fUseBufferDataNullHint) {
+        fUseBufferDataNullHint = false;
+    } else if (GrContextOptions::Enable::kYes == options.fUseBufferDataNullHint) {
+        fUseBufferDataNullHint = true;
+    }
+
 }
 
 static SkString map_flags_to_string(uint32_t flags) {
