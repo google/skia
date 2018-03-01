@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e272a7e_c702745b",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-01T14:04:09Z",
+      "side": 1,
+      "message": "Keeping these in this file for this review is nice, but seems like it might be time to start giving these guys their own files soon.",
+      "revId": "a770c341e77986a1925116f0b74671a62b1dafd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
