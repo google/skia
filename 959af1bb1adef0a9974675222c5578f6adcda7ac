@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f17f658_2486b8fd",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-01T18:24:08Z",
+      "side": 1,
+      "message": "The above loop already did the check that there was no error?\n\n out +\u003d SkUTF16_FromUnichar(SkUTF8_NextUnichar(\u0026ptr), out);",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 43
+      },
+      "revId": "959af1bb1adef0a9974675222c5578f6adcda7ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcd4aeab_2e2e6016",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-01T18:24:08Z",
+      "side": 1,
+      "message": "This CL is to remove this TODO?",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 38
+      },
+      "revId": "959af1bb1adef0a9974675222c5578f6adcda7ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
