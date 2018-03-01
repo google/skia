@@ -45,7 +45,10 @@ struct SkCpu {
         VFP_FP16 = 1 << 2,
         CRC32    = 1 << 3,
     };
-
+    enum {
+        DSP     = 1 << 0,
+        MMI 	= 1 << 1,
+    };
     static void CacheRuntimeFeatures();
     static bool Supports(uint32_t);
 private:
@@ -106,6 +109,9 @@ inline bool SkCpu::Supports(uint32_t mask) {
     features |= CRC32;
     #endif
 
+    #if defined(SK_MIPS_HAS_MMI)
+    features |= MMI;
+    #endif
 #endif
     return (features & mask) == mask;
 }

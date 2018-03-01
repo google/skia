@@ -98,6 +98,10 @@ config("default") {
     ]
     cflags_cc += [ "-std=c++11" ]
 
+    if (current_cpu == "mipsel" || current_cpu == "mips64el") {
+      cflags_cc += [ "-ffp-contract=off" ]
+    }
+
     # The main idea is to slim the exported API, but these flags also improve link time on Mac.
     # These would make stack traces worse on Linux, so we don't just set them willy-nilly.
     if (is_component_build || is_ios || is_mac) {
