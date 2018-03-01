@@ -120,6 +120,8 @@ enum class MarkType {
     kNoExample,
     kOutdent,
     kParam,
+    kPhraseDef,
+    kPhraseRef,
     kPlatform,
     kPopulate,
     kPrivate,
@@ -500,6 +502,12 @@ public:
             if (':' == fChar[0] && fChar +1 < fEnd && ':' == fChar[1]) {
                 fChar++;
             }
+            fChar++;
+        }
+    }
+
+    void skipPhraseName() {
+        while (fChar < fEnd && (islower(fChar[0]) || '_' == fChar[0])) {
             fChar++;
         }
     }
@@ -1287,6 +1295,8 @@ public:
 , { "NoExample",   nullptr,      MarkType::kNoExample,    R_O, E_N, M_CSST | M_E | M(Method) }
 , { "Outdent",     nullptr,      MarkType::kOutdent,      R_N, E_N, M(Code) }
 , { "Param",       nullptr,      MarkType::kParam,        R_Y, E_N, M(Method) }
+, { "PhraseDef",   nullptr,      MarkType::kPhraseDef,    R_Y, E_N, M(Subtopic) }
+, { "",            nullptr,      MarkType::kPhraseRef,    R_Y, E_N, 0 }
 , { "Platform",    nullptr,      MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Populate",    nullptr,      MarkType::kPopulate,     R_N, E_N, M(Subtopic) }
 , { "Private",     nullptr,      MarkType::kPrivate,      R_N, E_N, 0 }
@@ -1418,6 +1428,7 @@ public:
     unordered_map<string, RootDefinition> fTypedefMap;
     unordered_map<string, Definition*> fTopicMap;
     unordered_map<string, Definition*> fAliasMap;
+    unordered_map<string, Definition*> fPhraseMap;
     RootDefinition* fRoot;
     Definition* fWorkingColumn;
     Definition* fRow;
@@ -1485,6 +1496,8 @@ public:
         , { nullptr,        MarkType::kNoExample }
         , { nullptr,        MarkType::kOutdent }
         , { nullptr,        MarkType::kParam }
+        , { nullptr,        MarkType::kPhraseDef }
+        , { nullptr,        MarkType::kPhraseRef }
         , { nullptr,        MarkType::kPlatform }
         , { nullptr,        MarkType::kPopulate }
         , { nullptr,        MarkType::kPrivate }

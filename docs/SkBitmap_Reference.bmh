@@ -509,9 +509,7 @@ bitmap height: 32  info height: 32
 #Method SkColorType colorType() const
 #In Property
 #Line # returns Image_Info Color_Type ##
-Returns Color_Type, one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-kRGB_565_SkColorType, kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-kBGRA_8888_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType.
+Returns Color_Type, one of: #list_of_color_types#.
 
 #Return  Color_Type in Image_Info ##
 

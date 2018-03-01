@@ -277,6 +277,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         // may be one-liner
         case MarkType::kNoExample:
         case MarkType::kParam:
+        case MarkType::kPhraseDef:
         case MarkType::kReturn:
         case MarkType::kToDo:
             if (hasEnd) {
@@ -289,10 +290,18 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     if (!this->popParentStack(fParent)) { // if not one liner, pop
                         return false;
                     }
-                    if (MarkType::kParam == markType || MarkType::kReturn == markType) {
+                    if (MarkType::kParam == markType || MarkType::kReturn == markType
+                            || MarkType::kPhraseDef == markType) {
                         if (!this->checkParamReturn(definition)) {
                             return false;
                         }
+                    }
+                    if (MarkType::kPhraseDef == markType) {
+                        string key = definition->fName;
+                        if (fPhraseMap.end() != fPhraseMap.find(key)) {
+                            this->reportError<bool>("duplicate phrase key");
+                        }
+                        fPhraseMap[key] = definition;
                     }
                 } else {
                     fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
@@ -306,6 +315,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     SkAssertResult(fMC == this->next());
                     definition->fTerminator = fChar;
                     fParent->fChildren.push_back(definition);
+                    if (MarkType::kPhraseDef == markType) {
+                        SkDebugf("");
+                    }
                 }
                 break;
             }
@@ -907,6 +919,23 @@ bool BmhParser::findDefinitions() {
                     fTableState = TableState::kColumnEnd;
                     continue;
                 }
+            } else if (this->peek() >= 'a' && this->peek() <= 'z') {
+                // expect zero or more letters and underscores (no spaces) then hash
+                const char* phraseNameStart = fChar;
+                this->skipPhraseName();
+                string phraseKey = string(phraseNameStart, fChar - phraseNameStart);
+                if (fMC != this->next()) {
+                    return this->reportError<bool>("expect # after phrase-name");
+                }
+                fMarkup.emplace_front(MarkType::kPhraseRef, phraseNameStart - 1,
+                        fLineCount, fParent);
+                Definition* markChar = &fMarkup.front();
+                markChar->fContentStart = nullptr;
+                this->skipToEndBracket('\n');
+                markChar->fContentEnd = nullptr;
+                markChar->fTerminator = fChar;
+                markChar->fName = phraseKey;
+                fParent->fChildren.push_back(markChar);
             }
         }
         char nextChar = this->next();
@@ -1629,7 +1658,8 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
             builder = this->typedefName();
             break;
         case MarkType::kParam:
-           // fixme: expect camelCase
+        case MarkType::kPhraseDef:
+            // fixme: expect camelCase for param
             builder = this->word("", "");
             this->skipSpace();
             *checkEnd = false;
