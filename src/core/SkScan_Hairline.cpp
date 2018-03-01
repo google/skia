@@ -118,7 +118,11 @@ void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* 
             if (ix0 == ix1) {// too short to draw
                 continue;
             }
-
+#if defined(IS_FUZZING)
+            if ((ix0 - ix1) > 100000 || (ix0 - ix1) < 0) {
+                continue; // too big to draw
+            }
+#endif
             SkFixed slope = SkFixedDiv(dy, dx);
             SkFixed startY = SkFDot6ToFixed(y0) + (slope * ((32 - x0) & 63) >> 6);
 
@@ -133,7 +137,11 @@ void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* 
             if (iy0 == iy1) { // too short to draw
                 continue;
             }
-
+#if defined(IS_FUZZING)
+            if ((iy0 - iy1) > 100000 || (iy0 - iy1) < 0) {
+                continue; // too big to draw
+            }
+#endif
             SkFixed slope = SkFixedDiv(dx, dy);
             SkFixed startX = SkFDot6ToFixed(x0) + (slope * ((32 - y0) & 63) >> 6);
 
