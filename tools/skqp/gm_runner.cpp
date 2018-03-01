@@ -137,12 +137,14 @@ static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkiaBackend b
     }
 }
 
-static GrContextOptions context_options(skiagm::GM* gm = nullptr) {
+static GrContextOptions context_options(bool workarounds, skiagm::GM* gm = nullptr) {
     GrContextOptions grContextOptions;
     grContextOptions.fAllowPathMaskCaching = true;
     grContextOptions.fSuppressPathRendering = true;
     #ifndef SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS
-    grContextOptions.fDisableDriverCorrectnessWorkarounds = true;
+    if (!workarounds) {
+        grContextOptions.fDisableDriverCorrectnessWorkarounds = true;
+    }
     #endif
     if (gm) {
         gm->modifyGrContextOptions(&grContextOptions);
@@ -163,7 +165,8 @@ std::vector<SkiaBackend> GetSupportedBackends() {
         std::unique_ptr<sk_gpu_test::TestContext> testCtx = make_test_context(backend);
         if (testCtx) {
             testCtx->makeCurrent();
-            if (nullptr != testCtx->makeGrContext(context_options())) {
+            bool workarounds = backend == SkiaBackend::kVulkan;
+            if (nullptr != testCtx->makeGrContext(context_options(workarounds))) {
                 result.push_back(backend);
             }
         }
@@ -195,8 +198,10 @@ static bool evaluate_gm(SkiaBackend backend,
         return false;
     }
     testCtx->makeCurrent();
+    bool workarounds = backend == SkiaBackend::kVulkan;
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(
-            testCtx->makeGrContext(context_options(gm)).get(), SkBudgeted::kNo, info, 0, &props);
+            testCtx->makeGrContext(context_options(workarounds, gm)).get(),
+                                   SkBudgeted::kNo, info, 0, &props);
     if (!surf) {
         return false;
     }
