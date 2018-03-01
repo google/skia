@@ -171,7 +171,8 @@ def nanobench_flags(api, bot):
     match.append('~desk_skbug6850overlay2')
     match.append('~desk_googlespreadsheet')
     match.append('~desk_carsvg')
-  if 'Vulkan' in bot and 'RadeonR9M470X' in bot and 'Win' in bot:
+  if ('Vulkan' in bot and ('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and
+      'Win' in bot):
     # skia:7677
     match.append('~path_text_clipped_uncached')
   if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
