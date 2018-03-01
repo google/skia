@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb3622fc_7dee880d",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-01T15:25:46Z",
+      "side": 1,
+      "message": "This assert is something SkUTF16_NextUnichar calims is always true. If you add this post-condition assert, add it to SkUTF16_NextUnichar.",
+      "range": {
+        "startLine": 390,
+        "startChar": 12,
+        "endLine": 390,
+        "endChar": 54
+      },
+      "revId": "54941813def95f30ff5b69bc6a0098c528b74dc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "052dc094_ee50afda",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-01T15:25:46Z",
+      "side": 1,
+      "message": "Easier to understand this as\n\nif (SK_MaxU32 - s \u003c n) {\n\nsince we know s is at most 4.",
+      "range": {
+        "startLine": 393,
+        "startChar": 0,
+        "endLine": 394,
+        "endChar": 42
+      },
+      "revId": "54941813def95f30ff5b69bc6a0098c528b74dc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a26f68b6_f6434b15",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-01T15:25:46Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be \u0027last\u0027? \u0027ptr\u0027 is now pointing past the utf16 which will cause the overflow.",
+      "range": {
+        "startLine": 395,
+        "startChar": 22,
+        "endLine": 395,
+        "endChar": 25
+      },
+      "revId": "54941813def95f30ff5b69bc6a0098c528b74dc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6de6d5b3_75df86f5",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-01T15:25:46Z",
+      "side": 1,
+      "message": "This assert is what trim_size_t_to_u32 claims to do, if you want to add this assert, add it to trim_size_t_to_u32. On the other hand, shouldn\u0027t this be\n\nSkASSERT(n \u003d\u003d trim_size_t_to_u32(n));\n\nor just\n\nSkASSERT(n \u003c SK_MaxU32);\n\nsince that was the point of the checking above?",
+      "range": {
+        "startLine": 400,
+        "startChar": 8,
+        "endLine": 400,
+        "endChar": 45
+      },
+      "revId": "54941813def95f30ff5b69bc6a0098c528b74dc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ba0d5c7_336527f1",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-01T15:25:46Z",
+      "side": 1,
+      "message": "Why can\u0027t the entire content of this loop just be\n\nout +\u003d SkUTF8_FromUnichar(SkUTF16_NextUnichar(\u0026ptr), out);\n\nyou\u0027ve already calculated \u0027end\u0027 so the uft8 won\u0027t overflow.",
+      "range": {
+        "startLine": 405,
+        "startChar": 12,
+        "endLine": 405,
+        "endChar": 77
+      },
+      "revId": "54941813def95f30ff5b69bc6a0098c528b74dc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a1b7724_90f8f5f8",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-01T15:25:46Z",
+      "side": 1,
+      "message": "This is a property of SkUTF8_FromUnichar, if you want this assert, put it there.",
+      "range": {
+        "startLine": 406,
+        "startChar": 12,
+        "endLine": 406,
+        "endChar": 42
+      },
+      "revId": "54941813def95f30ff5b69bc6a0098c528b74dc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
