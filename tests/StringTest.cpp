@@ -11,27 +11,6 @@
 #include "Test.h"
 #include <thread>
 
-// Windows vsnprintf doesn't 0-terminate safely), but is so far
-// encapsulated in SkString that we can't test it directly.
-
-#ifdef SK_BUILD_FOR_WIN
-    #define VSNPRINTF(buffer, size, format, args)   \
-        vsnprintf_s(buffer, size, _TRUNCATE, format, args)
-#else
-    #define VSNPRINTF   vsnprintf
-#endif
-
-#define ARGS_TO_BUFFER(format, buffer, size)        \
-    do {                                            \
-        va_list args;                               \
-        va_start(args, format);                     \
-        VSNPRINTF(buffer, size, format, args);      \
-        va_end(args);                               \
-    } while (0)
-
-static void printfAnalog(char* buffer, int size, const char format[], ...) {
-    ARGS_TO_BUFFER(format, buffer, size);
-}
 
 DEF_TEST(String, reporter) {
     SkString    a;
@@ -188,7 +167,7 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter, buffer[18] == 'a');
     REPORTER_ASSERT(reporter, buffer[19] == 'a');
     REPORTER_ASSERT(reporter, buffer[20] == 'a');
-    printfAnalog(buffer, 20, "%30d", 0);
+    snprintf(buffer, 20, "%30d", 0);
     REPORTER_ASSERT(reporter, buffer[18] == ' ');
     REPORTER_ASSERT(reporter, buffer[19] == 0);
     REPORTER_ASSERT(reporter, buffer[20] == 'a');
@@ -323,5 +302,30 @@ DEF_TEST(String_huge, r) {
         SkString str(size);
         size += 1;
     }
+}
+
+static SkString utf16_to_utf8(const uint16_t* utf16, size_t len) {
+    SkString s;
+    s.setUTF16(utf16, len);
+    return s;
+}
+
+DEF_TEST(String_fromUTF16, r) {
+    // test data produced with `iconv`.
+    const uint16_t test1[] = {
+        0xD835, 0xDCD0, 0xD835, 0xDCD1, 0xD835, 0xDCD2, 0xD835, 0xDCD3, 0xD835, 0xDCD4, 0x0020,
+        0xD835, 0xDCD5, 0xD835, 0xDCD6, 0xD835, 0xDCD7, 0xD835, 0xDCD8, 0xD835, 0xDCD9
+    };
+    REPORTER_ASSERT(r, utf16_to_utf8(test1, SK_ARRAY_COUNT(test1)).equals("𝓐𝓑𝓒𝓓𝓔 𝓕𝓖𝓗𝓘𝓙"));
+
+    const uint16_t test2[] = {
+        0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0020, 0x0046, 0x0047, 0x0048, 0x0049, 0x004A,
+    };
+    REPORTER_ASSERT(r, utf16_to_utf8(test2, SK_ARRAY_COUNT(test2)).equals("ABCDE FGHIJ"));
+
+    const uint16_t test3[] = {
+        0x03B1, 0x03B2, 0x03B3, 0x03B4, 0x03B5, 0x0020, 0x03B6, 0x03B7, 0x03B8, 0x03B9, 0x03BA,
+    };
+    REPORTER_ASSERT(r, utf16_to_utf8(test3, SK_ARRAY_COUNT(test3)).equals("αβγδε ζηθικ"));
 }
 
