@@ -23,6 +23,10 @@ for commit in $(git log $BRANCH -30 -\-format=%H) ; do
 done
 -->
 
+  * [`4e8d3a4bb0`](https://storage.googleapis.com/skia-skqp/skqp-universal-4e8d3a4bb0.apk)
+    | `2018-03-01 17:20:13 UTC` | Add unit test the explicit tests create a GrVkCo..
+  * [`4f0c60f256`](https://storage.googleapis.com/skia-skqp/skqp-universal-4f0c60f256.apk)
+    | `2018-02-28 21:11:06 UTC` | Cherry-pick sequence of Vulkan Fixes.
   * [`120ffdd88c`](https://storage.googleapis.com/skia-skqp/skqp-universal-120ffdd88c.apk)
     | `2018-02-23 19:08:26 UTC` | SkQP:  do test filtering correctly
   * [`5eff3287c9`](https://storage.googleapis.com/skia-skqp/skqp-universal-5eff3287c9.apk)
