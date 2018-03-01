@@ -5,22 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-
-#ifdef SK_XML
-
+#include "../core/SkBitmap.h"
+#include "../core/SkImage.h"
+#include "../core/SkShader.h"
 #include "SkCanvas.h"
-#include "SkData.h"
 #include "SkDOM.h"
+#include "SkData.h"
+#include "SkImageShader.h"
 #include "SkParse.h"
-#include "SkStream.h"
 #include "SkSVGCanvas.h"
+#include "SkStream.h"
 #include "SkXMLWriter.h"
 #include "Test.h"
 
 #include <string.h>
 
 namespace {
+
+#ifdef SK_XML
 
 void check_text_node(skiatest::Reporter* reporter,
                      const SkDOM& dom,
@@ -91,6 +93,7 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
 
     SkDOM dom;
     SkPaint paint;
+    SkXMLParserWriter writer(dom.beginParsing());
     SkPoint offset = SkPoint::Make(10, 20);
 
     {
@@ -149,4 +152,176 @@ DEF_TEST(SVGDevice_whitespace_pos, reporter) {
     }
 }
 
+void SetImageShader(SkPaint* paint, int imageWidth, int imageHeight, SkShader::TileMode xTile,
+                    SkShader::TileMode yTile) {
+    SkImageInfo imageInfo = SkImageInfo::MakeN32(imageWidth, imageHeight, kOpaque_SkAlphaType);
+    sk_sp<SkData> imageData =
+            SkData::MakeUninitialized(imageInfo.minRowBytes() * imageInfo.height());
+    SkBitmap bm;
+    bm.installPixels(imageInfo, imageData->writable_data(), imageInfo.minRowBytes());
+    sk_sp<SkImage> dummyImage =
+            SkImage::MakeRasterData(imageInfo, imageData, imageInfo.minRowBytes());
+
+    SkMatrix identity;
+    sk_sp<SkShader> imageShader = SkImageShader::Make(dummyImage, xTile, yTile, &identity);
+    paint->setShader(imageShader);
+}
+
+// Attempt to find the three nodes on which we have expectations:
+// the pattern node, the image within that pattern, and the rect which
+// uses the pattern as a fill.
+// returns false if not all nodes are found.
+bool FindImageShaderNodes(skiatest::Reporter* reporter, const SkDOM* dom, const SkDOM::Node* root,
+                          const SkDOM::Node** patternOut, const SkDOM::Node** imageOut,
+                          const SkDOM::Node** rectOut) {
+    if (root == nullptr || dom == nullptr) {
+        ERRORF(reporter, "root element not found");
+        return false;
+    }
+
+    const SkDOM::Node* innerSvg = dom->getFirstChild(root, "svg");
+    if (innerSvg == nullptr) {
+        ERRORF(reporter, "inner svg element not found");
+        return false;
+    }
+
+    const SkDOM::Node* rect = dom->getFirstChild(innerSvg, "rect");
+    if (rect == nullptr) {
+        ERRORF(reporter, "rect not found");
+        return false;
+    }
+    *rectOut = rect;
+
+    const SkDOM::Node* defs = dom->getFirstChild(innerSvg, "defs");
+    if (defs == nullptr) {
+        ERRORF(reporter, "defs not found");
+        return false;
+    }
+
+    const SkDOM::Node* pattern = dom->getFirstChild(defs, "pattern");
+    if (pattern == nullptr) {
+        ERRORF(reporter, "pattern not found");
+        return false;
+    }
+    *patternOut = pattern;
+
+    const SkDOM::Node* image = dom->getFirstChild(pattern, "image");
+    if (image == nullptr) {
+        ERRORF(reporter, "image not found");
+        return false;
+    }
+    *imageOut = image;
+
+    return true;
+}
+
+void ImageShaderTestSetup(SkDOM* dom, SkPaint* paint, int imageWidth, int imageHeight,
+                          int rectWidth, int rectHeight, SkShader::TileMode xTile,
+                          SkShader::TileMode yTile) {
+    SetImageShader(paint, imageWidth, imageHeight, xTile, yTile);
+    SkXMLParserWriter writer(dom->beginParsing());
+    std::unique_ptr<SkCanvas> svgCanvas = SkSVGCanvas::Make(SkRect::MakeWH(100, 100), &writer);
+
+    SkRect bounds{0, 0, SkIntToScalar(rectWidth), SkIntToScalar(rectHeight)};
+    svgCanvas->drawRect(bounds, *paint);
+}
+
 #endif
+
+DEF_TEST(SVGDevice_image_shader_norepeat, reporter) {
+    SkDOM dom;
+    SkPaint paint;
+    int imageWidth = 3, imageHeight = 3;
+    int rectWidth = 10, rectHeight = 10;
+    ImageShaderTestSetup(&dom, &paint, imageWidth, imageHeight, rectWidth, rectHeight,
+                         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+
+    const SkDOM::Node* root = dom.finishParsing();
+
+    const SkDOM::Node *patternNode, *imageNode, *rectNode;
+    bool structureAppropriate =
+            FindImageShaderNodes(reporter, &dom, root, &patternNode, &imageNode, &rectNode);
+    REPORTER_ASSERT(reporter, structureAppropriate);
+
+    // the image should always maintain its size.
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(imageNode, "width")) == imageWidth);
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(imageNode, "height")) == imageHeight);
+
+    // making the pattern as large as the container prevents
+    // it from repeating.
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(patternNode, "width"), "100%") == 0);
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(patternNode, "height"), "100%") == 0);
+}
+
+DEF_TEST(SVGDevice_image_shader_tilex, reporter) {
+    SkDOM dom;
+    SkPaint paint;
+    int imageWidth = 3, imageHeight = 3;
+    int rectWidth = 10, rectHeight = 10;
+    ImageShaderTestSetup(&dom, &paint, imageWidth, imageHeight, rectWidth, rectHeight,
+                         SkShader::kRepeat_TileMode, SkShader::kClamp_TileMode);
+
+    const SkDOM::Node* root = dom.finishParsing();
+
+    const SkDOM::Node *patternNode, *imageNode, *rectNode;
+    bool structureAppropriate =
+            FindImageShaderNodes(reporter, &dom, root, &patternNode, &imageNode, &rectNode);
+    REPORTER_ASSERT(reporter, structureAppropriate);
+
+    // the imageNode should always maintain its size.
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(imageNode, "width")) == imageWidth);
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(imageNode, "height")) == imageHeight);
+
+    // if the patternNode width matches the imageNode width,
+    // it will repeat in along the x axis.
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(patternNode, "width")) == imageWidth);
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(patternNode, "height"), "100%") == 0);
+}
+
+DEF_TEST(SVGDevice_image_shader_tiley, reporter) {
+    SkDOM dom;
+    SkPaint paint;
+    int imageNodeWidth = 3, imageNodeHeight = 3;
+    int rectNodeWidth = 10, rectNodeHeight = 10;
+    ImageShaderTestSetup(&dom, &paint, imageNodeWidth, imageNodeHeight, rectNodeWidth,
+                         rectNodeHeight, SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode);
+
+    const SkDOM::Node* root = dom.finishParsing();
+
+    const SkDOM::Node *patternNode, *imageNode, *rectNode;
+    bool structureAppropriate =
+            FindImageShaderNodes(reporter, &dom, root, &patternNode, &imageNode, &rectNode);
+    REPORTER_ASSERT(reporter, structureAppropriate);
+
+    // the imageNode should always maintain its size.
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(imageNode, "width")) == imageNodeWidth);
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(imageNode, "height")) == imageNodeHeight);
+
+    // making the patternNode as large as the container prevents
+    // it from repeating.
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(patternNode, "width"), "100%") == 0);
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(patternNode, "height")) == imageNodeHeight);
+}
+
+DEF_TEST(SVGDevice_image_shader_tileboth, reporter) {
+    SkDOM dom;
+    SkPaint paint;
+    int imageWidth = 3, imageHeight = 3;
+    int rectWidth = 10, rectHeight = 10;
+    ImageShaderTestSetup(&dom, &paint, imageWidth, imageHeight, rectWidth, rectHeight,
+                         SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+
+    const SkDOM::Node* root = dom.finishParsing();
+
+    const SkDOM::Node *patternNode, *imageNode, *rectNode;
+    bool structureAppropriate =
+            FindImageShaderNodes(reporter, &dom, root, &patternNode, &imageNode, &rectNode);
+    REPORTER_ASSERT(reporter, structureAppropriate);
+
+    // the imageNode should always maintain its size.
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(imageNode, "width")) == imageWidth);
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(imageNode, "height")) == imageHeight);
+
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(patternNode, "width")) == imageWidth);
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(patternNode, "height")) == imageHeight);
+}
