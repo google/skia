@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b0786a9_00480060",
+        "filename": "tools/skpbench/_hardware_pixel.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-02T15:29:13Z",
+      "side": 1,
+      "message": "I\u0027m pretty sure this will overwrite the above:\n\n  echo 13763 \u003e /sys/class/devfreq/soc:qcom,gpubw/min_freq\n\nself._devfreq_lock_cmds is huge. I think we ought to not issue it if the goal is to match Android.",
+      "range": {
+        "startLine": 71,
+        "startChar": 11,
+        "endLine": 71,
+        "endChar": 29
+      },
+      "revId": "535fbd205621ec50250082b631f5b682e72a9a62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47088ba4_0d5be5a7",
+        "filename": "tools/skpbench/_hardware_pixel.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-02T15:29:13Z",
+      "side": 1,
+      "message": "This will have to go too if we take out _devfreq_lock_cmds above",
+      "range": {
+        "startLine": 92,
+        "startChar": 11,
+        "endLine": 92,
+        "endChar": 32
+      },
+      "revId": "535fbd205621ec50250082b631f5b682e72a9a62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
