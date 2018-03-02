@@ -58,7 +58,7 @@ bool SkDeferredDisplayListRecorder::init() {
 
 #if SK_SUPPORT_GPU
     if (!fContext) {
-        fContext = GrContextPriv::MakeDDL(fCharacterization.contextInfo());
+        fContext = GrContextPriv::MakeDDL(fCharacterization.refContextInfo());
         if (!fContext) {
             return false;
         }
@@ -95,6 +95,7 @@ bool SkDeferredDisplayListRecorder::init() {
                 return sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->priv().peekSurface());
             },
             desc,
+            GrRenderTargetFlags::kNone,
             GrProxyProvider::Textureable(fCharacterization.isTextureable()),
             GrMipMapped::kNo,
             SkBackingFit::kExact,

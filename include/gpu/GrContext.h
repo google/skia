@@ -356,15 +356,17 @@ public:
     const GrContextPriv contextPriv() const;
 
 protected:
-    GrContext(GrContextThreadSafeProxy*);
-    GrContext(GrBackend);
+    GrContext(GrBackend, int32_t id = SK_InvalidGenID);
 
-    virtual bool init(const GrContextOptions&); // init must be called after either constructor.
+    bool initCommon(const GrContextOptions&);
+    virtual bool init(const GrContextOptions&) = 0; // must be called after the ctor!
 
     virtual GrAtlasManager* onGetFullAtlasManager() = 0;
     virtual GrRestrictedAtlasManager* onGetRestrictedAtlasManager() = 0;
 
+    const GrBackend                         fBackend;
     sk_sp<const GrCaps>                     fCaps;
+    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
 private:
     sk_sp<GrGpu>                            fGpu;
@@ -372,7 +374,6 @@ private:
     GrResourceProvider*                     fResourceProvider;
     GrProxyProvider*                        fProxyProvider;
 
-    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
     GrGlyphCache*                           fGlyphCache;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
@@ -402,8 +403,6 @@ private:
     std::unique_ptr<GrDrawingManager>       fDrawingManager;
 
     GrAuditTrail                            fAuditTrail;
-
-    const GrBackend                         fBackend;
 
     GrContextOptions::PersistentCache*      fPersistentCache;
 
@@ -495,9 +494,9 @@ private:
     const GrBackend        fBackend;
     const GrContextOptions fOptions;
 
-    friend class GrContext;
-    friend class GrContextPriv;
-    friend class SkImage;
+    friend class GrDirectContext; // To construct this object
+    friend class GrContextPriv;   // for access to 'fOptions' in MakeDDL
+    friend class GrDDLContext;    // to implement the GrDDLContext ctor (access to all members)
 
     typedef SkRefCnt INHERITED;
 };
