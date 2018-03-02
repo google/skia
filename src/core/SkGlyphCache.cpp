@@ -7,7 +7,6 @@
 
 
 #include "SkGlyphCache.h"
-#include "SkGlyphCache_Globals.h"
 #include "SkGraphics.h"
 #include "SkOnce.h"
 #include "SkPath.h"
@@ -621,6 +620,25 @@ void SkGlyphCache::VisitAll(Visitor visitor, void* context) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkGlyphCache_Globals::~SkGlyphCache_Globals() {
+    SkGlyphCache* cache = fHead;
+    while (cache) {
+        SkGlyphCache* next = cache->fNext;
+        delete cache;
+        cache = next;
+    }
+}
+
+void SkGlyphCache_Globals::AttachCache(SkGlyphCache* cache) {
+    if (cache == nullptr) {
+        return;
+    }
+    SkASSERT(cache->fNext == nullptr);
+
+    get_globals().attachCacheToHead(cache);
+}
+
 
 void SkGlyphCache_Globals::attachCacheToHead(SkGlyphCache* cache) {
     SkAutoExclusive ac(fLock);

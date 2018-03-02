@@ -11,6 +11,7 @@
 #include "SkBitmap.h"
 #include "SkDescriptor.h"
 #include "SkGlyph.h"
+#include "SkGlyphCache_Globals.h"
 #include "SkPaint.h"
 #include "SkTHash.h"
 #include "SkScalerContext.h"
@@ -20,7 +21,10 @@
 
 class SkTraceMemoryDump;
 
-class SkGlyphCache_Globals;
+class SkGlyphCache;
+using SkExclusiveStrikePtr = std::unique_ptr<
+    SkGlyphCache,
+    SkFunctionWrapper<void, SkGlyphCache, SkGlyphCache_Globals::AttachCache>>;
 
 /** \class SkGlyphCache
 
