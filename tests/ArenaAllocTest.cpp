@@ -5,9 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkArenaAlloc.h"
 #include "SkRefCnt.h"
+#include "SkTypes.h"
+#include "Test.h"
+
+#include <memory>
+#include <new>
+#include <type_traits>
 
 namespace {
 

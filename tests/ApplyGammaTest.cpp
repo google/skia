@@ -5,16 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include <initializer_list>
-#include "Test.h"
+#include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
 
+#include "GrCaps.h"
+#include "GrContext.h"
+#include "GrContextFactory.h"
+#include "GrShaderCaps.h"
+#include "GrTypes.h"
+#include "SkBitmap.h"
+#include "SkBlendMode.h"
 #include "SkCanvas.h"
+#include "SkColor.h"
 #include "SkColorFilter.h"
+#include "SkColorPriv.h"
+#include "SkImageInfo.h"
+#include "SkPaint.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
 #include "SkSurface.h"
+#include "SkTemplates.h"
 #include "SkUtils.h"
+#include "Test.h"
+
+#include <math.h>
 
 /** convert 0..1 linear value to 0..1 srgb */
 static float linear_to_srgb(float linear) {
