@@ -13,9 +13,10 @@
 #include "GrSurfaceProxy.h"
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
-                                                        const GrSurfaceDesc& desc,
-                                                        sk_sp<SkColorSpace> colorSpace,
-                                                        const SkSurfaceProps* props) {
+        const GrSurfaceDesc& desc,
+        GrSurfaceOrigin origin,
+        sk_sp<SkColorSpace> colorSpace,
+        const SkSurfaceProps* props) {
     GrSurfaceDesc tmpDesc = desc;
     tmpDesc.fFlags |= kRenderTarget_GrSurfaceFlag;
 
@@ -25,9 +26,9 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     // Because this is being allocated at the start of a flush we must ensure the proxy
     // will, when instantiated, have no pending IO.
     // TODO: fold the kNoPendingIO_Flag into GrSurfaceFlags?
-    sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(tmpDesc, SkBackingFit::kExact,
-                                                             SkBudgeted::kYes,
-                                                             GrResourceProvider::kNoPendingIO_Flag);
+    sk_sp<GrSurfaceProxy> proxy =
+            proxyProvider->createProxy(tmpDesc, origin, SkBackingFit::kExact, SkBudgeted::kYes,
+                                       GrResourceProvider::kNoPendingIO_Flag);
     if (!proxy->asRenderTargetProxy()) {
         return nullptr;
     }

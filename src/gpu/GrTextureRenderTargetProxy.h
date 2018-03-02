@@ -28,13 +28,13 @@ private:
     friend class GrProxyProvider; // for ctors
 
     // Deferred version
-    GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, GrMipMapped,
+    GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, GrSurfaceOrigin, GrMipMapped,
                                SkBackingFit, SkBudgeted, uint32_t flags);
 
     // Lazy-callback version
     GrTextureRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType,
-                               const GrSurfaceDesc& desc, GrMipMapped, SkBackingFit, SkBudgeted,
-                               uint32_t flags, GrRenderTargetFlags);
+                               const GrSurfaceDesc& desc, GrSurfaceOrigin, GrMipMapped,
+                               SkBackingFit, SkBudgeted, uint32_t flags, GrRenderTargetFlags);
 
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);

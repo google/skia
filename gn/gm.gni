@@ -300,7 +300,6 @@ gm_sources = [
   "$_gm/tablecolorfilter.cpp",
   "$_gm/tallstretchedbitmaps.cpp",
   "$_gm/testgradient.cpp",
-  "$_gm/texdata.cpp",
   "$_gm/textblob.cpp",
   "$_gm/textblobblockreordering.cpp",
   "$_gm/textblobcolortrans.cpp",

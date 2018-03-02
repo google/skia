@@ -81,10 +81,11 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
         }
 
         copyDstDesc.fFlags = flags;
-        copyDstDesc.fOrigin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
-                                                              : kBottomLeft_GrSurfaceOrigin;
+        auto origin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
+                                                      : kBottomLeft_GrSurfaceOrigin;
 
-        sk_sp<GrSurfaceContext> dstContext(GrSurfaceProxy::TestCopy(context, copyDstDesc, proxy));
+        sk_sp<GrSurfaceContext> dstContext(
+                GrSurfaceProxy::TestCopy(context, copyDstDesc, origin, proxy));
 
         test_read_pixels(reporter, dstContext.get(), expectedPixelValues, testName);
     }
@@ -109,11 +110,11 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
 
     for (auto flags : { kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag }) {
         copySrcDesc.fFlags = flags;
-        copySrcDesc.fOrigin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
-                                                              : kBottomLeft_GrSurfaceOrigin;
+        auto origin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
+                                                      : kBottomLeft_GrSurfaceOrigin;
 
-        sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(copySrcDesc, SkBudgeted::kYes,
-                                                                      pixels.get(), 0);
+        sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(
+                copySrcDesc, origin, SkBudgeted::kYes, pixels.get(), 0);
 
         dstContext->copy(src.get());
 

@@ -59,7 +59,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     {
         GrSurfaceDesc desc;
         desc.fFlags     = kNone_GrSurfaceFlags;
-        desc.fOrigin    = kTopLeft_GrSurfaceOrigin;
         desc.fConfig    = kAlpha_8_GrPixelConfig;    // it is a single channel texture
         desc.fWidth     = X_SIZE;
         desc.fHeight    = Y_SIZE;
@@ -67,8 +66,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
 
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
-                                                                        alphaData, 0);
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
+                desc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo, alphaData, 0);
         if (!proxy) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
@@ -170,7 +169,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         for (int rt = 0; rt < 2; ++rt) {
             GrSurfaceDesc desc;
             desc.fFlags     = rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-            desc.fOrigin    = rt ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
             desc.fConfig    = config;
             desc.fWidth     = X_SIZE;
             desc.fHeight    = Y_SIZE;
@@ -183,8 +181,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 }
             }
 
-            sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
-                                                                            rgbaData, 0);
+            auto origin = rt ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
+            sk_sp<GrTextureProxy> proxy =
+                    proxyProvider->createTextureProxy(desc, origin, SkBudgeted::kNo, rgbaData, 0);
             if (!proxy) {
                 // We always expect to be able to create a RGBA texture
                 if (!rt  && kRGBA_8888_GrPixelConfig == desc.fConfig) {
