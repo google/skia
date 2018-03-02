@@ -9,7 +9,7 @@ from collections import namedtuple
 import itertools
 
 CPU_CLOCK_RATE = 1670400
-GPU_CLOCK_RATE = 510000000
+GPU_CLOCK_RATE = 315000000
 
 DEVFREQ_DIRNAME = '/sys/class/devfreq'
 DEVFREQ_THROTTLE = 0.74
@@ -46,23 +46,23 @@ class HardwarePixel(HardwareAndroid):
         echo 0 > /sys/devices/system/cpu/cpu$N/online
       done''',
 
-      # gpu perf commands from
-      # https://developer.qualcomm.com/qfile/28823/lm80-p0436-11_adb_commands.pdf
+      # Set GPU bus and idle timer
+      # Set DDR frequency to max
+      # Set GPU to performance mode, 315 MHZ
       '''
       echo 0 > /sys/class/kgsl/kgsl-3d0/bus_split
-      echo 1 > /sys/class/kgsl/kgsl-3d0/force_bus_on
-      echo 1 > /sys/class/kgsl/kgsl-3d0/force_rail_on
       echo 1 > /sys/class/kgsl/kgsl-3d0/force_clk_on
-      echo 1000000 > /sys/class/kgsl/kgsl-3d0/idle_timer
-      echo userspace > /sys/class/kgsl/kgsl-3d0/devfreq/governor
-      echo 2 > /sys/class/kgsl/kgsl-3d0/max_pwrlevel
-      echo 2 > /sys/class/kgsl/kgsl-3d0/min_pwrlevel
-      echo 2 > /sys/class/kgsl/kgsl-3d0/thermal_pwrlevel
+      echo 10000 > /sys/class/kgsl/kgsl-3d0/idle_timer
+
+      echo 13763 > /sys/class/devfreq/soc:qcom,gpubw/min_freq
+
+      echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
       echo %i > /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
       echo %i > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
-      echo %i > /sys/class/kgsl/kgsl-3d0/max_gpuclk
-      echo %i > /sys/class/kgsl/kgsl-3d0/gpuclk''' %
-      tuple(GPU_CLOCK_RATE for _ in range(4))] + \
+
+      echo 4 > /sys/class/kgsl/kgsl-3d0/max_pwrlevel
+      echo 4 > /sys/class/kgsl/kgsl-3d0/min_pwrlevel''' %
+      tuple(GPU_CLOCK_RATE for _ in range(2))] + \
 
       self._devfreq_lock_cmds))
 
