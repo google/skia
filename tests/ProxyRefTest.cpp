@@ -69,24 +69,23 @@ static void check_refs(skiatest::Reporter* reporter,
 static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = kWidthHeight;
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return proxyProvider->createProxy(desc, SkBackingFit::kApprox, SkBudgeted::kYes,
-                                      GrResourceProvider::kNoPendingIO_Flag);
+    return proxyProvider->createProxy(desc, kBottomLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
+                                      SkBudgeted::kYes, GrResourceProvider::kNoPendingIO_Flag);
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = kWidthHeight;
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return proxyProvider->createInstantiatedProxy(desc, SkBackingFit::kExact, SkBudgeted::kNo);
+    return proxyProvider->createInstantiatedProxy(desc, kBottomLeft_GrSurfaceOrigin,
+                                                  SkBackingFit::kExact, SkBudgeted::kNo);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {

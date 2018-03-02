@@ -72,7 +72,8 @@ bool GrGpu::isACopyNeededForTextureParams(int width, int height,
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
-                                      const GrMipLevel texels[], int mipLevelCount) {
+                                      GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
+                                      int mipLevelCount) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "createTexture", fContext);
     GrSurfaceDesc desc = origDesc;
 
@@ -93,7 +94,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     }
 
     this->handleDirtyContext();
-    sk_sp<GrTexture> tex = this->onCreateTexture(desc, budgeted, texels, mipLevelCount);
+    sk_sp<GrTexture> tex =
+            this->onCreateTexture(desc, budgeted, texelsOrigin, texels, mipLevelCount);
     if (tex) {
         if (!this->caps()->reuseScratchTextures() && !isRT) {
             tex->resourcePriv().removeScratchKey();
@@ -109,7 +111,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
-    return this->createTexture(desc, budgeted, nullptr, 0);
+    return this->createTexture(desc, budgeted, kTopLeft_GrSurfaceOrigin, nullptr, 0);
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
@@ -253,7 +255,6 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, 
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
-    tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;  // no CPU y-flip for TL.
     tempDrawInfo->fTempSurfaceDesc.fConfig = tempSurfaceConfig;
     tempDrawInfo->fTempSurfaceFit = SkBackingFit::kApprox;
     tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
@@ -334,7 +335,6 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
-    tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;  // no CPU y-flip for TL.
     tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
     tempDrawInfo->fWriteColorType = srcColorType;
 

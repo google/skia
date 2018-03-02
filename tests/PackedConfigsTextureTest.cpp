@@ -118,10 +118,9 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context,
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;
         desc.fConfig = config;
-        desc.fOrigin = origin;
 
         sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                                                desc, SkBudgeted::kNo, controlPixelData.begin(), 0);
+                desc, origin, SkBudgeted::kNo, controlPixelData.begin(), 0);
         SkASSERT(proxy);
 
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(

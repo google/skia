@@ -238,7 +238,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
         const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
         sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                                            desc, SkBudgeted::kNo, bm.getPixels(), bm.rowBytes());
+                desc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo, bm.getPixels(), bm.rowBytes());
         if (!proxy) {
             return;
         }
@@ -271,7 +271,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                                        desc, SkBudgeted::kNo,  bm.getPixels(), bm.rowBytes());
+            desc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo, bm.getPixels(), bm.rowBytes());
     if (!proxy) {
         return;
     }
@@ -305,13 +305,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
 
     GrSurfaceDesc desc;
     desc.fFlags  = kNone_GrSurfaceFlags;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
     desc.fConfig = kSkia8888_GrPixelConfig;
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                                            desc, SkBudgeted::kNo, bm.getPixels(), bm.rowBytes());
+            desc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo, bm.getPixels(), bm.rowBytes());
     if (!proxy) {
         return;
     }

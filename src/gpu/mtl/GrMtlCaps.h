@@ -45,7 +45,7 @@ public:
         return fPreferedStencilFormat;
     }
 #endif
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
         return false;
     }

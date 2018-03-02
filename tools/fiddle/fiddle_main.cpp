@@ -128,7 +128,6 @@ static bool setup_backend_objects(GrContext* context,
 
     GrSurfaceDesc backingDesc;
     backingDesc.fFlags = kNone_GrSurfaceFlags;
-    backingDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     backingDesc.fWidth = bm.width();
     backingDesc.fHeight = bm.height();
     // This config must match the SkColorType used in draw.cpp in the SkImage and Surface factories

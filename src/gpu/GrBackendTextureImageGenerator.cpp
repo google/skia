@@ -122,7 +122,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     SkASSERT(fRefHelper->fBorrowingContextID == context->uniqueID());
 
     GrSurfaceDesc desc;
-    desc.fOrigin = fSurfaceOrigin;
     desc.fWidth = fBackendTexture.width();
     desc.fHeight = fBackendTexture.height();
     desc.fConfig = fConfig;
@@ -135,8 +134,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     RefHelper* refHelper = fRefHelper;
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [refHelper, releaseProcHelper, semaphore, backendTexture]
-            (GrResourceProvider* resourceProvider) {
+            [refHelper, releaseProcHelper, semaphore,
+             backendTexture](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     return sk_sp<GrTexture>();
                 }
@@ -172,7 +171,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
                 return tex;
 
-            }, desc, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
+            },
+            desc, fSurfaceOrigin, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
