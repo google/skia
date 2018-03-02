@@ -186,7 +186,8 @@ struct SkDAARecord {
     enum class Type {
         kToBeComputed,
         kMask,
-        kList
+        kList,
+        kEmpty
     } fType;
 
     SkMask               fMask;
@@ -194,6 +195,19 @@ struct SkDAARecord {
     SkArenaAlloc*        fAlloc;
 
     SkDAARecord(SkArenaAlloc* alloc) : fType(Type::kToBeComputed), fAlloc(alloc) {}
+
+    // When the scan converter returns early (e.g., the path is completely out of the clip), we set
+    // the type to empty to signal that the record has been computed and it's empty. This is
+    // required only for DEBUG where we check that the type must not be kToBeComputed after
+    // init-once.
+    void setEmpty() { fType = Type::kEmpty; }
+    static inline void SetEmpty(SkDAARecord* record) { // record may be nullptr
+#ifdef SK_DEBUG
+        if (record) {
+            record->setEmpty();
+        }
+#endif
+    }
 };
 
 template<typename T>
