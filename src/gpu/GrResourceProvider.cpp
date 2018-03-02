@@ -62,6 +62,7 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                   GrSurfaceOrigin texelsOrigin,
                                                    const GrMipLevel texels[], int mipLevelCount,
                                                    SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
@@ -77,7 +78,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels, mipLevelCount));
+    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texelsOrigin, texels, mipLevelCount));
     if (tex) {
         tex->texturePriv().setMipColorMode(mipColorMode);
     }
@@ -108,6 +109,7 @@ static bool make_info(int w, int h, GrPixelConfig config, SkImageInfo* ii) {
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
                                                    SkBackingFit fit,
+                                                   GrSurfaceOrigin mipLevelOrigin,
                                                    const GrMipLevel& mipLevel) {
     ASSERT_SINGLE_OWNER
 
@@ -131,9 +133,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
         // DDL TODO: remove this use of createInstantiatedProxy and convert it to a testing-only
         // method.
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(desc,
-                                                                             fit,
-                                                                             budgeted);
+        sk_sp<GrTextureProxy> proxy =
+                proxyProvider->createInstantiatedProxy(desc, mipLevelOrigin, fit, budgeted);
         if (proxy) {
             // We use an ephemeral surface context to do the write pixels. Here it isn't clear what
             // color space to tag it with. That's ok because GrSurfaceContext::writePixels doesn't
@@ -154,7 +155,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         }
     }
 
-    return fGpu->createTexture(desc, budgeted, &mipLevel, 1);
+    return fGpu->createTexture(desc, budgeted, mipLevelOrigin, &mipLevel, 1);
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,

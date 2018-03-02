@@ -78,16 +78,13 @@ static bool sw_draw_with_mask_filter(GrContext* context,
     // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
     // the current clip (and identity matrix) and GrPaint settings
     GrSurfaceDesc desc;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = dstM.fBounds.width();
     desc.fHeight = dstM.fBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
     sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
-                                                        desc,
-                                                        GrMipMapped::kNo,
-                                                        SkBackingFit::kApprox,
-                                                        SkBudgeted::kYes);
+            desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kApprox,
+            SkBudgeted::kYes);
     if (!sContext) {
         return false;
     }

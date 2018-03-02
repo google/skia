@@ -510,14 +510,14 @@ bool GrDrawOpAtlas::createNewPage() {
 
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = fTextureWidth;
     desc.fHeight = fTextureHeight;
     desc.fConfig = fPixelConfig;
 
     SkASSERT(SkIsPow2(fTextureWidth) && SkIsPow2(fTextureHeight));
-    fProxies[fNumPages] = proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes,
-                                                     GrResourceProvider::kNoPendingIO_Flag);
+    fProxies[fNumPages] =
+            proxyProvider->createProxy(desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
+                                       SkBudgeted::kYes, GrResourceProvider::kNoPendingIO_Flag);
     if (!fProxies[fNumPages]) {
         return false;
     }
