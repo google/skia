@@ -44,6 +44,33 @@ void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuil
     s->codeAppendf("%s = float3(-n, dot(n, %s) - .5);", outputDistanceEquation, leftPt);
 }
 
+void GrCCCoverageProcessor::Shader::CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGeoBuilder* s,
+                                                                  const char* leftPt,
+                                                                  const char* rightPt,
+                                                                  const char* bloatDir,
+                                                                  const char* outputCoverage) {
+    // Here we find an edge's coverage at one corner of a bloat box whose center falls on the edge
+    // in question. We always set up coverage so it is -1 at the outermost corner, 0 at the
+    // innermost, and -.5 at the center. (See comments for RenderPass.)
+    //
+    // d1 == (P + sign(n) * bloat) dot n               (Corner where coverage = -1)
+    //    == P dot n + (abs(n.x) + abs(n.y))
+    //
+    // d2 == (P - sign(n) * bloat) dot n               (Corner where coverage = 0)
+    //    == P dot n - (abs(n.x) + abs(n.y)) * bloat
+    //
+    // d == (P + bloatDir * bloat) dot n               (Corner where we want to find coverage)
+    //
+    // coverage == -(d - d0) / (d1 - d0)               (0 at d=d0; -1 at d=d1)
+    //          == (bloatDir dot n) / (abs(n.x) + abs(n.y)) * -.5 - .5
+    s->codeAppendf("float2 n = float2(%s.y - %s.y, %s.x - %s.x);",
+                   rightPt, leftPt, leftPt, rightPt);
+    s->codeAppend ("float nwidth = abs(n.x) + abs(n.y);");
+    s->codeAppend ("nwidth = (0 != nwidth) ? nwidth : 1;"); // Avoid NaN when nwidth==0.
+                                                            // (wind is also zero when nwidth==0.)
+    s->codeAppendf("%s = dot(%s, n) / nwidth * -.5 - .5;", outputCoverage, bloatDir);
+}
+
 int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f,
                                                              const char* samplesName) {
     // Standard DX11 sample locations.
