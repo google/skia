@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1092034_a353daef",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-02T20:44:24Z",
+      "side": 1,
+      "message": "I really have no idea what is happening in this function and why any of this math makes sense. I feel like we are going to need some sort of derivation to explain what you\u0027re trying to do.\n\nAs a side note, the triangle inequality says that abs(t) \u003c\u003d abs(n.x) + abs(n.y) so I\u0027m not sure in your conditional why you have a greater check at all.",
+      "range": {
+        "startLine": 52,
+        "startChar": 2,
+        "endLine": 57,
+        "endChar": 97
+      },
+      "revId": "ac0a27046c0ec8c488d8b27a22e6ba363a7f67f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
