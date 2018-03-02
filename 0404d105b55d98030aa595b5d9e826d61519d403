@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5647f1cc_1c4ffdd9",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-02T21:16:48Z",
+      "side": 1,
+      "message": "private at least!",
+      "range": {
+        "startLine": 290,
+        "startChar": 23,
+        "endLine": 290,
+        "endChar": 40
+      },
+      "revId": "0404d105b55d98030aa595b5d9e826d61519d403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ab1abe4_2e845010",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-02T21:16:48Z",
+      "side": 1,
+      "message": "const \u0026",
+      "range": {
+        "startLine": 501,
+        "startChar": 69,
+        "endLine": 501,
+        "endChar": 80
+      },
+      "revId": "0404d105b55d98030aa595b5d9e826d61519d403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57ec25b3_aea7c55e",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-02T21:16:48Z",
+      "side": 1,
+      "message": "lota space",
+      "range": {
+        "startLine": 517,
+        "startChar": 17,
+        "endLine": 517,
+        "endChar": 26
+      },
+      "revId": "0404d105b55d98030aa595b5d9e826d61519d403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
