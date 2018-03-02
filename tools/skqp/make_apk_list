@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# Copyright 2018 Google Inc.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+BRANCH="${1:-origin/skqp/dev}"
+COUNT="${2:-40}"
+
+DST=$(mktemp)
+
+cat > "$DST" << EOF
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SkQP Pre-built APKs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+font-family:sans-serif;
+max-width:55em;
+margin:8px auto;
+padding:0 8px;
+}
+td { padding:12px 6px; }
+</style>
+</head>
+<body>
+<h1>SkQP Pre-built APKs</h1>
+<table>
+<tr>
+<th>APK</th>
+<th>Date</th>
+<th>Commit</th>
+</tr>
+EOF
+
+for commit in $(git log "$BRANCH" -${COUNT} -\-format=%H) ; do
+    printf '.' >&2
+    short="$(git log -1 -\-format=%h $commit)"
+    url="https://storage.googleapis.com/skia-skqp/skqp-universal-${short}.apk"
+    if [ 200 -ne "$(curl -s -o /dev/null -w "%{http_code}" "$url")" ] ; then
+        continue
+    fi
+    date=$(TZ='' git log -\-date='format-local:%Y-%m-%d %H:%M:%S %Z' -1 $commit -\-format=%cd)
+    subj=$(git log -1 $commit -\-format='%<(50,trunc)%s' | sed 's/  *$//')
+
+    commit_url="https://skia.googlesource.com/skia/+/${commit}"
+    {
+        printf '<tr>\n<td><a href="%s">skqp-universal-%s.apk</a></td>\n' "$url" "$short"
+        printf '<td>%s</td>\n<td><a href="%s">%s</a></td>\n</tr>\n' "$date" "$commit_url" "$subj"
+    }  >> "$DST"
+done
+printf '</body>\n</head>\n' >> "$DST"
+
+echo
+
+echo 'gsutil -h "Content-Type:text/html" cp' \"$DST\" gs://skia-skqp/apklist
+echo 'https://storage.googleapis.com/skia-skqp/apklist'
