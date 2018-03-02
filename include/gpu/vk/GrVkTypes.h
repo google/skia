@@ -31,6 +31,13 @@
  * Vulkan textures are really const GrVkImageInfo*
  */
 struct GrVkAlloc {
+    GrVkAlloc(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, uint32_t flags)
+            : fMemory(memory)
+            , fOffset(offset)
+            , fSize(size)
+            , fFlags(flags)
+            , fUsesSystemHeap(false) {}
+
     VkDeviceMemory fMemory = VK_NULL_HANDLE;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
     VkDeviceSize   fOffset = 0;
     VkDeviceSize   fSize = 0;    // this can be indeterminate iff Tex uses borrow semantics
