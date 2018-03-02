@@ -13,17 +13,43 @@
 #include <unistd.h>
 #include <unordered_map>
 
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 #include <android/input.h>
 #include <android/keycodes.h>
 #include <android/looper.h>
 #include <android/native_window_jni.h>
 
 #include "../Application.h"
+#include "ResourceFactory.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
 #include "Window_android.h"
 
+
 namespace sk_app {
+
+static void config_resource_mgr(JNIEnv* env, jobject assetManager) {
+    static AAssetManager* gAAssetManager = nullptr;
+    SkASSERT(assetManager);
+    gAAssetManager = AAssetManager_fromJava(env, assetManager);
+    SkASSERT(gAAssetManager);
+    gResourceFactory = [](const char* resource) -> sk_sp<SkData> {
+        if (!gAAssetManager) {
+            return nullptr;
+        }
+        SkString path = SkStringPrintf("resources/%s", resource);
+        AAsset* asset = AAssetManager_open(gAAssetManager, path.c_str(), AASSET_MODE_STREAMING);
+        if (!asset) {
+            return nullptr;
+        }
+        size_t size = SkToSizeT(AAsset_getLength(asset));
+        sk_sp<SkData> data = SkData::MakeUninitialized(size);
+        (void)AAsset_read(asset, data->writable_data(), size);
+        AAsset_close(asset);
+        return data;
+    };
+}
 
 static const int LOOPER_ID_MESSAGEPIPE = 1;
 
@@ -208,7 +234,10 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
 
 extern "C"  // extern "C" is needed for JNI (although the method itself is in C++)
     JNIEXPORT jlong JNICALL
-    Java_org_skia_viewer_ViewerApplication_createNativeApp(JNIEnv* env, jobject application) {
+    Java_org_skia_viewer_ViewerApplication_createNativeApp(JNIEnv* env,
+                                                           jobject application,
+                                                           jobject assetManager) {
+    config_resource_mgr(env, assetManager);
     SkiaAndroidApp* skiaAndroidApp = new SkiaAndroidApp(env, application);
     return (jlong)((size_t)skiaAndroidApp);
 }
