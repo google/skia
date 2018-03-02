@@ -199,14 +199,13 @@ static sk_sp<GrSurfaceContext> make_surface_context(Encoding contextEncoding, Gr
                                                     skiatest::Reporter* reporter) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = kW;
     desc.fHeight = kH;
     desc.fConfig = encoding_as_pixel_config(contextEncoding);
 
     auto surfaceContext = context->contextPriv().makeDeferredSurfaceContext(
-            desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo,
-            encoding_as_color_space(contextEncoding));
+            desc, kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
+            SkBudgeted::kNo, encoding_as_color_space(contextEncoding));
     if (!surfaceContext) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }

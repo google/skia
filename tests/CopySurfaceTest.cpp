@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2016 Google Inc.
  *
@@ -69,16 +70,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                     for (auto srcRect : kSrcRects) {
                         for (auto dstPoint : kDstPoints) {
                             GrSurfaceDesc srcDesc = baseDesc;
-                            srcDesc.fOrigin = sOrigin;
                             srcDesc.fFlags = sFlags;
                             GrSurfaceDesc dstDesc = baseDesc;
-                            dstDesc.fOrigin = dOrigin;
                             dstDesc.fFlags = dFlags;
 
                             sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(
-                                             srcDesc, SkBudgeted::kNo, srcPixels.get(), kRowBytes);
+                                    srcDesc, sOrigin, SkBudgeted::kNo, srcPixels.get(), kRowBytes);
                             sk_sp<GrTextureProxy> dst = proxyProvider->createTextureProxy(
-                                             dstDesc, SkBudgeted::kNo, dstPixels.get(), kRowBytes);
+                                    dstDesc, dOrigin, SkBudgeted::kNo, dstPixels.get(), kRowBytes);
                             if (!src || !dst) {
                                 ERRORF(reporter,
                                        "Could not create surfaces for copy surface test.");

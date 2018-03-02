@@ -70,7 +70,6 @@ public:
                     GrSurfaceDesc desc;
                     desc.fWidth = 1234;
                     desc.fHeight = 567;
-                    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
                     desc.fConfig = kRGB_565_GrPixelConfig;
                     sk_sp<GrTexture> texture = rp->createTexture(desc, SkBudgeted::kYes);
                     REPORTER_ASSERT(fTest->fReporter, texture);
@@ -228,7 +227,9 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                         }
                         *testCountPtr = 1;
                         return sk_sp<GrTexture>();
-                    }, desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo);
+                    },
+                    desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
+                    SkBudgeted::kNo);
 
             proxy->priv().testingOnly_setLazyInstantiationType(lazyType);
 
@@ -267,7 +268,7 @@ public:
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
         fLazyProxy = proxyProvider->createLazyProxy(
-                [testExecuteValue, shouldFailInstantiation, desc] (GrResourceProvider* rp) {
+                [testExecuteValue, shouldFailInstantiation, desc](GrResourceProvider* rp) {
                     if (!rp) {
                         return sk_sp<GrTexture>();
                     }
@@ -276,7 +277,9 @@ public:
                         return sk_sp<GrTexture>();
                     }
                     return rp->createTexture(desc, SkBudgeted::kNo);
-                }, desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo);
+                },
+                desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
+                SkBudgeted::kNo);
 
         this->setBounds(SkRect::MakeIWH(kSize, kSize),
                         HasAABloat::kNo, IsZeroArea::kNo);
