@@ -16,6 +16,24 @@
       "revId": "98086a044a34e96a8707bad88aedafa7cd68a3c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bf15d4d_528535cf",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 7986
+      },
+      "writtenOn": "2018-03-02T19:03:02Z",
+      "side": 1,
+      "message": "Sure, they\u0027re pretty much equivalent.",
+      "parentUuid": "fd62263f_4f700f56",
+      "revId": "98086a044a34e96a8707bad88aedafa7cd68a3c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
