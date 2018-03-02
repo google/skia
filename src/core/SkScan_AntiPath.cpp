@@ -669,6 +669,7 @@ static SkIRect safeRoundOut(const SkRect& src) {
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
                           SkBlitter* blitter, bool forceRLE, SkDAARecord* daaRecord) {
     if (origClip.isEmpty()) {
+        SkDAARecord::SetEmpty(daaRecord);
         return;
     }
 
@@ -678,6 +679,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         if (isInverse) {
             blitter->blitRegion(origClip);
         }
+        SkDAARecord::SetEmpty(daaRecord);
         return;
     }
 
@@ -691,10 +693,11 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
        clippedIR = origClip.getBounds();
     } else {
        if (!clippedIR.intersect(ir, origClip.getBounds())) {
+            SkDAARecord::SetEmpty(daaRecord);
            return;
        }
     }
-    if (rect_overflows_short_shift(clippedIR, SHIFT)) {
+    if (!daaRecord && rect_overflows_short_shift(clippedIR, SHIFT)) {
         SkScan::FillPath(path, origClip, blitter);
         return;
     }
@@ -724,6 +727,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         if (isInverse) {
             blitter->blitRegion(*clipRgn);
         }
+        SkDAARecord::SetEmpty(daaRecord);
         return;
     }
 
@@ -776,6 +780,7 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* b
 void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
                           SkBlitter* blitter, SkDAARecord* daaRecord) {
     if (clip.isEmpty() || !path.isFinite()) {
+        SkDAARecord::SetEmpty(daaRecord);
         return;
     }
 
