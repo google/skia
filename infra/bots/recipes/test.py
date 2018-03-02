@@ -216,8 +216,12 @@ def dm_flags(api, bot):
     if 'QuadroP400' in bot and api.vars.is_linux:
       if 'Vulkan' in bot:
         configs.append('vk1010102')
+        # Decoding transparent images to 1010102 just looks bad
+        blacklist('vk1010102 image _ _')
       else:
         configs.append('gl1010102')
+        # Decoding transparent images to 1010102 just looks bad
+        blacklist('gl1010102 image _ _')
 
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
