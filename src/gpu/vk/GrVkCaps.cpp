@@ -124,7 +124,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 
 #if defined(SK_BUILD_FOR_WIN)
     if (kNvidia_VkVendor == properties.vendorID) {
-        fMustSleepOnTearDown = true;
+       fMustSleepOnTearDown = true;
     }
 #elif defined(SK_BUILD_FOR_ANDROID)
     if (kImagination_VkVendor == properties.vendorID) {
@@ -158,13 +158,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     ////////////////////////////////////////////////////////////////////////////
     // GrShaderCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
-
-    if (kAMD_VkVendor == properties.vendorID) {
-        // Currently DualSourceBlending is not working on AMD. vkCreateGraphicsPipeline fails when
-        // using a draw with dual source. Looking into whether it is driver bug or issue with our
-        // SPIR-V. Bug skia:6405
-        fShaderCaps->fDualSourceBlendingSupport = false;
-    }
 
     if (kImagination_VkVendor == properties.vendorID) {
         fShaderCaps->fAtan2ImplementedAsAtanYOverX = true;
