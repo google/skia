@@ -7,7 +7,6 @@
 
 
 #include "SkGlyphCache.h"
-#include "SkGlyphCache_Globals.h"
 #include "SkGraphics.h"
 #include "SkOnce.h"
 #include "SkPath.h"
@@ -53,6 +52,10 @@ SkGlyphCache::~SkGlyphCache() {
             delete g->fPathData->fPath;
         }
     });
+}
+
+void SkGlyphCache::PurgeAll() {
+    get_globals().purgeAll();
 }
 
 SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(SkPackedUnicharID packedUnicharID) {
@@ -539,6 +542,30 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     return cache;
 }
 
+SkExclusiveStrikePtr SkGlyphCache::FindStrikeExclusive(const SkDescriptor& desc) {
+    SkGlyphCache_Globals& globals = get_globals();
+    SkGlyphCache*         cache;
+    SkAutoExclusive       ac(globals.fLock);
+
+    for (cache = globals.internalGetHead(); cache != nullptr; cache = cache->fNext) {
+        if (*cache->fDesc == desc) {
+            globals.internalDetachCache(cache);
+            return SkExclusiveStrikePtr(cache);
+        }
+    }
+
+    return SkExclusiveStrikePtr(nullptr);
+}
+
+SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
+        const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface) {
+    auto creator = [&effects, &typeface](const SkDescriptor& descriptor, bool canFail) {
+        return typeface.createScalerContext(effects, &descriptor, canFail);
+    };
+    return FindOrCreateStrikeExclusive(desc, creator);
+}
+
+
 void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
     SkASSERT(cache);
     SkASSERT(cache->fNext == nullptr);
@@ -621,6 +648,25 @@ void SkGlyphCache::VisitAll(Visitor visitor, void* context) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkGlyphCache_Globals::~SkGlyphCache_Globals() {
+    SkGlyphCache* cache = fHead;
+    while (cache) {
+        SkGlyphCache* next = cache->fNext;
+        delete cache;
+        cache = next;
+    }
+}
+
+void SkGlyphCache_Globals::AttachCache(SkGlyphCache* cache) {
+    if (cache == nullptr) {
+        return;
+    }
+    SkASSERT(cache->fNext == nullptr);
+
+    get_globals().attachCacheToHead(cache);
+}
+
 
 void SkGlyphCache_Globals::attachCacheToHead(SkGlyphCache* cache) {
     SkAutoExclusive ac(fLock);

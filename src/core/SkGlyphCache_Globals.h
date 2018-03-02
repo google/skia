@@ -11,7 +11,8 @@
 #include "SkGlyphCache.h"
 #include "SkMutex.h"
 #include "SkSpinlock.h"
-#include "SkTLS.h"
+
+class SkGlyphCache;
 
 #ifndef SK_DEFAULT_FONT_CACHE_COUNT_LIMIT
     #define SK_DEFAULT_FONT_CACHE_COUNT_LIMIT   2048
@@ -38,14 +39,9 @@ public:
         fPointSizeLimit = SK_DEFAULT_FONT_CACHE_POINT_SIZE_LIMIT;
     }
 
-    ~SkGlyphCache_Globals() {
-        SkGlyphCache* cache = fHead;
-        while (cache) {
-            SkGlyphCache* next = cache->fNext;
-            delete cache;
-            cache = next;
-        }
-    }
+    ~SkGlyphCache_Globals();
+
+    static void AttachCache(SkGlyphCache* cache);
 
     mutable SkSpinlock     fLock;
 
