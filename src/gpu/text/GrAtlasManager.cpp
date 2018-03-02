@@ -94,13 +94,13 @@ bool GrAtlasManager::hasGlyph(GrGlyph* glyph) {
 }
 
 // add to texture atlas that matches this format
-bool GrAtlasManager::addToAtlas(GrResourceProvider* resourceProvider,
+GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas1(GrResourceProvider* resourceProvider,
                                 GrGlyphCache* glyphCache,
                                 GrTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
                                 GrDeferredUploadTarget* target, GrMaskFormat format,
                                 int width, int height, const void* image, SkIPoint16* loc) {
     glyphCache->setStrikeToPreserve(strike);
-    return this->getAtlas(format)->addToAtlas(resourceProvider, id, target, width, height,
+    return this->getAtlas(format)->addToAtlas1(resourceProvider, id, target, width, height,
                                                 image, loc);
 }
 
@@ -199,6 +199,14 @@ void GrAtlasManager::setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[
         fAtlases[i] = nullptr;
     }
     memcpy(fAtlasConfigs, configs, sizeof(fAtlasConfigs));
+}
+
+void GrAtlasManager::setMaxPages_TestingOnly(int numPages) {
+    for (int i = 0; i < kMaskFormatCount; i++) {
+        if (fAtlases[i]) {
+            fAtlases[i]->setMaxPages_TestingOnly(numPages);
+        }
+    }
 }
 
 bool GrAtlasManager::initAtlas(GrMaskFormat format) {
