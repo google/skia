@@ -145,7 +145,7 @@ public:
      * Called prior to executing. The op should perform any resource creation or data transfers
      * necessary before execute() is called.
      */
-    void prepare(GrOpFlushState* state) { this->onPrepare(state); }
+    void prepare1(GrOpFlushState* state) { this->onPrepare(state); }
 
     /** Issues the op's commands to GrGpu. */
     void execute(GrOpFlushState* state) { this->onExecute(state); }
