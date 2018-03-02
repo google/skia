@@ -413,7 +413,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {
+
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -428,7 +428,6 @@ void draw(SkCanvas* canvas) {
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
 </pre>
 
 ### See Also
@@ -472,10 +471,7 @@ one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurface
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_sampleCnt"> <code><strong>sampleCnt </strong></code> </a></td> <td>
 samples per pixel, or 0 to disable full scene anti-aliasing</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
-<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a></td>
+one of: #list_of_color_types</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
@@ -491,7 +487,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {
+
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -507,7 +503,6 @@ void draw(SkCanvas* canvas) {
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
 </pre>
 
 ### See Also
@@ -562,7 +557,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {
+
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -577,7 +572,6 @@ void draw(SkCanvas* canvas) {
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
 </pre>
 
 ### See Also
@@ -617,10 +611,7 @@ GPU intermediate memory buffer</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_origin"> <code><strong>origin </strong></code> </a></td> <td>
 one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
-<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a></td>
+one of: #list_of_color_types</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
@@ -636,7 +627,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {
+
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -652,7 +643,6 @@ void draw(SkCanvas* canvas) {
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
 </pre>
 
 ### See Also
@@ -705,7 +695,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {SkPaint paint;
+SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
     if (!context) {
@@ -720,7 +710,6 @@ void draw(SkCanvas* canvas) {SkPaint paint;
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
 </pre>
 
 ### See Also
@@ -758,10 +747,7 @@ one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurface
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_sampleCnt"> <code><strong>sampleCnt </strong></code> </a></td> <td>
 samples per pixel, or 0 to disable full scene anti-aliasing</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
-<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a></td>
+one of: #list_of_color_types</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
@@ -777,7 +763,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {SkPaint paint;
+SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
     if (!context) {
@@ -792,7 +778,6 @@ void draw(SkCanvas* canvas) {SkPaint paint;
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
 </pre>
 
 ### See Also
@@ -1864,9 +1849,15 @@ array of semaphore containers</td>
 
 true if GPU is waiting on semaphores
 
-### Example
-
-<div><fiddle-embed name="c9033080af68efc0f270d748f1c0e011"></fiddle-embed></div>
+# gpu<a href="SkPaint_Reference#SkPaint">SkPaint</a> paint;
+paint.setTextSize(32);
+<a href="undocumented#GrContext">GrContext</a>* context = canvas->getGrContext();
+if (!context) {
+canvas->drawString("GPU only!", 20, 40, paint);
+return;
+}
+<a href="undocumented#GrBackendSemaphore">GrBackendSemaphore</a> semaphore;
+<a href="undocumented#sk_sp">sk sp</a><<a href="#SkSurface">SkSurface</a>> surface =
 
 ### See Also
 

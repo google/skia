@@ -693,9 +693,10 @@ bitmap height: 32  info height: 32
 SkColorType colorType() const
 </pre>
 
-Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>,
-<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>.
+Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>.
 
 ### Return Value
 
@@ -836,7 +837,10 @@ bytes in pixel
 
 ### Example
 
-<div><fiddle-embed name="4bfe28ea3f70f3bfd73d956e913c1a20">
+<div><fiddle-embed name="2a688e6f0a516c0d44a826381e9d637f"><a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>
 
 #### Example Output
 
@@ -846,7 +850,10 @@ color: kAlpha_8_SkColorType      bytesPerPixel: 1
 color: kRGB_565_SkColorType      bytesPerPixel: 2
 color: kARGB_4444_SkColorType    bytesPerPixel: 2
 color: kRGBA_8888_SkColorType    bytesPerPixel: 4
+color: kRGB_888x_SkColorType     bytesPerPixel: 4
 color: kBGRA_8888_SkColorType    bytesPerPixel: 4
+color: kRGBA_1010102_SkColorType bytesPerPixel: 4
+color: kRGB_101010x_SkColorType  bytesPerPixel: 4
 color: kGray_8_SkColorType       bytesPerPixel: 1
 color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 ~~~~
@@ -911,19 +918,25 @@ one of: 0, 1, 2, 3; left shift to convert pixels to bytes
 
 ### Example
 
-<div><fiddle-embed name="2c77d92f20b950154b9444d3b639b36c">
+<div><fiddle-embed name="56ede4b7d45c15d5936f81ac3d74f070"><a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>
 
 #### Example Output
 
 ~~~~
-color: kUnknown_SkColorType   shiftPerPixel: 0
-color: kAlpha_8_SkColorType   shiftPerPixel: 0
-color: kRGB_565_SkColorType   shiftPerPixel: 1
-color: kARGB_4444_SkColorType shiftPerPixel: 1
-color: kRGBA_8888_SkColorType shiftPerPixel: 2
-color: kBGRA_8888_SkColorType shiftPerPixel: 2
-color: kGray_8_SkColorType    shiftPerPixel: 0
-color: kRGBA_F16_SkColorType  shiftPerPixel: 3
+color: kUnknown_SkColorType       shiftPerPixel: 0
+color: kAlpha_8_SkColorType       shiftPerPixel: 0
+color: kRGB_565_SkColorType       shiftPerPixel: 1
+color: kARGB_4444_SkColorType     shiftPerPixel: 1
+color: kRGBA_8888_SkColorType     shiftPerPixel: 2
+color: kRGB_888x_SkColorType      shiftPerPixel: 2
+color: kBGRA_8888_SkColorType     shiftPerPixel: 2
+color: kRGBA_1010102_SkColorType  shiftPerPixel: 2
+color: kRGB_101010x_SkColorType   shiftPerPixel: 2
+color: kGray_8_SkColorType        shiftPerPixel: 0
+color: kRGBA_F16_SkColorType      shiftPerPixel: 3
 ~~~~
 
 </fiddle-embed></div>
@@ -1122,7 +1135,10 @@ true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set
 
 ### Example
 
-<div><fiddle-embed name="9394975fa8a13204a5cc2e94f86737e5"></fiddle-embed></div>
+<div><fiddle-embed name="38cec6acbba80274232a85539ab34af1"><a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </fiddle-embed></div>
 
 ### See Also
 

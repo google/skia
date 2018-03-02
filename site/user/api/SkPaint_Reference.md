@@ -1372,7 +1372,7 @@ Windows may select the bitmap glyph but is not required to do so.
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {<div>The "hintgasp" TrueType font in the Skia resources/fonts directory
+<div>The "hintgasp" TrueType font in the Skia resources/fonts directory
         includes an embedded bitmap Glyph at odd font sizes. This example works
         on platforms that use FreeType as their Font_Engine.
         Windows may, but is not required to, return a bitmap glyph if
@@ -1391,7 +1391,6 @@ void draw(SkCanvas* canvas) {<div>The "hintgasp" TrueType font in the Skia resou
     canvas->drawBitmap(bitmap, 0, 0);
     canvas->scale(10, 10);
     canvas->drawBitmap(bitmap, -2, 1);
-}
 </pre>
 
 <a name="SkPaint_isEmbeddedBitmapText"></a>

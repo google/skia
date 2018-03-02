@@ -185,6 +185,22 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     this->lf(2);
                 }
                 break;
+            case MarkType::kPhraseRef: {
+                commentLen = prop->fStart - commentStart;
+                if (commentLen > 0) {
+                    this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
+                    // ince we don't do line wrapping, always insert LF before phrase
+                    this->lfcr();   // TODO: remove this once rewriteBlock rewraps paragraphs
+                }
+                auto iter = fBmhParser->fPhraseMap.find(prop->fName);
+                if (fBmhParser->fPhraseMap.end() == iter) {
+                    return this->reportError<void>("missing phrase definition");
+                }
+                Definition* phraseDef = iter->second;
+                this->rewriteBlock(phraseDef->length(), phraseDef->fContentStart, Phrase::kYes);
+                commentStart = prop->fContentStart;
+                commentLen = (int) (def->fContentEnd - commentStart);
+                } break;
             default:
                 commentLen = (int) (prop->fStart - commentStart);
                 breakOut = true;
@@ -671,8 +687,6 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
         column += fIndent + sizeof("@return ");
         int saveIndent = fIndent;
         for (auto methodPart : method->fChildren) {
-            const char* partStart = methodPart->fContentStart;
-            const char* partEnd = methodPart->fContentEnd;
             if (MarkType::kParam == methodPart->fMarkType) {
                 this->writeString("@param");
                 this->writeSpace();
@@ -682,18 +696,24 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
             } else {
                 continue;
             }
+            this->indentToColumn(column);
+            fIndent = column;
+#if 0
+            const char* partStart = methodPart->fContentStart;
+            const char* partEnd = methodPart->fContentEnd;
             while ('\n' == partEnd[-1]) {
                 --partEnd;
             }
             while ('#' == partEnd[-1]) { // FIXME: so wrong; should not be before fContentEnd
                 --partEnd;
             }
-            this->indentToColumn(column);
             int partLen = (int) (partEnd - partStart);
             // FIXME : detect this earlier; assert if #Return is empty
             SkASSERT(partLen > 0 && partLen < 300);  // may assert if param desc is especially long
-            fIndent = column;
             this->rewriteBlock(partLen, partStart, Phrase::kYes);
+#else
+            this->descriptionOut(methodPart, SkipFirstLine::kNo);
+#endif
             fIndent = saveIndent;
             this->lfcr();
         }
@@ -820,7 +840,7 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
         this->indentToColumn(fStructCommentTab);
         this->writeString("//!<");
         this->writeSpace();
-        string extract = commentBlock->extractText(Definition::TrimExtract::kYes);
+        string extract = fBmhParser->extractText(commentBlock, BmhParser::TrimExtract::kYes);
         this->rewriteBlock(extract.length(), &extract.front(), Phrase::kNo);
     }
     this->lf(2);
@@ -833,7 +853,7 @@ void IncludeWriter::structSetMembersShort(const vector<Definition*>& bmhChildren
         if (MarkType::kMember != memberDef->fMarkType) {
             continue;
         }
-        string extract = memberDef->extractText(Definition::TrimExtract::kYes);
+        string extract = fBmhParser->extractText(memberDef, BmhParser::TrimExtract::kYes);
         bool multiline = string::npos != extract.find('\n');
         if (multiline) {
             memberDef->fShort = false;
