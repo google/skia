@@ -1713,9 +1713,15 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     SkBackingFit fit = kNever_TileUsage == cinfo.fTileUsage ? SkBackingFit::kApprox
                                                             : SkBackingFit::kExact;
 
+    GrPixelConfig config = fRenderTargetContext->colorSpaceInfo().config();
+    if (kRGBA_1010102_GrPixelConfig == config) {
+        // If the original device is 1010102, fall back to 8888 so that we have a usable alpha
+        // channel in the layer.
+        config = kRGBA_8888_GrPixelConfig;
+    }
+
     sk_sp<GrRenderTargetContext> rtc(fContext->makeDeferredRenderTargetContext(
-            fit, cinfo.fInfo.width(), cinfo.fInfo.height(),
-            fRenderTargetContext->colorSpaceInfo().config(),
+            fit, cinfo.fInfo.width(), cinfo.fInfo.height(), config,
             fRenderTargetContext->colorSpaceInfo().refColorSpace(),
             fRenderTargetContext->numStencilSamples(), GrMipMapped::kNo,
             kBottomLeft_GrSurfaceOrigin, &props));

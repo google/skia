@@ -25,11 +25,17 @@ static const int X_SIZE = 13;
 static const int Y_SIZE = 13;
 
 static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, const uint8_t* actual,
-                                size_t actualRowBytes, const uint8_t* expected, SkString extraMsg) {
+                                size_t actualRowBytes, const uint8_t* expected, SkString extraMsg,
+                                GrPixelConfig config) {
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint8_t a = actual[y * actualRowBytes + x];
             uint8_t e = expected[y * w + x];
+            if (kRGBA_1010102_GrPixelConfig == config) {
+                // This config only preserves two bits of alpha
+                a >>= 6;
+                e >>= 6;
+            }
             if (e != a) {
                 ERRORF(reporter,
                        "Failed alpha readback. Expected: 0x%02x, Got: 0x%02x at (%d,%d), %s",
@@ -87,9 +93,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             REPORTER_ASSERT(reporter, result, "Initial A8 writePixels failed");
 
             size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
-            std::unique_ptr<uint8_t[]> readback(new uint8_t[nonZeroRowBytes * Y_SIZE]);
+            size_t bufLen = nonZeroRowBytes * Y_SIZE;
+            std::unique_ptr<uint8_t[]> readback(new uint8_t[bufLen]);
             // clear readback to something non-zero so we can detect readback failures
-            memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
+            memset(readback.get(), kClearValue, bufLen);
 
             // read the texture back
             result = sContext->readPixels(ii, readback.get(), rowBytes, 0, 0);
@@ -99,7 +106,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             SkString msg;
             msg.printf("rb:%d A8", SkToU32(rowBytes));
             validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
-                                alphaData, msg);
+                                alphaData, msg, kAlpha_8_GrPixelConfig);
 
             // Now try writing to a single channel surface (if we could create one).
             if (surf) {
@@ -113,7 +120,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 canvas->drawRect(rect, paint);
 
-                memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
+                // Workaround for a bug in old GCC/glibc used in our Chromecast toolchain:
+                // error: call to '__warn_memset_zero_len' declared with attribute warning:
+                //        memset used with constant zero length parameter; this could be due
+                //        to transposed parameters
+                // See also: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61294
+                if (bufLen > 0) {
+                    memset(readback.get(), kClearValue, bufLen);
+                }
                 result = surf->readPixels(ii, readback.get(), nonZeroRowBytes, 0, 0);
                 REPORTER_ASSERT(reporter, result, "A8 readPixels after clear failed");
 
@@ -136,7 +150,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     static const GrPixelConfig kRGBAConfigs[] {
         kRGBA_8888_GrPixelConfig,
         kBGRA_8888_GrPixelConfig,
-        kSRGBA_8888_GrPixelConfig
+        kSRGBA_8888_GrPixelConfig,
+        kRGBA_1010102_GrPixelConfig,
     };
 
     for (int y = 0; y < Y_SIZE; ++y) {
@@ -200,7 +215,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 SkString msg;
                 msg.printf("rt:%d, rb:%d 8888", rt, SkToU32(rowBytes));
                 validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
-                                    alphaData, msg);
+                                    alphaData, msg, config);
             }
         }
     }

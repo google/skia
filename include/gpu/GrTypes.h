@@ -315,6 +315,11 @@ enum GrPixelConfig {
     kSBGRA_8888_GrPixelConfig,
 
     /**
+     * Premultiplied.
+     */
+    kRGBA_1010102_GrPixelConfig,
+
+    /**
      * Byte order is r, g, b, a.  This color format is 32 bits per channel
      */
     kRGBA_float_GrPixelConfig,
