@@ -242,6 +242,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     GrMaskFormat maskFormat = this->maskFormat();
 
+    // This test is kinda useless
     unsigned int atlasPageCount;
     const sk_sp<GrTextureProxy>* proxies = fullAtlasManager->getProxies(maskFormat,
                                                                         &atlasPageCount);

@@ -63,7 +63,7 @@ void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
                 GrXferProcessor::DstProxy()
             };
             flushState->setOpArgs(&opArgs);
-            fRecordedOps[i]->prepare(flushState);
+            fRecordedOps[i]->prepare1(flushState);
             flushState->setOpArgs(nullptr);
         }
     }

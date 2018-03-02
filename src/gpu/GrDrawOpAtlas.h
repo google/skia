@@ -109,7 +109,7 @@ public:
      * 'setUseToken' with the currentToken from the GrDrawOp::Target, otherwise the next call to
      * addToAtlas might cause the previous data to be overwritten before it has been read.
      */
-    bool addToAtlas(GrResourceProvider*, AtlasID*, GrDeferredUploadTarget*, int width, int height,
+    bool addToAtlas1(GrResourceProvider*, AtlasID*, GrDeferredUploadTarget*, int width, int height,
                     const void* image, SkIPoint16* loc);
 
     const sk_sp<GrTextureProxy>* getProxies() const { return fProxies; }
@@ -229,10 +229,11 @@ public:
     void instantiate(GrOnFlushResourceProvider*);
 
     uint32_t maxPages() const {
-        return AllowMultitexturing::kYes == fAllowMultitexturing ? kMaxMultitexturePages : 1;
+        return fMaxPages;
     }
 
     int numAllocated_TestingOnly() const;
+    void setMaxPages_TestingOnly(int maxPages);
 
 private:
     GrDrawOpAtlas(GrProxyProvider*, GrPixelConfig, int width, int height, int numPlotsX,
@@ -359,6 +360,9 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
+    bool uploadToPage(unsigned int pageIdx, AtlasID* id, GrDeferredUploadTarget* target,
+                      int width, int height, const void* image, SkIPoint16* loc);
+
     bool createPages(GrProxyProvider*);
     bool activateNewPage(GrResourceProvider*);
     void deactivateLastPage();
@@ -396,7 +400,7 @@ private:
     // proxies kept separate to make it easier to pass them up to client
     sk_sp<GrTextureProxy> fProxies[kMaxMultitexturePages];
     Page fPages[kMaxMultitexturePages];
-    AllowMultitexturing fAllowMultitexturing;
+    int fMaxPages;
 
     uint32_t fNumActivePages;
 };

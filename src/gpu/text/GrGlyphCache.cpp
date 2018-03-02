@@ -292,7 +292,7 @@ void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     }
 }
 
-bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
+bool GrTextStrike::addGlyphToAtlas1(GrResourceProvider* resourceProvider,
                                    GrDeferredUploadTarget* target,
                                    GrGlyphCache* glyphCache,
                                    GrAtlasManager* fullAtlasManager,
@@ -322,7 +322,7 @@ bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
         }
     }
 
-    bool success = fullAtlasManager->addToAtlas(resourceProvider, glyphCache, this,
+    bool success = fullAtlasManager->addToAtlas1(resourceProvider, glyphCache, this,
                                                 &glyph->fID, target, expectedMaskFormat,
                                                 glyph->width(), glyph->height(),
                                                 storage.get(), &glyph->fAtlasLocation);

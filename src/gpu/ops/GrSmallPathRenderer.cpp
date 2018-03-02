@@ -342,7 +342,7 @@ private:
                     SkScalar scale = desiredDimension / maxDim;
 
                     shapeData = new ShapeData;
-                    if (!this->addDFPathToAtlas(target,
+                    if (!this->addDFPathToAtlas1(target,
                                                 &flushInfo,
                                                 fAtlas,
                                                 shapeData,
@@ -366,7 +366,7 @@ private:
                     }
 
                     shapeData = new ShapeData;
-                    if (!this->addBMPathToAtlas(target,
+                    if (!this->addBMPathToAtlas1(target,
                                                 &flushInfo,
                                                 fAtlas,
                                                 shapeData,
@@ -394,7 +394,7 @@ private:
         this->flush(target, &flushInfo);
     }
 
-    bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
+    bool addDFPathToAtlas1(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           uint32_t dimension, SkScalar scale) const {
         auto resourceProvider = target->resourceProvider();
@@ -487,10 +487,10 @@ private:
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
         auto uploadTarget = target->deferredUploadTarget();
-        if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, width, height,
+        if (!atlas->addToAtlas1(resourceProvider, &id, uploadTarget, width, height,
                                dfStorage.get(), &atlasLocation)) {
             this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, width, height,
+            if (!atlas->addToAtlas1(resourceProvider, &id, uploadTarget, width, height,
                                    dfStorage.get(), &atlasLocation)) {
                 return false;
             }
@@ -527,7 +527,7 @@ private:
         return true;
     }
 
-    bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
+    bool addBMPathToAtlas1(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           const SkMatrix& ctm) const {
         auto resourceProvider = target->resourceProvider();
@@ -592,10 +592,10 @@ private:
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
         auto uploadTarget = target->deferredUploadTarget();
-        if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, dst.width(), dst.height(),
+        if (!atlas->addToAtlas1(resourceProvider, &id, uploadTarget, dst.width(), dst.height(),
                                dst.addr(), &atlasLocation)) {
             this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, dst.width(), dst.height(),
+            if (!atlas->addToAtlas1(resourceProvider, &id, uploadTarget, dst.width(), dst.height(),
                                    dst.addr(), &atlasLocation)) {
                 return false;
             }

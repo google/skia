@@ -63,7 +63,7 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrResourceProvider*, GrDeferredUploadTarget*, GrGlyphCache*,
+    bool addGlyphToAtlas1(GrResourceProvider*, GrDeferredUploadTarget*, GrGlyphCache*,
                          GrAtlasManager*, GrGlyph*,
                          SkGlyphCache*, GrMaskFormat expectedMaskFormat);
 

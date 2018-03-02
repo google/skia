@@ -186,7 +186,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider,
         , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1)
         , fPrevFlushToken(GrDeferredUploadToken::AlreadyFlushedToken())
-        , fAllowMultitexturing(allowMultitexturing)
+        , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ? kMaxMultitexturePages : 1)
         , fNumActivePages(0) {
     fPlotWidth = fTextureWidth / numPlotsX;
     fPlotHeight = fTextureHeight / numPlotsY;
@@ -230,6 +230,25 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
     return true;
 }
 
+bool GrDrawOpAtlas::uploadToPage(unsigned int pageIdx, AtlasID* id, GrDeferredUploadTarget* target,
+                                 int width, int height, const void* image, SkIPoint16* loc) {
+    SkASSERT(fProxies[pageIdx] && fProxies[pageIdx]->priv().isInstantiated());
+
+    // look through all allocated plots for one we can share, in Most Recently Refed order
+    PlotList::Iter plotIter;
+    plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
+
+    for (Plot* plot = plotIter.get(); plot; plot = plotIter.next()) {
+        SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
+
+        if (plot->addSubImage(width, height, image, loc)) {
+            return this->updatePlot(target, id, plot);
+        }
+    }
+
+    return false;
+}
+
 // Number of atlas-related flushes beyond which we consider a plot to no longer be in use.
 //
 // This value is somewhat arbitrary -- the idea is to keep it low enough that
@@ -238,7 +257,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
 // are rare; i.e., we are not continually refreshing the frame.
 static constexpr auto kRecentlyUsedCount = 256;
 
-bool GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceProvider,
+bool GrDrawOpAtlas::addToAtlas1(GrResourceProvider* resourceProvider,
                                AtlasID* id, GrDeferredUploadTarget* target,
                                int width, int height, const void* image, SkIPoint16* loc) {
     if (width > fPlotWidth || height > fPlotHeight) {
@@ -249,17 +268,8 @@ bool GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceProvider,
     // We prioritize this upload to the first pages, not the most recently used, to make it easier
     // to remove unused pages in reverse page order.
     for (unsigned int pageIdx = 0; pageIdx < fNumActivePages; ++pageIdx) {
-        SkASSERT(fProxies[pageIdx]);
-        // look through all allocated plots for one we can share, in Most Recently Refed order
-        PlotList::Iter plotIter;
-        plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
-        Plot* plot;
-        while ((plot = plotIter.get())) {
-            SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
-            if (plot->addSubImage(width, height, image, loc)) {
-                return this->updatePlot(target, id, plot);
-            }
-            plotIter.next();
+        if (this->uploadToPage(pageIdx, id, target, width, height, image, loc)) {
+            return true;
         }
     }
 
@@ -287,18 +297,9 @@ bool GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceProvider,
 
     // If the simple cases fail, try to create a new page and add to it
     if (this->activateNewPage(resourceProvider)) {
-        unsigned int pageIdx = fNumActivePages-1;
-        SkASSERT(fProxies[pageIdx] && fProxies[pageIdx]->priv().isInstantiated());
-
-        Plot* plot = fPages[pageIdx].fPlotList.head();
-        SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
-        if (plot->addSubImage(width, height, image, loc)) {
-            return this->updatePlot(target, id, plot);
-        }
-
-        // we shouldn't get here -- if so, something has gone terribly wrong
-        SkASSERT(false);
-        return false;
+        // If we fail to upload to a newly activated page then something has gone terribly
+        // wrong - just return
+        return this->uploadToPage(fNumActivePages-1, id, target, width, height, image, loc);
     }
 
     // Try to find a plot that we can perform an inline upload to.
@@ -316,7 +317,7 @@ bool GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceProvider,
     // we have to fail. This gives the op a chance to enqueue the draw, and call back into this
     // function. When that draw is enqueued, the draw token advances, and the subsequent call will
     // continue past this branch and prepare an inline upload that will occur after the enqueued
-    //draw which references the plot's pre-upload content.
+    // draw which references the plot's pre-upload content.
     if (!plot) {
         return false;
     }

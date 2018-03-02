@@ -278,7 +278,7 @@ Regenerator::Result Regenerator::doRegen() {
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
             if (!fFullAtlasManager->hasGlyph(glyph) &&
-                !strike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGlyphCache,
+                !strike->addGlyphToAtlas1(fResourceProvider, fUploadTarget, fGlyphCache,
                                          fFullAtlasManager, glyph,
                                          fLazyCache->get(), fSubRun->maskFormat())) {
                 fBrokenRun = glyphIdx > 0;
