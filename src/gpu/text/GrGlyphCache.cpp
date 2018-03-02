@@ -304,8 +304,14 @@ bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
     SkASSERT(fCache.find(glyph->fPackedID));
 
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
+    int rowBytes = glyph->width() * bytesPerPixel;
 
+    bool pad = true;
     size_t size = glyph->fBounds.area() * bytesPerPixel;
+    if (pad) {
+        size += 2 * rowBytes;
+        size += 2 * (glyph->fBounds.height() + 2) * bytesPerPixel;
+    }
     SkAutoSMalloc<1024> storage(size);
 
     const SkGlyph& skGlyph = GrToSkGlyph(cache, glyph->fPackedID);
@@ -315,9 +321,10 @@ bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
             return false;
         }
     } else {
+        void* dataPtr = pad ? (char*)storage.get() + rowBytes + bytesPerPixel : storage.get();
         if (!get_packed_glyph_image(cache, skGlyph, glyph->width(), glyph->height(),
-                                    glyph->width() * bytesPerPixel, expectedMaskFormat,
-                                    storage.get())) {
+                                    rowBytes, expectedMaskFormat,
+                                    dataPtr)) {
             return false;
         }
     }
@@ -327,6 +334,10 @@ bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
                                                 glyph->width(), glyph->height(),
                                                 storage.get(), &glyph->fAtlasLocation);
     if (success) {
+        if (pad) {
+            glyph->fAtlasLocation.fX += 1;
+            glyph->fAtlasLocation.fY += 1;
+        }
         SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != glyph->fID);
         fAtlasedGlyphs++;
     }
