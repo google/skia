@@ -640,7 +640,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
                      height);
     }
 
-    GrVkMemory::FlushMappedAlloc(this, alloc, size);
+    GrVkMemory::FlushMappedAlloc(this, alloc, offset, size);
     GR_VK_CALL(interface, UnmapMemory(fDevice, alloc.fMemory));
 
     return true;
@@ -1204,7 +1204,7 @@ bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc, size
             }
         }
     }
-    GrVkMemory::FlushMappedAlloc(gpu, alloc, mapSize);
+    GrVkMemory::FlushMappedAlloc(gpu, alloc, mapOffset, mapSize);
     GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc.fMemory));
     return true;
 }
@@ -2053,7 +2053,8 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
     // we can copy the data out of the buffer.
     this->submitCommandBuffer(kForce_SyncQueue);
     void* mappedMemory = transferBuffer->map();
-    GrVkMemory::InvalidateMappedAlloc(this, transferBuffer->alloc());
+    const GrVkAlloc& transAlloc = transferBuffer->alloc();
+    GrVkMemory::InvalidateMappedAlloc(this, transAlloc, transAlloc.fOffset, VK_WHOLE_SIZE);
 
     if (copyFromOrigin) {
         uint32_t skipRows = region.imageExtent.height - height;
