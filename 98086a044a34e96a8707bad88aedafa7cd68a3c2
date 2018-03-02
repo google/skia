@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd62263f_4f700f56",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-02T17:44:43Z",
+      "side": 1,
+      "message": "These would also work if we promote the arguments to Sk2f explicitly right?  Like, \n\n   (discr \u003c 0).thenElse(Sk2f(3), Sk2f(1)).store(numRoots);\n\nright?  That might be a little clearer?",
+      "revId": "98086a044a34e96a8707bad88aedafa7cd68a3c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
