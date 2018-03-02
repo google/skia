@@ -458,11 +458,14 @@ public:
 
 class SVGSink : public Sink {
 public:
-    SVGSink();
+    SVGSink(int pageIndex = 0);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "svg"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
+
+private:
+    int fPageIndex;
 };
 
 

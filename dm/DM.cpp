@@ -899,6 +899,10 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         }
     }
 #endif
+    if (const SkCommandLineConfigSvg* svgConfig = config->asConfigSvg()) {
+        int pageIndex = svgConfig->getPageIndex();
+        return new SVGSink(pageIndex);
+    }
 
 #define SINK(t, sink, ...) if (config->getBackend().equals(t)) { return new sink(__VA_ARGS__); }
 

@@ -19,6 +19,7 @@ DECLARE_string(config);
 #if SK_SUPPORT_GPU
 class SkCommandLineConfigGpu;
 #endif
+class SkCommandLineConfigSvg;
 
 // SkCommandLineConfig represents a Skia rendering configuration string.
 // The string has following form:
@@ -34,6 +35,7 @@ class SkCommandLineConfig {
 #if SK_SUPPORT_GPU
     virtual const SkCommandLineConfigGpu* asConfigGpu() const { return nullptr; }
 #endif
+    virtual const SkCommandLineConfigSvg* asConfigSvg() const { return nullptr; }
     const SkString& getTag() const { return fTag; }
     const SkString& getBackend() const { return fBackend; }
     const SkTArray<SkString>& getViaParts() const { return fViaParts; }
@@ -84,6 +86,20 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     bool fTestThreading;
 };
 #endif
+
+// SkCommandLineConfigSvg is a SkCommandLineConfig that extracts information out of the backend
+// part of the tag. It is constructed tags that have:
+// * backends of form "svg[option=value,option2=value,...]"
+class SkCommandLineConfigSvg : public SkCommandLineConfig {
+public:
+    SkCommandLineConfigSvg(const SkString& tag, const SkTArray<SkString>& viaParts, int pageIndex);
+    const SkCommandLineConfigSvg* asConfigSvg() const override { return this; }
+
+    int getPageIndex() const { return fPageIndex; }
+
+private:
+    int fPageIndex;
+};
 
 typedef SkTArray<std::unique_ptr<SkCommandLineConfig>, true> SkCommandLineConfigArray;
 void ParseConfigs(const SkCommandLineFlags::StringArray& configList,

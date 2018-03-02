@@ -1838,14 +1838,23 @@ Error DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) cons
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-SVGSink::SVGSink() {}
+SVGSink::SVGSink(int pageIndex) : fPageIndex(pageIndex) {}
 
 Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
 #if defined(SK_XML)
+    if (src.pageCount() > 1) {
+        int pageCount = src.pageCount();
+        if (fPageIndex > pageCount - 1) {
+            return Error(SkStringPrintf("Page index %d too high for document with only %d pages.",
+                                        fPageIndex, pageCount));
+        }
+    }
     std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
-    return src.draw(SkSVGCanvas::Make(SkRect::MakeWH(SkIntToScalar(src.size().width()),
+    return src.draw(fPageIndex,
+                    SkSVGCanvas::Make(SkRect::MakeWH(SkIntToScalar(src.size().width()),
                                                      SkIntToScalar(src.size().height())),
-                                      xmlWriter.get()).get());
+                                      xmlWriter.get())
+                            .get());
 #else
     return Error("SVG sink is disabled.");
 #endif // SK_XML
