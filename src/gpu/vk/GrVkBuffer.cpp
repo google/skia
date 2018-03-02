@@ -206,7 +206,13 @@ void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size) {
     SkASSERT(this->vkIsMapped());
 
     if (fDesc.fDynamic) {
-        GrVkMemory::FlushMappedAlloc(gpu, this->alloc(), fMappedSize);
+        // We currently don't use fOffset
+        SkASSERT(0 == fOffset);
+        VkDeviceSize flushOffset = this->alloc().fOffset + fOffset;
+        VkDeviceSize flushSize = gpu->vkCaps().canUseWholeSizeOnFlushMappedMemory() ? VK_WHOLE_SIZE
+                                                                                    : fMappedSize;
+
+        GrVkMemory::FlushMappedAlloc(gpu, this->alloc(), flushOffset, flushSize);
         VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
         fMapPtr = nullptr;
         fMappedSize = 0;

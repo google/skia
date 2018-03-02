@@ -298,32 +298,53 @@ VkAccessFlags GrVkMemory::LayoutToSrcAccessMask(const VkImageLayout layout) {
     return flags;
 }
 
-void GrVkMemory::FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize size) {
+void GrVkMemory::FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
+                                  VkDeviceSize size) {
     if (alloc.fFlags & GrVkAlloc::kNoncoherent_Flag) {
+#ifdef SK_DEBUG
+        SkASSERT(offset >= alloc.fOffset);
+        VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
+        SkASSERT(0 == (offset & (alignment-1)));
+        if (size != VK_WHOLE_SIZE) {
+            SkASSERT(size > 0);
+            SkASSERT(0 == (size & (alignment-1)) ||
+                     (offset + size) == (alloc.fOffset + alloc.fSize));
+            SkASSERT(offset + size <= alloc.fOffset + alloc.fSize);
+        }
+#endif
+
         VkMappedMemoryRange mappedMemoryRange;
         memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
         mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
         mappedMemoryRange.memory = alloc.fMemory;
-        mappedMemoryRange.offset = alloc.fOffset;
-        if (gpu->vkCaps().canUseWholeSizeOnFlushMappedMemory()) {
-            mappedMemoryRange.size = VK_WHOLE_SIZE; // Size of what we mapped
-        } else {
-            SkASSERT(size > 0);
-            mappedMemoryRange.size = size;
-        }
+        mappedMemoryRange.offset = offset;
+        mappedMemoryRange.size = size;
         GR_VK_CALL(gpu->vkInterface(), FlushMappedMemoryRanges(gpu->device(),
                                                                1, &mappedMemoryRange));
     }
 }
 
-void GrVkMemory::InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc) {
+void GrVkMemory::InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc,
+                                       VkDeviceSize offset, VkDeviceSize size) {
     if (alloc.fFlags & GrVkAlloc::kNoncoherent_Flag) {
+#ifdef SK_DEBUG
+        SkASSERT(offset >= alloc.fOffset);
+        VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
+        SkASSERT(0 == (offset & (alignment-1)));
+        if (size != VK_WHOLE_SIZE) {
+            SkASSERT(size > 0);
+            SkASSERT(0 == (size & (alignment-1)) ||
+                     (offset + size) == (alloc.fOffset + alloc.fSize));
+            SkASSERT(offset + size <= alloc.fOffset + alloc.fSize);
+        }
+#endif
+
         VkMappedMemoryRange mappedMemoryRange;
         memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
         mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
         mappedMemoryRange.memory = alloc.fMemory;
-        mappedMemoryRange.offset = alloc.fOffset;
-        mappedMemoryRange.size = VK_WHOLE_SIZE; // Size of what we mapped
+        mappedMemoryRange.offset = offset;
+        mappedMemoryRange.size = size;
         GR_VK_CALL(gpu->vkInterface(), InvalidateMappedMemoryRanges(gpu->device(),
                                                                1, &mappedMemoryRange));
     }
