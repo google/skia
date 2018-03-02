@@ -259,7 +259,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         SkDEBUGCODE(dfPerspective = fGeoData[0].fViewMatrix.hasPerspective());
     } else {
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-            this->color(), proxies, atlasPageCount, GrSamplerState::ClampNearest(), maskFormat,
+            this->color(), proxies, atlasPageCount, GrSamplerState::ClampBilerp(), maskFormat,
             localMatrix, this->usesLocalCoords());
     }
 

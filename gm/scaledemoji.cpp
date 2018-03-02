@@ -51,7 +51,7 @@ protected:
         // SDF path with scaling, path rendering with scaling
         SkPaint::FontMetrics metrics;
         SkScalar y = 0;
-        for (SkScalar textSize : { 70, 180, 270, 340 }) {
+        for (SkScalar textSize : { /*70, 180,*/ 270, 340 }) {
             paint.setTextSize(textSize);
             paint.getFontMetrics(&metrics);
             y += -metrics.fAscent;

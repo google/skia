@@ -152,6 +152,7 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     subRun->appendVertices(vertexStride);
     fGlyphs[subRun->glyphEndIndex()] = glyph;
     subRun->glyphAppended();
+    subRun->setHasScaledGlyphs(SK_Scalar1 != scale);
 }
 
 void GrAtlasTextBlob::appendPathGlyph(int runIndex, const SkPath& path, SkScalar x, SkScalar y,
