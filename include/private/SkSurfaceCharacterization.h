@@ -55,6 +55,7 @@ public:
     SkSurfaceCharacterization& operator=(const SkSurfaceCharacterization& other) = default;
 
     GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
+    sk_sp<GrContextThreadSafeProxy> refContextInfo() const { return fContextInfo; }
     size_t cacheMaxResourceBytes() const { return fCacheMaxResourceBytes; }
 
     bool isValid() const { return kUnknown_GrPixelConfig != fConfig; }
