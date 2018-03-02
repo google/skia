@@ -12,17 +12,21 @@ arm64-v8a, x86, and x86\_64 architectures. The most recent is listed first:
 #!/bin/sh
 BRANCH=origin/skqp/dev
 for commit in $(git log $BRANCH -30 -\-format=%H) ; do
-    U='https://storage.googleapis.com/skia-skqp/skqp-universal-'
-    URL="${U}$(git log -1 -\-format=%h $commit).apk"
+    SHORT="$(git log -1 -\-format=%h $commit)"
+    URL="https://storage.googleapis.com/skia-skqp/skqp-universal-${SHORT}.apk"
     if [ 200 -ne "$(curl -s -o /dev/null -w "%{http_code}" "$URL")" ] ; then
         continue
     fi
-    TZ='' git log \
-        -\-date='format-local:%Y-%m-%d %H:%M:%S %Z' -1 $commit \
-        -\-format="  * [\`%h\`](${U}%h.apk)%n    | \`%cd\` | %<(50,trunc)%s"
+    DATE=$(TZ='' git log -\-date='format-local:%Y-%m-%d %H:%M:%S %Z' -1 $commit -\-format=%cd)
+    SUBJ=$(git log -1 $commit -\-format='%<(50,trunc)%s' | sed 's/  *$//')
+    printf '  * [`%s`](%s)\n    | `%s` | %s\n' "$SHORT" "$URL" "$DATE" "$SUBJ"
 done
 -->
 
+  * [`0aa4e74e8c`](https://storage.googleapis.com/skia-skqp/skqp-universal-0aa4e74e8c.apk)
+    | `2018-03-01 22:44:44 UTC` | Move the rest of Vulkan driver workarounds into ..
+  * [`6ce9d8849b`](https://storage.googleapis.com/skia-skqp/skqp-universal-6ce9d8849b.apk)
+    | `2018-03-01 22:24:15 UTC` | Cherry-pick https://skia-review.googlesource.com..
   * [`186ccf5147`](https://storage.googleapis.com/skia-skqp/skqp-universal-186ccf5147.apk)
     | `2018-03-01 19:01:32 UTC` | SkQP: turn on VkMakeCopyPipelineTest
   * [`4e8d3a4bb0`](https://storage.googleapis.com/skia-skqp/skqp-universal-4e8d3a4bb0.apk)
@@ -50,7 +54,7 @@ To run tests:
 
 Monitor the output with:
 
-    adb logcat org.skia.skqp skia "*:S"
+    adb logcat org.skia.skqp skia DEBUG "*:S"
 
 Note the test's output path on the device.  It will look something like this:
 
