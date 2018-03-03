@@ -93,8 +93,9 @@ public:
     static const char* RenderPassName(RenderPass);
 
     constexpr static bool DoesRenderPass(RenderPass renderPass, const GrCaps& caps) {
-        return RenderPass::kTriangleEdges != renderPass ||
-               caps.shaderCaps()->geometryShaderSupport();
+        return caps.shaderCaps()->geometryShaderSupport() ||
+               (RenderPass::kTriangleEdges != renderPass &&
+                RenderPass::kTriangleCorners != renderPass);
     }
 
     enum class WindMethod : bool {
@@ -196,6 +197,13 @@ public:
         static void CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGeoBuilder*, const char* leftPt,
                                                   const char* rightPt, const char* bloatDir,
                                                   const char* outputCoverage);
+
+        // Calculates an edge's coverage at two conservative raster vertices.
+        // (See CalcEdgeCoverageAtBloatVertex).
+        static void CalcEdgeCoveragesAtBloatVertices(GrGLSLVertexGeoBuilder*, const char* leftPt,
+                                                     const char* rightPt, const char* bloatDir1,
+                                                     const char* bloatDir2,
+                                                     const char* outputCoverages);
 
         virtual ~Shader() {}
 
