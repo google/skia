@@ -905,11 +905,6 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool FontMetricsCacheProc(const SkGlyphCache* cache, void* context) {
-    *(SkPaint::FontMetrics*)context = cache->getFontMetrics();
-    return false;   // don't detach the cache
-}
-
 SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
     SkCanonicalizePaint canon(*this);
     const SkPaint& paint = canon.getPaint();
@@ -932,7 +927,11 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
     auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
         paint, nullptr, SkScalerContextFlags::kNone, zoomPtr, &ad, &effects);
 
-    SkGlyphCache::VisitCache(paint.getTypeface(), effects, desc, FontMetricsCacheProc, metrics);
+    {
+        auto typeface = SkTypeface::NormalizeTypeface(paint.getTypeface());
+        auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+        *metrics = cache->getFontMetrics();
+    }
 
     if (scale) {
         SkPaintPriv::ScaleFontMetrics(metrics, scale);
