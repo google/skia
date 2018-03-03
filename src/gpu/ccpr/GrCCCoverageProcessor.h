@@ -178,7 +178,7 @@ public:
             this->onEmitVaryings(varyingHandler, scope, code, position, inputCoverage, wind);
         }
 
-        void emitFragmentCode(const GrCCCoverageProcessor& proc, GrGLSLFPFragmentBuilder*,
+        void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
                               const char* skOutputColor, const char* skOutputCoverage) const;
 
         // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
@@ -187,6 +187,15 @@ public:
         static void EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder*, const char* leftPt,
                                              const char* rightPt,
                                              const char* outputDistanceEquation);
+
+        // Calculates an edge's coverage at a conservative raster vertex. The edge is defined by two
+        // clockwise-ordered points, 'leftPt' and 'rightPt'. 'bloatDir' is a pair of +/-1 values
+        // that point in the direction of bloat, starting from a point on the edge.
+        //
+        // Coverage values ramp from -1 (completely outside the edge) to 0 (completely inside).
+        static void CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGeoBuilder*, const char* leftPt,
+                                                  const char* rightPt, const char* bloatDir,
+                                                  const char* outputCoverage);
 
         virtual ~Shader() {}
 
