@@ -54,6 +54,10 @@ SkGlyphCache::~SkGlyphCache() {
     });
 }
 
+void SkGlyphCache::PurgeAll() {
+    get_globals().purgeAll();
+}
+
 SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(SkPackedUnicharID packedUnicharID) {
     if (!fPackedUnicharIDToPackedGlyphID) {
         fPackedUnicharIDToPackedGlyphID.reset(new CharGlyphRec[kHashCount]);
@@ -537,6 +541,30 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     }
     return cache;
 }
+
+SkExclusiveStrikePtr SkGlyphCache::FindStrikeExclusive(const SkDescriptor& desc) {
+    SkGlyphCache_Globals& globals = get_globals();
+    SkGlyphCache*         cache;
+    SkAutoExclusive       ac(globals.fLock);
+
+    for (cache = globals.internalGetHead(); cache != nullptr; cache = cache->fNext) {
+        if (*cache->fDesc == desc) {
+            globals.internalDetachCache(cache);
+            return SkExclusiveStrikePtr(cache);
+        }
+    }
+
+    return SkExclusiveStrikePtr(nullptr);
+}
+
+SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
+        const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface) {
+    auto creator = [&effects, &typeface](const SkDescriptor& descriptor, bool canFail) {
+        return typeface.createScalerContext(effects, &descriptor, canFail);
+    };
+    return FindOrCreateStrikeExclusive(desc, creator);
+}
+
 
 void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
     SkASSERT(cache);
