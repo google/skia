@@ -364,3 +364,54 @@ DEF_TEST(TArray, reporter) {
     test_reserve<SkSTArray<2, int>>(reporter);
     test_reserve<SkSTArray<16, int>>(reporter);
 }
+
+#include "SkDArray.h"
+
+struct Elem {
+    int a, b, c, d;
+};
+
+DEF_TEST(DArray, reporter) {
+    Elem e = { 1, 2, 3, 4 };
+
+    SkDArray array(sizeof(Elem));
+    array.append();
+    array.append();
+    REPORTER_ASSERT(reporter, array.count() == 2);
+    REPORTER_ASSERT(reporter, array.countBytes() == 2 * sizeof(Elem));
+
+    array.reset();
+    REPORTER_ASSERT(reporter, array.count() == 0);
+    REPORTER_ASSERT(reporter, array.countBytes() == 0);
+
+    int N = 100;
+    for (int i = 0; i < N; ++i) {
+        *(Elem*)array.append() = e;
+    }
+    REPORTER_ASSERT(reporter, array.count() == N);
+    REPORTER_ASSERT(reporter, array.countBytes() == N * sizeof(Elem));
+
+    for (int i = 0; i < N; ++i) {
+        REPORTER_ASSERT(reporter, memcmp(array[i], &e, sizeof(e)) == 0);
+    }
+
+    SkDArray array2 = array;
+    REPORTER_ASSERT(reporter, array2 == array);
+
+    array.remove(10, 17);
+    N -= 17;
+    REPORTER_ASSERT(reporter, array.count() == N);
+    REPORTER_ASSERT(reporter, array.countBytes() == N * sizeof(Elem));
+    for (int i = 0; i < N; ++i) {
+        REPORTER_ASSERT(reporter, memcmp(array[i], &e, sizeof(e)) == 0);
+    }
+
+    array.removeShuffle(10, 13);
+    N -= 13;
+    REPORTER_ASSERT(reporter, array.count() == N);
+    REPORTER_ASSERT(reporter, array.countBytes() == N * sizeof(Elem));
+    for (int i = 0; i < N; ++i) {
+        REPORTER_ASSERT(reporter, memcmp(array[i], &e, sizeof(e)) == 0);
+    }
+}
+
