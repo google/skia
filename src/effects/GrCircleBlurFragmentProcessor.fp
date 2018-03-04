@@ -234,7 +234,6 @@ uniform half4 circleData;
         if (!blurProfile) {
             static constexpr int kProfileTextureWidth = 512;
             GrSurfaceDesc texDesc;
-            texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
             texDesc.fWidth = kProfileTextureWidth;
             texDesc.fHeight = 1;
             texDesc.fConfig = kAlpha_8_GrPixelConfig;
@@ -249,8 +248,8 @@ uniform half4 circleData;
                                                     kProfileTextureWidth));
             }
 
-            blurProfile = proxyProvider->createTextureProxy(texDesc, SkBudgeted::kYes,
-                                                            profile.get(), 0);
+            blurProfile = proxyProvider->createTextureProxy(
+                    texDesc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes, profile.get(), 0);
             if (!blurProfile) {
                 return nullptr;
             }

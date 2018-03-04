@@ -72,8 +72,8 @@ protected:
     friend class GrTextureProxyPriv;
 
     // Deferred version
-    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped, SkBackingFit, SkBudgeted,
-                   const void* srcData, size_t srcRowBytes, uint32_t flags);
+    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrSurfaceOrigin, GrMipMapped, SkBackingFit,
+                   SkBudgeted, const void* srcData, size_t srcRowBytes, uint32_t flags);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -86,7 +86,8 @@ protected:
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
     GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrSurfaceDesc& desc,
-                   GrMipMapped, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags);
+                   GrSurfaceOrigin, GrMipMapped, SkBackingFit fit, SkBudgeted budgeted,
+                   uint32_t flags);
 
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);

@@ -100,7 +100,6 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
                                                int size, int sampleCount, SkBudgeted budgeted) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = size;
     desc.fHeight = size;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -1646,7 +1645,6 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                             int sampleCnt) {
     GrSurfaceDesc desc;
     desc.fFlags = flags;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -1661,14 +1659,15 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
                                                int sampleCnt) {
     GrSurfaceDesc desc;
     desc.fFlags = flags;
-    desc.fOrigin = (flags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
-                                                         : kTopLeft_GrSurfaceOrigin;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    return proxyProvider->createMipMapProxy(desc, SkBudgeted::kYes);
+    auto origin = (flags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
+                                                        : kTopLeft_GrSurfaceOrigin;
+
+    return proxyProvider->createMipMapProxy(desc, origin, SkBudgeted::kYes);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,

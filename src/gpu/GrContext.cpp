@@ -805,8 +805,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     sk_sp<GrTextureProxy> tempProxy;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
         tempProxy = this->proxyProvider()->createProxy(tempDrawInfo.fTempSurfaceDesc,
-                                                       SkBackingFit::kApprox,
-                                                       SkBudgeted::kYes);
+                                                       kTopLeft_GrSurfaceOrigin,
+                                                       SkBackingFit::kApprox, SkBudgeted::kYes);
         if (!tempProxy && GrGpu::kRequireDraw_DrawPreference == drawPreference) {
             return false;
         }
@@ -968,7 +968,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                                                           std::move(colorSpace),
                                                           tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
                                                           GrMipMapped::kNo,
-                                                          tempDrawInfo.fTempSurfaceDesc.fOrigin);
+                                                          kTopLeft_GrSurfaceOrigin);
         if (tempRTC) {
             // Adding discard to appease vulkan validation warning about loading uninitialized data
             // on draw
@@ -1073,9 +1073,8 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fSampleCnt = 1;
-        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-        auto tempProxy =
-                this->proxyProvider()->createProxy(desc, SkBackingFit::kApprox, SkBudgeted::kYes);
+        auto tempProxy = this->proxyProvider()->createProxy(
+                desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
         if (!tempProxy) {
             return false;
         }
@@ -1216,6 +1215,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
+                                                                  GrSurfaceOrigin origin,
                                                                   GrMipMapped mipMapped,
                                                                   SkBackingFit fit,
                                                                   SkBudgeted isDstBudgeted,
@@ -1223,10 +1223,10 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
                                                                   const SkSurfaceProps* props) {
     sk_sp<GrTextureProxy> proxy;
     if (GrMipMapped::kNo == mipMapped) {
-        proxy = this->proxyProvider()->createProxy(dstDesc, fit, isDstBudgeted);
+        proxy = this->proxyProvider()->createProxy(dstDesc, origin, fit, isDstBudgeted);
     } else {
         SkASSERT(SkBackingFit::kExact == fit);
-        proxy = this->proxyProvider()->createMipMapProxy(dstDesc, isDstBudgeted);
+        proxy = this->proxyProvider()->createMipMapProxy(dstDesc, origin, isDstBudgeted);
     }
     if (!proxy) {
         return nullptr;
@@ -1371,7 +1371,6 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = origin;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = config;
@@ -1379,9 +1378,9 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
 
     sk_sp<GrTextureProxy> rtp;
     if (GrMipMapped::kNo == mipMapped) {
-        rtp = fProxyProvider->createProxy(desc, fit, budgeted);
+        rtp = fProxyProvider->createProxy(desc, origin, fit, budgeted);
     } else {
-        rtp = fProxyProvider->createMipMapProxy(desc, budgeted);
+        rtp = fProxyProvider->createMipMapProxy(desc, origin, budgeted);
     }
     if (!rtp) {
         return nullptr;

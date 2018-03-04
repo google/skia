@@ -111,15 +111,11 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
     }
 
     GrSurfaceDesc desc;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = kImageSize;
     desc.fHeight = kImageSize;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    if (bottomLeftOrigin) {
-        // Note that Ganesh will flip the data when it is uploaded
-        desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    }
+    auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
     if (kN32_SkColorType == kBGRA_8888_SkColorType) {
         // We're playing a game here and uploading N32 data into an RGB dest. We might have
@@ -132,7 +128,7 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
         }
     }
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, origin, SkBudgeted::kYes,
                                                                     bm.getPixels(), bm.rowBytes());
     if (!proxy) {
         return nullptr;

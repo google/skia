@@ -65,7 +65,6 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
 
     GrSurfaceDesc surfDesc;
     surfDesc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-    surfDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     surfDesc.fWidth = kWidth;
     surfDesc.fHeight = kHeight;
     surfDesc.fConfig = config;
@@ -74,8 +73,8 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     SkColorType ct;
     SkAssertResult(GrPixelConfigToColorType(config, &ct));
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(surfDesc, SkBudgeted::kNo,
-                                                                    srcBuffer, 0);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
+            surfDesc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
@@ -104,9 +103,8 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
                                                                          2));
     }
 
-    surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-
-    proxy = proxyProvider->createTextureProxy(surfDesc, SkBudgeted::kNo, srcBuffer, 0);
+    proxy = proxyProvider->createTextureProxy(surfDesc, kBottomLeft_GrSurfaceOrigin,
+                                              SkBudgeted::kNo, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);

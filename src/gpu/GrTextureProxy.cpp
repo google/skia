@@ -15,10 +15,10 @@
 #include "GrTexturePriv.h"
 
 // Deferred version
-GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped mipMapped,
-                               SkBackingFit fit, SkBudgeted budgeted, const void* srcData,
-                               size_t /*rowBytes*/, uint32_t flags)
-        : INHERITED(srcDesc, fit, budgeted, flags)
+GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrSurfaceOrigin origin,
+                               GrMipMapped mipMapped, SkBackingFit fit, SkBudgeted budgeted,
+                               const void* srcData, size_t /*rowBytes*/, uint32_t flags)
+        : INHERITED(srcDesc, origin, fit, budgeted, flags)
         , fMipMapped(mipMapped)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
@@ -27,13 +27,13 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped mipMapp
 
 // Lazy-callback version
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
-                               const GrSurfaceDesc& desc, GrMipMapped mipMapped, SkBackingFit fit,
-                               SkBudgeted budgeted, uint32_t flags)
-        : INHERITED(std::move(callback), lazyType, desc, fit, budgeted, flags)
+                               const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
+                               GrMipMapped mipMapped, SkBackingFit fit, SkBudgeted budgeted,
+                               uint32_t flags)
+        : INHERITED(std::move(callback), lazyType, desc, origin, fit, budgeted, flags)
         , fMipMapped(mipMapped)
         , fProxyProvider(nullptr)
-        , fDeferredUploader(nullptr) {
-}
+        , fDeferredUploader(nullptr) {}
 
 // Wrapped version
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)

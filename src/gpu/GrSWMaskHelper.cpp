@@ -93,16 +93,12 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
 
 sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBackingFit fit) {
     GrSurfaceDesc desc;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = fPixels->width();
     desc.fHeight = fPixels->height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
     sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
-                                                                                desc,
-                                                                                GrMipMapped::kNo,
-                                                                                fit,
-                                                                                SkBudgeted::kYes);
+            desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit, SkBudgeted::kYes);
     if (!sContext || !sContext->asTextureProxy()) {
         return nullptr;
     }

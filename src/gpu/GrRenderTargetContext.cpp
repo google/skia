@@ -1790,9 +1790,10 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
     GrSurfaceDesc desc;
     bool rectsMustMatch = false;
     bool disallowSubrect = false;
-    if (!this->caps()->initDescForDstCopy(rtProxy, &desc, &rectsMustMatch, &disallowSubrect)) {
+    GrSurfaceOrigin origin;
+    if (!this->caps()->initDescForDstCopy(rtProxy, &desc, &origin, &rectsMustMatch,
+                                          &disallowSubrect)) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
         desc.fConfig = rtProxy->config();
     }
 
@@ -1803,7 +1804,6 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
     SkIPoint dstPoint, dstOffset;
     SkBackingFit fit;
     if (rectsMustMatch) {
-        SkASSERT(desc.fOrigin == rtProxy->origin());
         desc.fWidth = rtProxy->width();
         desc.fHeight = rtProxy->height();
         dstPoint = {copyRect.fLeft, copyRect.fTop};
@@ -1818,7 +1818,7 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
     }
 
     sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeDeferredSurfaceContext(
-            desc, GrMipMapped::kNo, fit, SkBudgeted::kYes,
+            desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes,
             sk_ref_sp(this->colorSpaceInfo().colorSpace()));
     if (!sContext) {
         SkDebugf("setupDstTexture: surfaceContext creation failed.\n");

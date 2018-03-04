@@ -302,7 +302,6 @@ public:
 
                     GrSurfaceDesc desc;
                     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-                    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
                     // TODO: until partial flushes in MDB lands we're stuck having
                     // all 9 atlas draws occur
                     desc.fWidth = 9 /*this->numOps()*/ * kAtlasTileSize;

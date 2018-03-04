@@ -68,13 +68,13 @@ public:
      */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
 
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted,
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, GrSurfaceOrigin texelsOrigin,
                                    const GrMipLevel texels[], int mipLevelCount,
                                    SkDestinationSurfaceColorMode mipColorMode);
 
     // Create a potentially loose fit texture with the provided data
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, SkBackingFit,
-                                   const GrMipLevel&);
+                                   GrSurfaceOrigin mipLevelOrigin, const GrMipLevel&);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces

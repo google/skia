@@ -89,15 +89,14 @@ protected:
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
         GrSurfaceDesc desc;
-        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
         desc.fWidth = fBmp.width();
         desc.fHeight = fBmp.height();
         desc.fConfig = SkImageInfo2GrPixelConfig(fBmp.info(), *context->caps());
         SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
-                                                                        fBmp.getPixels(),
-                                                                        fBmp.rowBytes());
+        sk_sp<GrTextureProxy> proxy =
+                proxyProvider->createTextureProxy(desc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
+                                                  fBmp.getPixels(), fBmp.rowBytes());
         if (!proxy) {
             return;
         }

@@ -29,7 +29,6 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -46,7 +45,6 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<GrTexture> tex1 = resourceProvider->createTexture(desc, SkBudgeted::kNo);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
@@ -108,7 +106,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     for (GrPixelConfig config : configs) {
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
             desc.fFlags = kNone_GrSurfaceFlags;
-            desc.fOrigin = origin;
             desc.fConfig = config;
             desc.fSampleCnt = 1;
 
@@ -117,8 +114,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             REPORTER_ASSERT(reporter, SkToBool(tex) == ict,
                             "config:%d, tex:%d, isConfigTexturable:%d", config, SkToBool(tex), ict);
 
-            sk_sp<GrTextureProxy> proxy = proxyProvider->createMipMapProxy(
-                                                            desc, SkBudgeted::kNo);
+            sk_sp<GrTextureProxy> proxy =
+                    proxyProvider->createMipMapProxy(desc, origin, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, SkToBool(proxy.get()) ==
                             (caps->isConfigTexturable(desc.fConfig) &&
                              caps->mipMapSupport()));
@@ -170,13 +167,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
             desc.fFlags |= rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
             for (GrSurfaceOrigin origin :
                  {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-                desc.fOrigin = origin;
                 for (auto fit : { SkBackingFit::kApprox, SkBackingFit::kExact }) {
                     // Try directly creating the texture.
                     // Do this twice in an attempt to hit the cache on the second time through.
                     for (int i = 0; i < 2; ++i) {
                         sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(
-                                                                    desc, fit, SkBudgeted::kYes);
+                                desc, origin, fit, SkBudgeted::kYes);
                         if (!proxy) {
                             continue;
                         }
@@ -206,7 +202,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     // Try creating the texture as a deferred proxy.
                     for (int i = 0; i < 2; ++i) {
                         auto surfCtx = context->contextPriv().makeDeferredSurfaceContext(
-                                desc, GrMipMapped::kNo, fit, SkBudgeted::kYes, colorSpace);
+                                desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes, colorSpace);
                         if (!surfCtx) {
                             continue;
                         }

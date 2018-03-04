@@ -2006,7 +2006,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 }
 
 bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                                  bool* rectsMustMatch, bool* disallowSubrect) const {
+                                  GrSurfaceOrigin* origin, bool* rectsMustMatch,
+                                  bool* disallowSubrect) const {
     // By default, we don't require rects to match.
     *rectsMustMatch = false;
 
@@ -2016,7 +2017,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
     if (src->asTextureProxy() && !this->isConfigRenderable(src->config())) {
-        desc->fOrigin = kBottomLeft_GrSurfaceOrigin;
+        *origin = kBottomLeft_GrSurfaceOrigin;
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
         desc->fConfig = src->config();
         return true;
@@ -2060,7 +2061,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
         // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
         // then we set up for that, otherwise fail.
         if (this->canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
-            desc->fOrigin = originForBlitFramebuffer;
+            *origin = originForBlitFramebuffer;
             desc->fConfig = kBGRA_8888_GrPixelConfig;
             *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
             *disallowSubrect = disallowSubrectForBlitFramebuffer;
@@ -2076,7 +2077,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
             // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO
             // blit or fail.
             if (this->canConfigBeFBOColorAttachment(src->config())) {
-                desc->fOrigin = originForBlitFramebuffer;
+                *origin = originForBlitFramebuffer;
                 desc->fConfig = src->config();
                 *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
                 *disallowSubrect = disallowSubrectForBlitFramebuffer;
@@ -2087,8 +2088,8 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     }
 
     // We'll do a CopyTexSubImage. Make the dst a plain old texture.
+    *origin = src->origin();
     desc->fConfig = src->config();
-    desc->fOrigin = src->origin();
     desc->fFlags = kNone_GrSurfaceFlags;
     return true;
 }

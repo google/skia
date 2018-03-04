@@ -101,7 +101,6 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
         // create texture
         GrSurfaceDesc desc;
         desc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-        desc.fOrigin = origin;
         desc.fWidth = kTextureWidth;
         desc.fHeight = kTextureHeight;
         desc.fConfig = GrColorTypeToPixelConfig(colorType, srgbEncoding);

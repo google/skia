@@ -271,16 +271,12 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
 
 sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     GrSurfaceDesc desc;
-    desc.fOrigin = fProxy->origin();
     desc.fWidth = subset.width();
     desc.fHeight = subset.height();
     desc.fConfig = fProxy->config();
 
     sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
-                                                                        desc,
-                                                                        GrMipMapped::kNo,
-                                                                        SkBackingFit::kExact,
-                                                                        fBudgeted));
+            desc, fProxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact, fBudgeted));
     if (!sContext) {
         return nullptr;
     }
@@ -651,7 +647,8 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkP
         if (SkImageInfoIsValid(pixmap.info(), colorMode)) {
             ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
             GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *proxyProvider->caps());
-            proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, pixmap.addr(),
+            proxy = proxyProvider->createTextureProxy(desc, kTopLeft_GrSurfaceOrigin,
+                                                      SkBudgeted::kYes, pixmap.addr(),
                                                       pixmap.rowBytes());
         }
     }

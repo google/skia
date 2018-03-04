@@ -836,11 +836,11 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fHeight = random->nextULessThan(90) + 10;
     desc.fWidth = random->nextULessThan(90) + 10;
-    desc.fOrigin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
+    auto origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
     SkBackingFit fit = random->nextBool() ? SkBackingFit::kApprox : SkBackingFit::kExact;
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(desc, fit, SkBudgeted::kNo);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(desc, origin, fit, SkBudgeted::kNo);
 
     SkRect rect = GrTest::TestRect(random);
     SkRect srcRect;
