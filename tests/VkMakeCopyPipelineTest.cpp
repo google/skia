@@ -116,7 +116,6 @@ public:
 
         GrSurfaceDesc surfDesc;
         surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-        surfDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
         surfDesc.fWidth = 16;
         surfDesc.fHeight = 16;
         surfDesc.fConfig = kRGBA_8888_GrPixelConfig;

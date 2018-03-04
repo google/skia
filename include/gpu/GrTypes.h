@@ -404,14 +404,12 @@ struct GrMipLevel {
 struct GrSurfaceDesc {
     GrSurfaceDesc()
             : fFlags(kNone_GrSurfaceFlags)
-            , fOrigin(kTopLeft_GrSurfaceOrigin)
             , fWidth(0)
             , fHeight(0)
             , fConfig(kUnknown_GrPixelConfig)
             , fSampleCnt(1) {}
 
     GrSurfaceFlags         fFlags;  //!< bitfield of TextureFlags
-    GrSurfaceOrigin        fOrigin; //!< origin of the texture
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
 

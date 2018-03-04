@@ -37,6 +37,7 @@ public:
                                                       const SkSurfaceProps* = nullptr);
 
     sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc&,
+                                                       GrSurfaceOrigin,
                                                        GrMipMapped,
                                                        SkBackingFit,
                                                        SkBudgeted,
