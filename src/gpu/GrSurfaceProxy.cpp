@@ -45,12 +45,12 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 
 // Lazy-callback version
 GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
-                               const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted,
-                               uint32_t flags)
+                               const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit,
+                               SkBudgeted budgeted, uint32_t flags)
         : fConfig(desc.fConfig)
         , fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
-        , fOrigin(desc.fOrigin)
+        , fOrigin(origin)
         , fFit(fit)
         , fBudgeted(budgeted)
         , fFlags(flags)
@@ -122,7 +122,6 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     if (fNeedsClear) {
         desc.fFlags |= kPerformInitialClear_GrSurfaceFlag;
     }
-    desc.fOrigin = fOrigin;
     desc.fWidth = fWidth;
     desc.fHeight = fHeight;
     desc.fConfig = fConfig;
@@ -145,7 +144,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
             texels[i].fRowBytes = 0;
         }
 
-        surface = resourceProvider->createTexture(desc, fBudgeted, texels.get(), mipCount,
+        surface = resourceProvider->createTexture(desc, fBudgeted, fOrigin, texels.get(), mipCount,
                                                   SkDestinationSurfaceColorMode::kLegacy);
         if (surface) {
             SkASSERT(surface->asTexture());
@@ -300,7 +299,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
     }
 
     GrSurfaceDesc dstDesc;
-    dstDesc.fOrigin = src->origin();
     dstDesc.fWidth = srcRect.width();
     dstDesc.fHeight = srcRect.height();
     dstDesc.fConfig = src->config();
@@ -315,7 +313,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
         colorSpace = SkColorSpace::MakeSRGB();
     }
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
-            dstDesc, mipMapped, SkBackingFit::kExact, budgeted, std::move(colorSpace)));
+            dstDesc, src->origin(), mipMapped, SkBackingFit::kExact, budgeted,
+            std::move(colorSpace)));
     if (!dstContext) {
         return nullptr;
     }
@@ -334,13 +333,10 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context, GrSurfaceProxy* s
 }
 
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
-                                                 GrSurfaceProxy* srcProxy) {
+                                                 GrSurfaceOrigin origin, GrSurfaceProxy* srcProxy) {
     SkASSERT(LazyState::kFully != srcProxy->lazyInstantiationState());
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
-                                                                            dstDesc,
-                                                                            GrMipMapped::kNo,
-                                                                            SkBackingFit::kExact,
-                                                                            SkBudgeted::kYes));
+            dstDesc, origin, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes));
     if (!dstContext) {
         return nullptr;
     }

@@ -222,13 +222,12 @@ void GrTextureStripAtlas::lockTexture() {
                                                                 key, kTopLeft_GrSurfaceOrigin);
     if (!proxy) {
         GrSurfaceDesc texDesc;
-        texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
         texDesc.fWidth  = fDesc.fWidth;
         texDesc.fHeight = fDesc.fHeight;
         texDesc.fConfig = fDesc.fConfig;
 
-        proxy = proxyProvider->createProxy(texDesc, SkBackingFit::kExact, SkBudgeted::kYes,
-                                           GrResourceProvider::kNoPendingIO_Flag);
+        proxy = proxyProvider->createProxy(texDesc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
+                                           SkBudgeted::kYes, GrResourceProvider::kNoPendingIO_Flag);
         if (!proxy) {
             return;
         }

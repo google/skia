@@ -128,7 +128,6 @@ static bool setup_backend_objects(GrContext* context,
 
     GrSurfaceDesc backingDesc;
     backingDesc.fFlags = kNone_GrSurfaceFlags;
-    backingDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     backingDesc.fWidth = bm.width();
     backingDesc.fHeight = bm.height();
     // This config must match the SkColorType used in draw.cpp in the SkImage and Surface factories
@@ -165,9 +164,9 @@ static bool setup_backend_objects(GrContext* context,
             texels[i].fRowBytes = 0;
         }
 
-        backingTexture = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo,
-                                                         texels.get(), mipLevelCount,
-                                                         SkDestinationSurfaceColorMode::kLegacy);
+        backingTexture = resourceProvider->createTexture(
+                backingDesc, SkBudgeted::kNo, kTopLeft_GrSurfaceOrigin, texels.get(), mipLevelCount,
+                SkDestinationSurfaceColorMode::kLegacy);
         if (!backingTexture) {
             return false;
         }
@@ -194,9 +193,8 @@ static bool setup_backend_objects(GrContext* context,
         GrMipLevel level0 = { data.get(), backingDesc.fWidth*sizeof(uint32_t) };
 
         sk_sp<GrTexture> tmp = resourceProvider->createTexture(
-                                                            backingDesc, SkBudgeted::kNo,
-                                                            &level0, 1,
-                                                            SkDestinationSurfaceColorMode::kLegacy);
+                backingDesc, SkBudgeted::kNo, kTopLeft_GrSurfaceOrigin, &level0, 1,
+                SkDestinationSurfaceColorMode::kLegacy);
         if (!tmp || !tmp->asRenderTarget()) {
             return false;
         }
@@ -224,9 +222,8 @@ static bool setup_backend_objects(GrContext* context,
         }
 
         backingTextureRenderTarget = resourceProvider->createTexture(
-                                                            backingDesc, SkBudgeted::kNo,
-                                                            texels.get(), mipLevelCount,
-                                                            SkDestinationSurfaceColorMode::kLegacy);
+                backingDesc, SkBudgeted::kNo, kTopLeft_GrSurfaceOrigin, texels.get(), mipLevelCount,
+                SkDestinationSurfaceColorMode::kLegacy);
         if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
             return false;
         }

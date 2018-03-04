@@ -19,8 +19,9 @@
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
 // cases to make the sampleConfig/numSamples stuff more rational.
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
-                                         SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
-        : INHERITED(desc, fit, budgeted, flags)
+                                         GrSurfaceOrigin origin, SkBackingFit fit,
+                                         SkBudgeted budgeted, uint32_t flags)
+        : INHERITED(desc, origin, fit, budgeted, flags)
         , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false)
         , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
@@ -36,12 +37,11 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 
 // Lazy-callback version
 GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
-                                         LazyInstantiationType lazyType,
-                                         const GrSurfaceDesc& desc,
-                                         SkBackingFit fit, SkBudgeted budgeted,
-                                         uint32_t flags,
+                                         LazyInstantiationType lazyType, const GrSurfaceDesc& desc,
+                                         GrSurfaceOrigin origin, SkBackingFit fit,
+                                         SkBudgeted budgeted, uint32_t flags,
                                          GrRenderTargetFlags renderTargetFlags)
-        : INHERITED(std::move(callback), lazyType, desc, fit, budgeted, flags)
+        : INHERITED(std::move(callback), lazyType, desc, origin, fit, budgeted, flags)
         , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false)
         , fRenderTargetFlags(renderTargetFlags) {

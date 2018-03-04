@@ -34,13 +34,12 @@ struct ProxyParams {
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const ProxyParams& p) {
     GrSurfaceDesc desc;
     desc.fFlags = p.fIsRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-    desc.fOrigin = p.fOrigin;
     desc.fWidth  = p.fSize;
     desc.fHeight = p.fSize;
     desc.fConfig = p.fConfig;
     desc.fSampleCnt = p.fSampleCnt;
 
-    return proxyProvider->createProxy(desc, p.fFit, SkBudgeted::kNo);
+    return proxyProvider->createProxy(desc, p.fOrigin, p.fFit, SkBudgeted::kNo);
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,

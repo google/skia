@@ -45,7 +45,6 @@
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& caps) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info, caps);
@@ -119,13 +118,13 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTexturePr
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fOrigin = baseProxy->origin();
     desc.fWidth = baseProxy->width();
     desc.fHeight = baseProxy->height();
     desc.fConfig = baseProxy->config();
     desc.fSampleCnt = 1;
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createMipMapProxy(desc, SkBudgeted::kYes);
+    sk_sp<GrTextureProxy> proxy =
+            proxyProvider->createMipMapProxy(desc, baseProxy->origin(), SkBudgeted::kYes);
     if (!proxy) {
         return nullptr;
     }

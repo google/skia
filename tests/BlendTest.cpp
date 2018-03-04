@@ -89,7 +89,6 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
         sk_sp<GrTexture>* backingSurface) {
     GrSurfaceDesc backingDesc;
     backingDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    backingDesc.fOrigin = origin;
     backingDesc.fWidth = width;
     backingDesc.fHeight = height;
     backingDesc.fConfig = config;
