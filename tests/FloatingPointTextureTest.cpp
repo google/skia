@@ -45,16 +45,15 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
         controlPixelData[i + 3] = maxInt;
     }
 
-    for (int origin = 0; origin < 2; ++origin) {
+    for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         GrSurfaceDesc desc;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fOrigin = 0 == origin ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;
         desc.fConfig = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
 
         sk_sp<GrTextureProxy> fpProxy = proxyProvider->createTextureProxy(
-                                           desc, SkBudgeted::kNo, controlPixelData.begin(), 0);
+                desc, origin, SkBudgeted::kNo, controlPixelData.begin(), 0);
         // Floating point textures are NOT supported everywhere
         if (!fpProxy) {
             continue;

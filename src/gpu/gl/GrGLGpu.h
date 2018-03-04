@@ -184,7 +184,7 @@ private:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                     const GrMipLevel texels[],
+                                     GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
                                      int mipLevelCount) override;
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
@@ -207,8 +207,8 @@ private:
     // result is stored in |info|.
     // The texture is populated with |texels|, if it exists.
     // The texture parameters are cached in |initialTexParams|.
-    bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
-                           bool renderTarget, GrGLTexture::TexParams* initialTexParams,
+    bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, bool renderTarget,
+                           GrGLTexture::TexParams* initialTexParams, GrSurfaceOrigin texelsOrigin,
                            const GrMipLevel texels[], int mipLevelCount,
                            GrMipMapsStatus* mipMapsStatus);
 

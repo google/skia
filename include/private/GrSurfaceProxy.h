@@ -355,7 +355,7 @@ public:
 
     // Test-only entry point - should decrease in use as proxies propagate
     static sk_sp<GrSurfaceContext> TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
-                                            GrSurfaceProxy* srcProxy);
+                                            GrSurfaceOrigin, GrSurfaceProxy* srcProxy);
 
     bool isWrapped_ForTesting() const;
 
@@ -367,9 +367,10 @@ public:
 
 protected:
     // Deferred version
-    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
-            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse,
-                             desc, fit, budgeted, flags) {
+    GrSurfaceProxy(const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit,
+                   SkBudgeted budgeted, uint32_t flags)
+            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, desc, origin, fit,
+                             budgeted, flags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
@@ -377,8 +378,8 @@ protected:
 
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
-                   const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted,
-                   uint32_t flags);
+                   const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit,
+                   SkBudgeted budgeted, uint32_t flags);
 
     // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit);

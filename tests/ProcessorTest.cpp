@@ -161,7 +161,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
 
     GrSurfaceDesc desc;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = 10;
     desc.fHeight = 10;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -169,18 +168,18 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
             sk_sp<GrRenderTargetContext> renderTargetContext(
-                    context->makeDeferredRenderTargetContext( SkBackingFit::kApprox, 1, 1,
-                                                              kRGBA_8888_GrPixelConfig, nullptr));
+                    context->makeDeferredRenderTargetContext(SkBackingFit::kApprox, 1, 1,
+                                                             kRGBA_8888_GrPixelConfig, nullptr));
             {
                 bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
-                sk_sp<GrTextureProxy> proxy1 =
-                        proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes);
-                sk_sp<GrTextureProxy> proxy2 =
-                        proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes);
-                sk_sp<GrTextureProxy> proxy3 =
-                        proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes);
-                sk_sp<GrTextureProxy> proxy4 =
-                        proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes);
+                sk_sp<GrTextureProxy> proxy1 = proxyProvider->createProxy(
+                        desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kYes);
+                sk_sp<GrTextureProxy> proxy2 = proxyProvider->createProxy(
+                        desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kYes);
+                sk_sp<GrTextureProxy> proxy3 = proxyProvider->createProxy(
+                        desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kYes);
+                sk_sp<GrTextureProxy> proxy4 = proxyProvider->createProxy(
+                        desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kYes);
                 sk_sp<GrBuffer> buffer(texelBufferSupport
                         ? resourceProvider->createBuffer(
                                   1024, GrBufferType::kTexel_GrBufferType,
@@ -294,7 +293,6 @@ bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
                         sk_sp<GrTextureProxy> proxies[2]) {
     static const int kTestTextureSize = 256;
     GrSurfaceDesc desc;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = kTestTextureSize;
     desc.fHeight = kTestTextureSize;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -309,8 +307,8 @@ bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
             }
         }
 
-        proxies[0] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
-                                                       rgbaData.get(),
+        proxies[0] = proxyProvider->createTextureProxy(desc, kBottomLeft_GrSurfaceOrigin,
+                                                       SkBudgeted::kYes, rgbaData.get(),
                                                        kTestTextureSize * sizeof(GrColor));
     }
 
@@ -324,8 +322,9 @@ bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
             }
         }
 
-        proxies[1] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
-                                                       alphaData.get(), kTestTextureSize);
+        proxies[1] = proxyProvider->createTextureProxy(desc, kBottomLeft_GrSurfaceOrigin,
+                                                       SkBudgeted::kYes, alphaData.get(),
+                                                       kTestTextureSize);
     }
 
     return proxies[0] && proxies[1];
@@ -341,12 +340,11 @@ sk_sp<GrTextureProxy> make_input_texture(GrProxyProvider* proxyProvider, int wid
         }
     }
     GrSurfaceDesc desc;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
+    return proxyProvider->createTextureProxy(desc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                                              data.get(), width * sizeof(GrColor));
 }
 

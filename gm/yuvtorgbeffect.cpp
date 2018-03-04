@@ -86,22 +86,18 @@ protected:
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
         sk_sp<GrTextureProxy> proxy[3];
 
-        {
+        for (int i = 0; i < 3; ++i) {
             GrSurfaceDesc desc;
-            desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+            desc.fWidth = fBmp[i].width();
+            desc.fHeight = fBmp[i].height();
+            desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
+            SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
-            for (int i = 0; i < 3; ++i) {
-                desc.fWidth = fBmp[i].width();
-                desc.fHeight = fBmp[i].height();
-                desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
-                SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
-
-                proxy[i] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
-                                                             fBmp[i].getPixels(),
-                                                             fBmp[i].rowBytes());
-                if (!proxy[i]) {
-                    return;
-                }
+            proxy[i] = proxyProvider->createTextureProxy(desc, kTopLeft_GrSurfaceOrigin,
+                                                         SkBudgeted::kYes, fBmp[i].getPixels(),
+                                                         fBmp[i].rowBytes());
+            if (!proxy[i]) {
+                return;
             }
         }
 
@@ -216,24 +212,19 @@ protected:
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
         sk_sp<GrTextureProxy> proxy[3];
 
-        {
+        for (int i = 0; i < 3; ++i) {
+            int index = (0 == i) ? 0 : 1;
             GrSurfaceDesc desc;
-            desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+            desc.fWidth = fBmp[index].width();
+            desc.fHeight = fBmp[index].height();
+            desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
+            SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
-            for (int i = 0; i < 3; ++i) {
-                int index = (0 == i) ? 0 : 1;
-
-                desc.fWidth = fBmp[index].width();
-                desc.fHeight = fBmp[index].height();
-                desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
-                SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
-
-                proxy[i] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
-                                                             fBmp[index].getPixels(),
-                                                             fBmp[index].rowBytes());
-                if (!proxy[i]) {
-                    return;
-                }
+            proxy[i] = proxyProvider->createTextureProxy(desc, kTopLeft_GrSurfaceOrigin,
+                                                         SkBudgeted::kYes, fBmp[index].getPixels(),
+                                                         fBmp[index].rowBytes());
+            if (!proxy[i]) {
+                return;
             }
         }
 

@@ -500,7 +500,6 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
 
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = fTextureWidth;
     desc.fHeight = fTextureHeight;
     desc.fConfig = fPixelConfig;
@@ -509,8 +508,8 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     int numPlotsY = fTextureHeight/fPlotHeight;
 
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        fProxies[i] = proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes,
-                                                 GrResourceProvider::kNoPendingIO_Flag);
+        fProxies[i] = proxyProvider->createProxy(desc, kTopLeft_GrSurfaceOrigin,
+                SkBackingFit::kExact, SkBudgeted::kYes, GrResourceProvider::kNoPendingIO_Flag);
         if (!fProxies[i]) {
             return false;
         }
