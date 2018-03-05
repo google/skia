@@ -9,8 +9,9 @@
 #define SkPaintPriv_DEFINED
 
 #include "SkImageInfo.h"
-#include "SkPaint.h"
 #include "SkMatrix.h"
+#include "SkPaint.h"
+#include "SkTypeface.h"
 
 class SkBitmap;
 class SkImage;
@@ -67,6 +68,14 @@ public:
 
     // returns 0 if buffer is invalid for specified encoding
     static int ValidCountText(const void* text, size_t length, SkPaint::TextEncoding);
+
+    static SkTypeface* GetTypefaceOrDefault(const SkPaint& paint) {
+        return paint.getTypeface() ? paint.getTypeface() : SkTypeface::GetDefaultTypeface();
+    }
+
+    static sk_sp<SkTypeface> RefTypefaceOrDefault(const SkPaint& paint) {
+        return paint.getTypeface() ? paint.refTypeface() : SkTypeface::MakeDefault();
+    }
 };
 
 #endif
