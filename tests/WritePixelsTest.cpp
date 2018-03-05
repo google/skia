@@ -405,9 +405,8 @@ static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context, 
                                                              SkBudgeted::kNo, ii, sampleCnt,
                                                              origin, nullptr));
         if (surface) {
-            continue;
+            test_write_pixels(reporter, surface.get());
         }
-        test_write_pixels(reporter, surface.get());
     }
 }
 
