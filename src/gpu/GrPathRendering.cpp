@@ -72,31 +72,6 @@ private:
 #endif
 };
 
-sk_sp<GrPathRange> GrPathRendering::createGlyphs(const SkTypeface* typeface,
-                                                 const SkScalerContextEffects& effects,
-                                                 const SkDescriptor* desc,
-                                                 const GrStyle& style) {
-    if (nullptr == typeface) {
-        typeface = SkTypeface::GetDefaultTypeface();
-        SkASSERT(nullptr != typeface);
-    }
-
-    if (desc) {
-        sk_sp<GlyphGenerator> generator(new GlyphGenerator(*typeface, effects, *desc));
-        return this->createPathRange(generator.get(), style);
-    }
-
-    SkAutoDescriptor ad;
-    SkDescriptor*    genericDesc =
-        SkScalerContext::MakeDescriptorForPaths(typeface->uniqueID(), &ad);
-
-    // No effects, so we make a dummy struct
-    SkScalerContextEffects noEffects;
-
-    sk_sp<GlyphGenerator> generator(new GlyphGenerator(*typeface, noEffects, *genericDesc));
-    return this->createPathRange(generator.get(), style);
-}
-
 void GrPathRendering::stencilPath(const StencilPathArgs& args, const GrPath* path) {
     fGpu->handleDirtyContext();
     this->onStencilPath(args, path);

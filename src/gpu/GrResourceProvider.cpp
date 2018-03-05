@@ -360,25 +360,6 @@ sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& 
     return this->gpu()->pathRendering()->createPath(path, style);
 }
 
-sk_sp<GrPathRange> GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen,
-                                                       const GrStyle& style) {
-    if (this->isAbandoned()) {
-        return nullptr;
-    }
-
-    SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createPathRange(gen, style);
-}
-
-sk_sp<GrPathRange> GrResourceProvider::createGlyphs(const SkTypeface* tf,
-                                                    const SkScalerContextEffects& effects,
-                                                    const SkDescriptor* desc,
-                                                    const GrStyle& style) {
-
-    SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createGlyphs(tf, effects, desc, style);
-}
-
 GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedType,
                                            GrAccessPattern accessPattern, uint32_t flags,
                                            const void* data) {

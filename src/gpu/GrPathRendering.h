@@ -100,36 +100,6 @@ public:
      */
     virtual sk_sp<GrPathRange> createPathRange(GrPathRange::PathGenerator*, const GrStyle&) = 0;
 
-    /**
-     * Creates a range of glyph paths, indexed by glyph id. The glyphs will have an
-     * inverted y-direction in order to match the raw font path data.
-     *
-     * @param SkTypeface   Typeface that defines the glyphs.
-     *                     If null, the default typeface will be used.
-     *
-     * @param SkDescriptor Additional font configuration that specifies the font's size,
-     *                     stroke, and other flags. This will generally come from an
-     *                     SkGlyphCache.
-     *
-     *                     It is recommended to leave this value null when possible, in
-     *                     which case the glyphs will be loaded directly from the font's
-     *                     raw path data and sized at SkPaint::kCanonicalTextSizeForPaths.
-     *                     This will result in less memory usage and more efficient paths.
-     *
-     *                     If non-null, the glyph paths will match the font descriptor,
-     *                     including with the stroke information baked directly into
-     *                     the outlines.
-     *
-     * @param GrStyle      Common style that the GPU will apply to every path. Note that
-     *                     if the glyph outlines contain baked-in styles from the font
-     *                     descriptor, the GPU style will be applied on top of those
-     *                     outlines.
-     *
-     * @return a new path range populated with glyphs.
-     */
-    sk_sp<GrPathRange> createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
-                                    const SkDescriptor*, const GrStyle&);
-
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathArgs {
         StencilPathArgs(bool useHWAA,

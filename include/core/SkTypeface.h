@@ -367,7 +367,6 @@ private:
     static SkTypeface* NormalizeTypeface(SkTypeface* typeface) {
         return typeface != nullptr ? typeface : SkTypeface::GetDefaultTypeface();
     }
-    friend class GrPathRendering;  // GetDefaultTypeface
     friend class SkGlyphCache;     // GetDefaultTypeface
     friend class SkPaint;          // GetDefaultTypeface
     friend class SkScalerContext;  // GetDefaultTypeface
