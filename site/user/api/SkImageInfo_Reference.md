@@ -401,6 +401,131 @@ less than 3, the drawn result is undefined.
 
 <div><fiddle-embed name="1795410dffea303b08ba98ee78dc1556"></fiddle-embed></div>
 
+<a name="SkColorTypeBytesPerPixel"></a>
+## SkColorTypeBytesPerPixel
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+int SkColorTypeBytesPerPixel(SkColorType ct)
+</pre>
+
+Returns the number of bytes-per-pixel for the specified colortype, or 0 if invalid.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkColorTypeBytesPerPixel_ct"> <code><strong>ct </strong></code> </a></td> <td>
+one of: <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
+  </tr>
+</table>
+
+### Return Value
+
+bytes per pixel
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name="SkColorTypeIsAlwaysOpaque"></a>
+## SkColorTypeIsAlwaysOpaque
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool SkColorTypeIsAlwaysOpaque(SkColorType ct)
+</pre>
+
+Returns true iff the colortype is always considered opaque (i.e. does not store alpha).
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkColorTypeIsAlwaysOpaque_ct"> <code><strong>ct </strong></code> </a></td> <td>
+one of: <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
+  </tr>
+</table>
+
+### Return Value
+
+true if <a href="undocumented#Alpha">Color Alpha</a> is always set to 1.0
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name="SkColorTypeValidateAlphaType"></a>
+## SkColorTypeValidateAlphaType
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
+                                  SkAlphaType* canonical = nullptr)
+</pre>
+
+Validates the <a href="#SkColorTypeValidateAlphaType_colorType">colorType</a>, <a href="#SkColorTypeValidateAlphaType_alphaType">alphaType</a> pair. In all cases if it returns true, it
+will set <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> to the "" answer if it is non-null, and ignore the parameter if
+it is set to null.
+
+If the specified <a href="#Color_Type">Color Type</a> has only 1 valid <a href="#Alpha_Type">Alpha Type</a>
+(e.g. <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a> must always be opaque) then
+<a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> will be set to that valid <a href="#Alpha_Type">Alpha Type</a>.
+
+If the specified colortype treats more than one alphatype the same (e.g. <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>
+treates <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a> and <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> the same)
+and the specified alphatype is one of those,
+then <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> will be set to the "" answer
+(<a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a> in the case of <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a> colortype).
+
+If the colortype supports multiple alphatypes, and the specified alphatype is one of them,
+then <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> will be set to the specified alphatype. If the specified alphatype is not
+one of them (e.g. <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a> is not valid for any <a href="#Color_Type">Color Type</a> except
+<a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>), then the function returns false, and <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a>'s value is undefined.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkColorTypeValidateAlphaType_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
+one of: <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
+  </tr>  <tr>    <td><a name="SkColorTypeValidateAlphaType_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
+one of: <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
+<a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+  </tr>  <tr>    <td><a name="SkColorTypeValidateAlphaType_canonical"> <code><strong>canonical </strong></code> </a></td> <td>
+incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="8e0be6849511e57965cf9f20dce5fab7"><a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
 ## <a name="YUV_ColorSpace"></a> YUV ColorSpace
 
 ## <a name="SkYUVColorSpace"></a> Enum SkYUVColorSpace
@@ -432,36 +557,6 @@ range. See http://en.wikipedia.org/wiki/Rec._601 for details.
     <td><a name="kRec709_SkYUVColorSpace"> <code><strong>kRec709_SkYUVColorSpace </strong></code> </a></td><td>2</td><td>HDTV standard Rec. 709 color space. Uses "studio swing" [16, 235] color
 range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 </td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-
-
-## <a name="SkDestinationSurfaceColorMode"></a> Enum SkDestinationSurfaceColorMode
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum class <a href="#SkDestinationSurfaceColorMode">SkDestinationSurfaceColorMode</a> {
-<a href="#SkDestinationSurfaceColorMode_kLegacy">kLegacy</a>,
-<a href="#SkDestinationSurfaceColorMode_kGammaAndColorSpaceAware">kGammaAndColorSpaceAware</a>,
-};
-</pre>
-
-### Constants
-
-<table>
-  <tr>
-    <td><a name="SkDestinationSurfaceColorMode_kLegacy"> <code><strong>SkDestinationSurfaceColorMode::kLegacy </strong></code> </a></td><td>0</td><td></td>
-  </tr>
-  <tr>
-    <td><a name="SkDestinationSurfaceColorMode_kGammaAndColorSpaceAware"> <code><strong>SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware </strong></code> </a></td><td>1</td><td></td>
   </tr>
 </table>
 

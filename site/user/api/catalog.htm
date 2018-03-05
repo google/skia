@@ -4757,13 +4757,29 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::writePixels_2"
 },
-    "SkDestinationSurfaceColorMode": {
+    "SkColorTypeBytesPerPixel": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
     "width": 256,
     "height": 256,
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkImageInfo_Reference",
-    "name": "SkDestinationSurfaceColorMode"
+    "name": "SkColorTypeBytesPerPixel"
+},
+    "SkColorTypeIsAlwaysOpaque": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkColorTypeIsAlwaysOpaque"
+},
+    "SkColorTypeValidateAlphaType": {
+    "code": "void draw(SkCanvas* canvas) {\n    const char* colors[] = { \"Unknown\", \"Alpha_8\", \"RGB_565\", \"ARGB_4444\", \"RGBA_8888\", \"RGB_888x\",\n                             \"BGRA_8888\", \"RGBA_1010102\", \"RGB_101010x\", \"Gray_8\", \"RGBA_F16\" };\n    const char* alphas[] = {\"Unknown \", \"Opaque  \", \"Premul  \", \"Unpremul\"}; \n    SkBitmap bitmap;\n    SkAlphaType alphaTypes[] = { kUnknown_SkAlphaType, kOpaque_SkAlphaType,\n                                 kPremul_SkAlphaType, kUnpremul_SkAlphaType };\n    SkPaint paint;\n    paint.setTypeface(SkTypeface::MakeFromName(\"monospace\", SkFontStyle()));\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    int y = 15;\n    canvas->drawString(\"   colorType   alphaType  canonical\", 10, y, paint);\n    for (SkColorType colorType : {\n    kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,\n    kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,\n    kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,\n    kGray_8_SkColorType, kRGBA_F16_SkColorType\n                                 } ) {\n        for (SkAlphaType alphaType : alphaTypes) {\n            SkAlphaType canonicalAlphaType  = kUnknown_SkAlphaType;\n            bool result = SkColorTypeValidateAlphaType(colorType, alphaType, &canonicalAlphaType);\n            SkString string;\n            string.printf(\"%13s %10s %10s\", colors[(int) colorType], alphas[(int) alphaType],\n                     result ? alphas[(int) canonicalAlphaType] : \"------  \");\n            canvas->drawString(string, 10, y += 14, paint);\n        }\n    }\n}",
+    "width": 256,
+    "height": 640,
+    "hash": "8e0be6849511e57965cf9f20dce5fab7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkColorTypeValidateAlphaType"
 },
     "SkIPoint_add_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    auto draw_lines = [=](const SkIPoint pts[], size_t count, SkPaint& paint) -> void {\n        for (size_t i = 0; i < count - 1; ++i) {\n            SkPoint p0, p1;\n            p0.iset(pts[i]);\n            p1.iset(pts[i + 1]);\n            canvas->drawLine(p0, p1, paint);\n        }\n    };\n    SkIPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 } };\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->scale(30, 15);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n    SkIPoint mod = {4, 1};\n    for (auto& point : points) {\n        point = point + mod;\n        mod.fX -= 1;\n        mod.fY += 1;\n    }\n    paint.setColor(SK_ColorRED);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n}",
