@@ -496,7 +496,8 @@ SkScalar length() const
 Returns the Euclidean_Distance from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-sqrt(fX * fX + fY * fY)</pre>
+sqrt(fX * fX + fY * fY)
+</pre>
 
 .
 
@@ -524,7 +525,8 @@ SkScalar distanceToOrigin() const
 Returns the Euclidean_Distance from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-sqrt(fX * fX + fY * fY)</pre>
+sqrt(fX * fX + fY * fY)
+</pre>
 
 .
 
@@ -813,7 +815,8 @@ void operator+=(const SkVector& v)
 </pre>
 
 Adds <a href="#Vector">Vector</a> <a href="#SkPoint_addto_operator_v">v</a> to <a href="#Point">Point</a>. Sets <a href="#Point">Point</a> to:
-(<a href="#SkPoint_fX">fX</a> + <a href="#SkPoint_addto_operator_v">v</a>.<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_fY">fY</a> + <a href="#SkPoint_addto_operator_v">v</a>.<a href="#SkPoint_fY">fY</a>).
+(<a href="#SkPoint_fX">fX</a> + <a href="#SkPoint_addto_operator_v">v</a>.<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_fY">fY</a> + <a href="#SkPoint_addto_operator_v">v</a>.<a href="#SkPoint_fY">fY</a>)
+.
 
 ### Parameters
 
@@ -840,7 +843,8 @@ void operator-=(const SkVector& v)
 </pre>
 
 Subtracts <a href="#Vector">Vector</a> <a href="#SkPoint_subtractfrom_operator_v">v</a> from <a href="#Point">Point</a>. Sets <a href="#Point">Point</a> to:
-(<a href="#SkPoint_fX">fX</a> - <a href="#SkPoint_subtractfrom_operator_v">v</a>.<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_fY">fY</a> - <a href="#SkPoint_subtractfrom_operator_v">v</a>.<a href="#SkPoint_fY">fY</a>).
+(<a href="#SkPoint_fX">fX</a> - <a href="#SkPoint_subtractfrom_operator_v">v</a>.<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_fY">fY</a> - <a href="#SkPoint_subtractfrom_operator_v">v</a>.<a href="#SkPoint_fY">fY</a>)
+.
 
 ### Parameters
 
@@ -1090,7 +1094,8 @@ pt: nan, -1  != pt
 SkVector operator-(const SkPoint& a, const SkPoint& b)
 </pre>
 
-Returns <a href="#Vector">Vector</a> from <a href="#SkPoint_subtract_operator_b">b</a> to <a href="#SkPoint_subtract_operator_a">a</a>, computed as(<a href="#SkPoint_subtract_operator_a">a</a>.<a href="#SkPoint_fX">fX</a> - <a href="#SkPoint_subtract_operator_b">b</a>.<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_subtract_operator_a">a</a>.<a href="#SkPoint_fY">fY</a> - <a href="#SkPoint_subtract_operator_b">b</a>.<a href="#SkPoint_fY">fY</a>).
+Returns <a href="#Vector">Vector</a> from <a href="#SkPoint_subtract_operator_b">b</a> to <a href="#SkPoint_subtract_operator_a">a</a>, computed as(<a href="#SkPoint_subtract_operator_a">a</a>.<a href="#SkPoint_fX">fX</a> - <a href="#SkPoint_subtract_operator_b">b</a>.<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_subtract_operator_a">a</a>.<a href="#SkPoint_fY">fY</a> - <a href="#SkPoint_subtract_operator_b">b</a>.<a href="#SkPoint_fY">fY</a>)
+.
 
 Can also be used to subtract <a href="#Vector">Vector</a> from <a href="#Point">Point</a>, returning <a href="#Point">Point</a>.
 Can also be used to subtract <a href="#Vector">Vector</a> from <a href="#Vector">Vector</a>, returning <a href="#Vector">Vector</a>.
@@ -1126,7 +1131,8 @@ SkPoint operator+(const SkPoint& a, const SkVector& b)
 </pre>
 
 Returns <a href="#Point">Point</a> resulting from <a href="#Point">Point</a> <a href="#SkPoint_add_operator_a">a</a> offset by <a href="#Vector">Vector</a> <a href="#SkPoint_add_operator_b">b</a>, computed as:
-(<a href="#SkPoint_add_operator_a">a</a>.<a href="#SkPoint_fX">fX</a> + <a href="#SkPoint_add_operator_b">b</a>.<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_add_operator_a">a</a>.<a href="#SkPoint_fY">fY</a> + <a href="#SkPoint_add_operator_b">b</a>.<a href="#SkPoint_fY">fY</a>).
+(<a href="#SkPoint_add_operator_a">a</a>.<a href="#SkPoint_fX">fX</a> + <a href="#SkPoint_add_operator_b">b</a>.<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_add_operator_a">a</a>.<a href="#SkPoint_fY">fY</a> + <a href="#SkPoint_add_operator_b">b</a>.<a href="#SkPoint_fY">fY</a>)
+.
 
 Can also be used to offset <a href="#Point">Point</a> <a href="#SkPoint_add_operator_b">b</a> by <a href="#Vector">Vector</a> <a href="#SkPoint_add_operator_a">a</a>, returning <a href="#Point">Point</a>.
 Can also be used to add <a href="#Vector">Vector</a> to <a href="#Vector">Vector</a>, returning <a href="#Vector">Vector</a>.
@@ -1164,7 +1170,8 @@ static SkScalar Length(SkScalar x, SkScalar y)
 Returns the Euclidean_Distance from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-sqrt(x * x + y * y)</pre>
+sqrt(x * x + y * y)
+</pre>
 
 .
 
