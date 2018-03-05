@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72433404_86e44f05",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-05T14:44:30Z",
+      "side": 1,
+      "message": "Mutating the path (pathIsMutable \u003d true) here is problematic. Same for drawOval.",
+      "revId": "efa63d44fff335c0dc787fdfd7ff880d7279bd1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
