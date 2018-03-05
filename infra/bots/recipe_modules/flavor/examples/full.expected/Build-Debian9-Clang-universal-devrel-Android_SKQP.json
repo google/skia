@@ -17,18 +17,17 @@
   },
   {
     "cmd": [
-      "[CUSTOM_/_B_WORK]/skia/tools/skqp/make_universal_apk"
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_/_B_WORK]/skia/infra/cts/whitelist_devices.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "ANDROID_HOME": "[START_DIR]/android_sdk_linux/android-sdk",
-      "ANDROID_NDK": "[START_DIR]/android_ndk_linux",
-      "BUILDTYPE": "devrel",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
-    },
-    "name": "make_universal"
+    "infra_step": true,
+    "name": "copy whitelist"
   },
   {
     "name": "$result",
