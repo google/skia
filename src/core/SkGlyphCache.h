@@ -148,6 +148,12 @@ public:
         const SkScalerContextEffects& effects,
         const SkTypeface& typeface);
 
+    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(
+        const SkPaint& paint,
+        const SkSurfaceProps* surfaceProps,
+        SkScalerContextFlags scalerContextFlags,
+        const SkMatrix* deviceMatrix);
+
     template <typename ScalerContextCreator>
     static SkExclusiveStrikePtr CreateStrikeExclusive(
         const SkDescriptor& desc, ScalerContextCreator creator)

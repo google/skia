@@ -505,6 +505,23 @@ SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
     return FindOrCreateStrikeExclusive(desc, creator);
 }
 
+SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
+    const SkPaint& paint,
+    const SkSurfaceProps* surfaceProps,
+    SkScalerContextFlags scalerContextFlags,
+    const SkMatrix* deviceMatrix)
+{
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+        paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
+
+    auto tf = SkPaintPriv::GetTypefaceOrDefault(paint);
+
+    return FindOrCreateStrikeExclusive(*desc, effects, *tf);
+}
+
 void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
     SkGlyphCache_Globals::AttachCache(cache);
 }
