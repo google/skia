@@ -1095,8 +1095,18 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
 
     if (layerCtx->fCurrentMatte) {
         // There is a pending matte. Apply and reset.
-        return sksg::MaskEffect::Make(std::move(controller_node),
-                                      std::move(layerCtx->fCurrentMatte));
+        static constexpr sksg::MaskEffect::Mode gMaskModes[] = {
+            sksg::MaskEffect::Mode::kNormal, // tt: 1
+            sksg::MaskEffect::Mode::kInvert, // tt: 2
+        };
+        const auto matteType = ParseDefault(jlayer["tt"], 1) - 1;
+
+        if (matteType >= 0 && matteType < SkTo<int>(SK_ARRAY_COUNT(gMaskModes))) {
+            return sksg::MaskEffect::Make(std::move(controller_node),
+                                          std::move(layerCtx->fCurrentMatte),
+                                          gMaskModes[matteType]);
+        }
+        layerCtx->fCurrentMatte.reset();
     }
 
     return controller_node;
