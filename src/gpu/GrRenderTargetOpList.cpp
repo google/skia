@@ -85,7 +85,7 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
             };
 
             flushState->setOpArgs(&opArgs);
-            fRecordedOps[i].fOp->prepare(flushState);
+            fRecordedOps[i].fOp->prepare1(flushState);
             flushState->setOpArgs(nullptr);
         }
     }

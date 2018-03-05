@@ -292,7 +292,7 @@ void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     }
 }
 
-bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
+GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas1(GrResourceProvider* resourceProvider,
                                    GrDeferredUploadTarget* target,
                                    GrGlyphCache* glyphCache,
                                    GrAtlasManager* fullAtlasManager,
@@ -312,23 +312,23 @@ bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
     if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID)) {
         if (!get_packed_glyph_df_image(cache, skGlyph, glyph->width(), glyph->height(),
                                        storage.get())) {
-            return false;
+            return GrDrawOpAtlas::ErrorCode::kTryAgain;
         }
     } else {
         if (!get_packed_glyph_image(cache, skGlyph, glyph->width(), glyph->height(),
                                     glyph->width() * bytesPerPixel, expectedMaskFormat,
                                     storage.get())) {
-            return false;
+            return GrDrawOpAtlas::ErrorCode::kTryAgain;
         }
     }
 
-    bool success = fullAtlasManager->addToAtlas(resourceProvider, glyphCache, this,
+    GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas1(resourceProvider, glyphCache, this,
                                                 &glyph->fID, target, expectedMaskFormat,
                                                 glyph->width(), glyph->height(),
                                                 storage.get(), &glyph->fAtlasLocation);
-    if (success) {
+    if (GrDrawOpAtlas::ErrorCode::kSucceeded == result) {
         SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != glyph->fID);
         fAtlasedGlyphs++;
     }
-    return success;
+    return result;
 }
