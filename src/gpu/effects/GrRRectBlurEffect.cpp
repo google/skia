@@ -28,11 +28,11 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
     // width (and height) of the rrect.
     SkRRect rrectToDraw;
     SkISize size;
-    SkScalar ignored[SkBlurMaskFilter::kMaxDivisions];
+    SkScalar ignored[kSkBlurRRectMaxDivisions];
     int ignoredSize;
     uint32_t ignored32;
 
-    bool ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(
+    bool ninePatchable = SkComputeBlurredRRectParams(
             srcRRect, devRRect, SkRect::MakeEmpty(), sigma, xformedSigma, &rrectToDraw, &size,
             ignored, ignored, ignored, ignored, &ignoredSize, &ignoredSize, &ignored32);
     if (!ninePatchable) {

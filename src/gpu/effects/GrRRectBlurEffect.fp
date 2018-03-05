@@ -21,6 +21,7 @@ uniform half blurRadius;
     #include "GrRenderTargetContext.h"
     #include "GrStyle.h"
     #include "SkBlurMaskFilter.h"
+    #include "SkBlurPriv.h"
     #include "SkGpuBlurUtils.h"
     #include "SkRRectPriv.h"
 }
@@ -121,18 +122,18 @@ uniform half blurRadius;
         // width (and height) of the rrect.
         SkRRect rrectToDraw;
         SkISize size;
-        SkScalar ignored[SkBlurMaskFilter::kMaxDivisions];
+        SkScalar ignored[kSkBlurRRectMaxDivisions];
         int ignoredSize;
         uint32_t ignored32;
 
-        bool ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(srcRRect, devRRect,
-                                                                         SkRect::MakeEmpty(),
-                                                                         sigma, xformedSigma,
-                                                                         &rrectToDraw, &size,
-                                                                         ignored, ignored,
-                                                                         ignored, ignored,
-                                                                         &ignoredSize, &ignoredSize,
-                                                                         &ignored32);
+        bool ninePatchable = SkComputeBlurredRRectParams(srcRRect, devRRect,
+                                                         SkRect::MakeEmpty(),
+                                                         sigma, xformedSigma,
+                                                         &rrectToDraw, &size,
+                                                         ignored, ignored,
+                                                         ignored, ignored,
+                                                         &ignoredSize, &ignoredSize,
+                                                         &ignored32);
         if (!ninePatchable) {
             return nullptr;
         }
