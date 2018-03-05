@@ -5099,7 +5099,8 @@ Paint may draw to.
 #Method bool canComputeFastBounds() const
     
 #In Fast_Bounds
-#Line # returns true if settings allow for fast bounds computation ###Private  
+#Line # returns true if settings allow for fast bounds computation ##
+    #Private  
     (to be made private)
     ##
 
@@ -5113,7 +5114,8 @@ Paint may draw to.
 #Method const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const
     
 #In Fast_Bounds
-#Line # returns fill bounds for quick reject tests ###Private  
+#Line # returns fill bounds for quick reject tests ##
+    #Private  
     (to be made private)
     ##
 
@@ -5179,7 +5181,7 @@ Paint may draw to.
     #Return  fast computed bounds ##
 ##
 
-#Subtopic Fast_Bounds Fast_Bounds ##
+#Subtopic Fast_Bounds ##
 
 # ------------------------------------------------------------------------------
 #Subtopic Utility

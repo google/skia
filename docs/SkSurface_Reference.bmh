@@ -427,10 +427,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 #Param backendTexture  texture residing on GPU ##
 #Param origin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param sampleCnt  samples per pixel, or 0 to disable full scene anti-aliasing ##
-#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+#Param colorType  one of: #list_of_color_types#
 ##
 #Param colorSpace  range of colors ##
 #Param surfaceProps  LCD striping orientation and setting for device independent
@@ -542,10 +539,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 #Param context  GPU_Context ##
 #Param backendRenderTarget  GPU intermediate memory buffer ##
 #Param origin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+#Param colorType  one of: #list_of_color_types#
 ##
 #Param colorSpace  range of colors ##
 #Param surfaceProps  LCD striping orientation and setting for device independent
@@ -653,10 +647,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 #Param backendTexture  texture residing on GPU ##
 #Param origin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param sampleCnt  samples per pixel, or 0 to disable full scene anti-aliasing ##
-#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+#Param colorType  one of: #list_of_color_types#
 ##
 #Param colorSpace  range of colors ##
 #Param surfaceProps  LCD striping orientation and setting for device independent
@@ -1742,11 +1733,11 @@ and the client will still own the semaphores.
 
 #Return true if GPU is waiting on semaphores ##
 
-#Example
+#NoExample
 #ToDo this is copy and paste silliness masquerading as an example. Probably need gpu
       globals and definitely need gpu expertise to make a real example out of this
  ##
-#Platform !fiddle gpu
+#Platform gpu
 #Height 64
     SkPaint paint;
     paint.setTextSize(32);

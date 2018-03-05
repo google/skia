@@ -509,9 +509,7 @@ bitmap height: 32  info height: 32
 #Method SkColorType colorType() const
 #In Property
 #Line # returns Image_Info Color_Type ##
-Returns Color_Type, one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-kRGB_565_SkColorType, kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-kBGRA_8888_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType.
+Returns Color_Type, one of: #list_of_color_types#.
 
 #Return  Color_Type in Image_Info ##
 
@@ -634,11 +632,8 @@ Returns zero if colorType( is kUnknown_SkColorType.
                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16"};
     SkImageInfo info = SkImageInfo::MakeA8(1, 1);
     SkBitmap bitmap;
-    for (SkColorType colorType : { kUnknown_SkColorType,     kAlpha_8_SkColorType,
-                                   kRGB_565_SkColorType,     kARGB_4444_SkColorType, 
-                                   kRGBA_8888_SkColorType,
-                                   kBGRA_8888_SkColorType,   kGray_8_SkColorType,
-                                   kRGBA_F16_SkColorType } ) {
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
         bitmap.setInfo(info.makeColorType(colorType));
         SkDebugf("color: k" "%s" "_SkColorType" "%*s" "bytesPerPixel: %d\n",
                 colors[colorType], 13 - strlen(colors[colorType]), " ",
@@ -650,7 +645,10 @@ color: kAlpha_8_SkColorType      bytesPerPixel: 1
 color: kRGB_565_SkColorType      bytesPerPixel: 2
 color: kARGB_4444_SkColorType    bytesPerPixel: 2
 color: kRGBA_8888_SkColorType    bytesPerPixel: 4
+color: kRGB_888x_SkColorType     bytesPerPixel: 4
 color: kBGRA_8888_SkColorType    bytesPerPixel: 4
+color: kRGBA_1010102_SkColorType bytesPerPixel: 4
+color: kRGB_101010x_SkColorType  bytesPerPixel: 4
 color: kGray_8_SkColorType       bytesPerPixel: 1
 color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 ##
@@ -704,24 +702,25 @@ Returns zero for kUnknown_SkColorType.
                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16"};
     SkImageInfo info = SkImageInfo::MakeA8(1, 1);
     SkBitmap bitmap;
-    for (SkColorType colorType : { kUnknown_SkColorType,   kAlpha_8_SkColorType,
-                                   kRGB_565_SkColorType,   kARGB_4444_SkColorType, 
-                                   kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-                                   kGray_8_SkColorType,    kRGBA_F16_SkColorType } ) {
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
         bitmap.setInfo(info.makeColorType(colorType));
         SkDebugf("color: k" "%s" "_SkColorType" "%*s" "shiftPerPixel: %d\n",
-                colors[colorType], 10 - strlen(colors[colorType]), " ",
+                colors[colorType], 14 - strlen(colors[colorType]), " ",
                 bitmap.shiftPerPixel());
     }
 #StdOut
-color: kUnknown_SkColorType   shiftPerPixel: 0
-color: kAlpha_8_SkColorType   shiftPerPixel: 0
-color: kRGB_565_SkColorType   shiftPerPixel: 1
-color: kARGB_4444_SkColorType shiftPerPixel: 1
-color: kRGBA_8888_SkColorType shiftPerPixel: 2
-color: kBGRA_8888_SkColorType shiftPerPixel: 2
-color: kGray_8_SkColorType    shiftPerPixel: 0
-color: kRGBA_F16_SkColorType  shiftPerPixel: 3
+color: kUnknown_SkColorType       shiftPerPixel: 0
+color: kAlpha_8_SkColorType       shiftPerPixel: 0
+color: kRGB_565_SkColorType       shiftPerPixel: 1
+color: kARGB_4444_SkColorType     shiftPerPixel: 1
+color: kRGBA_8888_SkColorType     shiftPerPixel: 2
+color: kRGB_888x_SkColorType      shiftPerPixel: 2
+color: kBGRA_8888_SkColorType     shiftPerPixel: 2
+color: kRGBA_1010102_SkColorType  shiftPerPixel: 2
+color: kRGB_101010x_SkColorType   shiftPerPixel: 2
+color: kGray_8_SkColorType        shiftPerPixel: 0
+color: kRGBA_F16_SkColorType      shiftPerPixel: 3
 ##
 ##
 
@@ -900,9 +899,8 @@ void draw(SkCanvas* canvas) {
     SkAlphaType alphaTypes[] = { kUnknown_SkAlphaType, kOpaque_SkAlphaType,
                                  kPremul_SkAlphaType, kUnpremul_SkAlphaType };
     SkDebugf("%88s", "Canonical    Unknown           Opaque            Premul            Unpremul\n");
-    for (SkColorType colorType : { kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                            kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kBGRA_8888_SkColorType, 
-                            kGray_8_SkColorType, kRGBA_F16_SkColorType } ) {
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
         for (SkAlphaType canonicalAlphaType : alphaTypes) {
             SkColorTypeValidateAlphaType(colorType, kUnknown_SkAlphaType, &canonicalAlphaType );
             SkDebugf("%10s %10s ", colors[(int) colorType], alphas[(int) canonicalAlphaType ]);

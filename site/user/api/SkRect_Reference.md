@@ -360,7 +360,8 @@ rect: 5, 25, 15, 35  isEmpty: false
 static constexpr SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
 </pre>
 
-Returns constructed <a href="#Rect">Rect</a> set to(x, y, x + <a href="#SkRect_MakeXYWH_w">w</a>, y + <a href="#SkRect_MakeXYWH_h">h</a>).
+Returns constructed <a href="#Rect">Rect</a> set to(x, y, x + <a href="#SkRect_MakeXYWH_w">w</a>, y + <a href="#SkRect_MakeXYWH_h">h</a>)
+.
 Does not validate input;
 <a href="#SkRect_MakeXYWH_w">w</a> or <a href="#SkRect_MakeXYWH_h">h</a> may be negative.
 
@@ -822,7 +823,8 @@ result fits in 32-bit float; result may be negative or infinity.
 
 ### Example
 
-<div><fiddle-embed name="11f8f0efe6291019fee0ac17844f6c1a"><div>Compare with <a href="SkIRect_Reference#SkIRect_width">SkIRect::width()</a> example.</div>
+<div><fiddle-embed name="11f8f0efe6291019fee0ac17844f6c1a"><div>Compare with <a href="SkIRect_Reference#SkIRect_width">SkIRect::width()</a> example.
+</div>
 
 #### Example Output
 
@@ -855,7 +857,8 @@ result fits in 32-bit float; result may be negative or infinity.
 
 ### Example
 
-<div><fiddle-embed name="39429e45f05240218ecd511443ab3e44"><div>Compare with <a href="SkIRect_Reference#SkIRect_height">SkIRect::height()</a> example.</div>
+<div><fiddle-embed name="39429e45f05240218ecd511443ab3e44"><div>Compare with <a href="SkIRect_Reference#SkIRect_height">SkIRect::height()</a> example.
+</div>
 
 #### Example Output
 
@@ -1401,7 +1404,8 @@ corner to include</td>
 
 ### Example
 
-<div><fiddle-embed name="ee72450381f768f3869153cdbeccdc3e"><div><a href="#SkRect_set_4_p0">p0</a> and <a href="#SkRect_set_4_p1">p1</a> may be swapped and have the same effect unless one contains NaN.</div></fiddle-embed></div>
+<div><fiddle-embed name="ee72450381f768f3869153cdbeccdc3e"><div><a href="#SkRect_set_4_p0">p0</a> and <a href="#SkRect_set_4_p1">p1</a> may be swapped and have the same effect unless one contains NaN.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1416,7 +1420,8 @@ corner to include</td>
 void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height)
 </pre>
 
-Sets <a href="#Rect">Rect</a> to(x, y, x + width, y + height).
+Sets <a href="#Rect">Rect</a> to(x, y, x + width, y + height)
+.
 Does not validate input;
 width or height may be negative.
 
@@ -1934,7 +1939,8 @@ must describe area; <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkR
 empty() returns false. The intersection of <a href="#Rect">Rect</a> pair can be described by:
 
 (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
-min(a.fRight, b.fRight), min(a.fBottom, b.fBottom)).
+min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
+.
 
 The intersection is only meaningful if the resulting <a href="#Rect">Rect</a> is not empty and
 describes an area: <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fTop">fTop</a> is less than <a href="#SkRect_fBottom">fBottom</a>.
@@ -2103,7 +2109,8 @@ true if <a href="#SkRect_intersect_r">r</a> and <a href="#Rect">Rect</a> have ar
 
 <div><fiddle-embed name="70e5b3979fc8a31eda070cfed91bc271"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
-be before or after the call to intersect.</div>
+be before or after the call to intersect.
+</div>
 
 #### Example Output
 
@@ -2154,7 +2161,8 @@ true if construction and <a href="#Rect">Rect</a> have area in common
 
 <div><fiddle-embed name="9f06dad5e6c712f7a2c149d075e816d2"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
-be before or after the call to intersect.</div>
+be before or after the call to intersect.
+</div>
 
 #### Example Output
 
@@ -2453,7 +2461,8 @@ expansion <a href="#Rect">Rect</a></td>
 
 ### Example
 
-<div><fiddle-embed name="88439de2aa0911262c60c0eb506396cb"><div>Since <a href="#Rect">Rect</a> is not sorted, first result is copy of toJoin.</div>
+<div><fiddle-embed name="88439de2aa0911262c60c0eb506396cb"><div>Since <a href="#Rect">Rect</a> is not sorted, first result is copy of toJoin.
+</div>
 
 #### Example Output
 
@@ -2490,7 +2499,8 @@ expansion <a href="#Rect">Rect</a></td>
 
 ### Example
 
-<div><fiddle-embed name="a476548d0001296afd8e58c1eba1b70b"><div>Since <a href="#Rect">Rect</a> is not sorted, first result is not useful.</div>
+<div><fiddle-embed name="a476548d0001296afd8e58c1eba1b70b"><div>Since <a href="#Rect">Rect</a> is not sorted, first result is not useful.
+</div>
 
 #### Example Output
 
