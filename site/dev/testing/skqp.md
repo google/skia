@@ -6,10 +6,9 @@ with a abbreviated Git hash that points at the commit in the Skia repository it
 was built with.
 
 These are universal APKs that contain native libraries for armeabi-v7a,
-arm64-v8a, x86, and x86\_64 architectures. The most recent is listed first.
+arm64-v8a, x86, and x86\_64 architectures. The most recent is listed first:
 
-The listing can be found here:
-[https://storage.googleapis.com/skia-skqp/apklist](https://storage.googleapis.com/skia-skqp/apklist)
+<ssi:listgce path=skia-infra-testdata/skqp-testing>
 
 To run tests:
 
