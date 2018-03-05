@@ -16,6 +16,24 @@
       "revId": "aad8d893d10c07623e46bc75c2d5fe36884d76a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69381a54_0178f4d7",
+        "filename": "tools/sk_app/android/surface_glue_android.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-05T17:02:47Z",
+      "side": 1,
+      "message": "How does that get set in an app?",
+      "parentUuid": "0000d30a_fa991d63",
+      "revId": "aad8d893d10c07623e46bc75c2d5fe36884d76a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
