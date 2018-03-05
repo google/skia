@@ -65,7 +65,7 @@ public:
     // get the actual glyph image itself when we get the glyph metrics.
     bool addGlyphToAtlas(GrResourceProvider*, GrDeferredUploadTarget*, GrGlyphCache*,
                          GrAtlasManager*, GrGlyph*,
-                         SkGlyphCache*, GrMaskFormat expectedMaskFormat);
+                         SkGlyphCache*, GrMaskFormat expectedMaskFormat, bool isScaledGlyph);
 
     // testing
     int countGlyphs() const { return fCache.count(); }

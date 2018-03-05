@@ -298,35 +298,57 @@ bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
                                    GrAtlasManager* fullAtlasManager,
                                    GrGlyph* glyph,
                                    SkGlyphCache* cache,
-                                   GrMaskFormat expectedMaskFormat) {
+                                   GrMaskFormat expectedMaskFormat,
+                                   bool isScaledGlyph) {
     SkASSERT(glyph);
     SkASSERT(cache);
     SkASSERT(fCache.find(glyph->fPackedID));
 
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
+    int width = glyph->width();
+    int height = glyph->height();
+    int rowBytes = width * bytesPerPixel;
 
     size_t size = glyph->fBounds.area() * bytesPerPixel;
+    bool isSDFGlyph = GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID);
+    bool addPad = isScaledGlyph && !isSDFGlyph;
+    if (addPad) {
+        width += 2;
+        rowBytes += 2*bytesPerPixel;
+        size += 2 * rowBytes;
+        height += 2;
+        size += 2 * (height + 2) * bytesPerPixel;
+    }
     SkAutoSMalloc<1024> storage(size);
 
     const SkGlyph& skGlyph = GrToSkGlyph(cache, glyph->fPackedID);
-    if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID)) {
-        if (!get_packed_glyph_df_image(cache, skGlyph, glyph->width(), glyph->height(),
+    if (isSDFGlyph) {
+        if (!get_packed_glyph_df_image(cache, skGlyph, width, height,
                                        storage.get())) {
             return false;
         }
     } else {
+        void* dataPtr = storage.get();
+        if (addPad) {
+            sk_bzero(dataPtr, size);
+            dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
+        }
         if (!get_packed_glyph_image(cache, skGlyph, glyph->width(), glyph->height(),
-                                    glyph->width() * bytesPerPixel, expectedMaskFormat,
-                                    storage.get())) {
+                                    rowBytes, expectedMaskFormat,
+                                    dataPtr)) {
             return false;
         }
     }
 
     bool success = fullAtlasManager->addToAtlas(resourceProvider, glyphCache, this,
                                                 &glyph->fID, target, expectedMaskFormat,
-                                                glyph->width(), glyph->height(),
+                                                width, height,
                                                 storage.get(), &glyph->fAtlasLocation);
     if (success) {
+        if (addPad) {
+            glyph->fAtlasLocation.fX += 1;
+            glyph->fAtlasLocation.fY += 1;
+        }
         SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != glyph->fID);
         fAtlasedGlyphs++;
     }

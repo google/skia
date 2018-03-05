@@ -856,6 +856,7 @@ void GrAtlasTextContext::FallbackTextHelper::appendText(const SkGlyph& glyph, in
         SkScalar scaledGlyphSize = maxDim * fMaxScale;
         if (!fViewMatrix.hasPerspective() && scaledGlyphSize > fMaxTextSize) {
             fUseScaledFallback = true;
+            fMaxTextSize -= 2;    // Subtract 2 to account for the bilerp pad around the glyph
         }
     }
 

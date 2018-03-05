@@ -152,6 +152,7 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     subRun->appendVertices(vertexStride);
     fGlyphs[subRun->glyphEndIndex()] = glyph;
     subRun->glyphAppended();
+    subRun->setHasScaledGlyphs(SK_Scalar1 != scale);
 }
 
 void GrAtlasTextBlob::appendPathGlyph(int runIndex, const SkPath& path, SkScalar x, SkScalar y,
@@ -264,8 +265,8 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
                 target->colorSpaceInfo().isGammaCorrect(), paint.luminanceColor(),
                 info.hasUseLCDText(), useBGR, info.isAntiAliased());
     } else {
-        op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format,
-                                       glyphCount, restrictedAtlasManager);
+        op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount,
+                                       info.hasScaledGlyphs(), restrictedAtlasManager);
     }
     GrAtlasTextOp::Geometry& geometry = op->geometry();
     geometry.fViewMatrix = viewMatrix;
@@ -355,9 +356,10 @@ void GrAtlasTextBlob::flush(GrRestrictedAtlasManager* restrictedAtlasManager,
             SkRect rtBounds = SkRect::MakeWH(target->width(), target->height());
             SkRRect clipRRect;
             GrAA aa;
-            // We can clip geometrically if we're not using SDFs,
+            // We can clip geometrically if we're not using SDFs or scaled glyphs,
             // and we have an axis-aligned rectangular non-AA clip
-            if (!info.drawAsDistanceFields() && clip.isRRect(rtBounds, &clipRRect, &aa) &&
+            if (!info.drawAsDistanceFields() && !info.hasScaledGlyphs() &&
+                clip.isRRect(rtBounds, &clipRRect, &aa) &&
                 clipRRect.isRect() && GrAA::kNo == aa) {
                 skipClip = true;
                 // We only need to do clipping work if the subrun isn't contained by the clip

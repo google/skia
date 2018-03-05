@@ -41,8 +41,9 @@ public:
     };
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(
-                                GrPaint&& paint, GrMaskFormat maskFormat,
-                                int glyphCount, GrRestrictedAtlasManager* restrictedAtlasManager) {
+                                GrPaint&& paint, GrMaskFormat maskFormat, int glyphCount,
+                                bool hasScaledGlyphs,
+                                GrRestrictedAtlasManager* restrictedAtlasManager) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(restrictedAtlasManager,
                                                             std::move(paint)));
 
@@ -60,6 +61,7 @@ public:
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
         op->fLuminanceColor = 0;
+        op->fHasScaledGlyphs = hasScaledGlyphs;
         return op;
     }
 
@@ -183,15 +185,18 @@ private:
     int fGeoDataAllocSize;
     uint32_t fSRGBFlags;
     GrProcessorSet fProcessors;
-    bool fUsesLocalCoords;
-    bool fCanCombineOnTouchOrOverlap;
+    struct {
+        uint32_t fUsesLocalCoords : 1;
+        uint32_t fCanCombineOnTouchOrOverlap : 1;
+        uint32_t fUseGammaCorrectDistanceTable : 1;
+        uint32_t fHasScaledGlyphs : 1;
+    };
     int fGeoCount;
     int fNumGlyphs;
     MaskType fMaskType;
     // Distance field properties
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fLuminanceColor;
-    bool fUseGammaCorrectDistanceTable;
     uint32_t fDFGPFlags = 0;
 
     typedef GrMeshDrawOp INHERITED;
