@@ -83,6 +83,8 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-arm64-Release-Android',
   'Build-Debian9-Clang-arm64-Release-Android_Vulkan',
   'Build-Debian9-Clang-arm64-Release-Android_ASAN',
+  'Build-Debian9-Clang-universal-devrel-Android_SKQP',
+  'Build-Debian9-Clang-universal-devrel-Android_SKQP_withmodel',
   'Build-Debian9-Clang-x86_64-Debug',
   'Build-Debian9-Clang-x86_64-Debug-ASAN',
   'Build-Debian9-Clang-x86_64-Debug-Coverage',
@@ -136,6 +138,13 @@ def GenTests(api):
       test += api.platform('mac', 64)
     else:
       test += api.platform('linux', 64)
+
+    if 'SKQP_withmodel' in builder:
+      p = 'platform_tools/android/apps/skqp/src/main/assets/files.checksum'
+      # p = 'xxx'
+      test += api.path.exists(
+          api.path['start_dir'].join('skia', *p.split('/'))
+      )
 
     yield test
 
