@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc11cae5_c2d34d49",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-05T21:31:59Z",
+      "side": 1,
+      "message": "skia_use_piex and skia_use_dng_sdk too?",
+      "revId": "7c21b70eaa87ef0863b8638f084d50bd7ac6ba9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "451ae4b9_9b75ce8f",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-05T21:31:59Z",
+      "side": 1,
+      "message": "It would be nice to do this using optional, something like this:\n\noptional(\"builtin_codecs\") {\n  enabled \u003d skia_enable_codecs\n  deps \u003d []\n  sources \u003d [\n      ... this big list of sources ...\n  ]\n  sources_when_disabled \u003d [ \"src/ports/SkImageGenerator_none.cpp\" ]\n}\n\nthen just above here in :skia\u0027s deps, add \":builtin_codecs\".",
+      "revId": "7c21b70eaa87ef0863b8638f084d50bd7ac6ba9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
