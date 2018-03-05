@@ -11,6 +11,7 @@
 #include "SkFontDescriptor.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
+#include "SkPaintPriv.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkStream.h"
@@ -84,8 +85,7 @@ DEF_TEST(FontHostStream, reporter) {
         drawBG(&origCanvas);
         origCanvas.drawString("A", point.fX, point.fY, paint);
 
-        sk_sp<SkTypeface> typeface(paint.getTypeface() ? paint.refTypeface()
-                                                       : SkTypeface::MakeDefault());
+        sk_sp<SkTypeface> typeface = SkPaintPriv::RefTypefaceOrDefault(paint);
         int ttcIndex;
         std::unique_ptr<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
         if (!fontData) {
