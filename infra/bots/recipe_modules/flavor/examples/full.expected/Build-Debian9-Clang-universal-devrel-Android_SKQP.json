@@ -1,0 +1,37 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "devrel",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_/_B_WORK]/skia/infra/cts/whitelist_devices.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]"
+    ],
+    "infra_step": true,
+    "name": "copy whitelist"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
