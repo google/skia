@@ -412,7 +412,8 @@ private:
     // calling generateImage.
     bool fGenerateImageFromPath;
 
-    void internalGetPath(SkPackedGlyphID id, SkPath* fillPath,
+    /** Returns false if the glyph has no path at all. */
+    bool internalGetPath(SkPackedGlyphID id, SkPath* fillPath,
                          SkPath* devPath, SkMatrix* fillToDevMatrix);
 
     // SkMaskGamma::PreBlend converts linear masks to gamma correcting masks.
