@@ -189,7 +189,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
             colorSpace = SkColorSpace::MakeSRGB();
         }
 
-        sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContext(
+        sk_sp<GrRenderTargetContext> rtContext(
+            context->contextPriv().makeDeferredRenderTargetContext(
                 SkBackingFit::kExact, info.width(), info.height(), proxy->config(),
                 std::move(colorSpace), 1, mipMapped, proxy->origin(), nullptr, SkBudgeted::kYes));
 
