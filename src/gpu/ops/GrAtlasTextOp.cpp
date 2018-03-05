@@ -258,8 +258,10 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor(fullAtlasManager);
         SkDEBUGCODE(dfPerspective = fGeoData[0].fViewMatrix.hasPerspective());
     } else {
+        GrSamplerState samplerState = fHasScaledGlyphs ? GrSamplerState::ClampBilerp()
+                                                       : GrSamplerState::ClampNearest();
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-            this->color(), proxies, atlasPageCount, GrSamplerState::ClampNearest(), maskFormat,
+            this->color(), proxies, atlasPageCount, samplerState, maskFormat,
             localMatrix, this->usesLocalCoords());
     }
 
@@ -349,8 +351,10 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
                     proxies, numProxies, GrSamplerState::ClampBilerp());
             }
         } else {
-            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
-                proxies, numProxies, GrSamplerState::ClampNearest());
+            GrSamplerState samplerState = fHasScaledGlyphs ? GrSamplerState::ClampBilerp()
+                                                           : GrSamplerState::ClampNearest();
+            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(proxies, numProxies,
+                                                                      samplerState);
         }
     }
 
