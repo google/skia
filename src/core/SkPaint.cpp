@@ -928,7 +928,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
         paint, nullptr, SkScalerContextFlags::kNone, zoomPtr, &ad, &effects);
 
     {
-        auto typeface = SkTypeface::NormalizeTypeface(paint.getTypeface());
+        auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
         auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
         *metrics = cache->getFontMetrics();
     }
@@ -1201,10 +1201,7 @@ SkRect SkPaint::getFontBounds() const {
     m.setScale(fTextSize * fTextScaleX, fTextSize);
     m.postSkew(fTextSkewX, 0);
 
-    SkTypeface* typeface = this->getTypeface();
-    if (nullptr == typeface) {
-        typeface = SkTypeface::GetDefaultTypeface();
-    }
+    SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(*this);
 
     SkRect bounds;
     m.mapRect(&bounds, typeface->getBounds());
@@ -1386,13 +1383,10 @@ static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
     it if there are not tricky elements like shaders, etc.
  */
 void SkPaint::flatten(SkWriteBuffer& buffer) const {
-    SkTypeface* tf = this->getTypeface();
-    if (!tf) {
-        // We force recording our typeface, even if its "default" since the receiver process
-        // may have a different notion of default.
-        tf = SkTypeface::GetDefaultTypeface();
-        SkASSERT(tf);
-    }
+    // We force recording our typeface, even if its "default" since the receiver process
+    // may have a different notion of default.
+    SkTypeface* tf = SkPaintPriv::GetTypefaceOrDefault(*this);
+    SkASSERT(tf);
 
     uint8_t flatFlags = kHasTypeface_FlatFlag;
 
