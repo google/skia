@@ -38,6 +38,11 @@ for ARCH in $*; do case $ARCH in arm|arm64|x86|x64);; *) usage;; esac; done
 set -x # Verbose
 set -e # Exit immediately
 
+# check if OUTPUT_DIR was set in the environment.
+if [ -z "${APK_OUTPUT_DIR}" ]; then
+    APK_OUTPUT_DIR=out/skqp
+fi
+
 cd "$(dirname "$0")/../.."
 
 
@@ -61,8 +66,14 @@ if [ $# -eq 0 ]; then
 fi
 
 for ARCH in $*; do
-    BUILD=out/skqp-$ARCH
-    python tools/skqp/generate_gn_args $BUILD "$ANDROID_NDK" --arch "$ARCH"
+    BUILD="${APK_OUTPUT_DIR}-${ARCH}"
+    if [ "$SKQP_DEBUG" ]; then
+        BUILD=out/skqp-${ARCH}-debug
+        python tools/skqp/generate_gn_args $BUILD "$ANDROID_NDK" --arch "$ARCH" --debug
+    else
+        BUILD=out/skqp-$ARCH
+        python tools/skqp/generate_gn_args $BUILD "$ANDROID_NDK" --arch "$ARCH"
+    fi
     bin/gn gen $BUILD
     ninja -C $BUILD $LIB
     case $ARCH in
@@ -82,6 +93,6 @@ done
     apps/gradlew --daemon -p apps/$APP -P suppressNativeBuild :$APP:assembleUniversalDebug
 )
 
-mkdir -p out/skqp
-cp platform_tools/android/apps/$APP/build/outputs/apk/$APP-universal-debug.apk out/skqp/
+mkdir -p $APK_OUTPUT_DIR
+cp platform_tools/android/apps/$APP/build/outputs/apk/$APP-universal-debug.apk "${APK_OUTPUT_DIR}/"
 
