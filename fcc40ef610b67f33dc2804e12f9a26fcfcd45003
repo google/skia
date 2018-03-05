@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "340c1a50_0c10c935",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-05T18:08:54Z",
+      "side": 1,
+      "message": "maybe \"and/or\" here to make it clear both can logically work?",
+      "range": {
+        "startLine": 174,
+        "startChar": 56,
+        "endLine": 174,
+        "endChar": 58
+      },
+      "revId": "fcc40ef610b67f33dc2804e12f9a26fcfcd45003",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e78db21_c57a510e",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-05T18:08:54Z",
+      "side": 1,
+      "message": "I think we need to check for the mf + cf case too?\n\nSomething like this?\n\nSkMaskFilterBase::BlurRec maskBlur;\nmemset(\u0026maskBlur, 0, sizeof(maskBlur));\nif (auto mf \u003d rec-\u003efPaint.getMaskFilter()) {\n    if (!as_MFB(mf)-\u003easABlur(\u0026maskBlur)) {\n        return false;\n    }\n}\n\nSkColor bottom_color \u003d fRecs-\u003efPaint.getColor();\nif (auto cf \u003d rec-\u003efPaint.getColorFilter()) {\n    bottom_color \u003d cf-\u003efilterColor(bottom_color);\n}\n\n...",
+      "revId": "fcc40ef610b67f33dc2804e12f9a26fcfcd45003",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
