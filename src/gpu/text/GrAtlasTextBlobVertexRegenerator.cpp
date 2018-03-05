@@ -280,7 +280,8 @@ Regenerator::Result Regenerator::doRegen() {
             if (!fFullAtlasManager->hasGlyph(glyph) &&
                 !strike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGlyphCache,
                                          fFullAtlasManager, glyph,
-                                         fLazyCache->get(), fSubRun->maskFormat())) {
+                                         fLazyCache->get(), fSubRun->maskFormat(),
+                                         fSubRun->hasScaledGlyphs())) {
                 fBrokenRun = glyphIdx > 0;
                 result.fFinished = false;
                 return result;

@@ -152,6 +152,7 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     subRun->appendVertices(vertexStride);
     fGlyphs[subRun->glyphEndIndex()] = glyph;
     subRun->glyphAppended();
+    subRun->setHasScaledGlyphs(SK_Scalar1 != scale);
 }
 
 void GrAtlasTextBlob::appendPathGlyph(int runIndex, const SkPath& path, SkScalar x, SkScalar y,
@@ -264,8 +265,8 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
                 target->colorSpaceInfo().isGammaCorrect(), paint.luminanceColor(),
                 info.hasUseLCDText(), useBGR, info.isAntiAliased());
     } else {
-        op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format,
-                                       glyphCount, restrictedAtlasManager);
+        op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount,
+                                       info.hasScaledGlyphs(), restrictedAtlasManager);
     }
     GrAtlasTextOp::Geometry& geometry = op->geometry();
     geometry.fViewMatrix = viewMatrix;
