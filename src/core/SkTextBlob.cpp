@@ -7,6 +7,7 @@
 
 #include "SkTextBlobRunIterator.h"
 
+#include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSafeMath.h"
 #include "SkTypeface.h"
@@ -26,7 +27,7 @@ public:
     RunFont(const SkPaint& paint)
         : fSize(paint.getTextSize())
         , fScaleX(paint.getTextScaleX())
-        , fTypeface(SkSafeRef(paint.getTypeface()))
+        , fTypeface(SkPaintPriv::RefTypefaceOrDefault(paint))
         , fSkewX(paint.getTextSkewX())
         , fAlign(paint.getTextAlign())
         , fHinting(paint.getHinting())

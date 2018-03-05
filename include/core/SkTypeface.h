@@ -309,6 +309,7 @@ protected:
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const = 0;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;
+    friend class SkScalerContext;  // onFilterRec
 
     //  Subclasses *must* override this method to work with the PDF backend.
     virtual std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const;
@@ -364,12 +365,7 @@ private:
     };
     static SkFontStyle FromOldStyle(Style oldStyle);
     static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
-    static SkTypeface* NormalizeTypeface(SkTypeface* typeface) {
-        return typeface != nullptr ? typeface : SkTypeface::GetDefaultTypeface();
-    }
-    friend class SkGlyphCache;     // GetDefaultTypeface
-    friend class SkPaint;          // GetDefaultTypeface
-    friend class SkScalerContext;  // GetDefaultTypeface
+    friend class SkPaintPriv;      // GetDefaultTypeface
 
 private:
     SkFontID            fUniqueID;

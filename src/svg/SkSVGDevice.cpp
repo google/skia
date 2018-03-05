@@ -17,6 +17,7 @@
 #include "SkDraw.h"
 #include "SkImageEncoder.h"
 #include "SkPaint.h"
+#include "SkPaintPriv.h"
 #include "SkParsePath.h"
 #include "SkShader.h"
 #include "SkStream.h"
@@ -544,7 +545,7 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
 
     SkString familyName;
     SkTHashSet<SkString> familySet;
-    sk_sp<SkTypeface> tface(paint.getTypeface() ? paint.refTypeface() : SkTypeface::MakeDefault());
+    sk_sp<SkTypeface> tface = SkPaintPriv::RefTypefaceOrDefault(paint);
 
     SkASSERT(tface);
     SkFontStyle style = tface->fontStyle();

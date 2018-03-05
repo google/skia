@@ -17,6 +17,7 @@
 #include "SkGraphics.h"
 #include "SkMakeUnique.h"
 #include "SkMaskFilterBase.h"
+#include "SkPaintPriv.h"
 #include "SkTextMapStateProc.h"
 
 #include "ops/GrMeshDrawOp.h"
@@ -692,8 +693,9 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
     SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
         skPaint, &props, SkScalerContextFlags::kNone, nullptr, &desc, &effects);
+    auto typeface = SkPaintPriv::GetTypefaceOrDefault(skPaint);
     SkGlyphCache* origPaintCache =
-            SkGlyphCache::DetachCache(skPaint.getTypeface(), effects, desc.getDesc());
+            SkGlyphCache::DetachCache(typeface, effects, desc.getDesc());
 
     SkTArray<SkScalar> positions;
 

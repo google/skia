@@ -14,6 +14,7 @@
 #include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
 #include "SkMaskFilterBase.h"
+#include "SkPaintPriv.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
 #include "ops/GrAtlasTextOp.h"
@@ -67,7 +68,7 @@ SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
     SkScalerContextEffects effects;
     SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
         skPaint, &props, scalerContextFlags, viewMatrix, desc, &effects);
-    run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
+    run->fTypeface = SkPaintPriv::RefTypefaceOrDefault(skPaint);
     run->fPathEffect = sk_ref_sp(effects.fPathEffect);
     run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);
     return SkGlyphCache::DetachCache(run->fTypeface.get(), effects, desc->getDesc());

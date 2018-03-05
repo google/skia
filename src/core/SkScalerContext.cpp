@@ -898,10 +898,8 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
                                         SkScalerContextEffects* effects) {
     SkASSERT(deviceMatrix == nullptr || !deviceMatrix->hasPerspective());
 
-    SkTypeface* typeface = paint.getTypeface();
-    if (nullptr == typeface) {
-        typeface = SkTypeface::GetDefaultTypeface();
-    }
+    SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
+
     rec->fFontID = typeface->uniqueID();
     rec->fTextSize = paint.getTextSize();
     rec->fPreScaleX = paint.getTextScaleX();
