@@ -435,13 +435,19 @@ private:
                 fFlags  = hasW ? (fFlags | kHasWCoord_Flag) : fFlags & ~kHasWCoord_Flag;
             }
             bool hasWCoord() const { return SkToBool(fFlags & kHasWCoord_Flag); }
+            void setHasScaledGlyphs(bool hasScaledGlyphs) {
+                fFlags  = hasScaledGlyphs ? (fFlags | kHasScaledGlyphs_Flag)
+                                          : fFlags & ~kHasScaledGlyphs_Flag;
+            }
+            bool hasScaledGlyphs() const { return SkToBool(fFlags & kHasScaledGlyphs_Flag); }
 
         private:
             enum Flag {
-                kDrawAsSDF_Flag = 0x1,
-                kUseLCDText_Flag = 0x2,
-                kAntiAliased_Flag = 0x4,
-                kHasWCoord_Flag = 0x8
+                kDrawAsSDF_Flag = 0x01,
+                kUseLCDText_Flag = 0x02,
+                kAntiAliased_Flag = 0x04,
+                kHasWCoord_Flag = 0x08,
+                kHasScaledGlyphs_Flag = 0x10
             };
 
             GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
