@@ -1465,7 +1465,7 @@ static void test_partial_purge(skiatest::Reporter* reporter) {
         };
 
         // ensure all are purged before the next
-        context->purgeAllUnlockedResources();
+        context->contextPriv().purgeAllUnlockedResources_ForTesting();
         REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
         REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 

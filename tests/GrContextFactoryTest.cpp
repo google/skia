@@ -166,7 +166,7 @@ DEF_GPUTEST(GrContextFactory_executorAndTaskGroup, reporter, options) {
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(GrContextDump, reporter, ctxInfo) {
     // Ensure that GrContext::dump doesn't assert (which is possible, if the JSON code is wrong)
-    SkString result = ctxInfo.grContext()->dump();
+    SkString result = ctxInfo.grContext()->contextPriv().dump();
     REPORTER_ASSERT(reporter, !result.isEmpty());
 }
 
