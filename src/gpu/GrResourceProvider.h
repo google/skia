@@ -170,9 +170,6 @@ public:
      * is not supported.
      */
     sk_sp<GrPath> createPath(const SkPath&, const GrStyle&);
-    sk_sp<GrPathRange> createPathRange(GrPathRange::PathGenerator*, const GrStyle&);
-    sk_sp<GrPathRange> createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
-                                    const SkDescriptor*, const GrStyle&);
 
     /** These flags govern which scratch resources we are allowed to return */
     enum Flags {
