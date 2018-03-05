@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "56d7b8f2_215e1618",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-03-05T17:55:15Z",
+      "side": 1,
+      "message": "Yes, I think so.",
+      "parentUuid": "9f83387b_e9e31f12",
+      "range": {
+        "startLine": 507,
+        "startChar": 19,
+        "endLine": 507,
+        "endChar": 30
+      },
+      "revId": "0541ea99de6c695d0fd673566c704ebd53240dc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d4e246bc_4f482aaa",
         "filename": "src/core/SkGlyphCache.cpp",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2018-03-05T16:52:54Z",
       "side": 1,
       "message": "There appear to be three users of DetachCache and one user of DetachCacheUsingPaint. Can we update those in this CL? I\u0027m fine with that being the next CL, but doing it now might flesh out what the new world looks like for call sites (does it clean them up?)",
+      "range": {
+        "startLine": 788,
+        "startChar": 28,
+        "endLine": 788,
+        "endChar": 39
+      },
+      "revId": "0541ea99de6c695d0fd673566c704ebd53240dc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af72b71f_857ec105",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-03-05T17:55:15Z",
+      "side": 1,
+      "message": "I will do this in a follow up cl.",
+      "parentUuid": "d4e246bc_4f482aaa",
       "range": {
         "startLine": 788,
         "startChar": 28,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2ed2eeb8_2d79cb6d",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-03-05T17:55:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7fad8cd_94d99f09",
+      "range": {
+        "startLine": 132,
+        "startChar": 4,
+        "endLine": 132,
+        "endChar": 82
+      },
+      "revId": "0541ea99de6c695d0fd673566c704ebd53240dc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "449d9f79_eba1a171",
         "filename": "src/core/SkGlyphCache.h",
         "patchSetId": 6
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "b5cce214_38525b03",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-03-05T17:55:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "449d9f79_eba1a171",
+      "range": {
+        "startLine": 298,
+        "startChar": 32,
+        "endLine": 298,
+        "endChar": 95
+      },
+      "revId": "0541ea99de6c695d0fd673566c704ebd53240dc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "703db069_1463ae2f",
         "filename": "src/core/SkGlyphCache.h",
         "patchSetId": 6
@@ -114,6 +210,30 @@
       "revId": "0541ea99de6c695d0fd673566c704ebd53240dc0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a79b9255_3c0069f3",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-03-05T17:55:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "703db069_1463ae2f",
+      "range": {
+        "startLine": 325,
+        "startChar": 22,
+        "endLine": 325,
+        "endChar": 85
+      },
+      "revId": "0541ea99de6c695d0fd673566c704ebd53240dc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
