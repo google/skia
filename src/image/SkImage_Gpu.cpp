@@ -441,9 +441,10 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     const int height = yuvSizes[0].fHeight;
 
     // Needs to be a render target in order to draw to it for the yuv->rgb conversion.
-    sk_sp<GrRenderTargetContext> renderTargetContext(ctx->makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
-            std::move(imageColorSpace), 1, GrMipMapped::kNo, origin));
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+            ctx->contextPriv().makeDeferredRenderTargetContext(
+                                SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
+                                std::move(imageColorSpace), 1, GrMipMapped::kNo, origin));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -766,8 +767,10 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
         return sk_ref_sp(const_cast<SkImage_Gpu*>(this));
     }
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(fContext->makeDeferredRenderTargetContext(
-        SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig, nullptr));
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+            fContext->contextPriv().makeDeferredRenderTargetContext(
+                                            SkBackingFit::kExact, this->width(), this->height(),
+                                            kRGBA_8888_GrPixelConfig, nullptr));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -794,7 +797,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
 
 bool SkImage_Gpu::onIsValid(GrContext* context) const {
     // The base class has already checked that context isn't abandoned (if it's not nullptr)
-    if (fContext->abandoned()) {
+    if (fContext->contextPriv().abandoned()) {
         return false;
     }
 
