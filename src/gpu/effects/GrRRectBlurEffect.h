@@ -21,6 +21,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrStyle.h"
 #include "SkBlurMaskFilter.h"
+#include "SkBlurPriv.h"
 #include "SkGpuBlurUtils.h"
 #include "SkRRectPriv.h"
 #include "GrFragmentProcessor.h"
