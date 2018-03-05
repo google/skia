@@ -103,7 +103,7 @@ bool Catalog::parseFromFile(const char* path) {
 
 bool Catalog::pngOut(Definition* example) {
     string result;
-    if (!example->exampleToScript(&result, Definition::ExampleOptions::kPng)) {
+    if (!fBmhParser->exampleToScript(example, BmhParser::ExampleOptions::kPng, &result)) {
         return false;
     }
     if (result.length() > 0) {
@@ -121,7 +121,7 @@ bool Catalog::pngOut(Definition* example) {
 bool Catalog::textOut(Definition* def, const char* stdOutStart,
     const char* stdOutEnd) {
     string result;
-    if (!def->exampleToScript(&result, Definition::ExampleOptions::kText)) {
+    if (!fBmhParser->exampleToScript(def, BmhParser::ExampleOptions::kText, &result)) {
         return false;
     }
     if (result.length() > 0) {

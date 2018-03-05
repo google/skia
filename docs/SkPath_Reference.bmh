@@ -2989,6 +2989,7 @@ constructions are converted to Conic data when added to Path.
 #List ##
 #Description ##
 #Function
+###$
 struct data {
    const char* name;
    char super;
@@ -3024,7 +3025,7 @@ const char* yna[] = {
      "no",
      "yes"
 };
-
+$$$#
 ##
 void draw(SkCanvas* canvas) {
     SkPaint lp;
@@ -3657,8 +3658,10 @@ of its geometric bounds.
 
 #Example
 #Function
+###$
 #define nameValue(fill) { SkPath::fill, #fill }
 
+$$$#
 ##
 void draw(SkCanvas* canvas) {
     struct {
@@ -3713,8 +3716,10 @@ Returns equivalent Fill_Type representing Path fill inside its bounds.
 
 #Example
 #Function
+###$
 #define nameValue(fill) { SkPath::fill, #fill }
 
+$$$#
 ##
 void draw(SkCanvas* canvas) {
     struct {

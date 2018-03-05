@@ -669,7 +669,8 @@ enum <a href="#Hinting">Hinting</a> {
 <a href="#SkPaint_kSlight_Hinting">kSlight Hinting</a>        = 1,
 <a href="#SkPaint_kNormal_Hinting">kNormal Hinting</a>        = 2,
 <a href="#SkPaint_kFull_Hinting">kFull Hinting</a>          = 3,
-};</pre>
+};
+</pre>
 
 <a href="#Hinting">Hinting</a> adjusts the glyph outlines so that the shape provides a uniform
 look at a given point size on font engines that support it. <a href="#Hinting">Hinting</a> may have a
@@ -686,27 +687,31 @@ as the <a href="undocumented#Engine">Font Engine</a>.
 With FreeType, this is equivalent to the FT_LOAD_NO_HINTING
 bit-field constant supplied to FT_Load_Glyph, which indicates that the vector
 outline being loaded should not be fitted to the pixel grid but simply scaled
-to 26.6 fractional pixels.</td>
+to 26.6 fractional pixels.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kSlight_Hinting"> <code><strong>SkPaint::kSlight_Hinting </strong></code> </a></td><td>1</td><td>Modifies glyph outlines minimally to improve constrast.
 With FreeType, this is equivalent in spirit to the
 FT_LOAD_TARGET_LIGHT value supplied to FT_Load_Glyph. It chooses a
 lighter hinting algorithm for non-monochrome modes.
-Generated <a href="undocumented#Glyph">Glyphs</a> may be fuzzy but better resemble their original shape.</td>
+Generated <a href="undocumented#Glyph">Glyphs</a> may be fuzzy but better resemble their original shape.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kNormal_Hinting"> <code><strong>SkPaint::kNormal_Hinting </strong></code> </a></td><td>2</td><td>Modifies glyph outlines to improve constrast. This is the default.
 With FreeType, this supplies FT_LOAD_TARGET_NORMAL to FT_Load_Glyph,
 choosing the default hinting algorithm, which is optimized for standard
-gray-level rendering.</td>
+gray-level rendering.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kFull_Hinting"> <code><strong>SkPaint::kFull_Hinting </strong></code> </a></td><td>3</td><td>Modifies glyph outlines for maxiumum constrast. With FreeType, this selects
 FT_LOAD_TARGET_LCD or FT_LOAD_TARGET_LCD_V if <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> is set.
 FT_LOAD_TARGET_LCD is a variant of FT_LOAD_TARGET_NORMAL optimized for
 horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a
-variant of FT_LOAD_TARGET_NORMAL optimized for vertically decimated LCD displays.</td>
+variant of FT_LOAD_TARGET_NORMAL optimized for vertically decimated LCD displays.
+</td>
   </tr>
 </table>
 
@@ -802,6 +807,7 @@ enum <a href="#Flags">Flags</a> {
 
 <a href="#SkPaint_kAllFlags">kAllFlags</a> = 0xFFFF,
 };
+
 </pre>
 
 The bit values stored in <a href="#Flags">Flags</a>.
@@ -861,7 +867,8 @@ soonOnly valid for Android framework.
 enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
 <a href="#SkPaint_kUnderlineText_ReserveFlag">kUnderlineText ReserveFlag</a>   = 0x08,
 <a href="#SkPaint_kStrikeThruText_ReserveFlag">kStrikeThruText ReserveFlag</a>  = 0x10,
-};</pre>
+};
+</pre>
 
 ### Constants
 
@@ -962,7 +969,8 @@ at compile time.
 <div><fiddle-embed name="a6575a49467ce8d28bb01cc7638fa04d"><div>A red line is drawn with transparency on the edges to make it look smoother.
 A blue line draws only where the pixel centers are contained.
 The lines are drawn into <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, then drawn magnified to make the
-<a href="undocumented#Alias">Aliasing</a> easier to see.</div></fiddle-embed></div>
+<a href="undocumented#Alias">Aliasing</a> easier to see.
+</div></fiddle-embed></div>
 
 <a name="SkPaint_isAntiAlias"></a>
 ## isAntiAlias
@@ -1050,13 +1058,15 @@ Some platform implementations may ignore dithering. Setto ignore <a href="#Dithe
 ### Example
 
 <div><fiddle-embed name="8b26507690b71462f44642b911890bbf"><div>Dithering in the bottom half more closely approximates the requested color by
-alternating nearby colors from pixel to pixel.</div></fiddle-embed></div>
+alternating nearby colors from pixel to pixel.
+</div></fiddle-embed></div>
 
 ### Example
 
 <div><fiddle-embed name="76d4d4a7931a48495e4d5f54e073be53"><div>Dithering introduces subtle adjustments to color to smooth gradients.
 Drawing the gradient repeatedly with <a href="undocumented#SkBlendMode_kPlus">SkBlendMode::kPlus</a> exaggerates the
-dither, making it easier to see.</div></fiddle-embed></div>
+dither, making it easier to see.
+</div></fiddle-embed></div>
 
 <a name="SkPaint_isDither"></a>
 ## isDither
@@ -1151,7 +1161,8 @@ Either or both techniques can be enabled.
 
 <div><fiddle-embed name="4606ae1be792d6bc46d496432f050ee9"><div>Four commas are drawn normally and with combinations of <a href="#LCD_Text">LCD Text</a> and <a href="#Subpixel_Text">Subpixel Text</a>.
 When <a href="#Subpixel_Text">Subpixel Text</a> is disabled, the comma <a href="undocumented#Glyph">Glyphs</a> are identical, but not evenly spaced.
-When <a href="#Subpixel_Text">Subpixel Text</a> is enabled, the comma <a href="undocumented#Glyph">Glyphs</a> are unique, but appear evenly spaced.</div></fiddle-embed></div>
+When <a href="#Subpixel_Text">Subpixel Text</a> is enabled, the comma <a href="undocumented#Glyph">Glyphs</a> are unique, but appear evenly spaced.
+</div></fiddle-embed></div>
 
 ## <a name="Linear_Text"></a> Linear Text
 
@@ -1372,7 +1383,7 @@ Windows may select the bitmap glyph but is not required to do so.
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {<div>The "hintgasp" TrueType font in the Skia resources/fonts directory
+<div>The "hintgasp" TrueType font in the Skia resources/fonts directory
         includes an embedded bitmap Glyph at odd font sizes. This example works
         on platforms that use FreeType as their Font_Engine.
         Windows may, but is not required to, return a bitmap glyph if
@@ -1391,7 +1402,7 @@ void draw(SkCanvas* canvas) {<div>The "hintgasp" TrueType font in the Skia resou
     canvas->drawBitmap(bitmap, 0, 0);
     canvas->scale(10, 10);
     canvas->drawBitmap(bitmap, -2, 1);
-}
+
 </pre>
 
 <a name="SkPaint_isEmbeddedBitmapText"></a>
@@ -2110,7 +2121,8 @@ enum <a href="#SkPaint_Style">Style</a> {
 <a href="#SkPaint_kFill_Style">kFill Style</a>,
 <a href="#SkPaint_kStroke_Style">kStroke Style</a>,
 <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a>,
-};</pre>
+};
+</pre>
 
 Set <a href="#SkPaint_Style">Style</a> to fill, stroke, or both fill and stroke geometry.
 The stroke and fill
@@ -2129,20 +2141,23 @@ Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Regio
 <a href="#SkPaint_kFill_Style">kFill Style</a> is set, and ignore the set <a href="#SkPaint_Style">Style</a>.
 The <a href="SkPath_Reference#Fill_Type">Path Fill Type</a> specifies additional rules to fill the area outside the path edge,
 and to create an unfilled hole inside the shape.
-<a href="#SkPaint_Style">Style</a> is set to <a href="#SkPaint_kFill_Style">kFill Style</a> by default.</td>
+<a href="#SkPaint_Style">Style</a> is set to <a href="#SkPaint_kFill_Style">kFill Style</a> by default.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kStroke_Style"> <code><strong>SkPaint::kStroke_Style </strong></code> </a></td><td>1</td><td>Set to stroke geometry.
 Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Arc">Arcs</a>, <a href="undocumented#Circle">Circles</a>, <a href="undocumented#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
 <a href="undocumented#Arc">Arcs</a>, <a href="undocumented#Line">Lines</a>, and points, are always drawn as if <a href="#SkPaint_kStroke_Style">kStroke Style</a> is set,
 and ignore the set <a href="#SkPaint_Style">Style</a>.
-The stroke construction is unaffected by the <a href="SkPath_Reference#Fill_Type">Path Fill Type</a>.</td>
+The stroke construction is unaffected by the <a href="SkPath_Reference#Fill_Type">Path Fill Type</a>.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kStrokeAndFill_Style"> <code><strong>SkPaint::kStrokeAndFill_Style </strong></code> </a></td><td>2</td><td>Set to stroke and fill geometry.
 Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Circle">Circles</a>, <a href="undocumented#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
 <a href="SkPath_Reference#Path">Path</a> is treated as if it is set to <a href="SkPath_Reference#SkPath_kWinding_FillType">SkPath::kWinding FillType</a>,
-and the set <a href="SkPath_Reference#Fill_Type">Path Fill Type</a> is ignored.</td>
+and the set <a href="SkPath_Reference#Fill_Type">Path Fill Type</a> is ignored.
+</td>
   </tr>
 
 </table>
@@ -2152,14 +2167,16 @@ and the set <a href="SkPath_Reference#Fill_Type">Path Fill Type</a> is ignored.<
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 enum {
 <a href="#SkPaint_kStyleCount">kStyleCount</a> = <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a> + 1,
-};</pre>
+};
+</pre>
 
 ### Constants
 
 <table>
   <tr>
     <td><a name="SkPaint_kStyleCount"> <code><strong>SkPaint::kStyleCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#SkPaint_Style">Style</a> values defined.
-May be used to verify that <a href="#SkPaint_Style">Style</a> is a legal value.</td>
+May be used to verify that <a href="#SkPaint_Style">Style</a> is a legal value.
+</td>
   </tr>
 
 </table>
@@ -2244,7 +2261,8 @@ The default width for the paint is zero.
 ### Example
 
 <div><fiddle-embed name="01e3e08a3022a351628ff54e84887756" gpu="true"><div>The pixels hit to represent thin lines vary with the angle of the
-line and the platform implementation.</div></fiddle-embed></div>
+line and the platform implementation.
+</div></fiddle-embed></div>
 
 <a name="SkPaint_getStrokeWidth"></a>
 ## getStrokeWidth
@@ -2343,7 +2361,8 @@ Here are some miter limits and the angles that triggers them.
 
 <div><fiddle-embed name="5de2de0f00354e59074a9bb1a42d5a63"><div>This example draws a stroked corner and the miter length beneath.
 When the miter limit is decreased slightly, the miter join is replaced
-by a bevel join.</div></fiddle-embed></div>
+by a bevel join.
+</div></fiddle-embed></div>
 
 <a name="SkPaint_getStrokeMiter"></a>
 ## getStrokeMiter
@@ -2426,7 +2445,8 @@ enum <a href="#SkPaint_Cap">Cap</a> {
 <a href="#SkPaint_kDefault_Cap">kDefault Cap</a> = <a href="#SkPaint_kButt_Cap">kButt Cap</a>,
 };
 
-static constexpr int <a href="#SkPaint_kCapCount">kCapCount</a> = <a href="#SkPaint_kLast_Cap">kLast Cap</a> + 1;</pre>
+static constexpr int <a href="#SkPaint_kCapCount">kCapCount</a> = <a href="#SkPaint_kLast_Cap">kLast Cap</a> + 1;
+</pre>
 
 <a href="#Stroke_Cap">Stroke Cap</a> draws at the beginning and end of an open <a href="SkPath_Reference#Contour">Path Contour</a>.
 
@@ -2434,27 +2454,33 @@ static constexpr int <a href="#SkPaint_kCapCount">kCapCount</a> = <a href="#SkPa
 
 <table>
   <tr>
-    <td><a name="SkPaint_kButt_Cap"> <code><strong>SkPaint::kButt_Cap </strong></code> </a></td><td>0</td><td>Does not extend the stroke past the beginning or the end.</td>
+    <td><a name="SkPaint_kButt_Cap"> <code><strong>SkPaint::kButt_Cap </strong></code> </a></td><td>0</td><td>Does not extend the stroke past the beginning or the end.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kRound_Cap"> <code><strong>SkPaint::kRound_Cap </strong></code> </a></td><td>1</td><td>Adds a circle with a diameter equal to <a href="#Stroke_Width">Stroke Width</a> at the beginning
-and end.</td>
+and end.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kSquare_Cap"> <code><strong>SkPaint::kSquare_Cap </strong></code> </a></td><td>2</td><td>Adds a square with sides equal to <a href="#Stroke_Width">Stroke Width</a> at the beginning
 and end. The square sides are parallel to the initial and final direction
-of the stroke.</td>
+of the stroke.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kLast_Cap"> <code><strong>SkPaint::kLast_Cap </strong></code> </a></td><td>2</td><td>Equivalent to the largest value for <a href="#Stroke_Cap">Stroke Cap</a>.</td>
+    <td><a name="SkPaint_kLast_Cap"> <code><strong>SkPaint::kLast_Cap </strong></code> </a></td><td>2</td><td>Equivalent to the largest value for <a href="#Stroke_Cap">Stroke Cap</a>.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kDefault_Cap"> <code><strong>SkPaint::kDefault_Cap </strong></code> </a></td><td>0</td><td>Equivalent to <a href="#SkPaint_kButt_Cap">kButt Cap</a>.
-<a href="#Stroke_Cap">Stroke Cap</a> is set to <a href="#SkPaint_kButt_Cap">kButt Cap</a> by default.</td>
+<a href="#Stroke_Cap">Stroke Cap</a> is set to <a href="#SkPaint_kButt_Cap">kButt Cap</a> by default.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kCapCount"> <code><strong>SkPaint::kCapCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#Stroke_Cap">Stroke Cap</a> values defined.
-May be used to verify that <a href="#Stroke_Cap">Stroke Cap</a> is a legal value.</td>
+May be used to verify that <a href="#Stroke_Cap">Stroke Cap</a> is a legal value.
+</td>
   </tr>
 
 Stroke describes the area covered by a pen of <a href="#Stroke_Width">Stroke Width</a> as it
@@ -2572,7 +2598,8 @@ enum <a href="#SkPaint_Join">Join</a> {
 <a href="#SkPaint_kDefault_Join">kDefault Join</a> = <a href="#SkPaint_kMiter_Join">kMiter Join</a>,
 };
 
-static constexpr int <a href="#SkPaint_kJoinCount">kJoinCount</a> = <a href="#SkPaint_kLast_Join">kLast Join</a> + 1;</pre>
+static constexpr int <a href="#SkPaint_kJoinCount">kJoinCount</a> = <a href="#SkPaint_kLast_Join">kLast Join</a> + 1;
+</pre>
 
 <a href="#SkPaint_Join">Join</a> specifies how corners are drawn when a shape is stroked. <a href="#SkPaint_Join">Join</a>
 affects the four corners of a stroked rectangle, and the connected segments in a
@@ -2591,24 +2618,30 @@ not necessarily include circles at each connected segment.
 <table>
   <tr>
     <td><a name="SkPaint_kMiter_Join"> <code><strong>SkPaint::kMiter_Join </strong></code> </a></td><td>0</td><td>Extends the outside corner to the extent allowed by <a href="#Miter_Limit">Miter Limit</a>.
-If the extension exceeds <a href="#Miter_Limit">Miter Limit</a>, <a href="#SkPaint_kBevel_Join">kBevel Join</a> is used instead.</td>
+If the extension exceeds <a href="#Miter_Limit">Miter Limit</a>, <a href="#SkPaint_kBevel_Join">kBevel Join</a> is used instead.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kRound_Join"> <code><strong>SkPaint::kRound_Join </strong></code> </a></td><td>1</td><td>Adds a circle with a diameter of <a href="#Stroke_Width">Stroke Width</a> at the sharp corner.</td>
+    <td><a name="SkPaint_kRound_Join"> <code><strong>SkPaint::kRound_Join </strong></code> </a></td><td>1</td><td>Adds a circle with a diameter of <a href="#Stroke_Width">Stroke Width</a> at the sharp corner.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kBevel_Join"> <code><strong>SkPaint::kBevel_Join </strong></code> </a></td><td>2</td><td>Connects the outside edges of the sharp corner.</td>
+    <td><a name="SkPaint_kBevel_Join"> <code><strong>SkPaint::kBevel_Join </strong></code> </a></td><td>2</td><td>Connects the outside edges of the sharp corner.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kLast_Join"> <code><strong>SkPaint::kLast_Join </strong></code> </a></td><td>2</td><td>Equivalent to the largest value for <a href="#Stroke_Join">Stroke Join</a>.</td>
+    <td><a name="SkPaint_kLast_Join"> <code><strong>SkPaint::kLast_Join </strong></code> </a></td><td>2</td><td>Equivalent to the largest value for <a href="#Stroke_Join">Stroke Join</a>.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kDefault_Join"> <code><strong>SkPaint::kDefault_Join </strong></code> </a></td><td>1</td><td>Equivalent to <a href="#SkPaint_kMiter_Join">kMiter Join</a>.
-<a href="#Stroke_Join">Stroke Join</a> is set to <a href="#SkPaint_kMiter_Join">kMiter Join</a> by default.</td>
+<a href="#Stroke_Join">Stroke Join</a> is set to <a href="#SkPaint_kMiter_Join">kMiter Join</a> by default.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kJoinCount"> <code><strong>SkPaint::kJoinCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#Stroke_Join">Stroke Join</a> values defined.
-May be used to verify that <a href="#Stroke_Join">Stroke Join</a> is a legal value.</td>
+May be used to verify that <a href="#Stroke_Join">Stroke Join</a> is a legal value.
+</td>
   </tr>
 </table>
 
@@ -2743,7 +2776,8 @@ true if the path represents <a href="#Style_Fill">Style Fill</a>, or false if it
 
 <div><fiddle-embed name="cedd6233848198e1fca4d1e14816baaf"><div>A very small <a href="SkPath_Reference#Quad">Quad</a> stroke is turned into a filled path with increasing levels of precision.
 At the lowest precision, the <a href="SkPath_Reference#Quad">Quad</a> stroke is approximated by a rectangle.
-At the highest precision, the filled path has high fidelity compared to the original stroke.</div></fiddle-embed></div>
+At the highest precision, the filled path has high fidelity compared to the original stroke.
+</div></fiddle-embed></div>
 
 ---
 
@@ -3596,7 +3630,8 @@ enum <a href="#SkPaint_Align">Align</a> {
 <a href="#SkPaint_kLeft_Align">kLeft Align</a>,
 <a href="#SkPaint_kCenter_Align">kCenter Align</a>,
 <a href="#SkPaint_kRight_Align">kRight Align</a>,
-};</pre>
+};
+</pre>
 
 <a href="#SkPaint_Align">Align</a> adjusts the text relative to the text position.
 <a href="#SkPaint_Align">Align</a> affects <a href="undocumented#Glyph">Glyphs</a> drawn with: <a href="SkCanvas_Reference#SkCanvas_drawText">SkCanvas::drawText</a>, <a href="SkCanvas_Reference#SkCanvas_drawPosText">SkCanvas::drawPosText</a>,
@@ -3619,15 +3654,18 @@ using the metrics returned by the font.
 
 <table>
   <tr>
-    <td><a name="SkPaint_kLeft_Align"> <code><strong>SkPaint::kLeft_Align </strong></code> </a></td><td>0</td><td>Leaves the glyph at the position computed by the font offset by the text position.</td>
+    <td><a name="SkPaint_kLeft_Align"> <code><strong>SkPaint::kLeft_Align </strong></code> </a></td><td>0</td><td>Leaves the glyph at the position computed by the font offset by the text position.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kCenter_Align"> <code><strong>SkPaint::kCenter_Align </strong></code> </a></td><td>1</td><td>Moves the glyph half its width if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> clear, and
-half its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> set.</td>
+half its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> set.
+</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kRight_Align"> <code><strong>SkPaint::kRight_Align </strong></code> </a></td><td>2</td><td>Moves the glyph by its width if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> clear,
-and by its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> set.</td>
+and by its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> set.
+</td>
   </tr>
 
 </table>
@@ -3637,24 +3675,28 @@ and by its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kV
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 enum {
 <a href="#SkPaint_kAlignCount">kAlignCount</a> = 3,
-};</pre>
+};
+</pre>
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkPaint_kAlignCount"> <code><strong>SkPaint::kAlignCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#Text_Align">Text Align</a> values defined.</td>
+    <td><a name="SkPaint_kAlignCount"> <code><strong>SkPaint::kAlignCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#Text_Align">Text Align</a> values defined.
+</td>
   </tr>
 
 </table>
 
 ### Example
 
-<div><fiddle-embed name="702617fd9ebc3f12e30081b5db93e8a8"><div>Each position separately moves the glyph in drawPosText.</div></fiddle-embed></div>
+<div><fiddle-embed name="702617fd9ebc3f12e30081b5db93e8a8"><div>Each position separately moves the glyph in drawPosText.
+</div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="f1cbbbafe6b3c52b81309cccbf96a308"><div><a href="#Vertical_Text">Vertical Text</a> treats <a href="#SkPaint_kLeft_Align">kLeft Align</a> as top align, and <a href="#SkPaint_kRight_Align">kRight Align</a> as bottom align.</div></fiddle-embed></div>
+<div><fiddle-embed name="f1cbbbafe6b3c52b81309cccbf96a308"><div><a href="#Vertical_Text">Vertical Text</a> treats <a href="#SkPaint_kLeft_Align">kLeft Align</a> as top align, and <a href="#SkPaint_kRight_Align">kRight Align</a> as bottom align.
+</div></fiddle-embed></div>
 
 <a name="SkPaint_getTextAlign"></a>
 ## getTextAlign
@@ -3704,7 +3746,8 @@ text placement relative to position</td>
 ### Example
 
 <div><fiddle-embed name="d37540afd918506ac2594665ca63979b"><div><a href="undocumented#Text">Text</a> is left-aligned by default, and then set to center. Setting the
-alignment out of range has no effect.</div></fiddle-embed></div>
+alignment out of range has no effect.
+</div></fiddle-embed></div>
 
 ---
 
@@ -3881,7 +3924,8 @@ enum <a href="#SkPaint_TextEncoding">TextEncoding</a> {
 <a href="#SkPaint_kUTF16_TextEncoding">kUTF16 TextEncoding</a>,
 <a href="#SkPaint_kUTF32_TextEncoding">kUTF32 TextEncoding</a>,
 <a href="#SkPaint_kGlyphID_TextEncoding">kGlyphID TextEncoding</a>,
-};</pre>
+};
+</pre>
 
 <a href="#SkPaint_TextEncoding">TextEncoding</a> determines whether text specifies character codes and their encoded
 size, or glyph indices. Characters are encoded as specified by the <a href="http://unicode.org/standard/standard.html">Unicode standard</a> .
@@ -3905,16 +3949,20 @@ A glyph index is a 16-bit word.
 
 <table>
   <tr>
-    <td><a name="SkPaint_kUTF8_TextEncoding"> <code><strong>SkPaint::kUTF8_TextEncoding </strong></code> </a></td><td>0</td><td>Uses bytes to represent UTF-8 or ASCII.</td>
+    <td><a name="SkPaint_kUTF8_TextEncoding"> <code><strong>SkPaint::kUTF8_TextEncoding </strong></code> </a></td><td>0</td><td>Uses bytes to represent UTF-8 or ASCII.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kUTF16_TextEncoding"> <code><strong>SkPaint::kUTF16_TextEncoding </strong></code> </a></td><td>1</td><td>Uses two byte words to represent most of Unicode.</td>
+    <td><a name="SkPaint_kUTF16_TextEncoding"> <code><strong>SkPaint::kUTF16_TextEncoding </strong></code> </a></td><td>1</td><td>Uses two byte words to represent most of Unicode.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kUTF32_TextEncoding"> <code><strong>SkPaint::kUTF32_TextEncoding </strong></code> </a></td><td>2</td><td>Uses four byte words to represent all of Unicode.</td>
+    <td><a name="SkPaint_kUTF32_TextEncoding"> <code><strong>SkPaint::kUTF32_TextEncoding </strong></code> </a></td><td>2</td><td>Uses four byte words to represent all of Unicode.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kGlyphID_TextEncoding"> <code><strong>SkPaint::kGlyphID_TextEncoding </strong></code> </a></td><td>3</td><td>Uses two byte words to represent glyph indices.</td>
+    <td><a name="SkPaint_kGlyphID_TextEncoding"> <code><strong>SkPaint::kGlyphID_TextEncoding </strong></code> </a></td><td>3</td><td>Uses two byte words to represent glyph indices.
+</td>
   </tr>
 
 </table>
@@ -3924,7 +3972,8 @@ A glyph index is a 16-bit word.
 <div><fiddle-embed name="b29294e7f29d160a1b46abf2dcec9d2a"><div>First line is encoded in UTF-8.
 Second line is encoded in UTF-16.
 Third line is encoded in UTF-32.
-Fourth line has 16 bit glyph indices.</div></fiddle-embed></div>
+Fourth line has 16 bit glyph indices.
+</div></fiddle-embed></div>
 
 <a name="SkPaint_getTextEncoding"></a>
 ## getTextEncoding
@@ -4038,7 +4087,8 @@ bool <a href="#SkPaint_FontMetrics_hasUnderlineThickness">hasUnderlineThickness(
 bool <a href="#SkPaint_FontMetrics_hasUnderlinePosition">hasUnderlinePosition(SkScalar* position)</a> const;
 bool <a href="#SkPaint_FontMetrics_hasStrikeoutThickness">hasStrikeoutThickness(SkScalar* thickness)</a> const;
 bool <a href="#SkPaint_FontMetrics_hasStrikeoutPosition">hasStrikeoutPosition(SkScalar* position)</a> const;
-};</pre>
+};
+</pre>
 
 <a href="#SkPaint_FontMetrics">FontMetrics</a> is filled out by <a href="#SkPaint_getFontMetrics">getFontMetrics</a>. <a href="#SkPaint_FontMetrics">FontMetrics</a> contents reflect the values
 computed by <a href="undocumented#Font_Manager">Font Manager</a> using <a href="undocumented#Typeface">Typeface</a>. Values are set to zero if they are
@@ -4062,7 +4112,8 @@ enum <a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> {
 <a href="#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag">kUnderlinePositionIsValid Flag</a> = 1 << 1,
 <a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> = 1 << 2,
 <a href="#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag">kStrikeoutPositionIsValid Flag</a> = 1 << 3,
-};</pre>
+};
+</pre>
 
 <a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> are set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> when underline and strikeout metrics are valid;
 the underline or strikeout metric may be valid and zero.
@@ -4072,16 +4123,20 @@ Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
 
 <table>
   <tr>
-    <td><a name="SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag </strong></code> </a></td><td>0x0001</td><td>Set if <a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a> is valid.</td>
+    <td><a name="SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag </strong></code> </a></td><td>0x0001</td><td>Set if <a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a> is valid.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag </strong></code> </a></td><td>0x0002</td><td>Set if <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a> is valid.</td>
+    <td><a name="SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag </strong></code> </a></td><td>0x0002</td><td>Set if <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a> is valid.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kStrikeoutThicknessIsValid_Flag </strong></code> </a></td><td>0x0004</td><td>Set if <a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a> is valid.</td>
+    <td><a name="SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kStrikeoutThicknessIsValid_Flag </strong></code> </a></td><td>0x0004</td><td>Set if <a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a> is valid.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag </strong></code> </a></td><td>0x0008</td><td>Set if <a href="#SkPaint_FontMetrics_fStrikeoutPosition">fStrikeoutPosition</a> is valid.</td>
+    <td><a name="SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag </strong></code> </a></td><td>0x0008</td><td>Set if <a href="#SkPaint_FontMetrics_fStrikeoutPosition">fStrikeoutPosition</a> is valid.
+</td>
   </tr>
 
 </table>
@@ -4491,7 +4546,8 @@ true if all <a href="#SkPaint_containsText_text">text</a> corresponds to a non-z
 ### Example
 
 <div><fiddle-embed name="9202369019552f09cd4bec7f3046fee4"><div><a href="#SkPaint_containsText">containsText</a> succeeds for degree symbol, but cannot find a glyph index
-corresponding to the Unicode surrogate code point.</div>
+corresponding to the Unicode surrogate code point.
+</div>
 
 #### Example Output
 
@@ -4505,7 +4561,8 @@ corresponding to the Unicode surrogate code point.</div>
 ### Example
 
 <div><fiddle-embed name="904227febfd1c2e264955da0ef66da73"><div><a href="#SkPaint_containsText">containsText</a> returns true that glyph index is greater than zero, not
-that it corresponds to an entry in <a href="undocumented#Typeface">Typeface</a>.</div>
+that it corresponds to an entry in <a href="undocumented#Typeface">Typeface</a>.
+</div>
 
 #### Example Output
 
@@ -4550,7 +4607,8 @@ storage for character codes, one per glyph</td>
 
 ### Example
 
-<div><fiddle-embed name="c12686b0b3e0a87d0a248bbfc57e9492"><div>Convert UTF-8 <a href="#SkPaint_glyphsToUnichars_text">text</a> to <a href="#SkPaint_glyphsToUnichars_glyphs">glyphs</a>; then convert <a href="#SkPaint_glyphsToUnichars_glyphs">glyphs</a> to Unichar code points.</div></fiddle-embed></div>
+<div><fiddle-embed name="c12686b0b3e0a87d0a248bbfc57e9492"><div>Convert UTF-8 <a href="#SkPaint_glyphsToUnichars_text">text</a> to <a href="#SkPaint_glyphsToUnichars_glyphs">glyphs</a>; then convert <a href="#SkPaint_glyphsToUnichars_glyphs">glyphs</a> to Unichar code points.
+</div></fiddle-embed></div>
 
 ---
 
@@ -4673,7 +4731,8 @@ bytes of <a href="#SkPaint_breakText_text">text</a> that fit, always less than o
 ### Example
 
 <div><fiddle-embed name="fd0033470ccbd5c7059670fdbf96cffc"><div><a href="undocumented#Line">Line</a> under "" shows desired width, shorter than available characters.
-<a href="undocumented#Line">Line</a> under "" shows measured width after breaking <a href="#SkPaint_breakText_text">text</a>.</div></fiddle-embed></div>
+<a href="undocumented#Line">Line</a> under "" shows measured width after breaking <a href="#SkPaint_breakText_text">text</a>.
+</div></fiddle-embed></div>
 
 ---
 
@@ -4716,7 +4775,8 @@ glyph count in <a href="#SkPaint_getTextWidths_text">text</a>
 ### Example
 
 <div><fiddle-embed name="6b9e101f49e9c2c28755c5bdcef64dfb"><div>Bounds of <a href="undocumented#Glyph">Glyphs</a> increase for stroked <a href="#SkPaint_getTextWidths_text">text</a>, but <a href="#SkPaint_getTextWidths_text">text</a> advance remains the same.
-The underlines show the <a href="#SkPaint_getTextWidths_text">text</a> advance, spaced to keep them distinct.</div></fiddle-embed></div>
+The underlines show the <a href="#SkPaint_getTextWidths_text">text</a> advance, spaced to keep them distinct.
+</div></fiddle-embed></div>
 
 ---
 
@@ -4755,7 +4815,8 @@ geometry of the <a href="undocumented#Glyph">Glyphs</a></td>
 ### Example
 
 <div><fiddle-embed name="7c9e6a399f898d68026c1f0865e6f73e"><div><a href="undocumented#Text">Text</a> is added to <a href="SkPath_Reference#Path">Path</a>, offset, and subtracted from <a href="SkPath_Reference#Path">Path</a>, then added at
-the offset location. The result is rendered with one draw call.</div></fiddle-embed></div>
+the offset location. The result is rendered with one draw call.
+</div></fiddle-embed></div>
 
 ---
 
@@ -4788,7 +4849,8 @@ geometry of the <a href="undocumented#Glyph">Glyphs</a></td>
 
 ### Example
 
-<div><fiddle-embed name="7f27c93472aa99a7542fb3493076f072"><div>Simplifies three <a href="undocumented#Glyph">Glyphs</a> to eliminate overlaps, and strokes the result.</div></fiddle-embed></div>
+<div><fiddle-embed name="7f27c93472aa99a7542fb3493076f072"><div>Simplifies three <a href="undocumented#Glyph">Glyphs</a> to eliminate overlaps, and strokes the result.
+</div></fiddle-embed></div>
 
 ---
 
@@ -4839,7 +4901,8 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="2a0b80ed20d193c688085b79deb5bdc9"><div>Underline uses intercepts to draw on either side of the glyph Descender.</div></fiddle-embed></div>
+<div><fiddle-embed name="2a0b80ed20d193c688085b79deb5bdc9"><div>Underline uses intercepts to draw on either side of the glyph Descender.
+</div></fiddle-embed></div>
 
 ---
 
@@ -4882,7 +4945,8 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="98b2dfc552d0540a7c041fe7a2839bd7"><div><a href="undocumented#Text">Text</a> intercepts draw on either side of, but not inside, <a href="undocumented#Glyph">Glyphs</a> in a run.</div></fiddle-embed></div>
+<div><fiddle-embed name="98b2dfc552d0540a7c041fe7a2839bd7"><div><a href="undocumented#Text">Text</a> intercepts draw on either side of, but not inside, <a href="undocumented#Glyph">Glyphs</a> in a run.
+</div></fiddle-embed></div>
 
 ---
 
@@ -4927,7 +4991,8 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="dc9851c43acc3716aca8c9a4d40d452d"><div><a href="undocumented#Text">Text</a> intercepts do not take stroke thickness into consideration.</div></fiddle-embed></div>
+<div><fiddle-embed name="dc9851c43acc3716aca8c9a4d40d452d"><div><a href="undocumented#Text">Text</a> intercepts do not take stroke thickness into consideration.
+</div></fiddle-embed></div>
 
 ---
 

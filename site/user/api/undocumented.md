@@ -877,7 +877,8 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
     <td><a name="SkSurfaceProps_kLegacyFontHost_InitType"> <code><strong>SkSurfaceProps::kLegacyFontHost_InitType </strong></code> </a></td><td>0</td><td></td>
   </tr>
 
-</table>
+#
+Topic</table>
 
 # <a name="Text"></a> Text
 

@@ -36,7 +36,8 @@ identity; although <a href="#Path">Path</a> can be inspected to determine if it 
 
 <div><fiddle-embed name="93887af0c1dac49521972698cf04069c"><div><a href="#Path">Path</a> contains three <a href="#Contour">Contours</a>: <a href="undocumented#Line">Line</a>, <a href="undocumented#Circle">Circle</a>, and <a href="#Quad">Quad</a>. <a href="undocumented#Line">Line</a> is stroked but
 not filled. <a href="undocumented#Circle">Circle</a> is stroked and filled; <a href="undocumented#Circle">Circle</a> stroke forms a loop. <a href="#Quad">Quad</a>
-is stroked and filled, but since it is not closed, <a href="#Quad">Quad</a> does not stroke a loop.</div></fiddle-embed></div>
+is stroked and filled, but since it is not closed, <a href="#Quad">Quad</a> does not stroke a loop.
+</div></fiddle-embed></div>
 
 <a href="#Path">Path</a> contains a <a href="#Fill_Type">Fill Type</a> which determines whether overlapping <a href="#Contour">Contours</a>
 form fills or holes. <a href="#Fill_Type">Fill Type</a> also determines whether area inside or outside
@@ -44,7 +45,8 @@ form fills or holes. <a href="#Fill_Type">Fill Type</a> also determines whether 
 
 ### Example
 
-<div><fiddle-embed name="36a995442c081ee779ecab2962d36e69"><div><a href="#Path">Path</a> is drawn filled, then stroked, then stroked and filled.</div></fiddle-embed></div>
+<div><fiddle-embed name="36a995442c081ee779ecab2962d36e69"><div><a href="#Path">Path</a> is drawn filled, then stroked, then stroked and filled.
+</div></fiddle-embed></div>
 
 <a href="#Path">Path</a> contents are never shared. Copying <a href="#Path">Path</a> by value effectively creates
 a new <a href="#Path">Path</a> independent of the original. Internally, the copy does not duplicate
@@ -61,7 +63,8 @@ are required to satisfy <a href="#Verb_Array">Verb Array</a>. First <a href="#Ve
 <div><fiddle-embed name="0374f2dcd7effeb1dd435205a6c2de6f"><div>Each <a href="#SkPath_moveTo">SkPath::moveTo</a> starts a new <a href="#Contour">Contour</a>, and content after <a href="#SkPath_close">SkPath::close()</a>
 also starts a new <a href="#Contour">Contour</a>. Since <a href="#SkPath_conicTo">SkPath::conicTo</a> is not preceded by
 <a href="#SkPath_moveTo">SkPath::moveTo</a>, the first <a href="SkPoint_Reference#Point">Point</a> of the third <a href="#Contour">Contour</a> starts at the last <a href="SkPoint_Reference#Point">Point</a>
-of the second <a href="#Contour">Contour</a>.</div></fiddle-embed></div>
+of the second <a href="#Contour">Contour</a>.
+</div></fiddle-embed></div>
 
 If final <a href="#Verb">Verb</a> in <a href="#Contour">Contour</a> is <a href="#SkPath_kClose_Verb">SkPath::kClose Verb</a>, <a href="undocumented#Line">Line</a> connects <a href="#Last_Point">Last Point</a> in
 <a href="#Contour">Contour</a> with first <a href="SkPoint_Reference#Point">Point</a>. A closed <a href="#Contour">Contour</a>, stroked, draws
@@ -72,7 +75,8 @@ remains open. An open <a href="#Contour">Contour</a>, stroked, draws <a href="Sk
 
 ### Example
 
-<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2"><div><a href="#Path">Path</a> is drawn stroked, with an open <a href="#Contour">Contour</a> and a closed <a href="#Contour">Contour</a>.</div></fiddle-embed></div>
+<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2"><div><a href="#Path">Path</a> is drawn stroked, with an open <a href="#Contour">Contour</a> and a closed <a href="#Contour">Contour</a>.
+</div></fiddle-embed></div>
 
 ## <a name="Contour_Zero_Length"></a> Contour Zero Length
 
@@ -257,7 +261,8 @@ enum <a href="#Verb">Verb</a> {
 <a href="#SkPath_kCubic_Verb">kCubic Verb</a>,
 <a href="#SkPath_kClose_Verb">kClose Verb</a>,
 <a href="#SkPath_kDone_Verb">kDone Verb</a>,
-};</pre>
+};
+</pre>
 
 <a href="#Verb">Verb</a> instructs <a href="#Path">Path</a> how to interpret one or more <a href="SkPoint_Reference#Point">Point</a> and optional <a href="#Conic_Weight">Conic Weight</a>;
 manage <a href="#Contour">Contour</a>, and terminate <a href="#Path">Path</a>.
@@ -266,34 +271,41 @@ manage <a href="#Contour">Contour</a>, and terminate <a href="#Path">Path</a>.
 
 <table>
   <tr>
-    <td><a name="SkPath_kMove_Verb"> <code><strong>SkPath::kMove_Verb </strong></code> </a></td><td>0</td><td>Starts new <a href="#Contour">Contour</a> at next <a href="SkPoint_Reference#Point">Point</a>.</td>
+    <td><a name="SkPath_kMove_Verb"> <code><strong>SkPath::kMove_Verb </strong></code> </a></td><td>0</td><td>Starts new <a href="#Contour">Contour</a> at next <a href="SkPoint_Reference#Point">Point</a>.
+</td>
   </tr>
   <tr>
     <td><a name="SkPath_kLine_Verb"> <code><strong>SkPath::kLine_Verb </strong></code> </a></td><td>1</td><td>Adds <a href="undocumented#Line">Line</a> from <a href="#Last_Point">Last Point</a> to next <a href="SkPoint_Reference#Point">Point</a>.
-<a href="undocumented#Line">Line</a> is a straight segment from <a href="SkPoint_Reference#Point">Point</a> to <a href="SkPoint_Reference#Point">Point</a>.</td>
+<a href="undocumented#Line">Line</a> is a straight segment from <a href="SkPoint_Reference#Point">Point</a> to <a href="SkPoint_Reference#Point">Point</a>.
+</td>
   </tr>
   <tr>
     <td><a name="SkPath_kQuad_Verb"> <code><strong>SkPath::kQuad_Verb </strong></code> </a></td><td>2</td><td>Adds <a href="#Quad">Quad</a> from <a href="#Last_Point">Last Point</a>, using control <a href="SkPoint_Reference#Point">Point</a>, and end <a href="SkPoint_Reference#Point">Point</a>.
 <a href="#Quad">Quad</a> is a parabolic section within tangents from <a href="#Last_Point">Last Point</a> to control <a href="SkPoint_Reference#Point">Point</a>,
-and control <a href="SkPoint_Reference#Point">Point</a> to end <a href="SkPoint_Reference#Point">Point</a>.</td>
+and control <a href="SkPoint_Reference#Point">Point</a> to end <a href="SkPoint_Reference#Point">Point</a>.
+</td>
   </tr>
   <tr>
     <td><a name="SkPath_kConic_Verb"> <code><strong>SkPath::kConic_Verb </strong></code> </a></td><td>3</td><td>Adds <a href="#Conic">Conic</a> from <a href="#Last_Point">Last Point</a>, using control <a href="SkPoint_Reference#Point">Point</a>, end <a href="SkPoint_Reference#Point">Point</a>, and <a href="#Conic_Weight">Conic Weight</a>.
 <a href="#Conic">Conic</a> is a elliptical, parabolic, or hyperbolic section within tangents
 from <a href="#Last_Point">Last Point</a> to control <a href="SkPoint_Reference#Point">Point</a>, and control <a href="SkPoint_Reference#Point">Point</a> to end <a href="SkPoint_Reference#Point">Point</a>, constrained
 by <a href="#Conic_Weight">Conic Weight</a>. <a href="#Conic_Weight">Conic Weight</a> less than one is elliptical; equal to one is
-parabolic (and identical to <a href="#Quad">Quad</a>); greater than one hyperbolic.</td>
+parabolic (and identical to <a href="#Quad">Quad</a>); greater than one hyperbolic.
+</td>
   </tr>
   <tr>
     <td><a name="SkPath_kCubic_Verb"> <code><strong>SkPath::kCubic_Verb </strong></code> </a></td><td>4</td><td>Adds <a href="#Cubic">Cubic</a> from <a href="#Last_Point">Last Point</a>, using two control <a href="SkPoint_Reference#Point">Points</a>, and end <a href="SkPoint_Reference#Point">Point</a>.
 <a href="#Cubic">Cubic</a> is a third-order Bezier_Curve section within tangents from <a href="#Last_Point">Last Point</a>
-to first control <a href="SkPoint_Reference#Point">Point</a>, and from second control <a href="SkPoint_Reference#Point">Point</a> to end <a href="SkPoint_Reference#Point">Point</a>.</td>
+to first control <a href="SkPoint_Reference#Point">Point</a>, and from second control <a href="SkPoint_Reference#Point">Point</a> to end <a href="SkPoint_Reference#Point">Point</a>.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kClose_Verb"> <code><strong>SkPath::kClose_Verb </strong></code> </a></td><td>5</td><td>Closes <a href="#Contour">Contour</a>, connecting <a href="#Last_Point">Last Point</a> to <a href="#SkPath_kMove_Verb">kMove Verb</a> <a href="SkPoint_Reference#Point">Point</a>.</td>
+    <td><a name="SkPath_kClose_Verb"> <code><strong>SkPath::kClose_Verb </strong></code> </a></td><td>5</td><td>Closes <a href="#Contour">Contour</a>, connecting <a href="#Last_Point">Last Point</a> to <a href="#SkPath_kMove_Verb">kMove Verb</a> <a href="SkPoint_Reference#Point">Point</a>.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kDone_Verb"> <code><strong>SkPath::kDone_Verb </strong></code> </a></td><td>6</td><td>Terminates <a href="#Path">Path</a>. Not in <a href="#Verb_Array">Verb Array</a>, but returned by <a href="#Path">Path</a> iterator.</td>
+    <td><a name="SkPath_kDone_Verb"> <code><strong>SkPath::kDone_Verb </strong></code> </a></td><td>6</td><td>Terminates <a href="#Path">Path</a>. Not in <a href="#Verb_Array">Verb Array</a>, but returned by <a href="#Path">Path</a> iterator.
+</td>
   </tr>
 Each <a href="#Verb">Verb</a> has zero or more <a href="SkPoint_Reference#Point">Points</a> stored in <a href="#Path">Path</a>.
 <a href="#Path">Path</a> iterator returns complete curve descriptions, duplicating shared <a href="SkPoint_Reference#Point">Points</a>
@@ -334,7 +346,8 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 enum <a href="#Direction">Direction</a> {
 <a href="#SkPath_kCW_Direction">kCW Direction</a>,
 <a href="#SkPath_kCCW_Direction">kCCW Direction</a>,
-};</pre>
+};
+</pre>
 
 <a href="#Direction">Direction</a> describes whether <a href="#Contour">Contour</a> is clockwise or counterclockwise.
 When <a href="#Path">Path</a> contains multiple overlapping <a href="#Contour">Contours</a>, <a href="#Direction">Direction</a> together with
@@ -430,7 +443,8 @@ copy of <a href="#Path">Path</a>
 ### Example
 
 <div><fiddle-embed name="647312aacd946c8a6eabaca797140432"><div>Modifying one <a href="#SkPath_copy_const_SkPath_path">path</a> does not effect another, even if they started as copies
-of each other.</div>
+of each other.
+</div>
 
 #### Example Output
 
@@ -461,7 +475,8 @@ Releases ownership of any shared data and deletes data if <a href="#Path">Path</
 
 ### Example
 
-<div><fiddle-embed name="01ad6be9b7d15a2217daea273eb3d466"><div>delete calls <a href="#Path">Path</a> Destructor, but copy of original in path2 is unaffected.</div></fiddle-embed></div>
+<div><fiddle-embed name="01ad6be9b7d15a2217daea273eb3d466"><div>delete calls <a href="#Path">Path</a> Destructor, but copy of original in path2 is unaffected.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -540,7 +555,8 @@ true if <a href="#Path">Path</a> pair are equivalent
 ### Example
 
 <div><fiddle-embed name="31883f51bb357f2ac5990d88f8b82e02"><div>Rewind removes <a href="#Verb_Array">Verb Array</a> but leaves storage; since storage is not compared,
-<a href="#Path">Path</a> pair are equivalent.</div>
+<a href="#Path">Path</a> pair are equivalent.
+</div>
 
 #### Example Output
 
@@ -580,7 +596,8 @@ true if <a href="#Path">Path</a> pair are not equivalent
 
 ### Example
 
-<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"><div><a href="#Path">Path</a> pair are equal though their convexity is not equal.</div>
+<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"><div><a href="#Path">Path</a> pair are equal though their convexity is not equal.
+</div>
 
 #### Example Output
 
@@ -679,7 +696,8 @@ bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const
 <a href="#Interpolate">Interpolate</a> between <a href="#Path">Paths</a> with <a href="#Point_Array">Point Array</a> of equal size.
 Copy <a href="#Verb_Array">Verb Array</a> and <a href="#Conic_Weight">Weights</a> to <a href="#SkPath_interpolate_out">out</a>, and set <a href="#SkPath_interpolate_out">out</a> <a href="#Point_Array">Point Array</a> to a weighted
 average of this <a href="#Point_Array">Point Array</a> and <a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>, using the formula:
-(<a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> * <a href="#SkPath_interpolate_weight">weight</a>) + <a href="#SkPath_interpolate_ending">ending</a> <a href="SkPoint_Reference#Point">Point</a> * (1 - <a href="#SkPath_interpolate_weight">weight</a>).
+(<a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> * <a href="#SkPath_interpolate_weight">weight</a>) + <a href="#SkPath_interpolate_ending">ending</a> <a href="SkPoint_Reference#Point">Point</a> * (1 - <a href="#SkPath_interpolate_weight">weight</a>)
+.
 
 <a href="#SkPath_interpolate_weight">weight</a> is most useful when between zero (<a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>) and
 one (this <a href="#Point_Array">Point Array</a>); will work with values outside of this
@@ -736,7 +754,8 @@ enum <a href="#SkPath_FillType">FillType</a> {
 <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>,
 <a href="#SkPath_kInverseWinding_FillType">kInverseWinding FillType</a>,
 <a href="#SkPath_kInverseEvenOdd_FillType">kInverseEvenOdd FillType</a>,
-};</pre>
+};
+</pre>
 
 <a href="#Fill_Type">Fill Type</a> selects the rule used to fill <a href="#Path">Path</a>. <a href="#Path">Path</a> set to <a href="#SkPath_kWinding_FillType">kWinding FillType</a>
 fills if the sum of <a href="#Contour">Contour</a> edges is not zero, where clockwise edges add one, and
@@ -751,22 +770,27 @@ reverses the rule:
 <div><fiddle-embed name="525ed591c31960de23068dba8ea11a75"><div>The top row has two clockwise rectangles. The second row has one clockwise and
 one counterclockwise rectangle. The even-odd variants draw the same. The
 winding variants draw the top rectangle overlap, which has a winding of 2, the
-same as the outer parts of the top rectangles, which have a winding of 1.</div></fiddle-embed></div>
+same as the outer parts of the top rectangles, which have a winding of 1.
+</div></fiddle-embed></div>
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkPath_kWinding_FillType"> <code><strong>SkPath::kWinding_FillType </strong></code> </a></td><td>0</td><td>Specifies fill as area is enclosed by a non-zero sum of <a href="#Contour">Contour</a> <a href="#Direction">Directions</a>.</td>
+    <td><a name="SkPath_kWinding_FillType"> <code><strong>SkPath::kWinding_FillType </strong></code> </a></td><td>0</td><td>Specifies fill as area is enclosed by a non-zero sum of <a href="#Contour">Contour</a> <a href="#Direction">Directions</a>.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kEvenOdd_FillType"> <code><strong>SkPath::kEvenOdd_FillType </strong></code> </a></td><td>1</td><td>Specifies fill as area enclosed by an odd number of <a href="#Contour">Contours</a>.</td>
+    <td><a name="SkPath_kEvenOdd_FillType"> <code><strong>SkPath::kEvenOdd_FillType </strong></code> </a></td><td>1</td><td>Specifies fill as area enclosed by an odd number of <a href="#Contour">Contours</a>.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kInverseWinding_FillType"> <code><strong>SkPath::kInverseWinding_FillType </strong></code> </a></td><td>2</td><td>Specifies fill as area is enclosed by a zero sum of <a href="#Contour">Contour</a> <a href="#Direction">Directions</a>.</td>
+    <td><a name="SkPath_kInverseWinding_FillType"> <code><strong>SkPath::kInverseWinding_FillType </strong></code> </a></td><td>2</td><td>Specifies fill as area is enclosed by a zero sum of <a href="#Contour">Contour</a> <a href="#Direction">Directions</a>.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kInverseEvenOdd_FillType"> <code><strong>SkPath::kInverseEvenOdd_FillType </strong></code> </a></td><td>3</td><td>Specifies fill as area enclosed by an even number of <a href="#Contour">Contours</a>.</td>
+    <td><a name="SkPath_kInverseEvenOdd_FillType"> <code><strong>SkPath::kInverseEvenOdd_FillType </strong></code> </a></td><td>3</td><td>Specifies fill as area enclosed by an even number of <a href="#Contour">Contours</a>.
+</td>
   </tr>
 </table>
 
@@ -833,7 +857,8 @@ one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkP
 
 ### Example
 
-<div><fiddle-embed name="b4a91cd7f50b2a0a0d1bec6d0ac823d2"><div>If empty <a href="#Path">Path</a> is set to inverse <a href="#SkPath_FillType">FillType</a>, it fills all pixels.</div></fiddle-embed></div>
+<div><fiddle-embed name="b4a91cd7f50b2a0a0d1bec6d0ac823d2"><div>If empty <a href="#Path">Path</a> is set to inverse <a href="#SkPath_FillType">FillType</a>, it fills all pixels.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -892,7 +917,8 @@ unmodified by the original <a href="#SkPath_FillType">FillType</a>.
 
 ### Example
 
-<div><fiddle-embed name="400facce23d417bc5043c5f58404afbd"><div><a href="#Path">Path</a> drawn normally and through its inverse touches every pixel once.</div></fiddle-embed></div>
+<div><fiddle-embed name="400facce23d417bc5043c5f58404afbd"><div><a href="#Path">Path</a> drawn normally and through its inverse touches every pixel once.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -909,7 +935,8 @@ enum <a href="#Convexity">Convexity</a> : uint8_t {
 <a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>,
 <a href="#SkPath_kConvex_Convexity">kConvex Convexity</a>,
 <a href="#SkPath_kConcave_Convexity">kConcave Convexity</a>,
-};</pre>
+};
+</pre>
 
 <a href="#Path">Path</a> is convex if it contains one <a href="#Contour">Contour</a> and <a href="#Contour">Contour</a> loops no more than
 360 degrees, and <a href="#Contour">Contour</a> angles all have same <a href="#SkPath_Direction">Direction</a>. Convex <a href="#Path">Path</a>
@@ -926,13 +953,16 @@ if needed by destination <a href="SkSurface_Reference#Surface">Surface</a>.
 
 <table>
   <tr>
-    <td><a name="SkPath_kUnknown_Convexity"> <code><strong>SkPath::kUnknown_Convexity </strong></code> </a></td><td>0</td><td>Indicates <a href="#Convexity">Convexity</a> has not been determined.</td>
+    <td><a name="SkPath_kUnknown_Convexity"> <code><strong>SkPath::kUnknown_Convexity </strong></code> </a></td><td>0</td><td>Indicates <a href="#Convexity">Convexity</a> has not been determined.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kConvex_Convexity"> <code><strong>SkPath::kConvex_Convexity </strong></code> </a></td><td>1</td><td><a href="#Path">Path</a> has one <a href="#Contour">Contour</a> made of a simple geometry without indentations.</td>
+    <td><a name="SkPath_kConvex_Convexity"> <code><strong>SkPath::kConvex_Convexity </strong></code> </a></td><td>1</td><td><a href="#Path">Path</a> has one <a href="#Contour">Contour</a> made of a simple geometry without indentations.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kConcave_Convexity"> <code><strong>SkPath::kConcave_Convexity </strong></code> </a></td><td>2</td><td><a href="#Path">Path</a> has more than one <a href="#Contour">Contour</a>, or a geometry with indentations.</td>
+    <td><a name="SkPath_kConcave_Convexity"> <code><strong>SkPath::kConcave_Convexity </strong></code> </a></td><td>2</td><td><a href="#Path">Path</a> has more than one <a href="#Contour">Contour</a>, or a geometry with indentations.
+</td>
   </tr>
 </table>
 
@@ -988,7 +1018,8 @@ stored <a href="#Convexity">Convexity</a>
 ### Example
 
 <div><fiddle-embed name="bc19da9de880e3f339707247686efc0a"><div><a href="#Convexity">Convexity</a> is unknown unless <a href="#SkPath_getConvexity">getConvexity</a> is called without a subsequent call
-that alters the path.</div></fiddle-embed></div>
+that alters the path.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1049,7 +1080,8 @@ true if <a href="#Convexity">Convexity</a> stored or computed is <a href="#SkPat
 ### Example
 
 <div><fiddle-embed name="dfd2c40e1c2a7b539a94aec8d040d349"><div>Concave shape is erroneously considered convex after a forced call to
-<a href="#SkPath_setConvexity">setConvexity</a>.</div></fiddle-embed></div>
+<a href="#SkPath_setConvexity">setConvexity</a>.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1117,7 +1149,8 @@ true if <a href="#Path">Path</a> contains only <a href="undocumented#Round_Rect"
 
 ### Example
 
-<div><fiddle-embed name="2aa939b90d96aff436b145a96305132c"><div>Draw rounded rectangle and its bounds.</div></fiddle-embed></div>
+<div><fiddle-embed name="2aa939b90d96aff436b145a96305132c"><div>Draw rounded rectangle and its bounds.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1163,7 +1196,8 @@ is critical.
 ### Example
 
 <div><fiddle-embed name="f1fedbb89da9c2a33a91805175663012"><div>Although path1 retains its internal storage, it is indistinguishable from
-a newly initialized path.</div></fiddle-embed></div>
+a newly initialized path.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1224,7 +1258,8 @@ true if the last <a href="#Contour">Contour</a> ends with a <a href="#SkPath_kCl
 ### Example
 
 <div><fiddle-embed name="03b740ab94b9017800a52e30b5e7fee7"><div><a href="#SkPath_close">close</a> has no effect if <a href="#Path">Path</a> is empty; <a href="#SkPath_isLastContourClosed">isLastContourClosed</a> returns
-false until <a href="#Path">Path</a> has geometry followed by <a href="#SkPath_close">close</a>.</div>
+false until <a href="#Path">Path</a> has geometry followed by <a href="#SkPath_close">close</a>.
+</div>
 
 #### Example Output
 
@@ -1388,7 +1423,8 @@ true if <a href="undocumented#Line">Line</a> is degenerate; its length is effect
 
 <div><fiddle-embed name="97a031f9186ade586928563840ce9116"><div>As single precision floats, 100 and 100.000001 have the same bit representation,
 and are exactly equal. 100 and 100.0001 have different bit representations, and
-are not exactly equal, but are nearly equal.</div>
+are not exactly equal, but are nearly equal.
+</div>
 
 #### Example Output
 
@@ -1440,7 +1476,8 @@ true if <a href="#Quad">Quad</a> is degenerate; its length is effectively zero
 
 <div><fiddle-embed name="1d50896c528cd4581966646b7d96acff"><div>As single precision floats: 100, 100.00001, and 100.00002 have different bit representations
 but nearly the same value. Translating all three by 1000 gives them the same bit representation;
-the fractional portion of the number can not be represented by the float and is lost.</div>
+the fractional portion of the number can not be represented by the float and is lost.
+</div>
 
 #### Example Output
 
@@ -1828,7 +1865,8 @@ bounds of all <a href="SkPoint_Reference#Point">Points</a> in <a href="#Point_Ar
 ### Example
 
 <div><fiddle-embed name="9160aa6d1476bd87d927cfc8a4bf25e7"><div>Bounds of upright <a href="undocumented#Circle">Circle</a> can be predicted from center and radius.
-Bounds of rotated <a href="undocumented#Circle">Circle</a> includes control <a href="SkPoint_Reference#Point">Points</a> outside of filled area.</div>
+Bounds of rotated <a href="undocumented#Circle">Circle</a> includes control <a href="SkPoint_Reference#Point">Points</a> outside of filled area.
+</div>
 
 #### Example Output
 
@@ -1972,7 +2010,8 @@ true if <a href="#SkPath_conservativelyContainsRect_rect">rect</a> is contained
 
 ### Example
 
-<div><fiddle-embed name="41638d13e40fa449ece354dde5fb1941"><div><a href="SkRect_Reference#Rect">Rect</a> is drawn in blue if it is contained by red <a href="#Path">Path</a>.</div></fiddle-embed></div>
+<div><fiddle-embed name="41638d13e40fa449ece354dde5fb1941"><div><a href="SkRect_Reference#Rect">Rect</a> is drawn in blue if it is contained by red <a href="#Path">Path</a>.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2380,7 +2419,8 @@ parabolic segment.
 
 ### Example
 
-<div><fiddle-embed name="2aadded3d20dfef34d1c8abe28c7bc8d"><div>When <a href="#Conic_Weight">Conic Weight</a> is one, <a href="#Quad">Quad</a> is added to path; the two are identical.</div>
+<div><fiddle-embed name="2aadded3d20dfef34d1c8abe28c7bc8d"><div>When <a href="#Conic_Weight">Conic Weight</a> is one, <a href="#Quad">Quad</a> is added to path; the two are identical.
+</div>
 
 #### Example Output
 
@@ -2396,7 +2436,8 @@ If weight is less than one, <a href="#Conic">Conic</a> is an elliptical segment.
 
 ### Example
 
-<div><fiddle-embed name="e88f554efacfa9f75f270fb1c0add5b4"><div>A 90 degree circular arc has the weight1 / sqrt(2).</div>
+<div><fiddle-embed name="e88f554efacfa9f75f270fb1c0add5b4"><div>A 90 degree circular arc has the weight1 / sqrt(2).
+</div>
 
 #### Example Output
 
@@ -2468,7 +2509,8 @@ weight of added <a href="#Conic">Conic</a></td>
 
 <div><fiddle-embed name="358d9b6060b528b0923c007420f09c13"><div>As weight increases, curve is pulled towards control point.
 The bottom two curves are elliptical; the next is parabolic; the
-top curve is hyperbolic.</div></fiddle-embed></div>
+top curve is hyperbolic.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2511,7 +2553,8 @@ weight of added <a href="#Conic">Conic</a></td>
 ### Example
 
 <div><fiddle-embed name="22d25e03b19d5bae92118877e462361b"><div><a href="#Conic">Conics</a> and arcs use identical representations. As the arc sweep increases
-the <a href="#Conic_Weight">Conic Weight</a> also increases, but remains smaller than one.</div></fiddle-embed></div>
+the <a href="#Conic_Weight">Conic Weight</a> also increases, but remains smaller than one.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2753,7 +2796,8 @@ Direction sweep, SkScalar x, SkScalar y)</a></td>  </tr>
 3 is similar to 1, but always begins new <a href="#Contour">Contour</a>.
 4 describes an arc from a pair of tangent lines and a radius.
 5 describes an arc from <a href="undocumented#Oval">Oval</a> center, arc start <a href="SkPoint_Reference#Point">Point</a> and arc end <a href="SkPoint_Reference#Point">Point</a>.
-6 describes an arc from a pair of tangent lines and a <a href="#Conic_Weight">Conic Weight</a>.</div></fiddle-embed></div>
+6 describes an arc from a pair of tangent lines and a <a href="#Conic_Weight">Conic Weight</a>.
+</div></fiddle-embed></div>
 
 <a name="SkPath_arcTo"></a>
 ## arcTo
@@ -2787,7 +2831,8 @@ true to start a new contour with <a href="#Arc">Arc</a></td>
 ### Example
 
 <div><fiddle-embed name="5f02890edaa10cb5e1a4243a82b6a382"><div><a href="#SkPath_arcTo">arcTo</a> continues a previous contour when <a href="#SkPath_arcTo_forceMoveTo">forceMoveTo</a> is false and when <a href="#Path">Path</a>
-is not empty.</div></fiddle-embed></div>
+is not empty.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2840,7 +2885,8 @@ distance from <a href="#Arc">Arc</a> to <a href="undocumented#Circle">Circle</a>
 
 ### Example
 
-<div><fiddle-embed name="498360fa0a201cc5db04b1c27256358f"><div><a href="#SkPath_arcTo">arcTo</a> is represented by <a href="undocumented#Line">Line</a> and circular <a href="#Conic">Conic</a> in <a href="#Path">Path</a>.</div>
+<div><fiddle-embed name="498360fa0a201cc5db04b1c27256358f"><div><a href="#SkPath_arcTo">arcTo</a> is represented by <a href="undocumented#Line">Line</a> and circular <a href="#Conic">Conic</a> in <a href="#Path">Path</a>.
+</div>
 
 #### Example Output
 
@@ -2892,7 +2938,8 @@ distance from <a href="#Arc">Arc</a> to <a href="undocumented#Circle">Circle</a>
 ### Example
 
 <div><fiddle-embed name="0c056264a361579c18e5d02d3172d4d4"><div>Because tangent lines are parallel, <a href="#SkPath_arcTo">arcTo</a> appends line from last <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> to
-<a href="#SkPath_arcTo_3_p1">p1</a>, but does not append a circular <a href="#Conic">Conic</a>.</div>
+<a href="#SkPath_arcTo_3_p1">p1</a>, but does not append a circular <a href="#Conic">Conic</a>.
+</div>
 
 #### Example Output
 
@@ -2915,7 +2962,8 @@ line (156,20),(200,20)
 enum <a href="#SkPath_ArcSize">ArcSize</a> {
 <a href="#SkPath_kSmall_ArcSize">kSmall ArcSize</a>,
 <a href="#SkPath_kLarge_ArcSize">kLarge ArcSize</a>,
-};</pre>
+};
+</pre>
 
 Four <a href="undocumented#Oval">Oval</a> parts with radii (rx, ry) start at last <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> and ends at (x, y).
 <a href="#SkPath_ArcSize">ArcSize</a> and <a href="#SkPath_Direction">Direction</a> select one of the four <a href="undocumented#Oval">Oval</a> parts.
@@ -2935,7 +2983,8 @@ Four <a href="undocumented#Oval">Oval</a> parts with radii (rx, ry) start at las
 
 <div><fiddle-embed name="8e40c546eecd9cc213200717240898ba"><div><a href="#Arc">Arc</a> begins at top of <a href="undocumented#Oval">Oval</a> pair and ends at bottom. <a href="#Arc">Arc</a> can take four routes to get there.
 Two routes are large, and two routes are counterclockwise. The one route both large
-and counterclockwise is blue.</div></fiddle-embed></div>
+and counterclockwise is blue.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3051,7 +3100,8 @@ Append <a href="#Arc">Arc</a> to <a href="#Path">Path</a>, relative to last <a h
 more <a href="#Conic">Conic</a>, weighted to describe part of <a href="undocumented#Oval">Oval</a> with radii (<a href="#SkPath_rArcTo_rx">rx</a>, <a href="#SkPath_rArcTo_ry">ry</a>) rotated by
 <a href="#SkPath_rArcTo_xAxisRotate">xAxisRotate</a> degrees. <a href="#Arc">Arc</a> curves from last <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> (x0, y0) to end <a href="SkPoint_Reference#Point">Point</a>:
 
-(x0 + <a href="#SkPath_rArcTo_dx">dx</a>, y0 + <a href="#SkPath_rArcTo_dy">dy</a>),
+(x0 + <a href="#SkPath_rArcTo_dx">dx</a>, y0 + <a href="#SkPath_rArcTo_dy">dy</a>)
+,
 choosing one of four possible routes: clockwise or
 counterclockwise, and smaller or larger. If <a href="#Path">Path</a> is empty, the start <a href="#Arc">Arc</a> <a href="SkPoint_Reference#Point">Point</a>
 is (0, 0).
@@ -3268,7 +3318,8 @@ number of <a href="#Quad">Quad</a> curves written to <a href="#SkPath_ConvertCon
 
 <div><fiddle-embed name="3ba94448a4ba48f926e643baeb5b1016"><div>A pair of <a href="#Quad">Quad</a> curves are drawn in red on top of the elliptical <a href="#Conic">Conic</a> curve in black.
 The middle curve is nearly circular. The top-right curve is parabolic, which can
-be drawn exactly with a single <a href="#Quad">Quad</a>.</div></fiddle-embed></div>
+be drawn exactly with a single <a href="#Quad">Quad</a>.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3309,7 +3360,8 @@ true if <a href="#Path">Path</a> contains <a href="SkRect_Reference#Rect">Rect</
 
 <div><fiddle-embed name="063a5f0a8de1fe998d227393e0866557"><div>After <a href="#SkPath_addRect">addRect</a>, <a href="#SkPath_isRect">isRect</a> returns true. Following <a href="#SkPath_moveTo">moveTo</a> permits <a href="#SkPath_isRect">isRect</a> to return true, but
 following <a href="#SkPath_lineTo">lineTo</a> does not. <a href="#SkPath_addPoly">addPoly</a> returns true even though <a href="#SkPath_isRect_rect">rect</a> is not closed, and one
-side of <a href="#SkPath_isRect_rect">rect</a> is made up of consecutive line segments.</div>
+side of <a href="#SkPath_isRect_rect">rect</a> is made up of consecutive line segments.
+</div>
 
 #### Example Output
 
@@ -3399,7 +3451,8 @@ bottom-right, and top-right if <a href="#SkPath_addRect_dir">dir</a> is <a href=
 ### Example
 
 <div><fiddle-embed name="0f841e4eaebb613b5069800567917c2d"><div>The left <a href="SkRect_Reference#Rect">Rect</a> dashes starting at the top-left corner, to the right.
-The right <a href="SkRect_Reference#Rect">Rect</a> dashes starting at the top-left corner, towards the bottom.</div></fiddle-embed></div>
+The right <a href="SkRect_Reference#Rect">Rect</a> dashes starting at the top-left corner, towards the bottom.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3439,7 +3492,8 @@ initial corner of <a href="SkRect_Reference#Rect">Rect</a> to add</td>
 ### Example
 
 <div><fiddle-embed name="9202430b3f4f5275af8eec5cc9d7baa8"><div>The arrow is just after the initial corner and points towards the next
-corner appended to <a href="#Path">Path</a>.</div></fiddle-embed></div>
+corner appended to <a href="#Path">Path</a>.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3478,7 +3532,8 @@ larger y of <a href="SkRect_Reference#Rect">Rect</a></td>
 ### Example
 
 <div><fiddle-embed name="3837827310e8b88b8c2e128ef9fbbd65"><div>The <a href="#SkPath_addRect_3_left">left</a> <a href="SkRect_Reference#Rect">Rect</a> dashes start at the <a href="#SkPath_addRect_3_top">top</a>-<a href="#SkPath_addRect_3_left">left</a> corner, and continue to the <a href="#SkPath_addRect_3_right">right</a>.
-The <a href="#SkPath_addRect_3_right">right</a> <a href="SkRect_Reference#Rect">Rect</a> dashes start at the <a href="#SkPath_addRect_3_top">top</a>-<a href="#SkPath_addRect_3_left">left</a> corner, and continue down.</div></fiddle-embed></div>
+The <a href="#SkPath_addRect_3_right">right</a> <a href="SkRect_Reference#Rect">Rect</a> dashes start at the <a href="#SkPath_addRect_3_top">top</a>-<a href="#SkPath_addRect_3_left">left</a> corner, and continue down.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3567,7 +3622,8 @@ void addCircle(SkScalar x, SkScalar y, SkScalar radius, Direction dir = kCW_Dire
 
 Add <a href="undocumented#Circle">Circle</a> centered at (<a href="#SkPath_addCircle_x">x</a>, <a href="#SkPath_addCircle_y">y</a>) of size <a href="#SkPath_addCircle_radius">radius</a> to <a href="#Path">Path</a>, appending <a href="#SkPath_kMove_Verb">kMove Verb</a>,
 four <a href="#SkPath_kConic_Verb">kConic Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>. <a href="undocumented#Circle">Circle</a> begins at:
-(<a href="#SkPath_addCircle_x">x</a> + <a href="#SkPath_addCircle_radius">radius</a>, <a href="#SkPath_addCircle_y">y</a>),
+(<a href="#SkPath_addCircle_x">x</a> + <a href="#SkPath_addCircle_radius">radius</a>, <a href="#SkPath_addCircle_y">y</a>)
+,
 continuing
 clockwise if <a href="#SkPath_addCircle_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, and counterclockwise if <a href="#SkPath_addCircle_dir">dir</a> is <a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
 
@@ -3627,7 +3683,8 @@ sweep, in degrees. Positive is clockwise; treated modulo 360</td>
 
 <div><fiddle-embed name="9cf5122475624e4cf39f06c698f80b1a"><div>The middle row of the left and right columns draw differently from the entries
 above and below because <a href="#SkPath_addArc_sweepAngle">sweepAngle</a> is outside of the range of +/-360,
-and <a href="#SkPath_addArc_startAngle">startAngle</a> modulo 90 is not zero.</div></fiddle-embed></div>
+and <a href="#SkPath_addArc_startAngle">startAngle</a> modulo 90 is not zero.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3673,7 +3730,8 @@ y-radius of rounded corners on the <a href="undocumented#Round_Rect">Round Rect<
 If sides are only radii, path contains <a href="undocumented#Oval">Oval</a> and is drawn blue.
 All remaining path draws are convex, and are drawn in gray; no
 paths constructed from <a href="#SkPath_addRoundRect">addRoundRect</a> are concave, so none are
-drawn in green.</div></fiddle-embed></div>
+drawn in green.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3852,7 +3910,8 @@ true to add <a href="undocumented#Line">Line</a> connecting <a href="#Contour">C
 enum <a href="#SkPath_AddPathMode">AddPathMode</a> {
 <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>,
 <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>,
-};</pre>
+};
+</pre>
 
 <a href="#SkPath_AddPathMode">AddPathMode</a> chooses how <a href="#SkPath_addPath">addPath</a> appends. Adding one <a href="#Path">Path</a> to another can extend
 the last <a href="#Contour">Contour</a> or start a new <a href="#Contour">Contour</a>.
@@ -3862,11 +3921,13 @@ the last <a href="#Contour">Contour</a> or start a new <a href="#Contour">Contou
 <table>
   <tr>
     <td><a name="SkPath_kAppend_AddPathMode"> <code><strong>SkPath::kAppend_AddPathMode </strong></code> </a></td><td>Path Verbs, Points, and Conic_Weights are appended to destination unaltered.</td><td>Since <a href="#Path">Path</a> <a href="#Verb_Array">Verb Array</a> begins with <a href="#SkPath_kMove_Verb">kMove Verb</a> if src is not empty, this
-starts a new <a href="#Contour">Contour</a>.</td>
+starts a new <a href="#Contour">Contour</a>.
+</td>
   </tr>
   <tr>
     <td><a name="SkPath_kExtend_AddPathMode"> <code><strong>SkPath::kExtend_AddPathMode </strong></code> </a></td><td>If destination is closed or empty, start a new Contour. If destination</td><td>is not empty, add <a href="undocumented#Line">Line</a> from <a href="#Last_Point">Last Point</a> to added <a href="#Path">Path</a> first <a href="SkPoint_Reference#Point">Point</a>. Skip added
-<a href="#Path">Path</a> initial <a href="#SkPath_kMove_Verb">kMove Verb</a>, then append remining <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a>.</td>
+<a href="#Path">Path</a> initial <a href="#SkPath_kMove_Verb">kMove Verb</a>, then append remining <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a>.
+</td>
   </tr>
 </table>
 
@@ -3874,7 +3935,8 @@ starts a new <a href="#Contour">Contour</a>.</td>
 
 <div><fiddle-embed name="801b02e74c64aafdb734f2e5cf3e5ab0"><div>test is built from path, open on the top row, and closed on the bottom row.
 The left column uses <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>; the right uses <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>.
-The top right composition is made up of one contour; the other three have two.</div></fiddle-embed></div>
+The top right composition is made up of one contour; the other three have two.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -4244,7 +4306,8 @@ enum <a href="#SkPath_SegmentMask">SegmentMask</a> {
 <a href="#SkPath_kQuad_SegmentMask">kQuad SegmentMask</a> = 1 << 1,
 <a href="#SkPath_kConic_SegmentMask">kConic SegmentMask</a> = 1 << 2,
 <a href="#SkPath_kCubic_SegmentMask">kCubic SegmentMask</a> = 1 << 3,
-};</pre>
+};
+</pre>
 
 <a href="#SkPath_SegmentMask">SegmentMask</a> constants correspond to each drawing <a href="#SkPath_Verb">Verb</a> type in <a href="#Path">Path</a>; for
 instance, if <a href="#Path">Path</a> only contains <a href="undocumented#Line">Lines</a>, only the <a href="#SkPath_kLine_SegmentMask">kLine SegmentMask</a> bit is set.
@@ -4253,22 +4316,27 @@ instance, if <a href="#Path">Path</a> only contains <a href="undocumented#Line">
 
 <table>
   <tr>
-    <td><a name="SkPath_kLine_SegmentMask"> <code><strong>SkPath::kLine_SegmentMask </strong></code> </a></td><td>1</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kLine_Verb">kLine Verb</a>.</td>
+    <td><a name="SkPath_kLine_SegmentMask"> <code><strong>SkPath::kLine_SegmentMask </strong></code> </a></td><td>1</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kLine_Verb">kLine Verb</a>.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kQuad_SegmentMask"> <code><strong>SkPath::kQuad_SegmentMask </strong></code> </a></td><td>2</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kQuad_Verb">kQuad Verb</a>. Note that <a href="#SkPath_conicTo">conicTo</a> may add a <a href="#Quad">Quad</a>.</td>
+    <td><a name="SkPath_kQuad_SegmentMask"> <code><strong>SkPath::kQuad_SegmentMask </strong></code> </a></td><td>2</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kQuad_Verb">kQuad Verb</a>. Note that <a href="#SkPath_conicTo">conicTo</a> may add a <a href="#Quad">Quad</a>.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kConic_SegmentMask"> <code><strong>SkPath::kConic_SegmentMask </strong></code> </a></td><td>4</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kConic_Verb">kConic Verb</a>.</td>
+    <td><a name="SkPath_kConic_SegmentMask"> <code><strong>SkPath::kConic_SegmentMask </strong></code> </a></td><td>4</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kConic_Verb">kConic Verb</a>.
+</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kCubic_SegmentMask"> <code><strong>SkPath::kCubic_SegmentMask </strong></code> </a></td><td>8</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kCubic_Verb">kCubic Verb</a>.</td>
+    <td><a name="SkPath_kCubic_SegmentMask"> <code><strong>SkPath::kCubic_SegmentMask </strong></code> </a></td><td>8</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kCubic_Verb">kCubic Verb</a>.
+</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="0972a1bd6e012c7519d3998afc32e69f"><div>When <a href="#SkPath_conicTo">conicTo</a> has a weight of one, <a href="#Quad">Quad</a> is added to <a href="#Path">Path</a>.</div>
+<div><fiddle-embed name="0972a1bd6e012c7519d3998afc32e69f"><div>When <a href="#SkPath_conicTo">conicTo</a> has a weight of one, <a href="#Quad">Quad</a> is added to <a href="#Path">Path</a>.
+</div>
 
 #### Example Output
 
@@ -4705,12 +4773,14 @@ void <a href="#SkPath_Iter_setPath">setPath(const SkPath& path, bool forceClose)
 <a href="undocumented#SkScalar">SkScalar</a> <a href="#SkPath_Iter_conicWeight">conicWeight</a> const;
 bool <a href="#SkPath_Iter_isCloseLine">isCloseLine</a> const;
 bool <a href="#SkPath_Iter_isClosedContour">isClosedContour</a> const;
-};</pre>
+};
+</pre>
 
 ### Example
 
 <div><fiddle-embed name="3ca8417e2a1466bf5b3ac97780a8070c"><div>Ignoring the actual <a href="#Verb">Verbs</a> and replacing them with <a href="#Quad">Quads</a> rounds the
-path of the glyph.</div></fiddle-embed></div>
+path of the glyph.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -4887,7 +4957,8 @@ followed by the <a href="#SkPath_kClose_Verb">kClose Verb</a>, the zero length <
 skip degenerate if <a href="#SkPath_Iter_next_exact">exact</a> skips the same as skip degenerate, but shows
 the very small <a href="undocumented#Line">Line</a>.
 
-skip none shows all of the <a href="#Verb">Verbs</a> and <a href="SkPoint_Reference#Point">Points</a> in <a href="#Path">Path</a>.</div>
+skip none shows all of the <a href="#Verb">Verbs</a> and <a href="SkPoint_Reference#Point">Points</a> in <a href="#Path">Path</a>.
+</div>
 
 #### Example Output
 
@@ -5051,7 +5122,8 @@ void <a href="#SkPath_RawIter_setPath">setPath(const SkPath& path)</a>;
 <a href="#SkPath_Verb">Verb</a> <a href="#SkPath_RawIter_next">next(SkPoint pts[4])</a>;
 <a href="#SkPath_Verb">Verb</a> <a href="#SkPath_RawIter_peek">peek</a> const;
 <a href="undocumented#SkScalar">SkScalar</a> <a href="#SkPath_RawIter_conicWeight">conicWeight</a> const;
-}</pre>
+}
+</pre>
 
 <a name="SkPath_RawIter_RawIter"></a>
 ## RawIter

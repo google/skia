@@ -392,10 +392,7 @@ Recognized formats vary by GPU back-end.
 #Param context  GPU_Context ##
 #Param backendTexture  texture residing on GPU ##
 #Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+#Param colorType  one of: #list_of_color_types#
 ##
 #Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
                           kPremul_SkAlphaType, kUnpremul_SkAlphaType
@@ -450,10 +447,7 @@ Recognized formats vary by GPU back-end.
 #Param context  GPU_Context ##
 #Param backendTexture  texture residing on GPU ##
 #Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+#Param colorType  one of: #list_of_color_types#
 ##
 #Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
                           kPremul_SkAlphaType, kUnpremul_SkAlphaType
@@ -617,10 +611,7 @@ Recognized formats vary by GPU back-end.
 #Param context  GPU_Context ##
 #Param backendTexture  texture residing on GPU ##
 #Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+#Param colorType  one of: #list_of_color_types#
 ##
 #Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
                           kPremul_SkAlphaType, kUnpremul_SkAlphaType

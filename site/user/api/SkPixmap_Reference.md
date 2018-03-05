@@ -155,7 +155,8 @@ initialized <a href="#Pixmap">Pixmap</a>
 ### Example
 
 <div><fiddle-embed name="9a00774be57d7308313b3a9073e6e696"><div><a href="SkImage_Reference#SkImage_MakeRasterCopy">SkImage::MakeRasterCopy</a> takes const <a href="#SkPixmap">SkPixmap</a>& as an argument. The example
-constructs a <a href="#SkPixmap">SkPixmap</a> from the brace-delimited parameters.</div>
+constructs a <a href="#SkPixmap">SkPixmap</a> from the brace-delimited parameters.
+</div>
 
 #### Example Output
 
@@ -501,10 +502,10 @@ pixmap height: 32  info height: 32
 SkColorType colorType() const
 </pre>
 
-Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>, <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>, <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>.
+Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>.
 
 ### Return Value
 
@@ -578,7 +579,8 @@ immutable.
 ### Example
 
 <div><fiddle-embed name="34c71f803b8edb48eaf1cd0c55bb212e"><div><a href="undocumented#SkColorSpace_MakeSRGBLinear">SkColorSpace::MakeSRGBLinear</a> creates <a href="undocumented#Color_Space">Color Space</a> with linear gamma
-and an sRGB gamut. This <a href="undocumented#Color_Space">Color Space</a> gamma is not close to sRGB gamma.</div>
+and an sRGB gamut. This <a href="undocumented#Color_Space">Color Space</a> gamma is not close to sRGB gamma.
+</div>
 
 #### Example Output
 
@@ -611,7 +613,8 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> has opaque <a 
 
 ### Example
 
-<div><fiddle-embed name="efd083f121e888a523455ea8a49e50d1"><div><a href="#SkPixmap_isOpaque">isOpaque</a> ignores whether all pixels are opaque or not.</div>
+<div><fiddle-embed name="efd083f121e888a523455ea8a49e50d1"><div><a href="#SkPixmap_isOpaque">isOpaque</a> ignores whether all pixels are opaque or not.
+</div>
 
 #### Example Output
 
@@ -1449,7 +1452,8 @@ writable unsigned 8-bit pointer to pixels
 
 <div><fiddle-embed name="809284db136748208b3efc31cd89de29"><div>Altering pixels after drawing <a href="SkBitmap_Reference#Bitmap">Bitmap</a> is not guaranteed to affect subsequent
 drawing on all platforms. Adding a second <a href="SkBitmap_Reference#SkBitmap_installPixels">SkBitmap::installPixels</a> after editing
-pixel memory is safer.</div></fiddle-embed></div>
+pixel memory is safer.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1486,7 +1490,8 @@ writable unsigned 16-bit pointer to pixel
 ### Example
 
 <div><fiddle-embed name="6da54774f6432b46b47ea9013c15f280"><div>Draw a five by five bitmap, and draw it again with a center black pixel.
-The low nibble of the 16-bit word is <a href="undocumented#Alpha">Alpha</a>.</div></fiddle-embed></div>
+The low nibble of the 16-bit word is <a href="undocumented#Alpha">Alpha</a>.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1597,7 +1602,8 @@ writable unsigned 16-bit pointer to first component of pixel
 ### Example
 
 <div><fiddle-embed name="7822d78f5cacf5c04267cbbc6c6d0b80"><div>Left bitmap is drawn with two pixels defined in half float format. Right bitmap
-is drawn after overwriting bottom half float color with top half float color.</div></fiddle-embed></div>
+is drawn after overwriting bottom half float color with top half float color.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1727,7 +1733,8 @@ true if pixels are copied to <a href="#SkPixmap_readPixels_2_dstPixels">dstPixel
 ### Example
 
 <div><fiddle-embed name="df4e355c4845350daede833b4fd21ec1"><div>Transferring the gradient from 8 bits per component to 4 bits per component
-creates visible banding.</div></fiddle-embed></div>
+creates visible banding.
+</div></fiddle-embed></div>
 
 ### See Also
 

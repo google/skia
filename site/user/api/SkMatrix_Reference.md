@@ -174,7 +174,8 @@ Sets <a href="#Matrix">Matrix</a> to scale by (<a href="#SkMatrix_MakeScale_sx">
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | sx  0  0 |
 |  0 sy  0 |
-|  0  0  1 |</pre>
+|  0  0  1 |
+</pre>
 
 ### Parameters
 
@@ -210,7 +211,8 @@ Sets <a href="#Matrix">Matrix</a> to <a href="#SkMatrix_MakeScale_2_scale">scale
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scale   0   0 |
 |   0   scale 0 |
-|   0     0   1 |</pre>
+|   0     0   1 |
+</pre>
 
 ### Parameters
 
@@ -245,7 +247,8 @@ Sets <a href="#Matrix">Matrix</a> to translate by (<a href="#SkMatrix_MakeTrans_
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 1 0 dx |
 | 0 1 dy |
-| 0 0  1 |</pre>
+| 0 0  1 |
+</pre>
 
 ### Parameters
 
@@ -284,7 +287,8 @@ Sets <a href="#Matrix">Matrix</a> to:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scaleX  skewX transX |
 |  skewY scaleY transY |
-|  pers0  pers1  pers2 |</pre>
+|  pers0  pers1  pers2 |
+</pre>
 
 ### Parameters
 
@@ -332,7 +336,8 @@ enum <a href="#SkMatrix_TypeMask">TypeMask</a> {
 <a href="#SkMatrix_kScale_Mask">kScale Mask</a> = 0x02,
 <a href="#SkMatrix_kAffine_Mask">kAffine Mask</a> = 0x04,
 <a href="#SkMatrix_kPerspective_Mask">kPerspective Mask</a> = 0x08,
-};</pre>
+};
+</pre>
 
 Enum of bit fields for mask returned by <a href="#SkMatrix_getType">getType</a>.
 Used to identify the complexity of <a href="#Matrix">Matrix</a>, to optimize performance.
@@ -458,7 +463,8 @@ Returns true if <a href="#Matrix">Matrix</a> is identity.  Identity matrix is:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 1 0 0 |
 | 0 1 0 |
-| 0 0 1 |</pre>
+| 0 0 1 |
+</pre>
 
 ### Return Value
 
@@ -496,7 +502,8 @@ contain only scale elements, only translate elements, or both. <a href="#Matrix"
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scale-x    0    translate-x |
 |    0    scale-y translate-y |
-|    0       0         1      |</pre>
+|    0       0         1      |
+</pre>
 
 ### Return Value
 
@@ -535,7 +542,8 @@ Returns true if <a href="#Matrix">Matrix</a> is identity, or translates. <a href
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 1 0 translate-x |
 | 0 1 translate-y |
-| 0 0      1      |</pre>
+| 0 0      1      |
+</pre>
 
 ### Return Value
 
@@ -576,14 +584,16 @@ cases, <a href="#Matrix">Matrix</a> may also have translation. <a href="#Matrix"
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scale-x    0    translate-x |
 |    0    scale-y translate-y |
-|    0       0         1      |</pre>
+|    0       0         1      |
+</pre>
 
 or
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 |    0     rotate-x translate-x |
 | rotate-y    0     translate-y |
-|    0        0          1      |</pre>
+|    0        0          1      |
+</pre>
 
 for non-zero values of scale-x, scale-y, rotate-x, and rotate-y.
 
@@ -629,14 +639,16 @@ cases, <a href="#Matrix">Matrix</a> may also have translation. <a href="#Matrix"
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scale-x    0    translate-x |
 |    0    scale-y translate-y |
-|    0       0         1      |</pre>
+|    0       0         1      |
+</pre>
 
 or
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 |    0     rotate-x translate-x |
 | rotate-y    0     translate-y |
-|    0        0          1      |</pre>
+|    0        0          1      |
+</pre>
 
 for non-zero values of scale-x, scale-y, rotate-x, and rotate-y.
 
@@ -680,7 +692,8 @@ Returns true if the matrix contains perspective elements. <a href="#Matrix">Matr
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 |       --            --              --          |
 |       --            --              --          |
-| perspective-x  perspective-y  perspective-scale |</pre>
+| perspective-x  perspective-y  perspective-scale |
+</pre>
 
 where perspective-x or perspective-y is non-zero, or perspective-scale is
 not one. All other elements may have any value.
@@ -731,7 +744,8 @@ true if <a href="#Matrix">Matrix</a> only rotates, uniformly scales, translates
 ### Example
 
 <div><fiddle-embed name="98d60230ad633ae74d851de3a65d72d6"><div><a href="undocumented#String">String</a> is drawn four times through but only two are visible. Drawing the pair
-with <a href="#SkMatrix_isSimilarity">isSimilarity</a> false reveals the pair not visible through the matrix.</div></fiddle-embed></div>
+with <a href="#SkMatrix_isSimilarity">isSimilarity</a> false reveals the pair not visible through the matrix.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -769,7 +783,8 @@ true if <a href="#Matrix">Matrix</a> only rotates, scales, translates
 
 <div><fiddle-embed name="a3d5bfebc1c3423fb983d30aaf4ac5f4"><div>Equal scale is both similar and preserves right angles.
 Unequal scale is not similar but preserves right angles.
-Skews are not similar and do not preserve right angles.</div></fiddle-embed></div>
+Skews are not similar and do not preserve right angles.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -790,7 +805,8 @@ enum {
 <a href="#SkMatrix_kMPersp0">kMPersp0</a>,
 <a href="#SkMatrix_kMPersp1">kMPersp1</a>,
 <a href="#SkMatrix_kMPersp2">kMPersp2</a>,
-};</pre>
+};
+</pre>
 
 <a href="#Matrix">Matrix</a> organizes its values in row order. These members correspond to
 each value in <a href="#Matrix">Matrix</a>.
@@ -847,7 +863,8 @@ enum {
 <a href="#SkMatrix_kAScaleY">kAScaleY</a>,
 <a href="#SkMatrix_kATransX">kATransX</a>,
 <a href="#SkMatrix_kATransY">kATransY</a>,
-};</pre>
+};
+</pre>
 
 Affine arrays are in column major order to match the matrix used by
 PDF and XPS.
@@ -1565,7 +1582,8 @@ Sets all values from parameters. Sets matrix to:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scaleX  skewX transX |
 |  skewY scaleY transY |
-| persp0 persp1 persp2 |</pre>
+| persp0 persp1 persp2 |
+</pre>
 
 ### Parameters
 
@@ -1654,7 +1672,8 @@ Sets matrix to:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | buffer[0] buffer[1] buffer[2] |
 | buffer[3] buffer[4] buffer[5] |
-| buffer[6] buffer[7] buffer[8] |</pre>
+| buffer[6] buffer[7] buffer[8] |
+</pre>
 
 In the future, <a href="#SkMatrix_set9">set9</a> followed by <a href="#SkMatrix_get9">get9</a> may not return the same values. Since <a href="#Matrix">Matrix</a>
 maps non-homogeneous coordinates, scaling all nine values produces an equivalent
@@ -1689,7 +1708,8 @@ Sets <a href="#Matrix">Matrix</a> to identity; which has no effect on mapped <a 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 1 0 0 |
 | 0 1 0 |
-| 0 0 1 |</pre>
+| 0 0 1 |
+</pre>
 
 Also called <a href="#SkMatrix_setIdentity">setIdentity</a>; use the one that provides better inline
 documentation.
@@ -1724,7 +1744,8 @@ Sets <a href="#Matrix">Matrix</a> to identity; which has no effect on mapped <a 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 1 0 0 |
 | 0 1 0 |
-| 0 0 1 |</pre>
+| 0 0 1 |
+</pre>
 
 Also called <a href="#SkMatrix_reset">reset</a>; use the one that provides better inline
 documentation.
@@ -1977,7 +1998,8 @@ rotation vector y component</td>
 
 ### Example
 
-<div><fiddle-embed name="e37a94a53c959951b059fcd624639ef6"><div><a href="SkCanvas_Reference#Canvas">Canvas</a> needs offset after applying <a href="#Matrix">Matrix</a> to pivot about <a href="SkRect_Reference#Rect">Rect</a> center.</div></fiddle-embed></div>
+<div><fiddle-embed name="e37a94a53c959951b059fcd624639ef6"><div><a href="SkCanvas_Reference#Canvas">Canvas</a> needs offset after applying <a href="#Matrix">Matrix</a> to pivot about <a href="SkRect_Reference#Rect">Rect</a> center.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2011,7 +2033,8 @@ reference to <a href="#Matrix">Matrix</a>
 
 ### Example
 
-<div><fiddle-embed name="c3f5faddca466f78278b32b88fd5f5eb"><div><a href="SkCanvas_Reference#Canvas">Canvas</a> needs offset after applying <a href="#Matrix">Matrix</a> to pivot about <a href="SkRect_Reference#Rect">Rect</a> center.</div></fiddle-embed></div>
+<div><fiddle-embed name="c3f5faddca466f78278b32b88fd5f5eb"><div><a href="SkCanvas_Reference#Canvas">Canvas</a> needs offset after applying <a href="#Matrix">Matrix</a> to pivot about <a href="SkRect_Reference#Rect">Rect</a> center.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2093,14 +2116,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     | A B C |      | J K L |
 a = | D E F |, b = | M N O |
-    | G H I |      | P Q R |</pre>
+    | G H I |      | P Q R |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
         | A B C |   | J K L |   | AJ+BM+CP AK+BN+CQ AL+BO+CR |
 a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
-        | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |</pre>
+        | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
+</pre>
 
 ### Parameters
 
@@ -2114,7 +2139,8 @@ a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 ### Example
 
 <div><fiddle-embed name="0381a10ac69bdefdf9d15b47cbb9fefe"><div><a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
-Multiplying the matrix by its inverse turns into an identity matrix.</div></fiddle-embed></div>
+Multiplying the matrix by its inverse turns into an identity matrix.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2137,14 +2163,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |               | 1 0 dx |
 Matrix = | D E F |,  T(dx, dy) = | 0 1 dy |
-         | G H I |               | 0 0  1 |</pre>
+         | G H I |               | 0 0  1 |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                      | A B C | | 1 0 dx |   | A B A*dx+B*dy+C |
 Matrix * T(dx, dy) = | D E F | | 0 1 dy | = | D E D*dx+E*dy+F |
-                     | G H I | | 0 0  1 |   | G H G*dx+H*dy+I |</pre>
+                     | G H I | | 0 0  1 |   | G H G*dx+H*dy+I |
+</pre>
 
 ### Parameters
 
@@ -2181,20 +2209,23 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |                       | sx  0 dx |
 Matrix = | D E F |,  S(sx, sy, px, py) = |  0 sy dy |
-         | G H I |                       |  0  0  1 |</pre>
+         | G H I |                       |  0  0  1 |
+</pre>
 
 where
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 dx = px - sx * px
-dy = py - sy * py</pre>
+dy = py - sy * py
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                              | A B C | | sx  0 dx |   | A*sx B*sy A*dx+B*dy+C |
 Matrix * S(sx, sy, px, py) = | D E F | |  0 sy dy | = | D*sx E*sy D*dx+E*dy+F |
-                             | G H I | |  0  0  1 |   | G*sx H*sy G*dx+H*dy+I |</pre>
+                             | G H I | |  0  0  1 |   | G*sx H*sy G*dx+H*dy+I |
+</pre>
 
 ### Parameters
 
@@ -2234,14 +2265,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |               | sx  0  0 |
 Matrix = | D E F |,  S(sx, sy) = |  0 sy  0 |
-         | G H I |               |  0  0  1 |</pre>
+         | G H I |               |  0  0  1 |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                      | A B C | | sx  0  0 |   | A*sx B*sy C |
 Matrix * S(sx, sy) = | D E F | |  0 sy  0 | = | D*sx E*sy F |
-                     | G H I | |  0  0  1 |   | G*sx H*sy I |</pre>
+                     | G H I | |  0  0  1 |   | G*sx H*sy I |
+</pre>
 
 ### Parameters
 
@@ -2280,7 +2313,8 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |                        | c -s dx |
 Matrix = | D E F |,  R(degrees, px, py) = | s  c dy |
-         | G H I |                        | 0  0  1 |</pre>
+         | G H I |                        | 0  0  1 |
+</pre>
 
 where
 
@@ -2288,14 +2322,16 @@ where
 c  = cos(degrees)
 s  = sin(degrees)
 dx =  s * py + (1 - c) * px
-dy = -s * px + (1 - c) * py</pre>
+dy = -s * px + (1 - c) * py
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                               | A B C | | c -s dx |   | Ac+Bs -As+Bc A*dx+B*dy+C |
 Matrix * R(degrees, px, py) = | D E F | | s  c dy | = | Dc+Es -Ds+Ec D*dx+E*dy+F |
-                              | G H I | | 0  0  1 |   | Gc+Hs -Gs+Hc G*dx+H*dy+I |</pre>
+                              | G H I | | 0  0  1 |   | Gc+Hs -Gs+Hc G*dx+H*dy+I |
+</pre>
 
 ### Parameters
 
@@ -2335,20 +2371,23 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |                        | c -s 0 |
 Matrix = | D E F |,  R(degrees, px, py) = | s  c 0 |
-         | G H I |                        | 0  0 1 |</pre>
+         | G H I |                        | 0  0 1 |
+</pre>
 
 where
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 c  = cos(degrees)
-s  = sin(degrees)</pre>
+s  = sin(degrees)
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                               | A B C | | c -s 0 |   | Ac+Bs -As+Bc C |
 Matrix * R(degrees, px, py) = | D E F | | s  c 0 | = | Dc+Es -Ds+Ec F |
-                              | G H I | | 0  0 1 |   | Gc+Hs -Gs+Hc I |</pre>
+                              | G H I | | 0  0 1 |   | Gc+Hs -Gs+Hc I |
+</pre>
 
 ### Parameters
 
@@ -2383,20 +2422,23 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |                       |  1 kx dx |
 Matrix = | D E F |,  K(kx, ky, px, py) = | ky  1 dy |
-         | G H I |                       |  0  0  1 |</pre>
+         | G H I |                       |  0  0  1 |
+</pre>
 
 where
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 dx = -kx * py
-dy = -ky * px</pre>
+dy = -ky * px
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                              | A B C | |  1 kx dx |   | A+B*ky A*kx+B A*dx+B*dy+C |
 Matrix * K(kx, ky, px, py) = | D E F | | ky  1 dy | = | D+E*ky D*kx+E D*dx+E*dy+F |
-                             | G H I | |  0  0  1 |   | G+H*ky G*kx+H G*dx+H*dy+I |</pre>
+                             | G H I | |  0  0  1 |   | G+H*ky G*kx+H G*dx+H*dy+I |
+</pre>
 
 ### Parameters
 
@@ -2436,14 +2478,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |               |  1 kx 0 |
 Matrix = | D E F |,  K(kx, ky) = | ky  1 0 |
-         | G H I |               |  0  0 1 |</pre>
+         | G H I |               |  0  0 1 |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                      | A B C | |  1 kx 0 |   | A+B*ky A*kx+B C |
 Matrix * K(kx, ky) = | D E F | | ky  1 0 | = | D+E*ky D*kx+E F |
-                     | G H I | |  0  0 1 |   | G+H*ky G*kx+H I |</pre>
+                     | G H I | |  0  0 1 |   | G+H*ky G*kx+H I |
+</pre>
 
 ### Parameters
 
@@ -2479,14 +2523,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |          | J K L |
 Matrix = | D E F |, other = | M N O |
-         | G H I |          | P Q R |</pre>
+         | G H I |          | P Q R |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                  | A B C |   | J K L |   | AJ+BM+CP AK+BN+CQ AL+BO+CR |
 Matrix * other = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
-                 | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |</pre>
+                 | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
+</pre>
 
 ### Parameters
 
@@ -2498,7 +2544,8 @@ Matrix * other = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 ### Example
 
 <div><fiddle-embed name="b07e62298e7b0ab5683db199faffceb2"><div><a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> creates perspective matrices, one the inverse of the <a href="#SkMatrix_preConcat_other">other</a>.
-Multiplying the matrix by its inverse turns into an identity matrix.</div></fiddle-embed></div>
+Multiplying the matrix by its inverse turns into an identity matrix.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2521,14 +2568,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | J K L |               | 1 0 dx |
 Matrix = | M N O |,  T(dx, dy) = | 0 1 dy |
-         | P Q R |               | 0 0  1 |</pre>
+         | P Q R |               | 0 0  1 |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                      | 1 0 dx | | J K L |   | J+dx*P K+dx*Q L+dx*R |
 T(dx, dy) * Matrix = | 0 1 dy | | M N O | = | M+dy*P N+dy*Q O+dy*R |
-                     | 0 0  1 | | P Q R |   |      P      Q      R |</pre>
+                     | 0 0  1 | | P Q R |   |      P      Q      R |
+</pre>
 
 ### Parameters
 
@@ -2541,7 +2590,8 @@ y translation after applying <a href="#Matrix">Matrix</a></td>
 
 ### Example
 
-<div><fiddle-embed name="57e4cff302c0d754ac6c66050d741772"><div>Compare with <a href="#SkMatrix_preTranslate">preTranslate</a> example.</div></fiddle-embed></div>
+<div><fiddle-embed name="57e4cff302c0d754ac6c66050d741772"><div>Compare with <a href="#SkMatrix_preTranslate">preTranslate</a> example.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2565,20 +2615,23 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | J K L |                       | sx  0 dx |
 Matrix = | M N O |,  S(sx, sy, px, py) = |  0 sy dy |
-         | P Q R |                       |  0  0  1 |</pre>
+         | P Q R |                       |  0  0  1 |
+</pre>
 
 where
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 dx = px - sx * px
-dy = py - sy * py</pre>
+dy = py - sy * py
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                              | sx  0 dx | | J K L |   | sx*J+dx*P sx*K+dx*Q sx*L+dx+R |
 S(sx, sy, px, py) * Matrix = |  0 sy dy | | M N O | = | sy*M+dy*P sy*N+dy*Q sy*O+dy*R |
-                             |  0  0  1 | | P Q R |   |         P         Q         R |</pre>
+                             |  0  0  1 | | P Q R |   |         P         Q         R |
+</pre>
 
 ### Parameters
 
@@ -2618,14 +2671,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | J K L |               | sx  0  0 |
 Matrix = | M N O |,  S(sx, sy) = |  0 sy  0 |
-         | P Q R |               |  0  0  1 |</pre>
+         | P Q R |               |  0  0  1 |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                      | sx  0  0 | | J K L |   | sx*J sx*K sx*L |
 S(sx, sy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
-                     |  0  0  1 | | P Q R |   |    P    Q    R |</pre>
+                     |  0  0  1 | | P Q R |   |    P    Q    R |
+</pre>
 
 ### Parameters
 
@@ -2653,7 +2708,8 @@ vertical scale factor</td>
 bool postIDiv(int divx, int divy)
 </pre>
 
-Sets <a href="#Matrix">Matrix</a> to <a href="#Matrix">Matrix</a> constructed from scaling by(1/<a href="#SkMatrix_postIDiv_divx">divx</a>, 1/<a href="#SkMatrix_postIDiv_divy">divy</a>)about pivot point (px, py), multiplied by <a href="#Matrix">Matrix</a>.
+Sets <a href="#Matrix">Matrix</a> to <a href="#Matrix">Matrix</a> constructed from scaling by(1/<a href="#SkMatrix_postIDiv_divx">divx</a>, 1/<a href="#SkMatrix_postIDiv_divy">divy</a>)
+about pivot point (px, py), multiplied by <a href="#Matrix">Matrix</a>.
 
 Returns false if either <a href="#SkMatrix_postIDiv_divx">divx</a> or <a href="#SkMatrix_postIDiv_divy">divy</a> is zero.
 
@@ -2662,20 +2718,23 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | J K L |                   | sx  0  0 |
 Matrix = | M N O |,  I(divx, divy) = |  0 sy  0 |
-         | P Q R |                   |  0  0  1 |</pre>
+         | P Q R |                   |  0  0  1 |
+</pre>
 
 where
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sx = 1 / divx
-sy = 1 / divy</pre>
+sy = 1 / divy
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                          | sx  0  0 | | J K L |   | sx*J sx*K sx*L |
 I(divx, divy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
-                         |  0  0  1 | | P Q R |   |    P    Q    R |</pre>
+                         |  0  0  1 | | P Q R |   |    P    Q    R |
+</pre>
 
 ### Parameters
 
@@ -2718,7 +2777,8 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | J K L |                        | c -s dx |
 Matrix = | M N O |,  R(degrees, px, py) = | s  c dy |
-         | P Q R |                        | 0  0  1 |</pre>
+         | P Q R |                        | 0  0  1 |
+</pre>
 
 where
 
@@ -2726,14 +2786,16 @@ where
 c  = cos(degrees)
 s  = sin(degrees)
 dx =  s * py + (1 - c) * px
-dy = -s * px + (1 - c) * py</pre>
+dy = -s * px + (1 - c) * py
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                               |c -s dx| |J K L|   |cJ-sM+dx*P cK-sN+dx*Q cL-sO+dx+R|
 R(degrees, px, py) * Matrix = |s  c dy| |M N O| = |sJ+cM+dy*P sK+cN+dy*Q sL+cO+dy*R|
-                              |0  0  1| |P Q R|   |         P          Q          R|</pre>
+                              |0  0  1| |P Q R|   |         P          Q          R|
+</pre>
 
 ### Parameters
 
@@ -2773,20 +2835,23 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | J K L |                        | c -s 0 |
 Matrix = | M N O |,  R(degrees, px, py) = | s  c 0 |
-         | P Q R |                        | 0  0 1 |</pre>
+         | P Q R |                        | 0  0 1 |
+</pre>
 
 where
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 c  = cos(degrees)
-s  = sin(degrees)</pre>
+s  = sin(degrees)
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                               | c -s dx | | J K L |   | cJ-sM cK-sN cL-sO |
 R(degrees, px, py) * Matrix = | s  c dy | | M N O | = | sJ+cM sK+cN sL+cO |
-                              | 0  0  1 | | P Q R |   |     P     Q     R |</pre>
+                              | 0  0  1 | | P Q R |   |     P     Q     R |
+</pre>
 
 ### Parameters
 
@@ -2821,20 +2886,23 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | J K L |                       |  1 kx dx |
 Matrix = | M N O |,  K(kx, ky, px, py) = | ky  1 dy |
-         | P Q R |                       |  0  0  1 |</pre>
+         | P Q R |                       |  0  0  1 |
+</pre>
 
 where
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 dx = -kx * py
-dy = -ky * px</pre>
+dy = -ky * px
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                              | 1 kx dx| |J K L|   |J+kx*M+dx*P K+kx*N+dx*Q L+kx*O+dx+R|
 K(kx, ky, px, py) * Matrix = |ky  1 dy| |M N O| = |ky*J+M+dy*P ky*K+N+dy*Q ky*L+O+dy*R|
-                             | 0  0  1| |P Q R|   |          P           Q           R|</pre>
+                             | 0  0  1| |P Q R|   |          P           Q           R|
+</pre>
 
 ### Parameters
 
@@ -2874,14 +2942,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | J K L |               |  1 kx 0 |
 Matrix = | M N O |,  K(kx, ky) = | ky  1 0 |
-         | P Q R |               |  0  0 1 |</pre>
+         | P Q R |               |  0  0 1 |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                      |  1 kx 0 | | J K L |   | J+kx*M K+kx*N L+kx*O |
 K(kx, ky) * Matrix = | ky  1 0 | | M N O | = | ky*J+M ky*K+N ky*L+O |
-                     |  0  0 1 | | P Q R |   |      P      Q      R |</pre>
+                     |  0  0 1 | | P Q R |   |      P      Q      R |
+</pre>
 
 ### Parameters
 
@@ -2917,14 +2987,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | J K L |           | A B C |
 Matrix = | M N O |,  other = | D E F |
-         | P Q R |           | G H I |</pre>
+         | P Q R |           | G H I |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                  | A B C |   | J K L |   | AJ+BM+CP AK+BN+CQ AL+BO+CR |
 other * Matrix = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
-                 | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |</pre>
+                 | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
+</pre>
 
 ### Parameters
 
@@ -2951,7 +3023,8 @@ enum <a href="#SkMatrix_ScaleToFit">ScaleToFit</a> {
 <a href="#SkMatrix_kStart_ScaleToFit">kStart ScaleToFit</a>,
 <a href="#SkMatrix_kCenter_ScaleToFit">kCenter ScaleToFit</a>,
 <a href="#SkMatrix_kEnd_ScaleToFit">kEnd ScaleToFit</a>,
-};</pre>
+};
+</pre>
 
 <a href="#SkMatrix_ScaleToFit">ScaleToFit</a> describes how <a href="#Matrix">Matrix</a> is constructed to map one <a href="SkRect_Reference#Rect">Rect</a> to another.
 <a href="#SkMatrix_ScaleToFit">ScaleToFit</a> may allow <a href="#Matrix">Matrix</a> to have unequal horizontal and vertical scaling,
@@ -2964,22 +3037,26 @@ how <a href="#Matrix">Matrix</a> maps to the side or center of the destination <
   <tr>
     <td><a name="SkMatrix_kFill_ScaleToFit"> <code><strong>SkMatrix::kFill_ScaleToFit </strong></code> </a></td><td>0</td><td>Computes <a href="#Matrix">Matrix</a> that scales in x and y independently, so that source <a href="SkRect_Reference#Rect">Rect</a> is
 mapped to completely fill destination <a href="SkRect_Reference#Rect">Rect</a>. The aspect ratio of source <a href="SkRect_Reference#Rect">Rect</a>
-may change.</td>
+may change.
+</td>
   </tr>
   <tr>
     <td><a name="SkMatrix_kStart_ScaleToFit"> <code><strong>SkMatrix::kStart_ScaleToFit </strong></code> </a></td><td>1</td><td>Computes <a href="#Matrix">Matrix</a> that maintains source <a href="SkRect_Reference#Rect">Rect</a> aspect ratio, mapping source <a href="SkRect_Reference#Rect">Rect</a>
 width or height to destination <a href="SkRect_Reference#Rect">Rect</a>. Aligns mapping to left and top edges
-of destination <a href="SkRect_Reference#Rect">Rect</a>.</td>
+of destination <a href="SkRect_Reference#Rect">Rect</a>.
+</td>
   </tr>
   <tr>
     <td><a name="SkMatrix_kCenter_ScaleToFit"> <code><strong>SkMatrix::kCenter_ScaleToFit </strong></code> </a></td><td>2</td><td>Computes <a href="#Matrix">Matrix</a> that maintains source <a href="SkRect_Reference#Rect">Rect</a> aspect ratio, mapping source <a href="SkRect_Reference#Rect">Rect</a>
 width or height to destination <a href="SkRect_Reference#Rect">Rect</a>. Aligns mapping to center of destination
-<a href="SkRect_Reference#Rect">Rect</a>.</td>
+<a href="SkRect_Reference#Rect">Rect</a>.
+</td>
   </tr>
   <tr>
     <td><a name="SkMatrix_kEnd_ScaleToFit"> <code><strong>SkMatrix::kEnd_ScaleToFit </strong></code> </a></td><td>3</td><td>Computes <a href="#Matrix">Matrix</a> that maintains source <a href="SkRect_Reference#Rect">Rect</a> aspect ratio, mapping source <a href="SkRect_Reference#Rect">Rect</a>
 width or height to destination <a href="SkRect_Reference#Rect">Rect</a>. Aligns mapping to right and bottom
-edges of destination <a href="SkRect_Reference#Rect">Rect</a>.</td>
+edges of destination <a href="SkRect_Reference#Rect">Rect</a>.
+</td>
   </tr>
 </table>
 
@@ -3008,7 +3085,8 @@ Returns true if <a href="#SkMatrix_setRectToRect_dst">dst</a> is empty, and sets
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 0 0 0 |
 | 0 0 0 |
-| 0 0 1 |</pre>
+| 0 0 1 |
+</pre>
 
 ### Parameters
 
@@ -3066,7 +3144,8 @@ empty, returns <a href="#Matrix">Matrix</a> set to:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 0 0 0 |
 | 0 0 0 |
-| 0 0 1 |</pre>
+| 0 0 1 |
+</pre>
 
 ### Parameters
 
@@ -3194,7 +3273,8 @@ Sets <a href="#SkMatrix_SetAffineIdentity_affine">affine</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 1 0 0 |
-| 0 1 0 |</pre>
+| 0 1 0 |
+</pre>
 
 Affine 3x2 matrices in column major order are used by OpenGL and XPS.
 
@@ -3234,7 +3314,8 @@ Fills <a href="#SkMatrix_asAffine_affine">affine</a> in column major order. Sets
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scale-x  skew-x translate-x |
-| skew-y  scale-y translate-y |</pre>
+| skew-y  scale-y translate-y |
+</pre>
 
 If <a href="#Matrix">Matrix</a> contains perspective, returns false and leaves <a href="#SkMatrix_asAffine_affine">affine</a> unchanged.
 
@@ -3279,14 +3360,16 @@ column, then row, as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scale-x  skew-x translate-x |
-|  skew-y scale-y translate-y |</pre>
+|  skew-y scale-y translate-y |
+</pre>
 
 <a href="#Matrix">Matrix</a> is set, row, then column, to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scale-x  skew-x translate-x |
 |  skew-y scale-y translate-y |
-|       0       0           1 |</pre>
+|       0       0           1 |
+</pre>
 
 ### Parameters
 
@@ -3351,7 +3434,8 @@ length. <a href="SkPoint_Reference#Point">Points</a> are mapped by multiplying e
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |        | x |
 Matrix = | D E F |,  pt = | y |
-         | G H I |        | 1 |</pre>
+         | G H I |        | 1 |
+</pre>
 
 where
 
@@ -3359,14 +3443,16 @@ where
 for (i = 0; i < count; ++i) {
     x = src[i].fX
     y = src[i].fY
-}</pre>
+}
+</pre>
 
 each <a href="#SkMatrix_mapPoints_dst">dst</a> <a href="SkPoint_Reference#Point">Point</a> is computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
               |A B C| |x|                               Ax+By+C   Dx+Ey+F
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I</pre>
+              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
+</pre>
 
 <a href="#SkMatrix_mapPoints_src">src</a> and <a href="#SkMatrix_mapPoints_dst">dst</a> may point to the same storage.
 
@@ -3403,7 +3489,8 @@ each <a href="SkPoint_Reference#Point">Point</a> by <a href="#Matrix">Matrix</a>
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |        | x |
 Matrix = | D E F |,  pt = | y |
-         | G H I |        | 1 |</pre>
+         | G H I |        | 1 |
+</pre>
 
 where
 
@@ -3411,14 +3498,16 @@ where
 for (i = 0; i < count; ++i) {
     x = pts[i].fX
     y = pts[i].fY
-}</pre>
+}
+</pre>
 
 each resulting <a href="#SkMatrix_mapPoints_2_pts">pts</a> <a href="SkPoint_Reference#Point">Point</a> is computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
               |A B C| |x|                               Ax+By+C   Dx+Ey+F
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I</pre>
+              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
+</pre>
 
 ### Parameters
 
@@ -3452,14 +3541,16 @@ greater. <a href="undocumented#Point3">Point3</a> array is mapped by multiplying
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |         | x |
 Matrix = | D E F |,  src = | y |
-         | G H I |         | z |</pre>
+         | G H I |         | z |
+</pre>
 
 each resulting <a href="#SkMatrix_mapHomogeneousPoints_dst">dst</a> <a href="SkPoint_Reference#Point">Point</a> is computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                |A B C| |x|
 Matrix * src = |D E F| |y| = |Ax+By+Cz Dx+Ey+Fz Gx+Hy+Iz|
-               |G H I| |z|</pre>
+               |G H I| |z|
+</pre>
 
 ### Parameters
 
@@ -3494,14 +3585,16 @@ Maps <a href="SkPoint_Reference#Point">Point</a> (<a href="#SkMatrix_mapXY_x">x<
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |        | x |
 Matrix = | D E F |,  pt = | y |
-         | G H I |        | 1 |</pre>
+         | G H I |        | 1 |
+</pre>
 
 <a href="#SkMatrix_mapXY_result">result</a> is computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
               |A B C| |x|                               Ax+By+C   Dx+Ey+F
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I</pre>
+              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
+</pre>
 
 ### Parameters
 
@@ -3535,14 +3628,16 @@ Returns <a href="SkPoint_Reference#Point">Point</a> (<a href="#SkMatrix_mapXY_2_
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |        | x |
 Matrix = | D E F |,  pt = | y |
-         | G H I |        | 1 |</pre>
+         | G H I |        | 1 |
+</pre>
 
 result is computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
               |A B C| |x|                               Ax+By+C   Dx+Ey+F
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I</pre>
+              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
+</pre>
 
 ### Parameters
 
@@ -3581,7 +3676,8 @@ length. <a href="SkPoint_Reference#Vector">Vectors</a> are mapped by multiplying
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B 0 |         | x |
 Matrix = | D E 0 |,  src = | y |
-         | G H I |         | 1 |</pre>
+         | G H I |         | 1 |
+</pre>
 
 where
 
@@ -3589,14 +3685,16 @@ where
 for (i = 0; i < count; ++i) {
     x = src[i].fX
     y = src[i].fY
-}</pre>
+}
+</pre>
 
 each <a href="#SkMatrix_mapVectors_dst">dst</a> <a href="SkPoint_Reference#Vector">Vector</a> is computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                |A B 0| |x|                            Ax+By     Dx+Ey
 Matrix * src = |D E 0| |y| = |Ax+By Dx+Ey Gx+Hy+I| = ------- , -------
-               |G H I| |1|                           Gx+Hy+I   Gx+Hy+I</pre>
+               |G H I| |1|                           Gx+Hy+I   Gx+Hy+I
+</pre>
 
 <a href="#SkMatrix_mapVectors_src">src</a> and <a href="#SkMatrix_mapVectors_dst">dst</a> may point to the same storage.
 
@@ -3633,7 +3731,8 @@ Maps <a href="#SkMatrix_mapVectors_2_vecs">vecs</a> <a href="SkPoint_Reference#V
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B 0 |         | x |
 Matrix = | D E 0 |,  vec = | y |
-         | G H I |         | 1 |</pre>
+         | G H I |         | 1 |
+</pre>
 
 where
 
@@ -3641,14 +3740,16 @@ where
 for (i = 0; i < count; ++i) {
     x = vecs[i].fX
     y = vecs[i].fY
-}</pre>
+}
+</pre>
 
 each result <a href="SkPoint_Reference#Vector">Vector</a> is computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                |A B 0| |x|                            Ax+By     Dx+Ey
 Matrix * vec = |D E 0| |y| = |Ax+By Dx+Ey Gx+Hy+I| = ------- , -------
-               |G H I| |1|                           Gx+Hy+I   Gx+Hy+I</pre>
+               |G H I| |1|                           Gx+Hy+I   Gx+Hy+I
+</pre>
 
 ### Parameters
 
@@ -3682,14 +3783,16 @@ treating <a href="#Matrix">Matrix</a> translation as zero. Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B 0 |         | dx |
 Matrix = | D E 0 |,  vec = | dy |
-         | G H I |         |  1 |</pre>
+         | G H I |         |  1 |
+</pre>
 
 each <a href="#SkMatrix_mapVector_result">result</a> <a href="SkPoint_Reference#Vector">Vector</a> is computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                |A B 0| |dx|                                        A*dx+B*dy     D*dx+E*dy
 Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , -----------
-               |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I</pre>
+               |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
+</pre>
 
 ### Parameters
 
@@ -3724,14 +3827,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B 0 |         | dx |
 Matrix = | D E 0 |,  vec = | dy |
-         | G H I |         |  1 |</pre>
+         | G H I |         |  1 |
+</pre>
 
 each result <a href="SkPoint_Reference#Vector">Vector</a> is computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
                |A B 0| |dx|                                        A*dx+B*dy     D*dx+E*dy
 Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , -----------
-               |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I</pre>
+               |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
+</pre>
 
 ### Parameters
 
@@ -3843,7 +3948,8 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
          | A B C |        | x |
 Matrix = | D E F |,  pt = | y |
-         | G H I |        | 1 |</pre>
+         | G H I |        | 1 |
+</pre>
 
 where pt is initialized from each of (<a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fLeft, <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fTop),
 (<a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fRight, <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fTop), (<a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fRight, <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fBottom), (<a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fLeft, <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fBottom),
@@ -3852,7 +3958,8 @@ each <a href="#SkMatrix_mapRectToQuad_dst">dst</a> <a href="SkPoint_Reference#Po
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
               |A B C| |x|                               Ax+By+C   Dx+Ey+F
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I</pre>
+              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
+</pre>
 
 ### Parameters
 
@@ -3929,7 +4036,8 @@ average mapped <a href="#SkMatrix_mapRadius_radius">radius</a>
 ### Example
 
 <div><fiddle-embed name="6d6f2082fcf59d9f02bfb1758b87db69"><div>The area enclosed by a square with sides equal to mappedRadius is the same as
-the area enclosed by the ellipse major and minor axes.</div></fiddle-embed></div>
+the area enclosed by the ellipse major and minor axes.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -4396,7 +4504,8 @@ Returns reference to const identity <a href="#Matrix">Matrix</a>. Returned <a hr
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 1 0 0 |
 | 0 1 0 |
-| 0 0 1 |</pre>
+| 0 0 1 |
+</pre>
 
 ### Return Value
 
@@ -4434,7 +4543,8 @@ to:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | SK_ScalarMax SK_ScalarMax SK_ScalarMax |
 | SK_ScalarMax SK_ScalarMax SK_ScalarMax |
-| SK_ScalarMax SK_ScalarMax SK_ScalarMax |</pre>
+| SK_ScalarMax SK_ScalarMax SK_ScalarMax |
+</pre>
 
 ### Return Value
 
@@ -4472,14 +4582,16 @@ Given:
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     | A B C |      | J K L |
 a = | D E F |, b = | M N O |
-    | G H I |      | P Q R |</pre>
+    | G H I |      | P Q R |
+</pre>
 
 sets <a href="#Matrix">Matrix</a> to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
         | A B C |   | J K L |   | AJ+BM+CP AK+BN+CQ AL+BO+CR |
 a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
-        | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |</pre>
+        | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
+</pre>
 
 ### Parameters
 
@@ -4497,7 +4609,8 @@ a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 ### Example
 
 <div><fiddle-embed name="6b4562c7052da94f3d5b2412dca41946"><div><a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
-Multiplying the matrix by its inverse turns into an identity matrix.</div></fiddle-embed></div>
+Multiplying the matrix by its inverse turns into an identity matrix.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -4548,7 +4661,8 @@ Initializes <a href="#Matrix">Matrix</a> with scale and translate elements.
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | sx  0 tx |
 |  0 sy ty |
-|  0  0  1 |</pre>
+|  0  0  1 |
+</pre>
 
 ### Parameters
 

@@ -166,7 +166,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             // look for Sk / sk / SK ..
         if (!ref.compare(0, 2, "Sk") && ref != "Skew" && ref != "Skews" &&
               ref != "Skip" && ref != "Skips") {
-            t.reportError("missed Sk prefixed");
+            if (BmhParser::Resolvable::kOut != resolvable) {
+                t.reportError("missed Sk prefixed");
+            }
             return result;
         }
         if (!ref.compare(0, 2, "SK")) {
@@ -744,7 +746,9 @@ void MdOut::markTypeOut(Definition* def) {
     const char* textStart = def->fContentStart;
     if (MarkType::kParam != def->fMarkType && MarkType::kConst != def->fMarkType &&
             (!def->fParent || MarkType::kConst != def->fParent->fMarkType) &&
-            TableState::kNone != fTableState) {
+            TableState::kNone != fTableState &&
+            (MarkType::kPhraseRef != def->fMarkType || !def->fParent ||
+            MarkType::kParam != def->fParent->fMarkType)) {
         this->writePending();
         FPRINTF("</table>");
         this->lf(2);
@@ -1088,6 +1092,22 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kWidth:
             break;
+        case MarkType::kPhraseDef:
+            break;
+        case MarkType::kPhraseRef:
+            if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
+                def->reportError<void>("missing phrase definition");
+            } else {
+                if (fColumn && ' ' >= def->fStart[0]) {
+                    this->writeSpace();
+                }
+                Definition* phraseRef = fBmhParser.fPhraseMap.find(def->fName)->second;
+                this->childrenOut(phraseRef, phraseRef->fContentStart);
+                if (' ' >= def->fContentStart[0]) {
+                    this->writeSpace();
+                }
+            }
+            break;
         default:
             SkDebugf("fatal error: MarkType::k%s unhandled in %s()\n",
                     fBmhParser.fMaps[(int) def->fMarkType].fName, __func__);
@@ -1194,6 +1214,8 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kTable:
             this->lf(2);
+            break;
+        case MarkType::kPhraseDef:
             break;
         case MarkType::kPrivate:
             break;

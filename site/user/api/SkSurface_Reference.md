@@ -413,7 +413,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {
+
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -428,7 +428,7 @@ void draw(SkCanvas* canvas) {
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
+
 </pre>
 
 ### See Also
@@ -472,10 +472,10 @@ one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurface
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_sampleCnt"> <code><strong>sampleCnt </strong></code> </a></td> <td>
 samples per pixel, or 0 to disable full scene anti-aliasing</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
-<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a></td>
+one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
@@ -491,7 +491,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {
+
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -507,7 +507,7 @@ void draw(SkCanvas* canvas) {
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
+
 </pre>
 
 ### See Also
@@ -562,7 +562,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {
+
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -577,7 +577,7 @@ void draw(SkCanvas* canvas) {
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
+
 </pre>
 
 ### See Also
@@ -617,10 +617,10 @@ GPU intermediate memory buffer</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_origin"> <code><strong>origin </strong></code> </a></td> <td>
 one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
-<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a></td>
+one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
@@ -636,7 +636,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {
+
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -652,7 +652,7 @@ void draw(SkCanvas* canvas) {
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
+
 </pre>
 
 ### See Also
@@ -705,7 +705,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {SkPaint paint;
+SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
     if (!context) {
@@ -720,7 +720,7 @@ void draw(SkCanvas* canvas) {SkPaint paint;
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
+
 </pre>
 
 ### See Also
@@ -758,10 +758,10 @@ one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurface
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_sampleCnt"> <code><strong>sampleCnt </strong></code> </a></td> <td>
 samples per pixel, or 0 to disable full scene anti-aliasing</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
-<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a></td>
+one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
@@ -777,7 +777,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {SkPaint paint;
+SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
     if (!context) {
@@ -792,7 +792,7 @@ void draw(SkCanvas* canvas) {SkPaint paint;
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
-}
+
 </pre>
 
 ### See Also
@@ -911,7 +911,8 @@ fonts; may be nullptr</td>
 <div><fiddle-embed name="640321e8ecfb3f9329f3bc6e1f02485f" gpu="true" cpu="true"><div>LCD text takes advantage of raster striping to improve resolution. Only one of
 the four combinations is correct, depending on whether monitor LCD striping is
 horizontal or vertical, and whether the order of the stripes is red blue green
-or red green blue.</div></fiddle-embed></div>
+or red green blue.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1117,7 +1118,8 @@ surface generationID: 3
 enum <a href="#SkSurface_ContentChangeMode">ContentChangeMode</a> {
 <a href="#SkSurface_kDiscard_ContentChangeMode">kDiscard ContentChangeMode</a>,
 <a href="#SkSurface_kRetain_ContentChangeMode">kRetain ContentChangeMode</a>,
-};</pre>
+};
+</pre>
 
 <a href="#SkSurface_ContentChangeMode">ContentChangeMode</a> members are parameters to <a href="#SkSurface_notifyContentWillChange">notifyContentWillChange</a>.
 
@@ -1125,10 +1127,12 @@ enum <a href="#SkSurface_ContentChangeMode">ContentChangeMode</a> {
 
 <table>
   <tr>
-    <td><a name="SkSurface_kDiscard_ContentChangeMode"> <code><strong>SkSurface::kDiscard_ContentChangeMode </strong></code> </a></td><td>Pass to notifyContentWillChange to discard surface contents when</td><td>the surface is cleared or overwritten.</td>
+    <td><a name="SkSurface_kDiscard_ContentChangeMode"> <code><strong>SkSurface::kDiscard_ContentChangeMode </strong></code> </a></td><td>Pass to notifyContentWillChange to discard surface contents when</td><td>the surface is cleared or overwritten.
+</td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kRetain_ContentChangeMode"> <code><strong>SkSurface::kRetain_ContentChangeMode </strong></code> </a></td><td>Pass to notifyContentWillChange when to preserve surface contents.</td><td>If a snapshot has been generated, this copies the <a href="#Surface">Surface</a> contents.</td>
+    <td><a name="SkSurface_kRetain_ContentChangeMode"> <code><strong>SkSurface::kRetain_ContentChangeMode </strong></code> </a></td><td>Pass to notifyContentWillChange when to preserve surface contents.</td><td>If a snapshot has been generated, this copies the <a href="#Surface">Surface</a> contents.
+</td>
   </tr>
 </table>
 
@@ -1187,19 +1191,23 @@ static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a
 static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kFlushWrite_TextureHandleAccess">kFlushWrite TextureHandleAccess</a> =
 <a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>;
 static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kDiscardWrite_TextureHandleAccess">kDiscardWrite TextureHandleAccess</a> =
-<a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>;</pre>
+<a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>;
+</pre>
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkSurface_kFlushRead_BackendHandleAccess"> <code><strong>SkSurface::kFlushRead_BackendHandleAccess </strong></code> </a></td><td>0</td><td>Caller may read from the back-end object.</td>
+    <td><a name="SkSurface_kFlushRead_BackendHandleAccess"> <code><strong>SkSurface::kFlushRead_BackendHandleAccess </strong></code> </a></td><td>0</td><td>Caller may read from the back-end object.
+</td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kFlushWrite_BackendHandleAccess"> <code><strong>SkSurface::kFlushWrite_BackendHandleAccess </strong></code> </a></td><td>1</td><td>Caller may write to the back-end object.</td>
+    <td><a name="SkSurface_kFlushWrite_BackendHandleAccess"> <code><strong>SkSurface::kFlushWrite_BackendHandleAccess </strong></code> </a></td><td>1</td><td>Caller may write to the back-end object.
+</td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>2</td><td>Caller must overwrite the entire back-end object.</td>
+    <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>2</td><td>Caller must overwrite the entire back-end object.
+</td>
   </tr>
   <tr>
     <td><a name="SkSurface_kFlushRead_TextureHandleAccess"> <code><strong>SkSurface::kFlushRead_TextureHandleAccess </strong></code> </a></td><td>0</td><td></td>
@@ -1582,7 +1590,8 @@ true if pixels were copied
 
 <div><fiddle-embed name="d141d6c662d201d191fb1eea26d014fd"><div>A black oval drawn on a red background provides an image to copy.
 <a href="#SkSurface_readPixels">readPixels</a> copies one quarter of the <a href="#Surface">Surface</a> into each of the four corners.
-The copied quarter ovals overdraw the original oval.</div></fiddle-embed></div>
+The copied quarter ovals overdraw the original oval.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1657,7 +1666,8 @@ void writePixels(const SkPixmap& src, int dstX, int dstY)
 Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from the <a href="#SkSurface_writePixels_src">src</a> <a href="SkPixmap_Reference#Pixmap">Pixmap</a> to the <a href="#Surface">Surface</a>.
 
 Source <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkSurface_writePixels_src">src</a>.<a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_src">src</a>.<a href="#SkSurface_height">height</a>).
-Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_writePixels_dstX">dstX</a>, <a href="#SkSurface_writePixels_dstY">dstY</a>) and(<a href="#SkSurface_writePixels_dstX">dstX</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_dstY">dstY</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_height">height</a>).
+Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_writePixels_dstX">dstX</a>, <a href="#SkSurface_writePixels_dstY">dstY</a>) and(<a href="#SkSurface_writePixels_dstX">dstX</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_dstY">dstY</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_height">height</a>)
+.
 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#Surface">Surface</a> colorType() and <a href="#Surface">Surface</a> alphaType() if required.
@@ -1692,7 +1702,8 @@ void writePixels(const SkBitmap& src, int dstX, int dstY)
 Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from the <a href="#SkSurface_writePixels_2_src">src</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a> to the <a href="#Surface">Surface</a>.
 
 Source <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkSurface_writePixels_2_src">src</a>.<a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_2_src">src</a>.<a href="#SkSurface_height">height</a>).
-Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_writePixels_2_dstX">dstX</a>, <a href="#SkSurface_writePixels_2_dstY">dstY</a>) and(<a href="#SkSurface_writePixels_2_dstX">dstX</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_2_dstY">dstY</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_height">height</a>).
+Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_writePixels_2_dstX">dstX</a>, <a href="#SkSurface_writePixels_2_dstY">dstY</a>) and(<a href="#SkSurface_writePixels_2_dstX">dstX</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_2_dstY">dstY</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_height">height</a>)
+.
 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#Surface">Surface</a> colorType() and <a href="#Surface">Surface</a> alphaType() if required.
@@ -1864,9 +1875,15 @@ array of semaphore containers</td>
 
 true if GPU is waiting on semaphores
 
-### Example
-
-<div><fiddle-embed name="c9033080af68efc0f270d748f1c0e011"></fiddle-embed></div>
+# gpu<a href="SkPaint_Reference#SkPaint">SkPaint</a> paint;
+paint.setTextSize(32);
+<a href="undocumented#GrContext">GrContext</a>* context = canvas->getGrContext();
+if (!context) {
+canvas->drawString("GPU only!", 20, 40, paint);
+return;
+}
+<a href="undocumented#GrBackendSemaphore">GrBackendSemaphore</a> semaphore;
+<a href="undocumented#sk_sp">sk sp</a><<a href="#SkSurface">SkSurface</a>> surface =
 
 ### See Also
 

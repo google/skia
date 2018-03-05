@@ -120,6 +120,8 @@ enum class MarkType {
     kNoExample,
     kOutdent,
     kParam,
+    kPhraseDef,
+    kPhraseRef,
     kPlatform,
     kPopulate,
     kPrivate,
@@ -504,6 +506,12 @@ public:
         }
     }
 
+    void skipPhraseName() {
+        while (fChar < fEnd && (islower(fChar[0]) || '_' == fChar[0])) {
+            fChar++;
+        }
+    }
+
     void skipToSpace() {
         while (fChar < fEnd && ' ' != fChar[0]) {
             fChar++;
@@ -637,6 +645,17 @@ public:
         return fChar + index;
     }
 
+    const char* trimmedBracketEnd(string bracket) const {
+        size_t max = (size_t) (this->lineLength());
+        string line(fChar, max);
+        size_t index = line.find(bracket);
+        SkASSERT(index < max);
+        while (index > 0 && ' ' >= fChar[index - 1]) {
+            --index;
+        }
+        return fChar + index;
+    }
+
     const char* trimmedLineEnd() const {
         const char* result = this->lineEnd();
         while (result > fChar && ' ' >= result[-1]) {
@@ -730,17 +749,6 @@ public:
         kFileType,
     };
 
-    enum class TrimExtract {
-        kNo,
-        kYes
-    };
-
-    enum class ExampleOptions {
-        kText,
-        kPng,
-        kAll
-    };
-
     enum class MethodType {
         kNone,
         kConstructor,
@@ -775,13 +783,14 @@ public:
 
     Definition() {}
 
-    Definition(const char* start, const char* end, int line, Definition* parent)
+    Definition(const char* start, const char* end, int line, Definition* parent, char mc)
         : fStart(start)
         , fContentStart(start)
         , fContentEnd(end)
         , fParent(parent)
         , fLineCount(line)
-        , fType(Type::kWord) {
+        , fType(Type::kWord)
+        , fMC(mc) {
         if (parent) {
             SkASSERT(parent->fFileName.length() > 0);
             fFileName = parent->fFileName;
@@ -789,31 +798,31 @@ public:
         this->setParentIndex();
     }
 
-    Definition(MarkType markType, const char* start, int line, Definition* parent)
-        : Definition(markType, start, nullptr, line, parent) {
+    Definition(MarkType markType, const char* start, int line, Definition* parent, char mc)
+        : Definition(markType, start, nullptr, line, parent, mc) {
     }
 
-    Definition(MarkType markType, const char* start, const char* end, int line, Definition* parent)
-        : Definition(start, end, line, parent) {
+    Definition(MarkType markType, const char* start, const char* end, int line, Definition* parent, char mc)
+        : Definition(start, end, line, parent, mc) {
         fMarkType = markType;
         fType = Type::kMark;
     }
 
-    Definition(Bracket bracket, const char* start, int lineCount, Definition* parent)
-        : Definition(start, nullptr, lineCount, parent) {
+    Definition(Bracket bracket, const char* start, int lineCount, Definition* parent, char mc)
+        : Definition(start, nullptr, lineCount, parent, mc) {
         fBracket = bracket;
         fType = Type::kBracket;
     }
 
     Definition(KeyWord keyWord, const char* start, const char* end, int lineCount,
-            Definition* parent)
-        : Definition(start, end, lineCount, parent) {
+            Definition* parent, char mc)
+        : Definition(start, end, lineCount, parent, mc) {
         fKeyWord = keyWord;
         fType = Type::kKeyWord;
     }
 
-    Definition(Punctuation punctuation, const char* start, int lineCount, Definition* parent)
-        : Definition(start, nullptr, lineCount, parent) {
+    Definition(Punctuation punctuation, const char* start, int lineCount, Definition* parent, char mc)
+        : Definition(start, nullptr, lineCount, parent, mc) {
         fPunctuation = punctuation;
         fType = Type::kPunctuation;
     }
@@ -845,8 +854,6 @@ public:
         return nullptr;
     }
 
-    bool exampleToScript(string* result, ExampleOptions ) const;
-    string extractText(TrimExtract trimExtract) const;
     string fiddleName() const;
     const Definition* findClone(string match) const;
     string formatFunction(Format format) const;
@@ -901,8 +908,6 @@ public:
         fParentIndex = fParent ? (int) fParent->fTokens.size() : -1;
     }
 
-    void setWrapper();
-
     const Definition* topicParent() const {
         Definition* test = fParent;
         while (test) {
@@ -936,6 +941,7 @@ public:
     MethodType fMethodType = MethodType::kNone;
     Operator fOperator = Operator::kUnknown;
     Type fType = Type::kNone;
+    char fMC = '#';
     bool fClone = false;
     bool fCloned = false;
     bool fDeprecated = false;
@@ -958,12 +964,12 @@ public:
     RootDefinition() {
     }
 
-    RootDefinition(MarkType markType, const char* start, int line, Definition* parent)
-            : Definition(markType, start, line, parent) {
+    RootDefinition(MarkType markType, const char* start, int line, Definition* parent, char mc)
+            : Definition(markType, start, line, parent, mc) {
     }
 
     RootDefinition(MarkType markType, const char* start, const char* end, int line,
-            Definition* parent) : Definition(markType, start, end,  line, parent) {
+            Definition* parent, char mc) : Definition(markType, start, end,  line, parent, mc) {
     }
 
     ~RootDefinition() override {
@@ -1205,6 +1211,12 @@ public:
 		kClone,   // resolved, output, with references to clones as well
     };
 
+    enum class ExampleOptions {
+        kText,
+        kPng,
+        kAll
+    };
+
     enum class Exemplary {
         kNo,
         kYes,
@@ -1220,6 +1232,11 @@ public:
     enum class HasTag {
         kNo,
         kYes,
+    };
+
+    enum class TrimExtract {
+        kNo,
+        kYes
     };
 
 #define M(mt) (1LL << (int) MarkType::k##mt)
@@ -1287,6 +1304,8 @@ public:
 , { "NoExample",   nullptr,      MarkType::kNoExample,    R_O, E_N, M_CSST | M_E | M(Method) }
 , { "Outdent",     nullptr,      MarkType::kOutdent,      R_N, E_N, M(Code) }
 , { "Param",       nullptr,      MarkType::kParam,        R_Y, E_N, M(Method) }
+, { "PhraseDef",   nullptr,      MarkType::kPhraseDef,    R_Y, E_N, M(Subtopic) }
+, { "",            nullptr,      MarkType::kPhraseRef,    R_Y, E_N, 0 }
 , { "Platform",    nullptr,      MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Populate",    nullptr,      MarkType::kPopulate,     R_N, E_N, M(Subtopic) }
 , { "Private",     nullptr,      MarkType::kPrivate,      R_N, E_N, 0 }
@@ -1333,13 +1352,17 @@ public:
             const vector<string>& typeNameBuilder, HasTag hasTag);
     bool checkEndMarker(MarkType markType, string name) const;
     bool checkExamples() const;
+    const char* checkForFullTerminal(const char* end, const Definition* ) const;
     bool checkParamReturn(const Definition* definition) const;
+    bool dumpExamples(FILE* fiddleOut, Definition& def, bool* continuation) const;
     bool dumpExamples(const char* fiddleJsonFileName) const;
     bool childOf(MarkType markType) const;
     string className(MarkType markType);
     bool collectExternals();
     int endHashCount() const;
     bool endTableColumn(const char* end, const char* terminator);
+    bool exampleToScript(Definition*, ExampleOptions, string* result ) const;
+    string extractText(const Definition* , TrimExtract ) const;
 
     RootDefinition* findBmhObject(MarkType markType, const string& typeName) const {
         auto map = fMaps[(int) markType].fBmh;
@@ -1383,6 +1406,7 @@ public:
         fCheckMethods = false;
     }
 
+    void setWrapper(Definition* def) const;
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
 	bool skipToString();
@@ -1418,6 +1442,7 @@ public:
     unordered_map<string, RootDefinition> fTypedefMap;
     unordered_map<string, Definition*> fTopicMap;
     unordered_map<string, Definition*> fAliasMap;
+    unordered_map<string, Definition*> fPhraseMap;
     RootDefinition* fRoot;
     Definition* fWorkingColumn;
     Definition* fRow;
@@ -1485,6 +1510,8 @@ public:
         , { nullptr,        MarkType::kNoExample }
         , { nullptr,        MarkType::kOutdent }
         , { nullptr,        MarkType::kParam }
+        , { nullptr,        MarkType::kPhraseDef }
+        , { nullptr,        MarkType::kPhraseRef }
         , { nullptr,        MarkType::kPlatform }
         , { nullptr,        MarkType::kPopulate }
         , { nullptr,        MarkType::kPrivate }
@@ -1517,11 +1544,11 @@ public:
     void addKeyword(KeyWord keyWord);
 
     void addPunctuation(Punctuation punctuation) {
-        fParent->fTokens.emplace_back(punctuation, fChar, fLineCount, fParent);
+        fParent->fTokens.emplace_back(punctuation, fChar, fLineCount, fParent, '\0');
     }
 
     void addWord() {
-        fParent->fTokens.emplace_back(fIncludeWord, fChar, fLineCount, fParent);
+        fParent->fTokens.emplace_back(fIncludeWord, fChar, fLineCount, fParent, '\0');
         fIncludeWord = nullptr;
     }
 
@@ -1602,7 +1629,7 @@ public:
 
     void pushBracket(Bracket bracket) {
         this->setBracketShortCuts(bracket);
-        fParent->fTokens.emplace_back(bracket, fChar, fLineCount, fParent);
+        fParent->fTokens.emplace_back(bracket, fChar, fLineCount, fParent, '\0');
         Definition* container = &fParent->fTokens.back();
         this->addDefinition(container);
     }
@@ -1889,7 +1916,7 @@ public:
 
 	void constOut(const Definition* memberStart, const Definition& child,
 		const Definition* bmhConst);
-    void descriptionOut(const Definition* def, SkipFirstLine );
+    void descriptionOut(const Definition* def, SkipFirstLine , Phrase );
     void enumHeaderOut(const RootDefinition* root, const Definition& child);
     void enumMembersOut(const RootDefinition* root, Definition& child);
     void enumSizeItems(const Definition& child);
