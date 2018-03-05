@@ -8,6 +8,7 @@
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkBlurDrawLooper.h"
+#include "SkBlurPriv.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
@@ -522,8 +523,10 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
     bool ninePatchable;
     SkRRect rrectToDraw;
     SkISize size;
-    SkScalar rectXs[SkBlurMaskFilter::kMaxDivisions], rectYs[SkBlurMaskFilter::kMaxDivisions];
-    SkScalar texXs[SkBlurMaskFilter::kMaxDivisions], texYs[SkBlurMaskFilter::kMaxDivisions];
+    SkScalar rectXs[kSkBlurRRectMaxDivisions],
+             rectYs[kSkBlurRRectMaxDivisions];
+    SkScalar texXs[kSkBlurRRectMaxDivisions],
+             texYs[kSkBlurRRectMaxDivisions];
     int numX, numY;
     uint32_t skipMask;
 
@@ -534,11 +537,11 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
         SkRRect rr;
         rr.setRectRadii(r, radii);
 
-        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, rr, SkRect::MakeEmpty(),
-                                                                    kBlurRad, kBlurRad,
-                                                                    &rrectToDraw, &size,
-                                                                    rectXs, rectYs, texXs, texYs,
-                                                                    &numX, &numY, &skipMask);
+        ninePatchable = SkComputeBlurredRRectParams(rr, rr, SkRect::MakeEmpty(),
+                                                    kBlurRad, kBlurRad,
+                                                    &rrectToDraw, &size,
+                                                    rectXs, rectYs, texXs, texYs,
+                                                    &numX, &numY, &skipMask);
         REPORTER_ASSERT(reporter, !ninePatchable);
     }
 
@@ -548,11 +551,11 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
         SkRRect rr;
         rr.setRectXY(r, kCornerRad, kCornerRad);
 
-        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, rr, SkRect::MakeEmpty(),
-                                                                    kBlurRad, kBlurRad,
-                                                                    &rrectToDraw, &size,
-                                                                    rectXs, rectYs, texXs, texYs,
-                                                                    &numX, &numY, &skipMask);
+        ninePatchable = SkComputeBlurredRRectParams(rr, rr, SkRect::MakeEmpty(),
+                                                    kBlurRad, kBlurRad,
+                                                    &rrectToDraw, &size,
+                                                    rectXs, rectYs, texXs, texYs,
+                                                    &numX, &numY, &skipMask);
 
         static const SkScalar kAns = 12.0f * kBlurRad + 2.0f * kCornerRad + 1.0f;
         REPORTER_ASSERT(reporter, ninePatchable);
@@ -569,11 +572,11 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
         SkRRect rr;
         rr.setRectXY(r, kXCornerRad, kYCornerRad);
 
-        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(rr, rr, SkRect::MakeEmpty(),
-                                                                    kBlurRad, kBlurRad,
-                                                                    &rrectToDraw, &size,
-                                                                    rectXs, rectYs, texXs, texYs,
-                                                                    &numX, &numY, &skipMask);
+        ninePatchable = SkComputeBlurredRRectParams(rr, rr, SkRect::MakeEmpty(),
+                                                    kBlurRad, kBlurRad,
+                                                    &rrectToDraw, &size,
+                                                    rectXs, rectYs, texXs, texYs,
+                                                    &numX, &numY, &skipMask);
 
         static const SkScalar kXAns = 12.0f * kBlurRad + 2.0f * kXCornerRad + 1.0f;
         static const SkScalar kYAns = 12.0f * kBlurRad + 2.0f * kYCornerRad + 1.0f;
@@ -614,8 +617,7 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
                             continue;
                         }
 
-                        ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(
-                                                                    rr, rr, occluder,
+                        ninePatchable = SkComputeBlurredRRectParams(rr, rr, occluder,
                                                                     kBlurRad, kBlurRad,
                                                                     &rrectToDraw, &size,
                                                                     rectXs, rectYs, texXs, texYs,

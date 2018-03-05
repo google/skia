@@ -64,28 +64,6 @@ public:
                                           SkScalar ambient, SkScalar specular);
 #endif
 
-    static const int kMaxDivisions = 6;
-
-    // This method computes all the parameters for drawing a partially occluded nine-patched
-    // blurred rrect mask:
-    //   rrectToDraw - the integerized rrect to draw in the mask
-    //   widthHeight - how large to make the mask (rrectToDraw will be centered in this coord sys)
-    //   rectXs, rectYs - the x & y coordinates of the covering geometry lattice
-    //   texXs, texYs - the texture coordinate at each point in rectXs & rectYs
-    //   numXs, numYs - number of coordinates in the x & y directions
-    //   skipMask - bit mask that contains a 1-bit whenever one of the cells is occluded
-    // It returns true if 'devRRect' is nine-patchable
-    static bool ComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
-                                          const SkRect& occluder,
-                                          SkScalar sigma, SkScalar xformedSigma,
-                                          SkRRect* rrectToDraw,
-                                          SkISize* widthHeight,
-                                          SkScalar rectXs[kMaxDivisions],
-                                          SkScalar rectYs[kMaxDivisions],
-                                          SkScalar texXs[kMaxDivisions],
-                                          SkScalar texYs[kMaxDivisions],
-                                          int* numXs, int* numYs, uint32_t* skipMask);
-
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 private:

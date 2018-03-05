@@ -7,6 +7,7 @@
 
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
+#include "SkBlurPriv.h"
 #include "SkGpuBlurUtils.h"
 #include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
@@ -195,16 +196,16 @@ static uint32_t insert_into_arrays(SkScalar* array1, SkScalar* array2,
     return skipMask;
 }
 
-bool SkBlurMaskFilter::ComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
-                                                 const SkRect& occluder,
-                                                 SkScalar sigma, SkScalar xformedSigma,
-                                                 SkRRect* rrectToDraw,
-                                                 SkISize* widthHeight,
-                                                 SkScalar rectXs[kMaxDivisions],
-                                                 SkScalar rectYs[kMaxDivisions],
-                                                 SkScalar texXs[kMaxDivisions],
-                                                 SkScalar texYs[kMaxDivisions],
-                                                 int* numXs, int* numYs, uint32_t* skipMask) {
+bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
+                                 const SkRect& occluder,
+                                 SkScalar sigma, SkScalar xformedSigma,
+                                 SkRRect* rrectToDraw,
+                                 SkISize* widthHeight,
+                                 SkScalar rectXs[kSkBlurRRectMaxDivisions],
+                                 SkScalar rectYs[kSkBlurRRectMaxDivisions],
+                                 SkScalar texXs[kSkBlurRRectMaxDivisions],
+                                 SkScalar texYs[kSkBlurRRectMaxDivisions],
+                                 int* numXs, int* numYs, uint32_t* skipMask) {
     unsigned int devBlurRadius = 3*SkScalarCeilToInt(xformedSigma-1/6.0f);
     SkScalar srcBlurRadius = 3.0f * sigma;
 
