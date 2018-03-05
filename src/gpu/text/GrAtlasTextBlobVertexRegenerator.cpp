@@ -244,7 +244,10 @@ Regenerator::Result Regenerator::doRegen() {
             SkScalerContextEffects effects;
             effects.fPathEffect = fRun->fPathEffect.get();
             effects.fMaskFilter = fRun->fMaskFilter.get();
-            fLazyCache->reset(SkGlyphCache::DetachCache(fRun->fTypeface.get(), effects, desc));
+            auto nextCache =
+                SkGlyphCache::FindOrCreateStrikeExclusive(*desc, effects, *fRun->fTypeface.get());
+            // This is evil
+            fLazyCache->swap(nextCache);
         }
 
         if (regenGlyphs) {
