@@ -52,6 +52,11 @@ public:
                         VkPipelineStageFlags dstStageMask,
                         bool byRegion);
 
+    // This simply updates our tracking of the image layout and does not actually do any gpu work.
+    // This is only used for mip map generation where we are manually changing the layouts as we
+    // blit each layer, and then at the end need to update our tracking.
+    void updateImageLayout(VkImageLayout newLayout) { fInfo.fImageLayout = newLayout; }
+
     struct ImageDesc {
         VkImageType         fImageType;
         VkFormat            fFormat;

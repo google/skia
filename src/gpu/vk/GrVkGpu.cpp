@@ -1023,7 +1023,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
             return;
         }
         // change the new image's layout so we can blit to it
-        tex->setImageLayout(this, VK_IMAGE_LAYOUT_GENERAL,
+        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                             VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
 
         // Blit original image to top level of new image
@@ -1040,7 +1040,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
                                      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                      tex->resource(),
                                      tex->image(),
-                                     VK_IMAGE_LAYOUT_GENERAL,
+                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                      1,
                                      &blitRegion,
                                      VK_FILTER_LINEAR);
@@ -1048,7 +1048,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
         oldResource->unref(this);
     } else {
         // change layout of the layers so we can write to them.
-        tex->setImageLayout(this, VK_IMAGE_LAYOUT_GENERAL,
+        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                             VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
     }
 
@@ -1060,8 +1060,8 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
         nullptr,                                         // pNext
         VK_ACCESS_TRANSFER_WRITE_BIT,                    // srcAccessMask
         VK_ACCESS_TRANSFER_READ_BIT,                     // dstAccessMask
-        VK_IMAGE_LAYOUT_GENERAL,                         // oldLayout
-        VK_IMAGE_LAYOUT_GENERAL,                         // newLayout
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,            // oldLayout
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,            // newLayout
         VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
         VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
         tex->image(),                                    // image
@@ -1087,13 +1087,24 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
         blitRegion.dstOffsets[0] = { 0, 0, 0 };
         blitRegion.dstOffsets[1] = { width, height, 1 };
         fCurrentCmdBuffer->blitImage(this,
-                                     *tex,
-                                     *tex,
+                                     tex->resource(),
+                                     tex->image(),
+                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                     tex->resource(),
+                                     tex->image(),
+                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                      1,
                                      &blitRegion,
                                      VK_FILTER_LINEAR);
         ++mipLevel;
     }
+    // This barrier logically is not needed, but it changes the final level to the same layout as
+    // all the others, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL. This makes tracking of the layouts and
+    // future layout changes easier.
+    imageMemoryBarrier.subresourceRange.baseMipLevel = mipLevel - 1;
+    this->addImageMemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                false, &imageMemoryBarrier);
+    tex->updateImageLayout(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
