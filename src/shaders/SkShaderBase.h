@@ -15,6 +15,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrFPArgs.h"
+#include <memory>
 #endif
 
 class GrContext;

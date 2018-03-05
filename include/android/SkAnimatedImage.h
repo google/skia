@@ -14,6 +14,8 @@
 #include "SkMatrix.h"
 #include "SkRect.h"
 
+#include <memory>
+
 class SkAndroidCodec;
 class SkPicture;
 

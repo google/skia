@@ -13,6 +13,8 @@
 #include "../private/SkDeferredDisplayList.h"
 #include "../private/SkSurfaceCharacterization.h"
 
+#include <memory>
+
 class GrContext;
 
 class SkCanvas;

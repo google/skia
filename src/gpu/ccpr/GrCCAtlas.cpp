@@ -18,6 +18,8 @@
 #include "ccpr/GrCCPathParser.h"
 #include "ops/GrDrawOp.h"
 
+#include <memory>
+
 static constexpr int kAtlasMinSize = 1024;
 static constexpr int kPadding = 1;
 

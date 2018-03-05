@@ -11,6 +11,8 @@
 #include "SkRefCnt.h"
 #include "SkBlendMode.h"
 
+#include <memory>
+
 class GrFragmentProcessor;
 
 namespace GrXfermodeFragmentProcessor {

@@ -15,6 +15,8 @@
 #include "SkRasterHandleAllocator.h"
 #include "SkSurfaceProps.h"
 
+#include <memory>
+
 class GrContext;
 class GrRenderTargetContext;
 class SkAndroidFrameworkUtils;

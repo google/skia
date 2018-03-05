@@ -11,6 +11,8 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
+#include <memory>
+
 class GrDrawOp;
 class GrPaint;
 class GrShaderCaps;
