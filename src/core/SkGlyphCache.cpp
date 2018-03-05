@@ -9,6 +9,7 @@
 #include "SkGlyphCache.h"
 #include "SkGraphics.h"
 #include "SkOnce.h"
+#include "SkPaintPriv.h"
 #include "SkPath.h"
 #include "SkTemplates.h"
 #include "SkTraceMemoryDump.h"
@@ -788,9 +789,7 @@ void SkGraphics::SetTLSFontCacheLimit(size_t bytes) { }
 SkGlyphCache* SkGlyphCache::DetachCache(
     SkTypeface* typeface, const SkScalerContextEffects& effects, const SkDescriptor* desc)
 {
-
-    auto cache = FindOrCreateStrikeExclusive(
-        *desc, effects, *SkTypeface::NormalizeTypeface(typeface));
+    auto cache = FindOrCreateStrikeExclusive(*desc, effects, *typeface);
     return cache.release();
 }
 
@@ -804,5 +803,5 @@ SkGlyphCache* SkGlyphCache::DetachCacheUsingPaint(const SkPaint& paint,
     auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
         paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
 
-    return SkGlyphCache::DetachCache(paint.getTypeface(), effects, desc);
+    return SkGlyphCache::DetachCache(SkPaintPriv::GetTypefaceOrDefault(paint), effects, desc);
 }
