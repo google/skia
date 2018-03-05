@@ -34,6 +34,24 @@
       "revId": "aad8d893d10c07623e46bc75c2d5fe36884d76a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b743bcf_0d6de2f2",
+        "filename": "tools/sk_app/android/surface_glue_android.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-05T20:12:33Z",
+      "side": 1,
+      "message": "Never mind. I was confused with another way of reading resources.",
+      "parentUuid": "69381a54_0178f4d7",
+      "revId": "aad8d893d10c07623e46bc75c2d5fe36884d76a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
