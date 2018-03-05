@@ -8,7 +8,6 @@
 #ifndef SkTypeface_DEFINED
 #define SkTypeface_DEFINED
 
-#include "../private/SkBitmaskEnum.h"
 #include "../private/SkOnce.h"
 #include "../private/SkWeakRefCnt.h"
 #include "SkFontArguments.h"
