@@ -50,8 +50,10 @@ void GrCCCoverageProcessor::Shader::CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGe
                                                                   const char* bloatDir,
                                                                   const char* outputCoverage) {
     // Here we find an edge's coverage at one corner of a bloat box whose center falls on the edge
-    // in question. We always set up coverage so it is -1 at the outermost corner, 0 at the
-    // innermost, and -.5 at the center. (See comments for RenderPass.)
+    // in question. (A bloat box is axis-aligned and the size of one pixel.) We always set up
+    // coverage so it is -1 at the outermost corner, 0 at the innermost, and -.5 at the center.
+    // Interpolated, these coverage values convert jagged conservative raster edges into a smooth
+    // antialiased edge.
     //
     // d1 == (P + sign(n) * bloat) dot n               (Corner where coverage = -1)
     //    == P dot n + (abs(n.x) + abs(n.y))
@@ -112,20 +114,19 @@ void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShaderCaps&) const {
     std::unique_ptr<Shader> shader;
     switch (fRenderPass) {
-        case RenderPass::kTriangleHulls:
-        case RenderPass::kTriangleEdges:
+        case RenderPass::kTriangles:
             shader = skstd::make_unique<GrCCTriangleShader>();
             break;
         case RenderPass::kTriangleCorners:
             shader = skstd::make_unique<GrCCTriangleCornerShader>();
             break;
-        case RenderPass::kQuadraticHulls:
+        case RenderPass::kQuadratics:
             shader = skstd::make_unique<GrCCQuadraticHullShader>();
             break;
         case RenderPass::kQuadraticCorners:
             shader = skstd::make_unique<GrCCQuadraticCornerShader>();
             break;
-        case RenderPass::kCubicHulls:
+        case RenderPass::kCubics:
             shader = skstd::make_unique<GrCCCubicHullShader>();
             break;
         case RenderPass::kCubicCorners:

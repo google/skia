@@ -76,7 +76,7 @@ protected:
         SkSTArray<2, GrShaderVar> emitArgs;
         const char* position = emitArgs.emplace_back("position", kFloat2_GrSLType).c_str();
         const char* coverage = nullptr;
-        if (RenderPass::kTriangleEdges == proc.fRenderPass) {
+        if (RenderPass::kTriangles == proc.fRenderPass) {
             coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
         }
         g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
@@ -109,80 +109,110 @@ protected:
 };
 
 /**
- * Generates a conservative raster hull around a triangle. (See comments for RenderPass)
+ * Generates conservative rasters around a triangle and its edges, and calculates coverage ramps.
+ *
+ * Triangle rough outlines are drawn in two steps: (1) draw a conservative raster of the entire
+ * triangle, with a coverage of +1, and (2) draw conservative rasters around each edge, with a
+ * coverage ramp from -1 to 0. These edge coverage values convert jagged conservative raster edges
+ * into smooth, antialiased ones.
+ *
+ * The final corners get touched up in a later step by GSCornerImpl.
  */
-class GSHull3Impl : public GrCCCoverageProcessor::GSImpl {
+class GSTriangleImpl : public GrCCCoverageProcessor::GSImpl {
 public:
-    GSHull3Impl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
+    GSTriangleImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
     void onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
                               const char* emitVertexFn) const override {
-        Shader::GeometryVars vars;
-        fShader->emitSetupCode(g, "pts", nullptr, wind.c_str(), &vars);
-
-        const char* hullPts = vars.fHullVars.fAlternatePoints;
-        if (!hullPts) {
-            hullPts = "pts";
-        }
-
         // Visualize the input triangle as upright and equilateral, with a flat base. Paying special
         // attention to wind, we can identify the points as top, bottom-left, and bottom-right.
         //
-        // NOTE: We generate the hull in 2 independent invocations, so each invocation designates
+        // NOTE: We generate the rasters in 5 independent invocations, so each invocation designates
         // the corner it will begin with as the top.
-        g->codeAppendf("int i = %s > 0 ? sk_InvocationID : 1 - sk_InvocationID;", wind.c_str());
-        g->codeAppendf("float2 top = %s[i];", hullPts);
-        g->codeAppendf("float2 left = %s[%s > 0 ? (1 - i) * 2 : i + 1];", hullPts, wind.c_str());
-        g->codeAppendf("float2 right = %s[%s > 0 ? i + 1 : (1 - i) * 2];", hullPts, wind.c_str());
+        g->codeAppendf("int i = (%s > 0 ? sk_InvocationID : 4 - sk_InvocationID) %% 3;",
+                       wind.c_str());
+        g->codeAppend ("float2 top = pts[i];");
+        g->codeAppendf("float2 right = pts[(i + (%s > 0 ? 1 : 2)) %% 3];", wind.c_str());
+        g->codeAppendf("float2 left = pts[(i + (%s > 0 ? 2 : 1)) %% 3];", wind.c_str());
 
-        // Determine how much to outset the conservative raster hull from each of the three edges.
-        g->codeAppend ("float2 leftbloat = float2(top.y > left.y ? +bloat : -bloat, "
-                                                 "top.x > left.x ? -bloat : +bloat);");
-        g->codeAppend ("float2 rightbloat = float2(right.y > top.y ? +bloat : -bloat, "
-                                                  "right.x > top.x ? -bloat : +bloat);");
-        g->codeAppend ("float2 downbloat = float2(left.y > right.y ? +bloat : -bloat, "
-                                                 "left.x > right.x ? -bloat : +bloat);");
+        // Determine which direction to outset the conservative raster from each of the three edges.
+        g->codeAppend ("float2 leftbloat = sign(top - left);");
+        g->codeAppend ("leftbloat = float2(0 != leftbloat.y ? leftbloat.y : leftbloat.x, "
+                                          "0 != leftbloat.x ? -leftbloat.x : -leftbloat.y);");
 
-        // Here we generate the conservative raster geometry. It is the convex hull of 3 pixel-size
-        // boxes centered on the input points, split between two invocations. This translates to a
-        // polygon with either one, two, or three vertices at each input point, depending on how
-        // sharp the corner is. For more details on conservative raster, see:
+        g->codeAppend ("float2 rightbloat = sign(right - top);");
+        g->codeAppend ("rightbloat = float2(0 != rightbloat.y ? rightbloat.y : rightbloat.x, "
+                                           "0 != rightbloat.x ? -rightbloat.x : -rightbloat.y);");
+
+        g->codeAppend ("float2 downbloat = sign(left - right);");
+        g->codeAppend ("downbloat = float2(0 != downbloat.y ? downbloat.y : downbloat.x, "
+                                           "0 != downbloat.x ? -downbloat.x : -downbloat.y);");
+
+        // The triangle's conservative raster has a coverage of +1 all around.
+        g->codeAppend ("half4 coverages = half4(+1);");
+
+        // Edges have coverage ramps.
+        g->codeAppend ("if (sk_InvocationID >= 2) {"); // Are we an edge?
+        Shader::CalcEdgeCoverageAtBloatVertex(g, "top", "right",
+                                              "float2(+rightbloat.y, -rightbloat.x)",
+                                              "coverages[0]");
+        g->codeAppend (    "coverages.yzw = half3(-1, 0, -1 - coverages[0]);");
+        // Reassign bloats to characterize a conservative raster around a single edge, rather than
+        // the entire triangle.
+        g->codeAppend (    "leftbloat = downbloat = -rightbloat;");
+        g->codeAppend ("}");
+
+        // These can't be scaled until after we calculate coverage.
+        g->codeAppend ("leftbloat *= bloat;");
+        g->codeAppend ("rightbloat *= bloat;");
+        g->codeAppend ("downbloat *= bloat;");
+
+        // Here we generate the conservative raster geometry. The triangle's conservative raster is
+        // the convex hull of 3 pixel-size boxes centered on the input points. This translates to a
+        // convex polygon with either one, two, or three vertices at each input point (depending on
+        // how sharp the corner is) that we split between two invocations. Edge conservative rasters
+        // are convex hulls of 2 pixel-size boxes, one at each endpoint. For more details on
+        // conservative raster, see:
         // https://developer.nvidia.com/gpugems/GPUGems2/gpugems2_chapter42.html
         g->codeAppendf("bool2 left_right_notequal = notEqual(leftbloat, rightbloat);");
         g->codeAppend ("if (all(left_right_notequal)) {");
                            // The top corner will have three conservative raster vertices. Emit the
                            // middle one first to the triangle strip.
-        g->codeAppendf(    "%s(top + float2(-leftbloat.y, leftbloat.x));", emitVertexFn);
+        g->codeAppendf(    "%s(top + float2(-leftbloat.y, +leftbloat.x), coverages[0]);",
+                           emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (any(left_right_notequal)) {");
                            // Second conservative raster vertex for the top corner.
-        g->codeAppendf(    "%s(top + rightbloat);", emitVertexFn);
+        g->codeAppendf(    "%s(top + rightbloat, coverages[1]);", emitVertexFn);
         g->codeAppend ("}");
 
-        // Main interior body of the triangle.
-        g->codeAppendf("%s(top + leftbloat);", emitVertexFn);
-        g->codeAppendf("%s(right + rightbloat);", emitVertexFn);
+        // Main interior body.
+        g->codeAppendf("%s(top + leftbloat, coverages[2]);", emitVertexFn);
+        g->codeAppendf("%s(right + rightbloat, coverages[1]);", emitVertexFn);
 
-        // Here the two invocations diverge. We can't symmetrically divide three triangle points
-        // between two invocations, so each does the following:
+        // Here the invocations diverge slightly. We can't symmetrically divide three triangle
+        // points between two invocations, so each does the following:
         //
-        // sk_InvocationID=0: Finishes the main interior body of the triangle.
-        // sk_InvocationID=1: Remaining two conservative raster vertices for the third corner.
+        // sk_InvocationID=0: Finishes the main interior body of the triangle hull.
+        // sk_InvocationID=1: Remaining two conservative raster vertices for the third hull corner.
+        // sk_InvocationID=2..4: Finish the opposite endpoint of their corresponding edge.
         g->codeAppendf("bool2 right_down_notequal = notEqual(rightbloat, downbloat);");
         g->codeAppend ("if (any(right_down_notequal) || 0 == sk_InvocationID) {");
-        g->codeAppendf(    "%s(sk_InvocationID == 0 ? left + leftbloat : right + downbloat);",
-                           emitVertexFn);
+        g->codeAppendf(    "%s(0 == sk_InvocationID ? left + leftbloat : right + downbloat, "
+                              "coverages[2]);", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (all(right_down_notequal) && 0 != sk_InvocationID) {");
-        g->codeAppendf(    "%s(right + float2(-rightbloat.y, rightbloat.x));", emitVertexFn);
+        g->codeAppendf(    "%s(right + float2(-rightbloat.y, +rightbloat.x), coverages[3]);",
+                           emitVertexFn);
         g->codeAppend ("}");
 
-        g->configure(InputType::kLines, OutputType::kTriangleStrip, 6, 2);
+        // 5 invocations: 2 triangle hull invocations and 3 edges.
+        g->configure(InputType::kLines, OutputType::kTriangleStrip, 6, 5);
     }
 };
 
 /**
- * Generates a conservative raster hull around a convex quadrilateral. (See comments for RenderPass)
+ * Generates a conservative raster around a convex quadrilateral that encloses a cubic or quadratic.
  */
 class GSHull4Impl : public GrCCCoverageProcessor::GSImpl {
 public:
@@ -253,53 +283,6 @@ public:
 };
 
 /**
- * Generates conservatives around each edge of a triangle. (See comments for RenderPass)
- */
-class GSEdgeImpl : public GrCCCoverageProcessor::GSImpl {
-public:
-    GSEdgeImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
-
-    void onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
-                              const char* emitVertexFn) const override {
-        fShader->emitSetupCode(g, "pts", "sk_InvocationID", wind.c_str(), nullptr);
-
-        g->codeAppend ("int nextidx = 2 != sk_InvocationID ? sk_InvocationID + 1 : 0;");
-        g->codeAppendf("float2 left = pts[%s > 0 ? sk_InvocationID : nextidx];", wind.c_str());
-        g->codeAppendf("float2 right = pts[%s > 0 ? nextidx : sk_InvocationID];", wind.c_str());
-
-        // Which quadrant does the vector from left -> right fall into?
-        g->codeAppend ("float2 qlr = sign(right - left);");
-        g->codeAppend ("float2x2 outer_pts = float2x2(left - bloat * qlr, right + bloat * qlr);");
-        g->codeAppend ("half outer_coverage;");
-        Shader::CalcEdgeCoverageAtBloatVertex(g, "left", "right", "qlr", "outer_coverage");
-
-        g->codeAppend ("float2 d1 = float2(qlr.y, -qlr.x);");
-        g->codeAppend ("float2 d2 = d1;");
-        g->codeAppend ("bool aligned = qlr.x == 0 || qlr.y == 0;");
-        g->codeAppend ("if (aligned) {");
-        g->codeAppend (    "d1 -= qlr;");
-        g->codeAppend (    "d2 += qlr;");
-        g->codeAppend ("}");
-
-        // Emit the convex hull of 2 pixel-size boxes centered on the endpoints of the edge. Each
-        // invocation emits a different edge. Emit negative coverage that subtracts the appropiate
-        // amount back out from the hull we drew above.
-        g->codeAppend ("if (!aligned) {");
-        g->codeAppendf(    "%s(outer_pts[0], -1 - outer_coverage);", emitVertexFn);
-        g->codeAppend ("}");
-        g->codeAppendf("%s(left + bloat * d1, -1);", emitVertexFn);
-        g->codeAppendf("%s(left - bloat * d2, 0);", emitVertexFn);
-        g->codeAppendf("%s(right + bloat * d2, -1);", emitVertexFn);
-        g->codeAppendf("%s(right - bloat * d1, 0);", emitVertexFn);
-        g->codeAppend ("if (!aligned) {");
-        g->codeAppendf(    "%s(outer_pts[1], outer_coverage);", emitVertexFn);
-        g->codeAppend ("}");
-
-        g->configure(InputType::kLines, OutputType::kTriangleStrip, 6, 3);
-    }
-};
-
-/**
  * Generates conservative rasters around corners. (See comments for RenderPass)
  */
 class GSCornerImpl : public GrCCCoverageProcessor::GSImpl {
@@ -358,15 +341,13 @@ void GrCCCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceC
 
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGSImpl(std::unique_ptr<Shader> shadr) const {
     switch (fRenderPass) {
-        case RenderPass::kTriangleHulls:
-            return new GSHull3Impl(std::move(shadr));
-        case RenderPass::kQuadraticHulls:
-        case RenderPass::kCubicHulls:
-            return new GSHull4Impl(std::move(shadr));
-        case RenderPass::kTriangleEdges:
-            return new GSEdgeImpl(std::move(shadr));
+        case RenderPass::kTriangles:
+            return new GSTriangleImpl(std::move(shadr));
         case RenderPass::kTriangleCorners:
             return new GSCornerImpl(std::move(shadr), 3);
+        case RenderPass::kQuadratics:
+        case RenderPass::kCubics:
+            return new GSHull4Impl(std::move(shadr));
         case RenderPass::kQuadraticCorners:
         case RenderPass::kCubicCorners:
             return new GSCornerImpl(std::move(shadr), 2);
