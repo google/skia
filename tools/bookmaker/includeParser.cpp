@@ -87,7 +87,7 @@ void IncludeParser::ValidateKeyWords() {
 }
 
 void IncludeParser::addKeyword(KeyWord keyWord) {
-    fParent->fTokens.emplace_back(keyWord, fIncludeWord, fChar, fLineCount, fParent);
+    fParent->fTokens.emplace_back(keyWord, fIncludeWord, fChar, fLineCount, fParent, '\0');
     fIncludeWord = nullptr;
     if (KeyProperty::kObject == kKeyWords[(int) keyWord].fProperty) {
         Definition* def = &fParent->fTokens.back();
@@ -1295,7 +1295,7 @@ bool IncludeParser::parseComment(const string& filename, const char* start, cons
         }
         const char* lineEnd = parser.trimmedLineEnd();
         markupDef->fTokens.emplace_back(MarkType::kComment, parser.fChar, lineEnd,
-                parser.fLineCount, parent);
+                parser.fLineCount, parent, '\0');
         parser.skipToEndBracket('\n');
     }
     return true;
@@ -1338,7 +1338,7 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         markupChild->fLineCount = child->fLineCount;
     } else {
         markupDef->fTokens.emplace_back(MarkType::kEnum, child->fContentStart, child->fContentEnd,
-            child->fLineCount, markupDef);
+            child->fLineCount, markupDef, '\0');
         markupChild = &markupDef->fTokens.back();
     }
     SkASSERT(KeyWord::kNone == markupChild->fKeyWord);
@@ -1385,7 +1385,7 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
                 parser.skipToLineStart();
             }
             markupChild->fTokens.emplace_back(MarkType::kComment, start, end, parser.fLineCount,
-                    markupChild);
+                    markupChild, '\0');
             comment = &markupChild->fTokens.back();
             comment->fTerminator = end;
             if (!this->parseComment(parser.fFileName, start, end, parser.fLineCount, comment)) {
@@ -1439,12 +1439,12 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
             SkASSERT(!parser.eof());
             const char* commentEnd = parser.fChar;
             markupChild->fTokens.emplace_back(MarkType::kComment, commentStart, commentEnd,
-                    parser.fLineCount, markupChild);
+                    parser.fLineCount, markupChild, '\0');
             comment = &markupChild->fTokens.back();
             comment->fTerminator = commentEnd;
         }
         markupChild->fTokens.emplace_back(MarkType::kMember, dataStart, dataEnd, parser.fLineCount,
-                markupChild);
+                markupChild, '\0');
         Definition* member = &markupChild->fTokens.back();
         member->fName = memberName;
         if (comment) {
@@ -1463,7 +1463,7 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         }
         SkASSERT(KeyWord::kStatic == outsideMember->fKeyWord);
         markupChild->fTokens.emplace_back(MarkType::kMember, outsideMember->fContentStart,
-                outsideMember->fContentEnd, outsideMember->fLineCount, markupChild);
+                outsideMember->fContentEnd, outsideMember->fLineCount, markupChild, '\0');
         Definition* member = &markupChild->fTokens.back();
         member->fName = outsideMember->fName;
         // FIXME: ? add comment as well ?
@@ -1503,7 +1503,7 @@ bool IncludeParser::parseInclude(const string& name) {
 bool IncludeParser::parseMember(Definition* child, Definition* markupDef) {
     const char* typeStart = child->fChildren[0]->fContentStart;
     markupDef->fTokens.emplace_back(MarkType::kMember, typeStart, child->fContentStart,
-        child->fLineCount, markupDef);
+        child->fLineCount, markupDef, '\0');
     Definition* markupChild = &markupDef->fTokens.back();
     TextParser nameParser(child);
     nameParser.skipToNonAlphaNum();
@@ -1534,7 +1534,7 @@ bool IncludeParser::parseMember(Definition* child, Definition* markupDef) {
                     }
                 }
                 markupDef->fTokens.emplace_back(MarkType::kComment, start, end, child->fLineCount,
-                        markupDef);
+                        markupDef, '\0');
                 Definition* commentChild = &markupDef->fTokens.back();
                 markupChild->fChildren.emplace_back(commentChild);
                 parser.skipTo(end);
@@ -1676,7 +1676,7 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         return true;
     }
     markupDef->fTokens.emplace_back(MarkType::kMethod, start, end, tokenIter->fLineCount,
-            markupDef);
+            markupDef, '\0');
     Definition* markupChild = &markupDef->fTokens.back();
     // do find instead -- I wonder if there is a way to prevent this in c++
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
@@ -1873,7 +1873,7 @@ bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
         return true;
     }
     markupDef->fTokens.emplace_back(MarkType::kTypedef, child->fContentStart, child->fContentEnd,
-        child->fLineCount, markupDef);
+        child->fLineCount, markupDef, '\0');
     Definition* markupChild = &markupDef->fTokens.back();
     markupChild->fName = nameStr;
     markupChild->fTerminator = markupChild->fContentEnd;

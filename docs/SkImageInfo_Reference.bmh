@@ -194,6 +194,13 @@ in the same order.
 #Alias Color_Type
 #Alias Color_Types
 
+#PhraseDef list_of_color_types
+kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+kGray_8_SkColorType, kRGBA_F16_SkColorType
+##
+
 #Subtopic Native
 #Alias Native_Color_Type
 #Substitute native SkColorType
@@ -759,8 +766,14 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 
 #Struct SkImageInfo
 
-Describes Image dimensions and pixel type.
-Used for both source images and render-targets (surfaces).
+Describes pixel dimensions and encoding. Bitmap, Image, PixMap, and Surface 
+can be created from Image_Info. Image_Info can be retrieved from Bitmap and
+Pixmap, but not from Image and Surface. For example, Image and Surface
+implementations may defer pixel depth, so may not completely specify Image_Info.
+
+Image_Info contains dimensions, the pixel integral width and height. It encodes
+how pixel bits describe Color_Alpha, transparency; Color components red, blue,
+and green; and Color_Space, the range and linearity of colors.
 
 #Subtopic Member_Function
 #Populate
@@ -775,18 +788,33 @@ Used for both source images and render-targets (surfaces).
 #Populate
 ##
 
-
 #Method SkImageInfo()
 
 #In Constructor
 #Line # creates with zero dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
-#Return incomplete ##
+Creates an empty Image_Info with kUnknown_SkColorType,  kUnknown_SkAlphaType,
+a width and height of zero, and no Color_Space.
+
+#Return empty Image_Info ##
 
 #Example
-// incomplete
+#Height 32
+#Description
+An empty Image_Info may be passed to SkCanvas::accessTopLayerPixels as storage
+for the Canvas actual Image_Info.
+##
+  SkImageInfo imageInfo;
+  size_t rowBytes;
+  SkIPoint origin;
+  uint32_t* access = (uint32_t*) canvas->accessTopLayerPixels(&imageInfo, &rowBytes, &origin);
+  const char* alphaType[] = { "Unknown", "Opaque", "Premul", "Unpremul" };
+  SkString string;
+  string.printf("k%s_SkAlphaType", alphaType[(int) imageInfo.alphaType()]);
+  SkPaint paint;
+  canvas->drawString(string, 20, 20, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso Make MakeN32 MakeS32 MakeA8
 
 #Method ##
 
@@ -796,20 +824,42 @@ Used for both source images and render-targets (surfaces).
                             sk_sp<SkColorSpace> cs = nullptr)
 #In Constructor
 #Line # creates Image_Info from dimensions, Color_Type, Alpha_Type, Color_Space ##
+Creates Image_Info from integral dimensions width and height, Color_Type ct,
+Alpha_Type at, and optionally Color_Space cs.
 
-#Param width  incomplete ##
-#Param height  incomplete ##
-#Param ct  incomplete ##
-#Param at  incomplete ##
-#Param cs  incomplete ##
+If Color_Space cs is nullptr and Image_Info is part of drawing source: Color_Space
+defaults to sRGB, mapping into Surface Color_Space.
 
-#Return incomplete ##
+Parameters are not validated to see if their values are legal, or that the
+combination is supported.
+
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+#Param ct  one of: #list_of_color_types#
+##
+#Param at  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                   kUnpremul_SkAlphaType
+##
+#Param cs  range of colors; may be nullptr ##
+
+#Return created Image_Info ##
 
 #Example
-// incomplete
+#Height 48
+    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },
+                            { 0xAC, 0xA8, 0x89, 0xA7, 0x87 },
+                            { 0x9B, 0xB5, 0xE5, 0x95, 0x46 },
+                            { 0x90, 0x81, 0xC5, 0x71, 0x33 },
+                            { 0x75, 0x55, 0x44, 0x40, 0x30 }};
+    SkImageInfo imageInfo = SkImageInfo::Make(5, 5, kGray_8_SkColorType, kOpaque_SkAlphaType);
+    SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);
+    SkBitmap bitmap;
+    bitmap.installPixels(pixmap);
+    canvas->scale(8, 8);
+    canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeN32 MakeN32Premul MakeS32 MakeA8
 
 #Method ##
 
@@ -819,21 +869,38 @@ Used for both source images and render-targets (surfaces).
                                sk_sp<SkColorSpace> cs = nullptr)
 #In Constructor
 #Line # creates Image_Info with Native_Color_Type ##
+Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
+Alpha_Type at, and optionally Color_Space cs. kN32_SkColorType will equal either
+kBGRA_8888_SkColorType or kRGBA_8888_SkColorType, whichever is optimal.
 
-Sets Color_Type to kN32_SkColorType.
+If Color_Space cs is nullptr and Image_Info is part of drawing source: Color_Space
+defaults to sRGB, mapping into Surface Color_Space.
 
-#Param width  incomplete ##
-#Param height  incomplete ##
-#Param at  incomplete ##
-#Param cs  incomplete ##
+Parameters are not validated to see if their values are legal, or that the
+combination is supported.
 
-#Return incomplete ##
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+#Param at  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                   kUnpremul_SkAlphaType
+##
+#Param cs  range of colors; may be nullptr ##
+
+#Return created Image_Info ##
 
 #Example
-// incomplete
+#Height 128
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32(16, 16, kPremul_SkAlphaType));
+    SkCanvas offscreen(bitmap);
+    offscreen.clear(SK_ColorWHITE);
+    SkPaint paint;
+    offscreen.drawString("g", 0, 10, paint);
+    canvas->scale(8, 8);
+    canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso incomplete
+#SeeAlso Make MakeN32Premul MakeS32 MakeA8
 
 #Method ##
 
@@ -843,19 +910,54 @@ Sets Color_Type to kN32_SkColorType.
 
 #In Constructor
 #Line # creates Image_Info with Native_Color_Type, sRGB Color_Space ##
-Creates Image_Info marked as sRGB with kN32_SkColorType swizzle.
+Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
+Alpha_Type at, with sRGB Color_Space.
 
-#Param width  incomplete ##
-#Param height  incomplete ##
-#Param at  incomplete ##
+Parameters are not validated to see if their values are legal, or that the
+combination is supported.
 
-#Return incomplete ##
-
-#Example
-// incomplete
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+#Param at  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                   kUnpremul_SkAlphaType
 ##
 
-#SeeAlso incomplete
+#Return created Image_Info ##
+
+#Example
+#Set sRGB
+#Height 128
+#Description
+Top gradient is drawn to offscreen without Color_Space. It is darker than middle
+gradient, drawn to offscreen with sRGB Color_Space. Bottom gradient shares bits
+with middle, but does not specify the Color_Space in noColorSpaceBitmap. A source
+without Color_Space is treated as sRGB; the bottom gradient is identical to the
+middle gradient.
+##
+    const int width = 256;
+    const int height = 32;
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    SkColor  gradColors[] = { 0xFFAA0055, 0xFF11CC88 };
+    SkPoint  gradPoints[] = { { 0, 0 }, { width, 0 } };
+    SkPaint gradPaint;
+    gradPaint.setShader(SkGradientShader::MakeLinear(gradPoints, gradColors, nullptr,
+                    SK_ARRAY_COUNT(gradColors), SkShader::kClamp_TileMode));
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType));
+    SkCanvas offscreen(bitmap);
+    offscreen.drawRect(SkRect::MakeWH(width, height), gradPaint);
+    canvas->drawBitmap(bitmap, 0, 0);
+    bitmap.allocPixels(SkImageInfo::MakeS32(width, height, kPremul_SkAlphaType));
+    SkCanvas sRGBOffscreen(bitmap);
+    sRGBOffscreen.drawRect(SkRect::MakeWH(width, height), gradPaint);
+    canvas->drawBitmap(bitmap, 0, 48);
+    SkBitmap noColorSpaceBitmap;
+    noColorSpaceBitmap.setInfo(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType));
+    noColorSpaceBitmap.setPixels(bitmap.getAddr(0, 0));
+    canvas->drawBitmap(noColorSpaceBitmap, 0, 96);
+##
+
+#SeeAlso Make MakeN32 MakeN32Premul MakeA8
 
 #Method ##
 
@@ -865,19 +967,35 @@ Creates Image_Info marked as sRGB with kN32_SkColorType swizzle.
 
 #In Constructor
 #Line # creates Image_Info with Native_Color_Type, kPremul_SkAlphaType ##
-Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
+Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
+kPremul_SkAlphaType, with optional Color_Space.
 
-#Param width  incomplete ##
-#Param height  incomplete ##
-#Param cs  incomplete ##
+If Color_Space cs is nullptr and Image_Info is part of drawing source: Color_Space
+defaults to sRGB, mapping into Surface Color_Space.
 
-#Return incomplete ##
+Parameters are not validated to see if their values are legal, or that the
+combination is supported.
+
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+#Param cs  range of colors; may be nullptr ##
+
+#Return created Image_Info ##
 
 #Example
-// incomplete
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(18, 18));
+    SkCanvas offscreen(bitmap);
+    offscreen.clear(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(15);
+    offscreen.drawString("\xF0\x9F\x98\xB8", 1, 15, paint);
+    canvas->scale(6, 6);
+    canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeN32 MakeS32 MakeA8 Make
 
 #Method ##
 
@@ -886,15 +1004,33 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 #Method static SkImageInfo MakeN32Premul(const SkISize& size)
 
 #In Constructor
-#Param size  incomplete ##
+Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
+kPremul_SkAlphaType, with Color_Space set to nullptr.
 
-#Return incomplete ##
+If Image_Info is part of drawing source: Color_Space defaults to sRGB, mapping
+into Surface Color_Space.
+
+Parameters are not validated to see if their values are legal, or that the
+combination is supported.
+
+#Param size  width and height, each must be zero or greater ##
+
+#Return created Image_Info ##
 
 #Example
-// incomplete
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul({18, 18}));
+    SkCanvas offscreen(bitmap);
+    offscreen.clear(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(15);
+    offscreen.drawString("\xF0\x9F\x98\xB9", 1, 15, paint);
+    canvas->scale(6, 6);
+    canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeN32 MakeS32 MakeA8 Make 
 
 #Method ##
 
@@ -904,16 +1040,19 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 
 #In Constructor
 #Line # creates Image_Info with kAlpha_8_SkColorType, kPremul_SkAlphaType ##
-#Param width  incomplete ##
-#Param height  incomplete ##
+Creates Image_Info from integral dimensions width and height, kAlpha_8_SkColorType,
+kPremul_SkAlphaType, with Color_Space set to nullptr.
 
-#Return incomplete ##
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+
+#Return created Image_Info ##
 
 #Example
 // incomplete
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeN32 MakeS32 Make
 
 #Method ##
 
@@ -923,16 +1062,29 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 
 #In Constructor
 #Line # creates Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType ##
-#Param width  incomplete ##
-#Param height  incomplete ##
+Creates Image_Info from integral dimensions width and height, kUnknown_SkColorType,
+kUnknown_SkAlphaType, with Color_Space set to nullptr.
 
-#Return incomplete ##
+Returned Image_Info as part of source does not draw, and as part of destination
+can not be drawn to.
+
+#Param width  pixel column count; must be zero or greater ##
+#Param height  pixel row count; must be zero or greater ##
+
+#Return created Image_Info ##
 
 #Example
-// incomplete
+#Height 32
+#Width 384
+SkImageInfo info;  // default constructor
+SkString string;
+string.printf("SkImageInfo() %c= SkImageInfo::MakeUnknown(0, 0)",
+              info == SkImageInfo::MakeUnknown(0, 0) ? '=' : '!');
+SkPaint paint;
+canvas->drawString(string, 0, 12, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkImageInfo() MakeN32 MakeS32 Make
 
 #Method ##
 
@@ -941,13 +1093,26 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 #Method static SkImageInfo MakeUnknown()
 
 #In Constructor
-#Return incomplete ##
+Creates Image_Info from integral dimensions width and height set to zero,
+kUnknown_SkColorType, kUnknown_SkAlphaType, with Color_Space set to nullptr.
+
+Returned Image_Info as part of source does not draw, and as part of destination
+can not be drawn to.
+
+#Return created Image_Info ##
 
 #Example
-// incomplete
+#Height 32
+#Width 384
+SkImageInfo info;  // default constructor
+SkString string;
+string.printf("SkImageInfo() %c= SkImageInfo::MakeUnknown()",
+              info == SkImageInfo::MakeUnknown() ? '=' : '!');
+SkPaint paint;
+canvas->drawString(string, 0, 12, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkImageInfo() MakeN32 MakeS32 Make
 
 #Method ##
 
@@ -960,14 +1125,25 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 
 #Method int width() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # returns pixel column count ##
+Returns pixel count in each row.
+
+#Return pixel width ##
 
 #Example
-// incomplete
+#Image 4
+#Height 96
+   canvas->translate(10, 10);
+   canvas->drawBitmap(source, 0, 0);
+   SkImageInfo imageInfo = source.info();
+   canvas->translate(0, imageInfo.height());
+   SkPaint paint;
+   paint.setTextAlign(SkPaint::kCenter_Align);
+   canvas->drawLine(0, 10, imageInfo.width(), 10, paint);
+   canvas->drawString("width", imageInfo.width() / 2, 25, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso height SkBitmap::width SkPixelRef::width SkImage::width SkSurface::width
 
 #Method ##
 
@@ -975,14 +1151,25 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 
 #Method int height() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # returns pixel row count ##
+Returns pixel row count.
+
+#Return pixel height ##
 
 #Example
-// incomplete
+#Image 4
+#Height 96
+   canvas->translate(10, 20);
+   canvas->drawBitmap(source, 0, 0);
+   SkImageInfo imageInfo = source.info();
+   SkPaint paint;
+   paint.setTextAlign(SkPaint::kCenter_Align);
+   paint.setVerticalText(true);
+   canvas->drawLine(imageInfo.width() + 10, 0, imageInfo.width() + 10, imageInfo.height(), paint);
+   canvas->drawString("height", imageInfo.width() + 25, imageInfo.height() / 2, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso width SkBitmap::height SkPixelRef::height SkImage::height SkSurface::height
 
 #Method ##
 
@@ -991,7 +1178,9 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 #Method SkColorType colorType() const
 #In Property
 #Line # incomplete ##
-#Return incomplete ##
+Returns Color_Type, one of: #list_of_color_types#.
+
+#Return Color_Type ##
 
 #Example
 // incomplete

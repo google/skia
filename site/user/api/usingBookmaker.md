@@ -21,7 +21,8 @@ documentation to be deprecated as well.
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 # void someMethodThatIsNowDeprecated()
 #Deprecated
-##</pre>
+##
+</pre>
 
 Use
 
@@ -239,3 +240,4 @@ any of the above commands with -a docs/status.json in place of
 ## <a name="Bugs"></a> Bugs
 
 <a href="#Bookmaker">Bookmaker</a> bugs are tracked <a href="bug.skia.org/6898">here</a> .
+

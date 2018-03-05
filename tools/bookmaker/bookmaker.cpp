@@ -6,6 +6,7 @@
  */
 
 #include "bookmaker.h"
+#include "SkOSPath.h"
 
 #ifdef SK_BUILD_FOR_WIN
 #include <Windows.h>
@@ -189,7 +190,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 if (!typeNameBuilder.size()) {
                     return this->reportError<bool>("unnamed topic");
                 }
-                fTopics.emplace_front(markType, defStart, fLineCount, fParent);
+                fTopics.emplace_front(markType, defStart, fLineCount, fParent, fMC);
                 RootDefinition* rootDefinition = &fTopics.front();
                 definition = rootDefinition;
                 definition->fFileName = fFileName;
@@ -277,6 +278,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         // may be one-liner
         case MarkType::kNoExample:
         case MarkType::kParam:
+        case MarkType::kPhraseDef:
         case MarkType::kReturn:
         case MarkType::kToDo:
             if (hasEnd) {
@@ -289,22 +291,37 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     if (!this->popParentStack(fParent)) { // if not one liner, pop
                         return false;
                     }
-                    if (MarkType::kParam == markType || MarkType::kReturn == markType) {
+                    if (MarkType::kParam == markType || MarkType::kReturn == markType
+                            || MarkType::kPhraseDef == markType) {
                         if (!this->checkParamReturn(definition)) {
                             return false;
                         }
                     }
+                    if (MarkType::kPhraseDef == markType) {
+                        string key = definition->fName;
+                        if (fPhraseMap.end() != fPhraseMap.find(key)) {
+                            this->reportError<bool>("duplicate phrase key");
+                        }
+                        fPhraseMap[key] = definition;
+                    }
                 } else {
-                    fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
+                    fMarkup.emplace_front(markType, defStart, fLineCount, fParent, fMC);
                     definition = &fMarkup.front();
                     definition->fName = typeNameBuilder[0];
                     definition->fFiddle = fParent->fFiddle;
                     definition->fContentStart = fChar;
-                    definition->fContentEnd = this->trimmedBracketEnd(fMC);
-                    this->skipToEndBracket(fMC);
+                    string endBracket;
+                    endBracket += fMC;
+                    endBracket += fMC;
+                    definition->fContentEnd = this->trimmedBracketEnd(endBracket);
+                    this->skipToEndBracket(endBracket.c_str());
                     SkAssertResult(fMC == this->next());
                     SkAssertResult(fMC == this->next());
                     definition->fTerminator = fChar;
+                    TextParser checkForChildren(definition);
+                    if (checkForChildren.strnchr(fMC, definition->fContentEnd)) {
+                        this->reportError<bool>("put ## on separate line");
+                    }
                     fParent->fChildren.push_back(definition);
                 }
                 break;
@@ -334,10 +351,11 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                             return this->reportError<bool>("missing example body");
                         }
                     }
-                    definition->setWrapper();
+// can't do this here; phrase refs may not have been defined yet
+//                    this->setWrapper(definition);
                 }
             } else {
-                fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
+                fMarkup.emplace_front(markType, defStart, fLineCount, fParent, fMC);
                 definition = &fMarkup.front();
                 definition->fContentStart = fChar;
                 definition->fName = typeNameBuilder[0];
@@ -395,7 +413,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             } else if (!hasEnd && MarkType::kAnchor == markType) {
                 return this->reportError<bool>("anchor line must have end element last");
             }
-            fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
+            fMarkup.emplace_front(markType, defStart, fLineCount, fParent, fMC);
             definition = &fMarkup.front();
             definition->fName = typeNameBuilder[0];
             definition->fFiddle = Definition::NormalizedName(typeNameBuilder[0]);
@@ -405,7 +423,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             fParent->fChildren.push_back(definition);
             if (MarkType::kAnchor == markType) {
                 this->skipToEndBracket(fMC);
-                fMarkup.emplace_front(MarkType::kLink, fChar, fLineCount, definition);
+                fMarkup.emplace_front(MarkType::kLink, fChar, fLineCount, definition, fMC);
                 SkAssertResult(fMC == this->next());
                 this->skipWhiteSpace();
                 Definition* link = &fMarkup.front();
@@ -437,7 +455,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
 				if (fMC != this->next() || fMC != this->next()) {
 					return this->reportError<bool>("expected ## to delineate line");
 				}
-				fMarkup.emplace_front(MarkType::kText, start, fLineCount, definition);
+				fMarkup.emplace_front(MarkType::kText, start, fLineCount, definition, fMC);
 				Definition* text = &fMarkup.front();
 				text->fContentStart = start;
 				text->fContentEnd = end;
@@ -690,7 +708,8 @@ bool BmhParser::collectExternals() {
         const char* wordStart = fChar;
         this->skipToNonAlphaNum();
         if (fChar - wordStart > 0) {
-            fExternals.emplace_front(MarkType::kExternal, wordStart, fChar, fLineCount, fParent);
+            fExternals.emplace_front(MarkType::kExternal, wordStart, fChar, fLineCount, fParent,
+                    fMC);
             RootDefinition* definition = &fExternals.front();
             definition->fFileName = fFileName;
             definition->fName = string(wordStart ,fChar - wordStart);
@@ -700,10 +719,10 @@ bool BmhParser::collectExternals() {
     return true;
 }
 
-static bool dump_examples(FILE* fiddleOut, const Definition& def, bool* continuation) {
+bool BmhParser::dumpExamples(FILE* fiddleOut, Definition& def, bool* continuation) const {
     if (MarkType::kExample == def.fMarkType) {
         string result;
-        if (!def.exampleToScript(&result, Definition::ExampleOptions::kAll)) {
+        if (!this->exampleToScript(&def, BmhParser::ExampleOptions::kAll, &result)) {
             return false;
         }
         if (result.length() > 0) {
@@ -719,7 +738,7 @@ static bool dump_examples(FILE* fiddleOut, const Definition& def, bool* continua
         return true;
     }
     for (auto& child : def.fChildren ) {
-        if (!dump_examples(fiddleOut, *child, continuation)) {
+        if (!this->dumpExamples(fiddleOut, *child, continuation)) {
             return false;
         }
     }
@@ -738,7 +757,7 @@ bool BmhParser::dumpExamples(const char* fiddleJsonFileName) const {
         if (topic.second->fParent) {
             continue;
         }
-        dump_examples(fiddleOut, *topic.second, &continuation);
+        this->dumpExamples(fiddleOut, *topic.second, &continuation);
     }
     fprintf(fiddleOut, "\n}\n");
     fclose(fiddleOut);
@@ -765,6 +784,262 @@ bool BmhParser::endTableColumn(const char* end, const char* terminator) {
     this->skipSpace();
     fTableState = TableState::kColumnStart;
     return true;
+}
+
+static size_t count_indent(const string& text, size_t test, size_t end) {
+    size_t result = test;
+    while (test < end) {
+        if (' ' != text[test]) {
+            break;
+        }
+        ++test;
+    }
+    return test - result;
+}
+
+static void add_code(const string& text, int pos, int end,
+    size_t outIndent, size_t textIndent, string& example) {
+    do {
+        // fix this to move whole paragraph in, out, but preserve doc indent
+        int nextIndent = count_indent(text, pos, end);
+        size_t len = text.find('\n', pos);
+        if (string::npos == len) {
+            len = end;
+        }
+        if ((size_t) (pos + nextIndent) < len) {
+            size_t indent = outIndent + nextIndent;
+            SkASSERT(indent >= textIndent);
+            indent -= textIndent;
+            for (size_t index = 0; index < indent; ++index) {
+                example += ' ';
+            }
+            pos += nextIndent;
+            while ((size_t) pos < len) {
+                example += '"' == text[pos] ? "\\\"" :
+                    '\\' == text[pos] ? "\\\\" :
+                    text.substr(pos, 1);
+                ++pos;
+            }
+            example += "\\n";
+        } else {
+            pos += nextIndent;
+        }
+        if ('\n' == text[pos]) {
+            ++pos;
+        }
+    } while (pos < end);
+}
+
+bool BmhParser::exampleToScript(Definition* def, ExampleOptions exampleOptions,
+        string* result) const {
+    bool hasFiddle = true;
+    const Definition* platform = def->hasChild(MarkType::kPlatform);
+    if (platform) {
+        TextParser platParse(platform);
+        hasFiddle = !platParse.strnstr("!fiddle", platParse.fEnd);
+    }
+    if (!hasFiddle) {
+        *result = "";
+        return true;
+    }
+    string text = this->extractText(def, TrimExtract::kNo);
+    bool textOut = string::npos != text.find("SkDebugf(")
+        || string::npos != text.find("dump(")
+        || string::npos != text.find("dumpHex(");
+    string heightStr = "256";
+    string widthStr = "256";
+    string normalizedName(def->fFiddle);
+    string code;
+    string imageStr = "0";
+    string srgbStr = "false";
+    string durationStr = "0";
+    for (auto iter : def->fChildren) {
+        switch (iter->fMarkType) {
+        case MarkType::kDuration:
+            durationStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
+            break;
+        case MarkType::kHeight:
+            heightStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
+            break;
+        case MarkType::kWidth:
+            widthStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
+            break;
+        case MarkType::kDescription:
+            // ignore for now
+            break;
+        case MarkType::kFunction: {
+            // emit this, but don't wrap this in draw()
+            string funcText = this->extractText(&*iter, TrimExtract::kNo);
+            size_t pos = 0;
+            while (pos < funcText.length() && ' ' > funcText[pos]) {
+                ++pos;
+            }
+            size_t indent = count_indent(funcText, pos, funcText.length());
+            add_code(funcText, pos, funcText.length(), 0, indent, code);
+            code += "\\n";
+        } break;
+        case MarkType::kComment:
+            break;
+        case MarkType::kImage:
+            imageStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
+            break;
+        case MarkType::kToDo:
+            break;
+        case MarkType::kBug:
+        case MarkType::kMarkChar:
+        case MarkType::kPlatform:
+        case MarkType::kPhraseRef:
+            // ignore for now
+            break;
+        case MarkType::kSet:
+            if ("sRGB" == string(iter->fContentStart,
+                iter->fContentEnd - iter->fContentStart)) {
+                srgbStr = "true";
+            } else {
+                SkASSERT(0);   // more work to do
+                return false;
+            }
+            break;
+        case MarkType::kStdOut:
+            textOut = true;
+            break;
+        default:
+            SkASSERT(0);  // more coding to do
+        }
+    }
+    string animatedStr = "0" != durationStr ? "true" : "false";
+    string textOutStr = textOut ? "true" : "false";
+    size_t pos = 0;
+    while (pos < text.length() && ' ' > text[pos]) {
+        ++pos;
+    }
+    size_t end = text.length();
+    size_t outIndent = 0;
+    size_t textIndent = count_indent(text, pos, end);
+    if ("" == def->fWrapper) {
+        this->setWrapper(def);
+    }
+    if (def->fWrapper.length() > 0) {
+        code += def->fWrapper;
+        code += "\\n";
+        outIndent = 4;
+    }
+    add_code(text, pos, end, outIndent, textIndent, code);
+    if (def->fWrapper.length() > 0) {
+        code += "}";
+    }
+    string example = "\"" + normalizedName + "\": {\n";
+    size_t nameStart = def->fFileName.find(SkOSPath::SEPARATOR, 0);
+    SkASSERT(string::npos != nameStart);
+    string baseFile = def->fFileName.substr(nameStart + 1, def->fFileName.length() - nameStart - 5);
+    if (ExampleOptions::kText == exampleOptions) {
+        example += "    \"code\": \"" + code + "\",\n";
+        example += "    \"hash\": \"" + def->fHash + "\",\n";
+        example += "    \"file\": \"" + baseFile + "\",\n";
+        example += "    \"name\": \"" + def->fName + "\",";
+    } else {
+        example += "    \"code\": \"" + code + "\",\n";
+        if (ExampleOptions::kPng == exampleOptions) {
+            example += "    \"width\": " + widthStr + ",\n";
+            example += "    \"height\": " + heightStr + ",\n";
+            example += "    \"hash\": \"" + def->fHash + "\",\n";
+            example += "    \"file\": \"" + baseFile + "\",\n";
+            example += "    \"name\": \"" + def->fName + "\"\n";
+            example += "}";
+        } else {
+            example += "    \"options\": {\n";
+            example += "        \"width\": " + widthStr + ",\n";
+            example += "        \"height\": " + heightStr + ",\n";
+            example += "        \"source\": " + imageStr + ",\n";
+            example += "        \"srgb\": " + srgbStr + ",\n";
+            example += "        \"f16\": false,\n";
+            example += "        \"textOnly\": " + textOutStr + ",\n";
+            example += "        \"animated\": " + animatedStr + ",\n";
+            example += "        \"duration\": " + durationStr + "\n";
+            example += "    },\n";
+            example += "    \"fast\": true";
+        }
+    }
+    *result = example;
+    return true;
+}
+
+string BmhParser::extractText(const Definition* def, TrimExtract trimExtract) const {
+    string result;
+    TextParser parser(def);
+    auto childIter = def->fChildren.begin();
+    while (!parser.eof()) {
+        const char* end = def->fChildren.end() == childIter ? parser.fEnd : (*childIter)->fStart;
+        string fragment(parser.fChar, end - parser.fChar);
+        trim_end(fragment);
+        if (TrimExtract::kYes == trimExtract) {
+            trim_start(fragment);
+            if (result.length()) {
+                result += '\n';
+                result += '\n';
+            }
+        }
+        if (TrimExtract::kYes == trimExtract || has_nonwhitespace(fragment)) {
+            result += fragment;
+        }
+        parser.skipTo(end);
+        if (def->fChildren.end() != childIter) {
+            Definition* child = *childIter;
+            if (MarkType::kPhraseRef == child->fMarkType) {
+                auto phraseIter = fPhraseMap.find(child->fName);
+                if (fPhraseMap.end() == phraseIter) {
+                    return def->reportError<string>("missing phrase definition");
+                }
+                Definition* phrase = phraseIter->second;
+                // count indent of last line in result
+                size_t lastLF = result.rfind('\n');
+                size_t startPos = string::npos == lastLF ? 0 : lastLF;
+                size_t lastLen = result.length() - startPos;
+                size_t indent = count_indent(result, startPos, result.length()) + 4;
+                string phraseStr = this->extractText(phrase, TrimExtract::kNo);
+                startPos = 0;
+                bool firstTime = true;
+                size_t endPos;
+                do {
+                    endPos = phraseStr.find('\n', startPos);
+                    size_t len = (string::npos != endPos ? endPos : phraseStr.length()) - startPos;
+                    if (firstTime && lastLen + len + 1 < 100) {  // FIXME: make 100 global const or something
+                        result += ' ';
+                    } else {
+                        result += '\n';
+                        result += string(indent, ' ');
+                    }
+                    firstTime = false;
+                    string tmp = phraseStr.substr(startPos, len);
+                    result += tmp;
+                    startPos = endPos + 1;
+                } while (string::npos != endPos);
+                result += '\n';
+            }
+            parser.skipTo(child->fTerminator);
+            std::advance(childIter, 1);
+        }
+    }
+    return result;
+}
+
+void BmhParser::setWrapper(Definition* def) const {
+    const char drawWrapper[] = "void draw(SkCanvas* canvas) {";
+    const char drawNoCanvas[] = "void draw(SkCanvas* ) {";
+    string text = this->extractText(def, TrimExtract::kNo);
+    size_t nonSpace = 0;
+    while (nonSpace < text.length() && ' ' >= text[nonSpace]) {
+        ++nonSpace;
+    }
+    bool hasFunc = !text.compare(nonSpace, sizeof(drawWrapper) - 1, drawWrapper);
+    bool noCanvas = !text.compare(nonSpace, sizeof(drawNoCanvas) - 1, drawNoCanvas);
+    bool hasCanvas = string::npos != text.find("SkCanvas canvas");
+    SkASSERT(!hasFunc || !noCanvas);
+    bool preprocessor = text[0] == '#';
+    bool wrapCode = !hasFunc && !noCanvas && !preprocessor;
+    if (wrapCode) {
+        def->fWrapper = hasCanvas ? string(drawNoCanvas) : string(drawWrapper);
+    }
 }
 
 // FIXME: some examples may produce different output on different platforms
@@ -812,7 +1087,7 @@ bool BmhParser::findDefinitions() {
                     if (' ' >= fMC) {
                         return this->reportError<bool>("illegal markup character");
                     }
-                    fMarkup.emplace_front(MarkType::kMarkChar, fChar - 1, fLineCount, fParent);
+                    fMarkup.emplace_front(MarkType::kMarkChar, fChar - 4, fLineCount, fParent, fMC);
                     Definition* markChar = &fMarkup.front();
                     markChar->fContentStart = fChar - 1;
                     this->skipToEndBracket('\n');
@@ -865,7 +1140,7 @@ bool BmhParser::findDefinitions() {
                                 }
                             } else {  // one line comment
                                 fMarkup.emplace_front(MarkType::kComment, fChar - 1, fLineCount,
-                                        fParent);
+                                        fParent, fMC);
                                 Definition* comment = &fMarkup.front();
                                 comment->fContentStart = fChar - 1;
                                 this->skipToEndBracket('\n');
@@ -890,7 +1165,7 @@ bool BmhParser::findDefinitions() {
                 } else if (TableState::kNone == fTableState) {
                     // fixme? no nested tables for now
                     fColStart = fChar - 1;
-                    fMarkup.emplace_front(MarkType::kRow, fColStart, fLineCount, fParent);
+                    fMarkup.emplace_front(MarkType::kRow, fColStart, fLineCount, fParent, fMC);
                     fRow = &fMarkup.front();
                     fRow->fName = fParent->fName;
                     this->skipWhiteSpace();
@@ -899,7 +1174,7 @@ bool BmhParser::findDefinitions() {
                     fTableState = TableState::kColumnStart;
                 }
                 if (TableState::kColumnStart == fTableState) {
-                    fMarkup.emplace_front(MarkType::kColumn, fColStart, fLineCount, fParent);
+                    fMarkup.emplace_front(MarkType::kColumn, fColStart, fLineCount, fParent, fMC);
                     fWorkingColumn = &fMarkup.front();
                     fWorkingColumn->fName = fParent->fName;
                     fWorkingColumn->fContentStart = fChar;
@@ -907,6 +1182,28 @@ bool BmhParser::findDefinitions() {
                     fTableState = TableState::kColumnEnd;
                     continue;
                 }
+            } else if (this->peek() >= 'a' && this->peek() <= 'z') {
+                // expect zero or more letters and underscores (no spaces) then hash
+                const char* phraseNameStart = fChar;
+                this->skipPhraseName();
+                string phraseKey = string(phraseNameStart, fChar - phraseNameStart);
+                if (fMC != this->next()) {
+                    return this->reportError<bool>("expect # after phrase-name");
+                }
+                const char* start = phraseNameStart;
+                SkASSERT('#' == start[-1]);
+                --start;
+                if (start > fStart && ' ' >= start[-1]) {
+                    --start;  // preserve whether to add whitespace before substitution
+                }
+                fMarkup.emplace_front(MarkType::kPhraseRef, start, fLineCount, fParent, fMC);
+                Definition* markChar = &fMarkup.front();
+                markChar->fContentStart = fChar;
+                this->skipToEndBracket('\n');
+                markChar->fContentEnd = fChar;
+                markChar->fTerminator = fChar;
+                markChar->fName = phraseKey;
+                fParent->fChildren.push_back(markChar);
             }
         }
         char nextChar = this->next();
@@ -1316,6 +1613,45 @@ const Definition* BmhParser::parentSpace() const {
     return parent;
 }
 
+const char* BmhParser::checkForFullTerminal(const char* end, const Definition* definition) const {
+    const char* start = end;
+    while ('\n' != start[0] && start > fStart) {
+        --start;
+    }
+    SkASSERT (start < end);
+    // if end is preceeeded by \n#MarkType ## backup to there
+    TextParser parser(fFileName, start, fChar, fLineCount);
+    parser.skipWhiteSpace();
+    if (parser.eof() || fMC != parser.next()) {
+        return end;
+    }
+    const char* markName = fMaps[(int) definition->fMarkType].fName;
+    if (!parser.skipExact(markName)) {
+        return end;
+    }
+    parser.skipWhiteSpace();
+    const char* nameStart = parser.fChar;
+    if (isupper(nameStart[0])) {
+        parser.skipToWhiteSpace();
+        if (parser.eof()) {
+            return end;
+        }
+        string defName = string(nameStart, parser.fChar - nameStart);
+        size_t defNamePos = definition->fName.rfind(defName);
+        if (definition->fName.length() != defNamePos + defName.length()) {
+            return end;
+        }
+    }
+    parser.skipWhiteSpace();
+    if (fMC != parser.next()) {
+        return end;
+    }
+    if (!parser.eof() && fMC != parser.next()) {
+        return end;
+    }
+    return start;
+}
+
 bool BmhParser::popParentStack(Definition* definition) {
     if (!fParent) {
         return this->reportError<bool>("missing parent");
@@ -1329,7 +1665,19 @@ bool BmhParser::popParentStack(Definition* definition) {
     if (definition->fContentEnd) {
         return this->reportError<bool>("definition already ended");
     }
-    definition->fContentEnd = fLine - 1;
+    // more to figure out to handle table columns, at minimum
+    const char* end = fChar;
+    if (fMC != end[0]) {
+        while (end > definition->fContentStart && ' ' >= end[-1]) {
+            --end;
+        }
+        SkASSERT(&end[-1] >= definition->fContentStart && fMC == end[-1]
+                && (MarkType::kColumn == definition->fMarkType
+                || (&end[-2] >= definition->fContentStart && fMC == end[-2])));
+        end -= 2;
+    }
+    end = checkForFullTerminal(end, definition);
+    definition->fContentEnd = end;
     definition->fTerminator = fChar;
     fParent = definition->fParent;
     if (!fParent || (MarkType::kTopic == fParent->fMarkType && !fParent->fParent)) {
@@ -1629,7 +1977,8 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
             builder = this->typedefName();
             break;
         case MarkType::kParam:
-           // fixme: expect camelCase
+        case MarkType::kPhraseDef:
+            // fixme: expect camelCase for param
             builder = this->word("", "");
             this->skipSpace();
             *checkEnd = false;
