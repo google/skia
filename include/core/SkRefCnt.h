@@ -10,9 +10,10 @@
 
 #include "../private/SkTLogic.h"
 #include "SkTypes.h"
+
 #include <atomic>
+#include <cstddef>
 #include <functional>
-#include <memory>
 #include <type_traits>
 #include <utility>
 

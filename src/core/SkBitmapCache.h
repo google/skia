@@ -11,6 +11,8 @@
 #include "SkBitmap.h"
 #include "SkMipMap.h"
 
+#include <memory>
+
 class SkImage;
 class SkResourceCache;
 

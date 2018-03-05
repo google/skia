@@ -10,6 +10,8 @@
 
 #include "SkRefCnt.h"
 
+#include <memory>
+
 class SkAtlasTextRenderer;
 class SkInternalAtlasTextContext;
 

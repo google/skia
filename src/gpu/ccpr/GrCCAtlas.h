@@ -11,6 +11,8 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 
+#include <memory>
+
 class GrCaps;
 class GrCCPathParser;
 class GrDrawOp;

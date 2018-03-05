@@ -15,6 +15,8 @@
 #include "SkPaint.h"
 #include "SkStrokeRec.h"
 
+#include <memory>
+
 class GrClip;
 class GrContext;
 struct GrFPArgs;

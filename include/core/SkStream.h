@@ -12,6 +12,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 
+#include <memory>
 #include <memory.h>
 
 class SkStream;

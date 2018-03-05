@@ -10,6 +10,8 @@
 
 #include "SkRefCnt.h"
 
+#include <memory>
+
 class SkData;
 class SkImageGenerator;
 class SkTraceMemoryDump;

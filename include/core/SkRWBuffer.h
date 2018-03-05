@@ -10,6 +10,8 @@
 
 #include "SkRefCnt.h"
 
+#include <memory>
+
 struct SkBufferBlock;
 struct SkBufferHead;
 class SkRWBuffer;
