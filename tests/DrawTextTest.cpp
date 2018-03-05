@@ -8,12 +8,18 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkDashPathEffect.h"
+#include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkPathEffect.h"
 #include "SkPoint.h"
 #include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
 #include "SkSurface.h"
 #include "SkTypes.h"
 #include "Test.h"
+
 #include <math.h>
 
 static const SkColor bgColor = SK_ColorWHITE;
@@ -109,6 +115,51 @@ DEF_TEST(DrawText, reporter) {
             }
         }
     }
+}
+
+/** Test that drawing glyphs with empty paths is different from drawing glyphs without paths. */
+DEF_TEST(DrawText_dashout, reporter) {
+    SkIRect size = SkIRect::MakeWH(64, 64);
+
+    SkBitmap drawTextBitmap;
+    create(&drawTextBitmap, size);
+    SkCanvas drawTextCanvas(drawTextBitmap);
+
+    SkBitmap drawDashedTextBitmap;
+    create(&drawDashedTextBitmap, size);
+    SkCanvas drawDashedTextCanvas(drawDashedTextBitmap);
+
+    SkBitmap emptyBitmap;
+    create(&emptyBitmap, size);
+    SkCanvas emptyCanvas(emptyBitmap);
+
+    SkPoint point = SkPoint::Make(25.0f, 25.0f);
+    SkPaint paint;
+    paint.setColor(SK_ColorGRAY);
+    paint.setTextSize(SkIntToScalar(20));
+    paint.setAntiAlias(true);
+    paint.setSubpixelText(true);
+    paint.setLCDRenderText(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    // Draw a stroked "A" without a dash which will draw something.
+    drawBG(&drawTextCanvas);
+    drawTextCanvas.drawText("A", 1, point.fX, point.fY, paint);
+
+    // Draw an "A" but with a dash which will never draw anything.
+    paint.setStrokeWidth(2);
+    constexpr SkScalar bigInterval = 10000;
+    static constexpr SkScalar intervals[] = { 1, bigInterval };
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 2));
+
+    drawBG(&drawDashedTextCanvas);
+    drawDashedTextCanvas.drawText("A", 1, point.fX, point.fY, paint);
+
+    // Draw nothing.
+    drawBG(&emptyCanvas);
+
+    REPORTER_ASSERT(reporter, !compare(drawTextBitmap, size, emptyBitmap, size));
+    REPORTER_ASSERT(reporter, compare(drawDashedTextBitmap, size, emptyBitmap, size));
 }
 
 // Test drawing text at some unusual coordinates.

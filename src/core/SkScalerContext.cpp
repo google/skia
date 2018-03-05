@@ -128,8 +128,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
 
-        this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix);
-        if (fillPath.isEmpty()) {
+        if (!this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix)) {
             generatingImageFromPath = false;
         } else {
             // just use devPath
@@ -465,10 +464,8 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         SkMatrix    fillToDevMatrix;
         SkMask      mask;
 
-        this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix);
         glyph->toMask(&mask);
-
-        if (fillPath.isEmpty()) {
+        if (!this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix)) {
             generateImage(*glyph);
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
@@ -548,10 +545,13 @@ SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
+bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
                                       SkPath* devPath, SkMatrix* fillToDevMatrix) {
     SkPath  path;
     generatePath(glyphID.code(), &path);
+    if (path.isEmpty()) {
+        return false;
+    }
 
     if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
         SkFixed dx = glyphID.getSubXFixed();
@@ -572,7 +572,7 @@ void SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
         fRec.getMatrixFrom2x2(&matrix);
         if (!matrix.invert(&inverse)) {
             // assume fillPath and devPath are already empty.
-            return;
+            return true;
         }
         path.transform(inverse, &localPath);
         // now localPath is only affected by the paint settings, and not the canvas matrix
@@ -636,6 +636,7 @@ void SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
     if (fillPath) {
         fillPath->updateBoundsCache();
     }
+    return true;
 }
 
 
