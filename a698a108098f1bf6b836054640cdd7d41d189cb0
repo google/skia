@@ -1,0 +1,251 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4035506_8b46b300",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "No need for relative include paths - just use the header name and insert/sort within headers above.",
+      "range": {
+        "startLine": 29,
+        "startChar": 10,
+        "endLine": 29,
+        "endChar": 19
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6d46fff_92051eed",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 30,
+        "startChar": 10,
+        "endLine": 30,
+        "endChar": 19
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e932086b_0782eb2b",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "Might be easier to build and return this as an SkString, but up to you.",
+      "range": {
+        "startLine": 468,
+        "startChar": 0,
+        "endLine": 468,
+        "endChar": 13
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b35ded7_d2a6a8ed",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "nit: return nullptr;\n\n(sk_sp has an implicit nullptr ctor)",
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee72be3a_24bb1f59",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "nit: size_t",
+      "range": {
+        "startLine": 477,
+        "startChar": 4,
+        "endLine": 477,
+        "endChar": 7
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3c9ec17_81c58dda",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "nit: just to avoid repeating the png initialization, you could refactor these conditionals as\n\nif (SkJpegCodec::IsJpeg(src, imageData-\u003esize())) {\n    selectedPrefix \u003d jpgDataPrefix;\n    selectedPrefixLength \u003d sizeof(jpgDataPrefix);\n} else {\n    if (!SkJpegCodec::IsPng(src, imageData-\u003esize())) {\n        ...\n    }\n\n    selectedPrefix \u003d pngDataPrefix;\n    selectedPrefixLength \u003d sizeof(pngDataPrefix);\n}",
+      "range": {
+        "startLine": 492,
+        "startChar": 0,
+        "endLine": 493,
+        "endChar": 53
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03129d95_e1f297db",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "Are we using outMatrix for anything?\n\nIf not, I suggest adding a \"// TODO: add support for shader local matrix\" and pass nullptr here.\n\n(I think it should be straightforward using \u0027patternTransform\u0027)",
+      "range": {
+        "startLine": 510,
+        "startChar": 39,
+        "endLine": 510,
+        "endChar": 48
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86b436ec_cd71f958",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "Since we\u0027re guarding the call to this method with a isAImage() check, we should be able to just assert here instead:\n\n    SkASSERT(image);",
+      "range": {
+        "startLine": 511,
+        "startChar": 0,
+        "endLine": 514,
+        "endChar": 5
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbb04d8a_3b6d245c",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "nit: Skia/Chromium code style doesn\u0027t require explicit ptr -\u003e bool conversion.  Just SkASSERT(shader).",
+      "range": {
+        "startLine": 563,
+        "startChar": 13,
+        "endLine": 563,
+        "endChar": 22
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "163003b0_018774f6",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "I\u0027m not enthusiastic about this for a couple of reasons:\n\n1) we\u0027re wrapping all rects, unnecessarily in the absence of repeating backgrounds\n\n2) we only do this for the drawRect() entry point; this may be sufficient for your use case, but it leaves the other draw methods potentially broken (drawPath, drawEllipse, etc)\n\nSo I would very much prefer we find another way to make it work... I wonder if the missing patternTransform is all that\u0027s needed.  Or possibly using patternUnits: objectBoundingBox.\n\nAnyway, I\u0027m fine with landing this as-is if it\u0027s useful to you, and iterate later.  I\u0027ll have to grab some examples to play around - maybe you can point me to some web pages or SKPs you use for testing.",
+      "range": {
+        "startLine": 806,
+        "startChar": 0,
+        "endLine": 808,
+        "endChar": 78
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c2ed473_5c660eb7",
+        "filename": "tests/SVGDeviceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-05T16:09:02Z",
+      "side": 1,
+      "message": "I think this will leave uninitialized pixel data, which may trigger the ASAN bots.\n\nA simpler way if you just want a transparent/dummy image shader:\n\n    auto surface \u003d SkSurface::MakeRasterN32Premul(imageWidth, imageHeight);\n    paint-\u003esetShader(SkImageShader::Make(surface-\u003emakeImageSnapShot(), xTile, yTile, nullptr);",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 34
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
