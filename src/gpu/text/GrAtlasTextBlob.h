@@ -170,11 +170,11 @@ public:
         run.fOverrideDescriptor.reset(new SkAutoDescriptor);
     }
 
-    SkGlyphCache* setupCache(int runIndex,
-                             const SkSurfaceProps& props,
-                             SkScalerContextFlags scalerContextFlags,
-                             const SkPaint& skPaint,
-                             const SkMatrix* viewMatrix);
+    SkExclusiveStrikePtr setupCache(int runIndex,
+                                    const SkSurfaceProps& props,
+                                    SkScalerContextFlags scalerContextFlags,
+                                    const SkPaint& skPaint,
+                                    const SkMatrix* viewMatrix);
 
     // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
     // as a path.
@@ -607,7 +607,7 @@ private:
     GrDeferredUploadTarget* fUploadTarget;
     GrGlyphCache* fGlyphCache;
     GrAtlasManager* fFullAtlasManager;
-    SkAutoGlyphCache* fLazyCache;
+    SkExclusiveStrikePtr* fLazyCache;
     Run* fRun;
     Run::SubRunInfo* fSubRun;
     GrColor fColor;
