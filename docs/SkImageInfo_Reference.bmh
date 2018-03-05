@@ -701,6 +701,108 @@ void draw(SkCanvas* canvas) {
 #Subtopic Color_Type ##
 
 # ------------------------------------------------------------------------------
+
+#Method int SkColorTypeBytesPerPixel(SkColorType ct)
+#In incomplete
+#Line # incomplete ##
+
+Returns the number of bytes-per-pixel for the specified colortype, or 0 if invalid.
+
+#Param ct  one of: #list_of_color_types#
+##
+
+#Return bytes per pixel ##
+
+#Example
+// incomplete
+##
+#SeeAlso incomplete
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool SkColorTypeIsAlwaysOpaque(SkColorType ct)
+#In incomplete
+#Line # incomplete ##
+
+Returns true iff the colortype is always considered opaque (i.e. does not store alpha).
+
+#Param ct  one of: #list_of_color_types#
+##
+
+#Return true if Color_Alpha is always set to 1.0 ##
+
+#Example
+// incomplete
+##
+#SeeAlso incomplete
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
+                                         SkAlphaType* canonical = nullptr)
+#In incomplete
+#Line # incomplete ##
+
+Validates the colorType, alphaType pair. In all cases if it returns true, it
+will set canonical to the "canonical" answer if it is non-null, and ignore the parameter if
+it is set to null.
+
+If the specified Color_Type has only 1 valid Alpha_Type 
+(e.g. kRGB_565_SkColorType must always be opaque) then
+canonical will be set to that valid Alpha_Type.
+
+If the specified colortype treats more than one alphatype the same (e.g. kAlpha_8_SkColorType
+treates kPremul_SkAlphaType and kUnpremul_SkAlphaType the same) 
+and the specified alphatype is one of those,
+then canonical will be set to the "canonical" answer 
+(kPremul_SkAlphaType in the case of kAlpha_8_SkColorType colortype).
+
+If the colortype supports multiple alphatypes, and the specified alphatype is one of them,
+then canonical will be set to the specified alphatype. If the specified alphatype is not
+one of them (e.g. kUnknown_SkAlphaType is not valid for any Color_Type except
+kUnknown_SkColorType), then the function returns false, and canonical's value is undefined.
+
+#Param colorType  one of: #list_of_color_types#
+##
+#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+##
+#Param canonical incomplete ##
+
+#Return incomplete ##
+
+#Example
+#Height 640
+    const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
+                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
+    const char* alphas[] = {"Unknown ", "Opaque  ", "Premul  ", "Unpremul"}; 
+    SkBitmap bitmap;
+    SkAlphaType alphaTypes[] = { kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                                 kPremul_SkAlphaType, kUnpremul_SkAlphaType };
+    SkPaint paint;
+    paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
+    paint.setAntiAlias(true);
+    paint.setTextSize(10);
+    int y = 15;
+    canvas->drawString("   colorType   alphaType  canonical", 10, y, paint);
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
+        for (SkAlphaType alphaType : alphaTypes) {
+            SkAlphaType canonicalAlphaType  = kUnknown_SkAlphaType;
+            bool result = SkColorTypeValidateAlphaType(colorType, alphaType, &canonicalAlphaType);
+            SkString string;
+            string.printf("%13s %10s %10s", colors[(int) colorType], alphas[(int) alphaType],
+                     result ? alphas[(int) canonicalAlphaType] : "------  ");
+            canvas->drawString(string, 10, y += 14, paint);
+        }
+    }
+##
+#SeeAlso incomplete
+##
+
+# ------------------------------------------------------------------------------
 #Subtopic YUV_ColorSpace
 #Alias YUV_ColorSpace
 #Enum SkYUVColorSpace
@@ -737,30 +839,6 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 
 #Enum SkYUVColorSpace ##
 #Subtopic YUV_ColorSpace ##
-
-# ------------------------------------------------------------------------------
-#EnumClass SkDestinationSurfaceColorMode
-#Line # incomplete ##
-
-#Code
-    enum class SkDestinationSurfaceColorMode {
-        kLegacy,
-        kGammaAndColorSpaceAware,
-    };
-##
-
-#Const kLegacy 0
-##
-#Const kGammaAndColorSpaceAware 1
-##
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#EnumClass SkDestinationSurfaceColorMode ##
 
 # ------------------------------------------------------------------------------
 
