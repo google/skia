@@ -197,7 +197,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                             texCtx->writePixels(info, data.get(), 0, 0, 0);
                         }
                     }
-                    context->purgeAllUnlockedResources();
+                    context->contextPriv().purgeAllUnlockedResources_ForTesting();
 
                     // Try creating the texture as a deferred proxy.
                     for (int i = 0; i < 2; ++i) {
@@ -224,7 +224,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                             surfCtx->writePixels(info, data.get(), 0, 0, 0);
                         }
                     }
-                    context->purgeAllUnlockedResources();
+                    context->contextPriv().purgeAllUnlockedResources_ForTesting();
                 }
             }
         }

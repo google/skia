@@ -421,7 +421,7 @@ private:
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
 static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject* object, int start,
                                                  sk_sp<GrTextureProxy> atlasProxy) {
-    sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
                                                                       SkBackingFit::kApprox,
                                                                       3*kDrawnTileSize,
                                                                       kDrawnTileSize,
@@ -535,7 +535,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kFinalWidth = 6*kDrawnTileSize;
     static const int kFinalHeight = kDrawnTileSize;
 
-    sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
                                                                       SkBackingFit::kApprox,
                                                                       kFinalWidth,
                                                                       kFinalHeight,
