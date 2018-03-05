@@ -890,9 +890,36 @@ def test_steps(api):
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.dm_dir, api.vars.dm_dir)
 
+def test_firebase_steps(api):
+  """Test an APK on Firebase Testlab."""
+  run_testlab_exe = 'run_testlab'
+  check_path = api.vars.slave_dir.join(run_testlab_exe)
+
+  # If there is no executable then this is a no-op.
+  if not api.path.exists(check_path):
+    return
+
+  # wlist_file = api.vars.skia_dir.join('infra', 'cts',  'whitelist_devices.json')
+  wlist_file = api.vars.slave_dir.join('whitelist_devices.json')
+  apk_file = api.vars.slave_dir.join('out', 'devrel', 'skqp-universal-debug.apk')
+  upload_path = 'skia-stephana-test/testing/skqp-universal-debug.apk'
+  args = [
+    run_testlab_exe,
+    '--logtostderr',
+    '--devices', wlist_file,
+    '--upload_path', upload_path,
+    apk_file
+  ]
+  api.run(api.flavor.step, 'run firebase testlab', cmd=args)
 
 def RunSteps(api):
   api.core.setup()
+
+  if 'SKQP' in api.vars.extra_tokens:
+    test_firebase_steps(api)
+    api.run.check_failure()
+    return
+
   env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.dm'
@@ -931,6 +958,8 @@ TEST_BUILDERS = [
    'arm-Debug-All'),
   'Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP_withmodel',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
@@ -983,22 +1012,32 @@ def GenTests(api):
                      buildbucket_build_id='123454321',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(
-          api.path['start_dir'].join('skia'),
-          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-          api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-      ) +
-      api.step_data('get swarming bot id',
-          stdout=api.raw_io.output('skia-bot-123')) +
-      api.step_data('get swarming task id',
-          stdout=api.raw_io.output('123456'))
+                     swarm_out_dir='[SWARM_OUT_DIR]')
     )
+    if 'SKQP' not in builder:
+      test += (api.path.exists(
+                api.path['start_dir'].join('skia'),
+                api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                          'skimage', 'VERSION'),
+                api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                          'skp', 'VERSION'),
+                api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                          'svg', 'VERSION'),
+                api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+              ) +
+            api.step_data('get swarming bot id',
+                stdout=api.raw_io.output('skia-bot-123')) +
+            api.step_data('get swarming task id',
+                stdout=api.raw_io.output('123456'))
+      )
+    elif 'SKQP_withmodel' in builder:
+#      p = 'platform_tools/android/apps/skqp/src/main/assets/files.checksum'
+#      api.path['start_dir'].join('skia', *p.split('/'))
+      test += api.path.exists(api.path['start_dir'].join('run_testlab'))
+      api.step_data('get swarming task id',
+                stdout=api.raw_io.output('123456'))
+
+
     if 'Win' in builder:
       test += api.platform('win', 64)
 
