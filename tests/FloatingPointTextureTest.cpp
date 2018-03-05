@@ -24,6 +24,12 @@
 
 static const int DEV_W = 100, DEV_H = 100;
 
+static void init_proxy(GrContext* context, sk_sp<GrSurfaceProxy> proxy, GrColorType ct, void* data) {
+    auto sContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+    SkAssertResult(context->contextPriv().writeSurfacePixels(sContext.get(), 0, 0, proxy->width(), proxy->height(),
+                                              ct, nullptr, data, 0));
+}
+
 template <typename T>
 void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T epsilon, T maxInt,
                int arraySize, GrColorType colorType) {
@@ -52,13 +58,14 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
         desc.fHeight = DEV_H;
         desc.fConfig = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
 
-        sk_sp<GrTextureProxy> fpProxy = proxyProvider->createTextureProxy(
-                desc, origin, SkBudgeted::kNo, controlPixelData.begin(), 0);
+        sk_sp<GrTextureProxy> fpProxy = proxyProvider->createProxy(
+                desc, origin, SkBackingFit::kExact, SkBudgeted::kNo);
         // Floating point textures are NOT supported everywhere
         if (!fpProxy) {
             continue;
         }
 
+        init_proxy(context, fpProxy, colorType, controlPixelData.begin());
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
                                                                             std::move(fpProxy));
         REPORTER_ASSERT(reporter, sContext);

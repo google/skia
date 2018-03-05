@@ -165,7 +165,7 @@ private:
     void destroyResources();
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                     GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
+                                     const GrMipLevel texels[],
                                      int mipLevelCount) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) override;

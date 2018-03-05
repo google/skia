@@ -95,7 +95,7 @@ protected:
         SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
         sk_sp<GrTextureProxy> proxy =
-                proxyProvider->createTextureProxy(desc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
+                proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
                                                   fBmp.getPixels(), fBmp.rowBytes());
         if (!proxy) {
             return;

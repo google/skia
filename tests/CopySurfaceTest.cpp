@@ -20,6 +20,13 @@
 
 #include "SkUtils.h"
 
+static void init_proxy(GrContext* context, sk_sp<GrSurfaceProxy> proxy, void* data, size_t rowBytes) {
+    auto sContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+    auto ii = SkImageInfo::Make(proxy->width(), proxy->height(), kRGBA_8888_SkColorType,
+                                kPremul_SkAlphaType);
+    SkAssertResult(sContext->writePixels(ii, data, rowBytes, 0, 0));
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
@@ -74,10 +81,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             GrSurfaceDesc dstDesc = baseDesc;
                             dstDesc.fFlags = dFlags;
 
-                            sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(
-                                    srcDesc, sOrigin, SkBudgeted::kNo, srcPixels.get(), kRowBytes);
-                            sk_sp<GrTextureProxy> dst = proxyProvider->createTextureProxy(
-                                    dstDesc, dOrigin, SkBudgeted::kNo, dstPixels.get(), kRowBytes);
+                            sk_sp<GrTextureProxy> src = proxyProvider->createProxy(
+                                    srcDesc, sOrigin, SkBackingFit::kExact, SkBudgeted::kNo);
+                            sk_sp<GrTextureProxy> dst = proxyProvider->createProxy(
+                                dstDesc, dOrigin, SkBackingFit::kExact, SkBudgeted::kNo);
+                            init_proxy(context, src, srcPixels.get(), kRowBytes);
+                            init_proxy(context, dst, dstPixels.get(), kRowBytes);
                             if (!src || !dst) {
                                 ERRORF(reporter,
                                        "Could not create surfaces for copy surface test.");

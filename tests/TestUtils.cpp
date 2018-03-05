@@ -11,6 +11,8 @@
 
 #include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
+#include "GrSurfaceContextPriv.h"
+#include "GrContextPriv.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
 
@@ -91,6 +93,13 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
     }
 }
 
+static void init_proxy(GrContext* context, sk_sp<GrSurfaceProxy> proxy, void* data) {
+    auto sContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+    auto ii = SkImageInfo::Make(proxy->width(), proxy->height(), kRGBA_8888_SkColorType,
+                                kPremul_SkAlphaType);
+    SkAssertResult(sContext->writePixels(ii, data, 0, 0, 0));
+}
+
 void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyProvider,
                           GrSurfaceContext* dstContext, const char* testName) {
 
@@ -114,8 +123,8 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
                                                       : kBottomLeft_GrSurfaceOrigin;
 
         sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(
-                copySrcDesc, origin, SkBudgeted::kYes, pixels.get(), 0);
-
+                copySrcDesc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
+        init_proxy(dstContext->surfPriv().getContext(), src, pixels.get());
         dstContext->copy(src.get());
 
         test_read_pixels(reporter, dstContext, pixels.get(), testName);

@@ -107,7 +107,7 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
 }
 
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                           GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
+                                           const GrMipLevel texels[],
                                            int mipLevelCount) {
     int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
 

@@ -440,6 +440,13 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
     }
 }
 
+static void init_proxy(GrContext* context, sk_sp<GrSurfaceProxy> proxy, void* data, size_t rowBytes) {
+    auto sContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+    auto ii = SkImageInfo::Make(proxy->width(), proxy->height(), kSkia8888_GrPixelConfig,
+                                kPremul_SkAlphaType);
+    SkAssertResult(sContext->writePixels(ii, data, 0, 0, rowBytes));
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
     if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
         ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_GL_ES2_ContextType ||
@@ -462,8 +469,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
             desc.fHeight = DEV_H;
             desc.fConfig = kSkia8888_GrPixelConfig;
 
-            sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                    desc, origin, SkBudgeted::kNo, bmp.getPixels(), bmp.rowBytes());
+            sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
+                    desc, origin, SkBackingFit::kExact, SkBudgeted::kNo);
+            init_proxy(context, proxy, bmp.getPixels(), bmp.rowBytes());
 
             sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
                                                                                 std::move(proxy));

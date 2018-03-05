@@ -67,7 +67,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         memset(alphaData, 0, X_SIZE * Y_SIZE);
 
         sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                desc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo, alphaData, 0);
+                desc, SkBudgeted::kNo, alphaData, 0);
         if (!proxy) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
