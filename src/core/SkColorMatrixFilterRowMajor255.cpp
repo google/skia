@@ -16,6 +16,8 @@
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 
+#include "SkSLJIT.h"
+
 static void transpose_and_scale01(float dst[20], const float src[20]) {
     const float* srcR = src + 0;
     const float* srcG = src + 5;
@@ -161,6 +163,19 @@ void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
     if (    needsClamp0) { p->append(SkRasterPipeline::clamp_0); }
     if (    needsClamp1) { p->append(SkRasterPipeline::clamp_1); }
     if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+
+#ifdef SKIA_LLVM_AVAILABLE
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kCPU_Kind,
+        "void custom(int x, int y, inout float r, inout float g, inout float b, inout float a) {"
+        "    r = x / 100.0;"
+        "}",
+        settings);
+    SkSL::JIT& jit = *scratch->make<SkSL::JIT>(&compiler, std::move(program));
+    void* func = jit.getJumperStage("custom");
+    p->append(func, nullptr);
+#endif
 }
 
 sk_sp<SkColorFilter>
