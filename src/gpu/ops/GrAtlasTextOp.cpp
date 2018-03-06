@@ -292,9 +292,14 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
                 args.fColor, target->deferredUploadTarget(), glyphCache, fullAtlasManager,
                 &autoGlyphCache);
-        GrAtlasTextBlob::VertexRegenerator::Result result;
-        do {
-            result = regenerator.regenerate();
+        bool done = false;
+        while (!done) {
+            GrAtlasTextBlob::VertexRegenerator::Result result;
+            if (!regenerator.regenerate(&result)) {
+                break;
+            }
+            done = result.fFinished;
+
             // Copy regenerated vertices from the blob to our vertex buffer.
             size_t vertexBytes = result.fGlyphsRegenerated * kVerticesPerGlyph * vertexStride;
             if (args.fClipRect.isEmpty()) {
@@ -325,12 +330,16 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 this->flush(target, &flushInfo);
             }
             currVertex += vertexBytes;
-        } while (!result.fFinished);
+        }
     }
     this->flush(target, &flushInfo);
 }
 
 void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+    if (!flushInfo->fGlyphsToFlush) {
+        return;
+    }
+
     auto fullAtlasManager = target->fullAtlasManager();
     SkASSERT(fRestrictedAtlasManager == fullAtlasManager);
 

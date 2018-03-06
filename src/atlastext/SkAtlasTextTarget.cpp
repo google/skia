@@ -192,15 +192,20 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
                 resourceProvider, fGeoData[i].fBlob, fGeoData[i].fRun, fGeoData[i].fSubRun,
                 fGeoData[i].fViewMatrix, fGeoData[i].fX, fGeoData[i].fY, fGeoData[i].fColor,
                 &context, glyphCache, fullAtlasManager, &autoGlyphCache);
-        GrAtlasTextBlob::VertexRegenerator::Result result;
-        do {
-            result = regenerator.regenerate();
+        bool done = false;
+        while (!done) {
+            GrAtlasTextBlob::VertexRegenerator::Result result;
+            if (!regenerator.regenerate(&result)) {
+                break;
+            }
+            done = result.fFinished;
+
             context.recordDraw(result.fFirstVertex, result.fGlyphsRegenerated,
                                fGeoData[i].fViewMatrix, target->handle());
             if (!result.fFinished) {
                 // Make space in the atlas so we can continue generating vertices.
                 context.flush();
             }
-        } while (!result.fFinished);
+        }
     }
 }
