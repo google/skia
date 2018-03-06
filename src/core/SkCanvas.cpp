@@ -169,22 +169,6 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static bool gIgnoreSaveLayerBounds;
-void SkCanvas::Internal_Private_SetIgnoreSaveLayerBounds(bool ignore) {
-    gIgnoreSaveLayerBounds = ignore;
-}
-bool SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds() {
-    return gIgnoreSaveLayerBounds;
-}
-
-static bool gTreatSpriteAsBitmap;
-void SkCanvas::Internal_Private_SetTreatSpriteAsBitmap(bool spriteAsBitmap) {
-    gTreatSpriteAsBitmap = spriteAsBitmap;
-}
-bool SkCanvas::Internal_Private_GetTreatSpriteAsBitmap() {
-    return gTreatSpriteAsBitmap;
-}
-
 // experimental for faster tiled drawing...
 //#define SK_TRACE_SAVERESTORE
 
@@ -1001,9 +985,6 @@ int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPai
 
 int SkCanvas::saveLayer(const SaveLayerRec& origRec) {
     SkTCopyOnFirstWrite<SaveLayerRec> rec(origRec);
-    if (gIgnoreSaveLayerBounds) {
-        rec.writable()->fBounds = nullptr;
-    }
 
     SaveLayerStrategy strategy = this->getSaveLayerStrategy(*rec);
     fSaveCount += 1;
