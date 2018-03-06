@@ -115,6 +115,40 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06d2455f_c2cffd2e",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-06T16:24:53Z",
+      "side": 1,
+      "message": "BUILD\u003d${BUILD}-debug",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39910f1a_7807feff",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 11
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-06T16:24:53Z",
+      "side": 1,
+      "message": "delete line 79",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
