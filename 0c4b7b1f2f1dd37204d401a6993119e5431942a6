@@ -16,6 +16,24 @@
       "revId": "0c4b7b1f2f1dd37204d401a6993119e5431942a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86ff73f2_b1db3610",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1003,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-06T17:05:46Z",
+      "side": 0,
+      "message": "I couldn\u0027t find a caller that sets gIgnoreSaveLayerBounds to true, so I assumed that this was no longer needed. What did I miss?",
+      "parentUuid": "d9069a2e_e5a8ef9e",
+      "revId": "0c4b7b1f2f1dd37204d401a6993119e5431942a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
