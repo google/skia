@@ -514,15 +514,10 @@ void GrCCPathParser::drawCoverageCount(GrOpFlushState* flushState, CoverageCount
     if (batchTotalCounts.fTriangles) {
         this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangles,
                              WindMethod::kCrossProduct, &PrimitiveTallies::fTriangles, drawBounds);
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangleCorners,
-                             WindMethod::kCrossProduct, &PrimitiveTallies::fTriangles, drawBounds);
     }
 
     if (batchTotalCounts.fWoundTriangles) {
         this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangles,
-                             WindMethod::kInstanceData, &PrimitiveTallies::fWoundTriangles,
-                             drawBounds);
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangleCorners,
                              WindMethod::kInstanceData, &PrimitiveTallies::fWoundTriangles,
                              drawBounds);
     }

@@ -777,7 +777,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
                                   hasMixedSamples, fBlendMode);
     }
 
-    bool needsClamp = SkBlendMode::kPlus == fBlendMode;
+    bool needsClamp = false;//SkBlendMode::kPlus == fBlendMode;
     if ((blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) ||
         (isLCD && (SkBlendMode::kSrcOver != fBlendMode /*|| !color.isOpaque()*/)) ||
         (needsClamp && (GrPixelConfigIsClamped::kNo == dstIsClamped))) {
