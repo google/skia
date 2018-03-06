@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "cdfb11ce_3da83a79",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-06T16:57:19Z",
+      "side": 1,
+      "message": "Never mind. This is a little complicated. Maybe we can land this first and rethink about it later.",
+      "parentUuid": "6c570222_23a8b2a3",
+      "revId": "efa63d44fff335c0dc787fdfd7ff880d7279bd1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "216e4ed6_2e710bed",
         "filename": "src/core/SkBitmapDevice.cpp",
         "patchSetId": 4
@@ -47,6 +65,24 @@
       "writtenOn": "2018-03-06T16:38:52Z",
       "side": 1,
       "message": "It feels like that \"fRootPixmap.width() - fOrigin.x()\" is more correct than \"fRootPixmap.width()\"?",
+      "revId": "efa63d44fff335c0dc787fdfd7ff880d7279bd1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e02f389_69675f27",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-06T16:57:19Z",
+      "side": 1,
+      "message": "Or, maybe just SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), kMaxDim, kMaxDim)",
+      "parentUuid": "216e4ed6_2e710bed",
       "revId": "efa63d44fff335c0dc787fdfd7ff880d7279bd1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
