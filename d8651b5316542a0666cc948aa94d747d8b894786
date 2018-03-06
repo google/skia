@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "08e23bc7_8ffd10db",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96900f1a_8008baa3",
+      "range": {
+        "startLine": 11,
+        "startChar": 48,
+        "endLine": 11,
+        "endChar": 51
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c32b0005_e35382b4",
         "filename": "infra/bots/assets/gcloud_linux/create.py",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2018-03-06T18:19:24Z",
       "side": 1,
       "message": "nit: maybe use \"with utils.tmp_dir():\" so this file goes in a temp dir.",
+      "range": {
+        "startLine": 25,
+        "startChar": 51,
+        "endLine": 25,
+        "endChar": 65
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79dcc026_2e96b59e",
+        "filename": "infra/bots/assets/gcloud_linux/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "\u0027with utils.tmp_dir():\u0027 is used in the create_and_upload.py script drives the whole process and sets the target_dir in this script.",
+      "parentUuid": "c32b0005_e35382b4",
       "range": {
         "startLine": 25,
         "startChar": 51,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ac2ac233_439c599d",
+        "filename": "infra/bots/assets/gcloud_linux/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f59a153_c6971c4f",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 30
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bfdf3f40_af9ae30d",
         "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
         "patchSetId": 11
@@ -91,6 +163,30 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01112ee6_82671a2b",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfdf3f40_af9ae30d",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 23
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "1ae40a7a_7ac1f7a8",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5b12563_30434ca4",
+      "range": {
+        "startLine": 398,
+        "startChar": 26,
+        "endLine": 398,
+        "endChar": 31
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f5086ac2_49df7938",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 11
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "a4291cad_7d51243b",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5086ac2_49df7938",
+      "range": {
+        "startLine": 404,
+        "startChar": 58,
+        "endLine": 404,
+        "endChar": 74
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fdf8c053_081c215c",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 11
@@ -154,6 +298,24 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcdffeaa_79609238",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fdf8c053_081c215c",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -177,6 +339,30 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79607127_85b50634",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done\nRemoved",
+      "parentUuid": "853e1a53_c27a7f7b",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 54
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -215,6 +401,30 @@
       "side": 1,
       "message": "I\u0027m wondering if it makes sense to also use a different flavor rather than gn_flavor.py, since I don\u0027t see a lot in common.",
       "parentUuid": "f2571014_a2dbf0f0",
+      "range": {
+        "startLine": 920,
+        "startChar": 0,
+        "endLine": 920,
+        "endChar": 29
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f60a1ed_84a2a897",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "@borenet Done\nFactored it out into the skqp_test recipe. \n\n@benjaminwagner The overlap is not in gn_flavor.py but in gn_android_flavor.py",
+      "parentUuid": "d9ee7be0_e5432858",
       "range": {
         "startLine": 920,
         "startChar": 0,
@@ -298,6 +508,30 @@
     },
     {
       "key": {
+        "uuid": "22ab8551_75aed809",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "@borenet The upload is essentially a \u0027publish\u0027 step. \nI already landed a CL here \n  https://skia-review.googlesource.com/c/buildbot/+/111881\nthat allows to add list of the upload folder skia.org. \nEssentially we provide pre-built binaries of skqp apk.\n\n@benjaminwagner Yes that is one of the things I forgot. It will go onto the internal pool.",
+      "parentUuid": "1453ac93_dbad99e0",
+      "range": {
+        "startLine": 924,
+        "startChar": 17,
+        "endLine": 924,
+        "endChar": 68
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4aa66f30_d6314b14",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -318,6 +552,30 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2aa2e0b_0ac247b5",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4aa66f30_d6314b14",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 0
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -344,6 +602,30 @@
     },
     {
       "key": {
+        "uuid": "da2b7b58_7c957797",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c94c54df_12c7398e",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 68
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4281b3a_e6554262",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -364,6 +646,30 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "300e1627_ca8f7ff5",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4281b3a_e6554262",
+      "range": {
+        "startLine": 78,
+        "startChar": 5,
+        "endLine": 78,
+        "endChar": 13
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -390,6 +696,30 @@
     },
     {
       "key": {
+        "uuid": "581ebe04_c9fc19c4",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done\nRemoved was left-over from the previous version. filterDevices doesn\u0027t return an error.",
+      "parentUuid": "aedb27d2_d642a87e",
+      "range": {
+        "startLine": 123,
+        "startChar": 16,
+        "endLine": 123,
+        "endChar": 52
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b6c7ca2_98ccc443",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -404,6 +734,24 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13768b0a_3cd81813",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done\nLeftover debugging code.",
+      "parentUuid": "4b6c7ca2_98ccc443",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -430,6 +778,30 @@
     },
     {
       "key": {
+        "uuid": "501c2f2f_6a1539e1",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55193a2f_7ce5500c",
+      "range": {
+        "startLine": 154,
+        "startChar": 1,
+        "endLine": 154,
+        "endChar": 23
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d466af2_65e91e5d",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -450,6 +822,30 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca297a56_b218f195",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d466af2_65e91e5d",
+      "range": {
+        "startLine": 171,
+        "startChar": 3,
+        "endLine": 171,
+        "endChar": 65
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -476,6 +872,30 @@
     },
     {
       "key": {
+        "uuid": "17a637c3_5231b026",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fdfe006_6d6d90cc",
+      "range": {
+        "startLine": 173,
+        "startChar": 37,
+        "endLine": 173,
+        "endChar": 38
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "038dcf7e_221a0e67",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -493,6 +913,24 @@
     },
     {
       "key": {
+        "uuid": "2fb211d0_2b5b3b58",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "038dcf7e_221a0e67",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b60ea90_10d10642",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -507,6 +945,24 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5550e60_3297084c",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b60ea90_10d10642",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -533,6 +989,30 @@
     },
     {
       "key": {
+        "uuid": "e2db29a6_5ce781c6",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "18d485d5_8e1f678f",
+      "range": {
+        "startLine": 200,
+        "startChar": 3,
+        "endLine": 200,
+        "endChar": 111
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9a463a6_eb856884",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -553,6 +1033,30 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d084880c_47320d2d",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9a463a6_eb856884",
+      "range": {
+        "startLine": 247,
+        "startChar": 0,
+        "endLine": 248,
+        "endChar": 23
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -579,6 +1083,30 @@
     },
     {
       "key": {
+        "uuid": "b72d938f_32fc38ed",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38564b6d_d83023c4",
+      "range": {
+        "startLine": 281,
+        "startChar": 61,
+        "endLine": 281,
+        "endChar": 66
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b55b71c9_b9c2d77d",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -602,6 +1130,30 @@
     },
     {
       "key": {
+        "uuid": "a5cc7619_732eacbf",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b55b71c9_b9c2d77d",
+      "range": {
+        "startLine": 327,
+        "startChar": 1,
+        "endLine": 327,
+        "endChar": 7
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "85cee9b6_2817e36b",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -616,6 +1168,24 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "403b2439_3e3ad4fc",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85cee9b6_2817e36b",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -642,6 +1212,30 @@
     },
     {
       "key": {
+        "uuid": "1604a6d4_782fa493",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f393afdc_f7964ee4",
+      "range": {
+        "startLine": 421,
+        "startChar": 44,
+        "endLine": 421,
+        "endChar": 46
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01425460_f954b73f",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -665,6 +1259,30 @@
     },
     {
       "key": {
+        "uuid": "25457be1_07bf5728",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01425460_f954b73f",
+      "range": {
+        "startLine": 428,
+        "startChar": 34,
+        "endLine": 428,
+        "endChar": 43
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "541085de_ab5466f4",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -685,6 +1303,30 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f940c379_c9b6f231",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done\nI don\u0027t want to use Gzip here, because APKs are already ZIP files and as suggested in the docs GZIP should be avoided when we are dealing with an archive already.",
+      "parentUuid": "541085de_ab5466f4",
+      "range": {
+        "startLine": 441,
+        "startChar": 1,
+        "endLine": 441,
+        "endChar": 20
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -769,6 +1411,24 @@
     },
     {
       "key": {
+        "uuid": "d9e727c2_79454a5f",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06d2455f_c2cffd2e",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39910f1a_7807feff",
         "filename": "tools/skqp/make_universal_apk",
         "patchSetId": 11
@@ -783,6 +1443,24 @@
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb5c0635_0e4f8b45",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 11
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T22:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39910f1a_7807feff",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
