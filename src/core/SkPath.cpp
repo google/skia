@@ -228,11 +228,11 @@ bool SkPath::isInterpolatable(const SkPath& compare) const {
 }
 
 bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const {
-    int verbCount = fPathRef->countVerbs();
-    if (verbCount != ending.fPathRef->countVerbs()) {
+    int pointCount = fPathRef->countPoints();
+    if (pointCount != ending.fPathRef->countPoints()) {
         return false;
     }
-    if (!verbCount) {
+    if (!pointCount) {
         return true;
     }
     out->reset();
