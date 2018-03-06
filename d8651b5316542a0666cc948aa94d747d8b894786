@@ -2,6 +2,161 @@
   "comments": [
     {
       "key": {
+        "uuid": "96900f1a_8008baa3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "typo: APK",
+      "range": {
+        "startLine": 11,
+        "startChar": 48,
+        "endLine": 11,
+        "endChar": 51
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c32b0005_e35382b4",
+        "filename": "infra/bots/assets/gcloud_linux/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: maybe use \"with utils.tmp_dir():\" so this file goes in a temp dir.",
+      "range": {
+        "startLine": 25,
+        "startChar": 51,
+        "endLine": 25,
+        "endChar": 65
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f59a153_c6971c4f",
+        "filename": "infra/bots/assets/gcloud_linux/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: Seems like you just want to add \"--strip-components\u003d1\" to your tar command.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 30
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfdf3f40_af9ae30d",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: new deps don\u0027t seem to be used?",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 23
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5b12563_30434ca4",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "typo: \"build\"",
+      "range": {
+        "startLine": 398,
+        "startChar": 26,
+        "endLine": 398,
+        "endChar": 31
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5086ac2_49df7938",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: var name is pkg_dir but points to a file",
+      "range": {
+        "startLine": 404,
+        "startChar": 58,
+        "endLine": 404,
+        "endChar": 74
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdf8c053_081c215c",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit indentation",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "853e1a53_c27a7f7b",
         "filename": "infra/bots/recipes/compile.py",
         "patchSetId": 11
@@ -95,6 +250,53 @@
     },
     {
       "key": {
+        "uuid": "08a6e73c_c5386ad1",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "Per comment here: https://docs.google.com/a/google.com/document/d/1ZwiAdVRxSh_gfVLP8On94Yf73Mwt5Linx_n2SsiIqLQ/edit?disco\u003dAAAABoJrxOg, you may need to run this recipe on the SkiaInternal pool.\n\nAt this time, I think the only way to run something on the internal pool is to add it to the internal jobs.json/tasks.json. I think everything else can go in this repo.",
+      "parentUuid": "1453ac93_dbad99e0",
+      "range": {
+        "startLine": 924,
+        "startChar": 17,
+        "endLine": 924,
+        "endChar": 68
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4aa66f30_d6314b14",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "Done?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 0
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c94c54df_12c7398e",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 11
@@ -112,6 +314,367 @@
         "endLine": 46,
         "endChar": 68
       },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4281b3a_e6554262",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: typo AVAILABLE",
+      "range": {
+        "startLine": 78,
+        "startChar": 5,
+        "endLine": 78,
+        "endChar": 13
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aedb27d2_d642a87e",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: wrong error message",
+      "range": {
+        "startLine": 123,
+        "startChar": 16,
+        "endLine": 123,
+        "endChar": 52
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b6c7ca2_98ccc443",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: this comment is confusing",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55193a2f_7ce5500c",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: Ideally, we would capture Stderr and include it in the error message so it\u0027s easier to debug. Sending to Stdout will probably work, but it\u0027s a bit inconsistent.\n\nWriteErrorLog in go.skia.org/infra/go/exec might be useful (you\u0027ll need to import the package under a different name though).",
+      "range": {
+        "startLine": 154,
+        "startChar": 1,
+        "endLine": 154,
+        "endChar": 23
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d466af2_65e91e5d",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: probably doesn\u0027t matter given the number of devices, but in the worst case this is O(n^2).",
+      "range": {
+        "startLine": 171,
+        "startChar": 3,
+        "endLine": 171,
+        "endChar": 65
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fdfe006_6d6d90cc",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: newline after {",
+      "range": {
+        "startLine": 173,
+        "startChar": 37,
+        "endLine": 173,
+        "endChar": 38
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "038dcf7e_221a0e67",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: comment is confusing",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b60ea90_10d10642",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: add function doc to disambiguate return values.",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18d485d5_8e1f678f",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "Do we need to check \"len(ignoredVersions) \u003e 0\"?",
+      "range": {
+        "startLine": 200,
+        "startChar": 3,
+        "endLine": 200,
+        "endChar": 111
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9a463a6_eb856884",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: same as above",
+      "range": {
+        "startLine": 247,
+        "startChar": 0,
+        "endLine": 248,
+        "endChar": 23
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38564b6d_d83023c4",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: either use Sprintf or +, not both.",
+      "range": {
+        "startLine": 281,
+        "startChar": 61,
+        "endLine": 281,
+        "endChar": 66
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b55b71c9_b9c2d77d",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: unused?",
+      "range": {
+        "startLine": 327,
+        "startChar": 1,
+        "endLine": 327,
+        "endChar": 7
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85cee9b6_2817e36b",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: comment is confusing",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f393afdc_f7964ee4",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "typo has",
+      "range": {
+        "startLine": 421,
+        "startChar": 44,
+        "endLine": 421,
+        "endChar": 46
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01425460_f954b73f",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "nit: NewReader",
+      "range": {
+        "startLine": 428,
+        "startChar": 34,
+        "endLine": 428,
+        "endChar": 43
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "541085de_ab5466f4",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "If w.Close() returns an error, the object won\u0027t have been successfully written, but you\u0027re ignoring the error here.\n\nConsider using or copying gcs.WriteObj, which will take care of this as well as using gzip encoding (which is basically always what you want, unless you\u0027re uploading a compressed file).",
+      "range": {
+        "startLine": 441,
+        "startChar": 1,
+        "endLine": 441,
+        "endChar": 20
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35cadffd_c6f374c5",
+        "filename": "infra/cts/whitelist_devices.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-06T18:19:24Z",
+      "side": 1,
+      "message": "Eric, is this the correct location for this file?",
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
