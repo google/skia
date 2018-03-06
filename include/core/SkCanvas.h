@@ -2428,12 +2428,6 @@ public:
     // don't call
     virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
 
-    // don't call
-    static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
-    static bool Internal_Private_GetIgnoreSaveLayerBounds();
-    static void Internal_Private_SetTreatSpriteAsBitmap(bool);
-    static bool Internal_Private_GetTreatSpriteAsBitmap();
-
     // TEMP helpers until we switch virtual over to const& for src-rect
     void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                               const SkPaint* paint,
