@@ -187,13 +187,6 @@ public:
     virtual void freeGpuResources();
 
     /**
-     * Purge all the unlocked resources from the cache.
-     * This entry point is mainly meant for timing texture uploads
-     * and is not defined in normal builds of Skia.
-     */
-    void purgeAllUnlockedResources();
-
-    /**
      * Purge GPU resources that haven't been used in the past 'msNotUsed' milliseconds or are
      * otherwise marked for deletion, regardless of whether the context is under budget.
      */
@@ -239,38 +232,6 @@ public:
      */
     int maxSurfaceSampleCountForColorType(SkColorType) const;
 
-    /*
-     * Create a new render target context backed by a deferred-style
-     * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
-     * renderTargetContexts created via this entry point.
-     */
-    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
-                                                 SkBackingFit fit,
-                                                 int width, int height,
-                                                 GrPixelConfig config,
-                                                 sk_sp<SkColorSpace> colorSpace,
-                                                 int sampleCnt = 1,
-                                                 GrMipMapped = GrMipMapped::kNo,
-                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-                                                 const SkSurfaceProps* surfaceProps = nullptr,
-                                                 SkBudgeted = SkBudgeted::kYes);
-    /*
-     * This method will attempt to create a renderTargetContext that has, at least, the number of
-     * channels and precision per channel as requested in 'config' (e.g., A8 and 888 can be
-     * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
-     * SRGB-ness will be preserved.
-     */
-    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
-                                                 SkBackingFit fit,
-                                                 int width, int height,
-                                                 GrPixelConfig config,
-                                                 sk_sp<SkColorSpace> colorSpace,
-                                                 int sampleCnt = 1,
-                                                 GrMipMapped = GrMipMapped::kNo,
-                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-                                                 const SkSurfaceProps* surfaceProps = nullptr,
-                                                 SkBudgeted budgeted = SkBudgeted::kYes);
-
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
@@ -308,52 +269,13 @@ public:
      */
     uint32_t uniqueID() { return fUniqueID; }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Functions intended for internal use only.
-    bool abandoned() const;
-
-    /** Reset GPU stats */
-    void resetGpuStats() const ;
-
-    /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
-    void dumpCacheStats(SkString*) const;
-    void dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
-    void printCacheStats() const;
-
-    /** Prints GPU stats to the string if GR_GPU_STATS == 1. */
-    void dumpGpuStats(SkString*) const;
-    void dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
-    void printGpuStats() const;
-
-    /** Returns a string with detailed information about the context & GPU, in JSON format. */
-    SkString dump() const;
-
-    /** Specify the TextBlob cache limit. If the current cache exceeds this limit it will purge.
-        this is for testing only */
-    void setTextBlobCacheLimit_ForTesting(size_t bytes);
-
-    /** Specify the sizes of the GrAtlasTextContext atlases.  The configs pointer below should be
-        to an array of 3 entries */
-    void setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs);
-
-    /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
-    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
-
-    /** Get pointer to atlas texture for given mask format. Note that this wraps an
-        actively mutating texture in an SkImage. This could yield unexpected results
-        if it gets cached or used more generally. */
-    sk_sp<SkImage> getFontAtlasImage_ForTesting(GrMaskFormat format, unsigned int index = 0);
-
-    GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
-
-    GrContextOptions::PersistentCache* getPersistentCache() { return fPersistentCache; }
-
-    /** This is only useful for debug purposes */
-    SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fSingleOwner; } )
-
     // Provides access to functions that aren't part of the public API.
     GrContextPriv contextPriv();
     const GrContextPriv contextPriv() const;
+
+    /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
+    // Chrome is using this!
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
 protected:
     GrContext(GrBackend, int32_t id = SK_InvalidGenID);

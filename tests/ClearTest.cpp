@@ -42,8 +42,9 @@ static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t
 }
 
 sk_sp<GrRenderTargetContext> newRTC(GrContext* context, int w, int h) {
-    return context->makeDeferredRenderTargetContext(SkBackingFit::kExact, w, h,
-                                                    kRGBA_8888_GrPixelConfig, nullptr);
+    return context->contextPriv().makeDeferredRenderTargetContext(
+                                                                SkBackingFit::kExact, w, h,
+                                                                kRGBA_8888_GrPixelConfig, nullptr);
 }
 
 static void clear_op_test(skiatest::Reporter* reporter, GrContext* context) {
