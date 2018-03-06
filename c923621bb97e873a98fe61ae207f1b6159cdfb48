@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "52434386_dddf29d3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-06T17:13:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bab2331e_f1da6cc1",
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0ebadd9_30d9c007",
         "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "70022a6b_61cc7e08",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-06T17:13:10Z",
+      "side": 1,
+      "message": "downsamplebitmap_checkerboard_high_512_256\ndownsamplebitmap_checkerboard_medium_512_256\ndownsamplebitmap_checkerboard_none_512_256\n\nShould we add them?",
+      "parentUuid": "d0ebadd9_30d9c007",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 41
+      },
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3e687d4d_6ec4cb6e",
         "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
         "patchSetId": 1
@@ -53,6 +95,24 @@
       "writtenOn": "2018-03-06T17:00:47Z",
       "side": 1,
       "message": "same here",
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5617c472_b053faea",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-06T17:13:10Z",
+      "side": 1,
+      "message": "gradients_2pt_conical_outside\ngradients_2pt_conical_outside_mirror\ngradients_2pt_conical_outside_nodither\n\nShould I add any of those?",
+      "parentUuid": "3e687d4d_6ec4cb6e",
       "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
