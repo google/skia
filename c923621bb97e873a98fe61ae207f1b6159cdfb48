@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "a0bfe03c_35ea3626",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-06T17:13:53Z",
+      "side": 1,
+      "message": "Yes, add them.",
+      "parentUuid": "70022a6b_61cc7e08",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 41
+      },
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3e687d4d_6ec4cb6e",
         "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
         "patchSetId": 1
@@ -113,6 +137,24 @@
       "side": 1,
       "message": "gradients_2pt_conical_outside\ngradients_2pt_conical_outside_mirror\ngradients_2pt_conical_outside_nodither\n\nShould I add any of those?",
       "parentUuid": "3e687d4d_6ec4cb6e",
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "735906c9_071f84e2",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-06T17:13:53Z",
+      "side": 1,
+      "message": "Yes, add them.",
+      "parentUuid": "5617c472_b053faea",
       "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
