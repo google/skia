@@ -296,6 +296,20 @@ void SkColorSpaceXform_Base::BuildDstGammaTables(const uint8_t* dstGammaTables[3
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if defined(SK_USE_SKCMS)
+
+#include "skcms.h"
+
+class SkColorSpaceXform_skcms : public SkColorSpaceXform_Base {
+public:
+
+private:
+};
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* src,
                                                           SkColorSpace* dst) {
     return SkColorSpaceXform_Base::New(src, dst, SkTransferFunctionBehavior::kRespect);
