@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c11cf108_25219f4d",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-06T15:38:43Z",
+      "side": 1,
+      "message": "This will be adjusted in a separate CL after this is cherry-picked to the skqp/dev branch.",
+      "range": {
+        "startLine": 924,
+        "startChar": 17,
+        "endLine": 924,
+        "endChar": 68
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
