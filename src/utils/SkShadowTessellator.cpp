@@ -379,9 +379,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         , fSplitFirstEdge(false)
         , fSplitPreviousEdge(false) {
     // TODO: support some concave paths
-    if (!path.isConvex()) {
-        return;
-    }
+    SkASSERT(path.isConvex());
 
     // Set base colors
     SkScalar umbraAlpha = SkScalarInvert(SkDrawShadowMetrics::AmbientRecipAlpha(heightFunc(0, 0)));
@@ -807,9 +805,7 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     , fValidUmbra(true) {
 
     // TODO: support some concave paths
-    if (!path.isConvex()) {
-        return;
-    }
+    SkASSERT(path.isConvex());
 
     // make sure we're not below the canvas plane
     if (this->setZOffset(path.getBounds(), ctm.hasPerspective())) {
@@ -1414,6 +1410,9 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
 
 sk_sp<SkVertices> SkShadowTessellator::MakeAmbient(const SkPath& path, const SkMatrix& ctm,
                                                    const SkPoint3& zPlane, bool transparent) {
+    if (!path.isFinite() || !path.isConvex() || !ctm.isFinite() || !zPlane.isFinite()) {
+        return nullptr;
+    }
     SkAmbientShadowTessellator ambientTess(path, ctm, zPlane, transparent);
     return ambientTess.releaseVertices();
 }
@@ -1421,6 +1420,10 @@ sk_sp<SkVertices> SkShadowTessellator::MakeAmbient(const SkPath& path, const SkM
 sk_sp<SkVertices> SkShadowTessellator::MakeSpot(const SkPath& path, const SkMatrix& ctm,
                                                 const SkPoint3& zPlane, const SkPoint3& lightPos,
                                                 SkScalar lightRadius,  bool transparent) {
+    if (!path.isFinite() || !path.isConvex() || !ctm.isFinite() || !zPlane.isFinite() ||
+        !lightPos.isFinite() || !SkScalarIsFinite(lightRadius) || !(lightRadius > 0)) {
+        return nullptr;
+    }
     SkSpotShadowTessellator spotTess(path, ctm, zPlane, lightPos, lightRadius, transparent);
     return spotTess.releaseVertices();
 }
