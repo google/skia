@@ -3,13 +3,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_C:\\_B_WORK]"
+      "[CUSTOM_/_B_WORK]"
     ],
     "infra_step": true,
     "name": "makedirs checkout_path"
@@ -18,36 +18,36 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[CUSTOM_C:\\_B_WORK]\\.gclient_entries"
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [CUSTOM_C:\\_B_WORK]\\.gclient_entries"
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[depot_tools::bot_update]\\resources\\bot_update.py",
+      "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
-      "cache_dir = '[CUSTOM_C:\\\\_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
       "skia",
       "--revision_mapping_file",
       "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
-      "[CUSTOM_C:\\_B_CACHE]",
+      "[CUSTOM_/_B_CACHE]",
       "--cleanup-dir",
-      "[CLEANUP]\\bot_update",
+      "[CLEANUP]/bot_update",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
       "skia@abc123"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]",
+    "cwd": "[CUSTOM_/_B_WORK]",
     "env_prefixes": {
       "PATH": [
         "RECIPE_PACKAGE_REPO[depot_tools]"
@@ -97,58 +97,119 @@
     "cmd": [
       "python",
       "-u",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\bin\\fetch-gn"
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "devrel",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GDI"
+      "CXX": "/usr/bin/clang++",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
     "infra_step": true,
     "name": "fetch-gn"
   },
   {
     "cmd": [
-      "[CUSTOM_C:\\_B_WORK]\\skia\\bin\\gn.exe",
-      "gen",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GDI\\Release",
-      "--args=is_debug=false target_cpu=\"x86\" win_sdk=\"[START_DIR]\\t\\depot_tools\\win_toolchain\\vs_files\\a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]\\t\\depot_tools\\win_toolchain\\vs_files\\a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
+      "[START_DIR]/go/go/bin/go",
+      "version"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "devrel",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GDI"
+      "CXX": "/usr/bin/clang++",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
-    "name": "gn gen"
+    "name": "go version"
   },
   {
     "cmd": [
-      "ninja.exe",
-      "-k",
-      "0",
-      "-C",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GDI\\Release"
+      "go",
+      "version"
     ],
-    "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "devrel",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GDI"
+      "CXX": "/usr/bin/clang++",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
-    "name": "ninja"
+    "name": "env go version"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/go/go/bin/go",
+      "get",
+      "-u",
+      "-t",
+      "go.skia.org/infra/..."
+    ],
+    "env": {
+      "BUILDTYPE": "devrel",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+    },
+    "name": "update go pkgs"
+  },
+  {
+    "cmd": [
+      "go",
+      "build",
+      "-o",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel/run_testlab",
+      "[CUSTOM_/_B_WORK]/skia/infra/cts/run_testlab.go"
+    ],
+    "env": {
+      "BUILDTYPE": "devrel",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+    },
+    "name": "build firebase runner"
+  },
+  {
+    "cmd": [
+      "[CUSTOM_/_B_WORK]/skia/tools/skqp/make_universal_apk"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "ANDROID_HOME": "[START_DIR]/android_sdk_linux/android-sdk",
+      "ANDROID_NDK": "[START_DIR]/android_ndk_linux",
+      "APK_OUTPUT_DIR": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel",
+      "BUILDTYPE": "devrel",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+    },
+    "name": "make_universal"
   },
   {
     "cmd": [
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GDI\\Release",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\out\\Release"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel",
+      "[CUSTOM_[SWARM_OUT_DIR]]/out/devrel"
     ],
     "infra_step": true,
     "name": "copy build products",
@@ -184,20 +245,15 @@
     "cmd": [
       "python",
       "-u",
-      "import psutil\nfor p in psutil.process_iter():\n  try:\n    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):\n      p.kill()\n  except psutil._error.AccessDenied:\n    pass\n"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_/_B_WORK]/skia/infra/cts/whitelist_devices.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]"
     ],
     "infra_step": true,
-    "name": "cleanup",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import psutil@@@",
-      "@@@STEP_LOG_LINE@python.inline@for p in psutil.process_iter():@@@",
-      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@      p.kill()@@@",
-      "@@@STEP_LOG_LINE@python.inline@  except psutil._error.AccessDenied:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    pass@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "copy whitelist"
   },
   {
     "name": "$result",

@@ -26,8 +26,10 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'skia_launcher',
   'skiaserve',
   'lib/*.so',
+  'run_testlab',
+  'skqp-universal-debug.apk',
+  'whitelist_devices.json'
 ]
-
 
 class SkiaStepApi(recipe_api.RecipeApi):
 
