@@ -9,9 +9,9 @@
 #define SkDeferredDisplayListMaker_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkSurfaceCharacterization.h"
 
 #include "../private/SkDeferredDisplayList.h"
-#include "../private/SkSurfaceCharacterization.h"
 
 class GrContext;
 
