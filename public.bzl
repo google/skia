@@ -552,7 +552,7 @@ def DM_ARGS(asan):
       "~^PaintBreakText$$",
       "~^RecordDraw_TextBounds$$",
   ]
-  return ["--src"] + source + ["--config"] + config + ["--match"] + match
+  return ["--src"] + source + ["--config"] + config + ["--match"] + match + ["--nonativeFonts"]
 
 ################################################################################
 ## COPTS
