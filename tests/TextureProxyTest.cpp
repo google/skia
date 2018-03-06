@@ -232,7 +232,7 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
     textureImg = nullptr;
-    context->purgeAllUnlockedResources();
+    context->contextPriv().purgeAllUnlockedResources_ForTesting();
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -271,7 +271,7 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
     proxy = nullptr;
-    context->purgeAllUnlockedResources();
+    context->contextPriv().purgeAllUnlockedResources_ForTesting();
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
