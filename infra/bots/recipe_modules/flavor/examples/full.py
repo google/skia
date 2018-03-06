@@ -5,8 +5,12 @@
 
 DEPS = [
   'flavor',
+  'recipe_engine/file',
+  'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/python',
   'recipe_engine/raw_io',
+  'recipe_engine/step',
   'run',
   'vars',
 ]
@@ -104,6 +108,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android',
   'Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All',
