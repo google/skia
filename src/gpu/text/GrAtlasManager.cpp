@@ -94,14 +94,15 @@ bool GrAtlasManager::hasGlyph(GrGlyph* glyph) {
 }
 
 // add to texture atlas that matches this format
-bool GrAtlasManager::addToAtlas(GrResourceProvider* resourceProvider,
+GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(
+                                GrResourceProvider* resourceProvider,
                                 GrGlyphCache* glyphCache,
                                 GrTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
                                 GrDeferredUploadTarget* target, GrMaskFormat format,
                                 int width, int height, const void* image, SkIPoint16* loc) {
     glyphCache->setStrikeToPreserve(strike);
     return this->getAtlas(format)->addToAtlas(resourceProvider, id, target, width, height,
-                                                image, loc);
+                                              image, loc);
 }
 
 void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater* updater,
