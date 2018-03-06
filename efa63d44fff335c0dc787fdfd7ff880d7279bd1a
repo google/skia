@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "69a0fb4c_e41a37be",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-06T16:38:52Z",
+      "side": 1,
+      "message": "Maybe we can set kMaxDim \u003d 256 for debug and kMaxDim \u003d 2K for release so we exercise the tiling in debug without affecting the performance in release?",
+      "revId": "efa63d44fff335c0dc787fdfd7ff880d7279bd1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c570222_23a8b2a3",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-06T16:38:52Z",
+      "side": 1,
+      "message": "Maybe we can drop fOrigin (which is always one step ahead of fCurrOrigin) here by \"while (fTileRC.isEmpty() \u0026\u0026 this-\u003estepOrigin())\" where stepOrigin returns fDone?",
+      "revId": "efa63d44fff335c0dc787fdfd7ff880d7279bd1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "216e4ed6_2e710bed",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-06T16:38:52Z",
+      "side": 1,
+      "message": "It feels like that \"fRootPixmap.width() - fOrigin.x()\" is more correct than \"fRootPixmap.width()\"?",
+      "revId": "efa63d44fff335c0dc787fdfd7ff880d7279bd1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "72433404_86e44f05",
         "filename": "src/core/SkBitmapDevice.cpp",
         "patchSetId": 4
