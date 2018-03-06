@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbb43182_44b9a900",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1507,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-06T19:48:24Z",
+      "side": 1,
+      "message": "Just double-checked... this is a codegen no-op, just as we\u0027d hope.\n\nThe reason I mention it at all is that my objdump decided to re-chunk some of the data parts from one set of bogus instructions to other bogus instructions, but it looks like all the bytes are the same in the same order, which is the important part.",
+      "revId": "42a4a156c8bdd907cb592ffa89dbeaac4752ad9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
