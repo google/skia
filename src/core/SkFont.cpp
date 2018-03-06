@@ -132,9 +132,6 @@ sk_sp<SkFont> SkFont::Testing_CreateFromPaint(const SkPaint& paint) {
     if (SkPaint::kFull_Hinting == paint.getHinting()) {
         flags |= kEnableByteCodeHints_Flag;
     }
-    if (paint.isAutohinted()) {
-        flags |= kEnableAutoHints_Flag;
-    }
     if (paint.isSubpixelText() || paint.isLinearText()) {
         // this is our default
     } else {

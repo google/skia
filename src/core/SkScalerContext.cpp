@@ -1012,9 +1012,6 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
     if (paint.isSubpixelText()) {
         flags |= SkScalerContext::kSubpixelPositioning_Flag;
     }
-    if (paint.isAutohinted()) {
-        flags |= SkScalerContext::kForceAutohinting_Flag;
-    }
     if (paint.isVerticalText()) {
         flags |= SkScalerContext::kVertical_Flag;
     }
