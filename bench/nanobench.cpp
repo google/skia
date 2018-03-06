@@ -60,6 +60,7 @@ extern bool gSkForceRasterPipelineBlitter;
 #if SK_SUPPORT_GPU
     #include "gl/GrGLDefines.h"
     #include "GrCaps.h"
+    #include "GrContextPriv.h"
     #include "GrContextFactory.h"
     #include "gl/GrGLUtil.h"
     #include "SkGr.h"
@@ -230,8 +231,8 @@ struct GPUTarget : public Target {
     }
 
     void dumpStats() override {
-        this->contextInfo.grContext()->printCacheStats();
-        this->contextInfo.grContext()->printGpuStats();
+        this->contextInfo.grContext()->contextPriv().printCacheStats();
+        this->contextInfo.grContext()->contextPriv().printGpuStats();
     }
 };
 

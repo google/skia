@@ -961,7 +961,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
             colorSpace = SkColorSpace::MakeSRGB();
         }
         sk_sp<GrRenderTargetContext> tempRTC =
-                fContext->makeDeferredRenderTargetContext(tempDrawInfo.fTempSurfaceFit,
+                fContext->contextPriv().makeDeferredRenderTargetContext(
+                                                          tempDrawInfo.fTempSurfaceFit,
                                                           tempDrawInfo.fTempSurfaceDesc.fWidth,
                                                           tempDrawInfo.fTempSurfaceDesc.fHeight,
                                                           tempDrawInfo.fTempSurfaceDesc.fConfig,
@@ -1334,7 +1335,7 @@ static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     }
 }
 
-sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallback(
+sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithFallback(
                                                                  SkBackingFit fit,
                                                                  int width, int height,
                                                                  GrPixelConfig config,
@@ -1345,7 +1346,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallb
                                                                  const SkSurfaceProps* surfaceProps,
                                                                  SkBudgeted budgeted) {
     SkASSERT(sampleCnt > 0);
-    if (0 == this->caps()->getRenderTargetSampleCount(sampleCnt, config)) {
+    if (0 == fContext->caps()->getRenderTargetSampleCount(sampleCnt, config)) {
         config = GrPixelConfigFallback(config);
     }
 
@@ -1354,7 +1355,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallb
                                                  budgeted);
 }
 
-sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
+sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
                                                         SkBackingFit fit,
                                                         int width, int height,
                                                         GrPixelConfig config,
@@ -1378,18 +1379,18 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
 
     sk_sp<GrTextureProxy> rtp;
     if (GrMipMapped::kNo == mipMapped) {
-        rtp = fProxyProvider->createProxy(desc, origin, fit, budgeted);
+        rtp = fContext->fProxyProvider->createProxy(desc, origin, fit, budgeted);
     } else {
-        rtp = fProxyProvider->createMipMapProxy(desc, origin, budgeted);
+        rtp = fContext->fProxyProvider->createMipMapProxy(desc, origin, budgeted);
     }
     if (!rtp) {
         return nullptr;
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fDrawingManager->makeRenderTargetContext(std::move(rtp),
-                                                 std::move(colorSpace),
-                                                 surfaceProps));
+        fContext->fDrawingManager->makeRenderTargetContext(std::move(rtp),
+                                                           std::move(colorSpace),
+                                                           surfaceProps));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -1399,9 +1400,9 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
     return renderTargetContext;
 }
 
-bool GrContext::abandoned() const {
-    ASSERT_SINGLE_OWNER
-    return fDrawingManager->wasAbandoned();
+bool GrContextPriv::abandoned() const {
+    ASSERT_SINGLE_OWNER_PRIV
+    return fContext->fDrawingManager->wasAbandoned();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrContext::createPMToUPMEffect(
@@ -1470,7 +1471,6 @@ void GrContext::setResourceCacheLimits(int maxResources, size_t maxResourceBytes
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
 void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     ASSERT_SINGLE_OWNER
     fResourceCache->dumpMemoryStatistics(traceMemoryDump);
@@ -1478,7 +1478,7 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-SkString GrContext::dump() const {
+SkString GrContextPriv::dump() const {
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
     writer.beginObject();
@@ -1493,13 +1493,13 @@ SkString GrContext::dump() const {
     GR_STATIC_ASSERT(1 == kOpenGL_GrBackend);
     GR_STATIC_ASSERT(2 == kVulkan_GrBackend);
     GR_STATIC_ASSERT(3 == kMock_GrBackend);
-    writer.appendString("backend", kBackendStr[fBackend]);
+    writer.appendString("backend", kBackendStr[fContext->fBackend]);
 
     writer.appendName("caps");
-    fCaps->dumpJSON(&writer);
+    fContext->fCaps->dumpJSON(&writer);
 
     writer.appendName("gpu");
-    fGpu->dumpJSON(&writer);
+    fContext->fGpu->dumpJSON(&writer);
 
     // Flush JSON to the memory stream
     writer.endObject();

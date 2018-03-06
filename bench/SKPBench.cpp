@@ -163,13 +163,13 @@ void SKPBench::drawPicture() {
 static void draw_pic_for_stats(SkCanvas* canvas, GrContext* context, const SkPicture* picture,
                                SkTArray<SkString>* keys, SkTArray<double>* values,
                                const char* tag) {
-    context->resetGpuStats();
+    context->contextPriv().resetGpuStats();
     canvas->drawPicture(picture);
     canvas->flush();
 
     int offset = keys->count();
-    context->dumpGpuStatsKeyValuePairs(keys, values);
-    context->dumpCacheStatsKeyValuePairs(keys, values);
+    context->contextPriv().dumpGpuStatsKeyValuePairs(keys, values);
+    context->contextPriv().dumpCacheStatsKeyValuePairs(keys, values);
 
     // append tag, but only to new tags
     for (int i = offset; i < keys->count(); i++, offset++) {
