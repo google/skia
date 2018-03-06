@@ -108,6 +108,30 @@
     },
     {
       "key": {
+        "uuid": "92a21420_6d439961",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-06T18:36:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0bfe03c_35ea3626",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 41
+      },
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3e687d4d_6ec4cb6e",
         "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
         "patchSetId": 1
@@ -158,6 +182,24 @@
       "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46919b99_0533d147",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-06T18:36:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "735906c9_071f84e2",
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
