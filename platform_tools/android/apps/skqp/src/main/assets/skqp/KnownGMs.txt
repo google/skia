@@ -24,7 +24,6 @@ arcofzorro
 arcs_as_paths
 arcto
 arithmode
-atlastext
 badpaint
 bezier_conic_effects
 bezier_cubic_effects

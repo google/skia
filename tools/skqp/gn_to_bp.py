@@ -127,7 +127,7 @@ gn_args = {
   # setup skqp
   'is_debug':   'false',
   'ndk_api':    '26',
-  'skia_skqp_global_error_tolerance': '4',
+  'skia_skqp_global_error_tolerance': '8',
 
   # setup vulkan
   'skia_use_vulkan':    'true',

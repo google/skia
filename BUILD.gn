@@ -53,7 +53,7 @@ declare_args() {
   skia_jumper_ccache = ""
 
   skia_skqp_enable_driver_correctness_workarounds = false
-  skia_skqp_global_error_tolerance = 0
+  skia_skqp_global_error_tolerance = 8
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
