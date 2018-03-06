@@ -118,12 +118,6 @@ struct SkMask {
         kUninit_Alloc,
         kZeroInit_Alloc,
     };
-
-    static size_t AlignmentForMask(SkMask::Format format);
-    // Return 0 if overflow.
-    static size_t ComputeRowBytes(SkMask::Format format, int32_t width);
-    // Return 0 if overflow.
-    static size_t ComputeImageSize(SkMask::Format format, int32_t width, int32_t height);
     static uint8_t* AllocImage(size_t bytes, AllocType = kUninit_Alloc);
     static void FreeImage(void* image);
 
