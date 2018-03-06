@@ -53,7 +53,6 @@ tests_sources = [
   "$_tests/DeferredDisplayListTest.cpp",
   "$_tests/DequeTest.cpp",
   "$_tests/DetermineDomainModeTest.cpp",
-  "$_tests/DeviceLooperTest.cpp",
   "$_tests/DeviceTest.cpp",
   "$_tests/DFPathRendererTest.cpp",
   "$_tests/DiscardableMemoryPoolTest.cpp",
