@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c6a6a1bc_8c714f74",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "Updated.",
+      "parentUuid": "a4035506_8b46b300",
+      "range": {
+        "startLine": 29,
+        "startChar": 10,
+        "endLine": 29,
+        "endChar": 19
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6d46fff_92051eed",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "45af215a_210147d1",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6d46fff_92051eed",
+      "range": {
+        "startLine": 30,
+        "startChar": 10,
+        "endLine": 30,
+        "endChar": 19
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e932086b_0782eb2b",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2018-03-05T16:09:02Z",
       "side": 1,
       "message": "Might be easier to build and return this as an SkString, but up to you.",
+      "range": {
+        "startLine": 468,
+        "startChar": 0,
+        "endLine": 468,
+        "endChar": 13
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7693357_d0439ffd",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "SkString::appendf might be convenient for the data uri prefixes, but it seems like I\u0027d still need a buffer for the base64 encode.",
+      "parentUuid": "e932086b_0782eb2b",
       "range": {
         "startLine": 468,
         "startChar": 0,
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "1fb3e456_61661ab8",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b35ded7_d2a6a8ed",
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee72be3a_24bb1f59",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 1
@@ -108,6 +198,30 @@
       "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa000d32_81b363b9",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee72be3a_24bb1f59",
+      "range": {
+        "startLine": 477,
+        "startChar": 4,
+        "endLine": 477,
+        "endChar": 7
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "abcbaaff_7d7d4f81",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "This is much nicer. Updated.",
+      "parentUuid": "f3c9ec17_81c58dda",
+      "range": {
+        "startLine": 492,
+        "startChar": 0,
+        "endLine": 493,
+        "endChar": 53
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03129d95_e1f297db",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 1
@@ -145,6 +283,30 @@
       "writtenOn": "2018-03-05T16:09:02Z",
       "side": 1,
       "message": "Are we using outMatrix for anything?\n\nIf not, I suggest adding a \"// TODO: add support for shader local matrix\" and pass nullptr here.\n\n(I think it should be straightforward using \u0027patternTransform\u0027)",
+      "range": {
+        "startLine": 510,
+        "startChar": 39,
+        "endLine": 510,
+        "endChar": 48
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbd141af_a8e0a6b6",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "I\u0027m not currently using outMatrix. I didn\u0027t realize it could take nullptr, I\u0027ll do that.\n\nI\u0027ve tried adding the patternTransform to the pattern, but this seems to be incompatible with the current approach of wrapping in an svg (more context on the later comment).",
+      "parentUuid": "03129d95_e1f297db",
       "range": {
         "startLine": 510,
         "startChar": 39,
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "9731b947_5def9d2c",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86b436ec_cd71f958",
+      "range": {
+        "startLine": 511,
+        "startChar": 0,
+        "endLine": 514,
+        "endChar": 5
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dbb04d8a_3b6d245c",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 1
@@ -203,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "269506c8_08e7b633",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbb04d8a_3b6d245c",
+      "range": {
+        "startLine": 563,
+        "startChar": 13,
+        "endLine": 563,
+        "endChar": 22
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "163003b0_018774f6",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 1
@@ -214,6 +424,30 @@
       "writtenOn": "2018-03-05T16:09:02Z",
       "side": 1,
       "message": "I\u0027m not enthusiastic about this for a couple of reasons:\n\n1) we\u0027re wrapping all rects, unnecessarily in the absence of repeating backgrounds\n\n2) we only do this for the drawRect() entry point; this may be sufficient for your use case, but it leaves the other draw methods potentially broken (drawPath, drawEllipse, etc)\n\nSo I would very much prefer we find another way to make it work... I wonder if the missing patternTransform is all that\u0027s needed.  Or possibly using patternUnits: objectBoundingBox.\n\nAnyway, I\u0027m fine with landing this as-is if it\u0027s useful to you, and iterate later.  I\u0027ll have to grab some examples to play around - maybe you can point me to some web pages or SKPs you use for testing.",
+      "range": {
+        "startLine": 806,
+        "startChar": 0,
+        "endLine": 808,
+        "endChar": 78
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50cad18a_96c9be91",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "I was unable to find another way to support the various tiling modes in svg.\n\n1. \n2. In making the changes for 1, I\u0027ll also enclose the other draw calls in svgs, but only when a repeating image requires it.\n\nre: objectBoundingBox, I think we need both of the pattern modes as userSpaceOnUse. We effectively need to refer to both the size of the internal image, and the place the pattern is applied. We want to be able to avoid resizing the image. In order to prevent it from repeating in some dimension, we want the pattern to be as large as the container (in that dimension). Since using percentage for sizing falls back to objectBoundingBox (even though we\u0027ve specified userSpaceOnUse), specifying userSpaceOnUse allows us to refer to both the size of the image and the size of the destination within the pattern.\n\nI\u0027ve been using the following skp for testing : https://drive.google.com/open?id\u003d1o-cinUNVVE4bfPl5dSQ0dW0xTP49ydWU",
+      "parentUuid": "163003b0_018774f6",
       "range": {
         "startLine": 806,
         "startChar": 0,
@@ -246,6 +480,30 @@
       "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "865e2408_df9e6076",
+        "filename": "tests/SVGDeviceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 7989
+      },
+      "writtenOn": "2018-03-06T20:52:39Z",
+      "side": 1,
+      "message": "Much simpler, thanks.",
+      "parentUuid": "7c2ed473_5c660eb7",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 34
+      },
+      "revId": "a698a108098f1bf6b836054640cdd7d41d189cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
