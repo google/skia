@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "853e1a53_c27a7f7b",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-03-06T16:06:54Z",
+      "side": 1,
+      "message": "Is this needed?",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 54
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2571014_a2dbf0f0",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-03-06T16:06:54Z",
+      "side": 1,
+      "message": "This should be a separate recipe, eg. \"firebase.py\", rather than part of this one, since the only steps it has in common with the normal test recipe are core.setup().",
+      "range": {
+        "startLine": 920,
+        "startChar": 0,
+        "endLine": 920,
+        "endChar": 29
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c11cf108_25219f4d",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 11
@@ -17,6 +63,53 @@
         "startLine": 924,
         "startChar": 17,
         "endLine": 924,
+        "endChar": 68
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1453ac93_dbad99e0",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-03-06T16:06:54Z",
+      "side": 1,
+      "message": "What is done with this APK after it is uploaded?",
+      "parentUuid": "c11cf108_25219f4d",
+      "range": {
+        "startLine": 924,
+        "startChar": 17,
+        "endLine": 924,
+        "endChar": 68
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c94c54df_12c7398e",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-03-06T16:06:54Z",
+      "side": 1,
+      "message": "Comment no longer applies.",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 46,
         "endChar": 68
       },
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
