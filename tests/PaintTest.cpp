@@ -9,7 +9,7 @@
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkLayerDrawLooper.h"
-#include "SkPaint.h"
+#include "SkPaintPriv.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkReadBuffer.h"
@@ -256,14 +256,14 @@ DEF_TEST(Paint_flattening, reporter) {
     FOR_SETUP(p, styles, setStyle)
 
     SkBinaryWriteBuffer writer;
-    paint.flatten(writer);
+    SkPaintPriv::Flatten(paint, writer);
 
     SkAutoMalloc buf(writer.bytesWritten());
     writer.writeToMemory(buf.get());
     SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
     SkPaint paint2;
-    paint2.unflatten(reader);
+    SkPaintPriv::Unflatten(&paint2, reader);
     REPORTER_ASSERT(reporter, paint2 == paint);
 
     }}}}}}}
@@ -296,14 +296,14 @@ DEF_TEST(Paint_MoreFlattening, r) {
     paint.setLooper(nullptr);  // Default value, ignored.
 
     SkBinaryWriteBuffer writer;
-    paint.flatten(writer);
+    SkPaintPriv::Flatten(paint, writer);
 
     SkAutoMalloc buf(writer.bytesWritten());
     writer.writeToMemory(buf.get());
     SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
     SkPaint other;
-    other.unflatten(reader);
+    SkPaintPriv::Unflatten(&other, reader);
     ASSERT(reader.offset() == writer.bytesWritten());
 
     // No matter the encoding, these must always hold.

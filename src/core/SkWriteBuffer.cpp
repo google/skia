@@ -9,7 +9,7 @@
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkDeduper.h"
-#include "SkPaint.h"
+#include "SkPaintPriv.h"
 #include "SkPixelRef.h"
 #include "SkPtrRecorder.h"
 #include "SkStream.h"
@@ -187,7 +187,7 @@ void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
 }
 
 void SkBinaryWriteBuffer::writePaint(const SkPaint& paint) {
-    paint.flatten(*this);
+    SkPaintPriv::Flatten(paint, *this);
 }
 
 SkFactorySet* SkBinaryWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {

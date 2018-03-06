@@ -15,6 +15,8 @@
 
 class SkBitmap;
 class SkImage;
+class SkReadBuffer;
+class SkWriteBuffer;
 
 class SkPaintPriv {
 public:
@@ -76,6 +78,25 @@ public:
     static sk_sp<SkTypeface> RefTypefaceOrDefault(const SkPaint& paint) {
         return paint.getTypeface() ? paint.refTypeface() : SkTypeface::MakeDefault();
     }
+
+    /** Serializes SkPaint into a buffer. A companion unflatten() call
+    can reconstitute the paint at a later time.
+
+    @param buffer  SkWriteBuffer receiving the flattened SkPaint data
+    */
+    static void Flatten(const SkPaint& paint, SkWriteBuffer& buffer);
+
+    /** Populates SkPaint, typically from a serialized stream, created by calling
+    flatten() at an earlier time.
+
+    SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
+    by the client.
+
+    @param buffer  serialized data describing SkPaint content
+    @return        false if the buffer contains invalid data
+    */
+    static bool Unflatten(SkPaint* paint, SkReadBuffer& buffer);
+
 };
 
 #endif

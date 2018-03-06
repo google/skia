@@ -393,51 +393,6 @@ The hash returned is platform and implementation specific.
 
 ##
 
-# ------------------------------------------------------------------------------
-
-#Method void flatten(SkWriteBuffer& buffer) const
-
-#In Management
-#Line # serializes into a buffer ##
-Serializes Paint into a buffer. A companion unflatten() call
-can reconstitute the paint at a later time.
-
-#Param buffer  Write_Buffer receiving the flattened Paint data ##
-
-# why is flatten() public? 
-#Bug 6172
-
-#NoExample
-##
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method bool unflatten(SkReadBuffer& buffer)
-
-#In Management
-#Line # populates from a serialized stream ##
-Populates Paint, typically from a serialized stream, created by calling
-flatten() at an earlier time.
-
-SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
-by the client.
-
-#Param buffer  serialized data describing Paint content ##
-
-#Return false if the buffer contains invalid data ##
-
-# why is unflatten() public? 
-#Bug 6172
-
-#NoExample 
-##
-
-#SeeAlso SkReadBuffer
-
-##
-
 #Subtopic Management ##
 
 # ------------------------------------------------------------------------------

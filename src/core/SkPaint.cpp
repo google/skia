@@ -1382,93 +1382,93 @@ static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
 /*  To save space/time, we analyze the paint, and write a truncated version of
     it if there are not tricky elements like shaders, etc.
  */
-void SkPaint::flatten(SkWriteBuffer& buffer) const {
+void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     // We force recording our typeface, even if its "default" since the receiver process
     // may have a different notion of default.
-    SkTypeface* tf = SkPaintPriv::GetTypefaceOrDefault(*this);
+    SkTypeface* tf = SkPaintPriv::GetTypefaceOrDefault(paint);
     SkASSERT(tf);
 
     uint8_t flatFlags = kHasTypeface_FlatFlag;
 
-    if (asint(this->getPathEffect()) |
-        asint(this->getShader()) |
-        asint(this->getMaskFilter()) |
-        asint(this->getColorFilter()) |
-        asint(this->getLooper()) |
-        asint(this->getImageFilter())) {
+    if (asint(paint.getPathEffect()) |
+        asint(paint.getShader()) |
+        asint(paint.getMaskFilter()) |
+        asint(paint.getColorFilter()) |
+        asint(paint.getLooper()) |
+        asint(paint.getImageFilter())) {
         flatFlags |= kHasEffects_FlatFlag;
     }
 
-    buffer.writeScalar(this->getTextSize());
-    buffer.writeScalar(this->getTextScaleX());
-    buffer.writeScalar(this->getTextSkewX());
-    buffer.writeScalar(this->getStrokeWidth());
-    buffer.writeScalar(this->getStrokeMiter());
-    buffer.writeColor(this->getColor());
+    buffer.writeScalar(paint.getTextSize());
+    buffer.writeScalar(paint.getTextScaleX());
+    buffer.writeScalar(paint.getTextSkewX());
+    buffer.writeScalar(paint.getStrokeWidth());
+    buffer.writeScalar(paint.getStrokeMiter());
+    buffer.writeColor(paint.getColor());
 
-    buffer.writeUInt(pack_paint_flags(this->getFlags(), this->getHinting(), this->getTextAlign(),
-                                      this->getFilterQuality(), flatFlags));
-    buffer.writeUInt(pack_4(this->getStrokeCap(), this->getStrokeJoin(),
-                            (this->getStyle() << 4) | this->getTextEncoding(),
-                            fBlendMode));
+    buffer.writeUInt(pack_paint_flags(paint.getFlags(), paint.getHinting(), paint.getTextAlign(),
+                                      paint.getFilterQuality(), flatFlags));
+    buffer.writeUInt(pack_4(paint.getStrokeCap(), paint.getStrokeJoin(),
+                            (paint.getStyle() << 4) | paint.getTextEncoding(),
+                            paint.fBlendMode));
 
     buffer.writeTypeface(tf);
 
     if (flatFlags & kHasEffects_FlatFlag) {
-        buffer.writeFlattenable(this->getPathEffect());
-        buffer.writeFlattenable(this->getShader());
-        buffer.writeFlattenable(this->getMaskFilter());
-        buffer.writeFlattenable(this->getColorFilter());
+        buffer.writeFlattenable(paint.getPathEffect());
+        buffer.writeFlattenable(paint.getShader());
+        buffer.writeFlattenable(paint.getMaskFilter());
+        buffer.writeFlattenable(paint.getColorFilter());
         buffer.write32(0);  // use to be SkRasterizer
-        buffer.writeFlattenable(this->getLooper());
-        buffer.writeFlattenable(this->getImageFilter());
+        buffer.writeFlattenable(paint.getLooper());
+        buffer.writeFlattenable(paint.getImageFilter());
     }
 }
 
-bool SkPaint::unflatten(SkReadBuffer& buffer) {
+bool SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer) {
     SkSafeRange safe;
 
-    this->setTextSize(buffer.readScalar());
-    this->setTextScaleX(buffer.readScalar());
-    this->setTextSkewX(buffer.readScalar());
-    this->setStrokeWidth(buffer.readScalar());
-    this->setStrokeMiter(buffer.readScalar());
-    this->setColor(buffer.readColor());
+    paint->setTextSize(buffer.readScalar());
+    paint->setTextScaleX(buffer.readScalar());
+    paint->setTextSkewX(buffer.readScalar());
+    paint->setStrokeWidth(buffer.readScalar());
+    paint->setStrokeMiter(buffer.readScalar());
+    paint->setColor(buffer.readColor());
 
-    unsigned flatFlags = unpack_paint_flags(this, buffer.readUInt());
+    unsigned flatFlags = unpack_paint_flags(paint, buffer.readUInt());
 
     uint32_t tmp = buffer.readUInt();
-    this->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, kLast_Cap));
-    this->setStrokeJoin(safe.checkLE((tmp >> 16) & 0xFF, kLast_Join));
-    this->setStyle(safe.checkLE((tmp >> 12) & 0xF, kStrokeAndFill_Style));
-    this->setTextEncoding(safe.checkLE((tmp >> 8) & 0xF, kGlyphID_TextEncoding));
-    this->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
+    paint->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, SkPaint::kLast_Cap));
+    paint->setStrokeJoin(safe.checkLE((tmp >> 16) & 0xFF, SkPaint::kLast_Join));
+    paint->setStyle(safe.checkLE((tmp >> 12) & 0xF, SkPaint::kStrokeAndFill_Style));
+    paint->setTextEncoding(safe.checkLE((tmp >> 8) & 0xF, SkPaint::kGlyphID_TextEncoding));
+    paint->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
 
     if (flatFlags & kHasTypeface_FlatFlag) {
-        this->setTypeface(buffer.readTypeface());
+        paint->setTypeface(buffer.readTypeface());
     } else {
-        this->setTypeface(nullptr);
+        paint->setTypeface(nullptr);
     }
 
     if (flatFlags & kHasEffects_FlatFlag) {
-        this->setPathEffect(buffer.readPathEffect());
-        this->setShader(buffer.readShader());
-        this->setMaskFilter(buffer.readMaskFilter());
-        this->setColorFilter(buffer.readColorFilter());
+        paint->setPathEffect(buffer.readPathEffect());
+        paint->setShader(buffer.readShader());
+        paint->setMaskFilter(buffer.readMaskFilter());
+        paint->setColorFilter(buffer.readColorFilter());
         (void)buffer.read32();  // use to be SkRasterizer
-        this->setLooper(buffer.readDrawLooper());
-        this->setImageFilter(buffer.readImageFilter());
+        paint->setLooper(buffer.readDrawLooper());
+        paint->setImageFilter(buffer.readImageFilter());
     } else {
-        this->setPathEffect(nullptr);
-        this->setShader(nullptr);
-        this->setMaskFilter(nullptr);
-        this->setColorFilter(nullptr);
-        this->setLooper(nullptr);
-        this->setImageFilter(nullptr);
+        paint->setPathEffect(nullptr);
+        paint->setShader(nullptr);
+        paint->setMaskFilter(nullptr);
+        paint->setColorFilter(nullptr);
+        paint->setLooper(nullptr);
+        paint->setImageFilter(nullptr);
     }
 
     if (!buffer.validate(safe)) {
-        this->reset();
+        paint->reset();
         return false;
     }
     return true;
