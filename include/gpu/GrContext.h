@@ -399,6 +399,9 @@ public:
                                   const SkSurfaceProps& surfaceProps,
                                   bool isMipMapped);
 
+    /** Access the context capabilities */
+    const GrCaps* caps() const { return fCaps.get(); }
+
 private:
     // DDL TODO: need to add unit tests for backend & maybe options
     GrContextThreadSafeProxy(sk_sp<const GrCaps> caps,
