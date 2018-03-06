@@ -313,6 +313,33 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) 
         SkSurfaceCharacterization c;
         REPORTER_ASSERT(reporter, !rasterSurface->characterize(&c));
     }
+
+    // Exercise the createResized method
+    {
+        SurfaceParameters params;
+
+        sk_sp<SkSurface> s = params.make(context);
+        if (!s) {
+            return;
+        }
+
+        SkSurfaceCharacterization char0;
+        SkAssertResult(s->characterize(&char0));
+
+        // Too small
+        SkSurfaceCharacterization char1 = char0.createResized(-1, -1);
+        REPORTER_ASSERT(reporter, !char1.isValid());
+
+        // Too large
+        SkSurfaceCharacterization char2 = char0.createResized(1000000, 32);
+        REPORTER_ASSERT(reporter, !char2.isValid());
+
+        // Just right
+        SkSurfaceCharacterization char3 = char0.createResized(32, 32);
+        REPORTER_ASSERT(reporter, char3.isValid());
+        REPORTER_ASSERT(reporter, 32 == char3.width());
+        REPORTER_ASSERT(reporter, 32 == char3.height());
+    }
 }
 
 static constexpr int kSize = 8;
