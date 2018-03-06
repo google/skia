@@ -14,7 +14,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrProxyProvider.h"
-#include "../effects/SkBlurMask.h"
+#include "SkBlurMask.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrRectBlurEffect : public GrFragmentProcessor {
