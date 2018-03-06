@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "739efbd4_26f78c4c",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-06T18:05:01Z",
+      "side": 1,
+      "message": "These depend on SkCodec, so they should probably go in the new section.",
+      "range": {
+        "startLine": 810,
+        "startChar": 0,
+        "endLine": 812,
+        "endChar": 44
+      },
+      "revId": "7c21b70eaa87ef0863b8638f084d50bd7ac6ba9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "451ae4b9_9b75ce8f",
         "filename": "BUILD.gn",
         "patchSetId": 1
