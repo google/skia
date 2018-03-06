@@ -133,16 +133,14 @@ private:
 
 const SkScalar SkBlurMaskFilterImpl::kMAX_BLUR_SIGMA = SkIntToScalar(128);
 
-sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma,
-                                           const SkRect& occluder, uint32_t flags) {
-    SkASSERT(!(flags & ~SkBlurMaskFilter::kAll_BlurFlag));
+sk_sp<SkMaskFilter> SkMaskFilter::MakeBlur(SkBlurStyle style, SkScalar sigma,
+                                           const SkRect& occluder, bool applyCTMToSigma) {
     SkASSERT(style <= kLastEnum_SkBlurStyle);
 
     if (!SkScalarIsFinite(sigma) || sigma <= 0) {
         return nullptr;
     }
-
-    return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, occluder, flags));
+    return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, occluder, applyCTMToSigma));
 }
 
 // linearly interpolate between y1 & y3 to match x2's position between x1 & x3
@@ -1044,3 +1042,12 @@ void SkBlurMaskFilterImpl::toString(SkString* str) const {
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkBlurMaskFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurMaskFilterImpl)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+
+
+// DEPRECATED -- delete this when the associated header is deleted
+sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma,
+                                           const SkRect& occluder, uint32_t flags) {
+    SkASSERT(!(flags & ~SkBlurMaskFilter::kAll_BlurFlag));
+    bool applyCTMToSigma = !SkToBool(flags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
+    return SkMaskFilter::MakeBlur(style, sigma, occluder, applyCTMToSigma);
+}

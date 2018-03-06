@@ -16,6 +16,7 @@
 
 class SkRRect;
 
+// Deprecated: call SkMaskFilter::MakeBlur
 class SK_API SkBlurMaskFilter {
 public:
     /**
@@ -63,8 +64,6 @@ public:
     static sk_sp<SkMaskFilter> MakeEmboss(SkScalar blurSigma, const SkScalar direction[3],
                                           SkScalar ambient, SkScalar specular);
 #endif
-
-    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 private:
     SkBlurMaskFilter(); // can't be instantiated

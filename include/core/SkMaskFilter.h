@@ -8,9 +8,12 @@
 #ifndef SkMaskFilter_DEFINED
 #define SkMaskFilter_DEFINED
 
+#include "SkBlurTypes.h"
 #include "SkCoverageMode.h"
 #include "SkFlattenable.h"
+#include "SkScalar.h"
 
+struct SkRect;
 class SkMatrix;
 class SkString;
 
@@ -32,6 +35,11 @@ public:
      */
     static sk_sp<SkMaskFilter> MakeCombine(sk_sp<SkMaskFilter> filterA, sk_sp<SkMaskFilter> filterB,
                                            SkCoverageMode mode);
+
+    static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma,
+                                    const SkRect& occluder, bool applyCTMToSigma = true);
+    static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma,
+                                        bool applyCTMToSigma = true);
 
     sk_sp<SkMaskFilter> makeWithLocalMatrix(const SkMatrix&) const;
 
