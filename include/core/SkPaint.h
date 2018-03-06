@@ -20,8 +20,6 @@ class SkColorFilter;
 class SkData;
 class SkDescriptor;
 class SkDrawLooper;
-class SkReadBuffer;
-class SkWriteBuffer;
 class SkGlyph;
 struct SkRect;
 class SkGlyphCache;
@@ -160,24 +158,6 @@ public:
         @return  a shallow hash
     */
     uint32_t getHash() const;
-
-    /** Serializes SkPaint into a buffer. A companion unflatten() call
-        can reconstitute the paint at a later time.
-
-        @param buffer  SkWriteBuffer receiving the flattened SkPaint data
-    */
-    void flatten(SkWriteBuffer& buffer) const;
-
-    /** Populates SkPaint, typically from a serialized stream, created by calling
-        flatten() at an earlier time.
-
-        SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
-        by the client.
-
-        @param buffer  serialized data describing SkPaint content
-        @return        false if the buffer contains invalid data
-    */
-    bool unflatten(SkReadBuffer& buffer);
 
     /** Sets all SkPaint contents to their initial values. This is equivalent to replacing
         SkPaint with the result of SkPaint().
@@ -1725,6 +1705,7 @@ private:
     friend class SkCanonicalizePaint;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkPaintPriv;
     friend class SkPDFDevice;
     friend class SkScalerContext;  // for computeLuminanceColor()
     friend class SkTextBaseIter;
