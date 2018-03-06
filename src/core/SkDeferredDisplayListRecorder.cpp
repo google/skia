@@ -14,6 +14,7 @@
 
 #include "SkGpuDevice.h"
 #include "SkGr.h"
+#include "SkImage_Gpu.h"
 #include "SkSurface_Gpu.h"
 #endif
 
@@ -71,7 +72,6 @@ bool SkDeferredDisplayListRecorder::init() {
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = fCharacterization.origin();
     desc.fWidth = fCharacterization.width();
     desc.fHeight = fCharacterization.height();
     desc.fConfig = fCharacterization.config();
@@ -95,6 +95,7 @@ bool SkDeferredDisplayListRecorder::init() {
                 return sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->priv().peekSurface());
             },
             desc,
+            fCharacterization.origin(),
             GrRenderTargetFlags::kNone,
             GrProxyProvider::Textureable(fCharacterization.isTextureable()),
             GrMipMapped::kNo,
@@ -150,3 +151,32 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
 
 }
 
+sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
+        const GrBackendFormat& backendFormat,
+        int width,
+        int height,
+        GrMipMapped mipMapped,
+        GrSurfaceOrigin origin,
+        SkColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        TextureContext textureContext) {
+#if !defined(SK_RASTER_RECORDER_IMPLEMENTATION) && defined(SK_SUPPORT_GPU)
+    return SkImage_Gpu::MakePromiseTexture(fContext.get(),
+                                           backendFormat,
+                                           width,
+                                           height,
+                                           mipMapped,
+                                           origin,
+                                           colorType,
+                                           alphaType,
+                                           colorSpace,
+                                           textureFulfillProc,
+                                           textureReleaseProc,
+                                           textureContext);
+#else
+    return nullptr;
+#endif
+}
