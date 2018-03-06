@@ -54,6 +54,21 @@ public:
     SkSurfaceCharacterization(const SkSurfaceCharacterization&) = default;
     SkSurfaceCharacterization& operator=(const SkSurfaceCharacterization& other) = default;
 
+    SkSurfaceCharacterization createResized(int width, int height) const {
+        const GrCaps* caps = fContextInfo->caps();
+
+        if (width <= 0 || height <= 0 ||
+            width > caps->maxRenderTargetSize() || height > caps->maxRenderTargetSize()) {
+            return SkSurfaceCharacterization();
+        }
+
+        return SkSurfaceCharacterization(fContextInfo,
+                                         fCacheMaxResourceBytes,
+                                         fOrigin, fWidth, fHeight, fConfig, fFSAAType, fStencilCnt,
+                                         fIsTextureable, fIsMipMapped, fColorSpace,
+                                         fSurfaceProps);
+    }
+
     GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
     sk_sp<GrContextThreadSafeProxy> refContextInfo() const { return fContextInfo; }
     size_t cacheMaxResourceBytes() const { return fCacheMaxResourceBytes; }
