@@ -54,6 +54,24 @@ public:
     SkSurfaceCharacterization(const SkSurfaceCharacterization&) = default;
     SkSurfaceCharacterization& operator=(const SkSurfaceCharacterization& other) = default;
 
+    SkSurfaceCharacterization createResized(int width, int height) const {
+        const GrCaps* caps = fContextInfo->caps();
+        if (!caps) {
+            return SkSurfaceCharacterization();
+        }
+
+        if (width <= 0 || height <= 0 ||
+            width > caps->maxRenderTargetSize() || height > caps->maxRenderTargetSize()) {
+            return SkSurfaceCharacterization();
+        }
+
+        return SkSurfaceCharacterization(fContextInfo,
+                                         fCacheMaxResourceBytes,
+                                         fOrigin, width, height, fConfig, fFSAAType, fStencilCnt,
+                                         fIsTextureable, fIsMipMapped, fColorSpace,
+                                         fSurfaceProps);
+    }
+
     GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
     sk_sp<GrContextThreadSafeProxy> refContextInfo() const { return fContextInfo; }
     size_t cacheMaxResourceBytes() const { return fCacheMaxResourceBytes; }
@@ -144,25 +162,27 @@ private:
 
 class SkSurfaceCharacterization {
 public:
-    SkSurfaceCharacterization()
-            : fWidth(0)
-            , fHeight(0)
-            , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
+    SkSurfaceCharacterization() : fSurfaceProps(0, kUnknown_SkPixelGeometry) { }
+
+    SkSurfaceCharacterization createResized(int width, int height) const {
+        return *this;
     }
+
+    size_t cacheMaxResourceBytes() const { return 0; }
 
     bool isValid() const { return false; }
 
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
-    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
-    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
+    int width() const { return 0; }
+    int height() const { return 0; }
+    int stencilCount() const { return 0; }
+    bool isTextureable() const { return false; }
+    bool isMipMapped() const { return false; }
+    SkColorSpace* colorSpace() const { return nullptr; }
+    sk_sp<SkColorSpace> refColorSpace() const { return nullptr; }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
 
 private:
-    int                             fWidth;
-    int                             fHeight;
-    sk_sp<SkColorSpace>             fColorSpace;
-    SkSurfaceProps                  fSurfaceProps;
+    SkSurfaceProps fSurfaceProps;
 };
 
 #endif
