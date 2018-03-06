@@ -728,6 +728,30 @@
     },
     {
       "key": {
+        "uuid": "97dd9820_84d46b8d",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-03-06T18:31:06Z",
+      "side": 1,
+      "message": "Oh, I missed this.  Yeah, we need to do this in the recipe.  Additionally, scripts should not be running git commands (or even assuming that git exists) or doing anything that could mutate the checkout, since the bot code has already gotten us into the correct state.",
+      "parentUuid": "94747dff_479db2fb",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 26
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "06d2455f_c2cffd2e",
         "filename": "tools/skqp/make_universal_apk",
         "patchSetId": 11
