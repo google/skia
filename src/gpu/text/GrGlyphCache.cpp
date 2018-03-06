@@ -292,7 +292,7 @@ void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     }
 }
 
-bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
+GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas1(GrResourceProvider* resourceProvider,
                                    GrDeferredUploadTarget* target,
                                    GrGlyphCache* glyphCache,
                                    GrAtlasManager* fullAtlasManager,
@@ -325,7 +325,7 @@ bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
     if (isSDFGlyph) {
         if (!get_packed_glyph_df_image(cache, skGlyph, width, height,
                                        storage.get())) {
-            return false;
+            return GrDrawOpAtlas::ErrorCode::kTryAgain;
         }
     } else {
         void* dataPtr = storage.get();
@@ -336,15 +336,16 @@ bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
         if (!get_packed_glyph_image(cache, skGlyph, glyph->width(), glyph->height(),
                                     rowBytes, expectedMaskFormat,
                                     dataPtr)) {
-            return false;
+            return GrDrawOpAtlas::ErrorCode::kTryAgain;
         }
     }
 
-    bool success = fullAtlasManager->addToAtlas(resourceProvider, glyphCache, this,
+    GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(
+                                                resourceProvider, glyphCache, this,
                                                 &glyph->fID, target, expectedMaskFormat,
                                                 width, height,
                                                 storage.get(), &glyph->fAtlasLocation);
-    if (success) {
+    if (GrDrawOpAtlas::ErrorCode::kSucceeded == result) {
         if (addPad) {
             glyph->fAtlasLocation.fX += 1;
             glyph->fAtlasLocation.fY += 1;
@@ -352,5 +353,5 @@ bool GrTextStrike::addGlyphToAtlas(GrResourceProvider* resourceProvider,
         SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != glyph->fID);
         fAtlasedGlyphs++;
     }
-    return success;
+    return result;
 }
