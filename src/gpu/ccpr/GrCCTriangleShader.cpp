@@ -22,7 +22,8 @@ void GrCCTriangleShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
     code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), inputCoverage, wind);
 }
 
-void GrCCTriangleShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
+void GrCCTriangleShader::onEmitFragmentCode(const GrCCCoverageProcessor&,
+                                            GrGLSLFPFragmentBuilder* f,
                                             const char* outputCoverage) const {
     f->codeAppendf("%s = %s;", outputCoverage, fCoverageTimesWind.fsIn());
 }
@@ -106,7 +107,8 @@ void GrCCTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandl
     code->appendf("%s = %s * .5;", OutName(fWindTimesHalf), wind);
 }
 
-void GrCCTriangleCornerShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
+void GrCCTriangleCornerShader::onEmitFragmentCode(const GrCCCoverageProcessor&,
+                                                  GrGLSLFPFragmentBuilder* f,
                                                   const char* outputCoverage) const {
     // By the time we reach this shader, the pixel is in the following state:
     //
