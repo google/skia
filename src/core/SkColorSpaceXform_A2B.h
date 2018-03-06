@@ -9,7 +9,7 @@
 #define SkColorSpaceXform_A2B_DEFINED
 
 #include "SkArenaAlloc.h"
-#include "SkColorSpaceXform_Base.h"
+#include "SkColorSpaceXform.h"
 #include "SkRasterPipeline.h"
 
 class SkColorSpace_A2B;
@@ -20,12 +20,12 @@ struct SkTableTransferFn {
     int          fSize;
 };
 
-class SkColorSpaceXform_A2B : public SkColorSpaceXform_Base {
+class SkColorSpaceXform_A2B : public SkColorSpaceXform {
 public:
     SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace, SkColorSpace_XYZ* dstSpace);
 
-    bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
-                 int count, SkAlphaType alphaType) const override;
+    bool apply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
+               int count, SkAlphaType alphaType) const override;
 
 private:
     void addTransferFn(const SkColorSpaceTransferFn& fn, int channelIndex);

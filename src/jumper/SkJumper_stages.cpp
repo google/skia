@@ -1504,14 +1504,11 @@ STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTable
     a = from_byte(gather(tables->a, to_unorm(a, 255)));
 }
 
-STAGE(byte_tables_rgb, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTablesRGBCtx
-    struct Tables { const uint8_t *r, *g, *b; int n; };
-    auto tables = (const Tables*)ctx;
-
-    int scale = tables->n - 1;
-    r = from_byte(gather(tables->r, to_unorm(r, scale)));
-    g = from_byte(gather(tables->g, to_unorm(g, scale)));
-    b = from_byte(gather(tables->b, to_unorm(b, scale)));
+STAGE(byte_tables_rgb, const SkJumper_ByteTablesRGBCtx* ctx) {
+    int scale = ctx->n - 1;
+    r = from_byte(gather(ctx->r, to_unorm(r, scale)));
+    g = from_byte(gather(ctx->g, to_unorm(g, scale)));
+    b = from_byte(gather(ctx->b, to_unorm(b, scale)));
 }
 
 SI F table(F v, const SkJumper_TableCtx* ctx) {
