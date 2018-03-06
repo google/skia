@@ -956,7 +956,6 @@ static void fuzz_paint_text(Fuzz* fuzz, SkPaint* paint) {
     paint->setSubpixelText(      make_fuzz_t<bool>(fuzz));
     paint->setLCDRenderText(     make_fuzz_t<bool>(fuzz));
     paint->setEmbeddedBitmapText(make_fuzz_t<bool>(fuzz));
-    paint->setAutohinted(        make_fuzz_t<bool>(fuzz));
     paint->setVerticalText(      make_fuzz_t<bool>(fuzz));
     paint->setFakeBoldText(      make_fuzz_t<bool>(fuzz));
     paint->setDevKernText(       make_fuzz_t<bool>(fuzz));

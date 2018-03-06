@@ -14,10 +14,6 @@ static bool is_use_nonlinear_metrics(const SkPaint& paint) {
     return !paint.isSubpixelText() && !paint.isLinearText();
 }
 
-static bool is_enable_auto_hints(const SkPaint& paint) {
-    return paint.isAutohinted();
-}
-
 static bool is_enable_bytecode_hints(const SkPaint& paint) {
     return paint.getHinting() >= SkPaint::kFull_Hinting;
 }
@@ -37,7 +33,6 @@ static void test_cachedfont(skiatest::Reporter* reporter, const SkPaint& paint) 
     REPORTER_ASSERT(reporter, font->isEmbolden() == paint.isFakeBoldText());
 
     REPORTER_ASSERT(reporter, font->isUseNonLinearMetrics() == is_use_nonlinear_metrics(paint));
-    REPORTER_ASSERT(reporter, font->isEnableAutoHints() == is_enable_auto_hints(paint));
     REPORTER_ASSERT(reporter, font->isEnableByteCodeHints() == is_enable_bytecode_hints(paint));
 }
 

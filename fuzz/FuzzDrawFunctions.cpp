@@ -133,8 +133,6 @@ static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> font) {
     // set text related attributes
     bool b;
     fuzz->next(&b);
-    p.setAutohinted(b);
-    fuzz->next(&b);
     p.setDevKernText(b);
     fuzz->next(&b);
     p.setEmbeddedBitmapText(b);

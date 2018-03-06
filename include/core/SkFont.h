@@ -37,7 +37,6 @@ enum SkTextEncoding {
      kDevKernText_Flag     = 0x100,  //!< mask to enable device kerning text
      kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
      kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
-     kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
      kVerticalText_Flag    = 0x1000,
      kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
  };
@@ -50,7 +49,6 @@ enum SkTextEncoding {
      kDevKernText_Flag     = 0x100,  //!< mask to enable device kerning text
      kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
      kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
-     kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
      kVerticalText_Flag    = 0x1000,
      kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
 
