@@ -119,8 +119,7 @@ static void draw_klm_line(int w, int h, SkCanvas* canvas, const SkScalar line[3]
 }
 
 void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
-    SkAutoCanvasRestore acr(canvas, true);
-    canvas->setMatrix(SkMatrix::I());
+    canvas->clear(SK_ColorBLACK);
 
     SkPath outline;
     outline.moveTo(fPoints[0]);
@@ -135,7 +134,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     }
 
     SkPaint outlinePaint;
-    outlinePaint.setColor(0x30000000);
+    outlinePaint.setColor(0x80ffffff);
     outlinePaint.setStyle(SkPaint::kStroke_Style);
     outlinePaint.setStrokeWidth(0);
     outlinePaint.setAntiAlias(true);
@@ -184,7 +183,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
     SkPaint captionPaint;
     captionPaint.setTextSize(20);
-    captionPaint.setColor(SK_ColorBLACK);
+    captionPaint.setColor(SK_ColorWHITE);
     captionPaint.setAntiAlias(true);
     canvas->drawText(caption.c_str(), caption.size(), 10, 30, captionPaint);
 }
@@ -275,11 +274,11 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
     }
 
     GrPipeline pipeline(state->drawOpArgs().fProxy, GrPipeline::ScissorState::kDisabled,
-                        SkBlendMode::kSrcOver);
+                        SkBlendMode::kPlus);
 
     if (glGpu) {
         glGpu->handleDirtyContext();
-        GR_GL_CALL(glGpu->glInterface(), PolygonMode(GR_GL_FRONT_AND_BACK, GR_GL_LINE));
+        // GR_GL_CALL(glGpu->glInterface(), PolygonMode(GR_GL_FRONT_AND_BACK, GR_GL_LINE));
         GR_GL_CALL(glGpu->glInterface(), Enable(GR_GL_LINE_SMOOTH));
     }
 
@@ -342,7 +341,7 @@ bool CCPRGeometryView::onQuery(SkEvent* evt) {
     }
     SkUnichar unichar;
     if (SampleCode::CharQ(*evt, &unichar)) {
-        if (unichar >= '1' && unichar <= '6') {
+        if (unichar >= '1' && unichar <= '5') {
             fRenderPass = RenderPass(unichar - '1');
             this->updateAndInval();
             return true;

@@ -54,13 +54,11 @@ public:
         void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
     };
 
-    // All primitive shapes (triangles and closed, convex bezier curves) require two
-    // render passes: One to draw a rough outline of the shape, and a second pass to touch up the
-    // corners. Here we enumerate every render pass needed in order to produce a complete
-    // coverage count mask. This is an exhaustive list of all ccpr coverage shaders.
+    // Curves require two render passes: One to draw a rough outline, and a second pass
+    // to touch up the corners. Here we enumerate every render pass needed in order to produce a
+    // complete coverage count mask. This is an exhaustive list of all ccpr coverage shaders.
     enum class RenderPass {
         kTriangles,
-        kTriangleCorners,
         kQuadratics,
         kQuadraticCorners,
         kCubics,
@@ -168,6 +166,13 @@ public:
                                                   const char* rightPt, const char* bloatDir,
                                                   const char* outputCoverage);
 
+        // Calculates an edge's coverage at two conservative raster vertices.
+        // (See CalcEdgeCoverageAtBloatVertex).
+        static void CalcEdgeCoveragesAtBloatVertices(GrGLSLVertexGeoBuilder*, const char* leftPt,
+                                                     const char* rightPt, const char* bloatDir1,
+                                                     const char* bloatDir2,
+                                                     const char* outputCoverages);
+
         virtual ~Shader() {}
 
     protected:
@@ -271,7 +276,6 @@ inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint& p0, con
 inline bool GrCCCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
     switch (pass) {
         case RenderPass::kTriangles:
-        case RenderPass::kTriangleCorners:
         case RenderPass::kQuadratics:
         case RenderPass::kQuadraticCorners:
             return false;
@@ -286,7 +290,6 @@ inline bool GrCCCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
 inline const char* GrCCCoverageProcessor::RenderPassName(RenderPass pass) {
     switch (pass) {
         case RenderPass::kTriangles: return "kTriangles";
-        case RenderPass::kTriangleCorners: return "kTriangleCorners";
         case RenderPass::kQuadratics: return "kQuadratics";
         case RenderPass::kQuadraticCorners: return "kQuadraticCorners";
         case RenderPass::kCubics: return "kCubics";
