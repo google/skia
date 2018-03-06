@@ -110,9 +110,10 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
         sampleCnt = 1;
     }
 
-    sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContextWithFallback(
-        SkBackingFit::kApprox, maskRect.width(), maskRect.height(), kAlpha_8_GrPixelConfig, nullptr,
-        sampleCnt));
+    sk_sp<GrRenderTargetContext> rtContext(
+        context->contextPriv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, maskRect.width(), maskRect.height(), kAlpha_8_GrPixelConfig,
+            nullptr, sampleCnt));
     if (!rtContext) {
         return nullptr;
     }

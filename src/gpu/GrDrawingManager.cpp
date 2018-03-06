@@ -386,9 +386,10 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
 
     auto resourceProvider = fContext->contextPriv().resourceProvider();
 
-    sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(rtp,
-                                                                resourceProvider,
-                                                                fContext->getAuditTrail()));
+    sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
+                                                        rtp,
+                                                        resourceProvider,
+                                                        fContext->contextPriv().getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
     if (managedOpList) {
@@ -410,7 +411,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
 
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->contextPriv().resourceProvider(),
                                                       textureProxy,
-                                                      fContext->getAuditTrail()));
+                                                      fContext->contextPriv().getAuditTrail()));
 
     SkASSERT(textureProxy->getLastOpList() == opList.get());
 
@@ -482,11 +483,12 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
-    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this, std::move(rtp),
-                                                                  std::move(colorSpace),
-                                                                  surfaceProps,
-                                                                  fContext->getAuditTrail(),
-                                                                  fSingleOwner, managedOpList));
+    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(
+                                                        fContext, this, std::move(rtp),
+                                                        std::move(colorSpace),
+                                                        surfaceProps,
+                                                        fContext->contextPriv().getAuditTrail(),
+                                                        fSingleOwner, managedOpList));
 }
 
 sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,
@@ -509,6 +511,6 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     return sk_sp<GrTextureContext>(new GrTextureContext(fContext, this, std::move(textureProxy),
                                                         std::move(colorSpace),
-                                                        fContext->getAuditTrail(),
+                                                        fContext->contextPriv().getAuditTrail(),
                                                         fSingleOwner));
 }

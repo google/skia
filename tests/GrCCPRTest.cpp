@@ -59,7 +59,8 @@ public:
     CCPRPathDrawer(GrContext* ctx, skiatest::Reporter* reporter)
             : fCtx(ctx)
             , fCCPR(fCtx->contextPriv().drawingManager()->getCoverageCountingPathRenderer())
-            , fRTC(fCtx->makeDeferredRenderTargetContext(SkBackingFit::kExact, kCanvasSize,
+            , fRTC(fCtx->contextPriv().makeDeferredRenderTargetContext(
+                                                         SkBackingFit::kExact, kCanvasSize,
                                                          kCanvasSize, kRGBA_8888_GrPixelConfig,
                                                          nullptr)) {
         if (!fCCPR) {

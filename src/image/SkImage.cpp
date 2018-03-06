@@ -164,7 +164,7 @@ GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
 }
 
 bool SkImage::isValid(GrContext* context) const {
-    if (context && context->abandoned()) {
+    if (context && context->contextPriv().abandoned()) {
         return false;
     }
     return as_IB(this)->onIsValid(context);

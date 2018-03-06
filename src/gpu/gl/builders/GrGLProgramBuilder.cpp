@@ -46,9 +46,10 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
     // uniforms, varyings, textures, etc
     GrGLProgramBuilder builder(gpu, pipeline, primProc, desc);
 
-    if (gpu->getContext()->getPersistentCache() && gpu->glCaps().programBinarySupport()) {
+    auto persistentCache = gpu->getContext()->contextPriv().getPersistentCache();
+    if (persistentCache && gpu->glCaps().programBinarySupport()) {
         sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->keyLength());
-        builder.fCached = gpu->getContext()->getPersistentCache()->load(*key);
+        builder.fCached = persistentCache->load(*key);
         // the eventual end goal is to completely skip emitAndInstallProcs on a cache hit, but it's
         // doing necessary setup in addition to generating the SkSL code. Currently we are only able
         // to skip the SkSL->GLSL step on a cache hit.
@@ -141,7 +142,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     }
 
     if (this->gpu()->glCaps().programBinarySupport() &&
-        this->gpu()->getContext()->getPersistentCache()) {
+        this->gpu()->getContext()->contextPriv().getPersistentCache()) {
         GL_CALL(ProgramParameteri(programID, GR_GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GR_GL_TRUE));
     }
 
@@ -267,7 +268,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     this->resolveProgramResourceLocations(programID);
 
     this->cleanupShaders(shadersToDelete);
-    if (!cached && this->gpu()->getContext()->getPersistentCache() &&
+    if (!cached && this->gpu()->getContext()->contextPriv().getPersistentCache() &&
         fGpu->glCaps().programBinarySupport()) {
         GrGLsizei length = 0;
         GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
@@ -285,8 +286,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             memcpy(data.get() + offset, &binaryFormat, sizeof(binaryFormat));
             offset += sizeof(binaryFormat);
             memcpy(data.get() + offset, binary.get(), length);
-            this->gpu()->getContext()->getPersistentCache()->store(*key,
-                                                  *SkData::MakeWithoutCopy(data.get(), dataLength));
+            this->gpu()->getContext()->contextPriv().getPersistentCache()->store(
+                                            *key, *SkData::MakeWithoutCopy(data.get(), dataLength));
         }
     }
     return this->createProgram(programID);

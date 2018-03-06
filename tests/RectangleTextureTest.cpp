@@ -22,8 +22,8 @@
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* context,
                                    sk_sp<GrTextureProxy> rectProxy, uint32_t expectedPixelValues[]) {
-    sk_sp<GrRenderTargetContext> rtContext(
-            context->makeDeferredRenderTargetContext(SkBackingFit::kExact, rectProxy->width(),
+    sk_sp<GrRenderTargetContext> rtContext(context->contextPriv().makeDeferredRenderTargetContext(
+                                                     SkBackingFit::kExact, rectProxy->width(),
                                                      rectProxy->height(), rectProxy->config(),
                                                      nullptr));
     for (auto filter : {GrSamplerState::Filter::kNearest,

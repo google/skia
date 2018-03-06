@@ -345,7 +345,8 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        context->contextPriv().makeDeferredRenderTargetContext(
             SkBackingFit::kApprox, bounds.width(), bounds.height(),
             GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
             sk_ref_sp(outputProperties.colorSpace())));

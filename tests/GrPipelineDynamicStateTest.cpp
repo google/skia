@@ -148,8 +148,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
     GrContext* const context = ctxInfo.grContext();
     GrResourceProvider* rp = context->contextPriv().resourceProvider();
 
-    sk_sp<GrRenderTargetContext> rtc(
-        context->makeDeferredRenderTargetContext(SkBackingFit::kExact, kScreenSize, kScreenSize,
+    sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
+                                                 SkBackingFit::kExact, kScreenSize, kScreenSize,
                                                  kRGBA_8888_GrPixelConfig, nullptr));
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");

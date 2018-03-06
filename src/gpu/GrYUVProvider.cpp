@@ -116,7 +116,8 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
         colorSpace = SkColorSpace::MakeSRGB();
     }
     // TODO: investigate preallocating mip maps here
-    sk_sp<GrRenderTargetContext> renderTargetContext(ctx->makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        ctx->contextPriv().makeDeferredRenderTargetContext(
             SkBackingFit::kExact, desc.fWidth, desc.fHeight, desc.fConfig, std::move(colorSpace),
             desc.fSampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
     if (!renderTargetContext) {

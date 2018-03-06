@@ -306,7 +306,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
 
         sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+            context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                      bounds.width(), bounds.height(),
                                                      GrRenderableConfigForColorSpace(colorSpace),
                                                      sk_ref_sp(colorSpace)));

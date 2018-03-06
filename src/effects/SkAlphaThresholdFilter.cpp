@@ -106,8 +106,10 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* c
                                                                     const SkMatrix& inMatrix,
                                                                     const SkIRect& bounds) const {
 
-    sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContextWithFallback(
-        SkBackingFit::kApprox, bounds.width(), bounds.height(), kAlpha_8_GrPixelConfig, nullptr));
+    sk_sp<GrRenderTargetContext> rtContext(
+        context->contextPriv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, bounds.width(), bounds.height(), kAlpha_8_GrPixelConfig,
+            nullptr));
     if (!rtContext) {
         return nullptr;
     }

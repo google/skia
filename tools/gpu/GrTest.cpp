@@ -51,7 +51,7 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
     configs[kARGB_GrMaskFormat].fPlotWidth = dim;
     configs[kARGB_GrMaskFormat].fPlotHeight = dim;
 
-    context->setTextContextAtlasSizes_ForTesting(configs);
+    context->contextPriv().setTextContextAtlasSizes_ForTesting(configs);
 }
 
 GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
@@ -89,12 +89,12 @@ bool GrRenderTargetContext::isWrapped_ForTesting() const {
     return fRenderTargetProxy->isWrapped_ForTesting();
 }
 
-void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
-    fTextBlobCache->setBudget(bytes);
+void GrContextPriv::setTextBlobCacheLimit_ForTesting(size_t bytes) {
+    fContext->fTextBlobCache->setBudget(bytes);
 }
 
-void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
-    GrAtlasManager* atlasManager = this->contextPriv().getFullAtlasManager();
+void GrContextPriv::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
+    GrAtlasManager* atlasManager = this->getFullAtlasManager();
     if (atlasManager) {
         atlasManager->setAtlasSizes_ForTesting(configs);
     }
@@ -102,56 +102,56 @@ void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* c
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrContext::purgeAllUnlockedResources() {
-    fResourceCache->purgeAllUnlocked();
+void GrContextPriv::purgeAllUnlockedResources_ForTesting() {
+    fContext->fResourceCache->purgeAllUnlocked();
 }
 
-void GrContext::resetGpuStats() const {
+void GrContextPriv::resetGpuStats() const {
 #if GR_GPU_STATS
-    fGpu->stats()->reset();
+    fContext->fGpu->stats()->reset();
 #endif
 }
 
-void GrContext::dumpCacheStats(SkString* out) const {
+void GrContextPriv::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
-    fResourceCache->dumpStats(out);
+    fContext->fResourceCache->dumpStats(out);
 #endif
 }
 
-void GrContext::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                            SkTArray<double>* values) const {
+void GrContextPriv::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                                SkTArray<double>* values) const {
 #if GR_CACHE_STATS
-    fResourceCache->dumpStatsKeyValuePairs(keys, values);
+    fContext->fResourceCache->dumpStatsKeyValuePairs(keys, values);
 #endif
 }
 
-void GrContext::printCacheStats() const {
+void GrContextPriv::printCacheStats() const {
     SkString out;
     this->dumpCacheStats(&out);
     SkDebugf("%s", out.c_str());
 }
 
-void GrContext::dumpGpuStats(SkString* out) const {
+void GrContextPriv::dumpGpuStats(SkString* out) const {
 #if GR_GPU_STATS
-    return fGpu->stats()->dump(out);
+    return fContext->fGpu->stats()->dump(out);
 #endif
 }
 
-void GrContext::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                          SkTArray<double>* values) const {
+void GrContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                              SkTArray<double>* values) const {
 #if GR_GPU_STATS
-    return fGpu->stats()->dumpKeyValuePairs(keys, values);
+    return fContext->fGpu->stats()->dumpKeyValuePairs(keys, values);
 #endif
 }
 
-void GrContext::printGpuStats() const {
+void GrContextPriv::printGpuStats() const {
     SkString out;
     this->dumpGpuStats(&out);
     SkDebugf("%s", out.c_str());
 }
 
-sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, unsigned int index) {
-    auto restrictedAtlasManager = this->contextPriv().getRestrictedAtlasManager();
+sk_sp<SkImage> GrContextPriv::getFontAtlasImage_ForTesting(GrMaskFormat format, unsigned int index) {
+    auto restrictedAtlasManager = this->getRestrictedAtlasManager();
 
     unsigned int numProxies;
     const sk_sp<GrTextureProxy>* proxies = restrictedAtlasManager->getProxies(format, &numProxies);
@@ -160,7 +160,7 @@ sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, unsi
     }
 
     SkASSERT(proxies[index]->priv().isExact());
-    sk_sp<SkImage> image(new SkImage_Gpu(this, kNeedNewImageUniqueID, kPremul_SkAlphaType,
+    sk_sp<SkImage> image(new SkImage_Gpu(fContext, kNeedNewImageUniqueID, kPremul_SkAlphaType,
                                          proxies[index], nullptr, SkBudgeted::kNo));
     return image;
 }

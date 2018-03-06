@@ -363,7 +363,7 @@ GrAuditTrail* SkDebugCanvas::getAuditTrail(SkCanvas* canvas) {
 #if SK_SUPPORT_GPU
     GrContext* ctx = canvas->getGrContext();
     if (ctx) {
-        at = ctx->getAuditTrail();
+        at = ctx->contextPriv().getAuditTrail();
     }
 #endif
     return at;

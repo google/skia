@@ -187,12 +187,12 @@ DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
     for (bool nullTexture : {false, true}) {
         LazyProxyTest test(reporter);
         ctx->contextPriv().addOnFlushCallbackObject(&test);
-        sk_sp<GrRenderTargetContext> rtc =
-                ctx->makeDeferredRenderTargetContext(SkBackingFit::kExact, 100, 100,
-                                                     kRGBA_8888_GrPixelConfig, nullptr);
+        sk_sp<GrRenderTargetContext> rtc = ctx->contextPriv().makeDeferredRenderTargetContext(
+                                                             SkBackingFit::kExact, 100, 100,
+                                                             kRGBA_8888_GrPixelConfig, nullptr);
         REPORTER_ASSERT(reporter, rtc);
-        sk_sp<GrRenderTargetContext> mockAtlas =
-                ctx->makeDeferredRenderTargetContext(SkBackingFit::kExact, 10, 10,
+        sk_sp<GrRenderTargetContext> mockAtlas = ctx->contextPriv().makeDeferredRenderTargetContext(
+                                                     SkBackingFit::kExact, 10, 10,
                                                      kAlpha_half_GrPixelConfig, nullptr);
         REPORTER_ASSERT(reporter, mockAtlas);
         rtc->priv().testingOnly_addDrawOp(LazyProxyTest::Clip(&test, mockAtlas->asTextureProxy()),
@@ -316,8 +316,8 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
     GrResourceProvider* resourceProvider = ctx->contextPriv().resourceProvider();
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     for (bool failInstantiation : {false, true}) {
-        sk_sp<GrRenderTargetContext> rtc =
-                ctx->makeDeferredRenderTargetContext(SkBackingFit::kExact, 100, 100,
+        sk_sp<GrRenderTargetContext> rtc = ctx->contextPriv().makeDeferredRenderTargetContext(
+                                                     SkBackingFit::kExact, 100, 100,
                                                      kRGBA_8888_GrPixelConfig, nullptr);
         REPORTER_ASSERT(reporter, rtc);
 

@@ -168,7 +168,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
             sk_sp<GrRenderTargetContext> renderTargetContext(
-                    context->makeDeferredRenderTargetContext(SkBackingFit::kApprox, 1, 1,
+                    context->contextPriv().makeDeferredRenderTargetContext(
+                                                             SkBackingFit::kApprox, 1, 1,
                                                              kRGBA_8888_GrPixelConfig, nullptr));
             {
                 bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
@@ -365,7 +366,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
     // Make the destination context for the test.
     static constexpr int kRenderSize = 256;
-    sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc = context->contextPriv().makeDeferredRenderTargetContext(
             SkBackingFit::kExact, kRenderSize, kRenderSize, kRGBA_8888_GrPixelConfig, nullptr);
 
     sk_sp<GrTextureProxy> proxies[2];
@@ -497,7 +498,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
 
     // Make the destination context for the test.
     static constexpr int kRenderSize = 1024;
-    sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc = context->contextPriv().makeDeferredRenderTargetContext(
             SkBackingFit::kExact, kRenderSize, kRenderSize, kRGBA_8888_GrPixelConfig, nullptr);
 
     sk_sp<GrTextureProxy> proxies[2];

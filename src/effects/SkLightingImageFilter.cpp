@@ -466,7 +466,9 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
     SkASSERT(inputProxy);
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
+
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        context->contextPriv().makeDeferredRenderTargetContext(
                                 SkBackingFit::kApprox, offsetBounds.width(), offsetBounds.height(),
                                 GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
                                 sk_ref_sp(outputProperties.colorSpace())));
