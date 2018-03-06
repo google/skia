@@ -89,4 +89,9 @@ struct TablesContext {
 // For testing.  Bypasses opts for when src and dst color spaces are equal.
 std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 
+#if defined(SK_USE_SKCMS)
+std::unique_ptr<SkColorSpaceXform> MakeSkcmsXform(SkColorSpace* src, SkColorSpace* dst,
+                                                  SkTransferFunctionBehavior premulBehavior);
+#endif
+
 #endif
