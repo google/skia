@@ -22,6 +22,7 @@
 #endif
 
 #include <initializer_list>
+#include <ProxyUtils.h>
 
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
@@ -449,25 +450,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
     }
 
     GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-
     SkBitmap bmp = make_src_bitmap();
 
     // On the GPU we will also try reading back from a non-renderable texture.
     for (auto origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
-        for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
-            GrSurfaceDesc desc;
-            desc.fFlags = flags;
-            desc.fWidth = DEV_W;
-            desc.fHeight = DEV_H;
-            desc.fConfig = kSkia8888_GrPixelConfig;
-
-            sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                    desc, origin, SkBudgeted::kNo, bmp.getPixels(), bmp.rowBytes());
-
+        for (auto rt : {false, true}) {
+            sk_sp<GrTextureProxy> proxy = sk_gpu_test::MakeTextureProxyFromData(
+                context, rt, DEV_W, DEV_H, bmp.colorType(), origin, bmp.getPixels(),
+                bmp.rowBytes());
             sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
                                                                                 std::move(proxy));
-
             test_readpixels_texture(reporter, std::move(sContext));
         }
     }

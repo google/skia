@@ -89,8 +89,7 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider* proxyProvide
     sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
 
     return proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags,
-                                             kTopLeft_GrSurfaceOrigin, 1, SkBudgeted::kYes,
-                                             SkBackingFit::kExact);
+                                             1, SkBudgeted::kYes, SkBackingFit::kExact);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,8 +200,7 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
     }
     if (!proxy) {
         proxy = proxyProvider->createTextureProxy(std::move(srcImage), kNone_GrSurfaceFlags,
-                                                  kTopLeft_GrSurfaceOrigin, 1, SkBudgeted::kYes,
-                                                  fit);
+                                                  1, SkBudgeted::kYes, fit);
         if (proxy && originalKey.isValid()) {
             proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
         }

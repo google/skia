@@ -105,7 +105,6 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
 
         auto proxyProvider = ctx->contextPriv().proxyProvider();
         yuvTextureProxies[i] = proxyProvider->createTextureProxy(yuvImage, kNone_GrSurfaceFlags,
-                                                                 kTopLeft_GrSurfaceOrigin,
                                                                  1, SkBudgeted::kYes, fit);
     }
 

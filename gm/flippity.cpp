@@ -13,7 +13,9 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContextPriv.h"
+#include "GrDrawingManager.h"
 #include "GrProxyProvider.h"
+#include "GrTextureContext.h"
 #include "SkImage_Gpu.h"
 
 static const int kNumMatrices = 6;
@@ -98,7 +100,7 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
     SkASSERT(kNumLabels == labels.count());
 
     SkImageInfo ii = SkImageInfo::Make(kImageSize, kImageSize,
-                                       kN32_SkColorType, kOpaque_SkAlphaType);
+                                       kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
     SkBitmap bm;
     bm.allocPixels(ii);
     SkCanvas canvas(bm);
@@ -117,20 +119,16 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
 
     auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
-    if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-        // We're playing a game here and uploading N32 data into an RGB dest. We might have
-        // to swap red & blue to compensate.
-        for (int y = 0; y < bm.height(); ++y) {
-            uint32_t *sl = bm.getAddr32(0, y);
-            for (int x = 0; x < bm.width(); ++x) {
-                sl[x] = swap_red_and_blue(sl[x]);
-            }
-        }
-    }
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, origin, SkBudgeted::kYes,
-                                                                    bm.getPixels(), bm.rowBytes());
     if (!proxy) {
+        return nullptr;
+    }
+    auto tContext = context->contextPriv().drawingManager()->makeTextureContext(proxy, nullptr);
+    if (!tContext) {
+        return nullptr;
+    }
+    if (!tContext->writePixels(ii, bm.getPixels(), bm.rowBytes(), 0, 0)) {
         return nullptr;
     }
 

@@ -55,7 +55,7 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
-    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted, GrSurfaceOrigin texelsOrigin,
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted,
                                      const GrMipLevel texels[], int mipLevelCount) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) override {

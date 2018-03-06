@@ -144,7 +144,9 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
             texels[i].fRowBytes = 0;
         }
 
-        surface = resourceProvider->createTexture(desc, fBudgeted, fOrigin, texels.get(), mipCount,
+        // Our texture data assumes a kTopLeft origin.
+        SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin);
+        surface = resourceProvider->createTexture(desc, fBudgeted, texels.get(), mipCount,
                                                   SkDestinationSurfaceColorMode::kLegacy);
         if (surface) {
             SkASSERT(surface->asTexture());
