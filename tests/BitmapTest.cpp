@@ -226,3 +226,34 @@ DEF_TEST(Bitmap_clear_pixelref_keep_info, r) {
     SkDEBUGCODE(bm.validate();)
 }
 
+// At the time of writing, SkBitmap::erase() works when the color is zero for all formats,
+// but some formats failed when the color is non-zero!
+DEF_TEST(Bitmap_erase, r) {
+    SkColorType colorTypes[] = {
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kRGB_888x_SkColorType,
+        kRGBA_8888_SkColorType,
+        kBGRA_8888_SkColorType,
+        kRGB_101010x_SkColorType,
+        kRGBA_1010102_SkColorType,
+    };
+
+    for (SkColorType ct : colorTypes) {
+        SkImageInfo info = SkImageInfo::Make(1,1, (SkColorType)ct, kPremul_SkAlphaType);
+
+        SkBitmap bm;
+        bm.allocPixels(info);
+
+        bm.eraseColor(0x00000000);
+        if (SkColorTypeIsAlwaysOpaque(ct)) {
+            REPORTER_ASSERT(r, bm.getColor(0,0) == 0xff000000);
+        } else {
+            REPORTER_ASSERT(r, bm.getColor(0,0) == 0x00000000);
+        }
+
+        bm.eraseColor(0xaabbccdd);
+        REPORTER_ASSERT(r, bm.getColor(0,0) != 0xff000000);
+        REPORTER_ASSERT(r, bm.getColor(0,0) != 0x00000000);
+    }
+}
