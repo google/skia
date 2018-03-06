@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27e3f986_5c18384c",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-06T20:26:03Z",
+      "side": 1,
+      "message": "I\u0027m not sure we\u0027ll ever hit this case -- if we can\u0027t activate a page we\u0027ll already return an error, above.",
+      "range": {
+        "startLine": 313,
+        "startChar": 9,
+        "endLine": 313,
+        "endChar": 24
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f497139d_b72c7dda",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-06T20:26:03Z",
+      "side": 1,
+      "message": "Update comment?",
+      "range": {
+        "startLine": 102,
+        "startChar": 43,
+        "endLine": 102,
+        "endChar": 48
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "367900a1_321866dd",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-06T20:26:03Z",
+      "side": 1,
+      "message": "Make this match the return type of maxPages()?",
+      "range": {
+        "startLine": 411,
+        "startChar": 4,
+        "endLine": 411,
+        "endChar": 7
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "943538d4_6df65fe7",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-06T20:26:03Z",
+      "side": 1,
+      "message": "I think we only want to do this if the error code is kTryAgain.",
+      "range": {
+        "startLine": 579,
+        "startChar": 18,
+        "endLine": 579,
+        "endChar": 23
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12c2d134_a9f4c2dd",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-06T20:26:03Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 689,
+        "startChar": 18,
+        "endLine": 689,
+        "endChar": 23
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
