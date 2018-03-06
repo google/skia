@@ -12,7 +12,7 @@
 #include "GrSharedEnums.h"
 #include "GrTypes.h"
 #include "SkImageInfo.h"
-#include "SkRefCnt.h"
+#include "SkWeakRefCnt.h"
 
 class GrCaps;
 
@@ -1247,14 +1247,16 @@ static inline GrPixelConfig GrColorTypeToPixelConfig(GrColorType config,
     return kUnknown_GrPixelConfig;
 }
 
-class GrReleaseProcHelper : public SkRefCnt {
+class GrReleaseProcHelper : public SkWeakRefCnt {
 public:
     // These match the definitions in SkImage, from whence they came
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
 
     GrReleaseProcHelper(ReleaseProc proc, ReleaseCtx ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {}
-    ~GrReleaseProcHelper() override {
+    ~GrReleaseProcHelper() override {}
+
+    void weak_dispose() const override {
         fReleaseProc(fReleaseCtx);
     }
 
