@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "93454e40_9ea17692",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-06T20:08:36Z",
+      "side": 1,
+      "message": "I updated skia.org/user/build.  I just have this feeling warnings are either ignored or treated as errors, neither of which feels like the right thing here.\n\nI think one day I would like to trend SkNx and the vector math we use here together, so that SkJumper stages use SkNx, backed by Clang/GCC extensions when possible, and I guess hand-written SSE2 for MSVC.",
+      "parentUuid": "6f52c978_6c3e3125",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 54
+      },
+      "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f552c6f_56a881b7",
         "filename": "/COMMIT_MSG",
         "patchSetId": 17
@@ -137,6 +161,24 @@
     },
     {
       "key": {
+        "uuid": "ccd072e0_41287d79",
+        "filename": "src/jumper/SkJumper.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-06T20:08:36Z",
+      "side": 1,
+      "message": "Sort of... I\u0027ve updated it.",
+      "parentUuid": "adb353c7_7417edd5",
+      "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e7aa3c7d_8fbe9b6c",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 17
@@ -148,6 +190,24 @@
       "writtenOn": "2018-03-01T02:23:28Z",
       "side": 1,
       "message": "Kill the 1? If so, two more below.",
+      "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d81c8484_8966d4e3",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 2774,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-06T20:08:36Z",
+      "side": 1,
+      "message": "These are all intentional.  It lets you flip the feature on and off conveniently if you want during local testing.  Anything with a \"#if 1 \u0026\u0026 ...\" like this is an optimization, and the \"#else\" path should also work.",
+      "parentUuid": "e7aa3c7d_8fbe9b6c",
       "revId": "e7bdbc47098cfa4fb7f7752e1d381021e56e47e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
