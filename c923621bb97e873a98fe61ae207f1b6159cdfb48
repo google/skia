@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bab2331e_f1da6cc1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-06T17:00:47Z",
+      "side": 1,
+      "message": "Please file and link to a skbug so that we revisit the tests that were identified as needing higher float precision.",
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0ebadd9_30d9c007",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-06T17:00:47Z",
+      "side": 1,
+      "message": "are their more variations of this that we should add?",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 41
+      },
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e687d4d_6ec4cb6e",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/DoNotScoreInCompatibilityTestMode.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-06T17:00:47Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "c923621bb97e873a98fe61ae207f1b6159cdfb48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
