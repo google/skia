@@ -74,6 +74,23 @@ void GrCCCoverageProcessor::Shader::CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGe
     s->codeAppendf("%s = (abs(t) != nwidth ? t / nwidth : sign(t)) * -.5 - .5;", outputCoverage);
 }
 
+void GrCCCoverageProcessor::Shader::CalcEdgeCoveragesAtBloatVertices(GrGLSLVertexGeoBuilder* s,
+                                                                     const char* leftPt,
+                                                                     const char* rightPt,
+                                                                     const char* bloatDir1,
+                                                                     const char* bloatDir2,
+                                                                     const char* outputCoverages) {
+    // See comments in CalcEdgeCoverageAtBloatVertex.
+    s->codeAppendf("float2 n = float2(%s.y - %s.y, %s.x - %s.x);",
+                   rightPt, leftPt, leftPt, rightPt);
+    s->codeAppend ("float nwidth = abs(n.x) + abs(n.y);");
+    s->codeAppendf("float2 t = n * float2x2(%s, %s);", bloatDir1, bloatDir2);
+    s->codeAppendf("for (int i = 0; i < 2; ++i) {");
+    s->codeAppendf(    "%s[i] = (abs(t[i]) != nwidth ? t[i] / nwidth : sign(t[i])) * -.5 - .5;",
+                       outputCoverages);
+    s->codeAppendf("}");
+}
+
 int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f,
                                                              const char* samplesName) {
     // Standard DX11 sample locations.
@@ -116,9 +133,6 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
     switch (fRenderPass) {
         case RenderPass::kTriangles:
             shader = skstd::make_unique<GrCCTriangleShader>();
-            break;
-        case RenderPass::kTriangleCorners:
-            shader = skstd::make_unique<GrCCTriangleCornerShader>();
             break;
         case RenderPass::kQuadratics:
             shader = skstd::make_unique<GrCCQuadraticHullShader>();
