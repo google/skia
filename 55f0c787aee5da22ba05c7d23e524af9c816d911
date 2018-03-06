@@ -22,6 +22,30 @@
       "revId": "55f0c787aee5da22ba05c7d23e524af9c816d911",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "089610fd_01dd17cd",
+        "filename": "src/gpu/text/GrAtlasTextBlobVertexRegenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-03-06T20:59:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "acbd0d76_9d9779a4",
+      "range": {
+        "startLine": 247,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 40
+      },
+      "revId": "55f0c787aee5da22ba05c7d23e524af9c816d911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
