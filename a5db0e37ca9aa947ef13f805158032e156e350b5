@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc12ecfd_0aeb1835",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-06T15:21:22Z",
+      "side": 1,
+      "message": "nit: this bit now fits on the previous line.",
+      "range": {
+        "startLine": 698,
+        "startChar": 12,
+        "endLine": 698,
+        "endChar": 73
+      },
+      "revId": "a5db0e37ca9aa947ef13f805158032e156e350b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
