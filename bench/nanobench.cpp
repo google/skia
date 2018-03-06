@@ -230,8 +230,8 @@ struct GPUTarget : public Target {
     }
 
     void dumpStats() override {
-        this->contextInfo.grContext()->printCacheStats();
-        this->contextInfo.grContext()->printGpuStats();
+        this->contextInfo.grContext()->contextPriv().printCacheStats();
+        this->contextInfo.grContext()->contextPriv().printGpuStats();
     }
 };
 

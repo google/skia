@@ -71,6 +71,10 @@
     #include "SkXMLWriter.h"
 #endif
 
+#if SK_SUPPORT_GPU
+#include "GrContextPriv.h"
+#endif
+
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
 DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
@@ -1655,8 +1659,10 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
     canvas->flush();
     if (FLAGS_gpuStats) {
-        canvas->getGrContext()->dumpCacheStats(log);
-        canvas->getGrContext()->dumpGpuStats(log);
+#if SK_SUPPORT_GPU
+        canvas->getGrContext()->contextPriv().dumpCacheStats(log);
+        canvas->getGrContext()->contextPriv().dumpGpuStats(log);
+#endif
     }
     if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType) {
         // We don't currently support readbacks into these formats on the GPU backend. Convert to
