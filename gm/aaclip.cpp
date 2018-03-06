@@ -7,7 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkCanvas.h"
+#include "SkCanvasPriv.h"
 #include "SkPath.h"
 #include "SkMakeUnique.h"
 
@@ -65,7 +65,7 @@ static void do_draw(SkCanvas* canvas, const SkRect& r) {
 }
 
 /**
- *  Exercise kDontClipToLayer_Legacy_SaveLayerFlag flag, which does not limit the clip to the
+ *  Exercise SkCanvasPriv::kDontClipToLayer_SaveLayerFlag flag, which does not limit the clip to the
  *  layer's bounds. Thus when a draw occurs, it can (depending on "where" it is) draw into the layer
  *  and/or draw onto the surrounding portions of the canvas, or both.
  *
@@ -105,7 +105,7 @@ DEF_SIMPLE_GM(dont_clip_to_layer, canvas, 120, 120) {
     rec.fPaint = nullptr;
     rec.fBounds = &r0;
     rec.fBackdrop = nullptr;
-    rec.fSaveLayerFlags = 1 << 31;//SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag;
+    rec.fSaveLayerFlags = SkCanvasPriv::kDontClipToLayer_SaveLayerFlag;
     canvas->saveLayer(rec);
     rec.fBounds = &r1;
     canvas->saveLayer(rec);
