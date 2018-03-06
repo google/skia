@@ -61,7 +61,6 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_DEVKERNTEXT       "devKernText"
 #define SKDEBUGCANVAS_ATTRIBUTE_LCDRENDERTEXT     "lcdRenderText"
 #define SKDEBUGCANVAS_ATTRIBUTE_EMBEDDEDBITMAPTEXT "embeddedBitmapText"
-#define SKDEBUGCANVAS_ATTRIBUTE_AUTOHINTING       "forceAutoHinting"
 #define SKDEBUGCANVAS_ATTRIBUTE_VERTICALTEXT      "verticalText"
 #define SKDEBUGCANVAS_ATTRIBUTE_REGION            "region"
 #define SKDEBUGCANVAS_ATTRIBUTE_REGIONOP          "op"
@@ -1230,7 +1229,6 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_DEVKERNTEXT, paint.isDevKernText(), false);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_LCDRENDERTEXT, paint.isLCDRenderText(), false);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_EMBEDDEDBITMAPTEXT, paint.isEmbeddedBitmapText(), false);
-    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_AUTOHINTING, paint.isAutohinted(), false);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_VERTICALTEXT, paint.isVerticalText(), false);
     //kGenA8FromLCD_Flag
 
@@ -1527,12 +1525,6 @@ static void extract_json_paint_embeddedbitmaptext(Json::Value& jsonPaint, SkPain
     }
 }
 
-static void extract_json_paint_autohinting(Json::Value& jsonPaint, SkPaint* target) {
-    if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_AUTOHINTING)) {
-        target->setAutohinted(jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_AUTOHINTING].asBool());
-    }
-}
-
 static void extract_json_paint_verticaltext(Json::Value& jsonPaint, SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_VERTICALTEXT)) {
         target->setVerticalText(jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_VERTICALTEXT].asBool());
@@ -1660,7 +1652,6 @@ static void extract_json_paint(Json::Value& paint, UrlDataManager& urlDataManage
     extract_json_paint_devkerntext(paint, result);
     extract_json_paint_lcdrendertext(paint, result);
     extract_json_paint_embeddedbitmaptext(paint, result);
-    extract_json_paint_autohinting(paint, result);
     extract_json_paint_verticaltext(paint, result);
     extract_json_paint_blur(paint, result);
     extract_json_paint_dashing(paint, result);

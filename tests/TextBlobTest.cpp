@@ -192,7 +192,6 @@ public:
         font.setDevKernText(true);
         font.setLCDRenderText(true);
         font.setEmbeddedBitmapText(true);
-        font.setAutohinted(true);
         font.setVerticalText(true);
         font.setFlags(font.getFlags() | SkPaint::kGenA8FromLCD_Flag);
 
@@ -211,7 +210,6 @@ public:
         REPORTER_ASSERT(reporter, defaultPaint.isDevKernText() != font.isDevKernText());
         REPORTER_ASSERT(reporter, defaultPaint.isLCDRenderText() != font.isLCDRenderText());
         REPORTER_ASSERT(reporter, defaultPaint.isEmbeddedBitmapText() != font.isEmbeddedBitmapText());
-        REPORTER_ASSERT(reporter, defaultPaint.isAutohinted() != font.isAutohinted());
         REPORTER_ASSERT(reporter, defaultPaint.isVerticalText() != font.isVerticalText());
         REPORTER_ASSERT(reporter, (defaultPaint.getFlags() & SkPaint::kGenA8FromLCD_Flag) !=
                                   (font.getFlags() & SkPaint::kGenA8FromLCD_Flag));
@@ -240,7 +238,6 @@ public:
             REPORTER_ASSERT(reporter, paint.isDevKernText() == font.isDevKernText());
             REPORTER_ASSERT(reporter, paint.isLCDRenderText() == font.isLCDRenderText());
             REPORTER_ASSERT(reporter, paint.isEmbeddedBitmapText() == font.isEmbeddedBitmapText());
-            REPORTER_ASSERT(reporter, paint.isAutohinted() == font.isAutohinted());
             REPORTER_ASSERT(reporter, paint.isVerticalText() == font.isVerticalText());
             REPORTER_ASSERT(reporter, (paint.getFlags() & SkPaint::kGenA8FromLCD_Flag) ==
                                       (font.getFlags() & SkPaint::kGenA8FromLCD_Flag));

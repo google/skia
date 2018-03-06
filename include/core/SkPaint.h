@@ -256,7 +256,6 @@ public:
         kDevKernText_Flag        = 0x100,  //!< mask for setting full hinting spacing
         kLCDRenderText_Flag      = 0x200,  //!< mask for setting LCD text
         kEmbeddedBitmapText_Flag = 0x400,  //!< mask for setting font embedded bitmaps
-        kAutoHinting_Flag        = 0x800,  //!< mask for setting auto-hinting
         kVerticalText_Flag       = 0x1000, //!< mask for setting vertical text
 
         /** Hack for GDI -- do not use if you can help it */
@@ -402,32 +401,6 @@ public:
         @param useEmbeddedBitmapText  setting for kEmbeddedBitmapText_Flag
     */
     void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
-
-    /** If true, and if SkPaint::Hinting is set to kNormal_Hinting or kFull_Hinting, and if
-        platform uses FreeType as the font manager, instruct the font manager to always hint
-        glyphs.
-
-        Equivalent to getFlags() masked with kAutoHinting_Flag.
-
-        @return  kAutoHinting_Flag state
-    */
-    bool isAutohinted() const {
-        return SkToBool(this->getFlags() & kAutoHinting_Flag);
-    }
-
-    /** If SkPaint::Hinting is set to kNormal_Hinting or kFull_Hinting and useAutohinter is set,
-        instruct the font manager to always hint glyphs.
-        auto-hinting has no effect if SkPaint::Hinting is set to kNo_Hinting or
-        kSlight_Hinting.
-
-        Only affects platforms that use FreeType as the font manager.
-
-        Sets kAutoHinting_Flag if useAutohinter is true.
-        Clears kAutoHinting_Flag if useAutohinter is false.
-
-        @param useAutohinter  setting for kAutoHinting_Flag
-    */
-    void setAutohinted(bool useAutohinter);
 
     /** If true, glyphs are drawn top to bottom instead of left to right.
 
