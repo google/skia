@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1a8f02e_09489d00",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-06T17:22:52Z",
+      "side": 1,
+      "message": "I have a separate CL that adds a unit test to exercise failure of page creation for SmallPathOps but it isn\u0027t quite ready yet.",
+      "revId": "c744e2f3b71101089a0ba931c98b81f0fd0f64a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41c74155_ff79930a",
+        "filename": "src/gpu/text/GrGlyphCache.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-06T17:22:52Z",
+      "side": 1,
+      "message": "I suspect these should actually be kError - can you confirm?",
+      "revId": "c744e2f3b71101089a0ba931c98b81f0fd0f64a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0f1a123_63ecbaf9",
+        "filename": "src/gpu/text/GrGlyphCache.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-06T17:22:52Z",
+      "side": 1,
+      "message": "This one too.",
+      "revId": "c744e2f3b71101089a0ba931c98b81f0fd0f64a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
