@@ -52,8 +52,10 @@ uniform half blurRadius;
                                                                  key, kBottomLeft_GrSurfaceOrigin));
         if (!mask) {
             // TODO: this could be approx but the texture coords will need to be updated
-            sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContextWithFallback(
-                SkBackingFit::kExact, size.fWidth, size.fHeight, kAlpha_8_GrPixelConfig, nullptr));
+            sk_sp<GrRenderTargetContext> rtc(
+                    context->contextPriv().makeDeferredRenderTargetContextWithFallback(
+                                                SkBackingFit::kExact, size.fWidth, size.fHeight,
+                                                kAlpha_8_GrPixelConfig, nullptr));
             if (!rtc) {
                 return nullptr;
             }
