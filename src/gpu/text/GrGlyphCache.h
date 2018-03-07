@@ -108,10 +108,9 @@ private:
  */
 class GrGlyphCache {
 public:
-    GrGlyphCache();
+    GrGlyphCache(const GrCaps* caps, float maxTextureBytes);
     ~GrGlyphCache();
 
-    void setGlyphSizeLimit(SkScalar sizeLimit) { fGlyphSizeLimit = sizeLimit; }
     SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
 
     void setStrikeToPreserve(GrTextStrike* strike) { fPreserveStrike = strike; }
