@@ -206,7 +206,7 @@ public:
     bool mustRegenerate(const GrTextUtils::Paint&, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
-    void flush(GrRestrictedAtlasManager*, GrTextUtils::Target*, const SkSurfaceProps& props,
+    void flush(GrTextUtils::Target*, const SkSurfaceProps& props,
                const GrDistanceFieldAdjustTable* distanceAdjustTable,
                const GrTextUtils::Paint& paint, const GrClip& clip,
                const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
@@ -282,7 +282,7 @@ public:
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                           const GrTextUtils::Paint&, const SkSurfaceProps&,
                                           const GrDistanceFieldAdjustTable*,
-                                          GrRestrictedAtlasManager*, GrTextUtils::Target*);
+                                          GrTextUtils::Target*);
 
 private:
     GrAtlasTextBlob()
@@ -519,7 +519,7 @@ private:
             const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
             const GrTextUtils::Paint&, const SkSurfaceProps&,
-            const GrDistanceFieldAdjustTable*, GrRestrictedAtlasManager* , GrTextUtils::Target*);
+            const GrDistanceFieldAdjustTable*, GrTextUtils::Target*);
 
     struct StrokeInfo {
         SkScalar fFrameWidth;

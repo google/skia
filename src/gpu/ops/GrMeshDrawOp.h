@@ -155,7 +155,7 @@ public:
     virtual GrResourceProvider* resourceProvider() const = 0;
 
     virtual GrGlyphCache* glyphCache() const = 0;
-    virtual GrAtlasManager* fullAtlasManager() const = 0;
+    virtual GrAtlasManager* atlasManager() const = 0;
 
     virtual const GrCaps& caps() const = 0;
 
