@@ -648,8 +648,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkP
         if (SkImageInfoIsValid(pixmap.info(), colorMode)) {
             ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
             GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *proxyProvider->caps());
-            proxy = proxyProvider->createTextureProxy(desc, kTopLeft_GrSurfaceOrigin,
-                                                      SkBudgeted::kYes, pixmap.addr(),
+            proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, pixmap.addr(),
                                                       pixmap.rowBytes());
         }
     }
