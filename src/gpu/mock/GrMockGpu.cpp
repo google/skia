@@ -65,8 +65,7 @@ GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
 }
 
 sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                            GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
-                                            int mipLevelCount) {
+                                            const GrMipLevel texels[], int mipLevelCount) {
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
     GrMockTextureInfo info;

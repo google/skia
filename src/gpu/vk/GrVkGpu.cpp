@@ -763,8 +763,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
 
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                          GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
-                                          int mipLevelCount) {
+                                          const GrMipLevel texels[], int mipLevelCount) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;
@@ -825,8 +824,8 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
 
     auto colorType = GrPixelConfigToColorType(desc.fConfig);
     if (mipLevelCount) {
-        if (!this->uploadTexDataOptimal(tex.get(), texelsOrigin, 0, 0, desc.fWidth, desc.fHeight,
-                                        colorType, texels, mipLevelCount)) {
+        if (!this->uploadTexDataOptimal(tex.get(), kTopLeft_GrSurfaceOrigin, 0, 0, desc.fWidth,
+                                        desc.fHeight, colorType, texels, mipLevelCount)) {
             tex->unref();
             return nullptr;
         }

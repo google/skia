@@ -1413,7 +1413,6 @@ static void set_initial_texture_params(const GrGLInterface* interface,
 
 sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                           SkBudgeted budgeted,
-                                          GrSurfaceOrigin texelsOrigin,
                                           const GrMipLevel texels[],
                                           int mipLevelCount) {
     // We fail if the MSAA was requested and is not available.
@@ -1445,8 +1444,8 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     GrMipMapsStatus mipMapsStatus;
     GrGLTexture::TexParams initialTexParams;
-    if (!this->createTextureImpl(desc, &idDesc.fInfo, isRenderTarget, &initialTexParams,
-                                 texelsOrigin, texels, mipLevelCount, &mipMapsStatus)) {
+    if (!this->createTextureImpl(desc, &idDesc.fInfo, isRenderTarget, &initialTexParams, texels,
+                                 mipLevelCount, &mipMapsStatus)) {
         return return_null_texture();
     }
 
@@ -1632,8 +1631,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
 }
 
 bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, bool renderTarget,
-                                GrGLTexture::TexParams* initialTexParams,
-                                GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
+                                GrGLTexture::TexParams* initialTexParams, const GrMipLevel texels[],
                                 int mipLevelCount, GrMipMapsStatus* mipMapsStatus) {
     info->fID = 0;
     info->fTarget = GR_GL_TEXTURE_2D;
@@ -1657,9 +1655,9 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
         set_initial_texture_params(this->glInterface(), *info, initialTexParams);
     }
 
-    if (!this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, texelsOrigin, info->fTarget,
-                             kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                             texels, mipLevelCount, mipMapsStatus)) {
+    if (!this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, kTopLeft_GrSurfaceOrigin,
+                             info->fTarget, kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight,
+                             desc.fConfig, texels, mipLevelCount, mipMapsStatus)) {
         GL_CALL(DeleteTextures(1, &(info->fID)));
         return false;
     }
