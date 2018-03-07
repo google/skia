@@ -12,28 +12,42 @@
 #include "GrGlyphCache.h"
 #include "GrProxyProvider.h"
 
+
+void GrRestrictedAtlasManager::ComputeAtlasLimits(const GrCaps* caps, float maxTextureBytes,
+                                                  int* maxDim, int* minDim,
+                                                  int* maxPlot, int* minPlot) {
+    SkASSERT(maxDim && minDim && maxPlot && minPlot);
+
+    // Calculate RGBA size. Must be between 512 x 256 and MaxTextureSize x MaxTextureSize / 2
+    int log2MaxTextureSize = SkPrevLog2(caps->maxTextureSize());
+    int log2MaxDim = 9;
+    for (; log2MaxDim <= log2MaxTextureSize; ++log2MaxDim) {
+        int maxDimTmp = 1 << log2MaxDim;
+        int minDimTmp = 1 << (log2MaxDim - 1);
+
+        if (maxDimTmp * minDimTmp * 4 >= maxTextureBytes) {
+            break;
+        }
+    }
+
+
+    int log2MinDim = log2MaxDim - 1;
+    *maxDim = 1 << log2MaxDim;
+    *minDim = 1 << log2MinDim;
+    // Plots are either 256 or 512.
+    *maxPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 2)));
+    *minPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 3)));
+}
+
 GrRestrictedAtlasManager::GrRestrictedAtlasManager(
                                         sk_sp<const GrCaps> caps,
                                         float maxTextureBytes,
                                         GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
             : fCaps(std::move(caps))
             , fAllowMultitexturing(allowMultitexturing) {
-    // Calculate RGBA size. Must be between 512 x 256 and MaxTextureSize x MaxTextureSize / 2
-    int log2MaxTextureSize = SkPrevLog2(fCaps->maxTextureSize());
-    int log2MaxDim = 9;
-    for (; log2MaxDim <= log2MaxTextureSize; ++log2MaxDim) {
-        int maxDim = 1 << log2MaxDim;
-        int minDim = 1 << (log2MaxDim - 1);
 
-        if (maxDim * minDim * 4 >= maxTextureBytes) break;
-    }
-
-    int log2MinDim = log2MaxDim - 1;
-    int maxDim = 1 << log2MaxDim;
-    int minDim = 1 << log2MinDim;
-    // Plots are either 256 or 512.
-    int maxPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 2)));
-    int minPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 3)));
+    int maxDim, minDim, maxPlot, minPlot;
+    ComputeAtlasLimits(fCaps.get(), maxTextureBytes, &maxDim, &minDim, &maxPlot, &minPlot);
 
     // Setup default atlas configs. The A8 atlas uses maxDim for both width and height, as the A8
     // format is already very compact.

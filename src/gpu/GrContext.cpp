@@ -125,7 +125,7 @@ protected:
                                                allowMultitexturing);
         this->contextPriv().addOnFlushCallbackObject(fFullAtlasManager);
 
-        glyphCache->setGlyphSizeLimit(fFullAtlasManager->getGlyphSizeLimit());
+        SkASSERT(glyphCache->getGlyphSizeLimit() == fFullAtlasManager->getGlyphSizeLimit());
         return true;
     }
 
@@ -396,7 +396,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, atlasTextContextOptions,
                                                &fSingleOwner, options.fSortRenderTargets));
 
-    fGlyphCache = new GrGlyphCache;
+    fGlyphCache = new GrGlyphCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
                                              this, this->uniqueID(), SkToBool(fGpu)));

@@ -12,9 +12,14 @@
 #include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
 
-GrGlyphCache::GrGlyphCache()
+GrGlyphCache::GrGlyphCache(const GrCaps* caps, float maxTextureBytes)
         : fPreserveStrike(nullptr)
         , fGlyphSizeLimit(0) {
+
+    int maxDim, minDim, maxPlot, minPlot;
+    GrRestrictedAtlasManager::ComputeAtlasLimits(caps, maxTextureBytes,
+                                                 &maxDim, &minDim, &maxPlot, &minPlot);
+    fGlyphSizeLimit = minPlot;
 }
 
 GrGlyphCache::~GrGlyphCache() {
