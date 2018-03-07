@@ -106,6 +106,7 @@ skia_core_sources = [
   "$_src/core/SkDescriptor.h",
   "$_src/core/SkDevice.cpp",
   "$_src/core/SkDevice.h",
+  "$_src/core/SkDeviceLooper.cpp",
   "$_src/core/SkDeviceProfile.cpp",
   "$_src/core/SkDiscardableMemory.h",
   "$_src/lazy/SkDiscardableMemoryPool.cpp",
