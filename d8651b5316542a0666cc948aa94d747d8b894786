@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "8d689da4_33701f17",
+        "filename": "infra/bots/assets/gcloud_linux/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T14:54:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79dcc026_2e96b59e",
+      "range": {
+        "startLine": 25,
+        "startChar": 51,
+        "endLine": 25,
+        "endChar": 65
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f59a153_c6971c4f",
         "filename": "infra/bots/assets/gcloud_linux/create.py",
         "patchSetId": 11
@@ -1354,6 +1378,30 @@
     },
     {
       "key": {
+        "uuid": "35ccf0cb_a3518023",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T14:54:26Z",
+      "side": 1,
+      "message": "In the latest version I added gzip support, so the JSON is gzipped now, but the APK is not. I think that\u0027s the right way to go about it. If we are not happy with the compression level of the APK, we should fix that there.",
+      "parentUuid": "7221b99c_00456706",
+      "range": {
+        "startLine": 441,
+        "startChar": 1,
+        "endLine": 441,
+        "endChar": 20
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35cadffd_c6f374c5",
         "filename": "infra/cts/whitelist_devices.json",
         "patchSetId": 11
@@ -1365,6 +1413,24 @@
       "writtenOn": "2018-03-06T18:19:24Z",
       "side": 1,
       "message": "Eric, is this the correct location for this file?",
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4b5d625_ad36463d",
+        "filename": "infra/cts/whitelist_devices.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T14:54:26Z",
+      "side": 1,
+      "message": "I would agree that it\u0027s not, but IMO we don\u0027t have a good place for this right now, I thought it be best to have it near the code that actually uses it. \nIf we are going to have a discussion about structuring recipes differently, we should figure out a canonical place for configuration files.",
+      "parentUuid": "35cadffd_c6f374c5",
       "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -1406,6 +1472,30 @@
       "side": 1,
       "message": "Oh, I missed this.  Yeah, we need to do this in the recipe.  Additionally, scripts should not be running git commands (or even assuming that git exists) or doing anything that could mutate the checkout, since the bot code has already gotten us into the correct state.",
       "parentUuid": "94747dff_479db2fb",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 26
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e71ba911_d263d8d7",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T14:54:26Z",
+      "side": 1,
+      "message": "Please see my other response on this.",
+      "parentUuid": "97dd9820_84d46b8d",
       "range": {
         "startLine": 56,
         "startChar": 0,

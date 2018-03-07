@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "41eb3810_85488d43",
+        "filename": "infra/bots/recipes/skqp_test.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T14:54:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39abe790_9ee08eac",
+      "range": {
+        "startLine": 1,
+        "startChar": 12,
+        "endLine": 1,
+        "endChar": 16
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "45cf689a_55ee6879",
         "filename": "infra/bots/recipes/skqp_test.py",
         "patchSetId": 14
@@ -45,6 +69,30 @@
       "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96fd5da1_8be11e89",
+        "filename": "infra/bots/recipes/skqp_test.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T14:54:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "45cf689a_55ee6879",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 8
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "377f0a46_dee29ded",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 14
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T14:54:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a972a320_bfd9070c",
+      "range": {
+        "startLine": 132,
+        "startChar": 23,
+        "endLine": 132,
+        "endChar": 43
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26b2c811_2cfd3929",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 14
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "c10e135a_cb2ca4ce",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 14
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T14:54:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26b2c811_2cfd3929",
+      "range": {
+        "startLine": 133,
+        "startChar": 30,
+        "endLine": 134,
+        "endChar": 22
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f77cfdb_b7990432",
         "filename": "tools/skqp/make_universal_apk",
         "patchSetId": 14
@@ -105,6 +201,30 @@
       "writtenOn": "2018-03-07T13:11:10Z",
       "side": 1,
       "message": "This stuff still needs to go.  In general, we don\u0027t want to be downloading things inside of scripts running on the bots; those steps belong in the recipe, or we ensure that the dependencies get isolated or delivered via CIPD.  And we definitely don\u0027t want to be messing with git in these scripts; the bot code has already gotten us into the correct state, so doing more here can only hurt.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 26
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "744e2aa8_857c5ea7",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 14
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T14:54:26Z",
+      "side": 1,
+      "message": "Generally I would agree, but the motivation of this is to continuously test the build process and also test this script. IMO this is gives up high enough confidence that building the apk works. \n\nI think this simulates a desktop reasonably well in that we start out with a repo that is in a stable state and we go through the same motions as an individual would.\nWorst case scenario that line is a no-op. A failure would probably highlight a real problem.",
+      "parentUuid": "3f77cfdb_b7990432",
       "range": {
         "startLine": 48,
         "startChar": 0,
