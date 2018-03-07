@@ -43,6 +43,9 @@ public:
 
     SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
 
+    static void ComputeAtlasLimits(const GrCaps* caps, float maxTextureBytes,
+                                   int* maxDim, int* minDim, int* maxPlot, int* minPlot);
+
 protected:
     // There is a 1:1 mapping between GrMaskFormats and atlas indices
     static int MaskFormatToAtlasIndex(GrMaskFormat format) {
