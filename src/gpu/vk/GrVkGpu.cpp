@@ -1536,12 +1536,10 @@ bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return false;
 }
 
-void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex, bool abandon) {
+void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex) {
     SkASSERT(kVulkan_GrBackend == tex->fBackend);
 
-    const GrVkImageInfo* info = tex->getVkImageInfo();
-
-    if (info && !abandon) {
+    if (const auto* info = tex->getVkImageInfo()) {
         // something in the command buffer may still be using this, so force submit
         this->submitCommandBuffer(kForce_SyncQueue);
         GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(info));
