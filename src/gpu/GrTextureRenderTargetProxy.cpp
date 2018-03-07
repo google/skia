@@ -26,7 +26,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        uint32_t flags)
         : GrSurfaceProxy(desc, origin, fit, budgeted, flags)
         // for now textures w/ data are always wrapped
-        , GrTextureProxy(desc, origin, mipMapped, fit, budgeted, nullptr, 0, flags)
+        , GrTextureProxy(desc, origin, mipMapped, fit, budgeted, flags)
         , GrRenderTargetProxy(caps, desc, origin, fit, budgeted, flags) {}
 
 // Lazy-callback version

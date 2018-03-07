@@ -73,8 +73,8 @@ public:
      * DDL TODO: need to refine ownership semantics of 'srcData' if we're in completely
      * deferred mode
      */
-    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, GrSurfaceOrigin, SkBudgeted,
-                                             const void* srcData, size_t rowBytes);
+    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, SkBudgeted, const void* srcData,
+                                             size_t rowBytes);
 
     /*
      * Create an un-mipmapped texture proxy with data. The SkImage must be a raster backend image.
@@ -83,7 +83,6 @@ public:
      */
     sk_sp<GrTextureProxy> createTextureProxy(sk_sp<SkImage> srcImage,
                                              GrSurfaceFlags flags,
-                                             GrSurfaceOrigin origin,
                                              int sampleCnt,
                                              SkBudgeted budgeted,
                                              SkBackingFit fit);

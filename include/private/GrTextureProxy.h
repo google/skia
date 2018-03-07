@@ -71,9 +71,13 @@ protected:
     friend class GrProxyProvider; // for ctors
     friend class GrTextureProxyPriv;
 
-    // Deferred version
+    // Deferred version - when constructed with data the origin is always kTopLeft.
+    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped, SkBackingFit, SkBudgeted,
+                   const void* srcData, size_t srcRowBytes, uint32_t flags);
+
+    // Deferred version - no data.
     GrTextureProxy(const GrSurfaceDesc& srcDesc, GrSurfaceOrigin, GrMipMapped, SkBackingFit,
-                   SkBudgeted, const void* srcData, size_t srcRowBytes, uint32_t flags);
+                   SkBudgeted, uint32_t flags);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:

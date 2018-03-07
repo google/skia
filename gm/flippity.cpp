@@ -13,7 +13,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContextPriv.h"
-#include "GrProxyProvider.h"
+#include "ProxyUtils.h"
 #include "SkImage_Gpu.h"
 
 static const int kNumMatrices = 6;
@@ -85,20 +85,15 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
     return image->makeTextureImage(context, nullptr);
 }
 
-static SkColor swap_red_and_blue(SkColor c) {
-    return SkColorSetRGB(SkColorGetB(c), SkColorGetG(c), SkColorGetR(c));
-}
-
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
 // or top-left.
 static sk_sp<SkImage> make_reference_image(GrContext* context,
                                            const SkTArray<sk_sp<SkImage>>& labels,
                                            bool bottomLeftOrigin) {
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     SkASSERT(kNumLabels == labels.count());
 
-    SkImageInfo ii = SkImageInfo::Make(kImageSize, kImageSize,
-                                       kN32_SkColorType, kOpaque_SkAlphaType);
+    SkImageInfo ii =
+            SkImageInfo::Make(kImageSize, kImageSize, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
     SkBitmap bm;
     bm.allocPixels(ii);
     SkCanvas canvas(bm);
@@ -110,26 +105,11 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
                          0.0 != kPoints[i].fY ? kPoints[i].fY-kLabelSize-kInset : kInset);
     }
 
-    GrSurfaceDesc desc;
-    desc.fWidth = kImageSize;
-    desc.fHeight = kImageSize;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-
     auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
-    if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-        // We're playing a game here and uploading N32 data into an RGB dest. We might have
-        // to swap red & blue to compensate.
-        for (int y = 0; y < bm.height(); ++y) {
-            uint32_t *sl = bm.getAddr32(0, y);
-            for (int x = 0; x < bm.width(); ++x) {
-                sl[x] = swap_red_and_blue(sl[x]);
-            }
-        }
-    }
-
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, origin, SkBudgeted::kYes,
-                                                                    bm.getPixels(), bm.rowBytes());
+    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, false, kImageSize, kImageSize,
+                                                       bm.colorType(), origin, bm.getPixels(),
+                                                       bm.rowBytes());
     if (!proxy) {
         return nullptr;
     }

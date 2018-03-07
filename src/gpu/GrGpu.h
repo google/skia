@@ -93,20 +93,18 @@ public:
      * pixel configs can be used as render targets. Support for configs as textures
      * or render targets can be checked using GrCaps.
      *
-     * @param desc         describes the texture to be created.
-     * @param budgeted     does this texture count against the resource cache budget?
-     * @param texelsOrigin origin of the texel data to be uploaded. Ignored if there is
-     *                     no initial texel data.
-     * @param texels       array of mipmap levels containing texel data to load.
-     *                     Each level begins with full-size palette data for paletted textures.
-     *                     It contains width*height texels. If there is only one
-     *                     element and it contains nullptr fPixels, texture data is
-     *                     uninitialized.
-     * @param mipLevelCount the number of levels in 'texels'
-     * @return    The texture object if successful, otherwise nullptr.
+     * @param desc           describes the texture to be created.
+     * @param budgeted       does this texture count against the resource cache budget?
+     * @param texels         array of mipmap levels containing texel data to load.
+     *                       Each level begins with full-size palette data for paletted textures.
+     *                       It contains width*height texels. If there is only one
+     *                       element and it contains nullptr fPixels, texture data is
+     *                       uninitialized.
+     * @param mipLevelCount  the number of levels in 'texels'
+     * @return  The texture object if successful, otherwise nullptr.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, GrSurfaceOrigin texelsOrigin,
-                                   const GrMipLevel texels[], int mipLevelCount);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel texels[],
+                                   int mipLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
@@ -546,7 +544,6 @@ private:
     // Texture size and sample size will have already been validated in base class before
     // onCreateTexture is called.
     virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted,
-                                             GrSurfaceOrigin texelsOrigin,
                                              const GrMipLevel texels[], int mipLevelCount) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) = 0;

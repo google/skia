@@ -226,8 +226,8 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
                     create_circle_profile(sigma * scale, circleR * scale, kProfileTextureWidth));
         }
 
-        blurProfile = proxyProvider->createTextureProxy(texDesc, kTopLeft_GrSurfaceOrigin,
-                                                        SkBudgeted::kYes, profile.get(), 0);
+        blurProfile =
+                proxyProvider->createTextureProxy(texDesc, SkBudgeted::kYes, profile.get(), 0);
         if (!blurProfile) {
             return nullptr;
         }
