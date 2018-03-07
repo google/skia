@@ -153,8 +153,6 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
         tex = gpu->wrapRenderableBackendTexture(backendTex, 1, kAdopt_GrWrapOwnership);
         REPORTER_ASSERT(reporter, tex);
     }
-
-    gpu->deleteTestingOnlyBackendTexture(&origBackendTex, true);
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkWrapTests, reporter, ctxInfo) {
