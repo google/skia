@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7e83834_af823434",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-07T21:42:45Z",
+      "side": 0,
+      "message": "I think this was added for these changes. I wonder if it can also be deleted",
+      "range": {
+        "startLine": 529,
+        "startChar": 16,
+        "endLine": 529,
+        "endChar": 54
+      },
+      "revId": "2db6a0c13534540751d1e8135e54b10d6e737df0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
