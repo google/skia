@@ -144,7 +144,7 @@ private:
         return GrBackendTexture();
     }
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override { return false; }
-    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandon = false) override {}
+    void deleteTestingOnlyBackendTexture(GrBackendTexture*) override {}
 
     sk_sp<GrMtlCaps> fMtlCaps;
 

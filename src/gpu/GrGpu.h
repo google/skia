@@ -464,11 +464,11 @@ public:
                                                       GrMipMapped mipMapped) = 0;
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
     virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
-    /** If ownership of the backend texture has been transferred pass true for abandonTexture. This
-        will do any necessary cleanup of the handle without freeing the texture in the backend
-        API. */
-    virtual void deleteTestingOnlyBackendTexture(GrBackendTexture*,
-                                                 bool abandonTexture = false) = 0;
+    /**
+     * Frees a texture created by createTestingOnlyBackendTexture(). If ownership of the backend
+     * texture has been transferred to a GrContext using adopt semantics this should not be called.
+     */
+    virtual void deleteTestingOnlyBackendTexture(GrBackendTexture*) = 0;
 
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on

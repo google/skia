@@ -113,7 +113,7 @@ bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return fOutstandingTestingOnlyTextureIDs.contains(info->fID);
 }
 
-void GrMockGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex, bool abandonTexture) {
+void GrMockGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex) {
     SkASSERT(kMock_GrBackend == tex->backend());
 
     const GrMockTextureInfo* info = tex->getMockTextureInfo();
