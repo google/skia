@@ -15,10 +15,13 @@
 #include "SkClipStack.h"
 #include "SkData.h"
 #include "SkDraw.h"
+#include "SkImage.h"
 #include "SkImageEncoder.h"
+#include "SkJpegCodec.h"
 #include "SkPaint.h"
 #include "SkPaintPriv.h"
 #include "SkParsePath.h"
+#include "SkPngCodec.h"
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkTHash.h"
@@ -245,13 +248,35 @@ private:
     bool     fLastCharWasWhitespace;
 };
 
+// Determine if the paint requires us to reset the viewport.
+// Currently, we do this whenever the paint shader calls
+// for a repeating image.
+bool RequiresViewportReset(const SkPaint& paint) {
+  SkShader* shader = paint.getShader();
+  if (!shader)
+    return false;
+
+  SkShader::TileMode xy[2];
+  SkImage* image = shader->isAImage(nullptr, xy);
+
+  if (!image)
+    return false;
+
+  for (int i = 0; i < 2; i++) {
+    if (xy[i] == SkShader::kRepeat_TileMode)
+      return true;
+  }
+  return false;
 }
+
+}  // namespace
 
 // For now all this does is serve unique serial IDs, but it will eventually evolve to track
 // and deduplicate resources.
 class SkSVGDevice::ResourceBucket : ::SkNoncopyable {
 public:
-    ResourceBucket() : fGradientCount(0), fClipCount(0), fPathCount(0), fImageCount(0) {}
+    ResourceBucket()
+            : fGradientCount(0), fClipCount(0), fPathCount(0), fImageCount(0), fPatternCount(0) {}
 
     SkString addLinearGradient() {
         return SkStringPrintf("gradient_%d", fGradientCount++);
@@ -269,11 +294,16 @@ public:
         return SkStringPrintf("img_%d", fImageCount++);
     }
 
+    SkString addPattern() {
+      return SkStringPrintf("pattern_%d", fPatternCount++);
+    }
+
 private:
     uint32_t fGradientCount;
     uint32_t fClipCount;
     uint32_t fPathCount;
     uint32_t fImageCount;
+    uint32_t fPatternCount;
 };
 
 struct SkSVGDevice::MxCp {
@@ -298,6 +328,7 @@ public:
         , fResourceBucket(bucket) {
 
         Resources res = this->addResources(mc, paint);
+
         if (!res.fClip.isEmpty()) {
             // The clip is in device space. Apply it via a <g> wrapper to avoid local transform
             // interference.
@@ -346,8 +377,15 @@ private:
     Resources addResources(const MxCp&, const SkPaint& paint);
     void addClipResources(const MxCp&, Resources* resources);
     void addShaderResources(const SkPaint& paint, Resources* resources);
+    void addGradientShaderResources(const SkShader* shader, const SkPaint& paint,
+                                    Resources* resources);
+    void addImageShaderResources(const SkShader* shader, const SkPaint& paint,
+                                 Resources* resources);
+
+    void addPatternDef(const SkBitmap& bm);
 
     void addPaint(const SkPaint& paint, const Resources& resources);
+
 
     SkString addLinearGradientDef(const SkShader::GradientInfo& info, const SkShader* shader);
 
@@ -423,10 +461,9 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
     return resources;
 }
 
-void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resources* resources) {
-    const SkShader* shader = paint.getShader();
-    SkASSERT(SkToBool(shader));
-
+void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader,
+                                                          const SkPaint& paint,
+                                                          Resources* resources) {
     SkShader::GradientInfo grInfo;
     grInfo.fColorCount = 0;
     if (SkShader::kLinear_GradientType != shader->asAGradient(&grInfo)) {
@@ -446,6 +483,111 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
     SkASSERT(grInfo.fColorCount <= grOffsets.count());
 
     resources->fPaintServer.printf("url(#%s)", addLinearGradientDef(grInfo, shader).c_str());
+}
+
+// Returns data uri from bytes.
+// it will use any cached data if available, otherwise will
+// encode as png.
+sk_sp<SkData> AsDataUri(SkImage* image) {
+    sk_sp<SkData> imageData = image->encodeToData();
+    if (!imageData) {
+        SkDebugf("Failed to encode image shader's contents.");
+        return nullptr;
+    }
+
+    const char* src = (char*)imageData->data();
+    const char* selectedPrefix = nullptr;
+    size_t selectedPrefixLength = 0;
+
+    const static char pngDataPrefix[] = "data:image/png;base64,";
+    const static char jpgDataPrefix[] = "data:image/jpeg;base64,";
+
+    if (SkJpegCodec::IsJpeg(src, imageData->size())) {
+        selectedPrefix = jpgDataPrefix;
+        selectedPrefixLength = sizeof(jpgDataPrefix);
+    } else {
+      if (!SkPngCodec::IsPng(src, imageData->size())) {
+        SkDebugf("Cached image is stored as unsupported type: %d . re-encoding",
+                 SkCodec::MakeFromData(imageData)->getEncodedFormat());
+        imageData = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
+      }
+      selectedPrefix = pngDataPrefix;
+      selectedPrefixLength = sizeof(pngDataPrefix);
+    }
+
+    size_t b64Size = SkBase64::Encode(imageData->data(), imageData->size(), nullptr);
+    sk_sp<SkData> dataUri = SkData::MakeUninitialized(selectedPrefixLength + b64Size);
+    char* dest = (char*)dataUri->writable_data();
+    memcpy(dest, selectedPrefix, selectedPrefixLength);
+    SkBase64::Encode(imageData->data(), imageData->size(), dest + selectedPrefixLength - 1);
+    dest[dataUri->size() - 1] = 0;
+    return dataUri;
+}
+
+void SkSVGDevice::AutoElement::addImageShaderResources(const SkShader* shader, const SkPaint& paint,
+                                                       Resources* resources) {
+    SkMatrix outMatrix;
+
+    SkShader::TileMode xy[2];
+    SkImage* image = shader->isAImage(&outMatrix, xy);
+    SkASSERT(image);
+
+    SkString patternDims[2];  // width, height
+
+    sk_sp<SkData> dataUri = AsDataUri(image);
+    if (!dataUri) {
+        SkDebugf("Failed to encode data as data URI.");
+        return;
+    }
+    SkIRect imageSize = image->bounds();
+    for (int i = 0; i < 2; i++) {
+        int imageDimension = i == 0 ? imageSize.width() : imageSize.height();
+        switch (xy[i]) {
+            case SkShader::kRepeat_TileMode:
+                patternDims[i].appendScalar(imageDimension);
+            break;
+            default:
+                patternDims[i] = "100%";
+                SkDebugf("unhandled tilemode for %d th dim : %d", i, xy[i]);
+        }
+    }
+
+    SkString patternID = fResourceBucket->addPattern();
+    {
+        AutoElement pattern("pattern", fWriter);
+        pattern.addAttribute("id", patternID);
+        pattern.addAttribute("patternUnits", "userSpaceOnUse");
+        pattern.addAttribute("patternContentUnits", "userSpaceOnUse");
+        pattern.addAttribute("width", patternDims[0]);
+        pattern.addAttribute("height", patternDims[1]);
+        pattern.addAttribute("x", 0);
+        pattern.addAttribute("y", 0);
+
+        {
+            SkString imageID = fResourceBucket->addImage();
+            AutoElement imageTag("image", fWriter);
+            imageTag.addAttribute("id", imageID);
+            imageTag.addAttribute("x", 0);
+            imageTag.addAttribute("y", 0);
+            imageTag.addAttribute("width", image->width());
+            imageTag.addAttribute("height", image->height());
+            imageTag.addAttribute("xlink:href", static_cast<const char*>(dataUri->data()));
+        }
+    }
+    resources->fPaintServer.printf("url(#%s)", patternID.c_str());
+}
+
+void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resources* resources) {
+    const SkShader* shader = paint.getShader();
+    SkASSERT(shader);
+
+    if (shader->asAGradient(nullptr) != SkShader::kNone_GradientType) {
+        addGradientShaderResources(shader, paint, resources);
+    } else if (shader->isAImage()) {
+        addImageShaderResources(shader, paint, resources);
+    } else {
+        SkDebugf("unsupported shader type\n");
+    }
 }
 
 void SkSVGDevice::AutoElement::addClipResources(const MxCp& mc, Resources* resources) {
@@ -680,8 +822,22 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
 }
 
 void SkSVGDevice::drawRect(const SkRect& r, const SkPaint& paint) {
+    std::unique_ptr<AutoElement> svg;
+    if (RequiresViewportReset(paint)) {
+      svg.reset(new AutoElement("svg", fWriter, fResourceBucket.get(), MxCp(this), paint));
+      svg->addRectAttributes(r);
+    }
+
     AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this), paint);
-    rect.addRectAttributes(r);
+
+    if (svg) {
+      rect.addAttribute("x", 0);
+      rect.addAttribute("y", 0);
+      rect.addAttribute("width", "100%");
+      rect.addAttribute("height", "100%");
+    } else {
+      rect.addRectAttributes(r);
+    }
 }
 
 void SkSVGDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
