@@ -154,7 +154,7 @@ public:
                                                      bool isRenderTarget,
                                                      GrMipMapped mipMapped) override;
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
-    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandonTexture = false) override;
+    void deleteTestingOnlyBackendTexture(GrBackendTexture*) override;
 
     void resetShaderCacheForTesting() const override;
 
