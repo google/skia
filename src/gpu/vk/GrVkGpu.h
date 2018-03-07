@@ -74,7 +74,7 @@ public:
                                                      bool isRenderTarget,
                                                      GrMipMapped) override;
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
-    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandonTexture = false) override;
+    void deleteTestingOnlyBackendTexture(GrBackendTexture*) override;
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
