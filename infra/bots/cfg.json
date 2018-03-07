@@ -11,6 +11,7 @@
     "TSAN",
     "UBSAN",
     "Valgrind",
-    "AbandonGpuContext"
+    "AbandonGpuContext",
+    "SKQP"
   ]
 }

@@ -1,0 +1,41 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "catchsegv",
+      "[START_DIR]/out/devrel/run_testlab",
+      "--logtostderr",
+      "--devices",
+      "[START_DIR]/whitelist_devices.json",
+      "--upload_path",
+      "skia-stephana-test/testing/skqp-universal-debug.apk",
+      "[START_DIR]/out/devrel/skqp-universal-debug.apk"
+    ],
+    "env": {
+      "BUILDTYPE": "devrel",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "run firebase testlab"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

@@ -8,6 +8,7 @@ DEPS = [
   'depot_tools/cipd',
   'depot_tools/git',
   'env',
+  'infra',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',

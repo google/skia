@@ -31,6 +31,8 @@ import (
 
 const (
 	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_GCLOUD_LINUX_NAME   = "Housekeeper-PerCommit-IsolateGCloudLinux"
+	ISOLATE_GO_LINUX_NAME       = "Housekeeper-PerCommit-IsolateGoLinux"
 	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
@@ -434,6 +436,14 @@ type isolateAssetCfg struct {
 }
 
 var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
+	ISOLATE_GCLOUD_LINUX_NAME: {
+		isolateFile: "isolate_gcloud_linux.isolate",
+		cipdPkg:     "gcloud_linux",
+	},
+	ISOLATE_GO_LINUX_NAME: {
+		isolateFile: "isolate_go_linux.isolate",
+		cipdPkg:     "go",
+	},
 	ISOLATE_SKIMAGE_NAME: {
 		isolateFile: "isolate_skimage.isolate",
 		cipdPkg:     "skimage",
@@ -521,6 +531,10 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			pkgs = append(pkgs, pkg)
 		} else {
 			deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+			if strings.Contains(name, "SKQP") {
+				deps = append(deps, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME),
+					isolateCIPDAsset(b, ISOLATE_GO_LINUX_NAME))
+			}
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cast_toolchain"))
@@ -887,9 +901,15 @@ func doUpload(name string) bool {
 // test generates a Test task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
+	recipe := "test"
 	deps := []string{compileTaskName}
 	if strings.Contains(name, "Android_ASAN") {
 		deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+	}
+
+	if strings.Contains(name, "SKQP") {
+		recipe = "skqp_test"
+		deps = append(deps, isolateCIPDAsset(b, ISOLATE_GCLOUD_LINUX_NAME))
 	}
 
 	s := &specs.TaskSpec{
@@ -899,7 +919,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		ExecutionTimeout: 4 * time.Hour,
 		Expiration:       20 * time.Hour,
 		ExtraArgs: []string{
-			"--workdir", "../../..", "test",
+			"--workdir", "../../..", recipe,
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildbucket_build_id=%s", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID),
 			fmt.Sprintf("buildername=%s", name),
