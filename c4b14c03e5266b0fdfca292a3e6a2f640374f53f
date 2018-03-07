@@ -16,6 +16,24 @@
       "revId": "c4b14c03e5266b0fdfca292a3e6a2f640374f53f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2eeab91_d72db605",
+        "filename": "src/gpu/text/GrAtlasManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-07T16:59:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24b139dd_83d7b810",
+      "revId": "c4b14c03e5266b0fdfca292a3e6a2f640374f53f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
