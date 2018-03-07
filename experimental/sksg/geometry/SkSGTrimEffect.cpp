@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "SkPathMeasure.h"
+#include "SkStrokeRec.h"
 
 namespace sksg {
 
@@ -23,14 +24,23 @@ TrimEffect::~TrimEffect() {
 }
 
 void TrimEffect::onClip(SkCanvas* canvas, bool antiAlias) const {
-    canvas->clipPath(fChild->asPath(), SkClipOp::kIntersect, antiAlias);
+    canvas->clipPath(fTrimmedPath, SkClipOp::kIntersect, antiAlias);
 }
 
-// TODO
-//   This is a quick hack to get something on the screen.  What we really want here is to apply
-//   the geometry transformation and cache the result on revalidation. Or an SkTrimPathEffect.
 void TrimEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     SkASSERT(!paint.getPathEffect());
+
+    canvas->drawPath(fTrimmedPath, paint);
+}
+
+SkPath TrimEffect::onAsPath() const {
+    return fTrimmedPath;
+}
+
+SkRect TrimEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    SkASSERT(this->hasInval());
+
+    const auto childbounds = fChild->revalidate(ic, ctm);
 
     const auto path = fChild->asPath();
     SkScalar pathLen = 0;
@@ -44,26 +54,24 @@ void TrimEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
                offset = pathLen * fOffset,
                len    = end - start;
 
-    if (len <= 0) {
-        return;
+    fTrimmedPath.reset();
+
+    if (len > 0) {
+        // If the trim is positioned exactly at the beginning of the path, we don't expect any
+        // visible wrap-around.  But due to limited precision / accumulated error, the dash effect
+        // may sometimes start one extra dash at the very end (a flickering dot during animation).
+        // To avoid this, we bump the dash len by |epsilon|.
+        const SkScalar dashes[] = { len, pathLen + SK_ScalarNearlyZero - len };
+        auto dashEffect = SkDashPathEffect::Make(dashes,
+                                                 SK_ARRAY_COUNT(dashes),
+                                                 -start - offset);
+        if (dashEffect) {
+            SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
+            SkAssertResult(dashEffect->filterPath(&fTrimmedPath, path, &rec, &childbounds));
+        }
     }
 
-    const SkScalar dashes[] = { len, pathLen - len };
-    SkPaint dashedPaint(paint);
-    dashedPaint.setPathEffect(SkDashPathEffect::Make(dashes,
-                                                     SK_ARRAY_COUNT(dashes),
-                                                     -start - offset));
-
-    canvas->drawPath(path, dashedPaint);
-}
-
-SkPath TrimEffect::onAsPath() const {
-    return fChild->asPath();
-}
-
-SkRect TrimEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
-    SkASSERT(this->hasInval());
-    return fChild->revalidate(ic, ctm);
+    return fTrimmedPath.computeTightBounds();
 }
 
 } // namespace sksg
