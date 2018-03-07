@@ -89,24 +89,38 @@ protected:
     typedef GrGLSLGeometryProcessor INHERITED;
 };
 
+static constexpr int kVertexData_LeftNeighborIdShift = 9;
+static constexpr int kVertexData_RightNeighborIdShift = 7;
+static constexpr int kVertexData_BloatIdxShift = 5;
+static constexpr int kVertexData_InvertCoverageBit = 1 << 4;
+static constexpr int kVertexData_IsEdgeBit = 1 << 3;
+static constexpr int kVertexData_IsHullBit = 1 << 2;
+
 /**
  * Vertex data tells the shader how to offset vertices for conservative raster, and how/whether to
  * calculate initial coverage values for edges. See VSHullAndEdgeImpl.
  */
-static constexpr int32_t pack_vertex_data(int32_t bloatIdx, int32_t edgeData,
-                                          int32_t cornerVertexID, int32_t cornerIdx) {
-    return (bloatIdx << 6) | (edgeData << 4) | (cornerVertexID << 2) | cornerIdx;
+static constexpr int32_t pack_vertex_data(int32_t leftNeighborID, int32_t rightNeighborID,
+                                          int32_t bloatIdx, int32_t cornerID,
+                                          int32_t extraData = 0) {
+    return (leftNeighborID << kVertexData_LeftNeighborIdShift) |
+           (rightNeighborID << kVertexData_RightNeighborIdShift) |
+           (bloatIdx << kVertexData_BloatIdxShift) |
+           cornerID | extraData;
 }
 
-static constexpr int32_t hull_vertex_data(int32_t cornerIdx, int32_t cornerVertexID, int n) {
-    return pack_vertex_data((cornerIdx + (2 == cornerVertexID ? 1 : n - 1)) % n, 0, cornerVertexID,
-                            cornerIdx);
+static constexpr int32_t hull_vertex_data(int32_t cornerID, int32_t bloatIdx, int n) {
+    return pack_vertex_data((cornerID + n - 1) % n, (cornerID + 1) % n, bloatIdx, cornerID,
+                            kVertexData_IsHullBit);
 }
 
-static constexpr int32_t edge_vertex_data(int32_t edgeID, int32_t endptIdx, int32_t endptVertexID,
+static constexpr int32_t edge_vertex_data(int32_t edgeID, int32_t endptIdx, int32_t bloatIdx,
                                           int n) {
-    return pack_vertex_data(0 == endptIdx ? (edgeID + 1) % n : edgeID, (endptIdx << 1) | 1,
-                            endptVertexID, 0 == endptIdx ? edgeID : (edgeID + 1) % n);
+    return pack_vertex_data(0 == endptIdx ? (edgeID + 1) % n : edgeID,
+                            0 == endptIdx ? (edgeID + 1) % n : edgeID,
+                            bloatIdx, 0 == endptIdx ? edgeID : (edgeID + 1) % n,
+                            kVertexData_IsEdgeBit |
+                            (!endptIdx ? kVertexData_InvertCoverageBit : 0));
 }
 
 static constexpr int32_t kHull3AndEdgeVertices[] = {
@@ -251,55 +265,78 @@ public:
         // Reverse all indices if the wind is counter-clockwise: [0, 1, 2] -> [2, 1, 0].
         v->codeAppendf("int clockwise_indices = wind > 0 ? %s : 0x%x - %s;",
                        proc.getAttrib(kAttribIdx_VertexData).fName,
-                       ((fNumSides - 1) << 6) | (0xf << 2) | (fNumSides - 1),
+                       ((fNumSides - 1) << kVertexData_LeftNeighborIdShift) |
+                       ((fNumSides - 1) << kVertexData_RightNeighborIdShift) |
+                       (((1 << kVertexData_RightNeighborIdShift) - 1) ^ 3) |
+                       (fNumSides - 1),
                        proc.getAttrib(kAttribIdx_VertexData).fName);
 
         // Here we generate conservative raster geometry for the input polygon. It is the convex
         // hull of N pixel-size boxes, one centered on each the input points. Each corner has three
         // vertices, where one or two may cause degenerate triangles. The vertex data tells us how
-        // to offset each vertex. Triangle edges are also handled here (see kHull3AndEdgeIndices).
-        // For more details on conservative raster, see:
+        // to offset each vertex. For more details on conservative raster, see:
         // https://developer.nvidia.com/gpugems/GPUGems2/gpugems2_chapter42.html
+        //
+        // Triangle edges are also handled here using the same concept (see kHull3AndEdgeVertices).
         v->codeAppendf("float2 corner = %s[clockwise_indices & 3];", hullPts);
-        v->codeAppendf("float2 bloatpoint = %s[clockwise_indices >> 6];", hullPts);
-        v->codeAppend ("float2 vertexbloat = float2(bloatpoint.y > corner.y ? -bloat : +bloat, "
-                                                   "bloatpoint.x > corner.x ? +bloat : -bloat);");
+        v->codeAppendf("float2 left = %s[clockwise_indices >> %i];",
+                       hullPts, kVertexData_LeftNeighborIdShift);
+        v->codeAppendf("float2 right = %s[(clockwise_indices >> %i) & 3];",
+                       hullPts, kVertexData_RightNeighborIdShift);
 
-        v->codeAppendf("if ((1 << 2) == (%s & (3 << 2))) {",
-                       proc.getAttrib(kAttribIdx_VertexData).fName);
-                           // We are the corner's middle vertex (of 3).
-        v->codeAppend (    "vertexbloat = float2(-vertexbloat.y, vertexbloat.x);");
+        v->codeAppend ("float2 leftbloat = sign(corner - left);");
+        v->codeAppend ("leftbloat = float2(0 != leftbloat.y ? leftbloat.y : leftbloat.x, "
+                                          "0 != leftbloat.x ? -leftbloat.x : -leftbloat.y);");
+
+        v->codeAppend ("float2 rightbloat = sign(right - corner);");
+        v->codeAppend ("rightbloat = float2(0 != rightbloat.y ? rightbloat.y : rightbloat.x, "
+                                           "0 != rightbloat.x ? -rightbloat.x : -rightbloat.y);");
+
+        v->codeAppend ("bool2 left_right_notequal = notEqual(leftbloat, rightbloat);");
+
+        // At each corner of the polygon, our hull will have either 1, 2, or 3 vertices. We begin
+        // with the first hull vertex (leftbloat), then continue rotating 90 degrees clockwise until
+        // we reach the desired vertex for this invocation. Corners with less than 3 corresponding
+        // hull vertices will result in redundant vertices and degenerate triangles.
+        v->codeAppend ("float2 bloatdir = leftbloat;");
+        v->codeAppendf("int bloatidx = (%s >> %i) & 3;",
+                       proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_BloatIdxShift);
+        v->codeAppend ("switch (bloatidx) {");
+        v->codeAppend (    "case 2:");
+        v->codeAppendf(        "if (all(left_right_notequal)) {");
+        v->codeAppend (            "bloatdir = float2(-bloatdir.y, +bloatdir.x);");
+        v->codeAppend (        "}");
+                               // fallthru.
+        v->codeAppend (    "case 1:");
+        v->codeAppendf(        "if (any(left_right_notequal)) {");
+        v->codeAppend (            "bloatdir = float2(-bloatdir.y, +bloatdir.x);");
+        v->codeAppend (        "}");
+                               // fallthru.
         v->codeAppend ("}");
 
-        v->codeAppendf("if ((2 << 2) == (%s & (3 << 2))) {",
-                       proc.getAttrib(kAttribIdx_VertexData).fName);
-                           // We are the corner's third vertex (of 3).
-        v->codeAppend (    "vertexbloat = -vertexbloat;");
-        v->codeAppend ("}");
+        // For triangles, we also emit coverage in order to handle edges and corners.
+        const char* coverage = nullptr;
+        if (3 == fNumSides) {
+            v->codeAppend ("half coverage;");
+            Shader::CalcEdgeCoverageAtBloatVertex(v, "left", "corner", "bloatdir", "coverage");
+            v->codeAppendf("if (0 != (%s & %i)) {", // Are we the opposite endpoint of an edge?
+                           proc.getAttrib(kAttribIdx_VertexData).fName,
+                           kVertexData_InvertCoverageBit);
+            v->codeAppend (    "coverage = -1 - coverage;");
+            v->codeAppend ("}");
 
-        v->codeAppend ("float2 vertex = corner + vertexbloat;");
-        gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
+            v->codeAppendf("if (0 != (%s & %i)) {", // Are we a hull vertex?
+                           proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_IsHullBit);
+            v->codeAppend (    "coverage = +1;"); // Hull coverage is +1 all around.
+            v->codeAppend ("}");
 
-        if (4 == fNumSides) {
-            // We don't generate edges around 4-sided polygons.
-            return nullptr; // Known hull vertices don't need an initial coverage value.
+            coverage = "coverage";
         }
 
-        // Find coverage for edge vertices.
-        Shader::EmitEdgeDistanceEquation(v, "bloatpoint", "corner",
-                                         "float3 edge_distance_equation");
-        v->codeAppend ("half coverage = dot(edge_distance_equation.xy, vertex) + "
-                                       "edge_distance_equation.z;");
-        v->codeAppendf("if (0 == (%s & (1 << 5))) {", proc.getAttrib(kAttribIdx_VertexData).fName);
-                           // We are the opposite endpoint. Invert coverage.
-        v->codeAppend (    "coverage = -1 - coverage;");
-        v->codeAppend ("}");
-        v->codeAppendf("if (0 == (%s & (1 << 4))) {", proc.getAttrib(kAttribIdx_VertexData).fName);
-                           // We are actually a hull vertex. Hull coverage is +1 all around.
-        v->codeAppend (    "coverage = +1;");
-        v->codeAppend ("}");
+        v->codeAppend ("float2 vertex = corner + bloatdir * bloat;");
+        gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
 
-        return "coverage";
+        return coverage;
     }
 
 private:
