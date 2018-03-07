@@ -28,6 +28,20 @@ int GrDrawOpAtlas::numAllocated_TestingOnly() const {
     return count;
 }
 
+void GrAtlasManager::setMaxPages_TestingOnly(uint32_t numPages) {
+    for (int i = 0; i < kMaskFormatCount; i++) {
+        if (fAtlases[i]) {
+            fAtlases[i]->setMaxPages_TestingOnly(numPages);
+        }
+    }
+}
+
+void GrDrawOpAtlas::setMaxPages_TestingOnly(uint32_t maxPages) {
+    SkASSERT(!fNumActivePages);
+
+    fMaxPages = maxPages;
+}
+
 void EvictionFunc(GrDrawOpAtlas::AtlasID atlasID, void*) {
     SkASSERT(0); // The unit test shouldn't exercise this code path
 }
@@ -43,9 +57,8 @@ class TestingUploadTarget : public GrDeferredUploadTarget {
 public:
     TestingUploadTarget() { }
 
-    const GrTokenTracker* tokenTracker() final {
-        return &fTokenTracker;
-    }
+    const GrTokenTracker* tokenTracker() final { return &fTokenTracker; }
+    GrTokenTracker* writeableTokenTracker() { return &fTokenTracker; }
 
     GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) final {
         SkASSERT(0); // this test shouldn't invoke this code path
@@ -77,13 +90,16 @@ static bool fill_plot(GrDrawOpAtlas* atlas,
     data.eraseARGB(alpha, 0, 0, 0);
 
     SkIPoint16 loc;
-    bool result = atlas->addToAtlas(resourceProvider, atlasID, target, kPlotSize, kPlotSize,
-                                    data.getAddr(0, 0), &loc);
-    return result;
+    GrDrawOpAtlas::ErrorCode code;
+    code = atlas->addToAtlas(resourceProvider, atlasID, target, kPlotSize, kPlotSize,
+                              data.getAddr(0, 0), &loc);
+    return GrDrawOpAtlas::ErrorCode::kSucceeded == code;
 }
 
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DrawOpAtlas, reporter, ctxInfo) {
+// This is a basic DrawOpAtlas test. It simply verifies that multitexture atlases correctly
+// add and remove pages. Note that this is simulating flush-time behavior.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     auto context = ctxInfo.grContext();
     auto proxyProvider = context->contextPriv().proxyProvider();
     auto resourceProvider = context->contextPriv().resourceProvider();
@@ -128,5 +144,69 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DrawOpAtlas, reporter, ctxInfo) {
 
     check(reporter, atlas.get(), 1, 4, 1);
 }
+
+#include "GrTest.h"
+
+#include "GrDrawingManager.h"
+#include "GrOpFlushState.h"
+#include "GrProxyProvider.h"
+
+#include "effects/GrConstColorProcessor.h"
+#include "ops/GrAtlasTextOp.h"
+#include "text/GrAtlasTextContext.h"
+
+// This test verifies that the GrAtlasTextOp::onPrepare method correctly handles a failure
+// when allocating an atlas page.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) {
+
+    auto context = ctxInfo.grContext();
+
+    auto gpu = context->contextPriv().getGpu();
+    auto resourceProvider = context->contextPriv().resourceProvider();
+    auto drawingManager = context->contextPriv().drawingManager();
+    auto textContext = drawingManager->getAtlasTextContext();
+
+    auto rtc =  context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                                       32, 32,
+                                                                       kRGBA_8888_GrPixelConfig,
+                                                                       nullptr);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    paint.setLCDRenderText(false);
+    paint.setAntiAlias(false);
+    paint.setSubpixelText(false);
+    GrTextUtils::Paint utilsPaint(&paint, &rtc->colorSpaceInfo());
+
+    const char* text = "a";
+
+    std::unique_ptr<GrDrawOp> op = textContext->createOp_TestingOnly(context, textContext,
+                                                                     rtc.get(), paint,
+                                                                     SkMatrix::I(), text,
+                                                                     16, 16);
+    op->finalize(*context->caps(), nullptr, GrPixelConfigIsClamped::kNo);
+
+    TestingUploadTarget uploadTarget;
+
+    GrOpFlushState flushState(gpu, resourceProvider, uploadTarget.writeableTokenTracker());
+    GrOpFlushState::OpArgs opArgs = {
+        op.get(),
+        rtc->asRenderTargetProxy(),
+        nullptr,
+        GrXferProcessor::DstProxy(nullptr, SkIPoint::Make(0, 0))
+    };
+
+    // Cripple the atlas manager so it can't allocate any pages. This will force a failure
+    // in the preparation of the text op
+    auto atlasManager = context->contextPriv().getFullAtlasManager();
+    unsigned int numProxies;
+    atlasManager->getProxies(kA8_GrMaskFormat, &numProxies);
+    atlasManager->setMaxPages_TestingOnly(0);
+
+    flushState.setOpArgs(&opArgs);
+    op->prepare(&flushState);
+    flushState.setOpArgs(nullptr);
+}
+
 
 #endif

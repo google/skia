@@ -43,6 +43,91 @@ static const SkScalar kMaxDim = 73;
 static const SkScalar kMinSize = SK_ScalarHalf;
 static const SkScalar kMaxSize = 2*kMaxMIP;
 
+class ShapeDataKey {
+public:
+    ShapeDataKey() {}
+    ShapeDataKey(const ShapeDataKey& that) { *this = that; }
+    ShapeDataKey(const GrShape& shape, uint32_t dim) { this->set(shape, dim); }
+    ShapeDataKey(const GrShape& shape, const SkMatrix& ctm) { this->set(shape, ctm); }
+
+    ShapeDataKey& operator=(const ShapeDataKey& that) {
+        fKey.reset(that.fKey.count());
+        memcpy(fKey.get(), that.fKey.get(), fKey.count() * sizeof(uint32_t));
+        return *this;
+    }
+
+    // for SDF paths
+    void set(const GrShape& shape, uint32_t dim) {
+        // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
+        // relevant styling information.
+        SkASSERT(shape.style().isSimpleFill());
+        SkASSERT(shape.hasUnstyledKey());
+        int shapeKeySize = shape.unstyledKeySize();
+        fKey.reset(1 + shapeKeySize);
+        fKey[0] = dim;
+        shape.writeUnstyledKey(&fKey[1]);
+    }
+
+    // for bitmap paths
+    void set(const GrShape& shape, const SkMatrix& ctm) {
+        // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
+        // relevant styling information.
+        SkASSERT(shape.style().isSimpleFill());
+        SkASSERT(shape.hasUnstyledKey());
+        // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
+        SkScalar sx = ctm.get(SkMatrix::kMScaleX);
+        SkScalar sy = ctm.get(SkMatrix::kMScaleY);
+        SkScalar kx = ctm.get(SkMatrix::kMSkewX);
+        SkScalar ky = ctm.get(SkMatrix::kMSkewY);
+        SkScalar tx = ctm.get(SkMatrix::kMTransX);
+        SkScalar ty = ctm.get(SkMatrix::kMTransY);
+        // Allow 8 bits each in x and y of subpixel positioning.
+        SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
+        SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
+        int shapeKeySize = shape.unstyledKeySize();
+        fKey.reset(5 + shapeKeySize);
+        fKey[0] = SkFloat2Bits(sx);
+        fKey[1] = SkFloat2Bits(sy);
+        fKey[2] = SkFloat2Bits(kx);
+        fKey[3] = SkFloat2Bits(ky);
+        fKey[4] = fracX | (fracY >> 8);
+        shape.writeUnstyledKey(&fKey[5]);
+    }
+
+    bool operator==(const ShapeDataKey& that) const {
+        return fKey.count() == that.fKey.count() &&
+                0 == memcmp(fKey.get(), that.fKey.get(), sizeof(uint32_t) * fKey.count());
+    }
+
+    int count32() const { return fKey.count(); }
+    const uint32_t* data() const { return fKey.get(); }
+
+private:
+    // The key is composed of the GrShape's key, and either the dimensions of the DF
+    // generated for the path (32x32 max, 64x64 max, 128x128 max) if an SDF image or
+    // the matrix for the path with only fractional translation.
+    SkAutoSTArray<24, uint32_t> fKey;
+};
+
+class ShapeData {
+public:
+    ShapeDataKey           fKey;
+    GrDrawOpAtlas::AtlasID fID;
+    SkRect                 fBounds;
+    GrIRect16              fTextureCoords;
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
+
+    static inline const ShapeDataKey& GetKey(const ShapeData& data) {
+        return data.fKey;
+    }
+
+    static inline uint32_t Hash(ShapeDataKey key) {
+        return SkOpts::hash(key.data(), sizeof(uint32_t) * key.count32());
+    }
+};
+
+
+
 // Callback to clear out internal path cache when eviction occurs
 void GrSmallPathRenderer::HandleEviction(GrDrawOpAtlas::AtlasID id, void* pr) {
     GrSmallPathRenderer* dfpr = (GrSmallPathRenderer*)pr;
@@ -134,8 +219,7 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    using ShapeData = GrSmallPathRenderer::ShapeData;
-    using ShapeCache = SkTDynamicHash<ShapeData, ShapeData::Key>;
+    using ShapeCache = SkTDynamicHash<ShapeData, ShapeDataKey>;
     using ShapeDataList = GrSmallPathRenderer::ShapeDataList;
 
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const GrShape& shape,
@@ -330,7 +414,7 @@ private:
                 SkScalar desiredDimension = SkTMin(mipSize, kMaxMIP);
 
                 // check to see if df path is cached
-                ShapeData::Key key(args.fShape, SkScalarCeilToInt(desiredDimension));
+                ShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));
                 shapeData = fShapeCache->find(key);
                 if (nullptr == shapeData || !fAtlas->hasID(shapeData->fID)) {
                     // Remove the stale cache entry
@@ -355,7 +439,7 @@ private:
                 }
             } else {
                 // check to see if bitmap path is cached
-                ShapeData::Key key(args.fShape, args.fViewMatrix);
+                ShapeDataKey key(args.fShape, args.fViewMatrix);
                 shapeData = fShapeCache->find(key);
                 if (nullptr == shapeData || !fAtlas->hasID(shapeData->fID)) {
                     // Remove the stale cache entry
@@ -394,10 +478,32 @@ private:
         this->flush(target, &flushInfo);
     }
 
+    bool addToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
+                    int width, int height, const void* image,
+                    GrDrawOpAtlas::AtlasID* id, SkIPoint16* atlasLocation) const {
+        auto resourceProvider = target->resourceProvider();
+        auto uploadTarget = target->deferredUploadTarget();
+
+        GrDrawOpAtlas::ErrorCode code = atlas->addToAtlas(resourceProvider, id,
+                                                          uploadTarget, width, height,
+                                                          image, atlasLocation);
+        if (GrDrawOpAtlas::ErrorCode::kError == code) {
+            return false;
+        }
+
+        if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
+            this->flush(target, flushInfo);
+
+            code = atlas->addToAtlas(resourceProvider, id, uploadTarget, width, height,
+                                     image, atlasLocation);
+        }
+
+        return GrDrawOpAtlas::ErrorCode::kSucceeded == code;
+    }
+
     bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           uint32_t dimension, SkScalar scale) const {
-        auto resourceProvider = target->resourceProvider();
 
         const SkRect& bounds = shape.bounds();
 
@@ -486,14 +592,10 @@ private:
         // add to atlas
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
-        auto uploadTarget = target->deferredUploadTarget();
-        if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, width, height,
-                               dfStorage.get(), &atlasLocation)) {
-            this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, width, height,
-                                   dfStorage.get(), &atlasLocation)) {
-                return false;
-            }
+
+        if (!this->addToAtlas(target, flushInfo, atlas,
+                              width, height, dfStorage.get(), &id, &atlasLocation)) {
+            return false;
         }
 
         // add to cache
@@ -530,8 +632,6 @@ private:
     bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           const SkMatrix& ctm) const {
-        auto resourceProvider = target->resourceProvider();
-
         const SkRect& bounds = shape.bounds();
         if (bounds.isEmpty()) {
             return false;
@@ -591,14 +691,10 @@ private:
         // add to atlas
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
-        auto uploadTarget = target->deferredUploadTarget();
-        if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, dst.width(), dst.height(),
-                               dst.addr(), &atlasLocation)) {
-            this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(resourceProvider, &id, uploadTarget, dst.width(), dst.height(),
-                                   dst.addr(), &atlasLocation)) {
-                return false;
-            }
+
+        if (!this->addToAtlas(target, flushInfo, atlas,
+                              dst.width(), dst.height(), dst.addr(), &id, &atlasLocation)) {
+            return false;
         }
 
         // add to cache
@@ -853,6 +949,21 @@ struct GrSmallPathRenderer::PathTestStruct {
     ShapeDataList fShapeList;
 };
 
+std::unique_ptr<GrDrawOp> GrSmallPathRenderer::createOp_TestingOnly(
+                                                        GrPaint&& paint,
+                                                        const GrShape& shape,
+                                                        const SkMatrix& viewMatrix,
+                                                        GrDrawOpAtlas* atlas,
+                                                        ShapeCache* shapeCache,
+                                                        ShapeDataList* shapeList,
+                                                        bool gammaCorrect,
+                                                        const GrUserStencilSettings* stencil) {
+
+    return GrSmallPathRenderer::SmallPathOp::Make(std::move(paint), shape, viewMatrix, atlas,
+                                                  shapeCache, shapeList, gammaCorrect, stencil);
+
+}
+
 GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     using PathTestStruct = GrSmallPathRenderer::PathTestStruct;
     static PathTestStruct gTestStruct;
@@ -874,10 +985,13 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
 
     // This path renderer only allows fill styles.
     GrShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
-
-    return GrSmallPathRenderer::SmallPathOp::Make(
-            std::move(paint), shape, viewMatrix, gTestStruct.fAtlas.get(), &gTestStruct.fShapeCache,
-            &gTestStruct.fShapeList, gammaCorrect, GrGetRandomStencil(random, context));
+    return GrSmallPathRenderer::createOp_TestingOnly(
+                                         std::move(paint), shape, viewMatrix,
+                                         gTestStruct.fAtlas.get(),
+                                         &gTestStruct.fShapeCache,
+                                         &gTestStruct.fShapeList,
+                                         gammaCorrect,
+                                         GrGetRandomStencil(random, context));
 }
 
 #endif

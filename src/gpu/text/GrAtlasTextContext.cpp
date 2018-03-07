@@ -930,6 +930,37 @@ void GrAtlasTextContext::FallbackTextHelper::drawText(GrAtlasTextBlob* blob, int
 
 #include "GrRenderTargetContext.h"
 
+std::unique_ptr<GrDrawOp> GrAtlasTextContext::createOp_TestingOnly(
+                                                       GrContext* context,
+                                                       GrAtlasTextContext* textContext,
+                                                       GrRenderTargetContext* rtc,
+                                                       const SkPaint& skPaint,
+                                                       const SkMatrix& viewMatrix,
+                                                       const char* text, int x, int y) {
+    auto glyphCache = context->contextPriv().getGlyphCache();
+    auto restrictedAtlasManager = context->contextPriv().getRestrictedAtlasManager();
+
+    static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
+
+    size_t textLen = (int)strlen(text);
+
+    GrTextUtils::Paint utilsPaint(&skPaint, &rtc->colorSpaceInfo());
+
+    // right now we don't handle textblobs, nor do we handle drawPosText. Since we only intend to
+    // test the text op with this unit test, that is okay.
+    sk_sp<GrAtlasTextBlob> blob(textContext->makeDrawTextBlob(
+                                            context->contextPriv().getTextBlobCache(), glyphCache,
+                                            *context->caps()->shaderCaps(), utilsPaint,
+                                            GrAtlasTextContext::kTextBlobOpScalerContextFlags,
+                                            viewMatrix, surfaceProps, text,
+                                            static_cast<size_t>(textLen),
+                                            SkIntToScalar(x), SkIntToScalar(y)));
+
+    return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, utilsPaint, surfaceProps,
+                             textContext->dfAdjustTable(), restrictedAtlasManager,
+                             rtc->textTarget());
+}
+
 GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     static uint32_t gContextID = SK_InvalidGenID;
     static std::unique_ptr<GrAtlasTextContext> gTextContext;
@@ -953,10 +984,8 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     skPaint.setLCDRenderText(random->nextBool());
     skPaint.setAntiAlias(skPaint.isLCDRenderText() ? true : random->nextBool());
     skPaint.setSubpixelText(random->nextBool());
-    GrTextUtils::Paint utilsPaint(&skPaint, &rtc->colorSpaceInfo());
 
     const char* text = "The quick brown fox jumps over the lazy dog.";
-    int textLen = (int)strlen(text);
 
     // create some random x/y offsets, including negative offsets
     static const int kMaxTrans = 1024;
@@ -964,23 +993,9 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     int yPos = (random->nextU() % 2) * 2 - 1;
     int xInt = (random->nextU() % kMaxTrans) * xPos;
     int yInt = (random->nextU() % kMaxTrans) * yPos;
-    SkScalar x = SkIntToScalar(xInt);
-    SkScalar y = SkIntToScalar(yInt);
 
-    auto glyphCache = context->contextPriv().getGlyphCache();
-    auto restrictedAtlasManager = context->contextPriv().getRestrictedAtlasManager();
-
-    // right now we don't handle textblobs, nor do we handle drawPosText. Since we only intend to
-    // test the text op with this unit test, that is okay.
-    sk_sp<GrAtlasTextBlob> blob(gTextContext->makeDrawTextBlob(
-            context->contextPriv().getTextBlobCache(), glyphCache,
-            *context->caps()->shaderCaps(), utilsPaint,
-            GrAtlasTextContext::kTextBlobOpScalerContextFlags, viewMatrix, gSurfaceProps, text,
-            static_cast<size_t>(textLen), x, y));
-
-    return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, utilsPaint, gSurfaceProps,
-                             gTextContext->dfAdjustTable(), restrictedAtlasManager,
-                             rtc->textTarget());
+    return gTextContext->createOp_TestingOnly(context, gTextContext.get(), rtc.get(),
+                                              skPaint, viewMatrix, text, xInt, yInt);
 }
 
 #endif

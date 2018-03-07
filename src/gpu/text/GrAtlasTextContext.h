@@ -55,6 +55,11 @@ public:
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
                       SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
 
+    std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*, GrAtlasTextContext*,
+                                                   GrRenderTargetContext*, const SkPaint&,
+                                                   const SkMatrix& viewMatrix, const char* text,
+                                                   int x, int y);
+
 private:
     GrAtlasTextContext(const Options& options);
 
