@@ -120,7 +120,6 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* t
     SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorSpaceInfo());
 
     auto glyphCache = context->contextPriv().getGlyphCache();
-    auto restrictedAtlasManager = context->contextPriv().getRestrictedAtlasManager();
     GrTextBlobCache* textBlobCache = context->contextPriv().getTextBlobCache();
 
     if (canCache) {
@@ -182,7 +181,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* t
                                  viewMatrix, props, blob, x, y, drawFilter);
     }
 
-    cacheBlob->flush(restrictedAtlasManager, target, props, fDistanceAdjustTable.get(), paint,
+    cacheBlob->flush(target, props, fDistanceAdjustTable.get(), paint,
                      clip, viewMatrix, clipBounds, x, y);
 }
 
@@ -323,7 +322,6 @@ void GrAtlasTextContext::drawText(GrContext* context, GrTextUtils::Target* targe
     }
 
     auto glyphCache = context->contextPriv().getGlyphCache();
-    auto restrictedAtlasManager = context->contextPriv().getRestrictedAtlasManager();
     auto textBlobCache = context->contextPriv().getTextBlobCache();
 
     GrTextUtils::Paint paint(&skPaint, &target->colorSpaceInfo());
@@ -333,7 +331,7 @@ void GrAtlasTextContext::drawText(GrContext* context, GrTextUtils::Target* targe
                                     ComputeScalerContextFlags(target->colorSpaceInfo()),
                                     viewMatrix, props, text, byteLength, x, y));
     if (blob) {
-        blob->flush(restrictedAtlasManager, target, props, fDistanceAdjustTable.get(), paint,
+        blob->flush(target, props, fDistanceAdjustTable.get(), paint,
                     clip, viewMatrix, regionClipBounds, x, y);
     }
 }
@@ -350,7 +348,6 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrTextUtils::Target* ta
     }
 
     auto glyphCache = context->contextPriv().getGlyphCache();
-    auto restrictedAtlasManager = context->contextPriv().getRestrictedAtlasManager();
     auto textBlobCache = context->contextPriv().getTextBlobCache();
 
     sk_sp<GrAtlasTextBlob> blob(this->makeDrawPosTextBlob(
@@ -359,7 +356,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrTextUtils::Target* ta
             ComputeScalerContextFlags(target->colorSpaceInfo()), viewMatrix, props, text,
             byteLength, pos, scalarsPerPosition, offset));
     if (blob) {
-        blob->flush(restrictedAtlasManager, target, props, fDistanceAdjustTable.get(), paint,
+        blob->flush(target, props, fDistanceAdjustTable.get(), paint,
                     clip, viewMatrix, regionClipBounds, offset.fX, offset.fY);
     }
 }
@@ -968,7 +965,6 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     SkScalar y = SkIntToScalar(yInt);
 
     auto glyphCache = context->contextPriv().getGlyphCache();
-    auto restrictedAtlasManager = context->contextPriv().getRestrictedAtlasManager();
 
     // right now we don't handle textblobs, nor do we handle drawPosText. Since we only intend to
     // test the text op with this unit test, that is okay.
@@ -979,7 +975,7 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
             static_cast<size_t>(textLen), x, y));
 
     return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, utilsPaint, gSurfaceProps,
-                             gTextContext->dfAdjustTable(), restrictedAtlasManager,
+                             gTextContext->dfAdjustTable(),
                              rtc->textTarget());
 }
 

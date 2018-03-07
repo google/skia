@@ -42,10 +42,8 @@ public:
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(
                                 GrPaint&& paint, GrMaskFormat maskFormat, int glyphCount,
-                                bool hasScaledGlyphs,
-                                GrRestrictedAtlasManager* restrictedAtlasManager) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(restrictedAtlasManager,
-                                                            std::move(paint)));
+                                bool hasScaledGlyphs) {
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
         switch (maskFormat) {
             case kA8_GrMaskFormat:
@@ -66,12 +64,10 @@ public:
     }
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrPaint&& paint, int glyphCount, GrRestrictedAtlasManager* restrictedAtlasManager,
-            const GrDistanceFieldAdjustTable* distanceAdjustTable,
+            GrPaint&& paint, int glyphCount, const GrDistanceFieldAdjustTable* distanceAdjustTable,
             bool useGammaCorrectDistanceTable, SkColor luminanceColor, bool isLCD, bool useBGR,
             bool isAntiAliased) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(restrictedAtlasManager,
-                                                            std::move(paint)));
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
         op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
                                        : isLCD ? (useBGR ? kLCDBGRDistanceField_MaskType
@@ -123,9 +119,8 @@ private:
     // The minimum number of Geometry we will try to allocate.
     static constexpr auto kMinGeometryAllocated = 12;
 
-    GrAtlasTextOp(GrRestrictedAtlasManager* restrictedAtlasManager, GrPaint&& paint)
+    GrAtlasTextOp(GrPaint&& paint)
             : INHERITED(ClassID())
-            , fRestrictedAtlasManager(restrictedAtlasManager)
             , fGeoDataAllocSize(kMinGeometryAllocated)
             , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
             , fProcessors(std::move(paint)) {}
@@ -178,9 +173,8 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
-    sk_sp<GrGeometryProcessor> setupDfProcessor(GrRestrictedAtlasManager*) const;
+    sk_sp<GrGeometryProcessor> setupDfProcessor(GrAtlasManager*) const;
 
-    GrRestrictedAtlasManager* fRestrictedAtlasManager;
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;
     uint32_t fSRGBFlags;
