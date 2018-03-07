@@ -129,7 +129,8 @@ public:
      */
     sk_sp<GrTextureProxy> wrapRenderableBackendTexture(const GrBackendTexture&,
                                                        GrSurfaceOrigin,
-                                                       int sampleCnt);
+                                                       int sampleCnt,
+                                                       GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     /*
      * Create a render target proxy that wraps a backend rendertarget
