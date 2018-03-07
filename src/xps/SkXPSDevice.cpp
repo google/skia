@@ -1877,7 +1877,7 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
     newTypefaceUse.xpsFont = xpsFontResource.release();
 
     SkAutoGlyphCache agc(paint, &this->surfaceProps(), &SkMatrix::I());
-    SkGlyphCache* glyphCache = agc.get();
+    SkGlyphCache* glyphCache = agc.getCache();
     unsigned int glyphCount = glyphCache->getGlyphCount();
     newTypefaceUse.glyphsUsed = new SkBitSet(glyphCount);
 
@@ -2064,7 +2064,7 @@ void SkXPSDevice::drawText(const void* text, size_t byteLen,
     const SkMatrix& matrix = SkMatrix::I();
 
     SkAutoGlyphCache    autoCache(paint, &this->surfaceProps(), &matrix);
-    SkGlyphCache*       cache = autoCache.get();
+    SkGlyphCache*       cache = autoCache.getCache();
 
     // Advance width and offsets for glyphs measured in hundredths of the font em size
     // (XPS Spec 5.1.3).
@@ -2122,7 +2122,7 @@ void SkXPSDevice::drawPosText(const void* text, size_t byteLen,
     const SkMatrix& matrix = SkMatrix::I();
 
     SkAutoGlyphCache    autoCache(paint, &this->surfaceProps(), &matrix);
-    SkGlyphCache*       cache = autoCache.get();
+    SkGlyphCache*       cache = autoCache.getCache();
 
     // Advance width and offsets for glyphs measured in hundredths of the font em size
     // (XPS Spec 5.1.3).

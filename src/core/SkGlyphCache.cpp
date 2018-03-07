@@ -505,23 +505,6 @@ SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
     return FindOrCreateStrikeExclusive(desc, creator);
 }
 
-SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
-    const SkPaint& paint,
-    const SkSurfaceProps* surfaceProps,
-    SkScalerContextFlags scalerContextFlags,
-    const SkMatrix* deviceMatrix)
-{
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
-
-    auto tf = SkPaintPriv::GetTypefaceOrDefault(paint);
-
-    return FindOrCreateStrikeExclusive(*desc, effects, *tf);
-}
-
 void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
     SkGlyphCache_Globals::AttachCache(cache);
 }
@@ -803,3 +786,22 @@ void SkGraphics::PurgeFontCache() {
 size_t SkGraphics::GetTLSFontCacheLimit() { return 0; }
 void SkGraphics::SetTLSFontCacheLimit(size_t bytes) { }
 
+SkGlyphCache* SkGlyphCache::DetachCache(
+    SkTypeface* typeface, const SkScalerContextEffects& effects, const SkDescriptor* desc)
+{
+    auto cache = FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+    return cache.release();
+}
+
+SkGlyphCache* SkGlyphCache::DetachCacheUsingPaint(const SkPaint& paint,
+                                                  const SkSurfaceProps* surfaceProps,
+                                                  SkScalerContextFlags scalerContextFlags,
+                                                  const SkMatrix* deviceMatrix) {
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+        paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
+
+    return SkGlyphCache::DetachCache(SkPaintPriv::GetTypefaceOrDefault(paint), effects, desc);
+}

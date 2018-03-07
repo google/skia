@@ -148,12 +148,6 @@ public:
         const SkScalerContextEffects& effects,
         const SkTypeface& typeface);
 
-    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(
-        const SkPaint& paint,
-        const SkSurfaceProps* surfaceProps,
-        SkScalerContextFlags scalerContextFlags,
-        const SkMatrix* deviceMatrix);
-
     template <typename ScalerContextCreator>
     static SkExclusiveStrikePtr CreateStrikeExclusive(
         const SkDescriptor& desc, ScalerContextCreator creator)
@@ -172,6 +166,22 @@ public:
 
         return SkExclusiveStrikePtr(new SkGlyphCache(desc, std::move(context)));
     }
+
+    /** Detach a strike from the global cache matching the specified descriptor. Once detached,
+        it can be queried/modified by the current thread, and when finished, be reattached to the
+        global cache with AttachCache(). While detached, if another request is made with the same
+        descriptor, a different strike will be generated. This is fine. It does mean we can have
+        more than 1 strike for the same descriptor, but that will eventually get purged, and the
+        win is that different thread will never block each other while a strike is being used.
+        DEPRECATED
+    */
+    static SkGlyphCache* DetachCache(
+        SkTypeface* typeface, const SkScalerContextEffects& effects, const SkDescriptor* desc);
+
+    static SkGlyphCache* DetachCacheUsingPaint(const SkPaint& paint,
+                                               const SkSurfaceProps* surfaceProps,
+                                               SkScalerContextFlags scalerContextFlags,
+                                               const SkMatrix* deviceMatrix);
 
     static void Dump();
 
@@ -286,17 +296,20 @@ private:
 
 class SkAutoGlyphCache : public SkExclusiveStrikePtr {
 public:
+    /** deprecated: use get() */
+    SkGlyphCache* getCache() const { return this->get(); }
     SkAutoGlyphCache() = default;
     SkAutoGlyphCache(SkGlyphCache* cache) : INHERITED(cache) {}
     SkAutoGlyphCache(SkTypeface* typeface, const SkScalerContextEffects& effects,
                      const SkDescriptor* desc)
-        : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface)) {}
+        : INHERITED(SkGlyphCache::DetachCache(typeface, effects, desc))
+    {}
     /** deprecated: always enables fake gamma */
     SkAutoGlyphCache(const SkPaint& paint,
                      const SkSurfaceProps* surfaceProps,
                      const SkMatrix* matrix)
         : INHERITED(
-        SkGlyphCache::FindOrCreateStrikeExclusive(
+        SkGlyphCache::DetachCacheUsingPaint(
             paint, surfaceProps,
             SkScalerContextFlags::kFakeGammaAndBoostContrast, matrix))
     {}
@@ -305,8 +318,8 @@ public:
                      SkScalerContextFlags scalerContextFlags,
                      const SkMatrix* matrix)
         : INHERITED(
-            SkGlyphCache::FindOrCreateStrikeExclusive(
-                paint, surfaceProps, scalerContextFlags, matrix)) {}
+            SkGlyphCache::DetachCacheUsingPaint(paint, surfaceProps, scalerContextFlags, matrix))
+    {}
 private:
     using INHERITED = SkExclusiveStrikePtr;
 };
