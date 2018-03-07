@@ -9,7 +9,7 @@ from collections import namedtuple
 import itertools
 
 CPU_CLOCK_RATE = 1670400
-GPU_CLOCK_RATE = 510000000
+GPU_CLOCK_RATE = 315000000
 
 DEVFREQ_DIRNAME = '/sys/class/devfreq'
 DEVFREQ_THROTTLE = 0.74
@@ -32,6 +32,9 @@ class HardwarePixel(HardwareAndroid):
     self._adb.shell('\n'.join([
       # enable and lock the two fast cores.
       '''
+      stop thermal-engine
+      stop perfd
+
       for N in 3 2; do
         echo 1 > /sys/devices/system/cpu/cpu$N/online
         echo userspace > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_governor
@@ -46,25 +49,26 @@ class HardwarePixel(HardwareAndroid):
         echo 0 > /sys/devices/system/cpu/cpu$N/online
       done''',
 
-      # gpu perf commands from
-      # https://developer.qualcomm.com/qfile/28823/lm80-p0436-11_adb_commands.pdf
+      # pylint: disable=line-too-long
+
+      # Set GPU bus and idle timer
+      # Set DDR frequency to max
+      # Set GPU to performance mode, 315 MHZ
+      # See https://android.googlesource.com/platform/frameworks/base/+/master/libs/hwui/tests/scripts/prep_marlfish.sh
       '''
       echo 0 > /sys/class/kgsl/kgsl-3d0/bus_split
-      echo 1 > /sys/class/kgsl/kgsl-3d0/force_bus_on
-      echo 1 > /sys/class/kgsl/kgsl-3d0/force_rail_on
       echo 1 > /sys/class/kgsl/kgsl-3d0/force_clk_on
-      echo 1000000 > /sys/class/kgsl/kgsl-3d0/idle_timer
-      echo userspace > /sys/class/kgsl/kgsl-3d0/devfreq/governor
-      echo 2 > /sys/class/kgsl/kgsl-3d0/max_pwrlevel
-      echo 2 > /sys/class/kgsl/kgsl-3d0/min_pwrlevel
-      echo 2 > /sys/class/kgsl/kgsl-3d0/thermal_pwrlevel
+      echo 10000 > /sys/class/kgsl/kgsl-3d0/idle_timer
+
+      echo 13763 > /sys/class/devfreq/soc:qcom,gpubw/min_freq
+
+      echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
       echo %i > /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
       echo %i > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
-      echo %i > /sys/class/kgsl/kgsl-3d0/max_gpuclk
-      echo %i > /sys/class/kgsl/kgsl-3d0/gpuclk''' %
-      tuple(GPU_CLOCK_RATE for _ in range(4))] + \
 
-      self._devfreq_lock_cmds))
+      echo 4 > /sys/class/kgsl/kgsl-3d0/max_pwrlevel
+      echo 4 > /sys/class/kgsl/kgsl-3d0/min_pwrlevel''' %
+      tuple(GPU_CLOCK_RATE for _ in range(2))]))
 
     return self
 
@@ -80,27 +84,19 @@ class HardwarePixel(HardwareAndroid):
        '/sys/devices/system/cpu/online'] + \
       ['/sys/devices/system/cpu/cpu%i/cpufreq/scaling_cur_freq' % i
        for i in range(2, 4)] + \
-      ['/sys/class/kgsl/kgsl-3d0/thermal_pwrlevel',
-       '/sys/kernel/debug/clk/gpu_gx_gfx3d_clk/measure',
-       '/sys/kernel/debug/clk/bimc_clk/measure',
+      ['/sys/kernel/debug/clk/bimc_clk/measure',
        '/sys/class/thermal/thermal_zone22/temp',
-       '/sys/class/thermal/thermal_zone23/temp'] + \
-      self._devfreq_sanity_knobs))
+       '/sys/class/thermal/thermal_zone23/temp']))
 
     expectations = \
       [Expectation(int, min_value=30, name='battery', sleeptime=30*60),
        Expectation(str, exact_value='2-3', name='online cpus')] + \
       [Expectation(int, exact_value=CPU_CLOCK_RATE, name='cpu_%i clock rate' %i)
        for i in range(2, 4)] + \
-      [Expectation(int, exact_value=2, name='gpu thermal power level'),
-       Expectation(long, min_value=(GPU_CLOCK_RATE - 5000),
-                   max_value=(GPU_CLOCK_RATE + 5000),
-                   name='measured gpu clock'),
-       Expectation(long, min_value=902390000, max_value=902409999,
+       [Expectation(long, min_value=902390000, max_value=902409999,
                    name='measured ddr clock', sleeptime=10),
        Expectation(int, max_value=41000, name='pm8994_tz temperature'),
-       Expectation(int, max_value=40, name='msm_therm temperature')] + \
-      self._devfreq_sanity_expectations
+       Expectation(int, max_value=40, name='msm_therm temperature')]
 
     Expectation.check_all(expectations, result.splitlines())
 
