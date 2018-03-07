@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0a9fc24e_5505429c",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-07T12:52:34Z",
+      "side": 1,
+      "message": "This is redundant but is here to make the unit test actually test the correct thing. The unit test sets maxPages so no page can ever be allocated. With out this we just get a kTryAgain and don\u0027t exercise the true failure case.\n\nI couldn\u0027t think of another way to get this code tested (short of creating a GrDrawOpAtlas sub-class and switching the AtlasManager to optionally create that class, etc., etc.).",
+      "parentUuid": "27e3f986_5c18384c",
+      "range": {
+        "startLine": 313,
+        "startChar": 9,
+        "endLine": 313,
+        "endChar": 24
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f497139d_b72c7dda",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 11
@@ -45,6 +69,30 @@
       "revId": "bdec2e70846eed813510a01db268915ba4949906",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f3744c6_1b557ccc",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-07T12:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f497139d_b72c7dda",
+      "range": {
+        "startLine": 102,
+        "startChar": 43,
+        "endLine": 102,
+        "endChar": 48
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fc19a090_f7d95443",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-07T12:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "367900a1_321866dd",
+      "range": {
+        "startLine": 411,
+        "startChar": 4,
+        "endLine": 411,
+        "endChar": 7
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "943538d4_6df65fe7",
         "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
         "patchSetId": 11
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "dda4b079_95e52702",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-07T12:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "943538d4_6df65fe7",
+      "range": {
+        "startLine": 579,
+        "startChar": 18,
+        "endLine": 579,
+        "endChar": 23
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "12c2d134_a9f4c2dd",
         "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
         "patchSetId": 11
@@ -114,6 +210,30 @@
       "revId": "bdec2e70846eed813510a01db268915ba4949906",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9237a69a_39d9bcf0",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-07T12:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12c2d134_a9f4c2dd",
+      "range": {
+        "startLine": 689,
+        "startChar": 18,
+        "endLine": 689,
+        "endChar": 23
+      },
+      "revId": "bdec2e70846eed813510a01db268915ba4949906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
