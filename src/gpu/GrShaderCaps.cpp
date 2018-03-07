@@ -39,6 +39,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
     fCanUseFragCoord = true;
     fInterpolantsAreInaccurate = false;
+    fIncompleteShortIntPrecision = false;
     fFlatInterpolationSupport = false;
     fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
@@ -110,6 +111,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
                        fMustGuardDivisionEvenAfterExplicitZeroCheck);
     writer->appendBool("Can use gl_FragCoord", fCanUseFragCoord);
     writer->appendBool("Interpolants are inaccurate", fInterpolantsAreInaccurate);
+    writer->appendBool("Incomplete short int precision", fIncompleteShortIntPrecision);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
@@ -144,6 +146,7 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fMustGuardDivisionEvenAfterExplicitZeroCheck);
         SkASSERT(fCanUseFragCoord);
         SkASSERT(!fInterpolantsAreInaccurate);
+        SkASSERT(!fIncompleteShortIntPrecision);
     }
 #if GR_TEST_UTILS
     fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;

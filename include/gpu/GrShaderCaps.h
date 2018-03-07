@@ -119,6 +119,10 @@ public:
     // If true interpolated vertex shader outputs are inaccurate.
     bool interpolantsAreInaccurate() const { return fInterpolantsAreInaccurate; }
 
+    // If true, short ints can't represent every integer in the 16-bit two's complement range as
+    // required by the spec. SKSL will always emit full ints.
+    bool incompleteShortIntPrecision() const { return fIncompleteShortIntPrecision; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
@@ -261,6 +265,7 @@ private:
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
     bool fCanUseFragCoord : 1;
     bool fInterpolantsAreInaccurate : 1;
+    bool fIncompleteShortIntPrecision : 1;
 
     const char* fVersionDeclString;
 
