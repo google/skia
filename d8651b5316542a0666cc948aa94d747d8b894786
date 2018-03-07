@@ -1402,6 +1402,30 @@
     },
     {
       "key": {
+        "uuid": "5fa95dd5_32c93c04",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-07T15:53:26Z",
+      "side": 1,
+      "message": "LGTM, thanks!",
+      "parentUuid": "35ccf0cb_a3518023",
+      "range": {
+        "startLine": 441,
+        "startChar": 1,
+        "endLine": 441,
+        "endChar": 20
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35cadffd_c6f374c5",
         "filename": "infra/cts/whitelist_devices.json",
         "patchSetId": 11

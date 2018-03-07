@@ -234,6 +234,30 @@
       "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47483737_14abfe60",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 14
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-07T15:53:26Z",
+      "side": 1,
+      "message": "Let\u0027s look at these individually.\nA. git clean -- either the generated files should be in .gitignore or in a directory outside the checkout. I don\u0027t see a problem with doing \"make clean\" or the equivalent.\nB. download_model -- IMO, this is not ideal, but probably not a huge concern. Eric might have a different opinion. Maybe we could make this a command-line option?\nC. remove_unneeded_assets -- I don\u0027t really understand this well enough to comment.\nD. setup_resources -- similar to above, if the dest is in .gitignore, I don\u0027t see a problem.\nE. git-sync-deps -- IMO, I don\u0027t think this is a good idea either in recipes or as a stand-alone tool. If I\u0027ve set up my third_party deps in a particular way or maybe applied a patch, I wouldn\u0027t want this tool to mess with it.",
+      "parentUuid": "744e2aa8_857c5ea7",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 26
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
