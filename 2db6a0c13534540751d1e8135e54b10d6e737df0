@@ -22,6 +22,30 @@
       "revId": "2db6a0c13534540751d1e8135e54b10d6e737df0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "443feb57_7e63b261",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-07T21:46:50Z",
+      "side": 0,
+      "message": "Yes, it can be and is deleted.",
+      "parentUuid": "d7e83834_af823434",
+      "range": {
+        "startLine": 529,
+        "startChar": 16,
+        "endLine": 529,
+        "endChar": 54
+      },
+      "revId": "2db6a0c13534540751d1e8135e54b10d6e737df0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
