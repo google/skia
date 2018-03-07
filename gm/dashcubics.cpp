@@ -58,3 +58,43 @@ DEF_SIMPLE_GM(dashcubics, canvas, 865, 750) {
             }
         }
 }
+
+#include "SkTrimPathEffect.h"
+class TrimGM : public skiagm::GM {
+public:
+    TrimGM() {}
+
+protected:
+    SkString onShortName() override { return SkString("trimpatheffect"); }
+
+    SkISize onISize() override { return SkISize::Make(1240, 390); }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setPathEffect(SkTrimPathEffect::Make(0.25 + fOffset, 0.75));
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(10);
+
+        SkPath path;
+        path.moveTo(50, 300);
+        path.cubicTo(100, 50, 150, 550, 200, 300);
+
+        paint.setColor(0xFF888888);
+        canvas->drawPath(path, paint);
+        paint.setPathEffect(nullptr);
+        paint.setStrokeWidth(0);
+        paint.setColor(0xFF000000);
+        canvas->drawPath(path, paint);
+    }
+
+    bool onAnimate(const SkAnimTimer&) override {
+   //     fOffset += 1;
+        return true;
+    }
+private:
+    SkScalar fOffset = 0;
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM(return new TrimGM;)
+

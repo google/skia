@@ -10,7 +10,7 @@
 
 #include "SkPathEffect.h"
 
-class SK_API SkDashImpl : public SkPathEffect {
+class SkDashImpl : public SkPathEffect {
 public:
     SkDashImpl(const SkScalar intervals[], int count, SkScalar phase);
 
