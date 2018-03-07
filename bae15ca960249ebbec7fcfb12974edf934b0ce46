@@ -258,6 +258,30 @@
       "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aa3b0f6_39c0e00e",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 14
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-03-07T16:20:09Z",
+      "side": 1,
+      "message": "The worst case is probably that it puts the persistent checkout on the machine in an irrecoverable state and that machine fails all subsequent tasks.  We can\u0027t guarantee that those scripts don\u0027t download things to non-temporary locations on the bot, which may persist between tasks and cause subtle problems down the road. We have been burned enough times that I think it\u0027s a reasonable requirement to explicitly lay out all of the required inputs for each task, rather than have the task try to obtain them itself.  If it was feasible, I would support completely blocking network access by each task, after the sync step.  If this script is also intended to be run by humans, it\u0027s reasonable to require that the human has gotten their checkout into a sane state before running the script.\n\nAs for git-sync-deps, IMO it needs to disappear.  Maintaining checkouts is a subtle problem (as evidenced by the number of times we have been burned in the past), and it has an accepted solution, which is our supported workflow: gclient.  Gclient has many unit and integration tests and covers all of the subtle corner cases which have been found so far.  It has also been battle-tested in the field for almost a decade.  In comparison, git-sync-deps has NO tests, does not run on our bots, and plainly does not cover all of the cases that gclient does.  In my opinion, there is no reason for us to be in the business of writing our own gclient clone.  I fully support our developers doing things the way they want, but when they deviate from the supported workflow, we can\u0027t make any guarantees about what will happen.\n\nIf we (as an entire team) decided to change the supported workflow, then that would be fine.  Certainly, if we decided to stop using gclient in the supported workflow, we definitely need to stop pretending that we use it and change DEPS to something else.  And we would need to change all of our bots to use the new workflow, as we can only recommend a workflow if it is being tested.  IMO the above is not worth the gigantic maintenance headache just to solve a problem which already has a solution.",
+      "parentUuid": "47483737_14abfe60",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 26
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
