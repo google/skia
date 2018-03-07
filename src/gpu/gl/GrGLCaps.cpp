@@ -941,14 +941,15 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
             // it is part of the spec. Thus alpha8 will not be renderable for those devices.
             fAlpha8IsRenderable = true;
         }
-        // We prefer the EXT/IMG extension over ES3 MSAA because we've observed
-        // ES3 driver bugs on at least one device with a tiled GPU (N10).
-        if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
+        // We prefer multisampled-render-to-texture extensions over ES3 MSAA because we've observed
+        // ES3 driver bugs on at least one device with a tiled GPU (N10). However, if we're using
+        // mixed samples we can't use multisampled-render-to-texture.
+        if (fUsesMixedSamples) {
+            fMSFBOType = kMixedSamples_MSFBOType;
+        } else if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
             fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
-        } else if (fUsesMixedSamples) {
-            fMSFBOType = kMixedSamples_MSFBOType;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fMSFBOType = kStandard_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
