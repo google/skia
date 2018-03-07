@@ -144,8 +144,14 @@ void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* 
 
 // we don't just draw 4 lines, 'cause that can leave a gap in the bottom-right
 // and double-hit the top-left.
-void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip,
-                      SkBlitter* blitter) {
+void SkScan::HairRect(const SkRect& origRect, const SkRasterClip& clip, SkBlitter* blitter) {
+    SkRect rect = origRect;
+    // clip against a slightly larger clip, to get us into "int" range. Need it slightly
+    // larger since we're a hairline, and may draw outside of our bounds.
+    if (!rect.intersect(SkRect::Make(clip.getBounds()).makeOutset(1, 1))) {
+        return;
+    }
+
     SkAAClipBlitterWrapper wrapper;
     SkBlitterClipper clipper;
     const SkIRect r = SkIRect::MakeLTRB(SkScalarFloorToInt(rect.fLeft),
