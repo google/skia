@@ -1139,9 +1139,6 @@ sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext
         comp_group->addChild(std::move(layers[i]));
     }
 
-    LOG("** Attached composition '%s': %d layers.\n",
-        ParseDefault(comp["id"], SkString()).c_str(), layers.count());
-
     return comp_group;
 }
 
