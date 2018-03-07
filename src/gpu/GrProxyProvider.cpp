@@ -456,7 +456,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
-        const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt) {
+        const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt,
+        GrWrapOwnership ownership) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -483,13 +484,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
     }
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [backendTex, sampleCnt](GrResourceProvider* resourceProvider) {
+            [backendTex, sampleCnt, ownership](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     return sk_sp<GrTexture>();
                 }
 
-                sk_sp<GrTexture> tex = resourceProvider->wrapRenderableBackendTexture(backendTex,
-                                                                                      sampleCnt);
+                sk_sp<GrTexture> tex = resourceProvider->wrapRenderableBackendTexture(
+                        backendTex, sampleCnt, ownership);
                 if (!tex) {
                     return sk_sp<GrTexture>();
                 }
