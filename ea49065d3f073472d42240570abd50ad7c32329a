@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0a1607b_e44a4af0",
+        "filename": "src/effects/SkTrimPE.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-07T21:45:16Z",
+      "side": 1,
+      "message": "I don\u0027t think this needs to be visible outside Skia.",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 12
+      },
+      "revId": "ea49065d3f073472d42240570abd50ad7c32329a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
