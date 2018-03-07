@@ -289,8 +289,7 @@ with open('Android.bp', 'w') as f:
                                defs['ssse3'] +
                                defs['sse41'] +
                                defs['sse42'] +
-                               defs['avx'  ] +
-                               defs['hsw'  ]),
+                               defs['avx'  ]),
 
     'dm_includes'       : bpfmt(8, dm_includes),
     'dm_srcs'           : bpfmt(8, dm_srcs),
