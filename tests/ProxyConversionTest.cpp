@@ -28,7 +28,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_FBO0(GrProxyProvider* provider,
     GrBackendRenderTarget backendRT(desc.fWidth, desc.fHeight, desc.fSampleCnt, 8,
                                     desc.fConfig, fboInfo);
 
-    return provider->createWrappedRenderTargetProxy(backendRT, origin);
+    return provider->wrapBackendRenderTarget(backendRT, origin);
 }
 
 static sk_sp<GrSurfaceProxy> make_wrapped_offscreen_rt(GrProxyProvider* provider,
