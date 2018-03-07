@@ -282,6 +282,30 @@
       "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fbb70bf_1b6273b2",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 14
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-03-07T18:51:08Z",
+      "side": 1,
+      "message": "Done\nBased on our off-line conversation, I agree that setting up the source tree should not be part of the build script. I removed the call to tools/git-sync-deps and added a note to the bottom of the usage text that the script assumes the tree is in the desired state.",
+      "parentUuid": "7aa3b0f6_39c0e00e",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 26
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
