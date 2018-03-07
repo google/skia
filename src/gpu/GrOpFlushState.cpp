@@ -196,6 +196,6 @@ GrGlyphCache* GrOpFlushState::glyphCache() const {
     return fGpu->getContext()->contextPriv().getGlyphCache();
 }
 
-GrAtlasManager* GrOpFlushState::fullAtlasManager() const {
-    return fGpu->getContext()->contextPriv().getFullAtlasManager();
+GrAtlasManager* GrOpFlushState::atlasManager() const {
+    return fGpu->getContext()->contextPriv().getAtlasManager();
 }

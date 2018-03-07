@@ -53,18 +53,6 @@ void GrAtlasTextOp::init() {
 
 void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
     fProcessors.visitProxies(func);
-
-    // We need to visit the atlasManager's proxies because, although the atlasManager explicitly
-    // manages their lifetimes, if they fail to allocate the draws that reference them need to
-    // be dropped.
-    unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* proxies = fRestrictedAtlasManager->getProxies(
-                                                            this->maskFormat(), &numProxies);
-    for (unsigned int i = 0; i < numProxies; ++i) {
-        if (proxies[i]) {
-            func(proxies[i].get());
-        }
-    }
 }
 
 SkString GrAtlasTextOp::dumpInfo() const {
@@ -236,15 +224,13 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    GrAtlasManager* fullAtlasManager = target->fullAtlasManager();
-    SkASSERT(fRestrictedAtlasManager == fullAtlasManager);
+    GrAtlasManager* atlasManager = target->atlasManager();
     GrGlyphCache* glyphCache = target->glyphCache();
 
     GrMaskFormat maskFormat = this->maskFormat();
 
     unsigned int atlasPageCount;
-    const sk_sp<GrTextureProxy>* proxies = fullAtlasManager->getProxies(maskFormat,
-                                                                        &atlasPageCount);
+    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &atlasPageCount);
     if (!proxies[0]) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
@@ -255,7 +241,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
     SkDEBUGCODE(bool dfPerspective = false);
     if (this->usesDistanceFields()) {
-        flushInfo.fGeometryProcessor = this->setupDfProcessor(fullAtlasManager);
+        flushInfo.fGeometryProcessor = this->setupDfProcessor(atlasManager);
         SkDEBUGCODE(dfPerspective = fGeoData[0].fViewMatrix.hasPerspective());
     } else {
         GrSamplerState samplerState = fHasScaledGlyphs ? GrSamplerState::ClampBilerp()
@@ -290,7 +276,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         Blob* blob = args.fBlob;
         GrAtlasTextBlob::VertexRegenerator regenerator(
                 resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
-                args.fColor, target->deferredUploadTarget(), glyphCache, fullAtlasManager,
+                args.fColor, target->deferredUploadTarget(), glyphCache, atlasManager,
                 &autoGlyphCache);
         bool done = false;
         while (!done) {
@@ -340,14 +326,13 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
         return;
     }
 
-    auto fullAtlasManager = target->fullAtlasManager();
-    SkASSERT(fRestrictedAtlasManager == fullAtlasManager);
+    auto atlasManager = target->atlasManager();
 
     GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
     GrMaskFormat maskFormat = this->maskFormat();
 
     unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* proxies = fullAtlasManager->getProxies(maskFormat, &numProxies);
+    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &numProxies);
     if (gp->numTextureSamplers() != (int) numProxies) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
@@ -457,11 +442,10 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
 // TODO trying to figure out why lcd is so whack
 // (see comments in GrAtlasTextContext::ComputeCanonicalColor)
-sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(
-                                        GrRestrictedAtlasManager* restrictedAtlasManager) const {
+sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(GrAtlasManager* atlasManager) const {
     unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* proxies = restrictedAtlasManager->getProxies(this->maskFormat(),
-                                                                              &numProxies);
+    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(this->maskFormat(),
+                                                                    &numProxies);
     bool isLCD = this->isLCD();
 
     SkMatrix localMatrix = SkMatrix::I();

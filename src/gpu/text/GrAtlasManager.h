@@ -15,19 +15,18 @@ class GrAtlasGlypCache;
 class GrTextStrike;
 struct GrGlyph;
 
- /** The GrAtlasManager classes manage the lifetime of and access to GrDrawOpAtlases.
-  *  The restricted version is available at op creation time and only allows basic access
-  *  to the proxies (so the created ops can reference them). The full GrAtlasManager class
-  *  is only available at flush time and only via the GrOpFlushState.
-  *
-  *  This organization implies that all of the advanced atlasManager functionality (i.e.,
-  *  adding glyphs to the atlas) are only available at flush time.
-  */
-class GrRestrictedAtlasManager : public GrOnFlushCallbackObject {
+//////////////////////////////////////////////////////////////////////////////////////////////////
+/** The GrAtlasManager manages the lifetime of and access to GrDrawOpAtlases.
+ *  It is only available at flush and only via the GrOpFlushState.
+ *
+ *  This implies that all of the advanced atlasManager functionality (i.e.,
+ *  adding glyphs to the atlas) are only available at flush time.
+ */
+class GrAtlasManager : public GrOnFlushCallbackObject {
 public:
-    GrRestrictedAtlasManager(sk_sp<const GrCaps>, float maxTextureBytes,
-                             GrDrawOpAtlas::AllowMultitexturing);
-    ~GrRestrictedAtlasManager() override;
+    GrAtlasManager(GrProxyProvider*, GrGlyphCache*,
+                   float maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
+    ~GrAtlasManager() override;
 
     // if getProxies returns nullptr, the client must not try to use other functions on the
     // GrGlyphCache which use the atlas.  This function *must* be called first, before other
@@ -45,44 +44,6 @@ public:
 
     static void ComputeAtlasLimits(const GrCaps* caps, float maxTextureBytes,
                                    int* maxDim, int* minDim, int* maxPlot, int* minPlot);
-
-protected:
-    // There is a 1:1 mapping between GrMaskFormats and atlas indices
-    static int MaskFormatToAtlasIndex(GrMaskFormat format) {
-        static const int sAtlasIndices[] = {
-            kA8_GrMaskFormat,
-            kA565_GrMaskFormat,
-            kARGB_GrMaskFormat,
-        };
-        static_assert(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, "array_size_mismatch");
-
-        SkASSERT(sAtlasIndices[format] < kMaskFormatCount);
-        return sAtlasIndices[format];
-    }
-
-    GrDrawOpAtlas* getAtlas(GrMaskFormat format) const {
-        int atlasIndex = MaskFormatToAtlasIndex(format);
-        SkASSERT(fAtlases[atlasIndex]);
-        return fAtlases[atlasIndex].get();
-    }
-
-    sk_sp<const GrCaps> fCaps;
-    GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
-    std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
-    GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];
-    SkScalar fGlyphSizeLimit;
-
-private:
-    virtual bool initAtlas(GrMaskFormat) = 0;
-
-    typedef GrOnFlushCallbackObject INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-class GrAtlasManager : public GrRestrictedAtlasManager {
-public:
-    GrAtlasManager(GrProxyProvider*, GrGlyphCache*,
-                   float maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
 
     void freeAll();
 
@@ -149,12 +110,36 @@ public:
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
-    bool initAtlas(GrMaskFormat) override;
+    bool initAtlas(GrMaskFormat);
 
+    // There is a 1:1 mapping between GrMaskFormats and atlas indices
+    static int MaskFormatToAtlasIndex(GrMaskFormat format) {
+        static const int sAtlasIndices[] = {
+            kA8_GrMaskFormat,
+            kA565_GrMaskFormat,
+            kARGB_GrMaskFormat,
+        };
+        static_assert(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, "array_size_mismatch");
+
+        SkASSERT(sAtlasIndices[format] < kMaskFormatCount);
+        return sAtlasIndices[format];
+    }
+
+    GrDrawOpAtlas* getAtlas(GrMaskFormat format) const {
+        int atlasIndex = MaskFormatToAtlasIndex(format);
+        SkASSERT(fAtlases[atlasIndex]);
+        return fAtlases[atlasIndex].get();
+    }
+
+    sk_sp<const GrCaps> fCaps;
+    GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
+    std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
+    GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];
+    SkScalar fGlyphSizeLimit;
     GrProxyProvider* fProxyProvider;
     GrGlyphCache* fGlyphCache;
 
-    typedef GrRestrictedAtlasManager INHERITED;
+    typedef GrOnFlushCallbackObject INHERITED;
 };
 
 #endif // GrAtlasManager_DEFINED

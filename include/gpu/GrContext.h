@@ -36,7 +36,6 @@ class GrRenderTargetContext;
 class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
-class GrRestrictedAtlasManager;
 class GrSamplerState;
 class GrSurfaceProxy;
 class GrSwizzle;
@@ -283,8 +282,7 @@ protected:
     bool initCommon(const GrContextOptions&);
     virtual bool init(const GrContextOptions&) = 0; // must be called after the ctor!
 
-    virtual GrAtlasManager* onGetFullAtlasManager() = 0;
-    virtual GrRestrictedAtlasManager* onGetRestrictedAtlasManager() = 0;
+    virtual GrAtlasManager* onGetAtlasManager() = 0;
 
     const GrBackend                         fBackend;
     sk_sp<const GrCaps>                     fCaps;

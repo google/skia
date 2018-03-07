@@ -17,8 +17,7 @@ GrGlyphCache::GrGlyphCache(const GrCaps* caps, float maxTextureBytes)
         , fGlyphSizeLimit(0) {
 
     int maxDim, minDim, maxPlot, minPlot;
-    GrRestrictedAtlasManager::ComputeAtlasLimits(caps, maxTextureBytes,
-                                                 &maxDim, &minDim, &maxPlot, &minPlot);
+    GrAtlasManager::ComputeAtlasLimits(caps, maxTextureBytes, &maxDim, &minDim, &maxPlot, &minPlot);
     fGlyphSizeLimit = minPlot;
 }
 

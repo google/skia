@@ -198,7 +198,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     // Cripple the atlas manager so it can't allocate any pages. This will force a failure
     // in the preparation of the text op
-    auto atlasManager = context->contextPriv().getFullAtlasManager();
+    auto atlasManager = context->contextPriv().getAtlasManager();
     unsigned int numProxies;
     atlasManager->getProxies(kA8_GrMaskFormat, &numProxies);
     atlasManager->setMaxPages_TestingOnly(0);
