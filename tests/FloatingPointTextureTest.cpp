@@ -20,6 +20,7 @@
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
 #include "GrTextureProxy.h"
+#include "ProxyUtils.h"
 #include "SkHalf.h"
 
 static const int DEV_W = 100, DEV_H = 100;
@@ -33,7 +34,6 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
         return;
     }
 
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     SkTDArray<T> controlPixelData, readBuffer;
     controlPixelData.setCount(arraySize);
     readBuffer.setCount(arraySize);
@@ -46,14 +46,8 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
     }
 
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-        GrSurfaceDesc desc;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fWidth = DEV_W;
-        desc.fHeight = DEV_H;
-        desc.fConfig = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
-
-        sk_sp<GrTextureProxy> fpProxy = proxyProvider->createTextureProxy(
-                desc, origin, SkBudgeted::kNo, controlPixelData.begin(), 0);
+        auto fpProxy = sk_gpu_test::MakeTextureProxyFromData(context, true, DEV_W, DEV_H, colorType,
+                                                             origin, controlPixelData.begin(), 0);
         // Floating point textures are NOT supported everywhere
         if (!fpProxy) {
             continue;

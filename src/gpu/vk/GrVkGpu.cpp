@@ -763,8 +763,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
 
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                          GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
-                                          int mipLevelCount) {
+                                          const GrMipLevel texels[], int mipLevelCount) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;
@@ -825,8 +824,8 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
 
     auto colorType = GrPixelConfigToColorType(desc.fConfig);
     if (mipLevelCount) {
-        if (!this->uploadTexDataOptimal(tex.get(), texelsOrigin, 0, 0, desc.fWidth, desc.fHeight,
-                                        colorType, texels, mipLevelCount)) {
+        if (!this->uploadTexDataOptimal(tex.get(), kTopLeft_GrSurfaceOrigin, 0, 0, desc.fWidth,
+                                        desc.fHeight, colorType, texels, mipLevelCount)) {
             tex->unref();
             return nullptr;
         }
@@ -1536,12 +1535,10 @@ bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return false;
 }
 
-void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex, bool abandon) {
+void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex) {
     SkASSERT(kVulkan_GrBackend == tex->fBackend);
 
-    const GrVkImageInfo* info = tex->getVkImageInfo();
-
-    if (info && !abandon) {
+    if (const auto* info = tex->getVkImageInfo()) {
         // something in the command buffer may still be using this, so force submit
         this->submitCommandBuffer(kForce_SyncQueue);
         GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(info));

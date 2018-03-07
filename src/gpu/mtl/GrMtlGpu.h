@@ -82,8 +82,7 @@ private:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                     GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
-                                     int mipLevelCount) override;
+                                     const GrMipLevel texels[], int mipLevelCount) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) override {
         return nullptr;
@@ -144,7 +143,7 @@ private:
         return GrBackendTexture();
     }
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override { return false; }
-    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandon = false) override {}
+    void deleteTestingOnlyBackendTexture(GrBackendTexture*) override {}
 
     sk_sp<GrMtlCaps> fMtlCaps;
 

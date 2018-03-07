@@ -65,8 +65,7 @@ GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
 }
 
 sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                            GrSurfaceOrigin texelsOrigin, const GrMipLevel texels[],
-                                            int mipLevelCount) {
+                                            const GrMipLevel texels[], int mipLevelCount) {
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
     GrMockTextureInfo info;
@@ -113,7 +112,7 @@ bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return fOutstandingTestingOnlyTextureIDs.contains(info->fID);
 }
 
-void GrMockGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex, bool abandonTexture) {
+void GrMockGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex) {
     SkASSERT(kMock_GrBackend == tex->backend());
 
     const GrMockTextureInfo* info = tex->getMockTextureInfo();
