@@ -66,7 +66,7 @@ class SK_API GrDirectContext : public GrContext {
 public:
     GrDirectContext(GrBackend backend)
             : INHERITED(backend)
-            , fFullAtlasManager(nullptr) {
+            , fAtlasManager(nullptr) {
     }
 
     ~GrDirectContext() override {
@@ -76,22 +76,22 @@ public:
             this->flush();
         }
 
-        delete fFullAtlasManager;
+        delete fAtlasManager;
     }
 
     void abandonContext() override {
         INHERITED::abandonContext();
-        fFullAtlasManager->freeAll();
+        fAtlasManager->freeAll();
     }
 
     void releaseResourcesAndAbandonContext() override {
         INHERITED::releaseResourcesAndAbandonContext();
-        fFullAtlasManager->freeAll();
+        fAtlasManager->freeAll();
     }
 
     void freeGpuResources() override {
         this->flush();
-        fFullAtlasManager->freeAll();
+        fAtlasManager->freeAll();
 
         INHERITED::freeGpuResources();
     }
@@ -120,20 +120,19 @@ protected:
         GrGlyphCache* glyphCache = this->contextPriv().getGlyphCache();
         GrProxyProvider* proxyProvider = this->contextPriv().proxyProvider();
 
-        fFullAtlasManager = new GrAtlasManager(proxyProvider, glyphCache,
-                                               options.fGlyphCacheTextureMaximumBytes,
-                                               allowMultitexturing);
-        this->contextPriv().addOnFlushCallbackObject(fFullAtlasManager);
+        fAtlasManager = new GrAtlasManager(proxyProvider, glyphCache,
+                                           options.fGlyphCacheTextureMaximumBytes,
+                                           allowMultitexturing);
+        this->contextPriv().addOnFlushCallbackObject(fAtlasManager);
 
-        SkASSERT(glyphCache->getGlyphSizeLimit() == fFullAtlasManager->getGlyphSizeLimit());
+        SkASSERT(glyphCache->getGlyphSizeLimit() == fAtlasManager->getGlyphSizeLimit());
         return true;
     }
 
-    GrRestrictedAtlasManager* onGetRestrictedAtlasManager() override { return fFullAtlasManager; }
-    GrAtlasManager* onGetFullAtlasManager() override { return fFullAtlasManager; }
+    GrAtlasManager* onGetAtlasManager() override { return fAtlasManager; }
 
 private:
-    GrAtlasManager* fFullAtlasManager;
+    GrAtlasManager* fAtlasManager;
 
     typedef GrContext INHERITED;
 };
@@ -145,8 +144,7 @@ private:
 class SK_API GrDDLContext : public GrContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
-            : INHERITED(proxy->fBackend, proxy->fContextUniqueID)
-            , fRestrictedAtlasManager(nullptr) {
+            : INHERITED(proxy->fBackend, proxy->fContextUniqueID) {
         fCaps = proxy->fCaps;
         fThreadSafeProxy = std::move(proxy);
     }
@@ -179,23 +177,15 @@ protected:
             return false;
         }
 
-        // DDL TODO: in DDL-mode grab a GrRestrictedAtlasManager from the thread-proxy and
-        // do not add an onFlushCB
         return true;
     }
 
-    GrRestrictedAtlasManager* onGetRestrictedAtlasManager() override {
-        return fRestrictedAtlasManager;
-    }
-
-    GrAtlasManager* onGetFullAtlasManager() override {
+    GrAtlasManager* onGetAtlasManager() override {
         SkASSERT(0);   // the DDL Recorders should never invoke this
         return nullptr;
     }
 
 private:
-    GrRestrictedAtlasManager* fRestrictedAtlasManager;
-
     typedef GrContext INHERITED;
 };
 

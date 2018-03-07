@@ -184,14 +184,19 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     SkAutoGlyphCache autoGlyphCache;
     auto& context = target->context()->internal();
     auto glyphCache = context.grContext()->contextPriv().getGlyphCache();
-    auto fullAtlasManager = context.grContext()->contextPriv().getFullAtlasManager();
+    auto atlasManager = context.grContext()->contextPriv().getAtlasManager();
     auto resourceProvider = context.grContext()->contextPriv().resourceProvider();
+
+    unsigned int numProxies;
+    if (!atlasManager->getProxies(kA8_GrMaskFormat, &numProxies)) {
+        return;
+    }
 
     for (int i = 0; i < fGeoCount; ++i) {
         GrAtlasTextBlob::VertexRegenerator regenerator(
                 resourceProvider, fGeoData[i].fBlob, fGeoData[i].fRun, fGeoData[i].fSubRun,
                 fGeoData[i].fViewMatrix, fGeoData[i].fX, fGeoData[i].fY, fGeoData[i].fColor,
-                &context, glyphCache, fullAtlasManager, &autoGlyphCache);
+                &context, glyphCache, atlasManager, &autoGlyphCache);
         bool done = false;
         while (!done) {
             GrAtlasTextBlob::VertexRegenerator::Result result;
