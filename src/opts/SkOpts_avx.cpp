@@ -5,10 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkSafe_math.h"   // Keep this first.
 #include "SkOpts.h"
 
+#if defined(_INC_MATH) && !defined(INC_MATH_IS_SAFE_NOW)
+    #error We have included ucrt\math.h without protecting it against ODR violation.
+#endif
+
 #define SK_OPTS_NS avx
-#include "SkRasterPipeline_opts.h"
 #include "SkUtils_opts.h"
 
 namespace SkOpts {
@@ -16,17 +20,5 @@ namespace SkOpts {
         memset16 = SK_OPTS_NS::memset16;
         memset32 = SK_OPTS_NS::memset32;
         memset64 = SK_OPTS_NS::memset64;
-
-    #define M(st) stages_highp[SkRasterPipeline::st] = (StageFn)SK_OPTS_NS::st;
-        SK_RASTER_PIPELINE_STAGES(M)
-        just_return_highp = (StageFn)SK_OPTS_NS::just_return;
-        start_pipeline_highp = SK_OPTS_NS::start_pipeline;
-    #undef M
-
-    #define M(st) stages_lowp[SkRasterPipeline::st] = (StageFn)SK_OPTS_NS::lowp::st;
-        SK_RASTER_PIPELINE_STAGES(M)
-        just_return_lowp = (StageFn)SK_OPTS_NS::lowp::just_return;
-        start_pipeline_lowp = SK_OPTS_NS::lowp::start_pipeline;
-    #undef M
     }
 }
