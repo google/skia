@@ -31,10 +31,9 @@
 
 namespace GrTest {
 
-void SetupAlwaysEvictAtlas(GrContext* context) {
+void SetupAlwaysEvictAtlas(GrContext* context, int dim) {
     // These sizes were selected because they allow each atlas to hold a single plot and will thus
     // stress the atlas
-    int dim = GrDrawOpAtlas::kGlyphMaxDim;
     GrDrawOpAtlasConfig configs[3];
     configs[kA8_GrMaskFormat].fWidth = dim;
     configs[kA8_GrMaskFormat].fHeight = dim;

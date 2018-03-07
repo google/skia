@@ -100,7 +100,8 @@ public:
     }
 
     // add to texture atlas that matches this format
-    bool addToAtlas(GrResourceProvider*, GrGlyphCache*, GrTextStrike*,
+    GrDrawOpAtlas::ErrorCode addToAtlas(
+                    GrResourceProvider*, GrGlyphCache*, GrTextStrike*,
                     GrDrawOpAtlas::AtlasID*, GrDeferredUploadTarget*, GrMaskFormat,
                     int width, int height, const void* image, SkIPoint16* loc);
 
@@ -142,6 +143,7 @@ public:
 #endif
 
     void setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]);
+    void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
     bool initAtlas(GrMaskFormat) override;

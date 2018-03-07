@@ -595,11 +595,11 @@ public:
         const char* fFirstVertex;
     };
 
-    Result regenerate();
+    bool regenerate(Result*);
 
 private:
     template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-    Result doRegen();
+    bool doRegen(Result*);
 
     GrResourceProvider* fResourceProvider;
     const SkMatrix& fViewMatrix;

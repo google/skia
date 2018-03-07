@@ -98,19 +98,30 @@ public:
                                                GrDrawOpAtlas::EvictionFunc func, void* data);
 
     /**
-     * Adds a width x height subimage to the atlas. Upon success it returns an ID and the subimage's
-     * coordinates in the backing texture. False is returned if the subimage cannot fit in the
-     * atlas without overwriting texels that will be read in the current draw. This indicates that
-     * the op should end its current draw and begin another before adding more data. Upon success,
-     * an upload of the provided image data will have been added to the GrDrawOp::Target, in "asap"
-     * mode if possible, otherwise in "inline" mode. Successive uploads in either mode may be
-     * consolidated.
+     * Adds a width x height subimage to the atlas. Upon success it returns 'kSucceeded' and returns
+     * the ID and the subimage's coordinates in the backing texture. 'kTryAgain' is returned if
+     * the subimage cannot fit in the atlas without overwriting texels that will be read in the
+     * current draw. This indicates that the op should end its current draw and begin another
+     * before adding more data. Upon success, an upload of the provided image data will have
+     * been added to the GrDrawOp::Target, in "asap" mode if possible, otherwise in "inline" mode.
+     * Successive uploads in either mode may be consolidated.
+     * 'kError' will be returned when some unrecoverable error was encountered while trying to
+     * add the subimage. In this case the op being created should be discarded.
+     *
      * NOTE: When the GrDrawOp prepares a draw that reads from the atlas, it must immediately call
      * 'setUseToken' with the currentToken from the GrDrawOp::Target, otherwise the next call to
      * addToAtlas might cause the previous data to be overwritten before it has been read.
      */
-    bool addToAtlas(GrResourceProvider*, AtlasID*, GrDeferredUploadTarget*, int width, int height,
-                    const void* image, SkIPoint16* loc);
+
+    enum class ErrorCode {
+        kError,
+        kSucceeded,
+        kTryAgain
+    };
+
+    ErrorCode addToAtlas(GrResourceProvider*, AtlasID*, GrDeferredUploadTarget*,
+                         int width, int height,
+                         const void* image, SkIPoint16* loc);
 
     const sk_sp<GrTextureProxy>* getProxies() const { return fProxies; }
 
@@ -229,10 +240,11 @@ public:
     void instantiate(GrOnFlushResourceProvider*);
 
     uint32_t maxPages() const {
-        return AllowMultitexturing::kYes == fAllowMultitexturing ? kMaxMultitexturePages : 1;
+        return fMaxPages;
     }
 
     int numAllocated_TestingOnly() const;
+    void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
     GrDrawOpAtlas(GrProxyProvider*, GrPixelConfig, int width, int height, int numPlotsX,
@@ -359,6 +371,9 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
+    bool uploadToPage(unsigned int pageIdx, AtlasID* id, GrDeferredUploadTarget* target,
+                      int width, int height, const void* image, SkIPoint16* loc);
+
     bool createPages(GrProxyProvider*);
     bool activateNewPage(GrResourceProvider*);
     void deactivateLastPage();
@@ -396,7 +411,7 @@ private:
     // proxies kept separate to make it easier to pass them up to client
     sk_sp<GrTextureProxy> fProxies[kMaxMultitexturePages];
     Page fPages[kMaxMultitexturePages];
-    AllowMultitexturing fAllowMultitexturing;
+    uint32_t fMaxPages;
 
     uint32_t fNumActivePages;
 };
