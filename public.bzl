@@ -545,14 +545,7 @@ def DM_ARGS(asan):
   source = ["tests", "gm", "image"]
   # TODO(benjaminwagner): f16, pic-8888, serialize-8888, and tiles_rt-8888 fail.
   config = ["565", "8888", "pdf", "srgb"]
-  # TODO(mtklein): maybe investigate why these fail?
-  match = [
-      "~^FontHostStream$$",
-      "~^FontMgr$$",
-      "~^PaintBreakText$$",
-      "~^RecordDraw_TextBounds$$",
-  ]
-  return ["--src"] + source + ["--config"] + config + ["--match"] + match + ["--nonativeFonts"]
+  return ["--src"] + source + ["--config"] + config + ["--nonativeFonts"]
 
 ################################################################################
 ## COPTS
