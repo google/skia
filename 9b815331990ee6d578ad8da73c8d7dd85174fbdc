@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77afc1d3_59d020b3",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1905,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-03-07T14:28:59Z",
+      "side": 1,
+      "message": "*Short",
+      "range": {
+        "startLine": 1905,
+        "startChar": 23,
+        "endLine": 1905,
+        "endChar": 27
+      },
+      "revId": "9b815331990ee6d578ad8da73c8d7dd85174fbdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
