@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd01aae9_d1574778",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-07T16:03:05Z",
+      "side": 1,
+      "message": "while?",
+      "range": {
+        "startLine": 108,
+        "startChar": 79,
+        "endLine": 108,
+        "endChar": 84
+      },
+      "revId": "aca892b0617f950b59f4724c1d0e219fac4387f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c07706d_a9591b35",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-07T16:03:05Z",
+      "side": 1,
+      "message": "I still don\u0027t think this is quite right -- if addToAtlas returns kError here we want to return false immediately. So it\u0027d be:\n\nkError: return false\nkTryAgain: flush and try again, return false if not kSucceeded after the second time\nkSucceeded: move on",
+      "range": {
+        "startLine": 575,
+        "startChar": 38,
+        "endLine": 575,
+        "endChar": 48
+      },
+      "revId": "aca892b0617f950b59f4724c1d0e219fac4387f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d629a2a3_37cf4dbe",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-07T16:03:05Z",
+      "side": 1,
+      "message": "And here as well.",
+      "range": {
+        "startLine": 685,
+        "startChar": 38,
+        "endLine": 685,
+        "endChar": 48
+      },
+      "revId": "aca892b0617f950b59f4724c1d0e219fac4387f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
