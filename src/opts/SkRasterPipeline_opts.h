@@ -8,8 +8,8 @@
 #ifndef SkRasterPipeline_opts_DEFINED
 #define SkRasterPipeline_opts_DEFINED
 
-#include "../../jumper/SkJumper.h"
-#include "../../jumper/SkJumper_misc.h"
+#include "../jumper/SkJumper.h"
+#include "../jumper/SkJumper_misc.h"
 
 #if !defined(__clang__)
     #define JUMPER_IS_SCALAR
