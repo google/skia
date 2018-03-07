@@ -2371,6 +2371,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fInterpolantsAreInaccurate = true;
     }
 
+    // On Mali G71, mediump ints don't appear capable of representing every integer beyond +/-2048.
+    // (Are they implemented with fp16?)
+    if (kARM_GrGLVendor == ctxInfo.vendor()) {
+        shaderCaps->fIncompleteShortIntPrecision = true;
+    }
+
     // Disabling advanced blend on various platforms with major known issues. We also block Chrome
     // for now until its own blacklists can be updated.
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer() ||
