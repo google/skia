@@ -11,8 +11,10 @@
 
 #include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
+#include "GrSurfaceContextPriv.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
+#include "ProxyUtils.h"
 
 void test_read_pixels(skiatest::Reporter* reporter,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
@@ -103,22 +105,14 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
         }
     }
 
-    GrSurfaceDesc copySrcDesc;
-    copySrcDesc.fWidth = dstContext->width();
-    copySrcDesc.fHeight = dstContext->height();
-    copySrcDesc.fConfig = kRGBA_8888_GrPixelConfig;
-
-    for (auto flags : { kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag }) {
-        copySrcDesc.fFlags = flags;
-        auto origin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
-                                                      : kBottomLeft_GrSurfaceOrigin;
-
-        sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(
-                copySrcDesc, origin, SkBudgeted::kYes, pixels.get(), 0);
-
-        dstContext->copy(src.get());
-
-        test_read_pixels(reporter, dstContext, pixels.get(), testName);
+    for (auto isRT : {false, true}) {
+        for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+            auto src = sk_gpu_test::MakeTextureProxyFromData(
+                    dstContext->surfPriv().getContext(), isRT, dstContext->width(),
+                    dstContext->height(), GrColorType::kRGBA_8888, origin, pixels.get(), 0);
+            dstContext->copy(src.get());
+            test_read_pixels(reporter, dstContext, pixels.get(), testName);
+        }
     }
 }
 

@@ -308,8 +308,7 @@ bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
             }
         }
 
-        proxies[0] = proxyProvider->createTextureProxy(desc, kBottomLeft_GrSurfaceOrigin,
-                                                       SkBudgeted::kYes, rgbaData.get(),
+        proxies[0] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, rgbaData.get(),
                                                        kTestTextureSize * sizeof(GrColor));
     }
 
@@ -323,8 +322,7 @@ bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
             }
         }
 
-        proxies[1] = proxyProvider->createTextureProxy(desc, kBottomLeft_GrSurfaceOrigin,
-                                                       SkBudgeted::kYes, alphaData.get(),
+        proxies[1] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, alphaData.get(),
                                                        kTestTextureSize);
     }
 
@@ -345,8 +343,8 @@ sk_sp<GrTextureProxy> make_input_texture(GrProxyProvider* proxyProvider, int wid
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return proxyProvider->createTextureProxy(desc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
-                                             data.get(), width * sizeof(GrColor));
+    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, data.get(),
+                                             width * sizeof(GrColor));
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {

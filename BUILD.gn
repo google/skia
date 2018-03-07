@@ -1188,6 +1188,7 @@ if (skia_enable_tools) {
       sources = [
         "tools/gpu/GrContextFactory.cpp",
         "tools/gpu/GrTest.cpp",
+        "tools/gpu/ProxyUtils.cpp",
         "tools/gpu/TestContext.cpp",
         "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
         "tools/gpu/gl/GLTestContext.cpp",

@@ -196,8 +196,8 @@ static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
     desc.fHeight = kFullSize;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return proxyProvider->createTextureProxy(desc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
-                                             srcBM.getPixels(), srcBM.rowBytes());
+    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, srcBM.getPixels(),
+                                             srcBM.rowBytes());
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
