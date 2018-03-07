@@ -56,6 +56,7 @@ skia_effects_sources = [
   "$_src/effects/SkTableMaskFilter.cpp",
   "$_src/effects/SkTileImageFilter.cpp",
   "$_src/effects/SkToSRGBColorFilter.cpp",
+  "$_src/effects/SkTrimPathEffect.cpp",
   "$_src/effects/SkXfermodeImageFilter.cpp",
 
   "$_src/shaders/SkPerlinNoiseShader.cpp",
