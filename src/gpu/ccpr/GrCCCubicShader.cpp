@@ -12,9 +12,7 @@
 
 using Shader = GrCCCoverageProcessor::Shader;
 
-void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                    const char* /*repetitionID*/, const char* /*wind*/,
-                                    GeometryVars*) const {
+const char* GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts) const {
     // Find the cubic's power basis coefficients.
     s->codeAppendf("float2x4 C = float4x4(-1,  3, -3,  1, "
                                          " 3, -6,  3,  0, "
@@ -64,24 +62,28 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     s->codeAppendf("%s *= float3x3(orientation[0] * orientation[1], 0, 0, "
                                   "0, orientation[0], 0, "
                                   "0, 0, orientation[1]);", fKLMMatrix.c_str());
+
+    return nullptr;
 }
 
-void GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                     GrGLSLVarying::Scope scope, SkString* code,
-                                     const char* position, const char* inputCoverage,
-                                     const char* wind) {
+Shader::CoverageHandling GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                                         GrGLSLVarying::Scope scope, SkString* code,
+                                                         const char* position,
+                                                         const char* coverageTimesWind) {
     code->appendf("float3 klm = float3(%s, 1) * %s;", position, fKLMMatrix.c_str());
 
     fKLMW.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("klmw", &fKLMW);
     code->appendf("%s.xyz = klm;", OutName(fKLMW));
-    code->appendf("%s.w = %s * %s;", OutName(fKLMW), inputCoverage, wind);
+    code->appendf("%s.w = %s;", OutName(fKLMW), coverageTimesWind);
 
     fGradMatrix.reset(kFloat2x2_GrSLType, scope);
     varyingHandler->addVarying("grad_matrix", &fGradMatrix);
     code->appendf("%s[0] = 3 * klm[0] * %s[0].xy;", OutName(fGradMatrix), fKLMMatrix.c_str());
     code->appendf("%s[1] = -klm[1] * %s[2].xy - klm[2] * %s[1].xy;",
                     OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
+
+    return CoverageHandling::kHandled;
 }
 
 void GrCCCubicShader::onEmitFragmentCode(const GrCCCoverageProcessor& proc,
