@@ -51,7 +51,7 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
                                                        p.fConfig, false,
                                                        GrMipMapped::kNo);
 
-    return proxyProvider->createWrappedTextureProxy(*backendTex, p.fOrigin);
+    return proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin);
 }
 
 static void cleanup_backend(GrContext* context, GrBackendTexture* backendTex) {

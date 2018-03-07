@@ -399,12 +399,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
             new GrTextureProxy(copyDesc, origin, mipMapped, fit, budgeted, flags));
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
-                                                         const GrBackendTexture& backendTex,
-                                                         GrSurfaceOrigin origin,
-                                                         GrWrapOwnership ownership,
-                                                         ReleaseProc releaseProc,
-                                                         ReleaseContext releaseCtx) {
+sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture& backendTex,
+                                                          GrSurfaceOrigin origin,
+                                                          GrWrapOwnership ownership,
+                                                          ReleaseProc releaseProc,
+                                                          ReleaseContext releaseCtx) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -456,9 +455,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
     return proxy;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackendTexture& backendTex,
-                                                                 GrSurfaceOrigin origin,
-                                                                 int sampleCnt) {
+sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
+        const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -513,9 +511,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackend
     return proxy;
 }
 
-sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(
-                                                             const GrBackendRenderTarget& backendRT,
-                                                             GrSurfaceOrigin origin) {
+sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
+        const GrBackendRenderTarget& backendRT, GrSurfaceOrigin origin) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -565,10 +562,8 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(
     return proxy;
 }
 
-sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(
-                                                                 const GrBackendTexture& backendTex,
-                                                                 GrSurfaceOrigin origin,
-                                                                 int sampleCnt) {
+sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
+        const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt) {
     if (this->isAbandoned()) {
         return nullptr;
     }

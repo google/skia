@@ -1241,7 +1241,7 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->createWrappedTextureProxy(tex, origin);
+    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->wrapBackendTexture(tex, origin);
     if (!proxy) {
         return nullptr;
     }
@@ -1258,8 +1258,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
     ASSERT_SINGLE_OWNER_PRIV
     SkASSERT(sampleCnt > 0);
 
-    sk_sp<GrTextureProxy> proxy(this->proxyProvider()->createWrappedTextureProxy(tex, origin,
-                                                                                 sampleCnt));
+    sk_sp<GrTextureProxy> proxy(
+            this->proxyProvider()->wrapRenderableBackendTexture(tex, origin, sampleCnt));
     if (!proxy) {
         return nullptr;
     }
@@ -1275,8 +1275,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
                                                 const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->createWrappedRenderTargetProxy(backendRT,
-                                                                                        origin);
+    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->wrapBackendRenderTarget(backendRT, origin);
     if (!proxy) {
         return nullptr;
     }
@@ -1294,8 +1293,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                      const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
     SkASSERT(sampleCnt > 0);
-    sk_sp<GrSurfaceProxy> proxy(this->proxyProvider()->createWrappedRenderTargetProxy(tex, origin,
-                                                                                      sampleCnt));
+    sk_sp<GrSurfaceProxy> proxy(
+            this->proxyProvider()->wrapBackendTextureAsRenderTarget(tex, origin, sampleCnt));
     if (!proxy) {
         return nullptr;
     }

@@ -305,8 +305,8 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
     }
 
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createWrappedTextureProxy(
-                                        backendTex, origin, ownership, releaseProc, releaseCtx);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(backendTex, origin, ownership,
+                                                                    releaseProc, releaseCtx);
     if (!proxy) {
         return nullptr;
     }
@@ -422,16 +422,14 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> yProxy = proxyProvider->createWrappedTextureProxy(yuvBackendTextures[0],
-                                                                            origin);
-    sk_sp<GrTextureProxy> uProxy = proxyProvider->createWrappedTextureProxy(yuvBackendTextures[1],
-                                                                            origin);
+    sk_sp<GrTextureProxy> yProxy = proxyProvider->wrapBackendTexture(yuvBackendTextures[0], origin);
+    sk_sp<GrTextureProxy> uProxy = proxyProvider->wrapBackendTexture(yuvBackendTextures[1], origin);
     sk_sp<GrTextureProxy> vProxy;
 
     if (nv12) {
         vProxy = uProxy;
     } else {
-        vProxy = proxyProvider->createWrappedTextureProxy(yuvBackendTextures[2], origin);
+        vProxy = proxyProvider->wrapBackendTexture(yuvBackendTextures[2], origin);
     }
     if (!yProxy || !uProxy || !vProxy) {
         return nullptr;
