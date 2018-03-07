@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74680111_1ea542ed",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-07T21:43:00Z",
+      "side": 1,
+      "message": "I guess I missed this before -- what about the other mask formats?",
+      "range": {
+        "startLine": 191,
+        "startChar": 34,
+        "endLine": 191,
+        "endChar": 50
+      },
+      "revId": "abf299942ee404b872f1995923ca67f9fb1389a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
