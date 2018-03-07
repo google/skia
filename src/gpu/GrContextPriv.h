@@ -192,13 +192,9 @@ public:
     GrGlyphCache* getGlyphCache() { return fContext->fGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
 
-    GrRestrictedAtlasManager* getRestrictedAtlasManager() {
-        return fContext->onGetRestrictedAtlasManager();
-    }
-
     // This accessor should only ever be called by the GrOpFlushState.
-    GrAtlasManager* getFullAtlasManager() {
-        return fContext->onGetFullAtlasManager();
+    GrAtlasManager* getAtlasManager() {
+        return fContext->onGetAtlasManager();
     }
 
     void moveOpListsToDDL(SkDeferredDisplayList*);
