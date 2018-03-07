@@ -12,12 +12,28 @@
 #include "GrGlyphCache.h"
 #include "GrProxyProvider.h"
 
-GrRestrictedAtlasManager::GrRestrictedAtlasManager(
-                                        sk_sp<const GrCaps> caps,
-                                        float maxTextureBytes,
-                                        GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
-            : fCaps(std::move(caps))
-            , fAllowMultitexturing(allowMultitexturing) {
+static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format, const GrCaps& caps) {
+    switch (format) {
+        case kA8_GrMaskFormat:
+            return kAlpha_8_GrPixelConfig;
+        case kA565_GrMaskFormat:
+            return kRGB_565_GrPixelConfig;
+        case kARGB_GrMaskFormat:
+            return caps.srgbSupport() ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+        default:
+            SkDEBUGFAIL("unsupported GrMaskFormat");
+            return kAlpha_8_GrPixelConfig;
+    }
+}
+
+GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* glyphCache,
+                               float maxTextureBytes,
+                               GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
+            : fAllowMultitexturing(allowMultitexturing)
+            , fProxyProvider(proxyProvider)
+            , fGlyphCache(glyphCache) {
+    fCaps = fProxyProvider->refCaps();
+
     // Calculate RGBA size. Must be between 512 x 256 and MaxTextureSize x MaxTextureSize / 2
     int log2MaxTextureSize = SkPrevLog2(fCaps->maxTextureSize());
     int log2MaxDim = 9;
@@ -56,30 +72,7 @@ GrRestrictedAtlasManager::GrRestrictedAtlasManager(
     fGlyphSizeLimit = minPlot;
 }
 
-GrRestrictedAtlasManager::~GrRestrictedAtlasManager() {
-}
-
-static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format, const GrCaps& caps) {
-    switch (format) {
-        case kA8_GrMaskFormat:
-            return kAlpha_8_GrPixelConfig;
-        case kA565_GrMaskFormat:
-            return kRGB_565_GrPixelConfig;
-        case kARGB_GrMaskFormat:
-            return caps.srgbSupport() ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
-        default:
-            SkDEBUGFAIL("unsupported GrMaskFormat");
-            return kAlpha_8_GrPixelConfig;
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* glyphCache,
-                               float maxTextureBytes,
-                               GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
-            : INHERITED(proxyProvider->refCaps(), maxTextureBytes, allowMultitexturing)
-            , fProxyProvider(proxyProvider)
-            , fGlyphCache(glyphCache) {
+GrAtlasManager::~GrAtlasManager() {
 }
 
 void GrAtlasManager::freeAll() {
