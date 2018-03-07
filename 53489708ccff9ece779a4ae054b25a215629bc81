@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f742b3c3_45ae402b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-07T15:40:46Z",
+      "side": 1,
+      "message": "I see this slightly differently - SkCanvasPriv\u0027s flag exists so that classes other than SkCanvas can access its Private flag.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 45
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5db1baf_649053d4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-07T15:40:46Z",
+      "side": 1,
+      "message": "Doesn\u0027t the bot just need to define SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG? Maybe we should just add a bot that builds with all of our LEGACY flags defined? Actually, that may be more complex than just having a bot run with all of Android\u0027s LEGACY flags defined, and one for Chrome, etc.\n\nCouldn\u0027t we run some of these tests just by switching from SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag to SkCanvasPriv::kDontClipToLayer_SaveLayerFlag? I suppose that doesn\u0027t prove that the legacy flag itself works as intended (the static_assert in one tests would do that, if we ever ran with SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG defined), but it would mean we are running the tests at all, which seems better than today.",
+      "range": {
+        "startLine": 24,
+        "startChar": 10,
+        "endLine": 25,
+        "endChar": 5
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3381fe68_718bef60",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2666,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-07T15:40:46Z",
+      "side": 1,
+      "message": "nit: Add why this needs to be a friend (for access to kDontClipToLayer_PrivateSaveLayerFlag)",
+      "range": {
+        "startLine": 2666,
+        "startChar": 17,
+        "endLine": 2666,
+        "endChar": 29
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac4e971d_131defe1",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 943,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-07T15:40:46Z",
+      "side": 1,
+      "message": "This is inside SkCanvas, so can\u0027t this just be \"kDontClipToLayer_PrivateSaveLayerFlag\"? It seems funny that we\u0027re using an external enum that is the same as our internal enum.",
+      "range": {
+        "startLine": 943,
+        "startChar": 30,
+        "endLine": 943,
+        "endChar": 74
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d78263f6_687d4c1e",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-07T15:40:46Z",
+      "side": 1,
+      "message": "This method is SkCanvasPriv, so no need to namespace it. Alternatively, since you\u0027re returning an SkCanvas::SaveLayerFlags, should this be SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag? (Which SkCanvasPriv can access because it\u0027s a friend.)\n\nIt seems like SkCanvasPriv\u0027s flag is for cases where we want the Private one but cannot access it, so it\u0027s funny to me that we use SkCanvasPriv\u0027s when we can access the Private one.",
+      "range": {
+        "startLine": 32,
+        "startChar": 22,
+        "endLine": 32,
+        "endChar": 66
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
