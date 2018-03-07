@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a972a320_bfd9070c",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 14
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-07T00:38:14Z",
+      "side": 1,
+      "message": "nit: no longer correct",
+      "range": {
+        "startLine": 132,
+        "startChar": 23,
+        "endLine": 132,
+        "endChar": 43
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26b2c811_2cfd3929",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 14
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-07T00:38:14Z",
+      "side": 1,
+      "message": "nit: no longer correct",
+      "range": {
+        "startLine": 133,
+        "startChar": 30,
+        "endLine": 134,
+        "endChar": 22
+      },
+      "revId": "bae15ca960249ebbec7fcfb12974edf934b0ce46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

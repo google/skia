@@ -1330,6 +1330,30 @@
     },
     {
       "key": {
+        "uuid": "7221b99c_00456706",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-07T00:38:14Z",
+      "side": 1,
+      "message": "I see. It\u0027s unfortunate that the JSON won\u0027t be compressed, but I guess it\u0027s not a big deal.",
+      "parentUuid": "f940c379_c9b6f231",
+      "range": {
+        "startLine": 441,
+        "startChar": 1,
+        "endLine": 441,
+        "endChar": 20
+      },
+      "revId": "d8651b5316542a0666cc948aa94d747d8b894786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35cadffd_c6f374c5",
         "filename": "infra/cts/whitelist_devices.json",
         "patchSetId": 11
