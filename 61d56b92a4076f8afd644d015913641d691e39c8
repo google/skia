@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1bce93f_8c761cf7",
+        "filename": "gm/flippity.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-07T17:34:57Z",
+      "side": 0,
+      "message": "I\u0027m assuming this dates to when the sw backend only supported one of kBGRA or kRGBA.",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 5
+      },
+      "revId": "61d56b92a4076f8afd644d015913641d691e39c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
