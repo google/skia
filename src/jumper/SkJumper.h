@@ -11,11 +11,34 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// This file contains definitions shared by SkJumper.cpp/SkJumper_stages.cpp
-// and the rest of Skia.  It is important to keep the interface to SkJumper
-// limited and simple to avoid serious ODR violation pitfalls, especially when
-// using Microsoft's <math.h> and similar headers with inline-but-not-static
-// function definitions.
+// This file contains definitions shared by SkJumper.cpp (compiled normally as part of Skia)
+// and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
+// Keep it simple!
+
+// Externally facing functions (start_pipeline) are called a little specially on Windows.
+#if defined(JUMPER_IS_OFFLINE) && defined(WIN) && defined(__x86_64__)
+    #define MAYBE_MSABI __attribute__((ms_abi))                   // Use MS' ABI, not System V.
+#elif defined(JUMPER_IS_OFFLINE) && defined(WIN) && defined(__i386__)
+    #define MAYBE_MSABI __attribute__((force_align_arg_pointer))  // Re-align stack 4 -> 16 bytes.
+#else
+    #define MAYBE_MSABI
+#endif
+
+// Any custom ABI to use for all non-externally-facing stage functions.
+#if defined(__ARM_NEON) && defined(__arm__)
+    // This lets us pass vectors more efficiently on 32-bit ARM.
+    #define ABI __attribute__((pcs("aapcs-vfp")))
+#else
+    #define ABI
+#endif
+
+// On ARM we expect that you're using Clang if you want SkJumper to be fast.
+// If you are, the baseline float stages will use NEON, and lowp stages will
+// also be available. (If somehow you're building for ARM not using Clang,
+// you'll get scalar baseline stages and no lowp support.)
+#if defined(__clang__) && defined(__ARM_NEON)
+    #define JUMPER_HAS_NEON_LOWP
+#endif
 
 static const int SkJumper_kMaxStride = 16;
 
@@ -53,7 +76,7 @@ struct SkJumper_DecalTileCtx {
 };
 
 struct SkJumper_CallbackCtx {
-    void (*fn)(SkJumper_CallbackCtx* self, int active_pixels/*<= SkJumper_kMaxStride*/);
+    MAYBE_MSABI void (*fn)(SkJumper_CallbackCtx* self, int active_pixels/*<= SkJumper_kMaxStride*/);
 
     // When called, fn() will have our active pixels available in rgba.
     // When fn() returns, the pipeline will read back those active pixels from read_from.

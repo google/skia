@@ -19,11 +19,11 @@
 
 namespace SK_OPTS_NS {
 
-template <typename T, typename P>
-static inline T unaligned_load(const P* p) {
-    T v;
-    memcpy(&v, p, sizeof(v));
-    return v;
+template <typename T>
+static inline T unaligned_load(const uint8_t* src) {
+    T val;
+    memcpy(&val, src, sizeof(val));
+    return val;
 }
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42 && (defined(__x86_64__) || defined(_M_X64))

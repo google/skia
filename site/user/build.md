@@ -33,18 +33,6 @@ link Skia against the headers and libaries found on the system paths.
 use `extra_cflags` and `extra_ldflags` to add include or library paths if
 needed.
 
-A note on software backend performance
---------------------------------------
-
-A number of routines in Skia's software backend have been written to run
-fastest when compiled by Clang.  If you depend on software rasterization, image
-decoding, or color space conversion and compile Skia with GCC, MSVC or another
-compiler, you will see dramatically worse performance than if you use Clang.
-
-This choice was only a matter of prioritization; there is nothing fundamentally
-wrong with non-Clang compilers.  So if this is a serious issue for you, please
-let us know on the mailing list.
-
 Quickstart
 ----------
 
