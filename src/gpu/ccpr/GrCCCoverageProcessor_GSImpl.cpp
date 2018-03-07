@@ -267,13 +267,11 @@ public:
         g->codeAppendf("float2 left = pts[%s > 0 ? sk_InvocationID : nextidx];", wind.c_str());
         g->codeAppendf("float2 right = pts[%s > 0 ? nextidx : sk_InvocationID];", wind.c_str());
 
-        Shader::EmitEdgeDistanceEquation(g, "left", "right", "float3 edge_distance_equation");
-
         // Which quadrant does the vector from left -> right fall into?
         g->codeAppend ("float2 qlr = sign(right - left);");
         g->codeAppend ("float2x2 outer_pts = float2x2(left - bloat * qlr, right + bloat * qlr);");
-        g->codeAppend ("half2 outer_coverage = edge_distance_equation.xy * outer_pts + "
-                                              "edge_distance_equation.z;");
+        g->codeAppend ("half outer_coverage;");
+        Shader::CalcEdgeCoverageAtBloatVertex(g, "left", "right", "qlr", "outer_coverage");
 
         g->codeAppend ("float2 d1 = float2(qlr.y, -qlr.x);");
         g->codeAppend ("float2 d2 = d1;");
@@ -287,14 +285,14 @@ public:
         // invocation emits a different edge. Emit negative coverage that subtracts the appropiate
         // amount back out from the hull we drew above.
         g->codeAppend ("if (!aligned) {");
-        g->codeAppendf(    "%s(outer_pts[0], outer_coverage[0]);", emitVertexFn);
+        g->codeAppendf(    "%s(outer_pts[0], -1 - outer_coverage);", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppendf("%s(left + bloat * d1, -1);", emitVertexFn);
         g->codeAppendf("%s(left - bloat * d2, 0);", emitVertexFn);
         g->codeAppendf("%s(right + bloat * d2, -1);", emitVertexFn);
         g->codeAppendf("%s(right - bloat * d1, 0);", emitVertexFn);
         g->codeAppend ("if (!aligned) {");
-        g->codeAppendf(    "%s(outer_pts[1], outer_coverage[1]);", emitVertexFn);
+        g->codeAppendf(    "%s(outer_pts[1], outer_coverage);", emitVertexFn);
         g->codeAppend ("}");
 
         g->configure(InputType::kLines, OutputType::kTriangleStrip, 6, 3);
