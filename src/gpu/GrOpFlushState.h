@@ -94,7 +94,7 @@ public:
 
     // At this point we know we're flushing so full access to the GrAtlasManager is required (and
     // permissible).
-    GrAtlasManager* fullAtlasManager() const final;
+    GrAtlasManager* atlasManager() const final;
 
 private:
     /** GrMeshDrawOp::Target override. */

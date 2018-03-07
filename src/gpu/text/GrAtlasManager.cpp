@@ -12,12 +12,9 @@
 #include "GrGlyphCache.h"
 #include "GrProxyProvider.h"
 
-
-void GrRestrictedAtlasManager::ComputeAtlasLimits(const GrCaps* caps, float maxTextureBytes,
-                                                  int* maxDim, int* minDim,
-                                                  int* maxPlot, int* minPlot) {
+void GrAtlasManager::ComputeAtlasLimits(const GrCaps* caps, float maxTextureBytes,
+                                        int* maxDim, int* minDim, int* maxPlot, int* minPlot) {
     SkASSERT(maxDim && minDim && maxPlot && minPlot);
-
     // Calculate RGBA size. Must be between 512 x 256 and MaxTextureSize x MaxTextureSize / 2
     int log2MaxTextureSize = SkPrevLog2(caps->maxTextureSize());
     int log2MaxDim = 9;
@@ -39,12 +36,13 @@ void GrRestrictedAtlasManager::ComputeAtlasLimits(const GrCaps* caps, float maxT
     *minPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 3)));
 }
 
-GrRestrictedAtlasManager::GrRestrictedAtlasManager(
-                                        sk_sp<const GrCaps> caps,
-                                        float maxTextureBytes,
-                                        GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
-            : fCaps(std::move(caps))
-            , fAllowMultitexturing(allowMultitexturing) {
+GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* glyphCache,
+                               float maxTextureBytes,
+                               GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
+            : fAllowMultitexturing(allowMultitexturing)
+            , fProxyProvider(proxyProvider)
+            , fGlyphCache(glyphCache) {
+    fCaps = fProxyProvider->refCaps();
 
     int maxDim, minDim, maxPlot, minPlot;
     ComputeAtlasLimits(fCaps.get(), maxTextureBytes, &maxDim, &minDim, &maxPlot, &minPlot);
@@ -70,7 +68,7 @@ GrRestrictedAtlasManager::GrRestrictedAtlasManager(
     fGlyphSizeLimit = minPlot;
 }
 
-GrRestrictedAtlasManager::~GrRestrictedAtlasManager() {
+GrAtlasManager::~GrAtlasManager() {
 }
 
 static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format, const GrCaps& caps) {
@@ -85,15 +83,6 @@ static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format, const GrCa
             SkDEBUGFAIL("unsupported GrMaskFormat");
             return kAlpha_8_GrPixelConfig;
     }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* glyphCache,
-                               float maxTextureBytes,
-                               GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
-            : INHERITED(proxyProvider->refCaps(), maxTextureBytes, allowMultitexturing)
-            , fProxyProvider(proxyProvider)
-            , fGlyphCache(glyphCache) {
 }
 
 void GrAtlasManager::freeAll() {
