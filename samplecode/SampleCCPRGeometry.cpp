@@ -33,7 +33,7 @@ using RenderPass = GrCCCoverageProcessor::RenderPass;
 static constexpr float kDebugBloat = 40;
 
 static int is_quadratic(RenderPass pass) {
-    return pass == RenderPass::kQuadraticHulls || pass == RenderPass::kQuadraticCorners;
+    return pass == RenderPass::kQuadratics || pass == RenderPass::kQuadraticCorners;
 }
 
 /**
@@ -59,7 +59,7 @@ private:
 
     void updateGpuData();
 
-    RenderPass fRenderPass = RenderPass::kTriangleHulls;
+    RenderPass fRenderPass = RenderPass::kTriangles;
     SkCubicType fCubicType;
     SkMatrix fCubicKLM;
 
@@ -249,10 +249,6 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
                              ? static_cast<GrGLGpu*>(state->gpu())
                              : nullptr;
 
-    if (!GrCCCoverageProcessor::DoesRenderPass(fView->fRenderPass, state->caps())) {
-        return;
-    }
-
     GrCCCoverageProcessor proc(rp, fView->fRenderPass,
                                GrCCCoverageProcessor::WindMethod::kCrossProduct);
     SkDEBUGCODE(proc.enableDebugVisualizations(kDebugBloat));
@@ -346,7 +342,7 @@ bool CCPRGeometryView::onQuery(SkEvent* evt) {
     }
     SkUnichar unichar;
     if (SampleCode::CharQ(*evt, &unichar)) {
-        if (unichar >= '1' && unichar <= '7') {
+        if (unichar >= '1' && unichar <= '6') {
             fRenderPass = RenderPass(unichar - '1');
             this->updateAndInval();
             return true;

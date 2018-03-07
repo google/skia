@@ -244,8 +244,18 @@ static constexpr uint16_t kHull4IndicesAsTris[] =  {
 GR_DECLARE_STATIC_UNIQUE_KEY(gHull4IndexBufferKey);
 
 /**
- * Generates a conservative raster hull around a convex polygon. For triangles, we also generate
- * independent conservative rasters around each edge. (See comments for RenderPass)
+ * Generates a conservative raster hull around a convex polygon. For triangles we generate
+ * additional conservative rasters around the edges and calculate coverage ramps.
+ *
+ * Triangle rough outlines are drawn in two steps: (1) draw a conservative raster of the entire
+ * triangle, with a coverage of +1, and (2) draw conservative rasters around each edge, with a
+ * coverage ramp from -1 to 0. These edge coverage values convert jagged conservative raster edges
+ * into smooth, antialiased ones.
+ *
+ * Curve rough outlines are just the conservative raster of a convex quadrilateral that encloses the
+ * curve. The Shader takes care of everything else for now.
+ *
+ * The final corners get touched up in a later step by VSCornerImpl.
  */
 class VSHullAndEdgeImpl : public GrCCCoverageProcessor::VSImpl {
 public:
@@ -392,7 +402,7 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
     const GrCaps& caps = *rp->caps();
 
     switch (fRenderPass) {
-        case RenderPass::kTriangleHulls: {
+        case RenderPass::kTriangles: {
             GR_DEFINE_STATIC_UNIQUE_KEY(gHull3AndEdgeVertexBufferKey);
             fVertexBuffer = rp->findOrMakeStaticBuffer(kVertex_GrBufferType,
                                                        sizeof(kHull3AndEdgeVertices),
@@ -414,8 +424,9 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
             }
             break;
         }
-        case RenderPass::kQuadraticHulls:
-        case RenderPass::kCubicHulls: {
+
+        case RenderPass::kQuadratics:
+        case RenderPass::kCubics: {
             GR_DEFINE_STATIC_UNIQUE_KEY(gHull4VertexBufferKey);
             fVertexBuffer = rp->findOrMakeStaticBuffer(kVertex_GrBufferType, sizeof(kHull4Vertices),
                                                        kHull4Vertices, gHull4VertexBufferKey);
@@ -435,9 +446,7 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
             }
             break;
         }
-        case RenderPass::kTriangleEdges:
-            SK_ABORT("kTriangleEdges RenderPass is not used by VSImpl.");
-            break;
+
         case RenderPass::kTriangleCorners:
         case RenderPass::kQuadraticCorners:
         case RenderPass::kCubicCorners: {
@@ -514,14 +523,11 @@ void GrCCCoverageProcessor::appendVSMesh(GrBuffer* instanceBuffer, int instanceC
 
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createVSImpl(std::unique_ptr<Shader> shadr) const {
     switch (fRenderPass) {
-        case RenderPass::kTriangleHulls:
+        case RenderPass::kTriangles:
             return new VSHullAndEdgeImpl(std::move(shadr), 3);
-        case RenderPass::kQuadraticHulls:
-        case RenderPass::kCubicHulls:
+        case RenderPass::kQuadratics:
+        case RenderPass::kCubics:
             return new VSHullAndEdgeImpl(std::move(shadr), 4);
-        case RenderPass::kTriangleEdges:
-            SK_ABORT("kTriangleEdges RenderPass is not used by VSImpl.");
-            return nullptr;
         case RenderPass::kTriangleCorners:
         case RenderPass::kQuadraticCorners:
         case RenderPass::kCubicCorners:

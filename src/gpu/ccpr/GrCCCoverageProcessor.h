@@ -54,48 +54,20 @@ public:
         void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
     };
 
-    // All primitive shapes (triangles and closed, convex bezier curves) require more than one
-    // render pass. Here we enumerate every render pass needed in order to produce a complete
+    // All primitive shapes (triangles and closed, convex bezier curves) require two
+    // render passes: One to draw a rough outline of the shape, and a second pass to touch up the
+    // corners. Here we enumerate every render pass needed in order to produce a complete
     // coverage count mask. This is an exhaustive list of all ccpr coverage shaders.
-    //
-    // During a render pass, the "Impl" (GSImpl or VSimpl) generates conservative geometry for
-    // rasterization, and the Shader decides the coverage value at each pixel.
     enum class RenderPass {
-        // For a Hull, the Impl generates a "conservative raster hull" around the input points. This
-        // is the geometry that causes a pixel to be rasterized if it is touched anywhere by the
-        // input polygon. The input coverage values sent to the Shader at each vertex are either
-        // null, or +1 all around if the Impl combines this pass with kTriangleEdges. Logically,
-        // the conservative raster hull is equivalent to the convex hull of pixel size boxes
-        // centered on each input point.
-        kTriangleHulls,
-        kQuadraticHulls,
-        kCubicHulls,
-
-        // For Edges, the Impl generates conservative rasters around every input edge (i.e. convex
-        // hulls of two pixel-size boxes centered on both of the edge's endpoints). The input
-        // coverage values sent to the Shader at each vertex are -1 on the outside border of the
-        // edge geometry and 0 on the inside. This is the only geometry type that associates
-        // coverage values with the output vertices. Interpolated, these coverage values convert
-        // jagged conservative raster edges into a smooth antialiased edge.
-        //
-        // NOTE: The Impl may combine this pass with kTriangleHulls, in which case DoesRenderPass()
-        // will be false for kTriangleEdges and it must not be used.
-        kTriangleEdges,
-
-        // For Corners, the Impl Generates the conservative rasters of corner points (i.e.
-        // pixel-size boxes). It generates 3 corner boxes for triangles and 2 for curves. The Shader
-        // specifies which corners. Input coverage values sent to the Shader will be null.
+        kTriangles,
         kTriangleCorners,
+        kQuadratics,
         kQuadraticCorners,
+        kCubics,
         kCubicCorners
     };
     static bool RenderPassIsCubic(RenderPass);
     static const char* RenderPassName(RenderPass);
-
-    constexpr static bool DoesRenderPass(RenderPass renderPass, const GrCaps& caps) {
-        return RenderPass::kTriangleEdges != renderPass ||
-               caps.shaderCaps()->geometryShaderSupport();
-    }
 
     enum class WindMethod : bool {
         kCrossProduct, // Calculate wind = +/-1 by sign of the cross product.
@@ -109,7 +81,6 @@ public:
             , fWindMethod(windMethod)
             , fImpl(rp->caps()->shaderCaps()->geometryShaderSupport() ? Impl::kGeometryShader
                                                                       : Impl::kVertexShader) {
-        SkASSERT(DoesRenderPass(pass, *rp->caps()));
         if (Impl::kGeometryShader == fImpl) {
             this->initGS();
         } else {
@@ -204,8 +175,7 @@ public:
         // Here the subclass adds its internal varyings to the handler and produces code to
         // initialize those varyings from a given position, input coverage value, and wind.
         //
-        // NOTE: the coverage input is only relevant for edges (see comments in RenderPass).
-        // Otherwise it is +1 all around.
+        // NOTE: the coverage input is only relevant for triangles. Otherwise it is null.
         virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                                     const char* position, const char* inputCoverage,
                                     const char* wind) = 0;
@@ -301,13 +271,12 @@ inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint& p0, con
 
 inline bool GrCCCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
     switch (pass) {
-        case RenderPass::kTriangleHulls:
-        case RenderPass::kTriangleEdges:
+        case RenderPass::kTriangles:
         case RenderPass::kTriangleCorners:
-        case RenderPass::kQuadraticHulls:
+        case RenderPass::kQuadratics:
         case RenderPass::kQuadraticCorners:
             return false;
-        case RenderPass::kCubicHulls:
+        case RenderPass::kCubics:
         case RenderPass::kCubicCorners:
             return true;
     }
@@ -317,12 +286,11 @@ inline bool GrCCCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
 
 inline const char* GrCCCoverageProcessor::RenderPassName(RenderPass pass) {
     switch (pass) {
-        case RenderPass::kTriangleHulls: return "kTriangleHulls";
-        case RenderPass::kTriangleEdges: return "kTriangleEdges";
+        case RenderPass::kTriangles: return "kTriangles";
         case RenderPass::kTriangleCorners: return "kTriangleCorners";
-        case RenderPass::kQuadraticHulls: return "kQuadraticHulls";
+        case RenderPass::kQuadratics: return "kQuadratics";
         case RenderPass::kQuadraticCorners: return "kQuadraticCorners";
-        case RenderPass::kCubicHulls: return "kCubicHulls";
+        case RenderPass::kCubics: return "kCubics";
         case RenderPass::kCubicCorners: return "kCubicCorners";
     }
     SK_ABORT("Invalid RenderPass");

@@ -16,15 +16,10 @@ void GrCCTriangleShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                         GrGLSLVarying::Scope scope, SkString* code,
                                         const char* /*position*/, const char* inputCoverage,
                                         const char* wind) {
+    SkASSERT(inputCoverage);
     fCoverageTimesWind.reset(kHalf_GrSLType, scope);
-    if (!inputCoverage) {
-        varyingHandler->addVarying("wind", &fCoverageTimesWind,
-                                   GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-        code->appendf("%s = %s;", OutName(fCoverageTimesWind), wind);
-    } else {
-        varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
-        code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), inputCoverage, wind);
-    }
+    varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
+    code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), inputCoverage, wind);
 }
 
 void GrCCTriangleShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,

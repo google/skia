@@ -119,20 +119,19 @@ void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShaderCaps&) const {
     std::unique_ptr<Shader> shader;
     switch (fRenderPass) {
-        case RenderPass::kTriangleHulls:
-        case RenderPass::kTriangleEdges:
+        case RenderPass::kTriangles:
             shader = skstd::make_unique<GrCCTriangleShader>();
             break;
         case RenderPass::kTriangleCorners:
             shader = skstd::make_unique<GrCCTriangleCornerShader>();
             break;
-        case RenderPass::kQuadraticHulls:
+        case RenderPass::kQuadratics:
             shader = skstd::make_unique<GrCCQuadraticHullShader>();
             break;
         case RenderPass::kQuadraticCorners:
             shader = skstd::make_unique<GrCCQuadraticCornerShader>();
             break;
-        case RenderPass::kCubicHulls:
+        case RenderPass::kCubics:
             shader = skstd::make_unique<GrCCCubicHullShader>();
             break;
         case RenderPass::kCubicCorners:
