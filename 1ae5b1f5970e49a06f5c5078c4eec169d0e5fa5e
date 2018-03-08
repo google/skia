@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3624cd00_4378f8f9",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-08T21:15:05Z",
+      "side": 1,
+      "message": "I put this here because I thought it might be generally useful, but if it\u0027s better I can just use a local var where it\u0027s used in gn_flavor.py.",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 39
+      },
+      "revId": "1ae5b1f5970e49a06f5c5078c4eec169d0e5fa5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
