@@ -22,6 +22,30 @@
       "revId": "abf299942ee404b872f1995923ca67f9fb1389a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8917abb6_bc2cdcbe",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T14:16:20Z",
+      "side": 1,
+      "message": "AFAIU the externalized text system only works with/for A8 masks. Adding Brian.",
+      "parentUuid": "74680111_1ea542ed",
+      "range": {
+        "startLine": 191,
+        "startChar": 34,
+        "endLine": 191,
+        "endChar": 50
+      },
+      "revId": "abf299942ee404b872f1995923ca67f9fb1389a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
