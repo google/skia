@@ -127,12 +127,12 @@ uniform half4 circleData;
     // the size of the profile being computed. Then for each of the n profile entries we walk out k
     // steps in each horizontal direction multiplying the corresponding y evaluation by the half
     // kernel entry and sum these values to compute the profile entry.
-    static uint8_t* create_circle_profile(float sigma, float circleR, int profileTextureWidth) {
+    static void create_circle_profile(uint8_t* weights2, float sigma, float circleR,
+                                      int profileTextureWidth) {
         const int numSteps = profileTextureWidth;
-        uint8_t* weights = new uint8_t[numSteps];
 
         // The full kernel is 6 sigmas wide.
-        int halfKernelSize = SkScalarCeilToInt(6.0f*sigma);
+        int halfKernelSize = SkScalarCeilToInt(6.0f * sigma);
         // round up to next multiple of 2 and then divide by 2
         halfKernelSize = ((halfKernelSize + 1) & ~1) >> 1;
 
@@ -150,41 +150,37 @@ uniform half4 circleData;
 
         for (int i = 0; i < numSteps - 1; ++i) {
             float evalX = i + 0.5f;
-            weights[i] = eval_at(evalX, circleR, halfKernel, halfKernelSize, yEvals + i);
+            weights2[i] = eval_at(evalX, circleR, halfKernel, halfKernelSize, yEvals + i);
         }
         // Ensure the tail of the Gaussian goes to zero.
-        weights[numSteps - 1] = 0;
-        return weights;
+        weights2[numSteps - 1] = 0;
     }
 
-    static uint8_t* create_half_plane_profile(int profileWidth) {
+    static void create_half_plane_profile(uint8_t* profile2, int profileWidth) {
         SkASSERT(!(profileWidth & 0x1));
         // The full kernel is 6 sigmas wide.
         float sigma = profileWidth / 6.f;
         int halfKernelSize = profileWidth / 2;
 
         SkAutoTArray<float> halfKernel(halfKernelSize);
-        uint8_t* profile = new uint8_t[profileWidth];
 
         // The half kernel should sum to 0.5.
-        const float tot = 2.f * make_unnormalized_half_kernel(halfKernel.get(), halfKernelSize,
-                                                              sigma);
+        const float tot = 2.f * make_unnormalized_half_kernel(halfKernel.get(), halfKernelSize, sigma);
         float sum = 0.f;
         // Populate the profile from the right edge to the middle.
         for (int i = 0; i < halfKernelSize; ++i) {
             halfKernel[halfKernelSize - i - 1] /= tot;
             sum += halfKernel[halfKernelSize - i - 1];
-            profile[profileWidth - i - 1] = SkUnitScalarClampToByte(sum);
+            profile2[profileWidth - i - 1] = SkUnitScalarClampToByte(sum);
         }
         // Populate the profile from the middle to the left edge (by flipping the half kernel and
         // continuing the summation).
         for (int i = 0; i < halfKernelSize; ++i) {
             sum += halfKernel[i];
-            profile[halfKernelSize - i - 1] = SkUnitScalarClampToByte(sum);
+            profile2[halfKernelSize - i - 1] = SkUnitScalarClampToByte(sum);
         }
         // Ensure tail goes to 0.
-        profile[profileWidth - 1] = 0;
-        return profile;
+        profile2[profileWidth - 1] = 0;
     }
 
     static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvider,
@@ -233,23 +229,27 @@ uniform half4 circleData;
                       proxyProvider->findOrCreateProxyByUniqueKey(key, kTopLeft_GrSurfaceOrigin);
         if (!blurProfile) {
             static constexpr int kProfileTextureWidth = 512;
-            GrSurfaceDesc texDesc;
-            texDesc.fWidth = kProfileTextureWidth;
-            texDesc.fHeight = 1;
-            texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
-            std::unique_ptr<uint8_t[]> profile(nullptr);
+            SkImageInfo ii = SkImageInfo::MakeA8(kProfileTextureWidth, 1);
+            SkBitmap bm;
+            if (!bm.tryAllocPixels(ii)) {
+                return false;
+            }
+
             if (useHalfPlaneApprox) {
-                profile.reset(create_half_plane_profile(kProfileTextureWidth));
+                create_half_plane_profile(bm.getAddr8(0, 0), kProfileTextureWidth);
             } else {
                 // Rescale params to the size of the texture we're creating.
                 SkScalar scale = kProfileTextureWidth / *textureRadius;
-                profile.reset(create_circle_profile(sigma * scale, circleR * scale,
-                                                    kProfileTextureWidth));
+                create_circle_profile(bm.getAddr8(0, 0), sigma * scale, circleR * scale,
+                                      kProfileTextureWidth);
             }
 
-            blurProfile = proxyProvider->createTextureProxy(
-                    texDesc, SkBudgeted::kYes, profile.get(), 0);
+            bm.setImmutable();
+            sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
+
+            blurProfile = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
+                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!blurProfile) {
                 return nullptr;
             }
