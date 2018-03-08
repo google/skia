@@ -86,8 +86,8 @@ static bool legacy_shader_can_handle(const SkMatrix& a, const SkMatrix& b) {
     SkRect src;
     SkAssertResult(inv.mapRect(&src, SkRect::MakeWH(max_dev_coord, max_dev_coord)));
 
-    // take 1/2 of max signed 32bits so we have room to subtract coordinates
-    const SkScalar max_fixed32dot32 = SK_MaxS32 * 0.5f;
+    // take 1/4 of max signed 32bits so we have room to subtract local values
+    const SkScalar max_fixed32dot32 = SK_MaxS32 * 0.25f;
     if (!SkRect::MakeLTRB(-max_fixed32dot32, -max_fixed32dot32,
                            max_fixed32dot32, max_fixed32dot32).contains(src)) {
         return false;
