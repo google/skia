@@ -94,6 +94,21 @@ DEF_TEST(TypefaceStyle, reporter) {
     }
 }
 
+DEF_TEST(TypefaceRoundTrip, reporter) {
+    sk_sp<SkTypeface> typeface(MakeResourceAsTypeface("fonts/7630.otf"));
+    if (!typeface) {
+        // Not all SkFontMgr can MakeFromStream().
+        return;
+    }
+
+    int fontIndex;
+    std::unique_ptr<SkStreamAsset> stream(typeface->openStream(&fontIndex));
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkTypeface> typeface2 = fm->makeFromStream(std::move(stream), fontIndex);
+    REPORTER_ASSERT(reporter, typeface2);
+}
+
 DEF_TEST(TypefaceAxes, reporter) {
     std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
     if (!distortable) {
