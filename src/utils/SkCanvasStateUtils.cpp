@@ -130,7 +130,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void setup_MC_state(SkMCState* state, const SkMatrix& matrix, const SkRegion& clip) {
+static void setup_MC_state(SkMCState* state, const SkMatrix& matrix, const SkIRect& clip) {
     // initialize the struct
     state->clipRectCount = 0;
 
@@ -140,29 +140,19 @@ static void setup_MC_state(SkMCState* state, const SkMatrix& matrix, const SkReg
     }
 
     /*
-     * capture the clip
-     *
-     * storage is allocated on the stack for the first 4 rects. This value was
-     * chosen somewhat arbitrarily, but does allow us to represent simple clips
-     * and some more common complex clips (e.g. a clipRect with a sub-rect
-     * clipped out of its interior) without needing to malloc any additional memory.
+     *  We only support a single clipRect, so we take the clip's bounds. Clients have long made
+     *  this assumption anyway, so this restriction is fine.
      */
-    SkSWriter32<4*sizeof(ClipRect)> clipWriter;
+    SkSWriter32<sizeof(ClipRect)> clipWriter;
 
     if (!clip.isEmpty()) {
-        // only returns the b/w clip so aa clips fail
-        SkRegion::Iterator clip_iterator(clip);
-        for (; !clip_iterator.done(); clip_iterator.next()) {
-            // this assumes the SkIRect is stored in l,t,r,b ordering which
-            // matches the ordering of our ClipRect struct
-            clipWriter.writeIRect(clip_iterator.rect());
-            state->clipRectCount++;
-        }
+        state->clipRectCount = 1;
+        state->clipRects = (ClipRect*)sk_malloc_throw(sizeof(ClipRect));
+        state->clipRects->left = clip.fLeft;
+        state->clipRects->top = clip.fTop;
+        state->clipRects->right = clip.fRight;
+        state->clipRects->bottom = clip.fBottom;
     }
-
-    // allocate memory for the clip then and copy them to the struct
-    state->clipRects = (ClipRect*) sk_malloc_throw(clipWriter.bytesWritten());
-    clipWriter.flatten(state->clipRects);
 }
 
 
@@ -177,12 +167,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
 
     std::unique_ptr<SkCanvasState_v1> canvasState(new SkCanvasState_v1(canvas));
 
-    // decompose the total matrix and clip
-    {
-        SkRegion rgn;
-        canvas->temporary_internal_getRgnClip(&rgn);
-        setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(), rgn);
-    }
+    setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(), canvas->getDeviceClipBounds());
 
     /*
      * decompose the layers
@@ -222,9 +207,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         layerState->raster.rowBytes = pmap.rowBytes();
         layerState->raster.pixels = pmap.writable_addr();
 
-        SkRegion rgn;
-        layer.clip(&rgn);
-        setup_MC_state(&layerState->mcState, layer.matrix(), rgn);
+        setup_MC_state(&layerState->mcState, layer.matrix(), layer.clipBounds());
         layerCount++;
     }
 
@@ -246,18 +229,24 @@ static void setup_canvas_from_MC_state(const SkMCState& state, SkCanvas* canvas)
         matrix.set(i, state.matrix[i]);
     }
 
-    // reconstruct the clip
-    SkRegion clip;
-    for (int i = 0; i < state.clipRectCount; ++i) {
-        clip.op(SkIRect::MakeLTRB(state.clipRects[i].left,
-                                  state.clipRects[i].top,
-                                  state.clipRects[i].right,
-                                  state.clipRects[i].bottom),
-                SkRegion::kUnion_Op);
+    // only realy support 1 rect, so if the caller (legacy?) sent us more, we just take the bounds
+    // of what they sent.
+    SkIRect bounds = SkIRect::MakeEmpty();
+    if (state.clipRectCount > 0) {
+        bounds.set(state.clipRects[0].left,
+                   state.clipRects[0].top,
+                   state.clipRects[0].right,
+                   state.clipRects[0].bottom);
+        for (int i = 1; i < state.clipRectCount; ++i) {
+            bounds.join(state.clipRects[i].left,
+                        state.clipRects[i].top,
+                        state.clipRects[i].right,
+                        state.clipRects[i].bottom);
+        }
     }
 
-    canvas->setMatrix(matrix);
-    canvas->clipRegion(clip, kReplace_SkClipOp);
+    canvas->clipRect(SkRect::Make(bounds));
+    canvas->concat(matrix);
 }
 
 static std::unique_ptr<SkCanvas>
