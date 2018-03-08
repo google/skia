@@ -809,7 +809,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
             return nullptr;
         }
         int textSize = pe.extended ? reader.read32() : 0;
-        if (textSize < 0) {
+        if (textSize < 0 || textSize > reader.size()) {
             return nullptr;
         }
 
