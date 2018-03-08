@@ -7,21 +7,17 @@
 
 #include "GrCCCoverageProcessor.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrOpFlushState.h"
 #include "SkMakeUnique.h"
 #include "ccpr/GrCCCubicShader.h"
 #include "ccpr/GrCCQuadraticShader.h"
+#include "ccpr/GrCCTriangleShader.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
                                                 GrProcessorKeyBuilder* b) const {
-    int key = ((int)fRenderPass << 3);
-    if (GSTriangleSubpass::kCorners == fGSTriangleSubpass) {
-        key |= 4;
-    }
+    int key = (int)fRenderPass << 2;
     if (WindMethod::kInstanceData == fWindMethod) {
         key |= 2;
     }
@@ -40,7 +36,10 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
     std::unique_ptr<Shader> shader;
     switch (fRenderPass) {
         case RenderPass::kTriangles:
-            shader = skstd::make_unique<Shader>();
+            shader = skstd::make_unique<GrCCTriangleShader>();
+            break;
+        case RenderPass::kTriangleCorners:
+            shader = skstd::make_unique<GrCCTriangleCornerShader>();
             break;
         case RenderPass::kQuadratics:
             shader = skstd::make_unique<GrCCQuadraticShader>();
@@ -53,45 +52,12 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
                                           : this->createVSImpl(std::move(shader));
 }
 
-void GrCCCoverageProcessor::draw(GrOpFlushState* flushState, const GrPipeline& pipeline,
-                                 const GrMesh meshes[],
-                                 const GrPipeline::DynamicState dynamicStates[], int meshCount,
-                                 const SkRect& drawBounds) const {
-    GrGpuRTCommandBuffer* cmdBuff = flushState->rtCommandBuffer();
-    cmdBuff->draw(pipeline, *this, meshes, dynamicStates, meshCount, drawBounds);
-
-    // Geometry shader backend draws triangles in two subpasses.
-    if (RenderPass::kTriangles == fRenderPass && Impl::kGeometryShader == fImpl) {
-        SkASSERT(GSTriangleSubpass::kHullsAndEdges == fGSTriangleSubpass);
-        GrCCCoverageProcessor cornerProc(*this, GSTriangleSubpass::kCorners);
-        cmdBuff->draw(pipeline, cornerProc, meshes, dynamicStates, meshCount, drawBounds);
-    }
-}
-
-void GrCCCoverageProcessor::Shader::emitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                 GrGLSLVarying::Scope scope, SkString* code,
-                                                 const char* position, const char* coverage,
-                                                 const char* wind) {
-    SkASSERT(GrGLSLVarying::Scope::kVertToGeo != scope);
-    code->appendf("half coverageTimesWind = %s * %s;", coverage, wind);
-    CoverageHandling coverageHandling = this->onEmitVaryings(varyingHandler, scope, code, position,
-                                                             "coverageTimesWind");
-    if (CoverageHandling::kNotHandled == coverageHandling) {
-        fCoverageTimesWind.reset(kHalf_GrSLType, scope);
-        varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
-        code->appendf("%s = coverageTimesWind;", OutName(fCoverageTimesWind));
-    }
-}
-
 void GrCCCoverageProcessor::Shader::emitFragmentCode(const GrCCCoverageProcessor& proc,
                                                      GrGLSLFPFragmentBuilder* f,
                                                      const char* skOutputColor,
                                                      const char* skOutputCoverage) const {
-    f->codeAppendf("half coverage = +1;");
+    f->codeAppendf("half coverage = 0;");
     this->onEmitFragmentCode(proc, f, "coverage");
-    if (fCoverageTimesWind.fsIn()) {
-        f->codeAppendf("coverage *= %s;", fCoverageTimesWind.fsIn());
-    }
     f->codeAppendf("%s.a = coverage;", skOutputColor);
     f->codeAppendf("%s = half4(1);", skOutputCoverage);
 #ifdef SK_DEBUG
@@ -135,21 +101,4 @@ void GrCCCoverageProcessor::Shader::CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGe
     // The below conditional guarantees we get exactly 1 on the divide when nwidth=t (in case the
     // GPU divides by multiplying by the reciprocal?) It also guards against NaN when nwidth=0.
     s->codeAppendf("%s = (abs(t) != nwidth ? t / nwidth : sign(t)) * -.5 - .5;", outputCoverage);
-}
-
-void GrCCCoverageProcessor::Shader::CalcEdgeCoveragesAtBloatVertices(GrGLSLVertexGeoBuilder* s,
-                                                                     const char* leftPt,
-                                                                     const char* rightPt,
-                                                                     const char* bloatDir1,
-                                                                     const char* bloatDir2,
-                                                                     const char* outputCoverages) {
-    // See comments in CalcEdgeCoverageAtBloatVertex.
-    s->codeAppendf("float2 n = float2(%s.y - %s.y, %s.x - %s.x);",
-                   rightPt, leftPt, leftPt, rightPt);
-    s->codeAppend ("float nwidth = abs(n.x) + abs(n.y);");
-    s->codeAppendf("float2 t = n * float2x2(%s, %s);", bloatDir1, bloatDir2);
-    s->codeAppendf("for (int i = 0; i < 2; ++i) {");
-    s->codeAppendf(    "%s[i] = (abs(t[i]) != nwidth ? t[i] / nwidth : sign(t[i])) * -.5 - .5;",
-                       outputCoverages);
-    s->codeAppendf("}");
 }

@@ -22,16 +22,18 @@
  */
 class GrCCQuadraticShader : public GrCCCoverageProcessor::Shader {
 protected:
-    const char* emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts) const override;
+    void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
+                       const char* wind, GeometryVars*) const override;
 
-    CoverageHandling onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                                    const char* position, const char* coverageTimesWind) override;
+    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
+                        const char* position, const char* inputCoverage, const char* wind) override;
 
     void onEmitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
                             const char* outputCoverage) const override;
 
     const GrShaderVar fCanonicalMatrix{"canonical_matrix", kFloat3x3_GrSLType};
     GrGLSLVarying fCoords;
+    GrGLSLVarying fCoverageTimesWind;
 };
 
 #endif
