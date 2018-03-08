@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0c305217_ba171f42",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 6300
+      },
+      "writtenOn": "2018-03-08T23:39:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "44b88367_6c6915ee",
+      "revId": "0bd01ffa5c2152c7417e90d4562a75afcfea8993",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9b7defa_79f32b4a",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "0bd01ffa5c2152c7417e90d4562a75afcfea8993",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9572d855_2dadb592",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 6300
+      },
+      "writtenOn": "2018-03-08T23:39:15Z",
+      "side": 1,
+      "message": "That definitely looks better. Thank you in advance for doing follow-up!",
+      "parentUuid": "a9b7defa_79f32b4a",
+      "range": {
+        "startLine": 821,
+        "startChar": 0,
+        "endLine": 823,
+        "endChar": 9
+      },
+      "revId": "0bd01ffa5c2152c7417e90d4562a75afcfea8993",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
