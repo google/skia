@@ -132,6 +132,7 @@ void GrVkMemory::FreeBufferMemory(const GrVkGpu* gpu, GrVkBuffer::Type type,
 
     GrVkHeap* heap = gpu->getHeap(buffer_type_to_heap(type));
     SkASSERT_RELEASE(heap->free(alloc));
+    SkASSERT_RELEASE(heap->free(alloc));
 }
 
 // for debugging
@@ -679,5 +680,3 @@ bool GrVkHeap::free(const GrVkAlloc& alloc) {
 
     return false;
 }
-
-
