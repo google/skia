@@ -13,7 +13,9 @@
 
 using Shader = GrCCCoverageProcessor::Shader;
 
-const char* GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts) const {
+void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                        const char* /*repetitionID*/, const char* /*wind*/,
+                                        GeometryVars* vars) const {
     s->declareGlobal(fCanonicalMatrix);
     s->codeAppendf("%s = float3x3(0.0, 0, 1, "
                                  "0.5, 0, 1, "
@@ -36,20 +38,23 @@ const char* GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const 
                                                       "%s[0] + tan0 * t, "
                                                       "%s[1] + tan1 * t, "
                                                       "%s[2]);", pts, pts, pts, pts);
-    return "quadratic_hull";
+    vars->fHullVars.fAlternatePoints = "quadratic_hull";
 }
 
-Shader::CoverageHandling GrCCQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                             GrGLSLVarying::Scope scope,
-                                                             SkString* code, const char* position,
-                                                             const char* coverageTimesWind) {
+void GrCCQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                         GrGLSLVarying::Scope scope, SkString* code,
+                                         const char* position, const char* inputCoverage,
+                                         const char* wind) {
     fCoords.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("coords", &fCoords);
     code->appendf("%s.xy = (%s * float3(%s, 1)).xy;",
                   OutName(fCoords), fCanonicalMatrix.c_str(), position);
     code->appendf("%s.zw = float2(2 * %s.x, -1) * float2x2(%s);",
                   OutName(fCoords), OutName(fCoords), fCanonicalMatrix.c_str());
-    return CoverageHandling::kNotHandled;
+
+    fCoverageTimesWind.reset(kHalf_GrSLType, scope);
+    varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
+    code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), inputCoverage, wind);
 }
 
 void GrCCQuadraticShader::onEmitFragmentCode(const GrCCCoverageProcessor& proc,
@@ -62,5 +67,5 @@ void GrCCQuadraticShader::onEmitFragmentCode(const GrCCCoverageProcessor& proc,
         f->codeAppendf("d /= %f;", proc.debugBloat());
     }
 #endif
-    f->codeAppendf("%s = clamp(0.5 - d, 0, 1);", outputCoverage);
+    f->codeAppendf("%s = clamp(0.5 - d, 0, 1) * %s;", outputCoverage, fCoverageTimesWind.fsIn());
 }
