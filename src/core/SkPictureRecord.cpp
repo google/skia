@@ -802,6 +802,23 @@ void SkPictureRecord::onDrawAnnotation(const SkRect& rect, const char key[], SkD
     this->validate(initialOffset, size);
 }
 
+// SHOULD NEVER BE CALLED
+void SkPictureRecord::onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) {
+    SK_ABORT("not reached");
+}
+void SkPictureRecord::onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst,
+                                       const SkPaint*, SrcRectConstraint) {
+    SK_ABORT("not reached");
+}
+void SkPictureRecord::onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
+                                       const SkPaint*) {
+    SK_ABORT("not reached");
+}
+void SkPictureRecord::onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice& lattice,
+                                          const SkRect& dst, const SkPaint*) {
+    SK_ABORT("not reached");
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename T> int find_or_append_uniqueID(SkTDArray<const T*>& array, const T* obj) {
