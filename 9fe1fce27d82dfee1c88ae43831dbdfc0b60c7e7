@@ -16,6 +16,24 @@
       "revId": "9fe1fce27d82dfee1c88ae43831dbdfc0b60c7e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8aa4652_35efc154",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-08T19:45:05Z",
+      "side": 1,
+      "message": "Yeah, I would vote for kPath.",
+      "parentUuid": "58167953_f0c967cf",
+      "revId": "9fe1fce27d82dfee1c88ae43831dbdfc0b60c7e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
