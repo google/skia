@@ -890,6 +890,8 @@ Topic</table>
 
 # <a name="GrBackendTexture"></a> Class GrBackendTexture
 
+# <a name="Transfer_Mode"></a> Transfer Mode
+
 # <a name="Typeface"></a> Typeface
 
 # <a name="SkTypeface"></a> Class SkTypeface
