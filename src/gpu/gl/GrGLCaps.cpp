@@ -2452,13 +2452,6 @@ bool GrGLCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
     return true;
 }
 
-bool GrGLCaps::onIsMixedSamplesSupportedForRT(const GrBackendRenderTarget& backendRT) const {
-    const GrGLFramebufferInfo* fbInfo = backendRT.getGLFramebufferInfo();
-    SkASSERT(fbInfo);
-    // Mixed samples are not supported for FBO 0;
-    return fbInfo->fFBOID != 0;
-}
-
 bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& backendRT) const {
     const GrGLFramebufferInfo* fbInfo = backendRT.getGLFramebufferInfo();
     SkASSERT(fbInfo);
