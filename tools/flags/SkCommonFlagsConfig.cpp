@@ -34,7 +34,7 @@ static const struct {
     const char* predefinedConfig;
     const char* backend;
     const char* options;
-} gPredefinedConfigs[] ={
+} gPredefinedConfigs[] = {
 #if SK_SUPPORT_GPU
     { "gl",                    "gpu", "api=gl" },
     { "gles",                  "gpu", "api=gles" },
@@ -44,6 +44,10 @@ static const struct {
     { "glnvpr4",               "gpu", "api=gl,nvpr=true,samples=4" },
     { "glnvpr8" ,              "gpu", "api=gl,nvpr=true,samples=8" },
     { "glesnvpr4",             "gpu", "api=gles,nvpr=true,samples=4" },
+    { "glbetex",               "gpu", "api=gl,surf=betex" },
+    { "glesbetex",             "gpu", "api=gles,surf=betex" },
+    { "glbert",                "gpu", "api=gl,surf=bert" },
+    { "glesbert",              "gpu", "api=gles,surf=bert" },
     { "gl4444",                "gpu", "api=gl,color=4444" },
     { "gl565",                 "gpu", "api=gl,color=565" },
     { "glf16",                 "gpu", "api=gl,color=f16" },
@@ -162,6 +166,12 @@ static const char configExtendedHelp[] =
     "\t    Allow the use of stencil buffers.\n"
     "\ttestThreading\ttype: bool\tdefault: false.\n"
     "\t    Run config with and without worker threads, check that results match.\n"
+    "\tsurf\ttype: string\tdefault: default.\n"
+    "\t    Controls the type of backing store for SkSurfaces.\n"
+    "\t    Options:\n"
+    "\t\tdefault\t\t\tA renderable texture created in Skia's resource cache.\n"
+    "\t\tbetex\t\t\tA wrapped backend texture.\n"
+    "\t\tbert\t\t\tA wrapped backend render target\n"
     "\n"
     "Predefined configs:\n\n"
     // Help text for pre-defined configs is auto-generated from gPredefinedConfigs
@@ -272,6 +282,7 @@ static bool parse_option_gpu_api(const SkString& value,
 #endif
     return false;
 }
+
 static bool parse_option_gpu_color(const SkString& value,
                                    SkColorType* outColorType,
                                    SkAlphaType* alphaType,
@@ -351,6 +362,23 @@ static bool parse_option_gpu_color(const SkString& value,
     }
     return false;
 }
+
+static bool parse_option_gpu_surf_type(const SkString& value,
+                                       SkCommandLineConfigGpu::SurfType* surfType) {
+    if (value.equals("default")) {
+        *surfType = SkCommandLineConfigGpu::SurfType::kDefault;
+        return true;
+    }
+    if (value.equals("betex")) {
+        *surfType = SkCommandLineConfigGpu::SurfType::kBackendTexture;
+        return true;
+    }
+    if (value.equals("bert")) {
+        *surfType = SkCommandLineConfigGpu::SurfType::kBackendRenderTarget;
+        return true;
+    }
+    return false;
+}
 #endif
 
 // Extended options take form --config item[key1=value1,key2=value2,...]
@@ -402,6 +430,16 @@ public:
         }
         return parse_option_gpu_api(*optionValue, outContextType);
     }
+
+    bool get_option_gpu_surf_type(const char* optionKey,
+                                  SkCommandLineConfigGpu::SurfType* outSurfType,
+                                  bool optional = true) const {
+        SkString* optionValue = fOptionsMap.find(SkString(optionKey));
+        if (optionValue == nullptr) {
+            return optional;
+        }
+        return parse_option_gpu_surf_type(*optionValue, outSurfType);
+    }
 #endif
 
     bool get_option_int(const char* optionKey, int* outInt, bool optional = true) const {
@@ -426,9 +464,10 @@ private:
 
 #if SK_SUPPORT_GPU
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
-    const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType, bool useNVPR,
-    bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
-    sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers, bool testThreading)
+        const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType,
+        bool useNVPR, bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers, bool testThreading,
+        SurfType surfType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fContextOverrides(ContextOverrides::kNone)
@@ -437,7 +476,8 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         , fColorType(colorType)
         , fAlphaType(alphaType)
         , fColorSpace(std::move(colorSpace))
-        , fTestThreading(testThreading) {
+        , fTestThreading(testThreading)
+        , fSurfType(surfType) {
     if (useNVPR) {
         fContextOverrides |= ContextOverrides::kRequireNVPRSupport;
     } else {
@@ -474,6 +514,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     sk_sp<SkColorSpace> colorSpace = nullptr;
     bool useStencils = true;
     bool testThreading = false;
+    SkCommandLineConfigGpu::SurfType surfType = SkCommandLineConfigGpu::SurfType::kDefault;
 
     bool parseSucceeded = false;
     ExtendedOptions extendedOptions(options, &parseSucceeded);
@@ -488,15 +529,17 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
             extendedOptions.get_option_int("samples", &samples) &&
             extendedOptions.get_option_gpu_color("color", &colorType, &alphaType, &colorSpace) &&
             extendedOptions.get_option_bool("stencils", &useStencils) &&
-            extendedOptions.get_option_bool("testThreading", &testThreading);
+            extendedOptions.get_option_bool("testThreading", &testThreading) &&
+            extendedOptions.get_option_bool("testThreading", &testThreading) &&
+            extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
     if (!validOptions) {
         return nullptr;
     }
 
-    return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText,
-                                      samples, colorType, alphaType, colorSpace, useStencils,
-                                      testThreading);
+    return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText, samples,
+                                      colorType, alphaType, colorSpace, useStencils, testThreading,
+                                      surfType);
 }
 #endif
 

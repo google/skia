@@ -1181,6 +1181,7 @@ bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc, size
     return true;
 }
 
+#if GR_TEST_UTILS
 GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, int h,
                                                           GrPixelConfig config,
                                                           bool isRenderTarget,
@@ -1508,6 +1509,14 @@ void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex) {
         GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(info));
     }
 }
+
+GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
+                                                                    GrSRGBEncoded) {
+    return GrBackendRenderTarget();
+}
+
+void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) {}
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
