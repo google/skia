@@ -146,6 +146,12 @@ public:
         SkMask::FreeImage(fImage);
     }
 
+    uint8_t* release() {
+        uint8_t* tmp = fImage;
+        fImage = nullptr;
+        return tmp;
+    }
+
 private:
     uint8_t* fImage;
 };
