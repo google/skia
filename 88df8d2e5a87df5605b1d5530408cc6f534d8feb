@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec94387f_216f0b9b",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 18
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-08T17:13:40Z",
+      "side": 1,
+      "message": "there\u0027s a neat shell way of doing this:\n\n    : ${APK_OUTPUT_DIR:\u003dout/skqp}",
+      "revId": "88df8d2e5a87df5605b1d5530408cc6f534d8feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bc6b66b_4b7f5a2c",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 18
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-08T17:13:40Z",
+      "side": 1,
+      "message": "This doesn\u0027t change the $BUILD variable, used below.",
+      "revId": "88df8d2e5a87df5605b1d5530408cc6f534d8feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
