@@ -85,6 +85,8 @@ bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
     auto resourceProvider = fDrawingMgr->getContext()->contextPriv().resourceProvider();
 
     if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
+        // TODO: Decide if we every plan to have these proxies use the GrUninstantiateTracker
+        // to support unistantiating them at the end of a flush.
         return proxy->priv().doLazyInstantiation(resourceProvider);
     }
 
