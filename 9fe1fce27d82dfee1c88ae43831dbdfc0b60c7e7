@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58167953_f0c967cf",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-08T19:03:01Z",
+      "side": 1,
+      "message": "Should I just use kPath_Type, rather than introducing a new type? (We use kBitmap for bitmap and image, eg).",
+      "revId": "9fe1fce27d82dfee1c88ae43831dbdfc0b60c7e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
