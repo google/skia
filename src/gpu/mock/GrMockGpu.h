@@ -126,6 +126,8 @@ private:
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
     void deleteTestingOnlyBackendTexture(GrBackendTexture*) override;
 
+    void testingOnly_flushGpuAndSync() override {}
+
     static int NextInternalTextureID();
     static int NextExternalTextureID();
 
