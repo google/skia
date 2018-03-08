@@ -74,6 +74,7 @@ protected:
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override {}
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override {}
+    void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override {}
 
 private:
     typedef SkCanvas INHERITED;
