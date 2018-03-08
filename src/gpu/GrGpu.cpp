@@ -44,12 +44,12 @@ void GrGpu::disconnect(DisconnectType) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::isACopyNeededForTextureParams(int width, int height,
+bool GrGpu::IsACopyNeededForTextureParams(const GrCaps* caps,
+                                          int width, int height,
                                           const GrSamplerState& textureParams,
                                           GrTextureProducer::CopyParams* copyParams,
-                                          SkScalar scaleAdjust[2]) const {
-    const GrCaps& caps = *this->caps();
-    if (textureParams.isRepeated() && !caps.npotTextureTileSupport() &&
+                                          SkScalar scaleAdjust[2]) {
+    if (textureParams.isRepeated() && !caps->npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
         SkASSERT(scaleAdjust);
         copyParams->fWidth = GrNextPow2(width);
