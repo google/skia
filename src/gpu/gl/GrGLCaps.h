@@ -435,7 +435,6 @@ private:
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
-    bool onIsMixedSamplesSupportedForRT(const GrBackendRenderTarget&) const override;
     bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const override;
 
     void initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo&,

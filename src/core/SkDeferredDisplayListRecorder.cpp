@@ -83,7 +83,7 @@ bool SkDeferredDisplayListRecorder::init() {
     // DDL is being replayed into.
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
-            [ lazyProxyData ] (GrResourceProvider* resourceProvider) {
+            [lazyProxyData](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     return sk_sp<GrSurface>();
                 }
