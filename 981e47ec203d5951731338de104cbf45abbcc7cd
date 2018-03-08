@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ce95a3e7_4129f47d",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-08T20:29:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "719a2cef_d74e1fca",
+      "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6dd0d080_2510058b",
         "filename": "src/gpu/GrOnFlushResourceProvider.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5994839_aee8dbde",
+        "filename": "src/gpu/GrOnFlushResourceProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-08T20:29:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6dd0d080_2510058b",
+      "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "53c80827_35c3976c",
+        "filename": "src/gpu/mock/GrMockTexture.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-08T20:29:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "127a1ffa_06292faf",
+      "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c75cae79_2f569c7a",
         "filename": "tests/LazyProxyTest.cpp",
         "patchSetId": 3
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "46dc7f4d_9fcff3f2",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-08T20:29:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c75cae79_2f569c7a",
+      "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65ceb8ec_b3104e35",
         "filename": "tests/ResourceAllocatorTest.cpp",
         "patchSetId": 3
@@ -81,6 +153,24 @@
       "writtenOn": "2018-03-08T20:09:11Z",
       "side": 1,
       "message": "It seems like there could be some basic validation of the uninstantiateProxyTracker\u0027s behavior here.",
+      "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8494b998_96a79e8f",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-08T20:29:27Z",
+      "side": 1,
+      "message": "This test isn\u0027t doing anything that would touch the tracker at all so I don\u0027t think there is really any interesting checks to put here.",
+      "parentUuid": "65ceb8ec_b3104e35",
       "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
