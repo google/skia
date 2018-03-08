@@ -2584,7 +2584,7 @@ private:
 
         SkBaseDevice*   device() const;
         const SkMatrix& matrix() const;
-        void clip(SkRegion*) const;
+        SkIRect clipBounds() const;
         const SkPaint&  paint() const;
         int             x() const;
         int             y() const;

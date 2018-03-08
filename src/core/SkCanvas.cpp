@@ -2797,8 +2797,8 @@ const SkPaint& SkCanvas::LayerIter::paint() const {
     return *paint;
 }
 
-void SkCanvas::LayerIter::clip(SkRegion* rgn) const {
-    return fImpl->fDevice->onAsRgnClip(rgn);
+SkIRect SkCanvas::LayerIter::clipBounds() const {
+    return fImpl->fDevice->getGlobalBounds();
 }
 
 int SkCanvas::LayerIter::x() const { return fImpl->getX(); }
