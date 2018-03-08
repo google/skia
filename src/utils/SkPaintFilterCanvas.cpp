@@ -265,6 +265,14 @@ void SkPaintFilterCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xfor
     }
 }
 
+void SkPaintFilterCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    this->INHERITED::onDrawAnnotation(rect, key, value);
+}
+
+void SkPaintFilterCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    this->INHERITED::onDrawShadowRec(path, rec);
+}
+
 sk_sp<SkSurface> SkPaintFilterCanvas::onNewSurface(const SkImageInfo& info,
                                                    const SkSurfaceProps& props) {
     return proxy()->makeSurface(info, &props);
