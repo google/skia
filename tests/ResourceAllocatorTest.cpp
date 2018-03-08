@@ -20,6 +20,7 @@
 #include "GrTest.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
+#include "GrUninstantiateProxyTracker.h"
 
 struct ProxyParams {
     int             fSize;
@@ -71,7 +72,8 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
 
     int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
-    alloc.assign(&startIndex, &stopIndex, &error);
+    GrUninstantiateProxyTracker uninstantiateTracker;
+    alloc.assign(&startIndex, &stopIndex, &uninstantiateTracker, &error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->priv().peekSurface());
@@ -93,7 +95,8 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
 
     int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
-    alloc.assign(&startIndex, &stopIndex, &error);
+    GrUninstantiateProxyTracker uninstantiateTracker;
+    alloc.assign(&startIndex, &stopIndex, &uninstantiateTracker, &error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->priv().peekSurface());

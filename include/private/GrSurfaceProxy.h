@@ -58,7 +58,8 @@ public:
 #endif
 
     void release() {
-        SkASSERT(1 == fRefCnt);
+        // The proxy itself may still have multiple refs. It can be owned by an SkImage and multiple
+        // SkDeferredDisplayLists at the same time if we are using DDLs.
         SkASSERT(0 == fPendingReads);
         SkASSERT(0 == fPendingWrites);
 
@@ -194,8 +195,10 @@ private:
 class GrSurfaceProxy : public GrIORefProxy {
 public:
     enum class LazyInstantiationType {
-        kSingleUse,    // Instantiation callback is allowed to be called only once
-        kMultipleUse,  // Instantiation callback can be called multiple times.
+        kSingleUse,         // Instantiation callback is allowed to be called only once
+        kMultipleUse,       // Instantiation callback can be called multiple times.
+        kUninstantiate,     // Instantiation callback can be called multiple times,
+                            // but we will uninstantiate the proxy after every flush
     };
 
     enum class LazyState {

@@ -16,6 +16,7 @@
 #include "GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
+#include "GrUninstantiateProxyTracker.h"
 
 void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     SkASSERT(!fAssignedSurface);
@@ -200,7 +201,9 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* outError) {
+bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
+                                 GrUninstantiateProxyTracker* uninstantiateTracker,
+                                 AssignError* outError) {
     SkASSERT(outError);
     *outError = AssignError::kNoError;
 
@@ -252,6 +255,11 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
         if (GrSurfaceProxy::LazyState::kNot != cur->proxy()->lazyInstantiationState()) {
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
                 *outError = AssignError::kFailedProxyInstantiation;
+            } else {
+                if (GrSurfaceProxy::LazyInstantiationType::kUninstantiate ==
+                    cur->proxy()->priv().lazyInstantiationType()) {
+                    uninstantiateTracker->addProxy(cur->proxy());
+                }
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy

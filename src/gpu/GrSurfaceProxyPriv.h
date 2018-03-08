@@ -74,6 +74,12 @@ public:
         return fProxy->fLazyInstantiationType;
     }
 
+    bool isSafeToUninstantiate() const {
+        return SkToBool(fProxy->fTarget) &&
+               SkToBool(fProxy->fLazyInstantiateCallback) &&
+               GrSurfaceProxy::LazyInstantiationType::kUninstantiate == lazyInstantiationType();
+    }
+
     void testingOnly_setLazyInstantiationType(GrSurfaceProxy::LazyInstantiationType lazyType) {
         fProxy->fLazyInstantiationType = lazyType;
     }
