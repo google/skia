@@ -53,20 +53,15 @@ public:
         void set(const SkPoint[4], float dx, float dy);
         void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
     };
-
-    // All primitive shapes (triangles and closed, convex bezier curves) require two
-    // render passes: One to draw a rough outline of the shape, and a second pass to touch up the
-    // corners. Here we enumerate every render pass needed in order to produce a complete
-    // coverage count mask. This is an exhaustive list of all ccpr coverage shaders.
+    // Here we enumerate every render pass needed in order to produce a complete coverage count
+    // mask. Triangles require two render passes: One to draw a rough outline, and a second pass to
+    // touch up the corners. This is an exhaustive list of all ccpr coverage shaders.
     enum class RenderPass {
         kTriangles,
         kTriangleCorners,
         kQuadratics,
-        kQuadraticCorners,
         kCubics,
-        kCubicCorners
     };
-    static bool RenderPassIsCubic(RenderPass);
     static const char* RenderPassName(RenderPass);
 
     enum class WindMethod : bool {
@@ -152,13 +147,6 @@ public:
         void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
                               const char* skOutputColor, const char* skOutputCoverage) const;
 
-        // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
-        // border of a conservative raster edge and 0 on the inside. 'leftPt' and 'rightPt' must be
-        // ordered clockwise.
-        static void EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder*, const char* leftPt,
-                                             const char* rightPt,
-                                             const char* outputDistanceEquation);
-
         // Calculates an edge's coverage at a conservative raster vertex. The edge is defined by two
         // clockwise-ordered points, 'leftPt' and 'rightPt'. 'rasterVertexDir' is a pair of +/-1
         // values that point in the direction of conservative raster bloat, starting from an
@@ -181,7 +169,7 @@ public:
                                     const char* wind) = 0;
 
         // Emits the fragment code that calculates a pixel's signed coverage value.
-        virtual void onEmitFragmentCode(GrGLSLFPFragmentBuilder*,
+        virtual void onEmitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
                                         const char* outputCoverage) const = 0;
 
         // Returns the name of a Shader's internal varying at the point where where its value is
@@ -191,12 +179,6 @@ public:
             SkASSERT(Scope::kVertToGeo != varying.scope());
             return Scope::kGeoToFrag == varying.scope() ? varying.gsOut() : varying.vsOut();
         }
-
-        // Defines a global float2 array that contains MSAA sample locations as offsets from pixel
-        // center. Subclasses can use this for software multisampling.
-        //
-        // Returns the number of samples.
-        static int DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f, const char* samplesName);
     };
 
     class GSImpl;
@@ -208,7 +190,7 @@ private:
     static constexpr float kAABloatRadius = 0.491111f;
 
     // Number of bezier points for curves, or 3 for triangles.
-    int numInputPoints() const { return RenderPassIsCubic(fRenderPass) ? 4 : 3; }
+    int numInputPoints() const { return RenderPass::kCubics == fRenderPass ? 4 : 3; }
 
     enum class Impl : bool {
         kGeometryShader,
@@ -269,29 +251,12 @@ inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint& p0, con
     Sk2f::Store4(this, P0, P1, P2, W);
 }
 
-inline bool GrCCCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
-    switch (pass) {
-        case RenderPass::kTriangles:
-        case RenderPass::kTriangleCorners:
-        case RenderPass::kQuadratics:
-        case RenderPass::kQuadraticCorners:
-            return false;
-        case RenderPass::kCubics:
-        case RenderPass::kCubicCorners:
-            return true;
-    }
-    SK_ABORT("Invalid RenderPass");
-    return false;
-}
-
 inline const char* GrCCCoverageProcessor::RenderPassName(RenderPass pass) {
     switch (pass) {
         case RenderPass::kTriangles: return "kTriangles";
         case RenderPass::kTriangleCorners: return "kTriangleCorners";
         case RenderPass::kQuadratics: return "kQuadratics";
-        case RenderPass::kQuadraticCorners: return "kQuadraticCorners";
         case RenderPass::kCubics: return "kCubics";
-        case RenderPass::kCubicCorners: return "kCubicCorners";
     }
     SK_ABORT("Invalid RenderPass");
     return "";
