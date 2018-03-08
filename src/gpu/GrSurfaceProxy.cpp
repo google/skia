@@ -22,6 +22,9 @@
 #include "SkMipMap.h"
 
 #ifdef SK_DEBUG
+#include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
+
 static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {
     return desc.fWidth <= 0 &&
            desc.fHeight <= 0 &&
@@ -171,9 +174,17 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
     SkASSERT(!fTarget && surface);
     fTarget = surface.release();
+
     this->INHERITED::transferRefs();
 
 #ifdef SK_DEBUG
+    if (this->asRenderTargetProxy()) {
+        SkASSERT(fTarget->asRenderTarget());
+        if (this->asRenderTargetProxy()->needsStencil()) {
+           SkASSERT(fTarget->asRenderTarget()->renderTargetPriv().getStencilAttachment());
+        }
+    }
+
     if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
         SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
     }
@@ -392,6 +403,12 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 
     fProxy->fWidth = surface->width();
     fProxy->fHeight = surface->height();
+
+    bool needsStencil = fProxy->asRenderTargetProxy()
+                                        ? fProxy->asRenderTargetProxy()->needsStencil()
+                                        : false;
+
+    GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(), needsStencil);
 
     SkASSERT(surface->config() == fProxy->fConfig);
     SkDEBUGCODE(fProxy->validateLazySurface(surface.get());)

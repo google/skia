@@ -71,7 +71,6 @@ bool SkDeferredDisplayListRecorder::init() {
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = fCharacterization.origin();
     desc.fWidth = fCharacterization.width();
     desc.fHeight = fCharacterization.height();
     desc.fConfig = fCharacterization.config();
@@ -95,6 +94,7 @@ bool SkDeferredDisplayListRecorder::init() {
                 return sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->priv().peekSurface());
             },
             desc,
+            fCharacterization.origin(),
             GrRenderTargetFlags::kNone,
             GrProxyProvider::Textureable(fCharacterization.isTextureable()),
             GrMipMapped::kNo,

@@ -25,6 +25,7 @@ class GrTextureStripAtlas::Hash : public SkTDynamicHash<GrTextureStripAtlas::Atl
 
 int32_t GrTextureStripAtlas::gCacheCount = 0;
 
+// DDL TODO: The texture strip atlas can't have this global!
 GrTextureStripAtlas::Hash* GrTextureStripAtlas::gAtlasCache = nullptr;
 
 GrTextureStripAtlas::Hash* GrTextureStripAtlas::GetCache() {
