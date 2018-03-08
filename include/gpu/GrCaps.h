@@ -59,11 +59,6 @@ public:
     bool instanceAttribSupport() const { return fInstanceAttribSupport; }
     bool usesMixedSamples() const { return fUsesMixedSamples; }
 
-    // Returns whether mixed samples is supported for the given backend render target.
-    bool isMixedSamplesSupportedForRT(const GrBackendRenderTarget& rt) const {
-        return this->usesMixedSamples() && this->onIsMixedSamplesSupportedForRT(rt);
-    }
-
     // Primitive restart functionality is core in ES 3.0, but using it will cause slowdowns on some
     // systems. This cap is only set if primitive restart will improve performance.
     bool usePrimitiveRestart() const { return fUsePrimitiveRestart; }
@@ -312,11 +307,6 @@ private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}
 
-    // Backends should implement this if they have any extra requirements for use of mixed
-    // samples for a specific GrBackendRenderTarget outside of basic support.
-    virtual bool onIsMixedSamplesSupportedForRT(const GrBackendRenderTarget&) const {
-        return true;
-    }
     // Backends should implement this if they have any extra requirements for use of window
     // rectangles for a specific GrBackendRenderTarget outside of basic support.
     virtual bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const {

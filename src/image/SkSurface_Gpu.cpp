@@ -307,9 +307,10 @@ sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc),
-                                                rtc->width(), rtc->height(),
-                                                SkGpuDevice::kUninit_InitContents));
+    int w = rtc->width();
+    int h = rtc->height();
+    sk_sp<SkGpuDevice> device(
+            SkGpuDevice::Make(context, std::move(rtc), w, h, SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }
