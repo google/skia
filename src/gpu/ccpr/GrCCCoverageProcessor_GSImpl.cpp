@@ -75,10 +75,7 @@ protected:
         SkString emitVertexFn;
         SkSTArray<2, GrShaderVar> emitArgs;
         const char* position = emitArgs.emplace_back("position", kFloat2_GrSLType).c_str();
-        const char* coverage = nullptr;
-        if (RenderPass::kTriangleCorners != proc.fRenderPass) {
-            coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
-        }
+        const char* coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
         g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
             SkString fnBody;
             fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, &fnBody,
@@ -116,7 +113,7 @@ protected:
  * coverage ramp from -1 to 0. These edge coverage values convert jagged conservative raster edges
  * into smooth, antialiased ones.
  *
- * The final corners get touched up in a later step by GSCornerImpl.
+ * The final corners get touched up in a later step by GSTriangleCornerImpl.
  */
 class GSTriangleImpl : public GrCCCoverageProcessor::GSImpl {
 public:
@@ -124,6 +121,8 @@ public:
 
     void onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
                               const char* emitVertexFn) const override {
+        SkAssertResult(!fShader->emitSetupCode(g, "pts"));
+
         // Visualize the input triangle as upright and equilateral, with a flat base. Paying special
         // attention to wind, we can identify the points as top, bottom-left, and bottom-right.
         //
@@ -212,19 +211,69 @@ public:
 };
 
 /**
+ * Generates conservative rasters around triangle corners (aka pixel-size boxes) and calculates
+ * coverage ramps that fix up the coverage values written by GSTriangleImpl.
+ */
+class GSTriangleCornerImpl : public GrCCCoverageProcessor::GSImpl {
+public:
+    GSTriangleCornerImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
+
+    void onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
+                              const char* emitVertexFn) const override {
+        SkAssertResult(!fShader->emitSetupCode(g, "pts"));
+
+        g->codeAppendf("float2 corner = pts[sk_InvocationID];");
+        g->codeAppendf("float2 left = pts[(sk_InvocationID + (%s > 0 ? 2 : 1)) %% 3];",
+                       wind.c_str());
+        g->codeAppendf("float2 right = pts[(sk_InvocationID + (%s > 0 ? 1 : 2)) %% 3];",
+                       wind.c_str());
+
+        // Find "outbloat" and "crossbloat" at our corner. The outbloat points diagonally out of the
+        // triangle, in the direction that should ramp to zero coverage. The crossbloat runs
+        // perpindicular to outbloat, and ramps from left-edge coverage to right-edge coverage.
+        g->codeAppend ("float2 leftdir = normalize(corner - left);");
+        g->codeAppend ("float2 rightdir = normalize(right - corner);");
+        g->codeAppend ("float2 outbloat = float2(leftdir.x > rightdir.x ? +1 : -1, "
+                                                "leftdir.y > rightdir.y ? +1 : -1);");
+        g->codeAppend ("float2 crossbloat = float2(-outbloat.y, +outbloat.x);");
+
+        g->codeAppend ("half2 left_coverages; {");
+        Shader::CalcEdgeCoveragesAtBloatVertices(g, "left", "corner", "outbloat", "crossbloat",
+                                                 "left_coverages");
+        g->codeAppend ("}");
+
+        g->codeAppend ("half2 right_coverages; {");
+        Shader::CalcEdgeCoveragesAtBloatVertices(g, "corner", "right", "outbloat", "-crossbloat",
+                                                 "right_coverages");
+        g->codeAppend ("}");
+
+        // Emit a corner box that erases whatever coverage was written previously, and replaces it
+        // using linearly-interpolated values that ramp to zero in bloat vertices that fall outside
+        // the triangle.
+        //
+        // NOTE: Since this is not a linear mapping, it is important that the box's diagonal shared
+        // edge points out of the triangle as much as possible.
+        g->codeAppendf("%s(corner - crossbloat * bloat, -right_coverages[1]);", emitVertexFn);
+        g->codeAppendf("%s(corner + outbloat * bloat, "
+                          "-1 - left_coverages[0] - right_coverages[0]);", emitVertexFn);
+        g->codeAppendf("%s(corner - outbloat * bloat, 0);", emitVertexFn);
+        g->codeAppendf("%s(corner + crossbloat * bloat, -left_coverages[1]);", emitVertexFn);
+
+        g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, 3);
+    }
+};
+
+/**
  * Generates a conservative raster hull around a convex quadrilateral that encloses a cubic or
  * quadratic, as well as its shared edge.
  */
-class GSHull4Impl : public GrCCCoverageProcessor::GSImpl {
+class GSCurveImpl : public GrCCCoverageProcessor::GSImpl {
 public:
-    GSHull4Impl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
+    GSCurveImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
     void onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
                              const char* emitVertexFn) const override {
-        Shader::GeometryVars vars;
-        fShader->emitSetupCode(g, "pts", nullptr, wind.c_str(), &vars);
-
-        const char* hullPts = vars.fHullVars.fAlternatePoints;
+        const char* hullPts = fShader->emitSetupCode(g, "pts");
         if (!hullPts) {
             hullPts = "pts";
         }
@@ -314,34 +363,6 @@ public:
     }
 };
 
-/**
- * Generates conservative rasters around corners. (See comments for RenderPass)
- */
-class GSCornerImpl : public GrCCCoverageProcessor::GSImpl {
-public:
-    GSCornerImpl(std::unique_ptr<Shader> shader, int numCorners)
-            : GSImpl(std::move(shader)), fNumCorners(numCorners) {}
-
-    void onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
-                              const char* emitVertexFn) const override {
-        Shader::GeometryVars vars;
-        fShader->emitSetupCode(g, "pts", "sk_InvocationID", wind.c_str(), &vars);
-
-        const char* corner = vars.fCornerVars.fPoint;
-        SkASSERT(corner);
-
-        g->codeAppendf("%s(%s + float2(-bloat, -bloat));", emitVertexFn, corner);
-        g->codeAppendf("%s(%s + float2(-bloat, +bloat));", emitVertexFn, corner);
-        g->codeAppendf("%s(%s + float2(+bloat, -bloat));", emitVertexFn, corner);
-        g->codeAppendf("%s(%s + float2(+bloat, +bloat));", emitVertexFn, corner);
-
-        g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, fNumCorners);
-    }
-
-private:
-    const int fNumCorners;
-};
-
 void GrCCCoverageProcessor::initGS() {
     SkASSERT(Impl::kGeometryShader == fImpl);
     if (RenderPass::kCubics == fRenderPass || WindMethod::kInstanceData == fWindMethod) {
@@ -372,12 +393,12 @@ void GrCCCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceC
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGSImpl(std::unique_ptr<Shader> shadr) const {
     switch (fRenderPass) {
         case RenderPass::kTriangles:
-            return new GSTriangleImpl(std::move(shadr));
-        case RenderPass::kTriangleCorners:
-            return new GSCornerImpl(std::move(shadr), 3);
+            return (GSTriangleSubpass::kHullsAndEdges == fGSTriangleSubpass)
+                    ? (GSImpl*) new GSTriangleImpl(std::move(shadr))
+                    : (GSImpl*) new GSTriangleCornerImpl(std::move(shadr));
         case RenderPass::kQuadratics:
         case RenderPass::kCubics:
-            return new GSHull4Impl(std::move(shadr));
+            return new GSCurveImpl(std::move(shadr));
     }
     SK_ABORT("Invalid RenderPass");
     return nullptr;

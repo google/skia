@@ -280,7 +280,7 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
 
     if (!mesh.empty()) {
         SkASSERT(1 == mesh.count());
-        state->rtCommandBuffer()->draw(pipeline, proc, mesh.begin(), nullptr, 1, this->bounds());
+        proc.draw(state, pipeline, mesh.begin(), nullptr, 1, this->bounds());
     }
 
     if (glGpu) {
@@ -337,7 +337,7 @@ bool CCPRGeometryView::onQuery(SkEvent* evt) {
     }
     SkUnichar unichar;
     if (SampleCode::CharQ(*evt, &unichar)) {
-        if (unichar >= '1' && unichar <= '4') {
+        if (unichar >= '1' && unichar <= '3') {
             fRenderPass = RenderPass(unichar - '1');
             this->updateAndInval();
             return true;
