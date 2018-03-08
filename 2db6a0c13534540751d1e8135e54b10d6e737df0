@@ -46,6 +46,30 @@
       "revId": "2db6a0c13534540751d1e8135e54b10d6e737df0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a757dd58_ebe16d7b",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-08T14:52:37Z",
+      "side": 0,
+      "message": "Actually deleted now that I realize you were talking about the caps function.",
+      "parentUuid": "443feb57_7e63b261",
+      "range": {
+        "startLine": 529,
+        "startChar": 16,
+        "endLine": 529,
+        "endChar": 54
+      },
+      "revId": "2db6a0c13534540751d1e8135e54b10d6e737df0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
