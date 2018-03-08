@@ -146,10 +146,6 @@ GrContext::~GrContext() {
         fDrawingManager->cleanup();
     }
 
-    for (int i = 0; i < fCleanUpData.count(); ++i) {
-        (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
-    }
-
     delete fResourceProvider;
     delete fResourceCache;
     delete fProxyProvider;

@@ -26,10 +26,10 @@ class GrTextureStripAtlas {
 public:
     /**
      * Descriptor struct which we'll use as a hash table key
-     **/
+     */
     struct Desc {
         Desc() { sk_bzero(this, sizeof(*this)); }
-        GrContext* fContext;
+//        GrContext* fContext;
         GrPixelConfig fConfig;
         uint16_t fWidth, fHeight, fRowHeight;
         uint16_t fUnusedPadding;
@@ -37,11 +37,6 @@ public:
             return 0 == memcmp(this, &other, sizeof(Desc));
         }
     };
-
-    /**
-     * Try to find an atlas with the required parameters, creates a new one if necessary
-     */
-    static GrTextureStripAtlas* GetAtlas(const Desc& desc);
 
     ~GrTextureStripAtlas();
 
@@ -51,7 +46,7 @@ public:
      *  @return The row index we inserted into, or -1 if we failed to find an open row. The caller
      *      is responsible for calling unlockRow() with this row index when it's done with it.
      */
-    int lockRow(const SkBitmap& data);
+    int lockRow(GrContext*, const SkBitmap&);
     /**
      * This is intended to be used when cloning a processor that already holds a lock. It is
      * assumed that the row already has at least one lock.
@@ -78,11 +73,12 @@ public:
     SkScalar getYOffset(int row) const { return SkIntToScalar(row) / fNumRows; }
     SkScalar getNormalizedTexelHeight() const { return fNormalizedYHeight; }
 
-    GrContext* getContext() const { return fDesc.fContext; }
+//    GrContext* getContext() const { return fDesc.fContext; }
 
     sk_sp<GrTextureProxy> asTextureProxyRef() const;
 
 private:
+    static uint32_t CreateUniqueID();
 
     // Key to indicate an atlas row without any meaningful data stored in it
     const static uint32_t kEmptyAtlasRowKey = 0xffffffff;
@@ -102,12 +98,14 @@ private:
         AtlasRow* fPrev;
     };
 
+public:
     /**
-     * We'll only allow construction via the static GrTextureStripAtlas::GetAtlas
+     * Only the GrTextureStripAtlasManager is allowed to create GrTextureStripAtlases
      */
-    GrTextureStripAtlas(Desc desc);
+    GrTextureStripAtlas(const Desc& desc);
+private:
 
-    void lockTexture();
+    void lockTexture(GrContext*);
     void unlockTexture();
 
     /**
@@ -140,37 +138,9 @@ private:
     void validate();
 #endif
 
-    /**
-     * Clean up callback registered with GrContext. Allows this class to
-     * free up any allocated AtlasEntry and GrTextureStripAtlas objects
-     */
-    static void CleanUp(const GrContext* context, void* info);
-
-    // Hash table entry for atlases
-    class AtlasEntry : public ::SkNoncopyable {
-    public:
-        // for SkTDynamicHash
-        static const Desc& GetKey(const AtlasEntry& entry) { return entry.fDesc; }
-        static uint32_t Hash(const Desc& desc) { return SkOpts::hash(&desc, sizeof(Desc)); }
-
-        // AtlasEntry proper
-        AtlasEntry() : fAtlas(nullptr) {}
-        ~AtlasEntry() { delete fAtlas; }
-        Desc fDesc;
-        GrTextureStripAtlas* fAtlas;
-    };
-
-    class Hash;
-    static Hash* gAtlasCache;
-
-    static Hash* GetCache();
-
-    // We increment gCacheCount for each atlas
-    static int32_t gCacheCount;
-
-    // A unique ID for this texture (formed with: gCacheCount++), so we can be sure that if we
+    // A unique ID for this atlas, so we can be sure that if we
     // get a texture back from the texture cache, that it's the same one we last used.
-    const int32_t fCacheKey;
+    const uint32_t fCacheKey;
 
     // Total locks on all rows (when this reaches zero, we can unlock our texture)
     int32_t fLockedRows;
@@ -193,6 +163,41 @@ private:
 
     // A list of pointers to AtlasRows that currently contain cached images, sorted by key
     SkTDArray<AtlasRow*> fKeyTable;
+};
+
+class GrTextureStripAtlasManager {
+public:
+
+    ~GrTextureStripAtlasManager();
+
+    /**
+     * Try to find an atlas with the required parameters, creates a new one if necessary
+     */
+    GrTextureStripAtlas* getAtlas(const GrTextureStripAtlas::Desc&);
+
+private:
+    // Hash table entry for atlases
+    class AtlasEntry : public ::SkNoncopyable {
+    public:
+        // for SkTDynamicHash
+        static const GrTextureStripAtlas::Desc& GetKey(const AtlasEntry& entry) {
+            return entry.fDesc;
+        }
+        static uint32_t Hash(const GrTextureStripAtlas::Desc& desc) {
+            return SkOpts::hash(&desc, sizeof(GrTextureStripAtlas::Desc));
+        }
+
+        // AtlasEntry proper
+        AtlasEntry() : fAtlas(nullptr) {}
+        ~AtlasEntry() { delete fAtlas; }
+        GrTextureStripAtlas::Desc fDesc;
+        GrTextureStripAtlas* fAtlas;
+    };
+
+    typedef SkTDynamicHash<AtlasEntry, GrTextureStripAtlas::Desc> Hash;
+
+    Hash fAtlasCache;
+    int  fCacheCount;   // We increment gCacheCount for each atlas
 };
 
 #endif
