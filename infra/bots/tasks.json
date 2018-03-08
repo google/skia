@@ -96,12 +96,6 @@
         "Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework"
       ]
     },
-    "Build-Debian9-Clang-universal-devrel-Android_SKQP": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Debian9-Clang-universal-devrel-Android_SKQP"
-      ]
-    },
     "Build-Debian9-Clang-x64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
@@ -2346,12 +2340,6 @@
         "Upload-Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP": {
-      "priority": 0.8,
-      "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP"
-      ]
-    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "priority": 0.8,
       "tasks": [
@@ -3737,34 +3725,6 @@
         "android_compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Debian9-Clang-universal-devrel-Android_SKQP": {
-      "dependencies": [
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux",
-        "Housekeeper-PerCommit-IsolateAndroidSDKLinux",
-        "Housekeeper-PerCommit-IsolateGoLinux"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Debian9-Clang-universal-devrel-Android_SKQP",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -6422,57 +6382,6 @@
         "pool:Skia"
       ],
       "isolate": "isolate_ndk_linux.isolate",
-      "priority": 0.7
-    },
-    "Housekeeper-PerCommit-IsolateAndroidSDKLinux": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_sdk_linux",
-          "path": "android_sdk_linux",
-          "version": "version:0"
-        }
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "isolate": "isolate_android_sdk_linux.isolate",
-      "priority": 0.7
-    },
-    "Housekeeper-PerCommit-IsolateGCloudLinux": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/gcloud_linux",
-          "path": "gcloud_linux",
-          "version": "version:6"
-        }
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "isolate": "isolate_gcloud_linux.isolate",
-      "priority": 0.7
-    },
-    "Housekeeper-PerCommit-IsolateGoLinux": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:4"
-        }
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "isolate": "isolate_go_linux.isolate",
       "priority": 0.7
     },
     "Housekeeper-PerCommit-IsolateSKP": {
@@ -17834,55 +17743,6 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:34"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:114"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-Clang-universal-devrel-Android_SKQP",
-        "Housekeeper-PerCommit-IsolateGCloudLinux",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "skqp_test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
