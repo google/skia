@@ -78,6 +78,22 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgete
     return sk_sp<GrTexture>(new GrMockTexture(this, budgeted, desc, mipMapsStatus, info));
 }
 
+sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
+                                                 GrWrapOwnership ownership) {
+    GrSurfaceDesc desc;
+    desc.fWidth = tex.width();
+    desc.fHeight = tex.height();
+    SkASSERT(tex.getMockTextureInfo());
+    GrMockTextureInfo info = *tex.getMockTextureInfo();
+    desc.fConfig = info.fConfig;
+
+    GrMipMapsStatus mipMapsStatus = tex.hasMipMaps() ? GrMipMapsStatus::kValid
+                                                     : GrMipMapsStatus::kNotAllocated;
+
+    return sk_sp<GrTexture>(new GrMockTexture(this, GrMockTexture::kWrapped, desc, mipMapsStatus,
+                                              info));
+}
+
 GrBuffer* GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrBufferType type,
                                     GrAccessPattern accessPattern, const void*) {
     return new GrMockBuffer(this, sizeInBytes, type, accessPattern);
