@@ -6,15 +6,18 @@
  */
 
 #include "GrBlurUtils.h"
-#include "GrRenderTargetContext.h"
+
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrFixedClip.h"
+#include "GrProxyProvider.h"
+#include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
-#include "effects/GrSimpleTextureEffect.h"
 #include "GrStyle.h"
 #include "GrTextureProxy.h"
+#include "effects/GrSimpleTextureEffect.h"
+
 #include "SkDraw.h"
 #include "SkGr.h"
 #include "SkMaskFilterBase.h"
@@ -49,6 +52,10 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
     return true;
 }
 
+static void mask_release_proc(void* addr, void* /*context*/) {
+    SkMask::FreeImage(addr);
+}
+
 static bool sw_draw_with_mask_filter(GrContext* context,
                                      GrRenderTargetContext* renderTargetContext,
                                      const GrClip& clipData,
@@ -58,7 +65,7 @@ static bool sw_draw_with_mask_filter(GrContext* context,
                                      const SkIRect& clipBounds,
                                      GrPaint&& paint,
                                      SkStrokeRec::InitStyle fillOrHairline) {
-    SkMask  srcM, dstM;
+    SkMask srcM, dstM;
     if (!SkDraw::DrawToMask(devPath, &clipBounds, filter, &viewMatrix, &srcM,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode, fillOrHairline)) {
         return false;
@@ -77,25 +84,23 @@ static bool sw_draw_with_mask_filter(GrContext* context,
 
     // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
     // the current clip (and identity matrix) and GrPaint settings
-    GrSurfaceDesc desc;
-    desc.fWidth = dstM.fBounds.width();
-    desc.fHeight = dstM.fBounds.height();
-    desc.fConfig = kAlpha_8_GrPixelConfig;
-
-    sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
-            desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kApprox,
-            SkBudgeted::kYes);
-    if (!sContext) {
+    SkBitmap bm;
+    if (!bm.installPixels(SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
+                          autoDst.release(), dstM.fRowBytes, mask_release_proc, nullptr)) {
         return false;
     }
+    bm.setImmutable();
 
-    SkImageInfo ii = SkImageInfo::MakeA8(desc.fWidth, desc.fHeight);
-    if (!sContext->writePixels(ii, dstM.fImage, dstM.fRowBytes, 0, 0)) {
-        return false;
-    }
+    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
+
+    auto proxyProvider = context->contextPriv().proxyProvider();
+    sk_sp<GrTextureProxy> maskProxy = proxyProvider->createTextureProxy(std::move(image),
+                                                                        kNone_GrSurfaceFlags,
+                                                                        1, SkBudgeted::kYes,
+                                                                        SkBackingFit::kApprox);
 
     return draw_mask(renderTargetContext, clipData, viewMatrix,
-                     dstM.fBounds, std::move(paint), sContext->asTextureProxyRef());
+                     dstM.fBounds, std::move(paint), std::move(maskProxy));
 }
 
 // Create a mask of 'devPath' and place the result in 'mask'.
