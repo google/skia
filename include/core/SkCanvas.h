@@ -2476,65 +2476,8 @@ protected:
         this->didConcat(SkMatrix::MakeTrans(dx, dy));
     }
 
-    virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value);
-    virtual void onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
-
-    virtual void onDrawText(const void* text, size_t byteLength, SkScalar x,
-                            SkScalar y, const SkPaint& paint);
-
-    virtual void onDrawPosText(const void* text, size_t byteLength,
-                               const SkPoint pos[], const SkPaint& paint);
-
-    virtual void onDrawPosTextH(const void* text, size_t byteLength,
-                                const SkScalar xpos[], SkScalar constY,
-                                const SkPaint& paint);
-
-    virtual void onDrawTextOnPath(const void* text, size_t byteLength,
-                                  const SkPath& path, const SkMatrix* matrix,
-                                  const SkPaint& paint);
-    virtual void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
-                                   const SkRect* cullRect, const SkPaint& paint);
-
-    virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                const SkPaint& paint);
-
-    virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
-
-    virtual void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix);
-
-    virtual void onDrawPaint(const SkPaint& paint);
-    virtual void onDrawRect(const SkRect& rect, const SkPaint& paint);
-    virtual void onDrawRegion(const SkRegion& region, const SkPaint& paint);
-    virtual void onDrawOval(const SkRect& rect, const SkPaint& paint);
-    virtual void onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
-                           bool useCenter, const SkPaint& paint);
-    virtual void onDrawRRect(const SkRRect& rrect, const SkPaint& paint);
-    virtual void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
-                              const SkPaint& paint);
-    virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
-                                      const SkPaint& paint);
-    virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
-                             const SkColor colors[], int count, SkBlendMode mode,
-                             const SkRect* cull, const SkPaint* paint);
-    virtual void onDrawPath(const SkPath& path, const SkPaint& paint);
-    virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);
-    virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                 const SkPaint* paint, SrcRectConstraint constraint);
-    virtual void onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                                 const SkPaint* paint);
-    virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
-                                    const SkPaint* paint);
-
-    virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
-                              const SkPaint* paint);
-    virtual void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                  const SkPaint* paint, SrcRectConstraint constraint);
-    virtual void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                                  const SkPaint* paint);
-    virtual void onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
-                                     const SkRect& dst, const SkPaint* paint);
-    virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&);
+#define X(func, ...) virtual void func(__VA_ARGS__);
+#include "SkCanvasDrawVirtuals.inc"
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,
