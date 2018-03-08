@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "719a2cef_d74e1fca",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T20:09:11Z",
+      "side": 1,
+      "message": "// Comment re why we can have a non-0 ref count on the proxy itself?",
+      "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6dd0d080_2510058b",
+        "filename": "src/gpu/GrOnFlushResourceProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T20:09:11Z",
+      "side": 1,
+      "message": "every -\u003e ever ?\nDDL TODO ?",
+      "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "127a1ffa_06292faf",
+        "filename": "src/gpu/mock/GrMockTexture.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T20:09:11Z",
+      "side": 1,
+      "message": "detab this line once ?",
+      "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65ceb8ec_b3104e35",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T20:09:11Z",
+      "side": 1,
+      "message": "It seems like there could be some basic validation of the uninstantiateProxyTracker\u0027s behavior here.",
+      "revId": "981e47ec203d5951731338de104cbf45abbcc7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
