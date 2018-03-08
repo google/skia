@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9a8508c_7735c4d7",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-08T14:02:40Z",
+      "side": 1,
+      "message": "I think Brian may be working on a change to remove origin from Lazy proxies so you might collide here",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 97,
+        "endChar": 39
+      },
+      "revId": "7150bc57dbf52ee7a9b74df7e98c9675274b21a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54242b49_d8be7f7d",
+        "filename": "src/effects/GrCircleBlurFragmentProcessor.fp",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-08T14:02:40Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 168,
+        "startChar": 33,
+        "endLine": 168,
+        "endChar": 100
+      },
+      "revId": "7150bc57dbf52ee7a9b74df7e98c9675274b21a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74fbf66c_75a243e5",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-08T14:02:40Z",
+      "side": 1,
+      "message": "extra newline",
+      "revId": "7150bc57dbf52ee7a9b74df7e98c9675274b21a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
