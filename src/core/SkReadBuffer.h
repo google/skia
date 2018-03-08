@@ -77,6 +77,7 @@ public:
         kRemovePictureImageFilterLocalSpace = 59,
         kRemoveHeaderFlags_Version         = 60,
         kTwoColorDrawShadow_Version        = 61,
+        kDontNegateImageSize_Version       = 62,
     };
 
     /**
