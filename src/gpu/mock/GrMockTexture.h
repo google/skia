@@ -20,7 +20,17 @@ public:
             : GrMockTexture(gpu, desc, mipMapsStatus, info) {
         this->registerWithCache(budgeted);
     }
+
+    enum Wrapped { kWrapped };
+    GrMockTexture(GrMockGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
+                  GrMipMapsStatus mipMapsStatus, const GrMockTextureInfo& info)
+            : GrMockTexture(gpu, desc, mipMapsStatus, info) {
+            this->registerWithCacheWrapped();
+    }
+
     ~GrMockTexture() override {}
+
+
 
     GrBackendObject getTextureHandle() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
@@ -44,11 +54,28 @@ protected:
                         mipMapsStatus)
             , fInfo(info) {}
 
+    void onRelease() override {
+        this->invokeReleaseProc();
+        INHERITED::onRelease();
+    }
+
+    void onAbandon() override {
+        this->invokeReleaseProc();
+        INHERITED::onAbandon();
+    }
+
     bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
         return false;
     }
 
 private:
+    void invokeReleaseProc() {
+        if (fReleaseHelper) {
+            // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
+            // ReleaseProc to be called.
+            fReleaseHelper.reset();
+        }
+    }
     GrMockTextureInfo          fInfo;
     sk_sp<GrReleaseProcHelper> fReleaseHelper;
 
