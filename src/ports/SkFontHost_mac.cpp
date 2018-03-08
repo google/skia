@@ -1629,13 +1629,28 @@ SkStreamAsset* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
     tableTags.setCount(numTables);
     this->getTableTags(tableTags.begin());
 
-    // calc total size for font, save sizes
+    // see if there are any required 'typ1' tables (see Adobe Technical Note #5180)
+    bool couldBeTyp1 = false;
+    constexpr SkFontTableTag TYPE1Tag = SkSetFourByteTag('T', 'Y', 'P', '1');
+    constexpr SkFontTableTag CIDTag = SkSetFourByteTag('C', 'I', 'D', ' ');
+    // get the table sizes and accumulate the total size of the font
     SkTDArray<size_t> tableSizes;
     size_t totalSize = sizeof(SkSFNTHeader) + sizeof(SkSFNTHeader::TableDirectoryEntry) * numTables;
     for (int tableIndex = 0; tableIndex < numTables; ++tableIndex) {
+        if (TYPE1Tag == tableTags[tableIndex] || CIDTag == tableTags[tableIndex]) {
+            couldBeTyp1 = true;
+        }
+
         size_t tableSize = this->getTableSize(tableTags[tableIndex]);
         totalSize += (tableSize + 3) & ~3;
         *tableSizes.append() = tableSize;
+    }
+
+    // sometimes CoreGraphics incorrectly thinks a font is kCTFontFormatPostScript
+    // it is exceedingly unlikely that this is the case, so double check
+    // see https://crbug.com/809763
+    if (fontType == SkSFNTHeader::fontType_PostScript::TAG && !couldBeTyp1) {
+        fontType = SkSFNTHeader::fontType_OpenTypeCFF::TAG;
     }
 
     // reserve memory for stream, and zero it (tables must be zero padded)
