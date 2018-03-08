@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "592f4683_5155b7c6",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T21:53:25Z",
+      "side": 1,
+      "message": "will will",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5b0492e_470a6fdd",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T21:53:25Z",
+      "side": 1,
+      "message": "alaphType",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f010ded9_9c6b07dc",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T21:53:25Z",
+      "side": 1,
+      "message": "add a space here",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa3d7bab_9965356f",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T21:53:25Z",
+      "side": 1,
+      "message": "// The \u0027fReleaseHelper\u0027 acts as a ...",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "894d7e17_cdab67a6",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T21:53:25Z",
+      "side": 1,
+      "message": "Why not provide width \u0026 height here ?",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c3168f8_5e3c25da",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T21:53:25Z",
+      "side": 1,
+      "message": "promiseHelper.dropReleaseHelper() ?",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a887b77_b6133760",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T21:53:25Z",
+      "side": 1,
+      "message": "promiseHelper.createReleaseHelper() ?",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e7a78fe_4bb68213",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T21:53:25Z",
+      "side": 1,
+      "message": "alaphType",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8a143b4_7b21da00",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-08T21:53:25Z",
+      "side": 1,
+      "message": "add a space",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
