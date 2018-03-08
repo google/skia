@@ -314,6 +314,16 @@ with open(sys.argv[1], 'w') as f:
       ld_library_path.append(clang_linux + '/lib')
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
+    elif 'ProcDump' in extra_tokens:
+      self.m.file.ensure_directory('makedirs dumps', self.m.vars.dumps_dir)
+      procdump = str(self.m.vars.slave_dir.join('procdump_win',
+                                                'procdump64.exe'))
+      # Full docs for ProcDump here:
+      # https://docs.microsoft.com/en-us/sysinternals/downloads/procdump
+      # -mp saves a packed minidump to save space
+      # -e 1 tells procdump to dump once
+      # -x provides dir for dumps
+      cmd = [procdump, '-mp', '-e', '1', '-x', self.m.vars.dumps_dir] + cmd
 
     if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
       env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
