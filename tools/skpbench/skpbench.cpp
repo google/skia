@@ -274,6 +274,11 @@ int main(int argc, char** argv) {
                         SkScalarCeilToInt(skp->cullRect().height()), width, height);
     }
 
+    if (config->getSurfType() != SkCommandLineConfigGpu::SurfType::kDefault) {
+        exitf(ExitErr::kUnavailable, "This tool only supports the default surface type. (%s)",
+              config->getTag().c_str());
+    }
+
     // Create a context.
     GrContextOptions ctxOptions;
     SetCtxOptionsFromCommonFlags(&ctxOptions);
