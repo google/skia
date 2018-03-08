@@ -23,48 +23,17 @@
 class GrCCQuadraticShader : public GrCCCoverageProcessor::Shader {
 protected:
     void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
-                       const char* wind, GeometryVars*) const final;
-    virtual void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
-                                 GeometryVars*) const = 0;
+                       const char* wind, GeometryVars*) const override;
 
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                        const char* position, const char* inputCoverage, const char* wind) final;
-    virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) {}
+                        const char* position, const char* inputCoverage, const char* wind) override;
 
-    void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const final;
-    virtual void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const = 0;
+    void onEmitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
+                            const char* outputCoverage) const override;
 
     const GrShaderVar fCanonicalMatrix{"canonical_matrix", kFloat3x3_GrSLType};
-    const GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
-    GrGLSLVarying fXYDW;
-};
-
-/**
- * This pass draws a conservative raster hull around the quadratic bezier curve, computes the
- * curve's coverage using the gradient-based AA technique outlined in the Loop/Blinn paper, and
- * uses simple distance-to-edge to subtract out coverage for the flat closing edge [P2 -> P0]. Since
- * the provided curves are monotonic, this will get every pixel right except the two corners.
- */
-class GrCCQuadraticHullShader : public GrCCQuadraticShader {
-    void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
-                         GeometryVars*) const override;
-    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
-
-    GrGLSLVarying fGrad;
-};
-
-/**
- * This pass fixes the corners of a closed quadratic segment with soft MSAA.
- */
-class GrCCQuadraticCornerShader : public GrCCQuadraticShader {
-    void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
-                         GeometryVars*) const override;
-    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
-
-    GrGLSLVarying fdXYDdx;
-    GrGLSLVarying fdXYDdy;
+    GrGLSLVarying fCoords;
+    GrGLSLVarying fCoverageTimesWind;
 };
 
 #endif
