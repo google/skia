@@ -93,8 +93,6 @@ import urllib2
 import binary_size_utils
 import elf_symbolizer
 
-from recipe_engine.types import freeze
-
 # Node dictionary keys. These are output in json read by the webapp so
 # keep them short to save file size.
 # Note: If these change, the webapp must also change.
@@ -114,12 +112,12 @@ NAME_NO_PATH_BUCKET = '(No Path)'
 BIG_BUCKET_LIMIT = 3000
 
 # Skia addition: relative dir for libskia.so from code base.
-LIBSKIA_RELATIVE_PATH = os.path.join('out', 'Release', 'lib')
+LIBSKIA_RELATIVE_PATH = os.path.join('out', 'Release')
 
 # Skia addition: dictionary mapping symbol type code to symbol name.
 # See
 # https://code.google.com/p/chromium/codesearch#chromium/src/tools/binary_size/template/D3SymbolTreeMap.js&l=74
-SYMBOL_MAP = freeze({
+SYMBOL_MAP = {
     'A': 'global_absolute',
     'B': 'global_uninitialized_data',
     'b': 'local_uninitialized_data',
@@ -146,7 +144,7 @@ SYMBOL_MAP = freeze({
     '@': 'vtable_entry',
     '-': 'stabs_debugging',
     '?': 'unrecognized',
-})
+}
 
 
 def _MkChild(node, name):
