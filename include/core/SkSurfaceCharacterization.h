@@ -18,7 +18,7 @@ class SkColorSpace;
 
 // This define can be used to swap between the default (raster) DDL implementation and the
 // gpu implementation.
-#define SK_RASTER_RECORDER_IMPLEMENTATION 1
+//#define SK_RASTER_RECORDER_IMPLEMENTATION 1
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
