@@ -168,10 +168,11 @@ private:
     // V59: No more LocalSpace option on PictureImageFilter
     // V60: Remove flags in picture header
     // V61: Change SkDrawPictureRec to take two colors rather than two alphas
+    // V62: Don't negate size of custom encoded images (don't write origin x,y either)
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 56;     // august 2017
-    static const uint32_t CURRENT_PICTURE_VERSION = 61;
+    static const uint32_t CURRENT_PICTURE_VERSION = 62;
 
     static bool IsValidPictInfo(const SkPictInfo& info);
     static sk_sp<SkPicture> Forwardport(const SkPictInfo&,

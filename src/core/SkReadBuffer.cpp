@@ -279,48 +279,37 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
         return nullptr;
     }
 
-    /*
-     *  What follows is a 32bit encoded size.
-     *   0 : failure, nothing else to do
-     *  <0 : negative (int32_t) of a custom encoded blob using SerialProcs
-     *  >0 : standard encoded blob size (use MakeFromEncoded)
-     */
+    int32_t size = this->read32();
 
-    int32_t encoded_size = this->read32();
-    if (encoded_size == 0) {
+    // we used to negate the size for "custom" encoded images -- ignore that signal (Dec-2017)
+    size = SkAbs32(size);
+
+    if (size == 0) {
         // The image could not be encoded at serialization time - return an empty placeholder.
         return MakeEmptyImage(width, height);
     }
-    if (encoded_size == 1) {
+    if (size == 1) {
         // legacy check (we stopped writing this for "raw" images Nov-2017)
         this->validate(false);
         return nullptr;
     }
 
-    size_t size = SkAbs32(encoded_size);
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
     if (!this->readPad32(data->writable_data(), size)) {
         this->validate(false);
         return nullptr;
     }
-    int32_t originX = this->read32();
-    int32_t originY = this->read32();
-    if (originX < 0 || originY < 0) {
-        this->validate(false);
-        return nullptr;
+    if (this->isVersionLT(kDontNegateImageSize_Version)) {
+        (void)this->read32();   // originX
+        (void)this->read32();   // originY
     }
 
     sk_sp<SkImage> image;
-    if (encoded_size < 0) {     // custom encoded, need serial proc
-        if (fProcs.fImageProc) {
-            image = fProcs.fImageProc(data->data(), data->size(), fProcs.fImageCtx);
-        } else {
-            // Nothing to do (no client proc), but since we've already "read" the custom data,
-            // wee just leave image as nullptr.
-        }
-    } else {
-        SkIRect subset = SkIRect::MakeXYWH(originX, originY, width, height);
-        image = SkImage::MakeFromEncoded(std::move(data), &subset);
+    if (fProcs.fImageProc) {
+        image = fProcs.fImageProc(data->data(), data->size(), fProcs.fImageCtx);
+    }
+    if (!image) {
+        image = SkImage::MakeFromEncoded(std::move(data));
     }
     // Question: are we correct to return an "empty" image instead of nullptr, if the decoder
     //           failed for some reason?
