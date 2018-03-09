@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63c0bf60_ac8cd0f9",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-09T20:53:34Z",
+      "side": 1,
+      "message": "Is it not sufficient to use bounds.roundOut()?",
+      "range": {
+        "startLine": 311,
+        "startChar": 47,
+        "endLine": 311,
+        "endChar": 63
+      },
+      "revId": "32d55603ce8439ea14904cf0677d2bf5eeb6c27a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0926695_c33d27c7",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-09T20:53:34Z",
+      "side": 1,
+      "message": "Instead of using pathops explicitly, it would be cool to use the clipstack (save/push extra clip/asPath/restore).\n\nAlas, it is const\u0026...\n\nWe could make a copy, but prolly overkill.",
+      "revId": "32d55603ce8439ea14904cf0677d2bf5eeb6c27a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
