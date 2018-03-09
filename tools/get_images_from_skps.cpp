@@ -125,24 +125,16 @@ struct Sniffer {
 };
 
 static bool get_images_from_file(const SkString& file) {
-    auto stream = SkStream::MakeFromFile(file.c_str());
-    sk_sp<SkPicture> picture(SkPicture::MakeFromStream(stream.get()));
-    if (!picture) {
-        return false;
-    }
-
-    SkDynamicMemoryWStream scratch;
     Sniffer sniff(file.c_str());
-    SkSerialProcs procs;
-    procs.fImageProc = [](SkImage* image, void* ctx) {
-        if (auto data = image->refEncodedData()) {
-            ((Sniffer*)ctx)->sniff(data->data(), data->size());
-        }
-        return SkData::MakeEmpty();
+    auto stream = SkStream::MakeFromFile(file.c_str());
+
+    SkDeserialProcs procs;
+    procs.fImageProc = [](const void* data, size_t size, void* ctx) -> sk_sp<SkImage> {
+        ((Sniffer*)ctx)->sniff(data, size);
+        return nullptr;
     };
     procs.fImageCtx = &sniff;
-    picture->serialize(&procs);
-    return true;
+    return SkPicture::MakeFromStream(stream.get(), &procs) != nullptr;
 }
 
 int main(int argc, char** argv) {
