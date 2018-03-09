@@ -178,13 +178,17 @@ public:
 
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
 
-    GrProxyProvider* proxyProvider() { return fContext->fProxyProvider; }
-    const GrProxyProvider* proxyProvider() const { return fContext->fProxyProvider; }
+    GrProxyProvider* proxyProvider() { return fContext->fProxyProvider1; }
+    const GrProxyProvider* proxyProvider() const { return fContext->fProxyProvider1; }
 
     GrResourceProvider* resourceProvider() { return fContext->fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fContext->fResourceProvider; }
 
     GrResourceCache* getResourceCache() { return fContext->fResourceCache; }
+
+    GrTextureStripAtlasManager* textureStripAtlasManager() {
+        return fContext->fTextureStripAtlasManager1.get();
+    }
 
     GrGpu* getGpu() { return fContext->fGpu.get(); }
     const GrGpu* getGpu() const { return fContext->fGpu.get(); }

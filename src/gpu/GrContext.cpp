@@ -24,6 +24,7 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTextureContext.h"
+#include "GrTextureStripAtlas.h"
 #include "GrTracing.h"
 #include "SkConvertPixels.h"
 #include "SkDeferredDisplayList.h"
@@ -68,7 +69,7 @@ GrContext::GrContext(GrBackend backend, int32_t id)
         , fUniqueID(SK_InvalidGenID == id ? next_id() : id) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
-    fProxyProvider = nullptr;
+    fProxyProvider1 = nullptr;
     fGlyphCache = nullptr;
 }
 
@@ -84,11 +85,13 @@ bool GrContext::initCommon(const GrContextOptions& options) {
                                                    options.fExplicitlyAllocateGPUResources);
     }
 
-    fProxyProvider = new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
+    fProxyProvider1 = new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
 
     if (fResourceCache) {
-        fResourceCache->setProxyProvider(fProxyProvider);
+        fResourceCache->setProxyProvider(fProxyProvider1);
     }
+
+    fTextureStripAtlasManager1.reset(new GrTextureStripAtlasManager);
 
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
     fSharpenMipmappedTextures = options.fSharpenMipmappedTextures;
@@ -146,13 +149,10 @@ GrContext::~GrContext() {
         fDrawingManager->cleanup();
     }
 
-    for (int i = 0; i < fCleanUpData.count(); ++i) {
-        (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
-    }
-
+    fTextureStripAtlasManager1 = nullptr;
     delete fResourceProvider;
     delete fResourceCache;
-    delete fProxyProvider;
+    delete fProxyProvider1;
     delete fGlyphCache;
 }
 
@@ -199,7 +199,8 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 
-    fProxyProvider->abandon();
+    fTextureStripAtlasManager1->abandon();
+    fProxyProvider1->abandon();
     fResourceProvider->abandon();
 
     // Need to abandon the drawing manager first so all the render targets
@@ -219,7 +220,8 @@ void GrContext::abandonContext() {
 void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
-    fProxyProvider->abandon();
+    fTextureStripAtlasManager1->abandon();
+    fProxyProvider1->abandon();
     fResourceProvider->abandon();
 
     // Need to abandon the drawing manager first so all the render targets
@@ -1105,9 +1107,9 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
 
     sk_sp<GrTextureProxy> rtp;
     if (GrMipMapped::kNo == mipMapped) {
-        rtp = fContext->fProxyProvider->createProxy(desc, origin, fit, budgeted);
+        rtp = fContext->fProxyProvider1->createProxy(desc, origin, fit, budgeted);
     } else {
-        rtp = fContext->fProxyProvider->createMipMapProxy(desc, origin, budgeted);
+        rtp = fContext->fProxyProvider1->createMipMapProxy(desc, origin, budgeted);
     }
     if (!rtp) {
         return nullptr;
