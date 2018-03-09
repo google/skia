@@ -148,6 +148,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
         self.swarming_out_dir, 'dm')
     self.perf_data_dir = self.m.path.join(self.swarming_out_dir,
         'perfdata', self.builder_name, 'data')
+    self.dumps_dir = self.m.path.join(
+        self.swarming_out_dir, 'dumps')
     self._swarming_bot_id = None
     self._swarming_task_id = None
 
