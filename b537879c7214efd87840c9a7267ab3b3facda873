@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a423e6cf_3cb5ab06",
+        "filename": "fuzz/FuzzCommon.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-09T15:54:16Z",
+      "side": 0,
+      "message": "This will break many things in fuzz/oss_fuzz",
+      "revId": "b537879c7214efd87840c9a7267ab3b3facda873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
