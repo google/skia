@@ -605,7 +605,7 @@ private:
     GrDeferredUploadTarget* fUploadTarget;
     GrGlyphCache* fGlyphCache;
     GrAtlasManager* fFullAtlasManager;
-    SkAutoGlyphCache* fLazyCache;
+    SkExclusiveStrikePtr* fLazyCache;
     Run* fRun;
     Run::SubRunInfo* fSubRun;
     GrColor fColor;
