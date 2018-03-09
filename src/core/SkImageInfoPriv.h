@@ -10,6 +10,11 @@
 
 #include "SkImageInfo.h"
 
+enum class SkDestinationSurfaceColorMode {
+    kLegacy,
+    kGammaAndColorSpaceAware,
+};
+
 static inline bool SkAlphaTypeIsValid(unsigned value) {
     return value <= kLastEnum_SkAlphaType;
 }

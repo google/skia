@@ -19,21 +19,21 @@ class GrAtlasManager;
 class GrGpu;
 
 /**
- *  The GrAtlasTextStrike manages a pool of CPU backing memory for GrGlyphs. This backing memory
+ *  The GrTextStrike manages a pool of CPU backing memory for GrGlyphs. This backing memory
  *  is indexed by a PackedID and SkGlyphCache. The SkGlyphCache is what actually creates the mask.
- *  The GrAtlasTextStrike may outlive the generating SkGlyphCache. However, it retains a copy
- *  of it's SkDescriptor as a key to access (or regenerate) the SkGlyphCache. GrAtlasTextStrike are
+ *  The GrTextStrike may outlive the generating SkGlyphCache. However, it retains a copy
+ *  of it's SkDescriptor as a key to access (or regenerate) the SkGlyphCache. GrTextStrikes are
  *  created by and owned by a GrGlyphCache.
  */
-class GrAtlasTextStrike : public SkNVRefCnt<GrAtlasTextStrike> {
+class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
-    GrAtlasTextStrike(const SkDescriptor& fontScalerKey);
-    ~GrAtlasTextStrike();
+    GrTextStrike(const SkDescriptor& fontScalerKey);
+    ~GrTextStrike();
 
     inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                              SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
-        if (nullptr == glyph) {
+        if (!glyph) {
             glyph = this->generateGlyph(skGlyph, packed, cache);
         }
         return glyph;
@@ -47,7 +47,7 @@ public:
                              GrMaskFormat expectedMaskFormat,
                              SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
-        if (nullptr == glyph) {
+        if (!glyph) {
             // We could return this to the caller, but in practice it adds code complexity for
             // potentially little benefit(ie, if the glyph is not in our font cache, then its not
             // in the atlas and we're going to be doing a texture upload anyways).
@@ -76,8 +76,8 @@ public:
     // If a TextStrike is abandoned by the cache, then the caller must get a new strike
     bool isAbandoned() const { return fIsAbandoned; }
 
-    static const SkDescriptor& GetKey(const GrAtlasTextStrike& ts) {
-        return *ts.fFontScalerKey.getDesc();
+    static const SkDescriptor& GetKey(const GrTextStrike& strike) {
+        return *strike.fFontScalerKey.getDesc();
     }
 
     static uint32_t Hash(const SkDescriptor& desc) { return desc.getChecksum(); }
@@ -113,15 +113,15 @@ public:
     void setGlyphSizeLimit(SkScalar sizeLimit) { fGlyphSizeLimit = sizeLimit; }
     SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
 
-    void setStrikeToPreserve(GrAtlasTextStrike* strike) { fPreserveStrike = strike; }
+    void setStrikeToPreserve(GrTextStrike* strike) { fPreserveStrike = strike; }
 
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.
-    // Therefore, the caller must check GrAtlasTextStrike::isAbandoned() if there are other
+    // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    inline GrAtlasTextStrike* getStrike(const SkGlyphCache* cache) {
-        GrAtlasTextStrike* strike = fCache.find(cache->getDescriptor());
-        if (nullptr == strike) {
+    inline sk_sp<GrTextStrike> getStrike(const SkGlyphCache* cache) {
+        sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.find(cache->getDescriptor()));
+        if (!strike) {
             strike = this->generateStrike(cache);
         }
         return strike;
@@ -132,16 +132,17 @@ public:
     static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
 
 private:
-    GrAtlasTextStrike* generateStrike(const SkGlyphCache* cache) {
-        GrAtlasTextStrike* strike = new GrAtlasTextStrike(cache->getDescriptor());
-        fCache.add(strike);
+    sk_sp<GrTextStrike> generateStrike(const SkGlyphCache* cache) {
+        // 'fCache' get the construction ref
+        sk_sp<GrTextStrike> strike = sk_ref_sp(new GrTextStrike(cache->getDescriptor()));
+        fCache.add(strike.get());
         return strike;
     }
 
-    using StrikeHash = SkTDynamicHash<GrAtlasTextStrike, SkDescriptor>;
+    using StrikeHash = SkTDynamicHash<GrTextStrike, SkDescriptor>;
 
     StrikeHash fCache;
-    GrAtlasTextStrike* fPreserveStrike;
+    GrTextStrike* fPreserveStrike;
     SkScalar fGlyphSizeLimit;
 };
 

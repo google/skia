@@ -9,6 +9,7 @@
 #define SkMipMap_DEFINED
 
 #include "SkCachedData.h"
+#include "SkImageInfoPriv.h"
 #include "SkPixmap.h"
 #include "SkScalar.h"
 #include "SkSize.h"

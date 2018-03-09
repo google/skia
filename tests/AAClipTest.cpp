@@ -6,13 +6,24 @@
  */
 
 #include "SkAAClip.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColor.h"
+#include "SkImageInfo.h"
+#include "SkMalloc.h"
 #include "SkMask.h"
+#include "SkMatrix.h"
 #include "SkPath.h"
+#include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkRasterClip.h"
-#include "SkRRect.h"
+#include "SkRect.h"
+#include "SkRegion.h"
+#include "SkScalar.h"
+#include "SkTypes.h"
 #include "Test.h"
+
+#include <string.h>
 
 static bool operator==(const SkMask& a, const SkMask& b) {
     if (a.fFormat != b.fFormat || a.fBounds != b.fBounds) {

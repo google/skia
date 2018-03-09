@@ -17,6 +17,7 @@
 #include "ast/SkSLASTFloatLiteral.h"
 #include "ast/SkSLASTIndexSuffix.h"
 #include "ast/SkSLASTIntLiteral.h"
+#include "ir/SkSLAppendStage.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
 #include "ir/SkSLBreakStatement.h"
@@ -286,6 +287,9 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                 return nullptr;
             }
             value = this->coerce(std::move(value), *type);
+            if (!value) {
+                return nullptr;
+            }
             var->fWriteCount = 1;
             var->fInitialValue = value.get();
         }
@@ -761,7 +765,8 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
 
 std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInterfaceBlock& intf) {
     std::shared_ptr<SymbolTable> old = fSymbolTable;
-    AutoSymbolTable table(this);
+    this->pushSymbolTable();
+    std::shared_ptr<SymbolTable> symbols = fSymbolTable;
     std::vector<Type::Field> fields;
     bool haveRuntimeArray = false;
     bool foundRTAdjust = false;
@@ -804,6 +809,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             }
         }
     }
+    this->popSymbolTable();
     Type* type = new Type(intf.fOffset, intf.fTypeName, fields);
     old->takeOwnership(type);
     std::vector<std::unique_ptr<Expression>> sizes;
@@ -826,11 +832,11 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                 name += "[]";
             }
             type = new Type(name, Type::kArray_Kind, *type, (int) count);
-            fSymbolTable->takeOwnership((Type*) type);
+            symbols->takeOwnership((Type*) type);
             sizes.push_back(std::move(converted));
         } else {
             type = new Type(type->name() + "[]", Type::kArray_Kind, *type, -1);
-            fSymbolTable->takeOwnership((Type*) type);
+            symbols->takeOwnership((Type*) type);
             sizes.push_back(nullptr);
         }
     }
@@ -858,7 +864,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                                                               intf.fTypeName,
                                                               intf.fInstanceName,
                                                               std::move(sizes),
-                                                              fSymbolTable));
+                                                              symbols));
 }
 
 void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
@@ -1955,6 +1961,91 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
     return result;
 }
 
+std::unique_ptr<Expression> IRGenerator::convertAppend(int offset,
+                                          const std::vector<std::unique_ptr<ASTExpression>>& args) {
+#ifndef SKSL_STANDALONE
+    if (args.size() < 2) {
+        fErrors.error(offset, "'append' requires at least two arguments");
+        return nullptr;
+    }
+    std::unique_ptr<Expression> pipeline = this->convertExpression(*args[0]);
+    if (!pipeline) {
+        return nullptr;
+    }
+    if (pipeline->fType != *fContext.fSkRasterPipeline_Type) {
+        fErrors.error(offset, "first argument of 'append' must have type 'SkRasterPipeline'");
+        return nullptr;
+    }
+    if (ASTExpression::kIdentifier_Kind != args[1]->fKind) {
+        fErrors.error(offset, "'" + args[1]->description() + "' is not a valid stage");
+        return nullptr;
+    }
+    StringFragment name = ((const ASTIdentifier&) *args[1]).fText;
+    SkRasterPipeline::StockStage stage = SkRasterPipeline::premul;
+    std::vector<std::unique_ptr<Expression>> stageArgs;
+    stageArgs.push_back(std::move(pipeline));
+    for (size_t i = 2; i < args.size(); ++i) {
+        std::unique_ptr<Expression> arg = this->convertExpression(*args[i]);
+        if (!arg) {
+            return nullptr;
+        }
+        stageArgs.push_back(std::move(arg));
+    }
+    size_t expectedArgs = 0;
+    // FIXME use a map
+    if ("premul" == name) {
+        stage = SkRasterPipeline::premul;
+    }
+    else if ("unpremul" == name) {
+        stage = SkRasterPipeline::unpremul;
+    }
+    else if ("clamp_0" == name) {
+        stage = SkRasterPipeline::clamp_0;
+    }
+    else if ("clamp_1" == name) {
+        stage = SkRasterPipeline::clamp_1;
+    }
+    else if ("matrix_4x5" == name) {
+        expectedArgs = 1;
+        stage = SkRasterPipeline::matrix_4x5;
+        if (1 == stageArgs.size() && stageArgs[0]->fType.fName != "float[20]") {
+            fErrors.error(offset, "pipeline stage '" + name + "' expected a float[20] argument");
+            return nullptr;
+        }
+    }
+    else {
+        bool found = false;
+        for (const auto& e : *fProgramElements) {
+            if (ProgramElement::kFunction_Kind == e->fKind) {
+                const FunctionDefinition& f = (const FunctionDefinition&) *e;
+                if (f.fDeclaration.fName == name) {
+                    stage = SkRasterPipeline::callback;
+                    std::vector<const FunctionDeclaration*> functions = { &f.fDeclaration };
+                    stageArgs.emplace_back(new FunctionReference(fContext, offset, functions));
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            fErrors.error(offset, "'" + name + "' is not a valid pipeline stage");
+            return nullptr;
+        }
+    }
+    if (args.size() != expectedArgs + 2) {
+        fErrors.error(offset, "pipeline stage '" + name + "' expected an additional argument " +
+                              "count of " + to_string((int) expectedArgs) + ", but found " +
+                              to_string((int) args.size() - 1));
+        return nullptr;
+    }
+    return std::unique_ptr<Expression>(new AppendStage(fContext, offset, stage,
+                                                       std::move(stageArgs)));
+#else
+    ASSERT(false);
+    return nullptr;
+#endif
+}
+
 std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                                                             const ASTSuffixExpression& expression) {
     std::unique_ptr<Expression> base = this->convertExpression(*expression.fBase);
@@ -1980,6 +2071,10 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
         }
         case ASTSuffix::kCall_Kind: {
             auto rawArguments = &((ASTCallSuffix&) *expression.fSuffix).fArguments;
+            if (Expression::kFunctionReference_Kind == base->fKind &&
+                "append" == ((const FunctionReference&) *base).fFunctions[0]->fName) {
+                return convertAppend(expression.fOffset, *rawArguments);
+            }
             std::vector<std::unique_ptr<Expression>> arguments;
             for (size_t i = 0; i < rawArguments->size(); i++) {
                 std::unique_ptr<Expression> converted =

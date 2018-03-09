@@ -38,8 +38,10 @@ namespace GrVkMemory {
 
     VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
 
-    void FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize size);
-    void InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc);
+    void FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
+                          VkDeviceSize size);
+    void InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
+                               VkDeviceSize size);
 }
 
 class GrVkFreeListAlloc {

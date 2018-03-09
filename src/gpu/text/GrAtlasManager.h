@@ -12,7 +12,7 @@
 #include "GrOnFlushResourceProvider.h"
 
 class GrAtlasGlypCache;
-class GrAtlasTextStrike;
+class GrTextStrike;
 struct GrGlyph;
 
  /** The GrAtlasManager classes manage the lifetime of and access to GrDrawOpAtlases.
@@ -100,7 +100,7 @@ public:
     }
 
     // add to texture atlas that matches this format
-    bool addToAtlas(GrResourceProvider*, GrGlyphCache*, GrAtlasTextStrike*,
+    bool addToAtlas(GrResourceProvider*, GrGlyphCache*, GrTextStrike*,
                     GrDrawOpAtlas::AtlasID*, GrDeferredUploadTarget*, GrMaskFormat,
                     int width, int height, const void* image, SkIPoint16* loc);
 

@@ -5,14 +5,25 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkAndroidCodec.h"
+#include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
+#include "SkColor.h"
+#include "SkData.h"
 #include "SkEncodedImageFormat.h"
+#include "SkImageGenerator.h"
+#include "SkImageInfo.h"
 #include "SkPixmapPriv.h"
-
-#include "Resources.h"
+#include "SkRefCnt.h"
+#include "SkSize.h"
+#include "SkString.h"
+#include "SkTypes.h"
 #include "Test.h"
+
+#include <algorithm>
+#include <memory>
 
 static SkISize times(const SkISize& size, float factor) {
     return { (int) (size.width() * factor), (int) (size.height() * factor) };

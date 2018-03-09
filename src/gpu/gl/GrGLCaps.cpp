@@ -48,6 +48,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fPartialFBOReadIsSlow = false;
     fMipMapLevelAndLodControlSupport = false;
     fRGBAToBGRAReadbackConversionsAreSlow = false;
+    fUseBufferDataNullHint = SkToBool(GR_GL_USE_BUFFER_DATA_NULL_HINT);
     fDoManualMipmapping = false;
     fSRGBDecodeDisableAffectsMipmaps = false;
     fClearToBoundaryValuesIsBroken = false;
@@ -259,6 +260,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // Both mesa and mac have reduced performance if reading back an RGBA framebuffer as BGRA or
     // vis-versa.
     fRGBAToBGRAReadbackConversionsAreSlow = isMESA || isMAC;
+
+    if (GrContextOptions::Enable::kNo == contextOptions.fUseGLBufferDataNullHint) {
+        fUseBufferDataNullHint = false;
+    } else if (GrContextOptions::Enable::kYes == contextOptions.fUseGLBufferDataNullHint) {
+        fUseBufferDataNullHint = true;
+    }
 
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(4,4) || ctxInfo.hasExtension("GL_ARB_clear_texture")) {
@@ -1145,6 +1152,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Texture swizzle support", fTextureSwizzleSupport);
     writer->appendBool("BGRA to RGBA readback conversions are slow",
                        fRGBAToBGRAReadbackConversionsAreSlow);
+    writer->appendBool("Use buffer data null hint", fUseBufferDataNullHint);
     writer->appendBool("Draw To clear color", fUseDrawToClearColor);
     writer->appendBool("Draw To clear stencil clip", fUseDrawToClearStencilClip);
     writer->appendBool("Intermediate texture for partial updates of unorm textures ever bound to FBOs",
@@ -1602,6 +1610,25 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kRGBA_4444_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kRGBA_4444_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
+
+    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
+    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGB10_A2;
+    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
+        GR_GL_RGBA;
+    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormats.fExternalType =
+        GR_GL_UNSIGNED_INT_2_10_10_10_REV;
+    fConfigTable[kRGBA_1010102_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
+    if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3, 0)) {
+        fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                           allRenderFlags;
+    }
+    if (texStorageSupported) {
+        fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
+    if (texelBufferSupport) {
+        fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
+    }
+    fConfigTable[kRGBA_1010102_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     bool alpha8IsValidForGL = kGL_GrGLStandard == standard &&
             (!fIsCoreProfile || version <= GR_GL_VER(3, 0));
@@ -2066,7 +2093,9 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     return true;
 }
 
-void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo, const GrContextOptions& contextOptions, GrShaderCaps* shaderCaps) {
+void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
+                                                 const GrContextOptions& contextOptions,
+                                                 GrShaderCaps* shaderCaps) {
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {
@@ -2509,7 +2538,10 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
             }
             break;
         case kRGBA_1010102_SkColorType:
-            return false;
+            if (GR_GL_RGB10_A2 == format) {
+                *config = kRGBA_1010102_GrPixelConfig;
+            }
+            break;
         case kRGB_101010x_SkColorType:
             return false;
         case kGray_8_SkColorType:

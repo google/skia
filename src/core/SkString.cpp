@@ -369,41 +369,6 @@ void SkString::set(const char text[], size_t len) {
     }
 }
 
-void SkString::setUTF16(const uint16_t src[]) {
-    int count = 0;
-
-    while (src[count]) {
-        count += 1;
-    }
-    this->setUTF16(src, count);
-}
-
-void SkString::setUTF16(const uint16_t src[], size_t count) {
-    count = trim_size_t_to_u32(count);
-
-    if (0 == count) {
-        this->reset();
-    } else if (count <= fRec->fLength) {
-        // should we resize if len <<<< fLength, to save RAM? (e.g. len < (fLength>>1))
-        if (count < fRec->fLength) {
-            this->resize(count);
-        }
-        char* p = this->writable_str();
-        for (size_t i = 0; i < count; i++) {
-            p[i] = SkToU8(src[i]);
-        }
-        p[count] = 0;
-    } else {
-        SkString tmp(count); // puts a null terminator at the end of the string
-        char*    p = tmp.writable_str();
-
-        for (size_t i = 0; i < count; i++) {
-            p[i] = SkToU8(src[i]);
-        }
-        this->swap(tmp);
-    }
-}
-
 void SkString::insert(size_t offset, const char text[]) {
     this->insert(offset, text, text ? strlen(text) : 0);
 }

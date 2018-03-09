@@ -36,6 +36,7 @@ class GrRenderTargetContext;
 class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
+class GrRestrictedAtlasManager;
 class GrSamplerState;
 class GrSurfaceProxy;
 class GrSwizzle;
@@ -127,7 +128,7 @@ public:
      * The typical use case for this function is that the underlying 3D context was lost and further
      * API calls may crash.
      */
-    void abandonContext();
+    virtual void abandonContext();
 
     /**
      * This is similar to abandonContext() however the underlying 3D context is not yet lost and
@@ -138,7 +139,7 @@ public:
      * but can't guarantee that GrContext will be destroyed first (perhaps because it may be ref'ed
      * elsewhere by either the client or Skia objects).
      */
-    void releaseResourcesAndAbandonContext();
+    virtual void releaseResourcesAndAbandonContext();
 
     ///////////////////////////////////////////////////////////////////////////
     // Resource Cache
@@ -183,7 +184,7 @@ public:
      * Frees GPU created by the context. Can be called to reduce GPU memory
      * pressure.
      */
-    void freeGpuResources();
+    virtual void freeGpuResources();
 
     /**
      * Purge all the unlocked resources from the cache.
@@ -355,20 +356,26 @@ public:
     const GrContextPriv contextPriv() const;
 
 protected:
-    GrContext(GrContextThreadSafeProxy*);
-    GrContext(GrBackend);
+    GrContext(GrBackend, int32_t id = SK_InvalidGenID);
+
+    bool initCommon(const GrContextOptions&);
+    virtual bool init(const GrContextOptions&) = 0; // must be called after the ctor!
+
+    virtual GrAtlasManager* onGetFullAtlasManager() = 0;
+    virtual GrRestrictedAtlasManager* onGetRestrictedAtlasManager() = 0;
+
+    const GrBackend                         fBackend;
+    sk_sp<const GrCaps>                     fCaps;
+    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
 private:
     sk_sp<GrGpu>                            fGpu;
-    sk_sp<const GrCaps>                     fCaps;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
     GrProxyProvider*                        fProxyProvider;
 
-    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
     GrGlyphCache*                           fGlyphCache;
-    GrAtlasManager*                         fFullAtlasManager;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDisableGpuYUVConversion;
@@ -397,14 +404,10 @@ private:
 
     GrAuditTrail                            fAuditTrail;
 
-    const GrBackend                         fBackend;
-
     GrContextOptions::PersistentCache*      fPersistentCache;
 
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
-
-    bool init(const GrContextOptions&); // init must be called after either constructor.
 
     /**
      * These functions create premul <-> unpremul effects. If the second argument is 'true', they
@@ -491,9 +494,9 @@ private:
     const GrBackend        fBackend;
     const GrContextOptions fOptions;
 
-    friend class GrContext;
-    friend class GrContextPriv;
-    friend class SkImage;
+    friend class GrDirectContext; // To construct this object
+    friend class GrContextPriv;   // for access to 'fOptions' in MakeDDL
+    friend class GrDDLContext;    // to implement the GrDDLContext ctor (access to all members)
 
     typedef SkRefCnt INHERITED;
 };

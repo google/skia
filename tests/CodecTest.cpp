@@ -1566,3 +1566,38 @@ DEF_TEST(Codec_ossfuzz6274, r) {
         }
     }
 }
+
+DEF_TEST(Codec_crbug807324, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* file = "images/crbug807324.png";
+    auto image = GetResourceAsImage(file);
+    if (!image) {
+        ERRORF(r, "Missing %s", file);
+        return;
+    }
+
+    const int kWidth = image->width();
+    const int kHeight = image->height();
+
+    SkBitmap bm;
+    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(kWidth, kHeight))) {
+        ERRORF(r, "Could not allocate pixels (%i x %i)", kWidth, kHeight);
+        return;
+    }
+
+    bm.eraseColor(SK_ColorTRANSPARENT);
+
+    SkCanvas canvas(bm);
+    canvas.drawImage(image, 0, 0, nullptr);
+
+    for (int i = 0; i < kWidth;  ++i)
+    for (int j = 0; j < kHeight; ++j) {
+        if (*bm.getAddr32(i, j) == SK_ColorTRANSPARENT) {
+            ERRORF(r, "image should not be transparent! %i, %i is 0", i, j);
+            return;
+        }
+    }
+}

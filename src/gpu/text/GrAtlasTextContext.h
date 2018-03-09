@@ -61,14 +61,14 @@ private:
     class FallbackTextHelper {
     public:
         FallbackTextHelper(const SkMatrix& viewMatrix,
-                           SkScalar textSize,
-                           SkScalar maxTextSize,
+                           const SkPaint& pathPaint,
+                           const GrGlyphCache* glyphCache,
                            SkScalar textRatio)
             : fViewMatrix(viewMatrix)
+            , fTextSize(pathPaint.getTextSize())
+            , fMaxTextSize(glyphCache->getGlyphSizeLimit())
             , fTextRatio(textRatio)
-            , fTextSize(textSize)
-            , fMaxTextSize(maxTextSize)
-            , fScaledFallbackTextSize(maxTextSize)
+            , fScaledFallbackTextSize(fMaxTextSize)
             , fUseScaledFallback(false) {
             fMaxScale = viewMatrix.getMaxScale();
         }
@@ -82,9 +82,9 @@ private:
         SkTDArray<SkPoint> fFallbackPos;
 
         const SkMatrix& fViewMatrix;
-        SkScalar fTextRatio;
         SkScalar fTextSize;
         SkScalar fMaxTextSize;
+        SkScalar fTextRatio;
         SkScalar fScaledFallbackTextSize;
         SkScalar fMaxScale;
         bool fUseScaledFallback;
@@ -174,11 +174,11 @@ private:
                                 const SkMatrix& viewMatrix) const;
 
     static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
-                               GrAtlasTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
+                               sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
                                GrColor color, SkGlyphCache*, SkScalar textRatio);
 
     static void DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
-                              GrAtlasTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
+                              sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
                               GrColor color, SkGlyphCache* cache, SkScalar textRatio);
 
     const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable.get(); }

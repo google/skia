@@ -29,12 +29,7 @@ class HardwarePixel(HardwareAndroid):
     if not self._adb.is_root():
       return self
 
-    self._adb.shell('\n'.join(['''\
-      stop thermal-engine
-      stop thermald
-      stop perfd
-      stop mpdecision''',
-
+    self._adb.shell('\n'.join([
       # enable and lock the two fast cores.
       '''
       for N in 3 2; do

@@ -4,12 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkAnnotation.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColor.h"
 #include "SkData.h"
 #include "SkDocument.h"
+#include "SkPoint.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
 #include "SkStream.h"
+#include "SkTypes.h"
 #include "Test.h"
+
+#include <string.h>
+#include <memory>
 
 /** Returns true if data (may contain null characters) contains needle (null
  *  terminated). */

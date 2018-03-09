@@ -20,7 +20,7 @@ if (skia_use_system_libpng) {
       "../externals/libpng",
     ]
 
-    defines = []
+    defines = [ "PNG_SET_OPTION_SUPPORTED" ]
     deps = [
       "//third_party/zlib",
     ]
