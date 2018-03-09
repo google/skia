@@ -391,7 +391,7 @@ static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,
 #endif
         case kMock_GrBackend: {
             const GrMockTextureInfo* mockInfo = (const GrMockTextureInfo*)(handle);
-            return GrBackendTexture(width, height, config, *mockInfo);
+            return GrBackendTexture(width, height, GrMipMapped::kNo, *mockInfo);
         }
         default:
             return GrBackendTexture();
