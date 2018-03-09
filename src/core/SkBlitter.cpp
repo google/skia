@@ -113,7 +113,12 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
             SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
             SkSTArenaAlloc<SkCoverageDeltaMask::MAX_SIZE> alloc;
             SkCoverageDeltaMask mask(&alloc, rowIR);
-            for(int i = 0; i < deltas->count(y); ++i) {
+
+            int i = 0;
+            // skip deltas with x less than clip.fLeft; they must be precision errors
+            for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i)
+                ;
+            for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
                 const SkCoverageDelta& delta = deltas->getDelta(y, i);
                 mask.addDelta(delta.fX, y, delta.fDelta);
             }
@@ -130,7 +135,8 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
         SkFixed coverage = 0;       // init coverage to 0
 
         // skip deltas with x less than clip.fLeft; they must be precision errors
-        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i);
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i)
+            ;
         for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
             const SkCoverageDelta& delta = deltas->getDelta(y, i);
             SkASSERT(delta.fX >= lastX);    // delta must be x sorted
