@@ -64,22 +64,138 @@ SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getC
 
 class SK_API GrDirectContext : public GrContext {
 public:
-    GrDirectContext(GrBackend backend) : INHERITED(backend) { }
+    GrDirectContext(GrBackend backend)
+            : INHERITED(backend)
+            , fFullAtlasManager(nullptr) {
+    }
+
+    ~GrDirectContext() override {
+        // this if-test protects against the case where the context is being destroyed
+        // before having been fully created
+        if (this->contextPriv().getGpu()) {
+            this->flush();
+        }
+
+        delete fFullAtlasManager;
+    }
+
+    void abandonContext() override {
+        INHERITED::abandonContext();
+        fFullAtlasManager->freeAll();
+    }
+
+    void releaseResourcesAndAbandonContext() override {
+        INHERITED::releaseResourcesAndAbandonContext();
+        fFullAtlasManager->freeAll();
+    }
+
+    void freeGpuResources() override {
+        this->flush();
+        fFullAtlasManager->freeAll();
+
+        INHERITED::freeGpuResources();
+    }
 
 protected:
+    bool init(const GrContextOptions& options) override {
+        SkASSERT(fCaps);  // should've been set in ctor
+        SkASSERT(!fThreadSafeProxy);
+
+        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(),
+                                                            fBackend, options));
+
+        if (!INHERITED::initCommon(options)) {
+            return false;
+        }
+
+        GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
+        if (GrContextOptions::Enable::kNo == options.fAllowMultipleGlyphCacheTextures ||
+            // multitexturing supported only if range can represent the index + texcoords fully
+            !(fCaps->shaderCaps()->floatIs32Bits() || fCaps->shaderCaps()->integerSupport())) {
+            allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
+        } else {
+            allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
+        }
+
+        GrGlyphCache* glyphCache = this->contextPriv().getGlyphCache();
+        GrProxyProvider* proxyProvider = this->contextPriv().proxyProvider();
+
+        fFullAtlasManager = new GrAtlasManager(proxyProvider, glyphCache,
+                                               options.fGlyphCacheTextureMaximumBytes,
+                                               allowMultitexturing);
+        this->contextPriv().addOnFlushCallbackObject(fFullAtlasManager);
+
+        glyphCache->setGlyphSizeLimit(fFullAtlasManager->getGlyphSizeLimit());
+        return true;
+    }
+
+    GrRestrictedAtlasManager* onGetRestrictedAtlasManager() override { return fFullAtlasManager; }
+    GrAtlasManager* onGetFullAtlasManager() override { return fFullAtlasManager; }
 
 private:
+    GrAtlasManager* fFullAtlasManager;
+
     typedef GrContext INHERITED;
 };
 
+/**
+ * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
+ * cannot allocate any GPU resources.
+ */
 class SK_API GrDDLContext : public GrContext {
 public:
-    GrDDLContext(GrContextThreadSafeProxy* proxy) : INHERITED(proxy) {}
+    GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
+            : INHERITED(proxy->fBackend, proxy->fContextUniqueID)
+            , fRestrictedAtlasManager(nullptr) {
+        fCaps = proxy->fCaps;
+        fThreadSafeProxy = std::move(proxy);
+    }
+
+    ~GrDDLContext() override {
+        // The GrDDLContext doesn't actually own the fRestrictedAtlasManager so don't delete it
+    }
+
+    void abandonContext() override {
+        SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
+        INHERITED::abandonContext();
+    }
+
+    void releaseResourcesAndAbandonContext() override {
+        SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
+        INHERITED::releaseResourcesAndAbandonContext();
+    }
+
+    void freeGpuResources() override {
+        SkASSERT(0); // freeing resources in a DDL Recorder doesn't make a whole lot of sense
+        INHERITED::freeGpuResources();
+    }
 
 protected:
-    // DDL TODO: grab a GrRestrictedAtlasManager from the proxy
+    bool init(const GrContextOptions& options) override {
+        SkASSERT(fCaps);  // should've been set in ctor
+        SkASSERT(fThreadSafeProxy); // should've been set in the ctor
+
+        if (!INHERITED::initCommon(options)) {
+            return false;
+        }
+
+        // DDL TODO: in DDL-mode grab a GrRestrictedAtlasManager from the thread-proxy and
+        // do not add an onFlushCB
+        return true;
+    }
+
+    GrRestrictedAtlasManager* onGetRestrictedAtlasManager() override {
+        return fRestrictedAtlasManager;
+    }
+
+    GrAtlasManager* onGetFullAtlasManager() override {
+        SkASSERT(0);   // the DDL Recorders should never invoke this
+        return nullptr;
+    }
 
 private:
+    GrRestrictedAtlasManager* fRestrictedAtlasManager;
+
     typedef GrContext INHERITED;
 };
 
@@ -98,6 +214,7 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
         return nullptr;
     }
 
+    context->fCaps = context->fGpu->refCaps();
     if (!context->init(options)) {
         return nullptr;
     }
@@ -118,6 +235,8 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
     if (!context->fGpu) {
         return nullptr;
     }
+
+    context->fCaps = context->fGpu->refCaps();
     if (!context->init(options)) {
         return nullptr;
     }
@@ -146,6 +265,8 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
     if (!context->fGpu) {
         return nullptr;
     }
+
+    context->fCaps = context->fGpu->refCaps();
     if (!context->init(options)) {
         return nullptr;
     }
@@ -166,6 +287,8 @@ sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendCo
     if (!context->fGpu) {
         return nullptr;
     }
+
+    context->fCaps = context->fGpu->refCaps();
     if (!context->init(options)) {
         return nullptr;
     }
@@ -180,7 +303,7 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
 }
 
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrContext(kMetal_GrBackend));
+    sk_sp<GrContext> context(new GrDirectContext(kMetal_GrBackend));
 
     context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
     if (!context->fGpu) {
@@ -202,7 +325,7 @@ static int32_t next_id() {
     return id;
 }
 
-sk_sp<GrContext> GrContextPriv::MakeDDL(GrContextThreadSafeProxy* proxy) {
+sk_sp<GrContext> GrContextPriv::MakeDDL(sk_sp<GrContextThreadSafeProxy> proxy) {
     sk_sp<GrContext> context(new GrDDLContext(proxy));
 
     // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
@@ -213,29 +336,19 @@ sk_sp<GrContext> GrContextPriv::MakeDDL(GrContextThreadSafeProxy* proxy) {
     return context;
 }
 
-GrContext::GrContext(GrBackend backend)
-        : fUniqueID(next_id())
-        , fBackend(backend) {
+GrContext::GrContext(GrBackend backend, int32_t id)
+        : fBackend(backend)
+        , fUniqueID(SK_InvalidGenID == id ? next_id() : id) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
     fGlyphCache = nullptr;
-    fFullAtlasManager = nullptr;
 }
 
-GrContext::GrContext(GrContextThreadSafeProxy* proxy)
-        : fCaps(proxy->fCaps)
-        , fUniqueID(proxy->fContextUniqueID)
-        , fBackend(proxy->fBackend) {
-    fResourceCache = nullptr;
-    fResourceProvider = nullptr;
-    fProxyProvider = nullptr;
-    fGlyphCache = nullptr;
-    fFullAtlasManager = nullptr;
-}
-
-bool GrContext::init(const GrContextOptions& options) {
+bool GrContext::initCommon(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
+    SkASSERT(fCaps);  // needs to have been initialized by derived classes
+    SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
 
     if (fGpu) {
         fCaps = fGpu->refCaps();
@@ -249,11 +362,6 @@ bool GrContext::init(const GrContextOptions& options) {
     if (fResourceCache) {
         fResourceCache->setProxyProvider(fProxyProvider);
     }
-
-    // DDL TODO: we need to think through how the task group & persistent cache
-    // get passed on to/shared between all the DDLRecorders created with this context.
-    fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(), fBackend,
-                                                        options));
 
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
     fSharpenMipmappedTextures = options.fSharpenMipmappedTextures;
@@ -288,29 +396,13 @@ bool GrContext::init(const GrContextOptions& options) {
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, atlasTextContextOptions,
                                                &fSingleOwner, options.fSortRenderTargets));
 
-    GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
-    if (GrContextOptions::Enable::kNo == options.fAllowMultipleGlyphCacheTextures ||
-        // multitexturing supported only if range can represent the index + texcoords fully
-        !(fCaps->shaderCaps()->floatIs32Bits() || fCaps->shaderCaps()->integerSupport())) {
-        allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
-    } else {
-        allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
-    }
-
     fGlyphCache = new GrGlyphCache;
-
-    // DDL TODO: in DDL-mode grab a GrRestrictedAtlasManager from the thread-proxy and
-    // do not add an onFlushCB
-    fFullAtlasManager = new GrAtlasManager(fProxyProvider, fGlyphCache,
-                                           options.fGlyphCacheTextureMaximumBytes,
-                                           allowMultitexturing);
-    this->contextPriv().addOnFlushCallbackObject(fFullAtlasManager);
-
-    fGlyphCache->setGlyphSizeLimit(fFullAtlasManager->getGlyphSizeLimit());
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
                                              this, this->uniqueID(), SkToBool(fGpu)));
 
+    // DDL TODO: we need to think through how the task group & persistent cache
+    // get passed on to/shared between all the DDLRecorders created with this context.
     if (options.fExecutor) {
         fTaskGroup = skstd::make_unique<SkTaskGroup>(*options.fExecutor);
     }
@@ -322,10 +414,6 @@ bool GrContext::init(const GrContextOptions& options) {
 
 GrContext::~GrContext() {
     ASSERT_SINGLE_OWNER
-
-    if (fGpu) {
-        this->flush();
-    }
 
     if (fDrawingManager) {
         fDrawingManager->cleanup();
@@ -339,7 +427,6 @@ GrContext::~GrContext() {
     delete fResourceCache;
     delete fProxyProvider;
     delete fGlyphCache;
-    delete fFullAtlasManager;
 }
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
@@ -399,7 +486,6 @@ void GrContext::abandonContext() {
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
 
     fGlyphCache->freeAll();
-    fFullAtlasManager->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -419,7 +505,6 @@ void GrContext::releaseResourcesAndAbandonContext() {
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
 
     fGlyphCache->freeAll();
-    fFullAtlasManager->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -431,10 +516,7 @@ void GrContext::resetContext(uint32_t state) {
 void GrContext::freeGpuResources() {
     ASSERT_SINGLE_OWNER
 
-    this->flush();
-
     fGlyphCache->freeAll();
-    fFullAtlasManager->freeAll();
 
     fDrawingManager->freeGpuResources();
 
@@ -548,6 +630,7 @@ static bool valid_premul_config(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:          return true;
         case kSRGBA_8888_GrPixelConfig:         return true;
         case kSBGRA_8888_GrPixelConfig:         return true;
+        case kRGBA_1010102_GrPixelConfig:       return true;
         case kRGBA_float_GrPixelConfig:         return true;
         case kRG_float_GrPixelConfig:           return false;
         case kAlpha_half_GrPixelConfig:         return false;
@@ -564,17 +647,18 @@ static bool valid_premul_config(GrPixelConfig config) {
 
 static bool valid_premul_color_type(GrColorType ct) {
     switch (ct) {
-        case GrColorType::kUnknown:     return false;
-        case GrColorType::kAlpha_8:     return false;
-        case GrColorType::kRGB_565:     return false;
-        case GrColorType::kABGR_4444:   return true;
-        case GrColorType::kRGBA_8888:   return true;
-        case GrColorType::kBGRA_8888:   return true;
-        case GrColorType::kGray_8:      return false;
-        case GrColorType::kAlpha_F16:   return false;
-        case GrColorType::kRGBA_F16:    return true;
-        case GrColorType::kRG_F32:      return false;
-        case GrColorType::kRGBA_F32:    return true;
+        case GrColorType::kUnknown:      return false;
+        case GrColorType::kAlpha_8:      return false;
+        case GrColorType::kRGB_565:      return false;
+        case GrColorType::kABGR_4444:    return true;
+        case GrColorType::kRGBA_8888:    return true;
+        case GrColorType::kBGRA_8888:    return true;
+        case GrColorType::kRGBA_1010102: return true;
+        case GrColorType::kGray_8:       return false;
+        case GrColorType::kAlpha_F16:    return false;
+        case GrColorType::kRGBA_F16:     return true;
+        case GrColorType::kRG_F32:       return false;
+        case GrColorType::kRGBA_F32:     return true;
     }
     SK_ABORT("Invalid GrColorType");
     return false;
@@ -1239,6 +1323,7 @@ static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
+        case kRGBA_1010102_GrPixelConfig:
             return kRGBA_8888_GrPixelConfig;
         case kSBGRA_8888_GrPixelConfig:
             return kSRGBA_8888_GrPixelConfig;

@@ -259,7 +259,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         SkDEBUGCODE(dfPerspective = fGeoData[0].fViewMatrix.hasPerspective());
     } else {
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-            this->color(), proxies, GrSamplerState::ClampNearest(), maskFormat,
+            this->color(), proxies, atlasPageCount, GrSamplerState::ClampNearest(), maskFormat,
             localMatrix, this->usesLocalCoords());
     }
 
@@ -343,14 +343,14 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewProxies(
-                    proxies, GrSamplerState::ClampBilerp());
+                    proxies, numProxies, GrSamplerState::ClampBilerp());
             } else {
                 reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewProxies(
-                    proxies, GrSamplerState::ClampBilerp());
+                    proxies, numProxies, GrSamplerState::ClampBilerp());
             }
         } else {
             reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
-                proxies, GrSamplerState::ClampNearest());
+                proxies, numProxies, GrSamplerState::ClampNearest());
         }
     }
 
@@ -443,8 +443,8 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(
                                         GrRestrictedAtlasManager* restrictedAtlasManager) const {
     unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* p = restrictedAtlasManager->getProxies(this->maskFormat(),
-                                                                        &numProxies);
+    const sk_sp<GrTextureProxy>* proxies = restrictedAtlasManager->getProxies(this->maskFormat(),
+                                                                              &numProxies);
     bool isLCD = this->isLCD();
 
     SkMatrix localMatrix = SkMatrix::I();
@@ -468,7 +468,8 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
-        return GrDistanceFieldLCDTextGeoProc::Make(p, GrSamplerState::ClampBilerp(), widthAdjust,
+        return GrDistanceFieldLCDTextGeoProc::Make(proxies, numProxies,
+                                                   GrSamplerState::ClampBilerp(), widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -479,10 +480,12 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(p, GrSamplerState::ClampBilerp(),
+        return GrDistanceFieldA8TextGeoProc::Make(proxies, numProxies,
+                                                  GrSamplerState::ClampBilerp(),
                                                   correction, fDFGPFlags, localMatrix);
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(p, GrSamplerState::ClampBilerp(),
+        return GrDistanceFieldA8TextGeoProc::Make(proxies, numProxies,
+                                                  GrSamplerState::ClampBilerp(),
                                                   fDFGPFlags, localMatrix);
 #endif
     }

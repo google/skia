@@ -124,6 +124,7 @@ public:
     };
     void append(StockStage, void* = nullptr);
     void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
+    void append(void* fn, void* ctx);
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
@@ -159,7 +160,7 @@ public:
 private:
     struct StageList {
         StageList* prev;
-        StockStage stage;
+        uint64_t   stage;
         void*      ctx;
     };
 

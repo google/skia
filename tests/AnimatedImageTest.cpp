@@ -5,17 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
-#include "SkAnimatedImage.h"
-#include "SkCanvas.h"
-#include "SkCodec.h"
-#include "SkUnPreMultiply.h"
-
 #include "CodecPriv.h"
 #include "Resources.h"
+#include "SkAndroidCodec.h"
+#include "SkAnimatedImage.h"
+#include "SkBitmap.h"
+#include "SkCanvas.h"
+#include "SkCodec.h"
+#include "SkColor.h"
+#include "SkData.h"
+#include "SkImageInfo.h"
+#include "SkRefCnt.h"
+#include "SkSize.h"
+#include "SkString.h"
+#include "SkTypes.h"
+#include "SkUnPreMultiply.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 
+#include <algorithm>
+#include <memory>
 #include <vector>
 
 DEF_TEST(AnimatedImage, r) {

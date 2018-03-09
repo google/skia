@@ -200,7 +200,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Ubuntu17":   "Ubuntu-17.04",
 			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-15063",
+			"Win10":      "Windows-10-16299.248",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
@@ -210,18 +210,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
-		if os == "Win10" {
-			// Transition to new Win image by model name.
-			_, ok = map[string]bool{
-				"AlphaR2":       true,
-				"NUC5i7RYH":     true,
-				"NUC6i5SYK":     true,
-				"NUCD34010WYKH": true,
-				"ShuttleC":      true,
-			}[parts["model"]]
-			if ok {
-				d["os"] = "Windows-10-16299.248"
-			}
+		if os == "Win10" && parts["model"] == "Golo" {
+			// Golo/MTV lab bots have Windows 10 version 1703, whereas Skolo bots have Windows 10 version
+			// 1709.
+			d["os"] = "Windows-10-15063"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
@@ -301,14 +293,14 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
 					"GT610":         "10de:104a-22.21.13.8205",
-					"GTX1070":       "10de:1ba1-23.21.13.8813",
-					"GTX660":        "10de:11c0-23.21.13.8813",
-					"GTX960":        "10de:1401-23.21.13.8813",
+					"GTX1070":       "10de:1ba1-23.21.13.9101",
+					"GTX660":        "10de:11c0-23.21.13.9101",
+					"GTX960":        "10de:1401-23.21.13.9101",
 					"IntelHD4400":   "8086:0a16-20.19.15.4835",
 					"IntelIris540":  "8086:1926-21.20.16.4590",
 					"IntelIris6100": "8086:162b-20.19.15.4835",
-					"RadeonHD7770":  "1002:683d-22.19.165.512",
-					"RadeonR9M470X": "1002:6646-22.19.165.512",
+					"RadeonHD7770":  "1002:683d-23.20.15017.4003",
+					"RadeonR9M470X": "1002:6646-23.20.15017.4003",
 					"QuadroP400":    "10de:1cb3-22.21.13.8205",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {

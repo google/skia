@@ -439,22 +439,25 @@ const SkJumper_Engine& SkRasterPipeline::build_pipeline(void** ip) const {
             st->stage == SkRasterPipeline::clamp_1) {
             continue;  // No-ops in lowp.
         }
-        if (StageFn* fn = gLowp.stages[st->stage]) {
-            if (st->ctx) {
-                *--ip = st->ctx;
+        if (st->stage < kNumStages) {
+            if (StageFn* fn = gLowp.stages[st->stage]) {
+                if (st->ctx) {
+                    *--ip = st->ctx;
+                }
+                *--ip = (void*)fn;
+            } else {
+                log_missing((StockStage) st->stage);
+                ip = reset_point;
+                break;
             }
-            *--ip = (void*)fn;
         } else {
-            log_missing(st->stage);
-            ip = reset_point;
-            break;
+            *--ip = (void*) st->stage;
         }
     }
     if (ip != reset_point) {
         return gLowp;
     }
 #endif
-
     gChooseEngineOnce([]{ gEngine = choose_engine(); });
     // We're building the pipeline backwards, so we start with the final stage just_return.
     *--ip = (void*)gEngine.just_return;
@@ -464,7 +467,11 @@ const SkJumper_Engine& SkRasterPipeline::build_pipeline(void** ip) const {
         if (st->ctx) {
             *--ip = st->ctx;
         }
-        *--ip = (void*)gEngine.stages[st->stage];
+        if (st->stage < kNumStages) {
+            *--ip = (void*)gEngine.stages[st->stage];
+        } else {
+            *--ip = (void*) st->stage;
+        }
     }
     return gEngine;
 }

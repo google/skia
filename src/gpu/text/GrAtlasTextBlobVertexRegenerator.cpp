@@ -232,7 +232,7 @@ Regenerator::VertexRegenerator(GrResourceProvider* resourceProvider, GrAtlasText
 template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
 Regenerator::Result Regenerator::doRegen() {
     static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
-    GrAtlasTextStrike* strike = nullptr;
+    sk_sp<GrTextStrike> strike;
     if (regenTexCoords) {
         fSubRun->resetBulkUseToken();
 
@@ -250,7 +250,7 @@ Regenerator::Result Regenerator::doRegen() {
         if (regenGlyphs) {
             strike = fGlyphCache->getStrike(fLazyCache->get());
         } else {
-            strike = fSubRun->strike();
+            strike = fSubRun->refStrike();
         }
     }
 
@@ -302,7 +302,7 @@ Regenerator::Result Regenerator::doRegen() {
     fSubRun->setColor(fColor);
     if (regenTexCoords) {
         if (regenGlyphs) {
-            fSubRun->setStrike(strike);
+            fSubRun->setStrike(std::move(strike));
         }
         fSubRun->setAtlasGeneration(fBrokenRun
                                     ? GrDrawOpAtlas::kInvalidAtlasGeneration

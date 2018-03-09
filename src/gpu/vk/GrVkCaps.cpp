@@ -19,7 +19,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     : INHERITED(contextOptions) {
     fCanUseGLSLForShaderModule = false;
     fMustDoCopiesFromOrigin = false;
-    fSupportsCopiesAsDraws = false;
+    fSupportsCopiesAsDraws = true;
     fMustSubmitCommandsBeforeCopyOp = false;
     fMustSleepOnTearDown  = false;
     fNewCBOnPipelineChange = false;
@@ -40,7 +40,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fBlacklistCoverageCounting = true; // blacklisting ccpr until we work through a few issues.
     fFenceSyncSupport = true;   // always available in Vulkan
-    fCrossContextTextureSupport = false;
+    fCrossContextTextureSupport = true;
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
@@ -85,15 +85,28 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     this->initGrCaps(properties, memoryProperties, featureFlags);
     this->initShaderCaps(properties, featureFlags);
+
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+#if defined(SK_CPU_X86)
+        // We need to do this before initing the config table since it uses fSRGBSupport
+        if (kImagination_VkVendor == properties.vendorID) {
+            fSRGBSupport = false;
+        }
+#endif
+    }
+
     this->initConfigTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
-    if (SkToBool(extensionFlags & kNV_glsl_shader_GrVkExtensionFlag)) {
-        // Currently disabling this feature since it does not play well with validation layers which
-        // expect a SPIR-V shader
-        // fCanUseGLSLForShaderModule = true;
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+        this->applyDriverCorrectnessWorkarounds(properties);
     }
 
+    this->applyOptionsOverrides(contextOptions);
+    fShaderCaps->applyOptionsOverrides(contextOptions);
+}
+
+void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
     }
@@ -102,17 +115,11 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fMustSubmitCommandsBeforeCopyOp = true;
     }
 
-    if (kQualcomm_VkVendor != properties.vendorID &&
-        kARM_VkVendor != properties.vendorID) {
-        fSupportsCopiesAsDraws = true;
-    }
-
-    if (fSupportsCopiesAsDraws) {
-        fCrossContextTextureSupport = true;
-    }
-
-    if (kARM_VkVendor == properties.vendorID) {
-        fInstanceAttribSupport = false;
+    if (kQualcomm_VkVendor == properties.vendorID ||
+        kARM_VkVendor == properties.vendorID) {
+        fSupportsCopiesAsDraws = false;
+        // We require copies as draws to support cross context textures.
+        fCrossContextTextureSupport = false;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
@@ -125,8 +132,37 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 #endif
 
-    this->applyOptionsOverrides(contextOptions);
-    fShaderCaps->applyOptionsOverrides(contextOptions);
+    // AMD seems to have issues binding new VkPipelines inside a secondary command buffer.
+    // Current workaround is to use a different secondary command buffer for each new VkPipeline.
+    if (kAMD_VkVendor == properties.vendorID) {
+        fNewCBOnPipelineChange = true;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GrCaps workarounds
+    ////////////////////////////////////////////////////////////////////////////
+
+    if (kARM_VkVendor == properties.vendorID) {
+        fInstanceAttribSupport = false;
+    }
+
+    // AMD advertises support for MAX_UINT vertex input attributes, but in reality only supports 32.
+    if (kAMD_VkVendor == properties.vendorID) {
+        fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
+    }
+
+    if (kIntel_VkVendor == properties.vendorID) {
+        fCanUseWholeSizeOnFlushMappedMemory = false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GrShaderCaps workarounds
+    ////////////////////////////////////////////////////////////////////////////
+
+    if (kImagination_VkVendor == properties.vendorID) {
+        fShaderCaps->fAtan2ImplementedAsAtanYOverX = true;
+    }
+
 }
 
 int get_max_sample_count(VkSampleCountFlags flags) {
@@ -161,10 +197,6 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     // we ever find that need.
     static const uint32_t kMaxVertexAttributes = 64;
     fMaxVertexAttributes = SkTMin(properties.limits.maxVertexInputAttributes, kMaxVertexAttributes);
-    // AMD advertises support for MAX_UINT vertex input attributes, but in reality only supports 32.
-    if (kAMD_VkVendor == properties.vendorID) {
-        fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
-    }
 
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.
@@ -183,21 +215,7 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     fOversizedStencilSupport = true;
     fSampleShadingSupport = SkToBool(featureFlags & kSampleRateShading_GrVkFeatureFlag);
 
-    // AMD seems to have issues binding new VkPipelines inside a secondary command buffer.
-    // Current workaround is to use a different secondary command buffer for each new VkPipeline.
-    if (kAMD_VkVendor == properties.vendorID) {
-        fNewCBOnPipelineChange = true;
-    }
 
-    if (kIntel_VkVendor == properties.vendorID) {
-        fCanUseWholeSizeOnFlushMappedMemory = false;
-    }
-
-#if defined(SK_CPU_X86)
-    if (kImagination_VkVendor == properties.vendorID) {
-        fSRGBSupport = false;
-    }
-#endif
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint32_t featureFlags) {
@@ -230,10 +248,6 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
         }
     }
 
-    if (kImagination_VkVendor == properties.vendorID) {
-        shaderCaps->fAtan2ImplementedAsAtanYOverX = true;
-    }
-
     // Vulkan is based off ES 3.0 so the following should all be supported
     shaderCaps->fUsesPrecisionModifiers = true;
     shaderCaps->fFlatInterpolationSupport = true;
@@ -249,12 +263,6 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
     shaderCaps->fGSInvocationsSupport = shaderCaps->fGeometryShaderSupport;
 
     shaderCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
-    if (kAMD_VkVendor == properties.vendorID) {
-        // Currently DualSourceBlending is not working on AMD. vkCreateGraphicsPipeline fails when
-        // using a draw with dual source. Looking into whether it is driver bug or issue with our
-        // SPIR-V. Bug skia:6405
-        shaderCaps->fDualSourceBlendingSupport = false;
-    }
 
     shaderCaps->fIntegerSupport = true;
     shaderCaps->fTexelBufferSupport = true;
@@ -474,7 +482,10 @@ bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config)
             }
             break;
         case kRGBA_1010102_SkColorType:
-            return false;
+            if (VK_FORMAT_A2B10G10R10_UNORM_PACK32 == format) {
+                *config = kRGBA_1010102_GrPixelConfig;
+            }
+            break;
         case kRGB_101010x_SkColorType:
             return false;
         case kGray_8_SkColorType:

@@ -18,12 +18,6 @@ class HardwareNexus6P(HardwareAndroid):
     if not self._adb.is_root():
       return self
 
-    self._adb.shell('''\
-      stop thermal-engine
-      stop thermald
-      stop perfd
-      stop mpdecision''')
-
     # enable and lock 3 of 4 big cores.
     self._adb.shell('''\
       for N in 4 5 6; do

@@ -1,0 +1,19 @@
+vector type support
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Wed Mar 7 18:04:37 2018 -0500
+#
+# On branch master
+# Your branch is ahead of 'origin/master' by 57 commits.
+#   (use "git push" to publish your local commits)
+#
+# Changes to be committed:
+#	modified:   BUILD.gn
+#	modified:   src/core/SkColorMatrixFilterRowMajor255.cpp
+#	modified:   src/core/SkCpu.cpp
+#	modified:   src/jumper/SkJumper_stages.cpp
+#	modified:   src/sksl/SkSLJIT.cpp
+#	modified:   src/sksl/SkSLJIT.h
+#

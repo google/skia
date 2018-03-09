@@ -244,7 +244,8 @@ private:
                 matrix = &SkMatrix::I();
             }
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                    *matrix, fAtlas->getProxies(), GrSamplerState::ClampBilerp(), flags);
+                    *matrix, fAtlas->getProxies(), fAtlas->numActivePages(),
+                    GrSamplerState::ClampBilerp(), flags);
         } else {
             SkMatrix invert;
             if (fHelper.usesLocalCoords()) {
@@ -255,8 +256,9 @@ private:
             }
 
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                    this->color(), fAtlas->getProxies(), GrSamplerState::ClampNearest(),
-                    kA8_GrMaskFormat, invert, fHelper.usesLocalCoords());
+                    this->color(), fAtlas->getProxies(), fAtlas->numActivePages(),
+                    GrSamplerState::ClampNearest(), kA8_GrMaskFormat, invert,
+                    fHelper.usesLocalCoords());
         }
 
         // allocate vertices
@@ -701,10 +703,10 @@ private:
             // Update the proxies used in the GP to match.
             if (fUsesDistanceField) {
                 reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->addNewProxies(
-                    fAtlas->getProxies(), GrSamplerState::ClampBilerp());
+                    fAtlas->getProxies(), fAtlas->numActivePages(), GrSamplerState::ClampBilerp());
             } else {
                 reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
-                    fAtlas->getProxies(), GrSamplerState::ClampNearest());
+                    fAtlas->getProxies(), fAtlas->numActivePages(), GrSamplerState::ClampNearest());
             }
         }
 

@@ -54,13 +54,22 @@ void draw_content(SkCanvas* canvas, BackgroundMode mode) {
         lightPos.fX = 75;
         SkScalar xPos = 75;
         for (int col = 0; col < 10; ++col) {
-            paint.setColor(kColors[10 * row + col]);
+            SkColor color = kColors[10 * row + col];
+            paint.setColor(color);
 
             canvas->save();
             canvas->translate(xPos, yPos);
+
+            SkColor baseAmbient = SkColorSetARGB(kAmbientAlpha*SkColorGetA(color),
+                                                 SkColorGetR(color), SkColorGetG(color),
+                                                 SkColorGetB(color));
+            SkColor baseSpot = SkColorSetARGB(kSpotAlpha*SkColorGetA(color),
+                                              SkColorGetR(color), SkColorGetG(color),
+                                              SkColorGetB(color));
+            SkColor tonalAmbient, tonalSpot;
+            SkShadowUtils::ComputeTonalColors(baseAmbient, baseSpot, &tonalAmbient, &tonalSpot);
             SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
-                                      lightPos, kLightWidth,
-                                      kAmbientAlpha, kSpotAlpha, paint.getColor(), 0);
+                                      lightPos, kLightWidth, tonalAmbient, tonalSpot);
             canvas->drawPath(path, paint);
             canvas->restore();
 
