@@ -240,8 +240,7 @@ void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clip
             }
         }
 
-        fPathsInfo.back().fFanTessellation.reset(vertices);
-        fPathsInfo.back().fFanTessellationCount = count;
+        fPathsInfo.back().adoptFanTessellation(vertices, count);
     }
 
     fTotalPrimitiveCounts[(int)scissorMode] += fCurrPathPrimitiveCounts;
@@ -408,14 +407,14 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
         switch (verb) {
             case GrCCGeometry::Verb::kBeginPath:
                 SkASSERT(currFan.empty());
-                currIndices = &instanceIndices[(int)nextPathInfo->fScissorMode];
-                atlasOffsetX = static_cast<float>(nextPathInfo->fAtlasOffsetX);
-                atlasOffsetY = static_cast<float>(nextPathInfo->fAtlasOffsetY);
+                currIndices = &instanceIndices[(int)nextPathInfo->scissorMode()];
+                atlasOffsetX = static_cast<float>(nextPathInfo->atlasOffsetX());
+                atlasOffsetY = static_cast<float>(nextPathInfo->atlasOffsetY());
                 atlasOffset = {atlasOffsetX, atlasOffsetY};
-                currFanIsTessellated = nextPathInfo->fFanTessellation.get();
+                currFanIsTessellated = nextPathInfo->hasFanTessellation();
                 if (currFanIsTessellated) {
-                    emit_tessellated_fan(nextPathInfo->fFanTessellation.get(),
-                                         nextPathInfo->fFanTessellationCount, atlasOffset,
+                    emit_tessellated_fan(nextPathInfo->fanTessellation(),
+                                         nextPathInfo->fanTessellationCount(), atlasOffset,
                                          triPointInstanceData, quadPointInstanceData, currIndices);
                 }
                 ++nextPathInfo;

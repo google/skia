@@ -76,14 +76,37 @@ private:
     using PrimitiveTallies = GrCCGeometry::PrimitiveTallies;
 
     // Every kBeginPath verb has a corresponding PathInfo entry.
-    struct PathInfo {
+    class PathInfo {
+    public:
         PathInfo(ScissorMode scissorMode, int16_t offsetX, int16_t offsetY)
                 : fScissorMode(scissorMode), fAtlasOffsetX(offsetX), fAtlasOffsetY(offsetY) {}
 
+        ScissorMode scissorMode() const { return fScissorMode; }
+        int16_t atlasOffsetX() const { return fAtlasOffsetX; }
+        int16_t atlasOffsetY() const { return fAtlasOffsetY; }
+
+        // An empty tessellation fan is also valid; we use negative count to denote not tessellated.
+        bool hasFanTessellation() const { return fFanTessellationCount >= 0; }
+        int fanTessellationCount() const {
+            SkASSERT(this->hasFanTessellation());
+            return fFanTessellationCount;
+        }
+        const GrTessellator::WindingVertex* fanTessellation() const {
+            SkASSERT(this->hasFanTessellation());
+            return fFanTessellation.get();
+        }
+
+        void adoptFanTessellation(const GrTessellator::WindingVertex* vertices, int count) {
+            SkASSERT(count >= 0);
+            fFanTessellation.reset(vertices);
+            fFanTessellationCount = count;
+        }
+
+    private:
         ScissorMode fScissorMode;
         int16_t fAtlasOffsetX, fAtlasOffsetY;
-        std::unique_ptr<GrTessellator::WindingVertex[]> fFanTessellation;
-        int fFanTessellationCount = 0;
+        int fFanTessellationCount = -1;
+        std::unique_ptr<const GrTessellator::WindingVertex[]> fFanTessellation;
     };
 
     // Defines a batch of CCPR primitives. Start indices are deduced by looking at the previous
