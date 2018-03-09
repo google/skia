@@ -522,10 +522,6 @@ SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
     return FindOrCreateStrikeExclusive(*desc, effects, *tf);
 }
 
-void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
-    SkGlyphCache_Globals::AttachCache(cache);
-}
-
 void SkGlyphCache::ForEachStrike(std::function<void(const SkGlyphCache&)> visitor) {
     SkGlyphCache_Globals& globals = get_globals();
     SkAutoExclusive ac(globals.fLock);
@@ -797,12 +793,5 @@ int SkGraphics::SetFontCachePointSizeLimit(int limit) {
 void SkGraphics::PurgeFontCache() {
     get_globals().purgeAll();
     SkTypefaceCache::PurgeAll();
-}
-
-SkGlyphCache* SkGlyphCache::DetachCache(
-    SkTypeface* typeface, const SkScalerContextEffects& effects, const SkDescriptor* desc)
-{
-    auto cache = FindOrCreateStrikeExclusive(*desc, effects, *typeface);
-    return cache.release();
 }
 
