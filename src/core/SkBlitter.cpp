@@ -320,27 +320,17 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 /////////////////////// these guys are not virtual, just a helpers
 
 void SkBlitter::blitMaskRegion(const SkMask& mask, const SkRegion& clip) {
-    if (clip.quickReject(mask.fBounds)) {
-        return;
-    }
-
-    SkRegion::Cliperator clipper(clip, mask.fBounds);
-
-    while (!clipper.done()) {
-        const SkIRect& cr = clipper.rect();
-        this->blitMask(mask, cr);
-        clipper.next();
-    }
+    SkRegionPriv::VisitSpans(clip, mask.fBounds, [this, mask](const SkIRect& r) {
+        SkASSERT(mask.fBounds.contains(r));
+        this->blitMask(mask, r);
+    });
 }
 
 void SkBlitter::blitRectRegion(const SkIRect& rect, const SkRegion& clip) {
-    SkRegion::Cliperator clipper(clip, rect);
-
-    while (!clipper.done()) {
-        const SkIRect& cr = clipper.rect();
-        this->blitRect(cr.fLeft, cr.fTop, cr.width(), cr.height());
-        clipper.next();
-    }
+    SkRegionPriv::VisitSpans(clip, rect, [this, rect](const SkIRect& r) {
+        SkASSERT(rect.contains(r));
+        this->blitRect(r.left(), r.top(), r.width(), r.height());
+    });
 }
 
 void SkBlitter::blitRegion(const SkRegion& clip) {
@@ -594,18 +584,11 @@ void SkRgnClipBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
 }
 
 void SkRgnClipBlitter::blitRect(int x, int y, int width, int height) {
-    SkIRect    bounds;
-    bounds.set(x, y, x + width, y + height);
-
-    SkRegion::Cliperator    iter(*fRgn, bounds);
-
-    while (!iter.done()) {
-        const SkIRect& r = iter.rect();
+    const SkIRect bounds = { x, y, x + width, y + height };
+    SkRegionPriv::VisitSpans(*fRgn, bounds, [this, bounds](const SkIRect& r) {
         SkASSERT(bounds.contains(r));
-
-        fBlitter->blitRect(r.fLeft, r.fTop, r.width(), r.height());
-        iter.next();
-    }
+        fBlitter->blitRect(r.left(), r.top(), r.width(), r.height());
+    });
 }
 
 void SkRgnClipBlitter::blitAntiRect(int x, int y, int width, int height,
