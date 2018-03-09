@@ -297,8 +297,6 @@ private:
 
 class SkAutoGlyphCache : public SkExclusiveStrikePtr {
 public:
-    /** deprecated: use get() */
-    SkGlyphCache* getCache() const { return this->get(); }
     SkAutoGlyphCache() = default;
     SkAutoGlyphCache(SkGlyphCache* cache) : INHERITED(cache) {}
     SkAutoGlyphCache(SkTypeface* typeface, const SkScalerContextEffects& effects,
