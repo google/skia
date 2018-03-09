@@ -106,18 +106,11 @@ GrBackendTexture::GrBackendTexture(int width,
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   GrPixelConfig config,
-                                   const GrMockTextureInfo& mockInfo)
-        : GrBackendTexture(width, height, config, GrMipMapped::kNo, mockInfo) {}
-
-GrBackendTexture::GrBackendTexture(int width,
-                                   int height,
-                                   GrPixelConfig config,
                                    GrMipMapped mipMapped,
                                    const GrMockTextureInfo& mockInfo)
         : fWidth(width)
         , fHeight(height)
-        , fConfig(config)
+        , fConfig(mockInfo.fConfig)
         , fMipMapped(mipMapped)
         , fBackend(kMock_GrBackend)
         , fMockInfo(mockInfo) {}
@@ -198,6 +191,18 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
 
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             int stencilBits,
+                                             const GrMockRenderTargetInfo& mockInfo)
+        : fWidth(width)
+        , fHeight(height)
+        , fSampleCnt(SkTMax(1, sampleCnt))
+        , fStencilBits(stencilBits)
+        , fConfig(mockInfo.fConfig)
+        , fMockInfo(mockInfo) {}
+
 #ifdef SK_VULKAN
 const GrVkImageInfo* GrBackendRenderTarget::getVkImageInfo() const {
     if (kVulkan_GrBackend == fBackend) {
@@ -214,3 +219,9 @@ const GrGLFramebufferInfo* GrBackendRenderTarget::getGLFramebufferInfo() const {
     return nullptr;
 }
 
+const GrMockRenderTargetInfo* GrBackendRenderTarget::getMockRenderTargetInfo() const {
+    if (kMock_GrBackend == fBackend) {
+        return &fMockInfo;
+    }
+    return nullptr;
+}
