@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1e9e51a2_139a6ef6",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T16:14:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "592f4683_5155b7c6",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e5b0492e_470a6fdd",
         "filename": "include/core/SkDeferredDisplayListRecorder.h",
         "patchSetId": 7
@@ -33,6 +51,24 @@
       "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b43f6abf_e733fb7f",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T16:14:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5b0492e_470a6fdd",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "b5e150f6_21fee57c",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T16:14:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f010ded9_9c6b07dc",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa3d7bab_9965356f",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 7
@@ -67,6 +121,24 @@
       "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa3b4855_7b15e6c0",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T16:14:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa3d7bab_9965356f",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "ec603bcf_aefd9579",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T16:14:18Z",
+      "side": 1,
+      "message": "Since the info is only used for the Validation the width and height really didn\u0027t matter, but yeah might as well but the real ones in as it doesn\u0027t hurt anything.",
+      "parentUuid": "894d7e17_cdab67a6",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c3168f8_5e3c25da",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 7
@@ -98,6 +188,24 @@
       "writtenOn": "2018-03-08T21:53:25Z",
       "side": 1,
       "message": "promiseHelper.dropReleaseHelper() ?",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4828610_3d435bf5",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T16:14:18Z",
+      "side": 1,
+      "message": "Refactored this code up into PromiseHelper.",
+      "parentUuid": "3c3168f8_5e3c25da",
       "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "2a1a63af_62dc17ab",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T16:14:18Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "5a887b77_b6133760",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6e7a78fe_4bb68213",
         "filename": "src/image/SkImage_Gpu.h",
         "patchSetId": 7
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "34d8b817_62d1d420",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T16:14:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e7a78fe_4bb68213",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8a143b4_7b21da00",
         "filename": "src/image/SkImage_Gpu.h",
         "patchSetId": 7
@@ -152,6 +296,24 @@
       "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1443cdd_f9cadc86",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T16:14:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8a143b4_7b21da00",
+      "revId": "5461d3543bfeff9e9ae8d9f4aadcc6aca3d213ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
