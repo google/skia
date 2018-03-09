@@ -47,7 +47,7 @@ private:
     void onDelayedSetup() override {
         SkPaint defaultPaint;
         SkAutoGlyphCache agc(defaultPaint, nullptr, &SkMatrix::I());
-        SkGlyphCache* cache = agc.getCache();
+        SkGlyphCache* cache = agc.get();
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkGlyphID id = cache->unicharToGlyph(kGlyphs[i]);
             cache->getScalerContext()->getPath(SkPackedGlyphID(id), &fGlyphs[i]);
