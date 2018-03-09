@@ -16,6 +16,24 @@
       "revId": "b537879c7214efd87840c9a7267ab3b3facda873",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da7eb056_fb75dea6",
+        "filename": "fuzz/FuzzCommon.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-09T15:56:54Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "a423e6cf_3cb5ab06",
+      "revId": "b537879c7214efd87840c9a7267ab3b3facda873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
