@@ -24,6 +24,7 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTextureContext.h"
+#include "GrTextureStripAtlas.h"
 #include "GrTracing.h"
 #include "SkConvertPixels.h"
 #include "SkDeferredDisplayList.h"
@@ -90,6 +91,8 @@ bool GrContext::initCommon(const GrContextOptions& options) {
         fResourceCache->setProxyProvider(fProxyProvider);
     }
 
+    fTextureStripAtlasManager.reset(new GrTextureStripAtlasManager);
+
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
     fSharpenMipmappedTextures = options.fSharpenMipmappedTextures;
     fDidTestPMConversions = false;
@@ -146,10 +149,7 @@ GrContext::~GrContext() {
         fDrawingManager->cleanup();
     }
 
-    for (int i = 0; i < fCleanUpData.count(); ++i) {
-        (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
-    }
-
+    fTextureStripAtlasManager = nullptr;
     delete fResourceProvider;
     delete fResourceCache;
     delete fProxyProvider;
@@ -199,6 +199,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 
+    fTextureStripAtlasManager->abandon();
     fProxyProvider->abandon();
     fResourceProvider->abandon();
 
@@ -219,6 +220,7 @@ void GrContext::abandonContext() {
 void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
+    fTextureStripAtlasManager->abandon();
     fProxyProvider->abandon();
     fResourceProvider->abandon();
 

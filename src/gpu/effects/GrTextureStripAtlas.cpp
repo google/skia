@@ -20,59 +20,50 @@
     #define VALIDATE
 #endif
 
-class GrTextureStripAtlas::Hash : public SkTDynamicHash<GrTextureStripAtlas::AtlasEntry,
-                                                        GrTextureStripAtlas::Desc> {};
-
-int32_t GrTextureStripAtlas::gCacheCount = 0;
-
-// DDL TODO: The texture strip atlas can't have this global!
-GrTextureStripAtlas::Hash* GrTextureStripAtlas::gAtlasCache = nullptr;
-
-GrTextureStripAtlas::Hash* GrTextureStripAtlas::GetCache() {
-
-    if (nullptr == gAtlasCache) {
-        gAtlasCache = new Hash;
-    }
-
-    return gAtlasCache;
+////////////////////////////////////////////////////////////////////////////////
+GrTextureStripAtlasManager::~GrTextureStripAtlasManager() {
+    this->deleteAllAtlases();
 }
 
-// Remove the specified atlas from the cache
-void GrTextureStripAtlas::CleanUp(const GrContext*, void* info) {
-    SkASSERT(info);
-
-    AtlasEntry* entry = static_cast<AtlasEntry*>(info);
-
-    // remove the cache entry
-    GetCache()->remove(entry->fDesc);
-
-    // remove the actual entry
-    delete entry;
-
-    if (0 == GetCache()->count()) {
-        delete gAtlasCache;
-        gAtlasCache = nullptr;
+void GrTextureStripAtlasManager::deleteAllAtlases() {
+    AtlasHash::Iter iter(&fAtlasCache);
+    while (!iter.done()) {
+        AtlasEntry* tmp = &(*iter);
+        ++iter;
+        delete tmp;
     }
+    fAtlasCache.reset();
 }
 
-GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::Desc& desc) {
-    AtlasEntry* entry = GetCache()->find(desc);
-    if (nullptr == entry) {
-        entry = new AtlasEntry;
+void GrTextureStripAtlasManager::abandon() {
+    this->deleteAllAtlases();
+}
 
-        entry->fAtlas = new GrTextureStripAtlas(desc);
-        entry->fDesc = desc;
+GrTextureStripAtlas* GrTextureStripAtlasManager::getAtlas(const GrTextureStripAtlas::Desc& desc) {
+    AtlasEntry* entry = fAtlasCache.find(desc);
+    if (!entry) {
+        // TODO: Does the AtlasEntry need a copy of the Desc if the GrTextureStripAtlas has one?
+        entry = new AtlasEntry(desc, new GrTextureStripAtlas(desc));
 
-        desc.fContext->addCleanUp(CleanUp, entry);
-
-        GetCache()->add(entry);
+        fAtlasCache.add(entry);
     }
 
     return entry->fAtlas;
 }
 
-GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc)
-    : fCacheKey(sk_atomic_inc(&gCacheCount))
+////////////////////////////////////////////////////////////////////////////////
+uint32_t GrTextureStripAtlas::CreateUniqueID() {
+    static int32_t gUniqueID = SK_InvalidUniqueID;
+    uint32_t id;
+    // Loop in case our global wraps around, as we never want to return a 0.
+    do {
+        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
+GrTextureStripAtlas::GrTextureStripAtlas(const Desc& desc)
+    : fCacheKey(CreateUniqueID())
     , fLockedRows(0)
     , fDesc(desc)
     , fNumRows(desc.fHeight / desc.fRowHeight)
@@ -94,10 +85,10 @@ void GrTextureStripAtlas::lockRow(int row) {
     ++fLockedRows;
 }
 
-int GrTextureStripAtlas::lockRow(const SkBitmap& bitmap) {
+int GrTextureStripAtlas::lockRow(GrContext* context, const SkBitmap& bitmap) {
     VALIDATE;
 
-    if (!this->getContext()->contextPriv().resourceProvider()) {
+    if (!context->contextPriv().resourceProvider()) {
         // DDL TODO: For DDL we need to schedule inline & ASAP uploads. However these systems
         // currently use the flushState which we can't use for the opList-based DDL phase.
         // For the opList-based solution every texture strip will get its own texture proxy.
@@ -106,7 +97,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& bitmap) {
     }
 
     if (0 == fLockedRows) {
-        this->lockTexture();
+        this->lockTexture(context);
         if (!fTexContext) {
             return -1;
         }
@@ -139,7 +130,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& bitmap) {
 
         if (nullptr == row) {
             // force a flush, which should unlock all the rows; then try again
-            fDesc.fContext->contextPriv().flush(nullptr); // tighten this up?
+            context->contextPriv().flush(nullptr); // tighten this up?
             row = this->getLRU();
             if (nullptr == row) {
                 --fLockedRows;
@@ -209,7 +200,7 @@ GrTextureStripAtlas::AtlasRow* GrTextureStripAtlas::getLRU() {
     return row;
 }
 
-void GrTextureStripAtlas::lockTexture() {
+void GrTextureStripAtlas::lockTexture(GrContext* context) {
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
@@ -217,7 +208,7 @@ void GrTextureStripAtlas::lockTexture() {
     builder[0] = static_cast<uint32_t>(fCacheKey);
     builder.finish();
 
-    GrProxyProvider* proxyProvider = fDesc.fContext->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(
                                                                 key, kTopLeft_GrSurfaceOrigin);
@@ -240,7 +231,7 @@ void GrTextureStripAtlas::lockTexture() {
         fKeyTable.rewind();
     }
     SkASSERT(proxy);
-    fTexContext = fDesc.fContext->contextPriv().makeWrappedSurfaceContext(std::move(proxy));
+    fTexContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy));
 }
 
 void GrTextureStripAtlas::unlockTexture() {

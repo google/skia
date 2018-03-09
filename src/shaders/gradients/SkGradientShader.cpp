@@ -1291,21 +1291,21 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         shader.getGradientTableBitmap(&bitmap, bitmapType);
         SkASSERT(1 == bitmap.height() && SkIsPow2(bitmap.width()));
 
+        auto atlasManager = args.fContext->contextPriv().textureStripAtlasManager();
 
         GrTextureStripAtlas::Desc desc;
         desc.fWidth  = bitmap.width();
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height(); // always 1 here
-        desc.fContext = args.fContext;
         desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *args.fContext->caps());
-        fAtlas = GrTextureStripAtlas::GetAtlas(desc);
+        fAtlas = atlasManager->getAtlas(desc);
         SkASSERT(fAtlas);
 
         // We always filter the gradient table. Each table is one row of a texture, always
         // y-clamp.
         GrSamplerState samplerState(args.fWrapMode, GrSamplerState::Filter::kBilerp);
 
-        fRow = fAtlas->lockRow(bitmap);
+        fRow = fAtlas->lockRow(args.fContext, bitmap);
         if (-1 != fRow) {
             fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
             // This is 1/2 places where auto-normalization is disabled
