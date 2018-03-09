@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f44c61f5_d815a096",
+        "filename": "fuzz/FuzzCommon.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-09T16:08:23Z",
+      "side": 1,
+      "message": "I think this is causing the compile issue",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 6
+      },
+      "revId": "0cf16e4af2ce07a112ec2bd4ffdee4476e3cb285",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
