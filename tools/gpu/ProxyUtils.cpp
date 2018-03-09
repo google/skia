@@ -37,7 +37,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
         }
 
         if (!proxy) {
-            context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
+            context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
             return nullptr;
         }
 

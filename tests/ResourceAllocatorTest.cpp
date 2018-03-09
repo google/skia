@@ -55,7 +55,7 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
     return proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin);
 }
 
-static void cleanup_backend(GrContext* context, GrBackendTexture* backendTex) {
+static void cleanup_backend(GrContext* context, const GrBackendTexture& backendTex) {
     context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
 }
 
@@ -210,7 +210,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, t[0].fP2);
         non_overlap_test(reporter, resourceProvider,
                          std::move(p1), std::move(p2), t[0].fExpectation);
-        cleanup_backend(ctxInfo.grContext(), &backEndTex);
+        cleanup_backend(ctxInfo.grContext(), backEndTex);
     }
 
     resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
