@@ -6,8 +6,14 @@
  */
 
 #include "SkBitmap.h"
+#include "SkColor.h"
+#include "SkColorSpace.h"
+#include "SkImageInfo.h"
+#include "SkPoint.h"
 #include "SkRect.h"
-#include "SkTemplates.h"
+#include "SkRefCnt.h"
+#include "SkSize.h"
+#include "SkTypes.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 

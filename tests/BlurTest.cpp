@@ -5,27 +5,48 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
+#include "SkBlendMode.h"
+#include "SkBlurDrawLooper.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
-#include "SkBlurDrawLooper.h"
 #include "SkBlurPriv.h"
+#include "SkBlurTypes.h"
 #include "SkCanvas.h"
-#include "SkColorFilter.h"
+#include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkDrawLooper.h"
 #include "SkEmbossMaskFilter.h"
+#include "SkFloatBits.h"
+#include "SkImageInfo.h"
 #include "SkLayerDrawLooper.h"
+#include "SkMask.h"
+#include "SkMaskFilter.h"
 #include "SkMaskFilterBase.h"
 #include "SkMath.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPerlinNoiseShader.h"
+#include "SkPixmap.h"
+#include "SkPoint.h"
+#include "SkRRect.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
+#include "SkShader.h"
+#include "SkSize.h"
 #include "SkSurface.h"
+#include "SkTypes.h"
 #include "Test.h"
+#include "sk_pixel_iter.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
-#include "SkGpuDevice.h"
 #endif
+
+#include <math.h>
+#include <string.h>
+#include <utility>
 
 #define WRITE_CSV 0
 
@@ -672,8 +693,6 @@ DEF_TEST(EmbossPerlinCrash, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-#include "SkSurface.h"
-#include "sk_pixel_iter.h"
 
 DEF_TEST(BlurZeroSigma, reporter) {
     auto surf = SkSurface::MakeRasterN32Premul(20, 20);

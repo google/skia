@@ -6,8 +6,10 @@
  */
 
 #include "SkBitmap.h"
-#include "SkRandom.h"
+#include "SkColor.h"
+#include "SkImageInfo.h"
 #include "SkRect.h"
+#include "SkTypes.h"
 #include "Test.h"
 
 DEF_TEST(GetColor, reporter) {

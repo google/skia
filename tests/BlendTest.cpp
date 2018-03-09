@@ -5,25 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include <functional>
 #include "SkBitmap.h"
+#include "SkBlendMode.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
-#include "SkColorPriv.h"
+#include "SkColorSpace.h"
+#include "SkImageInfo.h"
+#include "SkPaint.h"
+#include "SkPoint.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
 #include "SkSurface.h"
-#include "SkTaskGroup.h"
-#include "SkUtils.h"
+#include "SkTypes.h"
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
+#include "GrBackendSurface.h"
 #include "GrContext.h"
+#include "GrContextFactory.h"
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfaceProxy.h"
-#include "GrTest.h"
 #include "GrTexture.h"
+#include "GrTypes.h"
 #endif
+
+#include <vector>
 
 struct Results { int diffs, diffs_0x00, diffs_0xff, diffs_by_1; };
 
