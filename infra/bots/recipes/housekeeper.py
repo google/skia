@@ -5,13 +5,19 @@
 
 # Recipe for the Skia PerCommit Housekeeper.
 
+
+import calendar
+
+
 DEPS = [
   'depot_tools/bot_update',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/step',
+  'recipe_engine/time',
   'core',
   'run',
   'vars',
@@ -35,18 +41,23 @@ def RunSteps(api):
         cmd=['python', api.core.resource('generate_and_upload_doxygen.py')],
         abort_on_failure=False)
 
+    now = api.time.utcnow()
+    ts = int(calendar.timegm(now.utctimetuple()))
+    filename = 'nanobench_%s_%d.json' % (api.vars.got_revision, ts)
+    dest_dir = api.vars.perf_data_dir + '/' + 'data'
+    dest_file = dest_dir + '/' + filename
+    api.file.ensure_directory('makedirs perf_dir',
+                              api.path.dirname(dest_dir))
     cmd = ['python', api.core.resource('run_binary_size_analysis.py'),
-           '--library', api.vars.skia_out.join(
-               'Release', 'lib', 'libskia.so'),
-           '--githash', api.properties['revision'],
-           '--gsutil_path', gsutil_path]
+           '--library', api.vars.skia_out.join('Release', 'libskia.so'),
+           '--githash', api.vars.got_revision,
+           '--dest', dest_file]
     if api.vars.is_trybot:
       cmd.extend(['--issue_number', str(api.properties['patch_issue'])])
     api.run(
       api.step,
-      'generate and upload binary size data',
-      cmd=cmd,
-      abort_on_failure=False)
+      'generate binary size data',
+      cmd=cmd)
 
 
 def GenTests(api):

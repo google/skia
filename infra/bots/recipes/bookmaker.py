@@ -99,9 +99,6 @@ def RunSteps(api):
         content = api.file.read_text('Read fiddleout.json',
                                      fiddlecli_output, test_data=test_data)
         out = json.loads(content)
-        # Do a dump of fiddlecli_output. Will be useful for debugging.
-        print 'Dump of %s:' % fiddlecli_output
-        print json.dumps(out, indent=4)
 
         failing_fiddles_to_errors = {}
         for fiddle_name in out:
