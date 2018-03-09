@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5240dcbe_1bd0f440",
+        "filename": "src/utils/SkMultiPictureDocument.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-09T22:44:35Z",
+      "side": 1,
+      "message": "These could just be functions that forward everything, but we\u0027re getting rid of this anyway, so lgtm and stuff.",
+      "range": {
+        "startLine": 15,
+        "startChar": 8,
+        "endLine": 15,
+        "endChar": 34
+      },
+      "revId": "3341a57815d88ade04edeb9880e3f15a7d622549",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
