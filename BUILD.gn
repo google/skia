@@ -756,7 +756,7 @@ config("SkiaSharp_public") {
 
 shared_library("SkiaSharp") {
   public_configs = [ ":skia_public", ":SkiaSharp_public" ]
-  configs += skia_library_configs + [ ":SkiaSharp_public" ]
+  configs += skia_library_configs + [ ":SkiaSharp_public", "//gn:debug_symbols" ]
 
   deps = [
     ":skia",
