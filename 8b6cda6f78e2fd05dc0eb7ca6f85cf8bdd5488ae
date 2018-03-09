@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c800c056_1b70fead",
+        "filename": "include/utils/SkNoDrawCanvas.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-09T18:44:40Z",
+      "side": 1,
+      "message": "Is this reasonable? I feel like any NoDraw subclass that\u0027s interested in the contents of a picture ought to be using VirtualEnforcer, so they\u0027re going to be forced to re-override onDrawPicture anyway.",
+      "revId": "8b6cda6f78e2fd05dc0eb7ca6f85cf8bdd5488ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
