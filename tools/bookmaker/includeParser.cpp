@@ -1723,7 +1723,7 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                     }
                     break;
                 case KeyWord::kTemplate:
-                    if (!this->parseTemplate()) {
+                    if (!this->parseTemplate(child, markupDef)) {
                         return child->reportError<bool>("failed to parse template");
                     }
                     break;
@@ -1849,9 +1849,8 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
     return true;
 }
 
-bool IncludeParser::parseTemplate() {
-
-    return true;
+bool IncludeParser::parseTemplate(Definition* child, Definition* markupDef) {
+    return this->parseObjects(child, markupDef);
 }
 
 bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
@@ -2142,7 +2141,8 @@ bool IncludeParser::parseChar() {
             }
             if (Definition::Type::kKeyWord == fParent->fType
                     && KeyProperty::kObject == (kKeyWords[(int) fParent->fKeyWord].fProperty)) {
-                if (KeyWord::kClass == fParent->fKeyWord && fParent->fParent &&
+                bool parentIsClass = KeyWord::kClass == fParent->fKeyWord;
+                if (parentIsClass && fParent->fParent &&
                         KeyWord::kEnum == fParent->fParent->fKeyWord) {
                     this->popObject();
                 }
@@ -2150,6 +2150,9 @@ bool IncludeParser::parseChar() {
                     fInEnum = false;
                 }
                 this->popObject();
+                if (parentIsClass && fParent && KeyWord::kTemplate == fParent->fKeyWord) {
+                    this->popObject();
+                }
                 fPriorEnum = nullptr;
             } else if (Definition::Type::kBracket == fParent->fType
                     && fParent->fParent && Definition::Type::kKeyWord == fParent->fParent->fType
