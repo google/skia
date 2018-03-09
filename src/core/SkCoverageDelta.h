@@ -203,7 +203,9 @@ struct SkDAARecord {
     void setEmpty() { fType = Type::kEmpty; }
     static inline void SetEmpty(SkDAARecord* record) { // record may be nullptr
 #ifdef SK_DEBUG
-        if (record) {
+        // If type != kToBeComputed, then we're in the draw phase and we shouldn't set it to empty
+        // because being empty in one tile does not imply emptiness in other tiles.
+        if (record && record->fType == Type::kToBeComputed) {
             record->setEmpty();
         }
 #endif
