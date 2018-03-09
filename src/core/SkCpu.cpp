@@ -49,7 +49,7 @@
         if (abcd[2] & (1<<19)) { features |= SkCpu::SSE41; }
         if (abcd[2] & (1<<20)) { features |= SkCpu::SSE42; }
 
-        if ((abcd[2] & (3<<26)) == (3<<26)         // XSAVE + OSXSAVE
+        if (false && (abcd[2] & (3<<26)) == (3<<26)         // XSAVE + OSXSAVE
              && (xgetbv(0) & (3<<1)) == (3<<1)) {  // XMM and YMM state enabled.
             if (abcd[2] & (1<<28)) { features |= SkCpu:: AVX; }
             if (abcd[2] & (1<<29)) { features |= SkCpu::F16C; }
