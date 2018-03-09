@@ -24,8 +24,7 @@ const SkOpPtT* SkOpPtT::active() const {
             return ptT;
         }
     }
-    SkASSERT(0);  // should never return deleted
-    return this;
+    return nullptr; // should never return deleted; caller must abort
 }
 
 bool SkOpPtT::contains(const SkOpPtT* check) const {
@@ -267,12 +266,6 @@ tryNextRemainder:
         remainder = next;
     }
     fSpanAdds += span->fSpanAdds;
-}
-
-SkOpSpanBase* SkOpSpanBase::active() {
-    SkOpSpanBase* result = fPrev ? fPrev->next() : upCast()->next()->prev();
-    SkASSERT(this == result || fDebugDeleted);
-    return result;
 }
 
 // please keep in sync with debugCheckForCollapsedCoincidence()

@@ -694,7 +694,7 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
     SkASSERT(!cs || !cs->deleted());
     SkASSERT(!os || !os->deleted());
     SkASSERT(!ce || !ce->deleted());
-    SkASSERT(!oe || !oe->deleted());
+    FAIL_IF(oe && oe->deleted());
     const SkOpPtT* csExisting = !cs ? coinSeg->existing(coinTs, nullptr) : nullptr;
     const SkOpPtT* ceExisting = !ce ? coinSeg->existing(coinTe, nullptr) : nullptr;
     FAIL_IF(csExisting && csExisting == ceExisting);
@@ -723,6 +723,7 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
         csWritable->span()->addOpp(osWritable->span());
         cs = csWritable;
         os = osWritable->active();
+        FAIL_IF(!os);
         FAIL_IF((ce && ce->deleted()) || (oe && oe->deleted()));
     }
     if (!ce || !oe) {

@@ -272,7 +272,7 @@ private:
     }
 
     bool binarySearchCoin(SkTSect<OppCurve, TCurve>* , double tStart, double tStep, double* t,
-                          double* oppT);
+                          double* oppT, SkTSpan<OppCurve, TCurve>** oppFirst);
     SkTSpan<TCurve, OppCurve>* boundsMax() const;
     bool coincidentCheck(SkTSect<OppCurve, TCurve>* sect2);
     void coincidentForce(SkTSect<OppCurve, TCurve>* sect2, double start1s, double start1e);
@@ -908,7 +908,7 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::addOne() {
 
 template<typename TCurve, typename OppCurve>
 bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect2, double tStart,
-        double tStep, double* resultT, double* oppT) {
+        double tStep, double* resultT, double* oppT, SkTSpan<OppCurve, TCurve>** oppFirst) {
     SkTSpan<TCurve, OppCurve> work;
     double result = work.fStartT = work.fEndT = tStart;
     SkDEBUGCODE(work.fDebugSect = this);
@@ -916,7 +916,7 @@ bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect
     SkDPoint oppPt;
     bool flip = false;
     bool contained = false;
-    SkDEBUGCODE(bool down = tStep < 0);
+    bool down = tStep < 0;
     const OppCurve& opp = sect2->fCurve;
     do {
         tStep *= 0.5;
@@ -943,7 +943,10 @@ bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect
                 *oppT = oppTTest;
                 oppPt = work.fCoinStart.perpPt();
                 contained = true;
-                SkASSERT(down ? result > work.fStartT : result < work.fStartT);
+                if (down ? result <= work.fStartT : result >= work.fStartT) {
+                    *oppFirst = nullptr;    // signal caller to fail
+                    return false;
+                }
                 result = work.fStartT;
                 continue;
             }
@@ -1199,7 +1202,7 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
     SkTSpan<OppCurve, TCurve>* cutFirst;
     if (prev && prev->fEndT == startT
             && this->binarySearchCoin(sect2, startT, prev->fStartT - startT, &coinStart,
-                                      &oppStartT)
+                                      &oppStartT, &oppFirst)
             && prev->fStartT < coinStart && coinStart < startT
             && (cutFirst = prev->oppT(oppStartT))) {
         oppFirst = cutFirst;
@@ -1218,8 +1221,10 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
             }
         }
     } else {
+        if (!oppFirst) {
+            return false;
+        }
         SkDEBUGCODE(coinStart = first->fStartT);
-        FAIL_IF(!oppFirst);
         SkDEBUGCODE(oppStartT = oppMatched ? oppFirst->fStartT : oppFirst->fEndT);
     }
     // FIXME: incomplete : if we're not at the end, find end of coin

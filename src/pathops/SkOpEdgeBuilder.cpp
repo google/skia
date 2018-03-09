@@ -323,7 +323,9 @@ bool SkOpEdgeBuilder::walk() {
                         }
                         SkPoint* curve = SkPath::kCubic_Verb == split->fVerb
                                 ? split->fPts : split->fReduced;
-                        SkAssertResult(can_add_curve(split->fVerb, curve));
+                        if (!can_add_curve(split->fVerb, curve)) {
+                            return false;
+                        }
                         fContourBuilder.addCurve(split->fVerb, curve);
                     }
                 }
