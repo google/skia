@@ -11,23 +11,59 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-SkTrimPE::SkTrimPE(SkScalar startT, SkScalar stopT) : fStartT(startT), fStopT(stopT) {
-    SkASSERT(startT >= 0 && startT <= 1);
-    SkASSERT(stopT >= 0 && stopT <= 1);
-    SkASSERT(startT != stopT);
+SkTrimPE::SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode mode)
+    : fStartT(startT), fStopT(stopT), fMode(mode) {}
+
+static SkScalar add_segments(SkPath* dst, SkPathMeasure* meas,
+                             SkScalar arcStart, SkScalar arcStop, SkScalar offset) {
+    SkASSERT(arcStart < arcStop);
+
+    auto nextOffset = offset;
+    do {
+        const auto offset = nextOffset;
+        nextOffset += meas->getLength();
+
+        if (arcStart >= nextOffset) continue;
+
+        meas->getSegment(arcStart - offset, arcStop - offset, dst, true);
+
+        if (arcStop <= nextOffset) break;
+
+    } while (meas->nextContour());
+
+    return offset;
 }
 
 bool SkTrimPE::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                             const SkRect* cullRect) const {
+    // First pass: compute the total len.
+    SkScalar len = 0;
     SkPathMeasure meas(src, false);
-    SkScalar length = meas.getLength();
+    do {
+        len += meas.getLength();
+    } while (meas.nextContour());
 
-    if (fStartT < fStopT) {
-        meas.getSegment(fStartT * length, fStopT * length, dst, true);
-    } else {
-        meas.getSegment(0, fStopT * length, dst, true);
-        meas.getSegment(fStartT * length, length, dst, true);
+    const auto arcStart = SkTPin(len * fStartT, 0.0f, len),
+               arcStop  = SkTPin(len * fStopT , 0.0f, len);
+
+    printf("** start: %f, stop: %f\n", arcStart, arcStop);
+    if (arcStart >= arcStop) {
+        if (fMode == SkTrimPathEffect::Mode::kInverted) {
+            *dst = src;
+        }
+        return true;
     }
+
+    // Second pass: actually add segments.
+    meas.setPath(&src, false);
+
+    add_segments(dst, &meas, arcStart, arcStop, 0);
+//    if (fStartT < fStopT) {
+//        meas.getSegment(fStartT * len, fStopT * len, dst, true);
+//    } else {
+//        meas.getSegment(0, fStopT * len, dst, true);
+//        meas.getSegment(fStartT * len, len, dst, true);
+//    }
     return true;
 }
 
@@ -50,14 +86,14 @@ void SkTrimPE::toString(SkString* str) const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkPathEffect> SkTrimPathEffect::Make(SkScalar startT, SkScalar stopT) {
+sk_sp<SkPathEffect> SkTrimPathEffect::Make(SkScalar startT, SkScalar stopT, Mode mode) {
     if (!SkScalarsAreFinite(startT, stopT)) {
         return nullptr;
     }
-    startT = SkTPin(startT, 0.f, 1.f);
-    stopT  = SkTPin(stopT,  0.f, 1.f);
-    if (startT == stopT) {
+
+    if (startT >= stopT && mode == Mode::kInverted) {
         return nullptr;
     }
-    return sk_sp<SkPathEffect>(new SkTrimPE(startT, stopT));
+
+    return sk_sp<SkPathEffect>(new SkTrimPE(startT, stopT, mode));
 }

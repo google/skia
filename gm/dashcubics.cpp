@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkParsePath.h"
@@ -71,7 +72,8 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setPathEffect(SkTrimPathEffect::Make(0.25 + fOffset, 0.75));
+        paint.setPathEffect(SkTrimPathEffect::Make(2 * kStart - kStop + fOffset,
+                                                   kStart + fOffset));
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setAntiAlias(true);
         paint.setStrokeWidth(10);
@@ -79,6 +81,10 @@ protected:
         SkPath path;
         path.moveTo(50, 300);
         path.cubicTo(100, 50, 150, 550, 200, 300);
+        // 2nd contour
+        path.moveTo(200, 300);
+        path.cubicTo(150, 50, 100, 550, 50, 300);
+
 
         paint.setColor(0xFF888888);
         canvas->drawPath(path, paint);
@@ -88,12 +94,16 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    bool onAnimate(const SkAnimTimer&) override {
-   //     fOffset += 1;
+    bool onAnimate(const SkAnimTimer& t) override {
+        fOffset = t.msec() / 5000.0f;
+        fOffset -= floorf(fOffset);
         return true;
     }
 private:
+    static constexpr SkScalar kStart = 0.10f,
+                              kStop  = 0.20f;
     SkScalar fOffset = 0;
+
     typedef skiagm::GM INHERITED;
 };
 DEF_GM(return new TrimGM;)

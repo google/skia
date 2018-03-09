@@ -12,6 +12,11 @@
 
 class SK_API SkTrimPathEffect {
 public:
+    enum class Mode {
+        kNormal,   // return the subset path [start,stop]
+        kInverted, // return the complement/subset paths [0,start] + [stop,1]
+    };
+
     /**
      *  Take start and stop "t" values (values between 0...1), and return a path that is that
      *  subset of the original path.
@@ -30,7 +35,7 @@ public:
      *        across multiple contours). If startT > stopT, then this will return 2 logical
      *        segments: 0...stopT and startT...1
      */
-    static sk_sp<SkPathEffect> Make(SkScalar startT, SkScalar stopT);
+    static sk_sp<SkPathEffect> Make(SkScalar startT, SkScalar stopT, Mode = Mode::kNormal);
 };
 
 #endif
