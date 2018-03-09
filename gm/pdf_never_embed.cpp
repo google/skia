@@ -55,3 +55,15 @@ DEF_SIMPLE_GM(pdf_never_embed, canvas, 512, 512) {
     p.setColor(0xF0000080);
     canvas->drawString(text, 30, 700, p);
 }
+
+
+// should draw completely white.
+DEF_SIMPLE_GM(pdf_crbug_772685, canvas, 612, 792) {
+    canvas->clipRect({-1, -1, 613, 793}, false);
+    canvas->translate(-571, 0);
+    canvas->scale(0.75, 0.75);
+    canvas->clipRect({-1, -1, 613, 793}, false);
+    canvas->translate(0, -816);
+    canvas->drawRect({0, 0, 1224, 1500}, SkPaint());
+}
+
