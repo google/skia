@@ -424,6 +424,10 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         const auto sampleCount = gpuConfig->getSamples();
         const auto colorType = gpuConfig->getColorType();
         auto colorSpace = gpuConfig->getColorSpace();
+        if (gpuConfig->getSurfType() != SkCommandLineConfigGpu::SurfType::kDefault) {
+            SkDebugf("This tool only supports the default surface type.");
+            return;
+        }
 
         GrContextFactory factory(grContextOpts);
         if (const GrContext* ctx = factory.get(ctxType, ctxOverrides)) {

@@ -884,17 +884,17 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                 return nullptr;
             }
             if (gpuConfig->getTestThreading()) {
-                return new GPUThreadTestingSink(contextType, contextOverrides,
-                                                gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                                                gpuConfig->getColorType(),
-                                                gpuConfig->getAlphaType(),
-                                                sk_ref_sp(gpuConfig->getColorSpace()),
-                                                FLAGS_gpu_threading, grCtxOptions);
+                return new GPUThreadTestingSink(
+                        contextType, contextOverrides, gpuConfig->getSurfType(),
+                        gpuConfig->getSamples(), gpuConfig->getUseDIText(),
+                        gpuConfig->getColorType(), gpuConfig->getAlphaType(),
+                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions);
             } else {
-                return new GPUSink(contextType, contextOverrides, gpuConfig->getSamples(),
-                                   gpuConfig->getUseDIText(), gpuConfig->getColorType(),
-                                   gpuConfig->getAlphaType(), sk_ref_sp(gpuConfig->getColorSpace()),
-                                   FLAGS_gpu_threading, grCtxOptions);
+                return new GPUSink(contextType, contextOverrides, gpuConfig->getSurfType(),
+                                   gpuConfig->getSamples(), gpuConfig->getUseDIText(),
+                                   gpuConfig->getColorType(), gpuConfig->getAlphaType(),
+                                   sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading,
+                                   grCtxOptions);
             }
         }
     }

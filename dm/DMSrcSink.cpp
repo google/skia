@@ -6,6 +6,9 @@
  */
 
 #include "DMSrcSink.h"
+#include <cmath>
+#include <functional>
+#include "../src/jumper/SkJumper.h"
 #include "Resources.h"
 #include "SkAndroidCodec.h"
 #include "SkAutoMalloc.h"
@@ -44,17 +47,13 @@
 #include "SkRandom.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
-#include "SkSurfaceCharacterization.h"
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
+#include "SkSurfaceCharacterization.h"
 #include "SkSwizzler.h"
+#include "SkTLogic.h"
 #include "SkTaskGroup.h"
 #include "SkThreadedBMPDevice.h"
-#include "SkTLogic.h"
-#include <cmath>
-#include <functional>
-#include "../src/jumper/SkJumper.h"
-
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
     #include "SkHRESULT.h"
@@ -72,7 +71,9 @@
 #endif
 
 #if SK_SUPPORT_GPU
+#include "GrBackendSurface.h"
 #include "GrContextPriv.h"
+#include "GrGpu.h"
 #endif
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
@@ -1603,6 +1604,7 @@ DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
 
 GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  GrContextFactory::ContextOverrides overrides,
+                 SkCommandLineConfigGpu::SurfType surfType,
                  int samples,
                  bool diText,
                  SkColorType colorType,
@@ -1612,6 +1614,7 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  const GrContextOptions& grCtxOptions)
         : fContextType(ct)
         , fContextOverrides(overrides)
+        , fSurfType(surfType)
         , fSampleCount(samples)
         , fUseDIText(diText)
         , fColorType(colorType)
@@ -1636,16 +1639,45 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     const SkISize size = src.size();
     SkImageInfo info =
             SkImageInfo::Make(size.width(), size.height(), fColorType, fAlphaType, fColorSpace);
+    sk_sp<SkSurface> surface;
 #if SK_SUPPORT_GPU
     GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
     const int maxDimension = context->caps()->maxTextureSize();
     if (maxDimension < SkTMax(size.width(), size.height())) {
         return Error::Nonfatal("Src too large to create a texture.\n");
     }
+    uint32_t flags = fUseDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
+    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+    GrBackendTexture backendTexture;
+    GrBackendRenderTarget backendRT;
+    switch (fSurfType) {
+        case SkCommandLineConfigGpu::SurfType::kDefault:
+            surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, fSampleCount,
+                                                  &props);
+            break;
+        case SkCommandLineConfigGpu::SurfType::kBackendTexture:
+            backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
+                    nullptr, info.width(), info.height(), info.colorType(), true, GrMipMapped::kNo);
+            surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
+                                                        kTopLeft_GrSurfaceOrigin, fSampleCount,
+                                                        info.refColorSpace(), &props);
+            break;
+        case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
+            if (1 == fSampleCount) {
+                auto srgbEncoded = info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()
+                                           ? GrSRGBEncoded::kYes
+                                           : GrSRGBEncoded::kNo;
+                auto colorType = SkColorTypeToGrColorType(info.colorType());
+                backendRT = context->contextPriv().getGpu()->createTestingOnlyBackendRenderTarget(
+                        info.width(), info.height(), colorType, srgbEncoded);
+                surface = SkSurface::MakeFromBackendRenderTarget(context, backendRT,
+                                                                 kBottomLeft_GrSurfaceOrigin,
+                                                                 info.refColorSpace(), &props);
+            }
+            break;
+    }
 #endif
 
-    auto surface(
-        NewGpuSurface(&factory, fContextType, fContextOverrides, info, fSampleCount, fUseDIText));
     if (!surface) {
         return "Could not create a surface.";
     }
@@ -1677,6 +1709,17 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     } else if (FLAGS_releaseAndAbandonGpuContext) {
         factory.releaseResourcesAndAbandonContexts();
     }
+#if SK_SUPPORT_GPU
+    if (!context->contextPriv().abandoned()) {
+        surface.reset();
+        if (backendTexture.isValid()) {
+            context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(&backendTexture);
+        }
+        if (backendRT.isValid()) {
+            context->contextPriv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
+        }
+    }
+#endif
     return "";
 }
 
@@ -1684,6 +1727,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
 
 GPUThreadTestingSink::GPUThreadTestingSink(GrContextFactory::ContextType ct,
                                            GrContextFactory::ContextOverrides overrides,
+                                           SkCommandLineConfigGpu::SurfType surfType,
                                            int samples,
                                            bool diText,
                                            SkColorType colorType,
@@ -1691,8 +1735,8 @@ GPUThreadTestingSink::GPUThreadTestingSink(GrContextFactory::ContextType ct,
                                            sk_sp<SkColorSpace> colorSpace,
                                            bool threaded,
                                            const GrContextOptions& grCtxOptions)
-        : INHERITED(ct, overrides, samples, diText, colorType, alphaType, std::move(colorSpace),
-                    threaded, grCtxOptions)
+        : INHERITED(ct, overrides, surfType, samples, diText, colorType, alphaType,
+                    std::move(colorSpace), threaded, grCtxOptions)
 #if SK_SUPPORT_GPU
         , fExecutor(SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads)) {
 #else

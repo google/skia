@@ -107,6 +107,7 @@ GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrR
     return new GrMockStencilAttachment(this, width, height, kBits, rt->numColorSamples());
 }
 
+#if GR_TEST_UTILS
 GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                             GrPixelConfig config, bool isRT,
                                                             GrMipMapped) {
@@ -136,3 +137,11 @@ void GrMockGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex) {
         fOutstandingTestingOnlyTextureIDs.remove(info->fID);
     }
 }
+
+GrBackendRenderTarget GrMockGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
+                                                                      GrSRGBEncoded) {
+    return {};
+}
+
+void GrMockGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) {}
+#endif

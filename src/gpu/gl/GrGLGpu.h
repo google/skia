@@ -128,10 +128,6 @@ public:
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask,
                           GrRenderTarget*, GrSurfaceOrigin);
 
-    const GrGLContext* glContextForTesting() const override {
-        return &this->glContext();
-    }
-
     void clearStencil(GrRenderTarget*, int clearValue) override;
 
     GrGpuRTCommandBuffer* createCommandBuffer(
@@ -148,7 +144,7 @@ public:
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
                                                                 int width,
                                                                 int height) override;
-
+#if GR_TEST_UTILS
     GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                      GrPixelConfig config,
                                                      bool isRenderTarget,
@@ -156,9 +152,17 @@ public:
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
     void deleteTestingOnlyBackendTexture(GrBackendTexture*) override;
 
-    void resetShaderCacheForTesting() const override;
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
+                                                               GrSRGBEncoded) override;
+
+    void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
+
+    const GrGLContext* glContextForTesting() const override { return &this->glContext(); }
+
+    void resetShaderCacheForTesting() const override { fProgramCache->abandon(); }
 
     void testingOnly_flushGpuAndSync() override;
+#endif
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
