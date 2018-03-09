@@ -1413,6 +1413,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 case KeyWord::kFriend:
                 case KeyWord::kInline:
                 case KeyWord::kSK_API:
+                case KeyWord::kTemplate:
                 case KeyWord::kTypedef:
                     break;
                 case KeyWord::kSK_BEGIN_REQUIRE_DENSE:

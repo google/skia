@@ -1616,7 +1616,7 @@ public:
     bool parseMethod(Definition* child, Definition* markupDef);
     bool parseObject(Definition* child, Definition* markupDef);
     bool parseObjects(Definition* parent, Definition* markupDef);
-    bool parseTemplate();
+    bool parseTemplate(Definition* child, Definition* markupDef);
     bool parseTypedef(Definition* child, Definition* markupDef);
     bool parseUnion();
 
