@@ -138,7 +138,7 @@ private:
     void clearStencil(GrRenderTarget* target, int clearValue) override  {}
 
 #if GR_TEST_UTILS
-    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
+    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                      GrPixelConfig config, bool isRT,
                                                      GrMipMapped) override {
         return GrBackendTexture();
