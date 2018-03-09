@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "814ba0fd_6800b79f",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-09T17:13:46Z",
+      "side": 1,
+      "message": "If this doesn\u0027t bother you then it doesn\u0027t bother me ;)",
+      "range": {
+        "startLine": 279,
+        "startChar": 0,
+        "endLine": 279,
+        "endChar": 74
+      },
+      "revId": "19c71302a5c82c82272daa98743e202eab33512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
