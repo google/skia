@@ -107,8 +107,8 @@ private:
 
 class SkCoverageDeltaMask {
 public:
-    // 1 for precision error, 1 for boundary delta (e.g., -SK_Fixed1 at fBounds.fRight + 1)
-    static constexpr int PADDING        = 2;
+    // 3 for precision error, 1 for boundary delta (e.g., -SK_Fixed1 at fBounds.fRight + 1)
+    static constexpr int PADDING        = 4;
 
     static constexpr int SIMD_WIDTH     = 8;
     static constexpr int SUITABLE_WIDTH = 32;
