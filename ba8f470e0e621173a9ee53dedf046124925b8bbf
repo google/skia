@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0922a4f5_14878d92",
+        "filename": "src/pipe/SkPipeCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-09T17:00:33Z",
+      "side": 1,
+      "message": "Pictures are de-duped, but drawables seem transient enough that this is the right answer?",
+      "revId": "ba8f470e0e621173a9ee53dedf046124925b8bbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
