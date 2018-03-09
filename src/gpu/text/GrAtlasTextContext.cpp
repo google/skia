@@ -505,7 +505,7 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
                                                                         pathPaint.isDevKernText(),
                                                                         true);
     SkAutoGlyphCache           autoCache(pathPaint, &props, nullptr);
-    SkGlyphCache*              cache = autoCache.getCache();
+    SkGlyphCache*              cache = autoCache.get();
 
     const char*        stop = text + byteLength;
     const char*        lastText = text;

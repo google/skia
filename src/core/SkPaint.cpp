@@ -431,7 +431,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyp
     }
 
     SkAutoGlyphCache autoCache(*this, nullptr, nullptr);
-    SkGlyphCache*    cache = autoCache.getCache();
+    SkGlyphCache*    cache = autoCache.get();
 
     const char* text = (const char*)textData;
     const char* stop = text + byteLength;
@@ -489,7 +489,7 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
     }
 
     SkAutoGlyphCache autoCache(*this, nullptr, nullptr);
-    SkGlyphCache*    cache = autoCache.getCache();
+    SkGlyphCache*    cache = autoCache.get();
 
     switch (this->getTextEncoding()) {
         case SkPaint::kUTF8_TextEncoding: {
@@ -539,7 +539,7 @@ void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar tex
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     SkAutoGlyphCache autoCache(*this, &props, nullptr);
-    SkGlyphCache*    cache = autoCache.getCache();
+    SkGlyphCache*    cache = autoCache.get();
 
     for (int index = 0; index < count; index++) {
         textData[index] = cache->glyphToUnichar(glyphs[index]);
@@ -805,7 +805,7 @@ SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bound
     SkScalar scale = canon.getScale();
 
     SkAutoGlyphCache    autoCache(paint, nullptr, nullptr);
-    SkGlyphCache*       cache = autoCache.getCache();
+    SkGlyphCache*       cache = autoCache.get();
 
     SkScalar width = 0;
 
@@ -859,7 +859,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     }
 
     SkAutoGlyphCache    autoCache(paint, nullptr, nullptr);
-    SkGlyphCache*       cache = autoCache.getCache();
+    SkGlyphCache*       cache = autoCache.get();
 
     GlyphCacheProc   glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                  paint.isDevKernText(),
@@ -965,7 +965,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     SkScalar scale = canon.getScale();
 
     SkAutoGlyphCache    autoCache(paint, nullptr, nullptr);
-    SkGlyphCache*       cache = autoCache.getCache();
+    SkGlyphCache*       cache = autoCache.get();
     GlyphCacheProc      glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                     paint.isDevKernText(),
                                                                     nullptr != bounds);
