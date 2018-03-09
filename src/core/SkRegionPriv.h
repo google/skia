@@ -251,7 +251,15 @@ public:
     // Call the function with each span, in Y -> X ascending order.
     // We pass a rect, but we will still ensure the span Y->X ordering, so often the height
     // of the rect may be 1. It should never be empty.
-    static void VisitSpans(const SkRegion& rgn, const std::function<void(const SkIRect&)>&);
+    //
+    // Only process the part of rgn that intersects bounds
+    //
+    static void VisitSpans(const SkRegion& rgn, const SkIRect& bounds,
+                           const std::function<void(const SkIRect&)>&);
+
+    static void VisitSpans(const SkRegion& rgn, const std::function<void(const SkIRect&)>& proc) {
+        VisitSpans(rgn, rgn.getBounds(), proc);
+    }
 };
 
 #endif

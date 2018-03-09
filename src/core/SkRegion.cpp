@@ -1505,36 +1505,79 @@ bool SkRegion::Spanerator::next(int* left, int* right) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+static void call_visitor(const std::function<void(const SkIRect&)>& visitor, SkIRect r,
+                         const SkIRect& sect) {
+    // we should only have to worry about clipping in X, as our caller has handled Y
+    SkASSERT(r.fTop >= sect.fTop && r.fBottom <= sect.fBottom);
+    if (r.fLeft < sect.fLeft) {
+        r.fLeft = sect.fLeft;
+    }
+    if (r.fRight > sect.fRight) {
+        r.fRight = sect.fRight;
+    }
+    if (r.fLeft < r.fRight) {
+        visitor(r);
+    }
+}
+
 static void visit_pairs(int pairCount, int y, const int32_t pairs[],
-                        const std::function<void(const SkIRect&)>& visitor) {
+                        const std::function<void(const SkIRect&)>& visitor, const SkIRect& sect) {
     for (int i = 0; i < pairCount; ++i) {
-        visitor({ pairs[0], y, pairs[1], y + 1 });
+        call_visitor(visitor, { pairs[0], y, pairs[1], y + 1 }, sect);
         pairs += 2;
     }
 }
 
-void SkRegionPriv::VisitSpans(const SkRegion& rgn,
+void SkRegionPriv::VisitSpans(const SkRegion& rgn, const SkIRect& bounds,
                               const std::function<void(const SkIRect&)>& visitor) {
     if (rgn.isEmpty()) {
         return;
     }
+    SkIRect sect;
+    if (!sect.intersect(rgn.getBounds(), bounds)) {
+        return;
+    }
     if (rgn.isRect()) {
-        visitor(rgn.getBounds());
+        visitor(sect);
     } else {
         const int32_t* p = rgn.fRunHead->readonly_runs();
         int32_t top = *p++;
         int32_t bot = *p++;
         do {
-            int pairCount = *p++;
-            if (pairCount == 1) {
-                visitor({ p[0], top, p[1], bot });
-                p += 2;
-            } else if (pairCount > 1) {
-                // we have to loop repeated in Y, sending each interval in Y -> X order
-                for (int y = top; y < bot; ++y) {
-                    visit_pairs(pairCount, y, p, visitor);
+            // check against sect, to reject whole spans
+            if (top >= sect.fBottom) {
+                return; // we've gone past sect
+            }
+            if (bot <= sect.fTop) {
+                p += 1 + *p * 2;    // skip pairCount + pairCount * 2
+            } else {
+                SkASSERT(top < sect.fBottom && bot > sect.fTop);
+
+                if (top < sect.fTop) {
+                    top = sect.fTop;
                 }
-                p += pairCount * 2;
+                if (bot > sect.fBottom) {
+                    bot = sect.fBottom;
+                }
+                SkASSERT(top >= sect.fTop && bot <= sect.fBottom);
+                SkASSERT(top < bot);
+
+                // Process the current span
+                int pairCount = *p++;
+                if (pairCount == 1) {
+                    call_visitor(visitor, { p[0], top, p[1], bot }, sect);
+                    p += 2;
+                } else if (pairCount > 1) {
+                    // we have to loop repeated in Y, sending each interval in Y -> X order
+                    for (int y = top; y < bot; ++y) {
+                        visit_pairs(pairCount, y, p, visitor, sect);
+                    }
+                    p += pairCount * 2;
+                }
+
+                if (bot == sect.fBottom) {
+                    return; // we're done
+                }
             }
             assert_sentinel(*p, true);
             p += 1; // skip sentinel
