@@ -181,7 +181,7 @@ bool GrColorSpaceXform::Equals(const GrColorSpaceXform* a, const GrColorSpaceXfo
         return false;
     }
 
-    if (SkToBool(a->fFlags && kApplyGamutXform_Flag) && a->fGamutXform != b->fGamutXform) {
+    if (SkToBool(a->fFlags & kApplyGamutXform_Flag) && a->fGamutXform != b->fGamutXform) {
         return false;
     }
 
