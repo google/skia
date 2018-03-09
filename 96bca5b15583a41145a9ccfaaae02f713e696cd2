@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b3492562_776b1559",
+        "filename": "fuzz/FuzzPathMeasure.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-03-09T15:34:09Z",
+      "side": 1,
+      "message": "It\u0027s not common to include in source files that are already included in the header in the rest of Skia to my knowledge, but if that\u0027s your convention, no problem.",
+      "parentUuid": "e27b71bd_f3dd1e76",
+      "revId": "96bca5b15583a41145a9ccfaaae02f713e696cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e99ee9e6_fa3d20ee",
         "filename": "fuzz/FuzzPathop.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "96bca5b15583a41145a9ccfaaae02f713e696cd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77686828_add35c7e",
+        "filename": "fuzz/FuzzPathop.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-03-09T15:34:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e99ee9e6_fa3d20ee",
+      "revId": "96bca5b15583a41145a9ccfaaae02f713e696cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
