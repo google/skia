@@ -6,10 +6,7 @@
  */
 
 #include "Fuzz.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-
-const int kLastOp = SkPathOp::kReverseDifference_SkPathOp;
+#include "SkPathMeasure.h"
 
 static void BuildPath(Fuzz* fuzz,
                SkPath* path,
@@ -58,16 +55,24 @@ static void BuildPath(Fuzz* fuzz,
   }
 }
 
-DEF_FUZZ(Pathop, fuzz) {
-    SkOpBuilder builder;
-
-    uint8_t stragglerOp;
-    fuzz->next(&stragglerOp);
+DEF_FUZZ(PathMeasure, fuzz) {
+    SkScalar resScale;
+    fuzz->next(&resScale);
+    uint8_t bits;
+    fuzz->next(&bits);
+    SkScalar distance[6];
+    for (auto index = 0; index < 6; ++index) {
+        fuzz->next(&distance[index]);
+    }
     SkPath path;
-
     BuildPath(fuzz, &path, SkPath::Verb::kDone_Verb);
-    builder.add(path, static_cast<SkPathOp>(stragglerOp % (kLastOp + 1)));
-
-    SkPath result;
-    builder.resolve(&result);
+    SkPathMeasure measure(path, bits & 1, resScale);
+    SkPoint position;
+    SkVector tangent;
+    (void) measure.getPosTan(distance[0], &position, &tangent);
+    SkPath dst;
+    (void) measure.getSegment(distance[1], distance[2], &dst, (bits >> 1) & 1);
+    (void) measure.nextContour();
+    (void) measure.getPosTan(distance[3], &position, &tangent);
+    (void) measure.getSegment(distance[4], distance[5], &dst, (bits >> 2) & 1);
 }
