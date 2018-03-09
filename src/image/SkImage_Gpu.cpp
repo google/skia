@@ -576,6 +576,148 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
     return nullptr;
 }
 
+class PromiseImageHelper {
+public:
+    PromiseImageHelper(SkImage_Gpu::TextureFulfillProc fulFillProc,
+                       SkImage_Gpu::TextureReleaseProc releaseProc,
+                       SkImage_Gpu::TextureContext context)
+            : fFulfillProc(fulFillProc)
+            , fReleaseProc(releaseProc)
+            , fContext(context) {}
+
+    void reset() {
+        this->resetReleaseHelper();
+    }
+
+    sk_sp<GrTexture> getTexture(GrResourceProvider* resourceProvider) {
+        // Releases the promise helper if there are no outstanding hard refs. This means that we
+        // don't have any ReleaseProcs waiting to be called so we will need to do a fulfill.
+        if (fReleaseHelper && fReleaseHelper->weak_expired()) {
+            this->resetReleaseHelper();
+        }
+
+        sk_sp<GrTexture> tex;
+        if (!fReleaseHelper) {
+            fFulfillProc(fContext, &fBackendTex);
+            if (!fBackendTex.isValid()) {
+                // Even though the GrBackendTexture is not valid, we must call the release
+                // proc to keep our contract of always calling Fulfill and Release in pairs.
+                fReleaseProc(fContext);
+                return sk_sp<GrTexture>();
+            }
+
+            tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership);
+            if (!tex) {
+                // Even though the GrBackendTexture is not valid, we must call the release
+                // proc to keep our contract of always calling Fulfill and Release in pairs.
+                fReleaseProc(fContext);
+                return sk_sp<GrTexture>();
+            }
+            fReleaseHelper = new GrReleaseProcHelper(fReleaseProc, fContext);
+            // Take a weak ref
+            fReleaseHelper->weak_ref();
+        } else {
+            SkASSERT(fBackendTex.isValid());
+            tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership);
+            if (!tex) {
+                // We weren't able to make a texture here, but since we are in this branch
+                // of the calls (promiseHelper.fReleaseHelper is valid) there is already a
+                // texture out there which will call the release proc so we don't need to
+                // call it here.
+                return sk_sp<GrTexture>();
+            }
+
+            SkAssertResult(fReleaseHelper->try_ref());
+        }
+        SkASSERT(tex);
+        // Pass the hard ref off to the texture
+        tex->setRelease(sk_sp<GrReleaseProcHelper>(fReleaseHelper));
+        return tex;
+    }
+
+private:
+    // Weak unrefs fReleaseHelper and sets it to null
+    void resetReleaseHelper() {
+        if (fReleaseHelper) {
+            fReleaseHelper->weak_unref();
+            fReleaseHelper = nullptr;
+        }
+    }
+
+    SkImage_Gpu::TextureFulfillProc fFulfillProc;
+    SkImage_Gpu::TextureReleaseProc fReleaseProc;
+    SkImage_Gpu::TextureContext     fContext;
+
+    // We cache the GrBackendTexture so that if we deleted the GrTexture but the the release proc
+    // has yet not been called (this can happen on Vulkan), then we can create a new texture without
+    // needing to call the fulfill proc again.
+    GrBackendTexture fBackendTex;
+    // The fReleaseHelper is used to track a weak ref on the release proc. This helps us make sure
+    // we are always pairing fulfill and release proc calls correctly.
+    GrReleaseProcHelper* fReleaseHelper = nullptr;
+};
+
+sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
+                                               const GrBackendFormat& backendFormat,
+                                               int width,
+                                               int height,
+                                               GrMipMapped mipMapped,
+                                               GrSurfaceOrigin origin,
+                                               SkColorType colorType,
+                                               SkAlphaType alphaType,
+                                               sk_sp<SkColorSpace> colorSpace,
+                                               TextureFulfillProc textureFulfillProc,
+                                               TextureReleaseProc textureReleaseProc,
+                                               TextureContext textureContext) {
+    if (!context) {
+        return nullptr;
+    }
+
+    if (width <= 0 || height <= 0) {
+        return nullptr;
+    }
+
+    if (!textureFulfillProc || !textureReleaseProc) {
+        return nullptr;
+    }
+
+    SkImageInfo info = SkImageInfo::Make(width, height, colorType, alphaType, colorSpace);
+    if (!SkImageInfoIsValidAllowNumericalCS(info)) {
+        return nullptr;
+    }
+    GrPixelConfig config = kUnknown_GrPixelConfig;
+    if (!context->caps()->getConfigFromBackendFormat(backendFormat, colorType, &config)) {
+        return nullptr;
+    }
+
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
+    GrSurfaceDesc desc;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = config;
+
+    PromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, textureContext);
+
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
+            [promiseHelper] (GrResourceProvider* resourceProvider) mutable {
+                if (!resourceProvider) {
+                    promiseHelper.reset();
+                    return sk_sp<GrTexture>();
+                }
+
+                return promiseHelper.getTexture(resourceProvider);
+            }, desc, origin, mipMapped, GrRenderTargetFlags::kNone, SkBackingFit::kExact,
+               SkBudgeted::kNo, GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
+
+    if (!proxy) {
+        return nullptr;
+    }
+
+    return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, alphaType, std::move(proxy),
+                                   std::move(colorSpace), SkBudgeted::kNo);
+}
+
 sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> encoded,
                                                     bool buildMips, SkColorSpace* dstColorSpace) {
     sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(std::move(encoded));

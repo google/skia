@@ -155,6 +155,7 @@ public:
         kYes = true
     };
 
+    using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
     /**
      * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
      * (Stencil is not supported by this method.) The width and height must either both be greater
@@ -165,6 +166,10 @@ public:
      * It also must support being passed in a null GrResourceProvider. When this happens, the
      * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
      */
+    sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
+                                          GrSurfaceOrigin, GrMipMapped, GrRenderTargetFlags,
+                                          SkBackingFit, SkBudgeted, LazyInstantiationType);
+
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
                                           GrSurfaceOrigin, GrMipMapped, GrRenderTargetFlags,
                                           SkBackingFit, SkBudgeted);

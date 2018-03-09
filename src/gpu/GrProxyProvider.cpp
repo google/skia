@@ -524,6 +524,20 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
                                                        GrMipMapped mipMapped,
                                                        GrRenderTargetFlags renderTargetFlags,
                                                        SkBackingFit fit, SkBudgeted budgeted) {
+    // For non-ddl draws always make lazy proxy's single use.
+    LazyInstantiationType lazyType = fResourceProvider ? LazyInstantiationType::kSingleUse
+                                                       : LazyInstantiationType::kMultipleUse;
+    return this->createLazyProxy(std::move(callback), desc, origin, mipMapped, renderTargetFlags,
+                                 fit, budgeted, lazyType);
+}
+
+sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&& callback,
+                                                       const GrSurfaceDesc& desc,
+                                                       GrSurfaceOrigin origin,
+                                                       GrMipMapped mipMapped,
+                                                       GrRenderTargetFlags renderTargetFlags,
+                                                       SkBackingFit fit, SkBudgeted budgeted,
+                                                       LazyInstantiationType lazyType) {
     SkASSERT((desc.fWidth <= 0 && desc.fHeight <= 0) ||
              (desc.fWidth > 0 && desc.fHeight > 0));
     uint32_t flags = GrResourceProvider::kNoPendingIO_Flag;
@@ -538,11 +552,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
         }
     }
 #endif
-
-    using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
-    // For non-ddl draws always make lazy proxy's single use.
-    LazyInstantiationType lazyType = fResourceProvider ? LazyInstantiationType::kSingleUse
-                                                       : LazyInstantiationType::kMultipleUse;
 
     return sk_sp<GrTextureProxy>(
             SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags)
