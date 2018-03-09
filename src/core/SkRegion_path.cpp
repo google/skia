@@ -326,6 +326,16 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
         return check_inverse_on_empty_return(this, path, clip);
     }
 
+    // Our builder is very fragile, and can't be called with spans/rects out of Y->X order.
+    // To ensure this, we only "fill" clipped to a rect (the clip's bounds), and if the
+    // clip is more complex than that, we just post-intersect the result with the clip.
+    if (clip.isComplex()) {
+        if (!this->setPath(path, SkRegion(clip.getBounds()))) {
+            return false;
+        }
+        return this->op(clip, kIntersect_Op);
+    }
+
     //  compute worst-case rgn-size for the path
     int pathTop, pathBot;
     int pathTransitions = count_path_runtype_values(path, &pathTop, &pathBot);
