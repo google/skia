@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4d80198_ade84e38",
+        "filename": "fuzz/FuzzPathMeasure.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-09T15:16:22Z",
+      "side": 1,
+      "message": "2018 Google, LLC.",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "eca5975c0d0e87d3d1cf5f8526d55c49843e0767",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3283e0e3_0e2bc76a",
+        "filename": "fuzz/FuzzPathMeasure.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-09T15:16:22Z",
+      "side": 1,
+      "message": "Let\u0027s add this to fuzz/FuzzCommon.h and import it to avoid duplication/skew",
+      "range": {
+        "startLine": 11,
+        "startChar": 12,
+        "endLine": 11,
+        "endChar": 21
+      },
+      "revId": "eca5975c0d0e87d3d1cf5f8526d55c49843e0767",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
