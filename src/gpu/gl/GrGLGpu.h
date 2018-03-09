@@ -150,7 +150,7 @@ public:
                                                      bool isRenderTarget,
                                                      GrMipMapped mipMapped) override;
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
-    void deleteTestingOnlyBackendTexture(GrBackendTexture*) override;
+    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
                                                                GrSRGBEncoded) override;

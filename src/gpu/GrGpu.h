@@ -466,7 +466,7 @@ public:
      * Frees a texture created by createTestingOnlyBackendTexture(). If ownership of the backend
      * texture has been transferred to a GrContext using adopt semantics this should not be called.
      */
-    virtual void deleteTestingOnlyBackendTexture(GrBackendTexture*) = 0;
+    virtual void deleteTestingOnlyBackendTexture(const GrBackendTexture&) = 0;
 
     virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
                                                                        GrSRGBEncoded) = 0;

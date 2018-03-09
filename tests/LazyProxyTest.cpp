@@ -458,7 +458,7 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
             REPORTER_ASSERT(reporter, 1 == releaseTestValue);
         }
 
-        gpu->deleteTestingOnlyBackendTexture(&backendTex);
+        gpu->deleteTestingOnlyBackendTexture(backendTex);
     }
 }
 

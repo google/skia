@@ -431,7 +431,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContex
         if (surface) {
             test_write_pixels(reporter, surface.get());
         }
-        gpu->deleteTestingOnlyBackendTexture(&backendTex);
+        gpu->deleteTestingOnlyBackendTexture(backendTex);
     }
 }
 

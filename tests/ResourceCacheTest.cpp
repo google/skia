@@ -246,10 +246,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
 
     if (borrowedIsAlive) {
-        gpu->deleteTestingOnlyBackendTexture(&(backendTextures[0]));
+        gpu->deleteTestingOnlyBackendTexture(backendTextures[0]);
     }
     if (adoptedIsAlive) {
-        gpu->deleteTestingOnlyBackendTexture(&(backendTextures[1]));
+        gpu->deleteTestingOnlyBackendTexture(backendTextures[1]);
     }
 
     context->resetContext();

@@ -1713,7 +1713,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (!context->contextPriv().abandoned()) {
         surface.reset();
         if (backendTexture.isValid()) {
-            context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(&backendTexture);
+            context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTexture);
         }
         if (backendRT.isValid()) {
             context->contextPriv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);

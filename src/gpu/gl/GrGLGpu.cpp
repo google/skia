@@ -4427,10 +4427,10 @@ bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return (GR_GL_TRUE == result);
 }
 
-void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex) {
-    SkASSERT(kOpenGL_GrBackend == tex->backend());
+void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+    SkASSERT(kOpenGL_GrBackend == tex.backend());
 
-    if (const auto* info = tex->getGLTextureInfo()) {
+    if (const auto* info = tex.getGLTextureInfo()) {
         GL_CALL(DeleteTextures(1, &info->fID));
     }
 }
