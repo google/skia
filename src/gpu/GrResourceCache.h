@@ -11,7 +11,6 @@
 #include "GrGpuResource.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
-#include "GrResourceCache.h"
 #include "GrResourceKey.h"
 #include "SkMessageBus.h"
 #include "SkRefCnt.h"
