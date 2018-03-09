@@ -7,6 +7,7 @@
 
 #include "SkColorFilter.h"
 #include "SkDrawable.h"
+#include "SkDrawShadowInfo.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkImagePriv.h"
 #include "SkLatticeIter.h"
@@ -298,6 +299,14 @@ void SkOverdrawCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matr
 void SkOverdrawCanvas::onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) {
     SkASSERT(false);
     return;
+}
+
+void SkOverdrawCanvas::onDrawAnnotation(const SkRect&, const char[], SkData*) {}
+
+void SkOverdrawCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    SkRect bounds;
+    SkDrawShadowMetrics::GetLocalBounds(path, rec, this->getTotalMatrix(), &bounds);
+    fList[0]->onDrawRect(bounds, fPaint);
 }
 
 inline SkPaint SkOverdrawCanvas::overdrawPaint(const SkPaint& paint) {

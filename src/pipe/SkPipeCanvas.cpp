@@ -8,6 +8,7 @@
 #include "SkAutoMalloc.h"
 #include "SkCanvasPriv.h"
 #include "SkColorFilter.h"
+#include "SkDrawable.h"
 #include "SkDrawLooper.h"
 #include "SkDrawShadowInfo.h"
 #include "SkImageFilter.h"
@@ -700,6 +701,11 @@ void SkPipeCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matri
     if (paint) {
         write_paint(writer, *paint, kSaveLayer_PaintUsage);
     }
+}
+
+void SkPipeCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    // TODO: Is there a better solution than just exploding the drawable?
+    drawable->draw(this, matrix);
 }
 
 void SkPipeCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {

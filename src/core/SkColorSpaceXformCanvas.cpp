@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvasVirtualEnforcer.h"
 #include "SkColorFilter.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkColorSpaceXformer.h"
@@ -29,11 +30,11 @@ namespace {
     };
 };
 
-class SkColorSpaceXformCanvas : public SkNoDrawCanvas {
+class SkColorSpaceXformCanvas : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
     SkColorSpaceXformCanvas(SkCanvas* target, sk_sp<SkColorSpace> targetCS,
                             std::unique_ptr<SkColorSpaceXformer> xformer)
-        : SkNoDrawCanvas(SkIRect::MakeSize(target->getBaseLayerSize()))
+        : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(SkIRect::MakeSize(target->getBaseLayerSize()))
         , fTarget(target)
         , fTargetCS(targetCS)
         , fXformer(std::move(xformer))
