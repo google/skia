@@ -197,7 +197,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                                                              true,
                                                              reporter));
 
-    gpu->deleteTestingOnlyBackendTexture(&backendTex);
+    gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
 
 #endif
