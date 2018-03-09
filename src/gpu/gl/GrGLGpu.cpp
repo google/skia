@@ -4344,6 +4344,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     }
 }
 
+#if GR_TEST_UTILS
 GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                           GrPixelConfig config, bool /*isRT*/,
                                                           GrMipMapped mipMapped) {
@@ -4434,13 +4435,86 @@ void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex) {
     }
 }
 
-void GrGLGpu::resetShaderCacheForTesting() const {
-    fProgramCache->abandon();
+GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h,
+                                                                    GrColorType colorType,
+                                                                    GrSRGBEncoded srgbEncoded) {
+    auto config = GrColorTypeToPixelConfig(colorType, srgbEncoded);
+    GrGLenum colorBufferFormat;
+    if (!this->glCaps().getRenderbufferFormat(config, &colorBufferFormat)) {
+        return {};
+    }
+    int sFormatIdx = this->getCompatibleStencilIndex(config);
+    if (sFormatIdx < 0) {
+        return {};
+    }
+    GrGLuint rbIDs[] = {0, 0};
+    GL_CALL(GenRenderbuffers(2, rbIDs));
+    if (!rbIDs[0] || !rbIDs[1]) {
+        if (!rbIDs[0]) {
+            GL_CALL(DeleteRenderbuffers(1, &rbIDs[0]));
+        }
+        if (!rbIDs[1]) {
+            GL_CALL(DeleteRenderbuffers(1, &rbIDs[1]));
+        }
+        return {};
+    }
+    GrGLFramebufferInfo info;
+    info.fFBOID = 0;
+    GL_CALL(GenFramebuffers(1, &info.fFBOID));
+    if (!info.fFBOID) {
+        GL_CALL(DeleteRenderbuffers(2, rbIDs));
+        return GrBackendRenderTarget();
+    }
+
+    this->invalidateBoundRenderTarget();
+
+    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID));
+    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, rbIDs[0]));
+    GL_ALLOC_CALL(this->glInterface(),
+                  RenderbufferStorage(GR_GL_RENDERBUFFER, colorBufferFormat, w, h));
+    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0, GR_GL_RENDERBUFFER,
+                                    rbIDs[0]));
+    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, rbIDs[1]));
+    auto stencilBufferFormat = this->glCaps().stencilFormats()[sFormatIdx].fInternalFormat;
+    GL_ALLOC_CALL(this->glInterface(),
+                  RenderbufferStorage(GR_GL_RENDERBUFFER, stencilBufferFormat, w, h));
+    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT, GR_GL_RENDERBUFFER,
+                                    rbIDs[1]));
+    if (this->glCaps().stencilFormats()[sFormatIdx].fPacked) {
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
+                                        GR_GL_RENDERBUFFER, rbIDs[1]));
+    }
+
+    // We don't want to have to recover the renderbuffer IDs later to delete them. OpenGL has this
+    // rule that if a renderbuffer is deleted and a FBO other than the current FBO has the RB
+    // attached then deletion is delayed. So we unbind the FBO here and delete the renderbuffers.
+    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, 0));
+    GL_CALL(DeleteRenderbuffers(2, rbIDs));
+
+    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID));
+    GrGLenum status;
+    GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+    if (GR_GL_FRAMEBUFFER_COMPLETE != status) {
+        GL_CALL(DeleteFramebuffers(1, &info.fFBOID));
+        return {};
+    }
+    auto stencilBits = SkToInt(this->glCaps().stencilFormats()[sFormatIdx].fStencilBits);
+    return {w, h, 1, stencilBits, config, info};
+}
+
+void GrGLGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
+    SkASSERT(kOpenGL_GrBackend == backendRT.backend());
+    if (auto info = backendRT.getGLFramebufferInfo()) {
+        if (info->fFBOID) {
+            GL_CALL(DeleteFramebuffers(1, &info->fFBOID));
+        }
+    }
 }
 
 void GrGLGpu::testingOnly_flushGpuAndSync() {
     GL_CALL(Finish());
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
