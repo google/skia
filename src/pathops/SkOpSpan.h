@@ -177,7 +177,6 @@ protected:
 
 class SkOpSpanBase {
 public:
-    SkOpSpanBase* active();
     void addOpp(SkOpSpanBase* opp);
 
     void bumpSpanAdds() {

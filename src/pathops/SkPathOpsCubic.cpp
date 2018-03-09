@@ -35,8 +35,7 @@ double SkDCubic::binarySearch(double min, double max, double axisIntercept,
     double calcPos = (&cubicAtT.fX)[xAxis];
     double calcDist = calcPos - axisIntercept;
     do {
-        double priorT = t - step;
-        SkOPASSERT(priorT >= min);
+        double priorT = std::max(min, t - step);
         SkDPoint lessPt = ptAtT(priorT);
         if (approximately_equal_half(lessPt.fX, cubicAtT.fX)
                 && approximately_equal_half(lessPt.fY, cubicAtT.fY)) {

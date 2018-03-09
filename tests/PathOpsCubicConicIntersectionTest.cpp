@@ -15,6 +15,20 @@ static struct cubicConic {
     CubicPts cubic;
     ConicPts conic;
 } cubicConicTests[] = {
+#if 0
+// FIXME: this triggers an assert in bool SkTSect::extractCoincident() at
+// SkOPASSERT(oppStartT < oppEndT);
+// Throwing an error here breaks one test, but only in release.
+// More work to be done to figure this out.
+    {{{{2.1883804947719909e-05, 3.6366123822517693e-05 },
+        {2.9145950975362211e-05, 2.9117207304807380e-05 },
+        {2.9113532946212217e-05, 2.9173743314458989e-05 },
+        {0.00000000000000000, 5.8282588724978268e-05 }}},
+    {{{{0.00000000000000000, 5.8282581449020654e-05 },
+        {0.00000000000000000, 5.8282563259126619e-05 },
+        {5.8282588724978268e-05, 0.00000000000000000 }}}, 53684.6563f}},
+#endif
+
     {{{{188.60000610351562, 2041.5999755859375}, {188.60000610351562, 2065.39990234375},
         {208, 2084.800048828125}, {231.80000305175781, 2084.800048828125}}},
     {{{{231.80000305175781, 2084.800048828125}, {188.60000610351562, 2084.800048828125},
@@ -73,5 +87,5 @@ DEF_TEST(PathOpsCubicConicIntersection, reporter) {
 }
 
 DEF_TEST(PathOpsCubicConicIntersectionOneOff, reporter) {
-    cubicConicIntersection(reporter, 1);
+    cubicConicIntersection(reporter, 0);
 }

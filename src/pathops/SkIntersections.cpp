@@ -45,23 +45,32 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
             return -1;
         }
         if (more_roughly_equal(oldOne, one) && more_roughly_equal(oldTwo, two)) {
-            if ((precisely_zero(one) && !precisely_zero(oldOne))
-                    || (precisely_equal(one, 1) && !precisely_equal(oldOne, 1))
-                    || (precisely_zero(two) && !precisely_zero(oldTwo))
-                    || (precisely_equal(two, 1) && !precisely_equal(oldTwo, 1))) {
-                SkASSERT(one >= 0 && one <= 1);
-                SkASSERT(two >= 0 && two <= 1);
-                fT[0][index] = one;
-                fT[1][index] = two;
-                fPt[index] = pt;
+            if ((!precisely_zero(one) || precisely_zero(oldOne))
+                    && (!precisely_equal(one, 1) || precisely_equal(oldOne, 1))
+                    && (!precisely_zero(two) || precisely_zero(oldTwo))
+                    && (!precisely_equal(two, 1) || precisely_equal(oldTwo, 1))) {
+                return -1;
             }
-            return -1;
+            SkASSERT(one >= 0 && one <= 1);
+            SkASSERT(two >= 0 && two <= 1);
+            // remove this and reinsert below in case replacing would make list unsorted
+            int remaining = fUsed - index - 1;
+            memmove(&fPt[index], &fPt[index + 1], sizeof(fPt[0]) * remaining);
+            memmove(&fT[0][index], &fT[0][index + 1], sizeof(fT[0][0]) * remaining);
+            memmove(&fT[1][index], &fT[1][index + 1], sizeof(fT[1][0]) * remaining);
+            int clearMask = ~((1 << index) - 1);
+            fIsCoincident[0] -= (fIsCoincident[0] >> 1) & clearMask;
+            fIsCoincident[1] -= (fIsCoincident[1] >> 1) & clearMask;
+            --fUsed;
+            break;
         }
     #if ONE_OFF_DEBUG
         if (pt.roughlyEqual(fPt[index])) {
             SkDebugf("%s t=%1.9g pts roughly equal\n", __FUNCTION__, one);
         }
     #endif
+    }
+    for (index = 0; index < fUsed; ++index) {
         if (fT[0][index] > one) {
             break;
         }
