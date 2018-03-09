@@ -153,10 +153,19 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              int stencilBits,
                                              const GrVkImageInfo& vkInfo)
+        : GrBackendRenderTarget(width, height, sampleCnt, vkInfo) {
+    // This is a deprecated constructor that takes a bogus stencil bits.
+    SkASSERT(0 == stencilBits);
+}
+
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             const GrVkImageInfo& vkInfo)
         : fWidth(width)
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
-        , fStencilBits(stencilBits)
+        , fStencilBits(0)  // We always create stencil buffers internally for vulkan
         , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo) {}
