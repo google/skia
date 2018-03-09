@@ -36,8 +36,7 @@ def RunSteps(api):
         abort_on_failure=False)
 
     cmd = ['python', api.core.resource('run_binary_size_analysis.py'),
-           '--library', api.vars.skia_out.join(
-               'Release', 'lib', 'libskia.so'),
+           '--library', api.vars.skia_out.join('Release', 'libskia.so'),
            '--githash', api.properties['revision'],
            '--gsutil_path', gsutil_path]
     if api.vars.is_trybot:
