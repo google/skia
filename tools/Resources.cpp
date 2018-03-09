@@ -48,7 +48,7 @@ sk_sp<SkData> GetResourceAsData(const char* resource) {
             return data;
         }
         SkDebugf("Resource \"%s\" not found.\n", resource);
-        SK_ABORT("missing resource");
+        // SK_ABORT("missing resource");
     }
     if (auto data = SkData::MakeFromFileName(GetResourcePath(resource).c_str())) {
         return data;
