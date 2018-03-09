@@ -1155,12 +1155,12 @@ static const SkRect kSKPViewport = {0, 0, 1000, 1000};
 
 SKPSrc::SKPSrc(Path path) : fPath(path) { }
 
-static sk_sp<SkPicture> read_skp(const char* path) {
+static sk_sp<SkPicture> read_skp(const char* path, const SkDeserialProcs* procs = nullptr) {
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
     if (!stream) {
         return nullptr;
     }
-    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get()));
+    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get(), procs));
     if (!pic) {
         return nullptr;
     }
@@ -1264,7 +1264,14 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
     SkTArray<TileData> tileData;
     tileData.reserve(16);
 
-    sk_sp<SkPicture> pic = read_skp(fPath.c_str());
+    SkDeserialProcs procs;
+    procs.fImageProc = [](const void* data, size_t length, void* ctx) {
+        sk_sp<SkImage> img;
+        return img;
+    };
+    procs.fImageCtx = nullptr;
+
+    sk_sp<SkPicture> pic = read_skp(fPath.c_str(), &procs);
     if (!pic) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
