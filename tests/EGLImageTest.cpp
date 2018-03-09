@@ -29,7 +29,7 @@ static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx
         if (grctx1) {
             if (backendTex1 && backendTex1->isValid()) {
                 GrGLGpu* gpu1 = static_cast<GrGLGpu*>(grctx1->contextPriv().getGpu());
-                gpu1->deleteTestingOnlyBackendTexture(backendTex1);
+                gpu1->deleteTestingOnlyBackendTexture(*backendTex1);
             }
         }
         if (GR_EGL_NO_IMAGE != image1) {

@@ -125,7 +125,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         surf.reset();
         ctxInfo.grContext()->flush();
         if (backendTex.isValid()) {
-            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+            gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
 
         static constexpr int kSampleCnt = 2;
@@ -174,7 +174,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         surf.reset();
         ctxInfo.grContext()->flush();
         if (backendTex.isValid()) {
-            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+            gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
     }
 }
@@ -719,7 +719,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
                                                                  kRGBA_8888_SkColorType,
                                                                  nullptr, nullptr);
     if (!surface) {
-        gpu->deleteTestingOnlyBackendTexture(outTexture);
+        gpu->deleteTestingOnlyBackendTexture(*outTexture);
         return nullptr;
     }
     return surface;
@@ -746,7 +746,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
             nullptr, nullptr);
 
     if (!surface) {
-        gpu->deleteTestingOnlyBackendTexture(outTexture);
+        gpu->deleteTestingOnlyBackendTexture(*outTexture);
         return nullptr;
     }
     return surface;
@@ -824,7 +824,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             auto surface = surfaceFunc(context, 1, kOrigColor, &backendTex);
             test_surface_clear(reporter, surface, grSurfaceGetter, kOrigColor);
             surface.reset();
-            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+            gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
     }
 }
@@ -888,7 +888,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
         if (surface) {
             test_surface_draw_partially(reporter, surface, kOrigColor);
             surface.reset();
-            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+            gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
     }
 }
@@ -922,7 +922,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
             GrRenderTarget* rt = surface->getCanvas()
                 ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget();
             REPORTER_ASSERT(reporter, resourceProvider->attachStencilAttachment(rt));
-            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+            gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
     }
 }
@@ -1040,7 +1040,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
 
     GrGpu* gpu = context->contextPriv().getGpu();
     for (auto backendTex : backendTextures) {
-        gpu->deleteTestingOnlyBackendTexture(&backendTex);
+        gpu->deleteTestingOnlyBackendTexture(backendTex);
     }
 }
 #endif
