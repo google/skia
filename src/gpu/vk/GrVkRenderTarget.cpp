@@ -348,8 +348,12 @@ GrBackendObject GrVkRenderTarget::getRenderTargetHandle() const {
 }
 
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
+    int numStencilBits = 0;
+    if (GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
+        numStencilBits = stencil->bits();
+    }
     return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
-                                 this->numStencilSamples(), fInfo);
+                                 numStencilBits, fInfo);
 }
 
 const GrVkResource* GrVkRenderTarget::stencilImageResource() const {

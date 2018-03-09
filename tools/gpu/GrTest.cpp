@@ -71,7 +71,7 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
         }
         case kMock_GrBackend: {
             GrMockTextureInfo* mockInfo = (GrMockTextureInfo*)(handle);
-            return GrBackendTexture(width, height, config, mipMapped, *mockInfo);
+            return GrBackendTexture(width, height, mipMapped, *mockInfo);
         }
         default:
             return GrBackendTexture();
