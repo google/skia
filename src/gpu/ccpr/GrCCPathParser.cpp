@@ -262,23 +262,23 @@ void GrCCPathParser::discardParsedPath() {
 GrCCPathParser::CoverageCountBatchID GrCCPathParser::closeCurrentBatch() {
     SkASSERT(!fInstanceBuffer);
     SkASSERT(!fCoverageCountBatches.empty());
-    const auto& lastBatch = fCoverageCountBatches.back();
-    const auto& lastScissorSubBatch = fScissorSubBatches[lastBatch.fEndScissorSubBatchIdx - 1];
 
+    const auto& lastBatch = fCoverageCountBatches.back();
+    int maxMeshes = 1 + fScissorSubBatches.count() - lastBatch.fEndScissorSubBatchIdx;
+    fMaxMeshesPerDraw = SkTMax(fMaxMeshesPerDraw, maxMeshes);
+
+    const auto& lastScissorSubBatch = fScissorSubBatches[lastBatch.fEndScissorSubBatchIdx - 1];
     PrimitiveTallies batchTotalCounts = fTotalPrimitiveCounts[(int)ScissorMode::kNonScissored] -
                                         lastBatch.fEndNonScissorIndices;
     batchTotalCounts += fTotalPrimitiveCounts[(int)ScissorMode::kScissored] -
                         lastScissorSubBatch.fEndPrimitiveIndices;
 
+    // This will invalidate lastBatch.
     fCoverageCountBatches.push_back() = {
         fTotalPrimitiveCounts[(int)ScissorMode::kNonScissored],
         fScissorSubBatches.count(),
         batchTotalCounts
     };
-
-    int maxMeshes = 1 + fScissorSubBatches.count() - lastBatch.fEndScissorSubBatchIdx;
-    fMaxMeshesPerDraw = SkTMax(fMaxMeshesPerDraw, maxMeshes);
-
     return fCoverageCountBatches.count() - 1;
 }
 
