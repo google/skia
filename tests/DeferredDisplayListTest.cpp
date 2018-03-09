@@ -42,9 +42,9 @@ static GrBackendFormat create_backend_format(GrContext* context, SkColorType col
         if (kRGBA_8888_SkColorType == colorType) {
             VkFormat format =  caps->srgbSupport() ? VK_FORMAT_R8G8B8A8_SRGB
                                                    : VK_FORMAT_R8G8B8A8_UNORM;
-            return GrBackendFormat::MakeVK(format);
+            return GrBackendFormat::MakeVk(format);
         } else if (kRGBA_F16_SkColorType == colorType) {
-            return GrBackendFormat::MakeVK(VK_FORMAT_R16G16B16A16_SFLOAT);
+            return GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT);
         }
         break;
 #endif

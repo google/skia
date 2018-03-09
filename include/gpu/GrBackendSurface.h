@@ -26,7 +26,7 @@ public:
     }
 
 #ifdef SK_VULKAN
-    static GrBackendFormat MakeVK(VkFormat format) {
+    static GrBackendFormat MakeVk(VkFormat format) {
         return GrBackendFormat(format);
     }
 #endif
