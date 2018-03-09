@@ -8,6 +8,7 @@
 #ifndef SkPipeCanvas_DEFINED
 #define SkPipeCanvas_DEFINED
 
+#include "SkCanvasVirtualEnforcer.h"
 #include "SkDeduper.h"
 #include "SkImage.h"
 #include "SkNoDrawCanvas.h"
@@ -86,7 +87,7 @@ private:
 };
 
 
-class SkPipeCanvas : public SkNoDrawCanvas {
+class SkPipeCanvas : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
     SkPipeCanvas(const SkRect& cull, SkPipeDeduper*, SkWStream*);
     ~SkPipeCanvas() override;
@@ -143,6 +144,7 @@ protected:
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
+    void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
 
     // These we turn into images
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
@@ -159,7 +161,7 @@ private:
 
     friend class SkPipeWriter;
 
-    typedef SkNoDrawCanvas INHERITED;
+    typedef SkCanvasVirtualEnforcer<SkNoDrawCanvas> INHERITED;
 };
 
 

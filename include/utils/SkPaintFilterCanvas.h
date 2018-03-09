@@ -8,6 +8,7 @@
 #ifndef SkPaintFilterCanvas_DEFINED
 #define SkPaintFilterCanvas_DEFINED
 
+#include "SkCanvasVirtualEnforcer.h"
 #include "SkNWayCanvas.h"
 #include "SkTLazy.h"
 
@@ -15,7 +16,7 @@
 
     A utility proxy base class for implementing draw/paint filters.
 */
-class SK_API SkPaintFilterCanvas : public SkNWayCanvas {
+class SK_API SkPaintFilterCanvas : public SkCanvasVirtualEnforcer<SkNWayCanvas> {
 public:
     /**
      * The new SkPaintFilterCanvas is configured for forwarding to the
@@ -108,6 +109,8 @@ protected:
                         const SkPaint& paint) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override;
+    void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) override;
+    void onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) override;
 
     // Forwarded to the wrapped canvas.
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
@@ -120,8 +123,6 @@ private:
     class AutoPaintFilter;
 
     SkCanvas* proxy() const { SkASSERT(fList.count() == 1); return fList[0]; }
-
-    typedef SkNWayCanvas INHERITED;
 };
 
 #endif

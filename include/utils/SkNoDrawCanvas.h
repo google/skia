@@ -9,6 +9,7 @@
 #define SkNoDrawCanvas_DEFINED
 
 #include "SkCanvas.h"
+#include "SkCanvasVirtualEnforcer.h"
 #include "SkVertices.h"
 
 struct SkIRect;
@@ -21,7 +22,7 @@ struct SkIRect;
 //   * not backed by any device/pixels
 //   * conservative clipping (clipping calls only use rectangles)
 //
-class SK_API SkNoDrawCanvas : public SkCanvas {
+class SK_API SkNoDrawCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
     SkNoDrawCanvas(int width, int height);
 
@@ -37,6 +38,7 @@ protected:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
 
     // No-op overrides for aborting rasterization earlier than SkNullBlitter.
+    void onDrawAnnotation(const SkRect&, const char[], SkData*) override {}
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override {}
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override {}
     void onDrawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {}
@@ -75,9 +77,10 @@ protected:
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override {}
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override {}
+    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override {}
 
 private:
-    typedef SkCanvas INHERITED;
+    typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
 };
 
 #endif // SkNoDrawCanvas_DEFINED
