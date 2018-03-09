@@ -799,10 +799,6 @@ void SkGraphics::PurgeFontCache() {
     SkTypefaceCache::PurgeAll();
 }
 
-// TODO(herb): clean up TLS apis.
-size_t SkGraphics::GetTLSFontCacheLimit() { return 0; }
-void SkGraphics::SetTLSFontCacheLimit(size_t bytes) { }
-
 SkGlyphCache* SkGlyphCache::DetachCache(
     SkTypeface* typeface, const SkScalerContextEffects& effects, const SkDescriptor* desc)
 {
