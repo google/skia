@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "494fd9fd_54f1334c",
+        "filename": "src/gpu/GrTextureStripAtlas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-09T16:22:42Z",
+      "side": 1,
+      "message": "Is this not implemented?",
+      "range": {
+        "startLine": 170,
+        "startChar": 4,
+        "endLine": 170,
+        "endChar": 34
+      },
+      "revId": "60f9da8a7a84a0088ebb49468af8c9c46c426f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
