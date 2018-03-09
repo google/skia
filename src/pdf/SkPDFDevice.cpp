@@ -599,6 +599,9 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
 }
 
 void SkPDFDevice::drawPaint(const SkPaint& srcPaint) {
+    if (this->hasEmptyClip()) {
+        return;
+    }
     SkPaint newPaint = srcPaint;
     remove_color_filter(&newPaint);
     replace_srcmode_on_opaque_paint(&newPaint);
@@ -636,6 +639,9 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
                              size_t count,
                              const SkPoint* points,
                              const SkPaint& srcPaint) {
+    if (this->hasEmptyClip()) {
+        return;
+    }
     SkPaint passedPaint = srcPaint;
     remove_color_filter(&passedPaint);
     replace_srcmode_on_opaque_paint(&passedPaint);
@@ -650,9 +656,6 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
     // We only use this when there's a path effect because of the overhead
     // of multiple calls to setUpContentEntry it causes.
     if (passedPaint.getPathEffect()) {
-        if (this->cs().isEmpty(this->bounds())) {
-            return;
-        }
         draw_points(mode, count, points, passedPaint,
                     this->devClipBounds(), this->ctm(), this);
         return;
@@ -760,6 +763,9 @@ static sk_sp<SkPDFDict> create_link_named_dest(const SkData* nameData,
 
 void SkPDFDevice::drawRect(const SkRect& rect,
                            const SkPaint& srcPaint) {
+    if (this->hasEmptyClip()) {
+        return;
+    }
     SkPaint paint = srcPaint;
     remove_color_filter(&paint);
     replace_srcmode_on_opaque_paint(&paint);
@@ -767,9 +773,6 @@ void SkPDFDevice::drawRect(const SkRect& rect,
     r.sort();
 
     if (paint.getPathEffect() || paint.getMaskFilter()) {
-        if (this->cs().isEmpty(this->bounds())) {
-            return;
-        }
         SkPath path;
         path.addRect(r);
         this->drawPath(path, paint, nullptr, true);
@@ -786,6 +789,9 @@ void SkPDFDevice::drawRect(const SkRect& rect,
 
 void SkPDFDevice::drawRRect(const SkRRect& rrect,
                             const SkPaint& srcPaint) {
+    if (this->hasEmptyClip()) {
+        return;
+    }
     SkPaint paint = srcPaint;
     remove_color_filter(&paint);
     replace_srcmode_on_opaque_paint(&paint);
@@ -796,6 +802,9 @@ void SkPDFDevice::drawRRect(const SkRRect& rrect,
 
 void SkPDFDevice::drawOval(const SkRect& oval,
                            const SkPaint& srcPaint) {
+    if (this->hasEmptyClip()) {
+        return;
+    }
     SkPaint paint = srcPaint;
     remove_color_filter(&paint);
     replace_srcmode_on_opaque_paint(&paint);
@@ -890,6 +899,9 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
                                    const SkPaint& srcPaint,
                                    const SkMatrix* prePathMatrix,
                                    bool pathIsMutable) {
+    if (clipStack.isEmpty(this->bounds())) {
+        return;
+    }
     SkPaint paint = srcPaint;
     remove_color_filter(&paint);
     replace_srcmode_on_opaque_paint(&paint);
@@ -1389,7 +1401,7 @@ void SkPDFDevice::internalDrawText(
     if (0 == sourceByteCount || !sourceText || srcPaint.getTextSize() <= 0) {
         return;
     }
-    if (this->cs().isEmpty(this->bounds())) {
+    if (this->hasEmptyClip()) {
         return;
     }
     NOT_IMPLEMENTED(srcPaint.isVerticalText(), false);
@@ -1679,7 +1691,7 @@ void SkPDFDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 }
 
 void SkPDFDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
-    if (this->cs().isEmpty(this->bounds())) {
+    if (this->hasEmptyClip()) {
         return;
     }
     // TODO: implement drawVertices
@@ -1805,7 +1817,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
         return false;
     }
 
-    if (this->cs().isEmpty(this->bounds())) {
+    if (this->hasEmptyClip()) {
         return false;
     }
 
@@ -2284,6 +2296,9 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
                                         const SkRect& dst,
                                         const SkPaint& srcPaint,
                                         const SkMatrix& ctm) {
+    if (this->hasEmptyClip()) {
+        return;
+    }
     if (!imageSubset) {
         return;
     }
@@ -2531,6 +2546,9 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 
 void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPaint& paint,
                               SkImage* clipImage, const SkMatrix& clipMatrix) {
+    if (this->hasEmptyClip()) {
+        return;
+    }
     SkASSERT(!srcImg->isTextureBacked());
 
     //TODO: clipImage support
