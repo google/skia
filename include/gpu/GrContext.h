@@ -42,6 +42,7 @@ class GrSwizzle;
 class GrTextBlobCache;
 class GrTextContext;
 class GrTextureProxy;
+class GrTextureStripAtlasManager;
 class GrVertexBuffer;
 struct GrVkBackendContext;
 
@@ -97,24 +98,6 @@ public:
      * context, either GL or D3D (possible in future).
      */
     void resetContext(uint32_t state = kAll_GrBackendState);
-
-    /**
-     * Callback function to allow classes to cleanup on GrContext destruction.
-     * The 'info' field is filled in with the 'info' passed to addCleanUp.
-     */
-    typedef void (*PFCleanUpFunc)(const GrContext* context, void* info);
-
-    /**
-     * Add a function to be called from within GrContext's destructor.
-     * This gives classes a chance to free resources held on a per context basis.
-     * The 'info' parameter will be stored and passed to the callback function.
-     */
-    void addCleanUp(PFCleanUpFunc cleanUp, void* info) {
-        CleanUpData* entry = fCleanUpData.push();
-
-        entry->fFunc = cleanUp;
-        entry->fInfo = info;
-    }
 
     /**
      * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
@@ -293,6 +276,7 @@ private:
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
     GrProxyProvider*                        fProxyProvider;
+    std::unique_ptr<GrTextureStripAtlasManager> fTextureStripAtlasManager;
 
 
     GrGlyphCache*                           fGlyphCache;
@@ -310,13 +294,6 @@ private:
     mutable GrSingleOwner                   fSingleOwner;
 
     std::unique_ptr<SkTaskGroup>            fTaskGroup;
-
-    struct CleanUpData {
-        PFCleanUpFunc fFunc;
-        void*         fInfo;
-    };
-
-    SkTDArray<CleanUpData>                  fCleanUpData;
 
     const uint32_t                          fUniqueID;
 
