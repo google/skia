@@ -164,7 +164,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         TextureFulfillProc textureFulfillProc,
         TextureReleaseProc textureReleaseProc,
         TextureContext textureContext) {
-#if !defined(SK_RASTER_RECORDER_IMPLEMENTATION) && defined(SK_SUPPORT_GPU)
+#if !defined(SK_RASTER_RECORDER_IMPLEMENTATION) && SK_SUPPORT_GPU
     return SkImage_Gpu::MakePromiseTexture(fContext.get(),
                                            backendFormat,
                                            width,

@@ -20,6 +20,7 @@ class GrBackendTexture;
 class GrContext;
 
 class SkCanvas;
+class SkImage;
 class SkSurface;
 
 /*
