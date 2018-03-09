@@ -97,6 +97,30 @@
       "revId": "b30755bd94a0b45b7c5b00bbbe9e73dbee8f87d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ed6995c_31a22d5e",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-09T15:06:15Z",
+      "side": 1,
+      "message": "Agreed. I was tempted to do that, this was the quickest fix to get it compiling so I could run it by folks. I\u0027ll do a cleanup pass on this CL (strip virtual from the declarations in the Enforcer, add comments, etc...).",
+      "parentUuid": "5f699a6c_aaca0214",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 131,
+        "endChar": 72
+      },
+      "revId": "b30755bd94a0b45b7c5b00bbbe9e73dbee8f87d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
