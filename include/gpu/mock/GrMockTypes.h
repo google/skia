@@ -13,7 +13,12 @@
 
 struct GrMockTextureInfo {
     GrPixelConfig fConfig;
-    int           fID;
+    int fID;
+};
+
+struct GrMockRenderTargetInfo {
+    GrPixelConfig fConfig;
+    int fID;
 };
 
 /**

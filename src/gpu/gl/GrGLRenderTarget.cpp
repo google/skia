@@ -86,9 +86,13 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
     GrGLFramebufferInfo fbi;
     fbi.fFBOID = fRTFBOID;
     fbi.fFormat = this->getGLGpu()->glCaps().configSizedInternalFormat(this->config());
+    int numStencilBits = 0;
+    if (GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
+        numStencilBits = stencil->bits();
+    }
 
     return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
-                                 this->numStencilSamples(), fbi);
+                                 numStencilBits, fbi);
 }
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {
