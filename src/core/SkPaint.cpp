@@ -1748,9 +1748,9 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     }
 
     // SRGBTODO: Is this correct?
-    fCache = SkGlyphCache::DetachCacheUsingPaint(fPaint, nullptr,
-                                                 SkScalerContextFlags::kFakeGammaAndBoostContrast,
-                                                 nullptr);
+    fCache = SkGlyphCache::FindOrCreateStrikeExclusive(
+        fPaint, nullptr,
+        SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 
     SkPaint::Style  style = SkPaint::kFill_Style;
     sk_sp<SkPathEffect> pe;
@@ -1768,7 +1768,7 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     SkScalar xOffset = 0;
     if (paint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
         int      count;
-        SkScalar width = fPaint.measure_text(fCache, text, length, &count, nullptr) * fScale;
+        SkScalar width = fPaint.measure_text(fCache.get(), text, length, &count, nullptr) * fScale;
         if (paint.getTextAlign() == SkPaint::kCenter_Align) {
             width = SkScalarHalf(width);
         }
@@ -1783,13 +1783,9 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     fXYIndex = paint.isVerticalText() ? 1 : 0;
 }
 
-SkTextBaseIter::~SkTextBaseIter() {
-    SkGlyphCache::AttachCache(fCache);
-}
-
 bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
     if (fText < fStop) {
-        const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
+        const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &fText);
 
         fXPos += (fPrevAdvance + fAutoKern.adjust(glyph)) * fScale;
         fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
@@ -1812,7 +1808,7 @@ bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
 }
 
 bool SkTextInterceptsIter::next(SkScalar* array, int* count) {
-    const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
+    const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &fText);
     fXPos += (fPrevAdvance + fAutoKern.adjust(glyph)) * fScale;
     fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
     if (fCache->findPath(glyph)) {
