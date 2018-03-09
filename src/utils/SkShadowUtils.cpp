@@ -6,6 +6,7 @@
 */
 
 #include "SkShadowUtils.h"
+#include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
@@ -640,7 +641,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 paint.setColor(rec.fAmbientColor);
                 paint.setStrokeWidth(strokeWidth);
                 paint.setStyle(SkPaint::kStrokeAndFill_Style);
-                SkScalar sigma = SkBlurMaskFilter::ConvertRadiusToSigma(blurRadius);
+                SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(blurRadius);
                 uint32_t flags = SkBlurMaskFilter::kIgnoreTransform_BlurFlag;
                 paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, flags));
                 this->drawPath(devSpacePath, paint);
@@ -725,7 +726,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 
                 SkPaint paint;
                 paint.setColor(rec.fSpotColor);
-                SkScalar sigma = SkBlurMaskFilter::ConvertRadiusToSigma(radius);
+                SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(radius);
                 uint32_t flags = SkBlurMaskFilter::kIgnoreTransform_BlurFlag;
                 paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, flags));
                 this->drawPath(path, paint);
