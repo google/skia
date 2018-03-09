@@ -39,10 +39,6 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #endif
 
-SkScalar SkBlurMaskFilter::ConvertRadiusToSigma(SkScalar radius) {
-    return SkBlurMask::ConvertRadiusToSigma(radius);
-}
-
 class SkBlurMaskFilterImpl : public SkMaskFilterBase {
 public:
     SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle, const SkRect& occluder, uint32_t flags);
