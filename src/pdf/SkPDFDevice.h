@@ -276,6 +276,8 @@ private:
     void addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice, SkDynamicMemoryWStream*);
     void clearMaskOnGraphicState(SkDynamicMemoryWStream*);
 
+    bool hasEmptyClip() const { return this->cs().isEmpty(this->bounds()); }
+
     typedef SkClipStackDevice INHERITED;
 };
 
