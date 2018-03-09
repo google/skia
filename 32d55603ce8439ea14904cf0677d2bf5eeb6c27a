@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e9d90439_e5f64622",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-09T21:04:34Z",
+      "side": 1,
+      "message": "in theory, nothing need be done.  But in practice, rasterizers sometimes have odd artifacts.",
+      "parentUuid": "63c0bf60_ac8cd0f9",
+      "range": {
+        "startLine": 311,
+        "startChar": 47,
+        "endLine": 311,
+        "endChar": 63
+      },
+      "revId": "32d55603ce8439ea14904cf0677d2bf5eeb6c27a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0926695_c33d27c7",
         "filename": "src/pdf/SkPDFDevice.cpp",
         "patchSetId": 1
@@ -39,6 +63,24 @@
       "revId": "32d55603ce8439ea14904cf0677d2bf5eeb6c27a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5261a60c_bbe10263",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-09T21:04:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d0926695_c33d27c7",
+      "revId": "32d55603ce8439ea14904cf0677d2bf5eeb6c27a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
