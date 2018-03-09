@@ -293,14 +293,14 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
         info.fFormat = format;
         info.fLevelCount = 1;
 
-        GrBackendTexture backendTex(fWidth, fHeight, info);
+        GrBackendRenderTarget backendRT(fWidth, fHeight, fSampleCount, info);
 
-        fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(fContext.get(), backendTex,
-                                                                       kTopLeft_GrSurfaceOrigin,
-                                                                       fSampleCount,
-                                                                       colorType,
-                                                                       fDisplayParams.fColorSpace,
-                                                                       &fSurfaceProps);
+        fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(fContext.get(),
+                                                              backendRT,
+                                                              kTopLeft_GrSurfaceOrigin,
+                                                              colorType,
+                                                              fDisplayParams.fColorSpace,
+                                                              &fSurfaceProps);
     }
 
     // create the command pool for the command buffers

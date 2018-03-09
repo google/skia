@@ -942,11 +942,13 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     desc.fSampleCnt = 1;
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
-    if (tgt && backendRT.stencilBits()) {
-        if (!createStencilAttachmentForRenderTarget(tgt.get(), desc.fWidth, desc.fHeight)) {
-            return nullptr;
-        }
+
+    // We don't allow the client to supply a premade stencil buffer. We always create one if needed.
+    SkASSERT(!backendRT.stencilBits());
+    if (tgt) {
+        SkASSERT(tgt->canAttemptStencilAttachment());
     }
+
     return tgt;
 }
 
