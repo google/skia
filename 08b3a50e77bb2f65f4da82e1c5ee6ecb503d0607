@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bd5681d_820a2c5e",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor_VSImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-09T18:33:53Z",
+      "side": 1,
+      "message": "nit 100 chars",
+      "range": {
+        "startLine": 358,
+        "startChar": 54,
+        "endLine": 358,
+        "endChar": 99
+      },
+      "revId": "08b3a50e77bb2f65f4da82e1c5ee6ecb503d0607",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
