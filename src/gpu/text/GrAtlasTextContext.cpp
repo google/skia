@@ -680,15 +680,6 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
     const SkPaint& skPaint = paint.skPaint();
     SkPaint::GlyphCacheProc glyphCacheProc =
             SkPaint::GetGlyphCacheProc(skPaint.getTextEncoding(), skPaint.isDevKernText(), true);
-    SkAutoDescriptor desc;
-    SkScalerContextEffects effects;
-    // We apply the fake-gamma by altering the distance in the shader, so we ignore the
-    // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
-    SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        skPaint, &props, SkScalerContextFlags::kNone, nullptr, &desc, &effects);
-    auto typeface = SkPaintPriv::GetTypefaceOrDefault(skPaint);
-    SkGlyphCache* origPaintCache =
-            SkGlyphCache::DetachCache(typeface, effects, desc.getDesc());
 
     SkTArray<SkScalar> positions;
 
@@ -702,25 +693,36 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
         case SkPaint::kLeft_Align: origin = 0; break;
     }
 
-    SkAutoKern autokern;
-    const char* stop = text + byteLength;
-    while (textPtr < stop) {
-        // don't need x, y here, since all subpixel variants will have the
-        // same advance
-        const SkGlyph& glyph = glyphCacheProc(origPaintCache, &textPtr);
+    SkAutoDescriptor desc;
+    SkScalerContextEffects effects;
+    // We apply the fake-gamma by altering the distance in the shader, so we ignore the
+    // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
+    SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+        skPaint, &props, SkScalerContextFlags::kNone, nullptr, &desc, &effects);
+    auto typeface = SkPaintPriv::GetTypefaceOrDefault(skPaint);
 
-        SkScalar width = SkFloatToScalar(glyph.fAdvanceX) + autokern.adjust(glyph);
-        positions.push_back(stopX + origin * width);
+    {
+        auto origPaintCache =
+            SkGlyphCache::FindOrCreateStrikeExclusive(*desc.getDesc(), effects, *typeface);
 
-        SkScalar height = SkFloatToScalar(glyph.fAdvanceY);
-        positions.push_back(stopY + origin * height);
+        SkAutoKern autokern;
+        const char* stop = text + byteLength;
+        while (textPtr < stop) {
+            // don't need x, y here, since all subpixel variants will have the
+            // same advance
+            const SkGlyph& glyph = glyphCacheProc(origPaintCache.get(), &textPtr);
 
-        stopX += width;
-        stopY += height;
+            SkScalar width = SkFloatToScalar(glyph.fAdvanceX) + autokern.adjust(glyph);
+            positions.push_back(stopX + origin * width);
+
+            SkScalar height = SkFloatToScalar(glyph.fAdvanceY);
+            positions.push_back(stopY + origin * height);
+
+            stopX += width;
+            stopY += height;
+        }
+        SkASSERT(textPtr == stop);
     }
-    SkASSERT(textPtr == stop);
-
-    SkGlyphCache::AttachCache(origPaintCache);
 
     // now adjust starting point depending on alignment
     SkScalar alignX = stopX;
