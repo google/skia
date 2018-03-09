@@ -55,11 +55,11 @@ sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount,
     return cacheBlob;
 }
 
-SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
-                                          const SkSurfaceProps& props,
-                                          SkScalerContextFlags scalerContextFlags,
-                                          const SkPaint& skPaint,
-                                          const SkMatrix* viewMatrix) {
+SkExclusiveStrikePtr GrAtlasTextBlob::setupCache(int runIndex,
+                                                 const SkSurfaceProps& props,
+                                                 SkScalerContextFlags scalerContextFlags,
+                                                 const SkPaint& skPaint,
+                                                 const SkMatrix* viewMatrix) {
     GrAtlasTextBlob::Run* run = &fRuns[runIndex];
 
     // if we have an override descriptor for the run, then we should use that
@@ -71,7 +71,7 @@ SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
     run->fTypeface = SkPaintPriv::RefTypefaceOrDefault(skPaint);
     run->fPathEffect = sk_ref_sp(effects.fPathEffect);
     run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);
-    return SkGlyphCache::DetachCache(run->fTypeface.get(), effects, desc->getDesc());
+    return SkGlyphCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *run->fTypeface);
 }
 
 void GrAtlasTextBlob::appendGlyph(int runIndex,
