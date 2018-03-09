@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f675cc31_622b783c",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2758,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-09T14:55:35Z",
+      "side": 1,
+      "message": "Had to move this constructor so that SkNoDrawCanvas can still call it.",
+      "revId": "b30755bd94a0b45b7c5b00bbbe9e73dbee8f87d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5b4616d_9cb568ca",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-09T14:55:35Z",
+      "side": 1,
+      "message": "Things get odd here. This canvas does some work, then forwards most calls to INHERITED::, so INHERITED needs to be SkNWay, not the Enforcer. But the constructor needs to chain to the real (immediate) ancestor.",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 131,
+        "endChar": 72
+      },
+      "revId": "b30755bd94a0b45b7c5b00bbbe9e73dbee8f87d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
