@@ -120,6 +120,10 @@ void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
 void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                           bool doConsumeDegerates, SkWStream* content,
                           SkScalar tolerance) {
+    if (path.isEmpty() && SkPaint::kFill_Style == paintStyle) {
+        SkPDFUtils::AppendRectangle({0, 0, 0, 0}, content);
+        return;
+    }
     // Filling a path with no area results in a drawing in PDF renderers but
     // Chrome expects to be able to draw some such entities with no visible
     // result, so we detect those cases and discard the drawing for them.
