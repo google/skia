@@ -54,10 +54,11 @@ public:
         void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
     };
 
-    // All primitive shapes (triangles and closed, convex bezier curves) require two
-    // render passes: One to draw a rough outline of the shape, and a second pass to touch up the
-    // corners. Here we enumerate every render pass needed in order to produce a complete
-    // coverage count mask. This is an exhaustive list of all ccpr coverage shaders.
+    // All primitive shapes (triangles and closed, convex bezier curves) may require two render
+    // passes: One to draw a rough outline of the shape, and a second pass to touch up the corners.
+    // Check DoesRenderPass() before attempting to draw a given RenderPass. Here we enumerate every
+    // possible render pass needed in order to produce a complete coverage count mask. This is an
+    // exhaustive list of all ccpr coverage shaders.
     enum class RenderPass {
         kTriangles,
         kTriangleCorners,
@@ -68,6 +69,11 @@ public:
     };
     static bool RenderPassIsCubic(RenderPass);
     static const char* RenderPassName(RenderPass);
+
+    constexpr static bool DoesRenderPass(RenderPass renderPass, const GrCaps& caps) {
+        return RenderPass::kTriangleCorners != renderPass ||
+               caps.shaderCaps()->geometryShaderSupport();
+    }
 
     enum class WindMethod : bool {
         kCrossProduct, // Calculate wind = +/-1 by sign of the cross product.
@@ -81,22 +87,11 @@ public:
             , fWindMethod(windMethod)
             , fImpl(rp->caps()->shaderCaps()->geometryShaderSupport() ? Impl::kGeometryShader
                                                                       : Impl::kVertexShader) {
+        SkASSERT(DoesRenderPass(pass, *rp->caps()));
         if (Impl::kGeometryShader == fImpl) {
             this->initGS();
         } else {
             this->initVS(rp);
-        }
-    }
-
-    // Appends a GrMesh that will draw the provided instances. The instanceBuffer must be an array
-    // of either TriPointInstance or QuadPointInstance, depending on this processor's RendererPass,
-    // with coordinates in the desired shape's final atlas-space position.
-    void appendMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
-                    SkTArray<GrMesh>* out) {
-        if (Impl::kGeometryShader == fImpl) {
-            this->appendGSMesh(instanceBuffer, instanceCount, baseInstance, out);
-        } else {
-            this->appendVSMesh(instanceBuffer, instanceCount, baseInstance, out);
         }
     }
 
@@ -115,6 +110,18 @@ public:
     bool debugVisualizationsEnabled() const { return fDebugBloat > 0; }
     float debugBloat() const { SkASSERT(this->debugVisualizationsEnabled()); return fDebugBloat; }
 #endif
+
+    // Appends a GrMesh that will draw the provided instances. The instanceBuffer must be an array
+    // of either TriPointInstance or QuadPointInstance, depending on this processor's RendererPass,
+    // with coordinates in the desired shape's final atlas-space position.
+    void appendMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
+                    SkTArray<GrMesh>* out) const {
+        if (Impl::kGeometryShader == fImpl) {
+            this->appendGSMesh(instanceBuffer, instanceCount, baseInstance, out);
+        } else {
+            this->appendVSMesh(instanceBuffer, instanceCount, baseInstance, out);
+        }
+    }
 
     // The Shader provides code to calculate each pixel's coverage in a RenderPass. It also
     // provides details about shape-specific geometry.
@@ -168,6 +175,13 @@ public:
         static void CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGeoBuilder*, const char* leftPt,
                                                   const char* rightPt, const char* rasterVertexDir,
                                                   const char* outputCoverage);
+
+        // Calculates an edge's coverage at two conservative raster vertices.
+        // (See CalcEdgeCoverageAtBloatVertex).
+        static void CalcEdgeCoveragesAtBloatVertices(GrGLSLVertexGeoBuilder*, const char* leftPt,
+                                                     const char* rightPt, const char* bloatDir1,
+                                                     const char* bloatDir2,
+                                                     const char* outputCoverages);
 
         virtual ~Shader() {}
 
