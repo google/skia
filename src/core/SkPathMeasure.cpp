@@ -228,7 +228,7 @@ static SkScalar compute_quad_len(const SkPoint pts[3]) {
 }
 
 SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
-                          SkScalar distance, int mint, int maxt, unsigned ptIndex) {
+                          SkScalar distance, int mint, int maxt, int ptIndex) {
     if (tspan_big_enough(maxt - mint) && quad_too_curvy(pts)) {
         SkPoint tmp[5];
         int     halft = (mint + maxt) >> 1;
@@ -253,7 +253,7 @@ SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
 
 SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distance,
                                            int mint, const SkPoint& minPt,
-                                           int maxt, const SkPoint& maxPt, unsigned ptIndex) {
+                                           int maxt, const SkPoint& maxPt, int ptIndex) {
     int halft = (mint + maxt) >> 1;
     SkPoint halfPt = conic.evalAt(tValue2Scalar(halft));
     if (tspan_big_enough(maxt - mint) && conic_too_curvy(minPt, halfPt, maxPt)) {
@@ -275,7 +275,7 @@ SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distan
 }
 
 SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
-                           SkScalar distance, int mint, int maxt, unsigned ptIndex) {
+                           SkScalar distance, int mint, int maxt, int ptIndex) {
     if (tspan_big_enough(maxt - mint) && cubic_too_curvy(pts)) {
         SkPoint tmp[7];
         int     halft = (mint + maxt) >> 1;
@@ -300,10 +300,10 @@ SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
 
 void SkPathMeasure::buildSegments() {
     SkPoint         pts[4];
-    unsigned        ptIndex = fFirstPtIndex;
+    int             ptIndex = fFirstPtIndex;
     SkScalar        distance = 0;
     bool            isClosed = fForceClosed;
-    bool            firstMoveTo = ptIndex == (unsigned) -1;
+    bool            firstMoveTo = ptIndex < 0;
     Segment*        seg;
 
     /*  Note:
@@ -471,6 +471,7 @@ static void compute_pos_tan(const SkPoint pts[], unsigned segType,
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPathMeasure::SkPathMeasure() {
+    fPath = nullptr;
     fTolerance = CHEAP_DIST_LIMIT;
     fLength = -1;   // signal we need to compute it
     fForceClosed = false;
@@ -478,13 +479,13 @@ SkPathMeasure::SkPathMeasure() {
 }
 
 SkPathMeasure::SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale) {
-    fPath = path;
+    fPath = &path;
     fTolerance = CHEAP_DIST_LIMIT * SkScalarInvert(resScale);
     fLength = -1;   // signal we need to compute it
     fForceClosed = forceClosed;
     fFirstPtIndex = -1;
 
-    fIter.setPath(fPath, forceClosed);
+    fIter.setPath(path, forceClosed);
 }
 
 SkPathMeasure::~SkPathMeasure() {}
@@ -492,22 +493,20 @@ SkPathMeasure::~SkPathMeasure() {}
 /** Assign a new path, or null to have none.
 */
 void SkPathMeasure::setPath(const SkPath* path, bool forceClosed) {
-    if (path) {
-        fPath = *path;
-    } else {
-        fPath.reset();
-    }
+    fPath = path;
     fLength = -1;   // signal we need to compute it
     fForceClosed = forceClosed;
     fFirstPtIndex = -1;
 
-    fIter.setPath(fPath, forceClosed);
+    if (path) {
+        fIter.setPath(*path, forceClosed);
+    }
     fSegments.reset();
     fPts.reset();
 }
 
 SkScalar SkPathMeasure::getLength() {
-    if (fPath.isEmpty()) {
+    if (fPath == nullptr) {
         return 0;
     }
     if (fLength < 0) {
@@ -583,7 +582,7 @@ const SkPathMeasure::Segment* SkPathMeasure::distanceToSegment(
 }
 
 bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent) {
-    if (fPath.isEmpty()) {
+    if (nullptr == fPath) {
         return false;
     }
 
@@ -610,7 +609,7 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent
 
 bool SkPathMeasure::getMatrix(SkScalar distance, SkMatrix* matrix,
                               MatrixFlags flags) {
-    if (fPath.isEmpty()) {
+    if (nullptr == fPath) {
         return false;
     }
 
