@@ -10,7 +10,6 @@
 #ifdef SAMPLE_PDF_FILE_VIEWER
 
 #include "SampleCode.h"
-#include "SkDumpCanvas.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
