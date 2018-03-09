@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e27b71bd_f3dd1e76",
+        "filename": "fuzz/FuzzPathMeasure.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-09T15:28:30Z",
+      "side": 1,
+      "message": "I think you should also include Fuzz.h, since it Fuzz is used on line 11.",
+      "revId": "96bca5b15583a41145a9ccfaaae02f713e696cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e99ee9e6_fa3d20ee",
+        "filename": "fuzz/FuzzPathop.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-09T15:28:30Z",
+      "side": 1,
+      "message": "I think you should also include Fuzz.h, since it Fuzz is used on line 14.",
+      "revId": "96bca5b15583a41145a9ccfaaae02f713e696cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
