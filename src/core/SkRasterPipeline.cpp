@@ -26,7 +26,13 @@ void SkRasterPipeline::append(StockStage stage, void* ctx) {
     this->unchecked_append(stage, ctx);
 }
 void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
-    fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx} );
+    fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx, false} );
+    fNumStages   += 1;
+    fSlotsNeeded += ctx ? 2 : 1;
+}
+
+void SkRasterPipeline::append(void* fn, void* ctx) {
+    fStages = fAlloc->make<StageList>( StageList{fStages, (uint64_t) fn, ctx, true} );
     fNumStages   += 1;
     fSlotsNeeded += ctx ? 2 : 1;
 }

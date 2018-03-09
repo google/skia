@@ -36,6 +36,7 @@ class GrRenderTargetContext;
 class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
+class GrRestrictedAtlasManager;
 class GrSamplerState;
 class GrSurfaceProxy;
 class GrSwizzle;
