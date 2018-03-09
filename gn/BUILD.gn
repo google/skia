@@ -567,10 +567,12 @@ toolchain("msvc") {
   }
 
   tool("solink") {
-    dllname = "{{output_dir}}/{{target_output_name}}{{output_extension}}"
-    libname = "${dllname}.lib"
-    pdbname = "${dllname}.pdb"
-    rspfile = "${dllname}.rsp"
+    output_prefix = "lib"
+    dllname_no_ext = "{{output_dir}}/{{target_output_name}}"
+    dllname = "${dllname_no_ext}{{output_extension}}"
+    libname = "${dllname_no_ext}.lib"
+    pdbname = "${dllname_no_ext}.pdb"
+    rspfile = "${dllname_no_ext}.rsp"
 
     command = "$env_setup\"$bin/link.exe\" /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile$env_setup_end"
     outputs = [
