@@ -15,7 +15,7 @@
  *  increments the alpha channel of each pixel every time it would have been touched
  *  by a draw call.  This is useful for detecting overdraw.
  */
-class SK_API SkOverdrawCanvas : public SkNWayCanvas {
+class SK_API SkOverdrawCanvas : public SkCanvas::VirtualEnforcer<SkNWayCanvas> {
 public:
     /* Does not take ownership of canvas */
     SkOverdrawCanvas(SkCanvas*);
@@ -56,6 +56,9 @@ public:
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 
+    void onDrawAnnotation(const SkRect&, const char key[], SkData* value) override;
+    void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
+
 private:
     void drawPosTextCommon(const void*, size_t, const SkScalar[], int, const SkPoint&,
                            const SkPaint&);
@@ -64,7 +67,7 @@ private:
 
     SkPaint   fPaint;
 
-    typedef SkNWayCanvas INHERITED;
+    typedef SkCanvas::VirtualEnforcer<SkNWayCanvas> INHERITED;
 };
 
 #endif

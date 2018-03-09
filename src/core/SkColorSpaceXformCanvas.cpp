@@ -29,11 +29,11 @@ namespace {
     };
 };
 
-class SkColorSpaceXformCanvas : public SkNoDrawCanvas {
+class SkColorSpaceXformCanvas : public SkCanvas::VirtualEnforcer<SkNoDrawCanvas> {
 public:
     SkColorSpaceXformCanvas(SkCanvas* target, sk_sp<SkColorSpace> targetCS,
                             std::unique_ptr<SkColorSpaceXformer> xformer)
-        : SkNoDrawCanvas(SkIRect::MakeSize(target->getBaseLayerSize()))
+        : SkCanvas::VirtualEnforcer<SkNoDrawCanvas>(SkIRect::MakeSize(target->getBaseLayerSize()))
         , fTarget(target)
         , fTargetCS(targetCS)
         , fXformer(std::move(xformer))

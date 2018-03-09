@@ -12,7 +12,7 @@
 
 class SkLiteDL;
 
-class SkLiteRecorder final : public SkNoDrawCanvas {
+class SkLiteRecorder final : public SkCanvas::VirtualEnforcer<SkNoDrawCanvas> {
 public:
     SkLiteRecorder();
     void reset(SkLiteDL*, const SkIRect& bounds);
@@ -82,7 +82,7 @@ public:
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
 
 private:
-    typedef SkNoDrawCanvas INHERITED;
+    typedef SkCanvas::VirtualEnforcer<SkNoDrawCanvas> INHERITED;
 
     SkLiteDL* fDL;
 };

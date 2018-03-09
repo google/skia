@@ -12,7 +12,7 @@
 #include "../private/SkTDArray.h"
 #include "SkNoDrawCanvas.h"
 
-class SK_API SkNWayCanvas : public SkNoDrawCanvas {
+class SK_API SkNWayCanvas : public SkCanvas::VirtualEnforcer<SkNoDrawCanvas> {
 public:
     SkNWayCanvas(int width, int height);
     ~SkNWayCanvas() override;
@@ -96,7 +96,7 @@ protected:
     class Iter;
 
 private:
-    typedef SkNoDrawCanvas INHERITED;
+    typedef SkCanvas::VirtualEnforcer<SkNoDrawCanvas> INHERITED;
 };
 
 
