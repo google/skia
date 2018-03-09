@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbcc1324_c637167c",
+        "filename": "src/gpu/GrColorSpaceXform.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-09T17:43:11Z",
+      "side": 1,
+      "message": "SkToBool(a-\u003efFlags \u0026\u0026 kApplyGamutXform_Flag)\nor\nSkToBool(a-\u003efFlags \u0026 kApplyGamutXform_Flag)",
+      "revId": "f06ead925c631c42fae734de1e7c72237a2e91f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
