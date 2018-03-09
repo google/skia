@@ -83,7 +83,6 @@ public:
     void operator()() {
         SkBitmap bitmap;
         fState.fBitmap = &bitmap;
-        SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
         (*fTestFun)(&fState);
     }
 
