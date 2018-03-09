@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "285e6c84_37619392",
+        "filename": "infra/bots/assets/procdump_win/common.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-03-09T18:08:08Z",
+      "side": 1,
+      "message": "SGTM /shruggie",
+      "parentUuid": "14bba0bc_a24edfa6",
+      "range": {
+        "startLine": 3,
+        "startChar": 12,
+        "endLine": 3,
+        "endChar": 16
+      },
+      "revId": "1ae5b1f5970e49a06f5c5078c4eec169d0e5fa5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3624cd00_4378f8f9",
         "filename": "infra/bots/recipe_modules/vars/api.py",
         "patchSetId": 3
