@@ -27,7 +27,7 @@
 #define PACK_8_24(small, large) ((small << 24) | large)
 
 
-class SkPictureRecord : public SkCanvas {
+class SkPictureRecord : public SkCanvas::VirtualEnforcer<SkCanvas> {
 public:
     SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
     ~SkPictureRecord() override;
@@ -262,7 +262,7 @@ private:
 
     friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor
 
-    typedef SkCanvas INHERITED;
+    typedef SkCanvas::VirtualEnforcer<SkCanvas> INHERITED;
 };
 
 #endif

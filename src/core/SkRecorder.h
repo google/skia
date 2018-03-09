@@ -36,7 +36,7 @@ private:
 
 // SkRecorder provides an SkCanvas interface for recording into an SkRecord.
 
-class SkRecorder final : public SkNoDrawCanvas {
+class SkRecorder final : public SkCanvas::VirtualEnforcer<SkNoDrawCanvas> {
 public:
     // Does not take ownership of the SkRecord.
     SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
