@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba9b47d4_7278c3ce",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-03-09T20:17:27Z",
+      "side": 1,
+      "message": "nit: trailing semicolon on next line makes it easier to see that this loop does no inner work",
+      "revId": "dfe246e43bdae1593000ac0777e40871de19e4a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
