@@ -8,6 +8,7 @@
 DEPS = [
   'depot_tools/bot_update',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -35,11 +36,16 @@ def RunSteps(api):
         cmd=['python', api.core.resource('generate_and_upload_doxygen.py')],
         abort_on_failure=False)
 
+    filename = 'binarysize_%s' % api.vars.got_revision
+    if api.vars.is_trybot:
+      filename += '_%s_%s' % (api.vars.issue, api.vars.patchset)
+    dest_file = api.vars.perf_data_dir.join(filename)
+    api.file.ensure_directory('makedirs perf_dir',
+                              api.path.dirname(api.vars.perf_data_dir))
     cmd = ['python', api.core.resource('run_binary_size_analysis.py'),
-           '--library', api.vars.skia_out.join(
-               'Release', 'lib', 'libskia.so'),
-           '--githash', api.properties['revision'],
-           '--gsutil_path', gsutil_path]
+           '--library', api.vars.skia_out.join('Release', 'libskia.so'),
+           '--githash', api.vars.got_revision,
+           '--dest', dest_file]
     if api.vars.is_trybot:
       cmd.extend(['--issue_number', str(api.properties['patch_issue'])])
     api.run(
