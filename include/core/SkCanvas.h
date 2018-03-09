@@ -2673,7 +2673,6 @@ private:
         kDefault_InitFlags                  = 0,
         kConservativeRasterClip_InitFlag    = 1 << 0,
     };
-    SkCanvas(const SkIRect& bounds, InitFlags);
     SkCanvas(SkBaseDevice* device, InitFlags);
     SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
              SkRasterHandleAllocator::Handle);
@@ -2754,6 +2753,77 @@ private:
 #endif
 
     typedef SkRefCnt INHERITED;
+
+protected:
+    SkCanvas(const SkIRect& bounds, InitFlags);
+
+public:
+    template <typename Base>
+    class VirtualEnforcer : public Base {
+    public:
+        using Base::Base;
+
+    protected:
+        virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) override = 0;
+        virtual void onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) override = 0;
+
+        virtual void onDrawText(const void* text, size_t byteLength, SkScalar x,
+                                SkScalar y, const SkPaint& paint) override = 0;
+
+        virtual void onDrawPosText(const void* text, size_t byteLength,
+                                    const SkPoint pos[], const SkPaint& paint) override = 0;
+
+        virtual void onDrawPosTextH(const void* text, size_t byteLength,
+                                    const SkScalar xpos[], SkScalar constY,
+                                    const SkPaint& paint) override = 0;
+
+        virtual void onDrawTextOnPath(const void* text, size_t byteLength,
+                                        const SkPath& path, const SkMatrix* matrix,
+                                        const SkPaint& paint) override = 0;
+        virtual void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                                        const SkRect* cullRect, const SkPaint& paint) override = 0;
+
+        virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                    const SkPaint& paint) override = 0;
+
+        virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                                    const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint) override = 0;
+
+        virtual void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) override = 0;
+
+        virtual void onDrawPaint(const SkPaint& paint) override = 0;
+        virtual void onDrawRect(const SkRect& rect, const SkPaint& paint) override = 0;
+        virtual void onDrawRegion(const SkRegion& region, const SkPaint& paint) override = 0;
+        virtual void onDrawOval(const SkRect& rect, const SkPaint& paint) override = 0;
+        virtual void onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                                bool useCenter, const SkPaint& paint) override = 0;
+        virtual void onDrawRRect(const SkRRect& rrect, const SkPaint& paint) override = 0;
+        virtual void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
+                                    const SkPaint& paint) override = 0;
+        virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
+                                            const SkPaint& paint) override = 0;
+        virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
+                                    const SkColor colors[], int count, SkBlendMode mode,
+                                    const SkRect* cull, const SkPaint* paint) override = 0;
+        virtual void onDrawPath(const SkPath& path, const SkPaint& paint) override = 0;
+        virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint) override = 0;
+        virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                                        const SkPaint* paint, SrcRectConstraint constraint) override = 0;
+        virtual void onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
+                                        const SkPaint* paint) override = 0;
+        virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                                        const SkPaint* paint) override = 0;
+
+        virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
+                                    const SkPaint* paint) override = 0;
+        virtual void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                                        const SkPaint* paint, SrcRectConstraint constraint) override = 0;
+        virtual void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
+                                        const SkPaint* paint) override = 0;
+        virtual void onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
+                                            const SkRect& dst, const SkPaint* paint) override = 0;
+        virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override = 0;
+    };
 };
 
 /** \class SkAutoCanvasRestore
