@@ -6,10 +6,13 @@
  */
 
 #include "gm.h"
+#include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkDashPathEffect.h"
 #include "SkPath.h"
 #include "SkParsePath.h"
-#include "SkDashPathEffect.h"
+#include "SkTArray.h"
+#include "SkTrimPathEffect.h"
 
 /*
  *  Inspired by http://code.google.com/p/chromium/issues/detail?id=112145
@@ -59,41 +62,104 @@ DEF_SIMPLE_GM(dashcubics, canvas, 865, 750) {
         }
 }
 
-#include "SkTrimPathEffect.h"
 class TrimGM : public skiagm::GM {
 public:
-    TrimGM() {}
+    TrimGM() {
+        SkAssertResult(SkParsePath::FromSVGString(
+            "M   0,100 C  10, 50 190, 50 200,100"
+            "M 200,100 C 210,150 390,150 400,100"
+            "M 400,100 C 390, 50 210, 50 200,100"
+            "M 200,100 C 190,150  10,150   0,100",
+            &fPaths.push_back()));
+
+        SkAssertResult(SkParsePath::FromSVGString(
+            "M   0, 75 L 200, 75"
+            "M 200, 91 L 200, 91"
+            "M 200,108 L 200,108"
+            "M 200,125 L 400,125",
+            &fPaths.push_back()));
+
+        SkAssertResult(SkParsePath::FromSVGString(
+            "M   0,100 L  50, 50"
+            "M  50, 50 L 150,150"
+            "M 150,150 L 250, 50"
+            "M 250, 50 L 350,150"
+            "M 350,150 L 400,100",
+            &fPaths.push_back()));
+
+    }
 
 protected:
     SkString onShortName() override { return SkString("trimpatheffect"); }
 
-    SkISize onISize() override { return SkISize::Make(1240, 390); }
+    SkISize onISize() override {
+        return SkISize::Make(1400, 1000);
+    }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPaint paint;
-        paint.setPathEffect(SkTrimPathEffect::Make(0.25 + fOffset, 0.75));
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setAntiAlias(true);
-        paint.setStrokeWidth(10);
+        static constexpr SkSize kCellSize = { 440, 150 };
+        static constexpr SkScalar kOffsets[][2] = {
+            { -0.33f, -0.66f },
+            {  0    ,  1    },
+            {  0    ,  0.25f},
+            {  0.25f,  0.75f},
+            {  0.75f,  1    },
+            {  1    ,  0.75f},
+        };
 
-        SkPath path;
-        path.moveTo(50, 300);
-        path.cubicTo(100, 50, 150, 550, 200, 300);
+        SkPaint hairlinePaint;
+        hairlinePaint.setAntiAlias(true);
+        hairlinePaint.setStyle(SkPaint::kStroke_Style);
+        hairlinePaint.setStrokeCap(SkPaint::kRound_Cap);
+        hairlinePaint.setStrokeWidth(2);
+        SkPaint normalPaint = hairlinePaint;
+        normalPaint.setStrokeWidth(10);
+        normalPaint.setColor(0x8000ff00);
+        SkPaint invertedPaint = normalPaint;
+        invertedPaint.setColor(0x80ff0000);
 
-        paint.setColor(0xFF888888);
-        canvas->drawPath(path, paint);
-        paint.setPathEffect(nullptr);
-        paint.setStrokeWidth(0);
-        paint.setColor(0xFF000000);
-        canvas->drawPath(path, paint);
+        for (const auto& offset : kOffsets) {
+            auto start = offset[0] + fOffset,
+                 stop  = offset[1] + fOffset;
+
+            auto normalMode   = SkTrimPathEffect::Mode::kNormal,
+                 invertedMode = SkTrimPathEffect::Mode::kInverted;
+            if (fOffset) {
+                start -= SkScalarFloorToScalar(start);
+                stop  -= SkScalarFloorToScalar(stop);
+                if (start > stop) {
+                    SkTSwap(start, stop);
+                    SkTSwap(normalMode, invertedMode);
+                }
+            }
+
+            normalPaint.setPathEffect(SkTrimPathEffect::Make(start, stop, normalMode));
+            invertedPaint.setPathEffect(SkTrimPathEffect::Make(start, stop, invertedMode));
+
+            {
+                SkAutoCanvasRestore acr(canvas, true);
+                for (const auto& path : fPaths) {
+                    canvas->drawPath(path, normalPaint);
+                    canvas->drawPath(path, invertedPaint);
+                    canvas->drawPath(path, hairlinePaint);
+                    canvas->translate(kCellSize.width(), 0);
+                }
+            }
+
+            canvas->translate(0, kCellSize.height());
+        }
     }
 
-    bool onAnimate(const SkAnimTimer&) override {
-   //     fOffset += 1;
+    bool onAnimate(const SkAnimTimer& t) override {
+        fOffset = t.msec() / 2000.0f;
+        fOffset -= floorf(fOffset);
         return true;
     }
+
 private:
-    SkScalar fOffset = 0;
+    SkTArray<SkPath> fPaths;
+    SkScalar         fOffset = 0;
+
     typedef skiagm::GM INHERITED;
 };
 DEF_GM(return new TrimGM;)

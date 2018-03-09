@@ -10,9 +10,11 @@
 
 #include "SkPathEffect.h"
 
+#include "SkTrimPathEffect.h"
+
 class SkTrimPE : public SkPathEffect {
 public:
-    SkTrimPE(SkScalar startT, SkScalar stopT);
+    SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode);
 
     bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
@@ -23,8 +25,9 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
-    const SkScalar fStartT;
-    const SkScalar fStopT;
+    const SkScalar               fStartT,
+                                 fStopT;
+    const SkTrimPathEffect::Mode fMode;
 
     typedef SkPathEffect INHERITED;
 };
