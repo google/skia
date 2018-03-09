@@ -248,11 +248,6 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic Dump_Canvas
-#Class SkDumpCanvas
-##
-#Topic ##
-
 #Topic Encoded_Image_Format
 #EnumClass SkEncodedImageFormat
     #Const kUnknown 0
