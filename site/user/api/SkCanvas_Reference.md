@@ -934,10 +934,7 @@ Returns true if <a href="#Canvas">Canvas</a> has direct access to its pixels.
 <a href="#Pixels">Pixels</a> are readable when <a href="undocumented#Device">Device</a> is raster. <a href="#Pixels">Pixels</a> are not readable when <a href="#Canvas">Canvas</a>
 is returned from <a href="undocumented#GPU_Surface">GPU Surface</a>, returned by <a href="undocumented#SkDocument_beginPage">SkDocument::beginPage</a>, returned by
 <a href="undocumented#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility class
-like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
-
-<a href="#SkCanvas_peekPixels_pixmap">pixmap</a> is valid only while <a href="#Canvas">Canvas</a> is in scope and unchanged. Any
-<a href="#Canvas">Canvas</a> or <a href="SkSurface_Reference#Surface">Surface</a> call may invalidate the <a href="#SkCanvas_peekPixels_pixmap">pixmap</a> values.
+like
 
 ### Parameters
 
@@ -986,17 +983,7 @@ converting to <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.colorType() and
 <a href="#Pixels">Pixels</a> are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
 <a href="#Pixels">Pixels</a> are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="undocumented#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
-class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
-
-The destination pixel storage must be allocated by the caller.
-
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
-do not match. Only pixels within both source and destination rectangles
-are copied. <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a> contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
-
-Pass negative values for <a href="#SkCanvas_readPixels_srcX">srcX</a> or <a href="#SkCanvas_readPixels_srcY">srcY</a> to offset pixels across or down destination.
-
-Does not copy, and returns false if:
+class like
 
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
@@ -1072,17 +1059,7 @@ converting to <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.colorType() and
 <a href="#Pixels">Pixels</a> are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
 <a href="#Pixels">Pixels</a> are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="undocumented#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
-class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
-
-Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> if needed.
-
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
-do not match. Only pixels within both source and destination <a href="SkRect_Reference#Rect">Rects</a>
-are copied. <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> pixels contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
-
-Pass negative values for <a href="#SkCanvas_readPixels_2_srcX">srcX</a> or <a href="#SkCanvas_readPixels_2_srcY">srcY</a> to offset pixels across or down <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.
-
-Does not copy, and returns false if:
+class like
 
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
@@ -1145,17 +1122,7 @@ converting to <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.colorType() and
 <a href="#Pixels">Pixels</a> are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
 <a href="#Pixels">Pixels</a> are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="undocumented#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
-class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
-
-Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a> if needed.
-
-<a href="SkBitmap_Reference#Bitmap">Bitmap</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
-do not match. Only pixels within both source and destination rectangles
-are copied. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> pixels outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
-
-Pass negative values for <a href="#SkCanvas_readPixels_3_srcX">srcX</a> or <a href="#SkCanvas_readPixels_3_srcY">srcY</a> to offset pixels across or down <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.
-
-Does not copy, and returns false if:
+class like
 
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
@@ -1219,16 +1186,7 @@ converting to <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() and <a hre
 <a href="#Pixels">Pixels</a> are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
 <a href="#Pixels">Pixels</a> are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="undocumented#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
-class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
-
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
-do not match. Only <a href="#SkCanvas_writePixels_pixels">pixels</a> within both source and destination rectangles
-are copied. <a href="#Canvas">Canvas</a> <a href="#SkCanvas_writePixels_pixels">pixels</a> outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
-
-Pass negative values for <a href="#SkCanvas_writePixels_x">x</a> or <a href="#SkCanvas_writePixels_y">y</a> to offset <a href="#SkCanvas_writePixels_pixels">pixels</a> to the left or
-above <a href="#Canvas">Canvas</a> <a href="#SkCanvas_writePixels_pixels">pixels</a>.
-
-Does not copy, and returns false if:
+class like
 
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
@@ -1285,16 +1243,7 @@ converting to <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() and <a hre
 <a href="#Pixels">Pixels</a> are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
 <a href="#Pixels">Pixels</a> are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="undocumented#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
-class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
-
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
-do not match. Only pixels within both source and destination rectangles
-are copied. <a href="#Canvas">Canvas</a> pixels outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
-
-Pass negative values for <a href="#SkCanvas_writePixels_2_x">x</a> or <a href="#SkCanvas_writePixels_2_y">y</a> to offset pixels to the left or
-above <a href="#Canvas">Canvas</a> pixels.
-
-Does not copy, and returns false if:
+class like
 
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
