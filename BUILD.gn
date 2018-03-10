@@ -432,9 +432,11 @@ optional("gpu") {
     libs += [ "EGL" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp" ]
+    # GPU is not linked in, but loaded at runtime
     libs += [
-      "GL",
-      "GLU",
+      # "GL",
+      # "GLU",
+      "dl",
     ]
   } else if (is_mac) {
     sources += [ "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp" ]
