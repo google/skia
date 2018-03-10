@@ -20,7 +20,7 @@
       "[START_DIR]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Debug",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] skia_enable_vulkan_debug_layers=false skia_vulkan_sdk=\"[START_DIR]/linux_vulkan_sdk\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-g\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] skia_enable_vulkan_debug_layers=false skia_vulkan_sdk=\"[START_DIR]/linux_vulkan_sdk\""
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

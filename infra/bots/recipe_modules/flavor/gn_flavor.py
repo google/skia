@@ -99,7 +99,7 @@ with open(sys.argv[1], 'w') as f:
       extra_ldflags.append('-fcoverage-mapping')
 
     if compiler != 'MSVC' and configuration == 'Debug':
-      extra_cflags.append('-O1')
+      extra_cflags.extend(['-g', '-O1'])
 
     if 'Exceptions' in extra_tokens:
       extra_cflags.append('/EHsc')
