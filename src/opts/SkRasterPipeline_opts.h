@@ -914,7 +914,11 @@ SI I32 cond_to_mask(I32 cond) { return if_then_else(cond, I32(~0), I32(0)); }
 
 // Now finally, normal Stages!
 
-STAGE(seed_shader, const float* iota) {
+STAGE(seed_shader, Ctx::None) {
+    static const float iota[] = {
+        0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
+        8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
+    };
     // It's important for speed to explicitly cast(dx) and cast(dy),
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
@@ -2591,7 +2595,11 @@ SI F abs_(F x) { return bit_cast<F>( bit_cast<I32>(x) & 0x7fffffff ); }
 
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
-STAGE_GG(seed_shader, const float* iota) {
+STAGE_GG(seed_shader, Ctx::None) {
+    static const float iota[] = {
+        0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
+        8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
+    };
     x = cast<F>(I32(dx)) + unaligned_load<F>(iota);
     y = cast<F>(I32(dy)) + 0.5f;
 }
