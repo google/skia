@@ -750,3 +750,23 @@ DEF_TEST(DoubleSaturate32, reporter) {
         REPORTER_ASSERT(reporter, r.fExpectedInt == i);
     }
 }
+
+#if defined(__ARM_NEON)
+    #include <arm_neon.h>
+
+    DEF_TEST(NeonU16Div255, r) {
+
+        for (int v = 0; v <= 255*255; v++) {
+            int want = (v + 127)/255;
+
+            uint16x8_t V = vdupq_n_u16(v);
+            int got = vrshrq_n_u16(vrsraq_n_u16(V, V, 8), 8)[0];
+
+            if (got != want) {
+                SkDebugf("%d -> %d, want %d\n", v, got, want);
+            }
+            REPORTER_ASSERT(r, got == want);
+        }
+    }
+
+#endif
