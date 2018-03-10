@@ -213,9 +213,16 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
 		if os == "Win10" && parts["model"] == "Golo" {
-			// Golo/MTV lab bots have Windows 10 version 1703, whereas Skolo bots have Windows 10 version
-			// 1709.
-			d["os"] = "Windows-10-15063"
+			// ChOps-owned machines have different Windows images than Skolo machines.
+			d["os"], ok = map[string]string{
+				// MTV lab bots with Quadro GPU have Windows 10 v1703.
+				"QuadroP400": "Windows-10-15063",
+				// Golo bots with GT610 have Windows 10 v1709, but a slightly different version than Skolo.
+				"GT610": "Windows-10-16299.125",
+			}[parts["cpu_or_gpu_value"]]
+			if !ok {
+				glog.Fatalf("Entry %q not found in Win10 Golo OS mapping.", parts["cpu_or_gpu_value"])
+			}
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
@@ -294,7 +301,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
-					"GT610":         "10de:104a-22.21.13.8205",
+					"GT610":         "10de:104a-23.21.13.8813",
 					"GTX1070":       "10de:1ba1-23.21.13.9101",
 					"GTX660":        "10de:11c0-23.21.13.9101",
 					"GTX960":        "10de:1401-23.21.13.9101",
