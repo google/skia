@@ -341,7 +341,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         }
     }
 
-    p->append_seed_shader();
+    p->append(SkRasterPipeline::seed_shader);
 
     struct MiscCtx {
         std::unique_ptr<SkBitmapController::State> state;

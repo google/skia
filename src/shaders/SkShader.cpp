@@ -232,7 +232,7 @@ bool SkShaderBase::onAppendStages(const StageRec& rec) const {
     };
 
     if (cb->ctx) {
-        rec.fPipeline->append_seed_shader();
+        rec.fPipeline->append(SkRasterPipeline::seed_shader);
         rec.fPipeline->append(SkRasterPipeline::callback, cb);
         return true;
     }
