@@ -269,10 +269,6 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
 
 ---
 
-# <a name="Dump_Canvas"></a> Dump Canvas
-
-# <a name="SkDumpCanvas"></a> Class SkDumpCanvas
-
 # <a name="Encoded_Image_Format"></a> Encoded Image Format
 
 ## <a name="SkEncodedImageFormat"></a> Enum SkEncodedImageFormat
