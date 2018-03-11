@@ -112,14 +112,22 @@ config("default") {
       "-mfpu=neon",
       "-mthumb",
     ]
-  } else if (current_cpu == "x86" && !is_win) {
+  } else if (current_cpu == "x86" && (!is_win || is_clang)) {
+    # I don't quite understand why this is required for Win Clang but not for MSVC, even though we
+    # are using the MSVC-compatible clang-cl wrapper. Once we drop support for MSVC, hopefully we
+    # can clean this up.
     asmflags += [ "-m32" ]
     cflags += [
       "-m32",
       "-msse2",
-      "-mfpmath=sse",
     ]
-    ldflags += [ "-m32" ]
+    if (!is_win) {
+      # Win Clang doesn't like this argument for some unknown reason.
+      cflags += [ "-mfpmath=sse" ]
+
+      # We're still using the MSVC linker for Clang builds.
+      ldflags += [ "-m32" ]
+    }
   }
 
   if (malloc != "" && !is_win) {
