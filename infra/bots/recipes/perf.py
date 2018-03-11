@@ -149,28 +149,28 @@ def nanobench_flags(api, bot):
     match.append('~GLInstancedArraysBench') # skia:4714
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~tile_image_filter_tiled_64')  # skia:6082
-  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
+  #if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
-    match.append('~GM_varied_text_clipped_lcd')
-    match.append('~GM_varied_text_ignorable_clip_lcd')
-    match.append('~blendmode_mask_DstATop')
-    match.append('~blendmode_mask_SrcIn')
-    match.append('~blendmode_mask_SrcOut')
-    match.append('~blendmode_mask_Src')
-    match.append('~fontscaler_lcd')
-    match.append('~rotated_rects_aa_alternating_transparent_and_opaque_src')
-    match.append('~rotated_rects_aa_changing_transparent_src')
-    match.append('~rotated_rects_aa_same_transparent_src')
-    match.append('~shadermask_LCD_FF')
-    match.append('~srcmode_rects_1')
-    match.append('~text_16_LCD_88')
-    match.append('~text_16_LCD_BK')
-    match.append('~text_16_LCD_FF')
-    match.append('~text_16_LCD_WT')
+    #match.append('~^GM_varied_text_clipped_lcd$')
+    #match.append('~^GM_varied_text_ignorable_clip_lcd$')
+    #match.append('~^blendmode_mask_DstATop$')
+    #match.append('~^blendmode_mask_SrcIn$')
+    #match.append('~^blendmode_mask_SrcOut$')
+    #match.append('~^blendmode_mask_Src$')
+    #match.append('~^fontscaler_lcd$')
+    #match.append('~^rotated_rects_aa_alternating_transparent_and_opaque_src$')
+    ##match.append('~^rotated_rects_aa_changing_transparent_src$')
+    #match.append('~^rotated_rects_aa_same_transparent_src$')
+    #match.append('~^shadermask_LCD_FF$')
+    #match.append('~^srcmode_rects_1$')
+    #match.append('~^text_16_LCD_88$')
+    #match.append('~^text_16_LCD_BK$')
+    #match.append('~^text_16_LCD_FF$')
+    #match.append('~^text_16_LCD_WT$')
     # skia:6863
-    match.append('~desk_skbug6850overlay2')
-    match.append('~desk_googlespreadsheet')
-    match.append('~desk_carsvg')
+    #match.append('~^desk_skbug6850overlay2$')
+    #match.append('~^desk_googlespreadsheet$')
+    #match.append('~^desk_carsvg$')
   if ('Vulkan' in bot and ('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and
       'Win' in bot):
     # skia:7677
@@ -301,8 +301,27 @@ def perf_steps(api):
   if 'AbandonGpuContext' in api.vars.extra_tokens:
     args.extend(['--abandonGpuContext'])
 
-  api.run(api.flavor.step, target, cmd=args,
-          abort_on_failure=False)
+  for t in [
+    'GM_varied_text_clipped_lcd',
+    'GM_varied_text_ignorable_clip_lcd',
+    'blendmode_mask_DstATop',
+    'blendmode_mask_SrcIn',
+    'blendmode_mask_SrcOut',
+    'blendmode_mask_Src',
+    'fontscaler_lcd',
+    'rotated_rects_aa_alternating_transparent_and_opaque_src',
+    'rotated_rects_aa_same_transparent_src',
+    'shadermask_LCD_FF',
+    'srcmode_rects_1',
+    'text_16_LCD_88',
+    'text_16_LCD_BK',
+    'text_16_LCD_FF',
+    'text_16_LCD_WT',
+    'desk_skbug6850overlay2',
+    'desk_googlespreadsheet',
+    'desk_carsvg']:
+    api.run(api.flavor.step, target + ' ' + t, cmd=args + ['--match', '^' + t + '$'],
+            abort_on_failure=False)
 
   # Copy results to swarming out dir.
   if api.vars.upload_perf_results:
