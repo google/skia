@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6ad0fe1_bfaaabbb",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 19
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-11T22:14:42Z",
+      "side": 1,
+      "message": "If you have a better explanation, that would be helpful.",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 24
+      },
+      "revId": "017b24b2a80121d4cd3f1c8f193cc1b2017643e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ff65b08_d802a4a3",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 19
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-11T22:14:42Z",
+      "side": 1,
+      "message": "Clang-built nanobench and dm are between 2x-10x faster than MSVC-built -- see https://skia-review.googlesource.com/c/skia/+/113672\n\nIs this flag enough to make that difference?",
+      "range": {
+        "startLine": 122,
+        "startChar": 6,
+        "endLine": 122,
+        "endChar": 14
+      },
+      "revId": "017b24b2a80121d4cd3f1c8f193cc1b2017643e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
