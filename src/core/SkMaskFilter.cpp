@@ -9,6 +9,7 @@
 
 #include "SkAutoMalloc.h"
 #include "SkBlitter.h"
+#include "SkBlurPriv.h"
 #include "SkCachedData.h"
 #include "SkCoverageModePriv.h"
 #include "SkDraw.h"
@@ -752,5 +753,6 @@ void SkMaskFilter::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLocalMatrixMF)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeMF)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCombineMF)
+    sk_register_blur_maskfilter_createproc();
 }
 
