@@ -34,7 +34,8 @@ declare_args() {
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
-  skia_enable_effects = true
+  skia_enable_codecs = true
+  skia_enable_effects = false
   skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
@@ -82,9 +83,15 @@ declare_args() {
     }
   }
 }
-
 if (defined(skia_settings)) {
   import(skia_settings)
+}
+
+if (!skia_enable_codecs) {
+  skia_use_libjpeg_turbo = false
+  skia_use_libpng = false
+  skia_use_libwebp = false
+  skia_use_libheif = false
 }
 
 # Our tools require static linking (they use non-exported symbols).
@@ -98,7 +105,6 @@ skia_public_includes = [
   "include/codec",
   "include/config",
   "include/core",
-  "include/effects",
   "include/encode",
   "include/gpu",
   "include/gpu/gl",
@@ -109,6 +115,10 @@ skia_public_includes = [
   "include/utils",
   "include/utils/mac",
 ]
+
+if (skia_enable_effects) {
+  skia_public_includes += [ "include/effects" ]
+}
 
 if (skia_use_vulkan) {
   skia_public_includes += [ "include/gpu/vk" ]
@@ -153,7 +163,6 @@ config("skia_private") {
     "src/c",
     "src/codec",
     "src/core",
-    "src/effects",
     "src/fonts",
     "src/image",
     "src/images",
@@ -171,6 +180,10 @@ config("skia_private") {
     "src/xml",
     "third_party/gif",
   ]
+
+  if (skia_enable_effects) {
+    include_dirs += [ "src/effects" ]
+  }
 
   defines = [ "SK_GAMMA_APPLY_TO_A8" ]
   if (is_android) {
@@ -822,34 +835,41 @@ component("skia") {
     "src/android/SkAnimatedImage.cpp",
     "src/android/SkBitmapRegionCodec.cpp",
     "src/android/SkBitmapRegionDecoder.cpp",
-    "src/codec/SkAndroidCodec.cpp",
-    "src/codec/SkBmpBaseCodec.cpp",
-    "src/codec/SkBmpCodec.cpp",
-    "src/codec/SkBmpMaskCodec.cpp",
-    "src/codec/SkBmpRLECodec.cpp",
-    "src/codec/SkBmpStandardCodec.cpp",
-    "src/codec/SkCodec.cpp",
-    "src/codec/SkCodecImageGenerator.cpp",
-    "src/codec/SkGifCodec.cpp",
-    "src/codec/SkMaskSwizzler.cpp",
-    "src/codec/SkMasks.cpp",
-    "src/codec/SkSampledCodec.cpp",
-    "src/codec/SkSampler.cpp",
-    "src/codec/SkStreamBuffer.cpp",
-    "src/codec/SkSwizzler.cpp",
-    "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
-    "src/ports/SkImageGenerator_skia.cpp",
     "src/ports/SkMemory_malloc.cpp",
     "src/ports/SkOSFile_stdio.cpp",
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
     "src/utils/mac/SkStream_mac.cpp",
-    "third_party/gif/SkGifImageReader.cpp",
   ]
 
   libs = []
+
+  if (skia_enable_codecs) {
+    sources += [
+      "src/codec/SkAndroidCodec.cpp",
+      "src/codec/SkBmpBaseCodec.cpp",
+      "src/codec/SkBmpCodec.cpp",
+      "src/codec/SkBmpMaskCodec.cpp",
+      "src/codec/SkBmpRLECodec.cpp",
+      "src/codec/SkBmpStandardCodec.cpp",
+      "src/codec/SkCodec.cpp",
+      "src/codec/SkCodecImageGenerator.cpp",
+      "src/codec/SkGifCodec.cpp",
+      "src/codec/SkMaskSwizzler.cpp",
+      "src/codec/SkMasks.cpp",
+      "src/codec/SkSampledCodec.cpp",
+      "src/codec/SkSampler.cpp",
+      "src/codec/SkStreamBuffer.cpp",
+      "src/codec/SkSwizzler.cpp",
+      "src/codec/SkWbmpCodec.cpp",
+      "src/ports/SkImageGenerator_skia.cpp",
+      "third_party/gif/SkGifImageReader.cpp",
+    ]
+  } else {
+    sources += [ "src/ports/SkImageGenerator_none.cpp" ]
+  }
 
   if (is_win) {
     sources += [
