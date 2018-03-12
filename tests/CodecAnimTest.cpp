@@ -5,24 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "CodecPriv.h"
-#include "Resources.h"
 #include "SkAndroidCodec.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
-#include "SkCodecAnimation.h"
-#include "SkData.h"
-#include "SkImageInfo.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkString.h"
-#include "SkTypes.h"
+#include "SkStream.h"
+
+#include "CodecPriv.h"
+#include "Resources.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 
-#include <cstring>
-#include <memory>
-#include <utility>
+#include <initializer_list>
 #include <vector>
 
 DEF_TEST(Codec_trunc, r) {

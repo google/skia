@@ -7,17 +7,10 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColor.h"
 #include "SkCubicClipper.h"
-#include "SkFloatBits.h"
+#include "SkGeometry.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
 #include "Test.h"
 
 // Currently the supersampler blitter uses int16_t for its index into an array

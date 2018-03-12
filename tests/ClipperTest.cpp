@@ -7,17 +7,10 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColor.h"
 #include "SkEdgeClipper.h"
 #include "SkLineClipper.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkScalar.h"
-#include "SkTypes.h"
+#include "SkPath.h"
 #include "Test.h"
-
-#include <cstring>
 
 static void test_hairclipping(skiatest::Reporter* reporter) {
     SkBitmap bm;
