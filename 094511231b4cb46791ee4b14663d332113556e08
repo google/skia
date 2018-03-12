@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75aa6876_acbe0483",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 20
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-12T11:32:15Z",
+      "side": 1,
+      "message": "Yeah, Clang just requires -msse2 explicitly, and uses the flag -m32 to switch to a 32-bit target instead of requiring you to run a different binary for the same effect.\n\nThere is flag similar to -msse2 and -mfpmath\u003dsse that we might be able to use instead, /arch:SSE2.  We might not be passing it to MSVC right now (because that is its default), and we\u0027d have to pass the opposite /arch:IA32 to turn those features off there.  It should be harmless to pass /arch:SSE2 on all Windows builds?",
+      "revId": "094511231b4cb46791ee4b14663d332113556e08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
