@@ -280,26 +280,23 @@ private:
 class SkAutoGlyphCache : public SkExclusiveStrikePtr {
 public:
     SkAutoGlyphCache() = default;
+
     SkAutoGlyphCache(SkGlyphCache* cache) : INHERITED(cache) {}
-    SkAutoGlyphCache(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                     const SkDescriptor* desc)
-        : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface)) {}
+
     /** deprecated: always enables fake gamma */
     SkAutoGlyphCache(const SkPaint& paint,
                      const SkSurfaceProps* surfaceProps,
                      const SkMatrix* matrix)
-        : INHERITED(
-        SkGlyphCache::FindOrCreateStrikeExclusive(
-            paint, surfaceProps,
-            SkScalerContextFlags::kFakeGammaAndBoostContrast, matrix))
-    {}
+        : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(
+            paint, surfaceProps, SkScalerContextFlags::kFakeGammaAndBoostContrast, matrix)) {}
+
     SkAutoGlyphCache(const SkPaint& paint,
                      const SkSurfaceProps* surfaceProps,
                      SkScalerContextFlags scalerContextFlags,
                      const SkMatrix* matrix)
-        : INHERITED(
-            SkGlyphCache::FindOrCreateStrikeExclusive(
+        : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(
                 paint, surfaceProps, scalerContextFlags, matrix)) {}
+
 private:
     using INHERITED = SkExclusiveStrikePtr;
 };
