@@ -1156,12 +1156,12 @@ static const SkRect kSKPViewport = {0, 0, 1000, 1000};
 
 SKPSrc::SKPSrc(Path path) : fPath(path) { }
 
-static sk_sp<SkPicture> read_skp(const char* path) {
+static sk_sp<SkPicture> read_skp(const char* path, const SkDeserialProcs* procs = nullptr) {
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
     if (!stream) {
         return nullptr;
     }
-    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get()));
+    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get(), procs));
     if (!pic) {
         return nullptr;
     }
@@ -1206,16 +1206,101 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static const int kNumDDLXTiles = 4;
-static const int kNumDDLYTiles = 4;
+static const int kNumDDLXTiles = 1;
+static const int kNumDDLYTiles = 1;
 static const int kDDLTileSize = 1024;
 static const SkRect kDDLSKPViewport = { 0, 0,
                                         kNumDDLXTiles * kDDLTileSize,
                                         kNumDDLYTiles * kDDLTileSize };
 
+static void promise_image_fulfill_proc(void* textureContext, GrBackendTexture* outTexture) {
+    GrBackendTexture* inTexture = static_cast<GrBackendTexture*>(textureContext);
+
+    *outTexture = *inTexture;
+}
+
+static void promise_image_release_proc(void* textureContext) {
+    // Do nothing. We free all the backend textures at the end.
+}
+
+class PromiseImageInfo {
+public:
+    sk_sp<SkImage>   fImage;
+    SkBitmap         fBitmap;
+    GrBackendTexture fBackendTexture;
+};
+
+class PromiseImageCallbackContext {
+public:
+    const SkTArray<PromiseImageInfo>* fImageInfo;
+    SkDeferredDisplayListRecorder*    fRecorder;
+};
+
+GrBackendFormat CreateBackendFormatFromTexture(const GrBackendTexture& tex) {
+    switch (tex.backend()) {
+#ifdef SK_VULKAN
+        case kVulkan_GrBackend: {
+            const GrVkImageInfo* vkInfo = tex.getVkImageInfo();
+            SkASSERT(vkInfo);
+            return GrBackendFormat::MakeVk(vkInfo->fFormat);
+        }
+#endif
+        case kOpenGL_GrBackend: {
+            const GrGLTextureInfo* glInfo = tex.getGLTextureInfo();
+            SkASSERT(glInfo);
+            return GrBackendFormat::MakeGL(glInfo->fFormat, glInfo->fTarget);
+        }
+        case kMock_GrBackend: {
+            const GrMockTextureInfo* mockInfo = tex.getMockTextureInfo();
+            SkASSERT(mockInfo);
+            return GrBackendFormat::MakeMock(mockInfo->fConfig);
+        }
+        default:
+            return GrBackendFormat();
+    }
+}
+
+static sk_sp<SkImage> promise_image_generator(const void* rawData, size_t length, void* ctxIn) {
+    PromiseImageCallbackContext* ctx = static_cast<PromiseImageCallbackContext*>(ctxIn);
+    const SkTArray<PromiseImageInfo>* imageInfo = ctx->fImageInfo;
+    SkDeferredDisplayListRecorder* recorder = ctx->fRecorder;
+
+    SkASSERT(length == sizeof(int));
+
+    const int* indexPtr = static_cast<const int*>(rawData);
+    SkASSERT(*indexPtr < imageInfo->count());
+
+    const PromiseImageInfo& curImage = (*imageInfo)[*indexPtr];
+
+    SkDebugf("Making Promise for %d -> %dx%d\n", *indexPtr,
+                                                  curImage.fBitmap.width(),
+                                                  curImage.fBitmap.height());
+
+    GrBackendFormat backendFormat = CreateBackendFormatFromTexture(curImage.fBackendTexture);
+
+    // DDL TODO: sort out mipmapping
+    sk_sp<SkImage> image = recorder->makePromiseTexture(backendFormat,
+                                                        curImage.fBitmap.width(),
+                                                        curImage.fBitmap.height(),
+                                                        GrMipMapped::kNo,
+                                                        GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                                        curImage.fBitmap.colorType(),
+                                                        curImage.fBitmap.alphaType(),
+                                                        curImage.fBitmap.refColorSpace(),
+                                                        promise_image_fulfill_proc,
+                                                        promise_image_release_proc,
+                                                        (void*) &curImage.fBackendTexture);
+    return image;
+};
+
 DDLSKPSrc::DDLSKPSrc(Path path) : fPath(path) { }
 
 Error DDLSKPSrc::draw(SkCanvas* canvas) const {
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+        return SkStringPrintf("DDLs are GPU only\n");
+    }
+
     class TileData {
     public:
         // Note: we could just pass in surface characterization
@@ -1226,17 +1311,36 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
         }
 
         // This method operates in parallel
-        void preprocess(SkPicture* pic) {
+        // In each thread we will reconvert the compressedPictureData into an SkPicture
+        // replacing each image-index with a promise image.
+        void preprocess(SkData* compressedPictureData, const SkTArray<PromiseImageInfo>* imageInfo) {
             SkDeferredDisplayListRecorder recorder(fCharacterization);
 
+            // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
+            // Maybe set it up in the ctor?
             SkCanvas* subCanvas = recorder.getCanvas();
+
+            sk_sp<SkPicture> reconstitutedPicture;
+
+            {
+                PromiseImageCallbackContext callbackCtx = { imageInfo, &recorder };
+
+                SkDeserialProcs procs;
+                procs.fImageCtx = &callbackCtx;
+                procs.fImageProc = promise_image_generator;
+
+                reconstitutedPicture = SkPicture::MakeFromData(compressedPictureData, &procs);
+                if (!reconstitutedPicture) {
+                    return;
+                }
+            }
 
             subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
             subCanvas->translate(-fClip.fLeft, -fClip.fTop);
 
             // Note: in this use case we only render a picture to the deferred canvas
             // but, more generally, clients will use arbitrary draw calls.
-            subCanvas->drawPicture(pic);
+            subCanvas->drawPicture(reconstitutedPicture);
 
             fDisplayList = recorder.detach();
         }
@@ -1265,12 +1369,95 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
     SkTArray<TileData> tileData;
     tileData.reserve(16);
 
-    sk_sp<SkPicture> pic = read_skp(fPath.c_str());
-    if (!pic) {
-        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
-    }
+    SkTArray<PromiseImageInfo> imageInfo;
+    sk_sp<SkData> compressedPictureData;
+    SkRect pictureCullRect;
 
-    const SkRect cullRect = pic->cullRect();
+    // Massage the input picture into something we can use with DDL
+    {
+        // In the first pass we read in an .skp file into an SkPicture recording all the images
+        // and getting a copy of their pixels in an uploadable form.
+        sk_sp<SkPicture> firstPassPicture;
+        {
+            SkDeserialProcs procs;
+
+            procs.fImageCtx = &imageInfo;
+            procs.fImageProc = [](const void* rawData, size_t length, void* ctx) -> sk_sp<SkImage> {
+                SkTArray<PromiseImageInfo>* imageInfo = static_cast<SkTArray<PromiseImageInfo>*>(ctx);
+
+                sk_sp<SkData> data = SkData::MakeWithCopy(rawData, length);
+
+
+                PromiseImageInfo newImageInfo;
+                newImageInfo.fImage = SkImage::MakeFromEncoded(std::move(data));
+                SkAssertResult(newImageInfo.fImage->asLegacyBitmap(&newImageInfo.fBitmap));
+
+                SkDebugf("Making %dx%d bitmap\n", newImageInfo.fImage->width(), newImageInfo.fImage->height());
+
+                imageInfo->push_back(newImageInfo);
+                return newImageInfo.fImage;
+            };
+
+            firstPassPicture = read_skp(fPath.c_str(), &procs);
+            if (!firstPassPicture) {
+                return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+            }
+
+            pictureCullRect = firstPassPicture->cullRect();
+        }
+
+        // In the second pass we convert the SkPicture into SkData replacing all the SkImages
+        // with an index into the imageInfo we collected in the first pass.
+        {
+            SkSerialProcs procs;
+
+            procs.fImageCtx = &imageInfo;
+            procs.fImageProc = [](SkImage* image, void* ctx) -> sk_sp<SkData> {
+                const SkTArray<PromiseImageInfo>* imageInfo = static_cast<const SkTArray<PromiseImageInfo>*>(ctx);
+
+                int i;
+                for (i = 0; i < imageInfo->count(); ++i) {
+                    if ((*imageInfo)[i].fImage.get() == image) {
+                        break;
+                    }
+                }
+
+                SkDebugf("recording %dx%d image to index: %d\n",
+                    (*imageInfo)[i].fImage->width(),
+                    (*imageInfo)[i].fImage->height(),
+                    i);
+
+                SkASSERT(i < imageInfo->count());
+                return SkData::MakeWithCopy(&i, sizeof(i));
+            };
+
+            compressedPictureData = firstPassPicture->serialize(&procs);
+            if (!compressedPictureData) {
+                return SkStringPrintf("Couldn't re-serialize %s.", fPath.c_str());
+            }
+        }
+
+        // In the third pass we go through all the images and upload them to the GPU and
+        // get rid of the SkImage from the first pass
+        {
+            GrGpu* gpu = context->contextPriv().getGpu();
+            if (!gpu) {
+                return SkStringPrintf("Couldn't get GPU from GrContext\n");
+            }
+
+            for (int i = 0; i < imageInfo.count(); ++i) {
+                // DDL TODO: how can we tell if we need mipmapping!
+                imageInfo[i].fBackendTexture = gpu->createTestingOnlyBackendTexture(
+                                                                 imageInfo[i].fBitmap.getPixels(),
+                                                                 imageInfo[i].fBitmap.width(),
+                                                                 imageInfo[i].fBitmap.height(),
+                                                                 imageInfo[i].fBitmap.colorType(),
+                                                                 false, GrMipMapped::kNo);
+                SkAssertResult(imageInfo[i].fBackendTexture.isValid());
+                imageInfo[i].fImage = nullptr; // we don't need this anymore
+            }
+        }
+    }
 
     // All the destination tiles are the same size
     const SkImageInfo tileII = SkImageInfo::MakeN32Premul(kDDLTileSize, kDDLTileSize);
@@ -1281,7 +1468,7 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
             SkRect clip = SkRect::MakeXYWH(x * kDDLTileSize, y * kDDLTileSize,
                                            kDDLTileSize, kDDLTileSize);
 
-            if (!clip.intersect(cullRect)) {
+            if (!clip.intersect(pictureCullRect)) {
                 continue;
             }
 
@@ -1291,7 +1478,7 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
 
     // Second, run the cpu pre-processing in threads
     SkTaskGroup().batch(tileData.count(), [&](int i) {
-        tileData[i].preprocess(pic.get());
+        tileData[i].preprocess(compressedPictureData.get(), &imageInfo);
     });
 
     // Third, synchronously render the display lists into the dest tiles
@@ -1306,6 +1493,18 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
     // matches Chrome but costs us a copy
     for (int i = 0; i < tileData.count(); ++i) {
         tileData[i].compose(canvas);
+    }
+
+    // Clean up VRAM
+    {
+        GrGpu* gpu = context->contextPriv().getGpu();
+        if (!gpu) {
+            return SkStringPrintf("Couldn't get GPU from GrContext\n");
+        }
+
+        for (int i = 0; i < imageInfo.count(); ++i) {
+            gpu->deleteTestingOnlyBackendTexture(imageInfo[i].fBackendTexture);
+        }
     }
 
     return "";

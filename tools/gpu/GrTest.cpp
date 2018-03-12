@@ -219,6 +219,8 @@ GrBackendTexture GrGpu::createTestingOnlyBackendTexture(void* pixels, int w, int
     if (kUnknown_GrPixelConfig == config) {
         return GrBackendTexture();
     }
+    SkASSERT(kBGRA_8888_GrPixelConfig == config);
+
     return this->createTestingOnlyBackendTexture(pixels, w, h, config, isRenderTarget, mipMapped);
 }
 

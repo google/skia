@@ -689,6 +689,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     if (!context->caps()->getConfigFromBackendFormat(backendFormat, colorType, &config)) {
         return nullptr;
     }
+    SkASSERT(kBGRA_8888_GrPixelConfig == config);
+
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 

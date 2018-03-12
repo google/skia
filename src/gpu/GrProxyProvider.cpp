@@ -579,6 +579,8 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
         SkASSERT(fCaps->maxWindowRectangles() > 0);
     }
 #endif
+    SkASSERT(kBGRA_8888_GrPixelConfig == desc.fConfig);
+
 
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
     // For non-ddl draws always make lazy proxy's single use.

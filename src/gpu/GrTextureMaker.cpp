@@ -33,7 +33,7 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerSt
     if (original) {
         GrGpu* gpu = fContext->contextPriv().getGpu();
 
-        if (!gpu->isACopyNeededForTextureParams(original.get(), params, &copyParams, scaleAdjust)) {
+        if (!gpu->isACopyNeededForTextureParams(fContext->caps(), original.get(), params, &copyParams, scaleAdjust)) {
             return original;
         }
     } else {

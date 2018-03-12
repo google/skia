@@ -506,14 +506,17 @@ public:
     // original texture but rather was handed the original texture. It adds additional checks
     // relevant to original textures that were created external to Skia via
     // GrResourceProvider::wrap methods.
-    bool isACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState& params,
+    bool isACopyNeededForTextureParams(const GrCaps* caps,
+                                       GrTextureProxy* proxy, const GrSamplerState& params,
                                        GrTextureProducer::CopyParams* copyParams,
                                        SkScalar scaleAdjust[2]) const {
-        if (IsACopyNeededForTextureParams(this->caps(), proxy->width(), proxy->height(), params,
+        if (IsACopyNeededForTextureParams(caps, proxy->width(), proxy->height(), params,
                                           copyParams, scaleAdjust)) {
             return true;
         }
-        return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
+
+        return false;
+        //return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
     }
 
     void handleDirtyContext() {
