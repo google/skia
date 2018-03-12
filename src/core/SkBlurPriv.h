@@ -33,5 +33,6 @@ bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRec
                                  SkScalar texYs[kSkBlurRRectMaxDivisions],
                                  int* numXs, int* numYs, uint32_t* skipMask);
 
+extern void sk_register_blur_maskfilter_createproc();
 
 #endif
