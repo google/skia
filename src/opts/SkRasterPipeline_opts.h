@@ -704,8 +704,11 @@ static const size_t N = sizeof(F) / sizeof(float);
 #if defined(__ARM_NEON) && defined(__arm__)
     // This lets us pass vectors more efficiently on 32-bit ARM.
     #define ABI __attribute__((pcs("aapcs-vfp")))
-#elif 0 || defined(__clang__) && defined(_MSC_VER)
-    // TODO: can we use sysv_abi here instead?  It'd allow passing far more registers.
+#elif defined(__clang__) && defined(_M_X864)
+    // If we use sysv_abi on x86-64 Windows builds, we don't have to use the narrow stages.
+    #define ABI __attribute__((sysv_abi))
+#elif defined(__clang__) && defined(_M_IX86)
+    // We're using narrow statges anyway for 32-bit builds, so vectorcall is fine there.
     #define ABI __attribute__((vectorcall))
 #else
     #define ABI
@@ -714,11 +717,10 @@ static const size_t N = sizeof(F) / sizeof(float);
 // On 32-bit x86 we've only got 8 xmm registers, so we keep the 4 hottest (r,g,b,a)
 // in registers and the d-registers on the stack (giving us 4 temporary registers).
 // General-purpose registers are also tight, so we put most of those on the stack too.
+// (This narrower stage calling convention also fits Windows' __vectorcall very well.)
 //
-// On ARMv7, we do the same so that we can make the r,g,b,a vectors wider.
-//
-// Finally, this narrower stage calling convention also fits Windows' __vectorcall very well.
-#if 0 || defined(__i386__) || defined(_M_IX86) || defined(__arm__) || defined(_MSC_VER)
+// On ARMv7, we do the same so that we can make the r,g,b,a vectors wider (q-registers).
+#if 0 || defined(__i386__) || defined(_M_IX86) || defined(__arm__)
     #define JUMPER_NARROW_STAGES 1
 #else
     #define JUMPER_NARROW_STAGES 0
