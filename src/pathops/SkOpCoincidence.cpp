@@ -692,7 +692,7 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
         return true;
     }
     SkASSERT(!cs || !cs->deleted());
-    SkASSERT(!os || !os->deleted());
+    FAIL_IF(os && os->deleted());
     SkASSERT(!ce || !ce->deleted());
     FAIL_IF(oe && oe->deleted());
     const SkOpPtT* csExisting = !cs ? coinSeg->existing(coinTs, nullptr) : nullptr;
@@ -1095,6 +1095,7 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
             SkDebugf("seg=%d span=%d windValue=%d oppValue=%d\n", oSegment->debugID(),
                     oStart->debugID(), oWindValue, oOppValue);
 #endif
+            FAIL_IF(windValue == -1);
             start->setWindValue(windValue);
             start->setOppValue(oppValue);
             FAIL_IF(oWindValue == -1);
