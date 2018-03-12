@@ -8,16 +8,26 @@
 #include "CanvasStateHelpers.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkClipOpPriv.h"
 #include "SkCanvasStateUtils.h"
+#include "SkClipOpPriv.h"
+#include "SkColor.h"
 #include "SkCommandLineFlags.h"
 #include "SkDrawFilter.h"
+#include "SkImageInfo.h"
 #include "SkPaint.h"
-#include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkRect.h"
+#include "SkRegion.h"
+#include "SkScalar.h"
+#include "SkTDArray.h"
 #include "SkTLazy.h"
+#include "SkTypes.h"
 #include "Test.h"
+
+#include <cstring>
+#include <memory>
+
+class SkCanvasState;
 
 // dlopen and the library flag are only used for tests which require this flag.
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
