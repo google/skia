@@ -28,10 +28,10 @@ int GrDrawOpAtlas::numAllocated_TestingOnly() const {
     return count;
 }
 
-void GrAtlasManager::setMaxPages_TestingOnly(uint32_t numPages) {
+void GrAtlasManager::setMaxPages_TestingOnly(uint32_t maxPages) {
     for (int i = 0; i < kMaskFormatCount; i++) {
         if (fAtlases[i]) {
-            fAtlases[i]->setMaxPages_TestingOnly(numPages);
+            fAtlases[i]->setMaxPages_TestingOnly(maxPages);
         }
     }
 }

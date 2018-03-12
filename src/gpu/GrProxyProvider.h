@@ -140,7 +140,7 @@ public:
     /*
      * Create a render target proxy that wraps a backend texture
      */
-    sk_sp<GrSurfaceProxy> wrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
+    sk_sp<GrSurfaceProxy> wrapBackendTextureAsRenderTarget(const GrBackendTexture& backendTex,
                                                            GrSurfaceOrigin origin,
                                                            int sampleCnt);
 

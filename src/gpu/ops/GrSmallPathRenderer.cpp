@@ -123,7 +123,7 @@ public:
         return data.fKey;
     }
 
-    static inline uint32_t Hash(ShapeDataKey key) {
+    static inline uint32_t Hash(const ShapeDataKey& key) {
         return SkOpts::hash(key.data(), sizeof(uint32_t) * key.count32());
     }
 };
