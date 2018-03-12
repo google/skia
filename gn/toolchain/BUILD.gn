@@ -40,15 +40,19 @@ toolchain("msvc") {
   }
 
   env_setup = ""
-  if (target_cpu == "x86") {
-    # Toolchain asset includes a script that configures for x86 building.
-    # We don't support x86 builds with local MSVC installations.
-    env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
-  }
-
+  cl_m32_flag = ""
   if (clang_win != "") {
+    if (target_cpu == "x86") {
+      # SetEnv.cmd doesn't seem to convince clang-cl.exe to do a 32-bit build.
+      cl_m32_flag = "-m32"
+    }
     cl = "$clang_win/bin/clang-cl.exe"
   } else {
+    if (target_cpu == "x86") {
+      # Toolchain asset includes a script that configures for x86 building.
+      # We don't support x86 builds with local MSVC installations.
+      env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
+    }
     cl = "$bin/cl.exe"
   }
 
@@ -75,7 +79,8 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}"
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}}"
     description = "compile {{source}}"
   }
 
@@ -90,7 +95,8 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}}"
     description = "compile {{source}}"
   }
 
