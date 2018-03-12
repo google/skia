@@ -8,10 +8,13 @@
 #ifndef SkMaskFilter_DEFINED
 #define SkMaskFilter_DEFINED
 
+#include "SkBlurTypes.h"
 #include "SkCoverageMode.h"
 #include "SkFlattenable.h"
+#include "SkScalar.h"
 
 class SkMatrix;
+struct SkRect;
 class SkString;
 
 /** \class SkMaskFilter
@@ -21,6 +24,20 @@ class SkString;
 */
 class SK_API SkMaskFilter : public SkFlattenable {
 public:
+    /** Create a blur maskfilter.
+     *  @param style     The SkBlurStyle to use
+     *  @param sigma     Standard deviation of the Gaussian blur to apply. Must be > 0.
+     *  @param occluder  The rect for which no pixels need be drawn (b.c. it will be overdrawn
+     *                   with some opaque object. This is just a hint which backends are free to
+     *                   ignore.
+     *  @param respectCTM if true the blur's sigma is modified by the CTM.
+     *  @return The new blur maskfilter
+     */
+    static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma, const SkRect& occluder,
+                                        bool respectCTM = true);
+    static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma,
+                                        bool respectCTM = true);
+
     /**
      *  Construct a maskfilter whose effect is to first apply the inner filter and then apply
      *  the outer filter to the result of the inner's. Returns nullptr on failure.

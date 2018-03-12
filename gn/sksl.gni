@@ -27,10 +27,10 @@ skia_sksl_sources = [
 
 skia_gpu_processor_sources = [
   "$_src/effects/GrAlphaThresholdFragmentProcessor.fp",
-  "$_src/effects/GrCircleBlurFragmentProcessor.fp",
   "$_src/gpu/effects/GrAARectEffect.fp",
   "$_src/gpu/effects/GrArithmeticFP.fp",
   "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.fp",
+  "$_src/gpu/effects/GrCircleBlurFragmentProcessor.fp",
   "$_src/gpu/effects/GrCircleEffect.fp",
   "$_src/gpu/effects/GrConfigConversionEffect.fp",
   "$_src/gpu/effects/GrConstColorProcessor.fp",

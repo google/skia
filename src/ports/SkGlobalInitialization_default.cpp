@@ -9,7 +9,6 @@
 #include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
 #include "SkBlurImageFilter.h"
-#include "SkBlurMaskFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilterRowMajor255.h"
 #include "SkComposeImageFilter.h"
@@ -64,7 +63,6 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     // MaskFilter
     SkMaskFilter::InitializeFlattenables();
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
-    SkBlurMaskFilter::InitializeFlattenables();
     SkRRectsGaussianEdgeMaskFilter::InitializeFlattenables();
     SkShaderMaskFilter::InitializeFlattenables();
 

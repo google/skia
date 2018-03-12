@@ -144,8 +144,8 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../include/effects/SkBlurMaskFilter.h"
 #include "sk_maskfilter.h"
+#include "SkMaskFilter.h"
 
 const struct {
     sk_blurstyle_t  fC;
@@ -182,5 +182,5 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
     if (!find_blurstyle(cstyle, &style)) {
         return nullptr;
     }
-    return ToMaskFilter(SkBlurMaskFilter::Make(style, sigma).release());
+    return ToMaskFilter(SkMaskFilter::MakeBlur(style, sigma).release());
 }

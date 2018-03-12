@@ -6,7 +6,7 @@
  */
 #include "SkArenaAlloc.h"
 #include "SkBlurDrawLooper.h"
-#include "SkBlurMaskFilter.h"
+#include "SkMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkColor.h"
@@ -404,7 +404,7 @@ sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor color, SkScalar sigma, SkScal
 {
     sk_sp<SkMaskFilter> blur = nullptr;
     if (sigma > 0.0f) {
-        blur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, SkBlurMaskFilter::kNone_BlurFlag);
+        blur = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, true);
     }
 
     SkLayerDrawLooper::Builder builder;

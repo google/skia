@@ -58,6 +58,7 @@ skia_core_sources = [
   "$_src/core/SkBlurImageFilter.cpp",
   "$_src/core/SkBlurMask.cpp",
   "$_src/core/SkBlurMask.h",
+  "$_src/core/SkBlurMF.cpp",
   "$_src/core/SkBuffer.cpp",
   "$_src/core/SkCachedData.cpp",
   "$_src/core/SkCanvas.cpp",
