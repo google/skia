@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a8cb990_821f8d81",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2472,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-12T15:04:46Z",
+      "side": 1,
+      "message": "!?",
+      "revId": "eba465e643d4bc17739142e87340dcf674cd283a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5218f5a5_2f34a9fe",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2648,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-12T15:04:46Z",
+      "side": 1,
+      "message": "This wouldn\u0027t have round-tripped.",
+      "revId": "eba465e643d4bc17739142e87340dcf674cd283a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98786ff4_f6359cc1",
+        "filename": "tools/debugger/SkDrawCommand.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-12T15:04:46Z",
+      "side": 1,
+      "message": "I\u0027m not sure, but I think that if a subclass is missing an implementation of this, SkDrawCommand::fromJSON will be called recursively, leading to a stack overflow?",
+      "revId": "eba465e643d4bc17739142e87340dcf674cd283a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

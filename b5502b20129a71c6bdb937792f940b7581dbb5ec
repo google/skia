@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f6fe578_9edfc4c0",
+        "filename": "tools/debugger/SkDrawCommand.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-12T15:04:46Z",
+      "side": 0,
+      "message": "The OpType needs to be named identically to the SkDrawCommand subclass, for the INSTALL_FACTORY macro to work.",
+      "revId": "b5502b20129a71c6bdb937792f940b7581dbb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
