@@ -7,14 +7,7 @@
 
 #include "SkCachedData.h"
 #include "SkDiscardableMemoryPool.h"
-#include "SkMalloc.h"
-#include "SkRefCnt.h"
-#include "SkTypes.h"
 #include "Test.h"
-
-#include <cstring>
-
-class SkDiscardableMemory;
 
 enum LockedState {
     kUnlocked,

@@ -7,17 +7,14 @@
 
 #include "SkAndroidCodec.h"
 #include "SkBitmap.h"
-#include "SkColor.h"
+#include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkData.h"
 #include "SkEncodedImageFormat.h"
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
 #include "SkStream.h"
-#include "Test.h"
 
-#include <memory>
-#include <utility>
+#include "Test.h"
 
 DEF_TEST(Codec_recommendedF16, r) {
     // Encode an F16 bitmap. SkEncodeImage will encode this to a true-color PNG
