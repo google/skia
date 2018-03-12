@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6163fc8_d4593b0d",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-12T11:35:56Z",
+      "side": 0,
+      "message": "Let\u0027s do this a little more slowly?  How about we keep the -Debug and -Release builders, and the GCE Test- bots, removing the -Debug-Exceptions build, Perf- bots, and Golo test bots?\n\nEven if Chrome\u0027s not building with MSVC, it\u0027d be nice to know those builds are basically working.",
+      "revId": "bd928de679c58ee647481f963dc6fa1f65fdb59a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
