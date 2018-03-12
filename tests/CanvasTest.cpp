@@ -46,28 +46,47 @@
  */
 
 #include "SkBitmap.h"
+#include "SkBlendMode.h"
 #include "SkCanvas.h"
-#include "SkClipStack.h"
+#include "SkCanvasStack.h"
+#include "SkClipOp.h"
+#include "SkClipOpPriv.h"
+#include "SkColor.h"
 #include "SkDocument.h"
+#include "SkFlattenable.h"
+#include "SkImageFilter.h"
+#include "SkImageInfo.h"
+#include "SkMalloc.h"
 #include "SkMatrix.h"
 #include "SkNWayCanvas.h"
 #include "SkPaint.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkPath.h"
-#include "SkPicture.h"
-#include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
-#include "SkRasterClip.h"
+#include "SkPixmap.h"
+#include "SkPoint.h"
 #include "SkRect.h"
+#include "SkRefCnt.h"
 #include "SkRegion.h"
+#include "SkScalar.h"
 #include "SkShader.h"
+#include "SkSize.h"
 #include "SkSpecialImage.h"
 #include "SkStream.h"
+#include "SkString.h"
 #include "SkSurface.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
+#include "SkTypes.h"
 #include "SkVertices.h"
 #include "Test.h"
+
+#include <memory>
+#include <utility>
+
+class SkColorSpaceXformer;
+class SkReadBuffer;
+template <typename T> class SkTCopyOnFirstWrite;
 
 DEF_TEST(canvas_clipbounds, reporter) {
     SkCanvas canvas(10, 10);
@@ -684,9 +703,6 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkCanvasStack.h"
-#include "SkNWayCanvas.h"
 
 // Subclass that takes a bool*, which it updates in its construct (true) and destructor (false)
 // to allow the caller to know how long the object is alive.
