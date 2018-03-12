@@ -48,6 +48,30 @@ public:
         SkPaint::Align textAlignment,
         SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph);
 
+    // The SubpixelAlignment function produces a suitable position for the glyph cache to
+    // produce the correct sub-pixel alignment. If a position is aligned with an axis a shortcut
+    // of 0 is used for the sub-pixel position.
+    static SkIPoint SubpixelAlignment(SkAxisAlignment axisAlignment, SkPoint position) {
+
+        if (!SkScalarsAreFinite(position.fX, position.fY)) {
+            return {0, 0};
+        }
+
+        // Only the fractional part of position.fX and position.fY matter, because the result of
+        // this function will just be passed to FixedToSub.
+        switch (axisAlignment) {
+            case kX_SkAxisAlignment:
+                return {SkScalarToFixed(SkScalarFraction(position.fX) + kSubpixelRounding), 0};
+            case kY_SkAxisAlignment:
+                return {0, SkScalarToFixed(SkScalarFraction(position.fY) + kSubpixelRounding)};
+            case kNone_SkAxisAlignment:
+                return {SkScalarToFixed(SkScalarFraction(position.fX) + kSubpixelRounding),
+                        SkScalarToFixed(SkScalarFraction(position.fY) + kSubpixelRounding)};
+        }
+        SK_ABORT("Should not get here.");
+        return {0, 0};
+    }
+
 private:
     // GlyphFinderInterface is the polymorphic base for classes that parse a stream of chars into
     // the right UniChar (or GlyphID) and lookup up the glyph on the cache. The concrete
@@ -269,7 +293,7 @@ private:
 
     // The "call" to SkFixedToScalar is actually a macro. It's macros all the way down.
     // Needs to be a macro because you can't have a const float unless you make it constexpr.
-    #define kSubpixelRounding (SkFixedToScalar(SkGlyph::kSubpixelRound))
+    static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
 
     // The SubpixelPositionRounding function returns a point suitable for rounding a sub-pixel
     // positioned glyph.
@@ -285,27 +309,6 @@ private:
         SK_ABORT("Should not get here.");
         return {0.0f, 0.0f};
     }
-
-    // The SubpixelAlignment function produces a suitable position for the glyph cache to
-    // produce the correct sub-pixel alignment. If a position is aligned with an axis a shortcut
-    // of 0 is used for the sub-pixel position.
-    static SkIPoint SubpixelAlignment(SkAxisAlignment axisAlignment, SkPoint position) {
-        // Only the fractional part of position.fX and position.fY matter, because the result of
-        // this function will just be passed to FixedToSub.
-        switch (axisAlignment) {
-            case kX_SkAxisAlignment:
-                return {SkScalarToFixed(SkScalarFraction(position.fX) + kSubpixelRounding), 0};
-            case kY_SkAxisAlignment:
-                return {0, SkScalarToFixed(SkScalarFraction(position.fY) + kSubpixelRounding)};
-            case kNone_SkAxisAlignment:
-                return {SkScalarToFixed(SkScalarFraction(position.fX) + kSubpixelRounding),
-                        SkScalarToFixed(SkScalarFraction(position.fY) + kSubpixelRounding)};
-        }
-        SK_ABORT("Should not get here.");
-        return {0, 0};
-    }
-
-    #undef kSubpixelRounding
 
     // GlyphFindAndPlaceInterface given the text and position finds the correct glyph and does
     // glyph specific position adjustment. The findAndPositionGlyph method takes text and
@@ -363,9 +366,7 @@ private:
             }
 
             // Find the glyph.
-            SkIPoint lookupPosition = SkScalarsAreFinite(position.fX, position.fY)
-                                      ? SubpixelAlignment(kAxisAlignment, position)
-                                      : SkIPoint{0, 0};
+            SkIPoint lookupPosition = SubpixelAlignment(kAxisAlignment, position);
             const SkGlyph& renderGlyph =
                 fGlyphFinder->lookupGlyphXY(text, lookupPosition.fX, lookupPosition.fY);
 
