@@ -45,6 +45,30 @@
       "revId": "017b24b2a80121d4cd3f1c8f193cc1b2017643e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f196fc2_15d0fc8b",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 19
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-12T11:40:19Z",
+      "side": 1,
+      "message": "It\u0027s not these flags so much as that we\u0027re detecting Clang and using some extensions it supports that MSVC doesn\u0027t.  MSVC builds should have experienced this 2-10x slowdown starting from this CL: https://skia-review.googlesource.com/c/skia/+/112744",
+      "parentUuid": "2ff65b08_d802a4a3",
+      "range": {
+        "startLine": 122,
+        "startChar": 6,
+        "endLine": 122,
+        "endChar": 14
+      },
+      "revId": "017b24b2a80121d4cd3f1c8f193cc1b2017643e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
