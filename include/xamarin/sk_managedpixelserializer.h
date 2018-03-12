@@ -22,7 +22,7 @@ typedef bool       (*sk_managedpixelserializer_use_delegate)    (sk_managedpixel
 typedef sk_data_t* (*sk_managedpixelserializer_encode_delegate) (sk_managedpixelserializer_t* serializer, const sk_pixmap_t* pixmap);
 
 
-SK_X_API sk_managedpixelserializer_t* sk_managedpixelserializer_new ();
+SK_X_API sk_managedpixelserializer_t* sk_managedpixelserializer_new (void);
 SK_X_API void sk_managedpixelserializer_set_delegates (
     const sk_managedpixelserializer_use_delegate pUse,
     const sk_managedpixelserializer_encode_delegate pEncode);

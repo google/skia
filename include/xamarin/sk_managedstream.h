@@ -27,7 +27,7 @@ typedef size_t (*sk_managedwstream_bytesWritten_delegate) (const sk_wstream_mana
 typedef void   (*sk_managedwstream_destroy_delegate)      (size_t cmanagedStream);
 
 
-SK_X_API sk_wstream_managedstream_t* sk_managedwstream_new ();
+SK_X_API sk_wstream_managedstream_t* sk_managedwstream_new (void);
 SK_X_API void sk_managedwstream_destroy (sk_wstream_managedstream_t*);
 
 SK_X_API void sk_managedwstream_set_delegates (const sk_managedwstream_write_delegate pWrite,
@@ -54,7 +54,7 @@ typedef void                       (*sk_managedstream_destroy_delegate)      (si
 
 
 // c API
-SK_X_API sk_stream_managedstream_t* sk_managedstream_new ();
+SK_X_API sk_stream_managedstream_t* sk_managedstream_new (void);
 SK_X_API void sk_managedstream_destroy (sk_stream_managedstream_t*);
 
 SK_X_API void sk_managedstream_set_delegates (const sk_managedstream_read_delegate pRead,

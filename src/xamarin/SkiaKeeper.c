@@ -42,9 +42,9 @@
 #include "sk_managedstream.h"
 #include "sk_managedpixelserializer.h"
 
-SK_X_API void** KeepSkiaCSymbols ();
+SK_X_API void** KeepSkiaCSymbols (void);
 
-void** KeepSkiaCSymbols ()
+void** KeepSkiaCSymbols (void)
 {
     static void* ret[] = {
         // Skia
