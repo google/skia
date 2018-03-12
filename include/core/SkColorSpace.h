@@ -241,6 +241,12 @@ public:
      */
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
+    /**
+     *  If this color space was constructed from an ICC profile, return that profile data.
+     *  Otherise, return nullptr.
+     */
+    const SkData* profileData() const { return this->onProfileData(); }
+
 private:
     virtual const SkMatrix44* onToXYZD50() const = 0;
     virtual uint32_t onToXYZD50Hash() const = 0;
