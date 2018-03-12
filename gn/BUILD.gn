@@ -113,7 +113,7 @@ config("default") {
       "-mthumb",
     ]
   } else if (current_cpu == "x86" && is_win) {
-    cflags += [ "/arch:SSE2" ]
+    #cflags += [ "/arch:SSE2" ]
   } else if (current_cpu == "x86") {
     asmflags += [ "-m32" ]
     cflags += [
