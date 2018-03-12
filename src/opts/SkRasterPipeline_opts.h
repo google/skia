@@ -2828,21 +2828,21 @@ SI void store(T* ptr, size_t tail, V v) {
     }
 
     template<>
-    F gather(const float* p, U32 ix) {
+    F gather(const float* ptr, U32 ix) {
         __m256i lo, hi;
         split(ix, &lo, &hi);
 
-        return join<F>(_mm256_i32gather_ps(p, lo, 4),
-                       _mm256_i32gather_ps(p, hi, 4));
+        return join<F>(_mm256_i32gather_ps(ptr, lo, 4),
+                       _mm256_i32gather_ps(ptr, hi, 4));
     }
 
     template<>
-    U32 gather(const uint32_t* p, U32 ix) {
+    U32 gather(const uint32_t* ptr, U32 ix) {
         __m256i lo, hi;
         split(ix, &lo, &hi);
 
-        return join<U32>(_mm256_i32gather_epi32(p, lo, 4),
-                         _mm256_i32gather_epi32(p, hi, 4));
+        return join<U32>(_mm256_i32gather_epi32(ptr, lo, 4),
+                         _mm256_i32gather_epi32(ptr, hi, 4));
     }
 #else
     template <typename V, typename T>

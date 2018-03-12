@@ -173,7 +173,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                            origin,
                                            colorType,
                                            alphaType,
-                                           colorSpace,
+                                           std::move(colorSpace),
                                            textureFulfillProc,
                                            textureReleaseProc,
                                            textureContext);

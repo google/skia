@@ -61,7 +61,7 @@ private:
     typedef GrContext INHERITED;
 };
 
-sk_sp<GrContext> GrContextPriv::MakeDDL(sk_sp<GrContextThreadSafeProxy> proxy) {
+sk_sp<GrContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& proxy) {
     sk_sp<GrContext> context(new GrDDLContext(proxy));
 
     // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
