@@ -183,22 +183,41 @@ private:
         size_t vertexStride = gp->getVertexStride();
         int rectCount = fRects.count();
 
-        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
-                                     kIndicesPerRect, rectCount);
-        if (!vertices || !indexBuffer) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
-        }
+        if (rectCount > 1) {
+            auto indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+            if (!indexBuffer) {
+                SkDebugf("Could not access quad index buffer.");
+            }
+            PatternHelper helper(GrPrimitiveType::kTriangles);
+            void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
+                                         kIndicesPerRect, rectCount);
+            if (!vertices) {
+                SkDebugf("Could not allocate vertices\n");
+                return;
+            }
 
-        for (int i = 0; i < rectCount; i++) {
-            intptr_t verts =
-                    reinterpret_cast<intptr_t>(vertices) + i * kVertsPerRect * vertexStride;
-            tesselate(verts, vertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
-                      fRects[i].fRect, &fRects[i].fLocalQuad);
+            for (int i = 0; i < rectCount; i++) {
+                intptr_t verts =
+                        reinterpret_cast<intptr_t>(vertices) + i * kVertsPerRect * vertexStride;
+                tesselate(verts, vertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
+                          fRects[i].fRect, &fRects[i].fLocalQuad);
+            }
+            helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
+        } else {
+            const GrBuffer* vertexBuffer;
+            int startVertex;
+            auto vertices = reinterpret_cast<intptr_t>(
+                    target->makeVertexSpace(vertexStride, 4, &vertexBuffer, &startVertex));
+            if (!vertices) {
+                SkDebugf("Could not allocate vertices.\n");
+            }
+            tesselate(vertices, vertexStride, fRects[0].fColor, &fRects[0].fViewMatrix,
+                      fRects[0].fRect, &fRects[0].fLocalQuad);
+            GrMesh mesh(GrPrimitiveType::kTriangleStrip);
+            mesh.setNonIndexedNonInstanced(4);
+            mesh.setVertexData(vertexBuffer, startVertex);
+            target->draw(gp.get(), fHelper.makePipeline(target), mesh);
         }
-        helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
