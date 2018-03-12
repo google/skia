@@ -7,7 +7,7 @@
 
 @header {
     #include "GrProxyProvider.h"
-    #include "../effects/SkBlurMask.h"
+    #include "SkBlurMask.h"
 }
 
 in uniform float4 rect;

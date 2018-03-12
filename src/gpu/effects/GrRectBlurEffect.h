@@ -11,10 +11,10 @@
 #ifndef GrRectBlurEffect_DEFINED
 #define GrRectBlurEffect_DEFINED
 #include "SkTypes.h"
-#include "SkBlurMask.h"
 #if SK_SUPPORT_GPU
 
 #include "GrProxyProvider.h"
+#include "SkBlurMask.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrRectBlurEffect : public GrFragmentProcessor {
