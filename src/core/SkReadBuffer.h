@@ -18,7 +18,6 @@
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
-#include "SkReadBuffer.h"
 #include "SkReader32.h"
 #include "SkRefCnt.h"
 #include "SkShaderBase.h"
