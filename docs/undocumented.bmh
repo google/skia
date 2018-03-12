@@ -199,6 +199,11 @@ FT_Load_Glyph
 ##
 ##
 
+#Topic Debug_Canvas
+#Class SkDebugCanvas
+##
+##
+
 #Topic Debugging
 #Method SK_API void SkDebugf(const char format[], ...)
 ##
