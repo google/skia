@@ -13,6 +13,8 @@
 #include "SkPathOpsDebug.h"
 #include "SkString.h"
 
+int gCheckCount = 0;
+
 #if DEBUG_DUMP_VERIFY
 bool SkPathOpsDebug::gDumpOp;  // set to true to write op to file before a crash
 bool SkPathOpsDebug::gVerifyOp;  // set to true to compare result against regions

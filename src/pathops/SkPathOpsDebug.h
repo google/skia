@@ -19,7 +19,7 @@ class SkOpContourHead;
 #ifdef SK_RELEASE
 #define FORCE_RELEASE 1
 #else
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 #endif
 
 #define DEBUG_UNDER_DEVELOPMENT 0
@@ -97,8 +97,8 @@ class SkOpContourHead;
 #define DEBUG_PERP 1
 #define DEBUG_SHOW_TEST_NAME 1
 #define DEBUG_SORT 1
-#define DEBUG_T_SECT 0
-#define DEBUG_T_SECT_DUMP 0  // Use 1 normally. Use 2 to number segments, 3 for script output
+#define DEBUG_T_SECT 01
+#define DEBUG_T_SECT_DUMP 02  // Use 1 normally. Use 2 to number segments, 3 for script output
 #define DEBUG_T_SECT_LOOP_COUNT 0
 #define DEBUG_VALIDATE 1
 #define DEBUG_WINDING 1

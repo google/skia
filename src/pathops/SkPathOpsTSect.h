@@ -15,6 +15,7 @@
 
 #ifdef SK_DEBUG
 typedef uint8_t SkOpDebugBool;
+extern int gCheckCount;
 #else
 typedef bool SkOpDebugBool;
 #endif
@@ -166,6 +167,9 @@ public:
     bool removeBounded(const SkTSpan<OppCurve, TCurve>* opp);
 
     void reset() {
+        if (fID == 37) {
+            SkDebugf("span 37/7 nullptr checkCount=%d\n", ++gCheckCount);
+        }
         fBounded = nullptr;
     }
 
@@ -391,8 +395,14 @@ void SkTCoincident<TCurve, OppCurve>::setPerp(const TCurve& c1, double t,
 template<typename TCurve, typename OppCurve>
 void SkTSpan<TCurve, OppCurve>::addBounded(SkTSpan<OppCurve, TCurve>* span, SkArenaAlloc* heap) {
     SkTSpanBounded<OppCurve, TCurve>* bounded = heap->make<SkTSpanBounded<OppCurve, TCurve>>();
+    if (span->fID == 37) {
+        SkDebugf("span 37/1 span=%p checkCount=%d\n", span, ++gCheckCount);
+    }
     bounded->fBounded = span;
     bounded->fNext = fBounded;
+    if (fID == 37) {
+        SkDebugf("span 37/2 bounded=%p checkCount=%d\n", bounded, ++gCheckCount);
+    }
     fBounded = bounded;
 }
 
@@ -565,6 +575,9 @@ void SkTSpan<TCurve, OppCurve>::init(const TCurve& c) {
     fPrev = fNext = nullptr;
     fStartT = 0;
     fEndT = 1;
+    if (fID == 37) {
+        SkDebugf("span 37/3 nullptr checkCount=%d\n", ++gCheckCount);
+    }
     fBounded = nullptr;
     resetBounds(c);
 }
@@ -743,6 +756,9 @@ bool SkTSpan<TCurve, OppCurve>::removeBounded(const SkTSpan<OppCurve, TCurve>* o
                 prev->fNext = boundedNext;
                 return false;
             } else {
+                if (fID == 37) {
+                    SkDebugf("span 37/4 boundedNext=%p checkCount=%d\n", boundedNext, ++gCheckCount);
+                }
                 fBounded = boundedNext;
                 return fBounded == nullptr;
             }
@@ -778,6 +794,9 @@ bool SkTSpan<TCurve, OppCurve>::splitAt(SkTSpan* work, double t, SkArenaAlloc* h
     }
     this->validate();
     SkTSpanBounded<OppCurve, TCurve>* bounded = work->fBounded;
+    if (fID == 37) {
+        SkDebugf("span 37/5 nullptr checkCount=%d\n", ++gCheckCount);
+    }
     fBounded = nullptr;
     while (bounded) {
         this->addBounded(bounded->fBounded, heap);
@@ -1257,10 +1276,37 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
     // reduce coincident runs to single entries
     this->validate();
     sect2->validate();
+#if DEBUG_T_SECT_DUMP
+    SkDebugf("-1-\n");
+    this->dumpBoth(sect2);
+    SkDebugf("-2-\n");
+    first->dumpAll();
+    first->dumpBounds();
+    SkDebugf("-!-\n");
+    last->dumpAll();
+    last->dumpBounds();
+    SkDebugf("-!-\n");
+    oppFirst->dumpAll();
+    oppFirst->dumpBounds();
+    SkDebugf("-!-\n");
+    oppLast->dumpAll();
+    oppLast->dumpBounds();
+    SkDebugf("-!-\n");
+#endif
     bool deleteEmptySpans = this->updateBounded(first, last, oppFirst);
     deleteEmptySpans |= sect2->updateBounded(oppFirst, oppLast, first);
+#if DEBUG_T_SECT_DUMP
+    SkDebugf("-a-\n");
+    this->dumpBoth(sect2);
+    SkDebugf("-b-\n");
+#endif
     this->removeSpanRange(first, last);
     sect2->removeSpanRange(oppFirst, oppLast);
+#if DEBUG_T_SECT_DUMP
+    SkDebugf("-c-\n");
+    this->dumpBoth(sect2);
+    SkDebugf("-d-\n");
+#endif
     first->fEndT = last->fEndT;
     first->resetBounds(this->fCurve);
     first->fCoinStart.setPerp(fCurve, first->fStartT, first->fPart[0], sect2->fCurve);
@@ -1275,6 +1321,11 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
         oppFirst->fEndT = oppEndT;
         oppFirst->resetBounds(sect2->fCurve);
     }
+#if DEBUG_T_SECT_DUMP
+    SkDebugf("-3-\n");
+    this->dumpBoth(sect2);
+    SkDebugf("-4-\n");
+#endif
     this->validateBounded();
     sect2->validateBounded();
     last = first->fNext;
@@ -1908,6 +1959,9 @@ bool SkTSect<TCurve, OppCurve>::updateBounded(SkTSpan<TCurve, OppCurve>* first,
     do {
         deleteSpan |= test->removeAllBounded();
     } while ((test = test->fNext) != final && test);
+    if (first->fID == 37) {
+        SkDebugf("span 37/6 nullptr checkCount=%d\n", ++gCheckCount);
+    }
     first->fBounded = nullptr;
     first->addBounded(oppFirst, &fHeap);
     // cannot call validate until remove span range is called
