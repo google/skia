@@ -13,28 +13,45 @@
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
-#include "SkColorSpace_XYZ.h"
+#include "SkColor.h"
+#include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
 #include "SkData.h"
+#include "SkEncodedImageFormat.h"
 #include "SkFrontBufferedStream.h"
-#include "SkImageEncoder.h"
-#include "SkImageEncoderPriv.h"
-#include "SkMakeUnique.h"
-#include "SkMD5.h"
-#include "SkOSPath.h"
+#include "SkImage.h"
+#include "SkImageGenerator.h"
+#include "SkImageInfo.h"
 #include "SkJpegEncoder.h"
+#include "SkMD5.h"
+#include "SkMakeUnique.h"
+#include "SkMalloc.h"
+#include "SkMatrix44.h"
+#include "SkPixmap.h"
 #include "SkPngChunkReader.h"
 #include "SkPngEncoder.h"
 #include "SkRandom.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkSize.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
+#include "SkString.h"
+#include "SkTemplates.h"
+#include "SkTypes.h"
 #include "SkUnPreMultiply.h"
 #include "SkWebpEncoder.h"
 #include "Test.h"
-
 #include "png.h"
-
+#include "pngconf.h"
+#include "scripts/pnglibconf.h.prebuilt"
 #include "sk_tool_utils.h"
+
+#include <setjmp.h>
+#include <cstring>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR < 5
     // FIXME (scroggo): Google3 needs to be updated to use a newer version of libpng. In

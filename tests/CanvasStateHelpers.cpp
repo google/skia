@@ -5,13 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "CanvasStateHelpers.h"
+#include "SkTypes.h"
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+#include "CanvasStateHelpers.h"
 #include "SkCanvas.h"
 #include "SkCanvasStateUtils.h"
+#include "SkClipOp.h"
+#include "SkColor.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRegion.h"
+#include "SkScalar.h"
+
+#include <memory>
 
 void complex_layers_draw(SkCanvas* canvas, float left, float top,
                          float right, float bottom, int32_t spacer) {

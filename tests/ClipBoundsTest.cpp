@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "SkTypes.h"
+
 // This is a GR test
 #if SK_SUPPORT_GPU
 #include "GrClipStackClip.h"
-#include "GrContext.h"
+#include "SkClipOpPriv.h"
+#include "SkClipStack.h"
+#include "SkMatrix.h"
+#include "SkRect.h"
+#include "Test.h"
 
 // Ensure that the 'getConservativeBounds' calls are returning bounds clamped
 // to the render target
