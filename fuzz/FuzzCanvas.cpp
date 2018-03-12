@@ -509,8 +509,9 @@ static sk_sp<SkMaskFilter> make_fuzz_maskfilter(Fuzz* fuzz) {
                 fuzz->next(&occluder);
             }
             uint32_t flags;
-            fuzz->nextRange(&flags, 0, 3);
-            return SkBlurMaskFilter::Make(blurStyle, sigma, occluder, flags);
+            fuzz->nextRange(&flags, 0, 1);
+            bool respectCTM = flags != 0;
+            return SkMaskFilter::MakeBlur(blurStyle, sigma, occluder, respectCTM);
         }
         case 2: {
             SkRRect first, second;
