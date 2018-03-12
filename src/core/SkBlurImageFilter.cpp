@@ -531,7 +531,9 @@ static sk_sp<SkSpecialImage> cpu_blur(
     }
 
     if (windowW > 1) {
-        auto shift = srcBounds.top() - dstBounds.top();
+        // Make int64 to avoid overflow in multiplication below.
+        int64_t shift = srcBounds.top() - dstBounds.top();
+
         // For the horizontal blur, starts part way down in anticipation of the vertical blur.
         // For a vertical sigma of zero shift should be zero. But, for small sigma,
         // shift may be > 0 but the vertical window could be 1.
