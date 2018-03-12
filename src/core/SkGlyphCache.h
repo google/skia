@@ -45,6 +45,11 @@ public:
     /**  Return a glyph that has no information if it is not already filled out. */
     SkGlyph* getRawGlyphByID(SkPackedGlyphID);
 
+    /** Return the Strike's SkArenaAlloc. */
+    SkArenaAlloc* getAlloc() {
+        return &fAlloc;
+    }
+
     /** Returns a glyph with valid fAdvance and fDevKern fields. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getUnicharMetrics or
         getGlyphIDMetrics instead.
