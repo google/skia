@@ -208,6 +208,10 @@ std::unique_ptr&lt;SkCanvas&gt; SK_API SkCreateColorSpaceXformCanvas(SkCanvas* t
 
 # <a name="SkData"></a> Class SkData
 
+# <a name="Debug_Canvas"></a> Debug Canvas
+
+# <a name="SkDebugCanvas"></a> Class SkDebugCanvas
+
 # <a name="Debugging"></a> Debugging
 
 <a name="SkDebugf"></a>
