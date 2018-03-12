@@ -7,12 +7,12 @@
 
 #include "SkShadowUtils.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorData.h"
 #include "SkDevice.h"
 #include "SkDrawShadowInfo.h"
+#include "SkMaskFilter.h"
 #include "SkPath.h"
 #include "SkPM4f.h"
 #include "SkRandom.h"
@@ -642,8 +642,8 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 paint.setStrokeWidth(strokeWidth);
                 paint.setStyle(SkPaint::kStrokeAndFill_Style);
                 SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(blurRadius);
-                uint32_t flags = SkBlurMaskFilter::kIgnoreTransform_BlurFlag;
-                paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, flags));
+                bool respectCTM = false;
+                paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, respectCTM));
                 this->drawPath(devSpacePath, paint);
             }
         }
@@ -727,8 +727,8 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 SkPaint paint;
                 paint.setColor(rec.fSpotColor);
                 SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(radius);
-                uint32_t flags = SkBlurMaskFilter::kIgnoreTransform_BlurFlag;
-                paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, flags));
+                bool respectCTM = false;
+                paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, respectCTM));
                 this->drawPath(path, paint);
             }
         }

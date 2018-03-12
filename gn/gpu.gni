@@ -328,6 +328,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrArithmeticFP.h",
   "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",
   "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.h",
+  "$_src/gpu/effects/GrCircleBlurFragmentProcessor.cpp",
+  "$_src/gpu/effects/GrCircleBlurFragmentProcessor.h",
   "$_src/gpu/effects/GrCircleEffect.cpp",
   "$_src/gpu/effects/GrCircleEffect.h",
   "$_src/gpu/effects/GrConfigConversionEffect.cpp",

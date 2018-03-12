@@ -10,8 +10,6 @@ _include = get_path_info("../include", "abspath")
 skia_effects_sources = [
   "$_src/c/sk_effects.cpp",
 
-  "$_src/effects/GrCircleBlurFragmentProcessor.cpp",
-  "$_src/effects/GrCircleBlurFragmentProcessor.h",
   "$_src/effects/GrAlphaThresholdFragmentProcessor.cpp",
   "$_src/effects/GrAlphaThresholdFragmentProcessor.h",
 

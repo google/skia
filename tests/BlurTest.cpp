@@ -9,7 +9,6 @@
 #include "SkBlendMode.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkBlurPriv.h"
 #include "SkBlurTypes.h"
 #include "SkCanvas.h"
@@ -133,9 +132,8 @@ DEF_TEST(BlurDrawing, reporter) {
     for (int style = 0; style <= kLastEnum_SkBlurStyle; ++style) {
         SkBlurStyle blurStyle = static_cast<SkBlurStyle>(style);
 
-        const uint32_t flagPermutations = SkBlurMaskFilter::kAll_BlurFlag;
-        for (uint32_t flags = 0; flags < flagPermutations; ++flags) {
-            paint.setMaskFilter(SkBlurMaskFilter::Make(blurStyle, sigma, flags));
+        for (bool respectCTM : { false, true }) {
+            paint.setMaskFilter(SkMaskFilter::MakeBlur(blurStyle, sigma, respectCTM));
 
             for (size_t test = 0; test < SK_ARRAY_COUNT(tests); ++test) {
                 SkPath path;
@@ -254,8 +252,7 @@ static void blur_path(SkCanvas* canvas, const SkPath& path,
 
     SkPaint blurPaint;
     blurPaint.setColor(SK_ColorWHITE);
-    blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, gaussianSigma,
-                                                   SkBlurMaskFilter::kHighQuality_BlurFlag));
+    blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, gaussianSigma));
 
     canvas->drawColor(SK_ColorBLACK);
     canvas->drawPath(path, blurPaint);
@@ -363,13 +360,7 @@ DEF_TEST(BlurSigmaRange, reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-static SkBlurQuality blurMaskFilterFlags_as_quality(uint32_t blurMaskFilterFlags) {
-    return (blurMaskFilterFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
-            kHigh_SkBlurQuality : kLow_SkBlurQuality;
-}
-
-static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma,
-                                SkBlurStyle style, uint32_t blurMaskFilterFlags) {
+static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma, SkBlurStyle style) {
     if (kNormal_SkBlurStyle != style) {
         return; // blurdrawlooper only supports normal
     }
@@ -392,13 +383,13 @@ static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma,
             REPORTER_ASSERT(reporter, rec.fOffset.y() == dy);
             REPORTER_ASSERT(reporter, rec.fColor == color);
             REPORTER_ASSERT(reporter, rec.fStyle == style);
-            REPORTER_ASSERT(reporter, rec.fQuality == kLow_SkBlurQuality);
+            REPORTER_ASSERT(reporter, rec.fQuality == kHigh_SkBlurQuality);
         }
     }
 }
 
 static void test_looper(skiatest::Reporter* reporter, sk_sp<SkDrawLooper> lp, SkScalar sigma,
-                        SkBlurStyle style, SkBlurQuality quality, bool expectSuccess) {
+                        SkBlurStyle style, bool expectSuccess) {
     SkDrawLooper::BlurShadowRec rec;
     bool success = lp->asABlurShadow(&rec);
     REPORTER_ASSERT(reporter, success == expectSuccess);
@@ -408,7 +399,7 @@ static void test_looper(skiatest::Reporter* reporter, sk_sp<SkDrawLooper> lp, Sk
     if (success) {
         REPORTER_ASSERT(reporter, rec.fSigma == sigma);
         REPORTER_ASSERT(reporter, rec.fStyle == style);
-        REPORTER_ASSERT(reporter, rec.fQuality == quality);
+        REPORTER_ASSERT(reporter, rec.fQuality == kHigh_SkBlurQuality);
     }
 }
 
@@ -430,31 +421,30 @@ static void make_blur_layer(SkLayerDrawLooper::Builder* builder, sk_sp<SkMaskFil
 }
 
 static void test_layerDrawLooper(skiatest::Reporter* reporter, sk_sp<SkMaskFilter> mf,
-                                 SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                                 bool expectSuccess) {
+                                 SkScalar sigma, SkBlurStyle style, bool expectSuccess) {
 
     SkLayerDrawLooper::LayerInfo info;
     SkLayerDrawLooper::Builder builder;
 
     // 1 layer is too few
     make_noop_layer(&builder);
-    test_looper(reporter, builder.detach(), sigma, style, quality, false);
+    test_looper(reporter, builder.detach(), sigma, style, false);
 
     // 2 layers is good, but need blur
     make_noop_layer(&builder);
     make_noop_layer(&builder);
-    test_looper(reporter, builder.detach(), sigma, style, quality, false);
+    test_looper(reporter, builder.detach(), sigma, style, false);
 
     // 2 layers is just right
     make_noop_layer(&builder);
     make_blur_layer(&builder, mf);
-    test_looper(reporter, builder.detach(), sigma, style, quality, expectSuccess);
+    test_looper(reporter, builder.detach(), sigma, style, expectSuccess);
 
     // 3 layers is too many
     make_noop_layer(&builder);
     make_blur_layer(&builder, mf);
     make_noop_layer(&builder);
-    test_looper(reporter, builder.detach(), sigma, style, quality, false);
+    test_looper(reporter, builder.detach(), sigma, style, false);
 }
 
 DEF_TEST(BlurAsABlur, reporter) {
@@ -472,27 +462,25 @@ DEF_TEST(BlurAsABlur, reporter) {
         const SkBlurStyle style = styles[i];
         for (size_t j = 0; j < SK_ARRAY_COUNT(sigmas); ++j) {
             const SkScalar sigma = sigmas[j];
-            for (int flags = 0; flags <= SkBlurMaskFilter::kAll_BlurFlag; ++flags) {
-                const SkBlurQuality quality = blurMaskFilterFlags_as_quality(flags);
-
-                sk_sp<SkMaskFilter> mf(SkBlurMaskFilter::Make(style, sigma, flags));
+            for (bool respectCTM : { false, true }) {
+                sk_sp<SkMaskFilter> mf(SkMaskFilter::MakeBlur(style, sigma, respectCTM));
                 if (nullptr == mf.get()) {
                     REPORTER_ASSERT(reporter, sigma <= 0);
                 } else {
                     REPORTER_ASSERT(reporter, sigma > 0);
                     SkMaskFilterBase::BlurRec rec;
                     bool success = as_MFB(mf)->asABlur(&rec);
-                    if (flags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag) {
-                        REPORTER_ASSERT(reporter, !success);
-                    } else {
+                    if (respectCTM) {
                         REPORTER_ASSERT(reporter, success);
                         REPORTER_ASSERT(reporter, rec.fSigma == sigma);
                         REPORTER_ASSERT(reporter, rec.fStyle == style);
-                        REPORTER_ASSERT(reporter, rec.fQuality == quality);
+                        REPORTER_ASSERT(reporter, rec.fQuality == kHigh_SkBlurQuality);
+                    } else {
+                        REPORTER_ASSERT(reporter, !success);
                     }
-                    test_layerDrawLooper(reporter, std::move(mf), sigma, style, quality, success);
+                    test_layerDrawLooper(reporter, std::move(mf), sigma, style, success);
                 }
-                test_blurDrawLooper(reporter, sigma, style, flags);
+                test_blurDrawLooper(reporter, sigma, style);
             }
         }
     }
@@ -529,7 +517,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo) {
     SkRRect rr = SkRRect::MakeRectXY(r, 10, 10);
 
     SkPaint p;
-    p.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 0.01f));
+    p.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 0.01f));
 
     canvas->drawRRect(rr, p);
 }
@@ -706,7 +694,7 @@ DEF_TEST(BlurZeroSigma, reporter) {
     // if sigma is zero (or nearly so), we need to draw correctly (unblurred) and not crash
     // or assert.
     for (auto sigma : sigmas) {
-        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma));
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
         surf->getCanvas()->drawRect(r, paint);
 
         sk_tool_utils::PixelIter iter(surf.get());
