@@ -186,7 +186,15 @@ public:
      * If this returns false then the caller should implement a fallback where a temporary texture
      * is created, pixels are written to it, and then that is copied or drawn into the the surface.
      */
-    virtual bool surfaceSupportsWritePixels(const GrSurface* surface) const = 0;
+    virtual bool surfaceSupportsWritePixels(const GrSurface*) const = 0;
+
+    /**
+     * Backends may have restrictions on what types of surfaces support GrGpu::readPixels().
+     * If this returns false then the caller should implement a fallback where a temporary texture
+     * is created, the surface is drawn or copied into the temporary, and pixels are read from the
+     * temporary.
+     */
+    virtual bool surfaceSupportsReadPixels(const GrSurface*) const = 0;
 
     /**
      * Given a dst pixel config and a src color type what color type must the caller coax the
@@ -194,6 +202,15 @@ public:
      */
     virtual GrColorType supportedWritePixelsColorType(GrPixelConfig config,
                                                       GrColorType /*srcColorType*/) const {
+        return GrPixelConfigToColorType(config);
+    }
+
+    /**
+     * Given a src pixel config and a dst color type what color type must the caller read to using
+     * GrGpu::readPixels() and then coax into dstColorType.
+     */
+    virtual GrColorType supportedReadPixelsColorType(GrPixelConfig config,
+                                                     GrColorType /*dstColorType*/) const {
         return GrPixelConfigToColorType(config);
     }
 

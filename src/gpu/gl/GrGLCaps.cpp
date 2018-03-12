@@ -2433,11 +2433,10 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
 }
 
 bool GrGLCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
-    if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
-        if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
-            if (tex->hasBaseLevelBeenBoundToFBO()) {
-                return false;
-            }
+    if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
+        if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO &&
+            tex->hasBaseLevelBeenBoundToFBO()) {
+            return false;
         }
     }
     if (auto rt = surface->asRenderTarget()) {
@@ -2448,6 +2447,17 @@ bool GrGLCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
             return false;
         }
         return SkToBool(surface->asTexture());
+    }
+    return true;
+}
+
+bool GrGLCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
+    if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
+        // We don't support reading pixels directly EXTERNAL textures as it would require
+        // binding the texture to a FBO.
+        if (tex->target() == GR_GL_TEXTURE_EXTERNAL) {
+            return false;
+        }
     }
     return true;
 }
