@@ -7,18 +7,19 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkData.h"
-#include "SkDiscardableMemoryPool.h"
+#include "SkColor.h"
+#include "SkColorData.h"
 #include "SkImage.h"
-#include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
+#include "SkImageInfo.h"
 #include "SkMakeUnique.h"
-#include "SkResourceCache.h"
-#include "SkStream.h"
+#include "SkRefCnt.h"
+#include "SkTypes.h"
 #include "SkUtils.h"
-
 #include "Test.h"
 #include "sk_tool_utils.h"
+
+#include <utility>
 
 class TestImageGenerator : public SkImageGenerator {
 public:

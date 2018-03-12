@@ -8,6 +8,7 @@
 #include "SkChecksum.h"
 #include "SkOpts.h"
 #include "SkRandom.h"
+#include "SkTypes.h"
 #include "Test.h"
 
 DEF_TEST(Checksum, r) {
