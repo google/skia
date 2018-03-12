@@ -2130,11 +2130,11 @@ private:
 
     string addReferences(const char* start, const char* end, BmhParser::Resolvable );
     bool buildRefFromFile(const char* fileName, const char* outDir);
-    bool checkParamReturnBody(const Definition* def) const;
+    bool checkParamReturnBody(const Definition* def);
     void childrenOut(const Definition* def, const char* contentStart);
     const Definition* csParent() const;
     const Definition* findParamType();
-    const Definition* isDefined(const TextParser& parser, const string& ref, bool report) const;
+    const Definition* isDefined(const TextParser& parser, const string& ref, bool report);
     string linkName(const Definition* ) const;
     string linkRef(const string& leadingSpaces, const Definition*, const string& ref,
 			BmhParser::Resolvable ) const;
@@ -2159,6 +2159,7 @@ private:
         fRoot = nullptr;
         fLastParam = nullptr;
         fTableState = TableState::kNone;
+        fAddRefFailed = false;
         fHasFiddle = false;
         fInDescription = false;
         fInList = false;
@@ -2195,6 +2196,7 @@ private:
     const RootDefinition* fRoot;
     const Definition* fLastParam;
     TableState fTableState;
+    bool fAddRefFailed;
     bool fHasFiddle;
     bool fInDescription;   // FIXME: for now, ignore unfound camelCase in description since it may
                            // be defined in example which at present cannot be linked to
