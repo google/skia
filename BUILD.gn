@@ -726,11 +726,12 @@ optional("raw") {
 optional("skcms") {
   enabled = skia_use_skcms
 
+  public_defines = [ "SK_USE_SKCMS" ]
   deps = [
     "//third_party/skcms",
   ]
   sources = [
-    # TODO
+    "src/core/SkColorSpaceXform_skcms.cpp",
   ]
 }
 
