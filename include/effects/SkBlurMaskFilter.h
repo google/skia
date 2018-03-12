@@ -14,6 +14,8 @@
 #include "SkScalar.h"
 #include "SkBlurTypes.h"
 
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
+
 class SkRRect;
 
 class SK_API SkBlurMaskFilter {
@@ -62,4 +64,5 @@ private:
     SkBlurMaskFilter(); // can't be instantiated
 };
 
+#endif
 #endif

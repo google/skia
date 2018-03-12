@@ -224,10 +224,9 @@ protected:
             paint.setFilterQuality(kLow_SkFilterQuality);
 
             srcRect.setXYWH(1, 1, 3, 3);
-            paint.setMaskFilter(SkBlurMaskFilter::Make(
+            paint.setMaskFilter(SkMaskFilter::MakeBlur(
                 kNormal_SkBlurStyle,
-                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
-                SkBlurMaskFilter::kHighQuality_BlurFlag));
+                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5))));
 
             sk_sp<SkImage> image(SkImage::MakeFromBitmap(bm));
             fProc(canvas, image.get(), bm, srcRect, dstRect, &paint);
