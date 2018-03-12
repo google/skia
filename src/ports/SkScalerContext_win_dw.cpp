@@ -859,7 +859,7 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
     SkDraw draw;
     draw.fDst = SkPixmap(SkImageInfo::MakeN32(glyph.fWidth, glyph.fHeight, kPremul_SkAlphaType),
                          glyph.fImage,
-                         glyph.ComputeRowBytes(glyph.fWidth, SkMask::Format::kARGB32_Format));
+                         glyph.rowBytesUsingFormat(SkMask::Format::kARGB32_Format));
     draw.fMatrix = &matrix;
     draw.fRC = &rc;
 
