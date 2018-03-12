@@ -509,6 +509,11 @@ void SkDebugCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, con
     this->addDrawCommand(new SkDrawImageRectCommand(image, src, dst, paint, constraint));
 }
 
+void SkDebugCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center,
+                                    const SkRect& dst, const SkPaint* paint) {
+    this->addDrawCommand(new SkDrawImageNineCommand(image, center, dst, paint));
+}
+
 void SkDebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawOvalCommand(oval, paint));
 }
@@ -524,6 +529,10 @@ void SkDebugCanvas::onDrawPaint(const SkPaint& paint) {
 
 void SkDebugCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawPathCommand(path, paint));
+}
+
+void SkDebugCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
+    this->addDrawCommand(new SkDrawRegionCommand(region, paint));
 }
 
 void SkDebugCanvas::onDrawPicture(const SkPicture* picture,

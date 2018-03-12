@@ -214,6 +214,7 @@ SkDrawCommand::~SkDrawCommand() {
 const char* SkDrawCommand::GetCommandString(OpType type) {
     switch (type) {
         case kBeginDrawPicture_OpType: return "BeginDrawPicture";
+        case kClear_OpType: return "DrawClear";
         case kClipPath_OpType: return "ClipPath";
         case kClipRegion_OpType: return "ClipRegion";
         case kClipRect_OpType: return "ClipRect";
@@ -223,20 +224,22 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawBitmap_OpType: return "DrawBitmap";
         case kDrawBitmapNine_OpType: return "DrawBitmapNine";
         case kDrawBitmapRect_OpType: return "DrawBitmapRect";
-        case kDrawClear_OpType: return "DrawClear";
         case kDrawDRRect_OpType: return "DrawDRRect";
         case kDrawImage_OpType: return "DrawImage";
         case kDrawImageLattice_OpType: return "DrawImageLattice";
+        case kDrawImageNine_OpType: return "DrawImageNine";
         case kDrawImageRect_OpType: return "DrawImageRect";
         case kDrawOval_OpType: return "DrawOval";
         case kDrawPaint_OpType: return "DrawPaint";
         case kDrawPatch_OpType: return "DrawPatch";
         case kDrawPath_OpType: return "DrawPath";
+        case kDrawArc_OpType: return "DrawArc";
         case kDrawPoints_OpType: return "DrawPoints";
         case kDrawPosText_OpType: return "DrawPosText";
         case kDrawPosTextH_OpType: return "DrawPosTextH";
         case kDrawRect_OpType: return "DrawRect";
         case kDrawRRect_OpType: return "DrawRRect";
+        case kDrawRegion_OpType: return "DrawRegion";
         case kDrawText_OpType: return "DrawText";
         case kDrawTextBlob_OpType: return "DrawTextBlob";
         case kDrawTextOnPath_OpType: return "DrawTextOnPath";
@@ -275,6 +278,7 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
     if (!initialized) {
         initialized = true;
         INSTALL_FACTORY(Restore);
+        INSTALL_FACTORY(Clear);
         INSTALL_FACTORY(ClipPath);
         INSTALL_FACTORY(ClipRegion);
         INSTALL_FACTORY(ClipRect);
@@ -282,14 +286,18 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
         INSTALL_FACTORY(Concat);
         INSTALL_FACTORY(DrawAnnotation);
         INSTALL_FACTORY(DrawBitmap);
-        INSTALL_FACTORY(DrawBitmapRect);
         INSTALL_FACTORY(DrawBitmapNine);
+        INSTALL_FACTORY(DrawBitmapRect);
         INSTALL_FACTORY(DrawImage);
+        INSTALL_FACTORY(DrawImageLattice);
+        INSTALL_FACTORY(DrawImageNine);
         INSTALL_FACTORY(DrawImageRect);
         INSTALL_FACTORY(DrawOval);
+        INSTALL_FACTORY(DrawArc);
         INSTALL_FACTORY(DrawPaint);
         INSTALL_FACTORY(DrawPath);
         INSTALL_FACTORY(DrawPoints);
+        INSTALL_FACTORY(DrawRegion);
         INSTALL_FACTORY(DrawText);
         INSTALL_FACTORY(DrawPosText);
         INSTALL_FACTORY(DrawPosTextH);
@@ -349,6 +357,24 @@ void render_path(SkCanvas* canvas, const SkPath& path) {
     p.setStyle(SkPaint::kStroke_Style);
 
     canvas->drawPath(path, p);
+}
+
+void render_region(SkCanvas* canvas, const SkRegion& region) {
+    canvas->clear(0xFFFFFFFF);
+
+    const SkIRect& bounds = region.getBounds();
+    if (bounds.isEmpty()) {
+        return;
+    }
+
+    SkAutoCanvasRestore acr(canvas, true);
+    xlate_and_scale_to_bounds(canvas, SkRect::MakeFromIRect(bounds));
+
+    SkPaint p;
+    p.setColor(SK_ColorBLACK);
+    p.setStyle(SkPaint::kStroke_Style);
+
+    canvas->drawRegion(region, p);
 }
 
 void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRect = nullptr) {
@@ -657,7 +683,10 @@ Json::Value SkDrawCommand::MakeJsonPath(const SkPath& path) {
 }
 
 Json::Value SkDrawCommand::MakeJsonRegion(const SkRegion& region) {
-    return Json::Value("<unimplemented>");
+    // TODO: Actually serialize the rectangles, rather than just devolving to path
+    SkPath path;
+    region.getBoundaryPath(&path);
+    return MakeJsonPath(path);
 }
 
 static Json::Value make_json_regionop(SkClipOp op) {
@@ -1753,6 +1782,12 @@ static void extract_json_path(Json::Value& path, SkPath* result) {
     }
 }
 
+static void extract_json_region(Json::Value& region, SkRegion* result) {
+    SkPath path;
+    extract_json_path(region, &path);
+    result->setPath(path, SkRegion(path.getBounds().roundOut()));
+}
+
 SkClipOp get_json_clipop(Json::Value& jsonOp) {
     const char* op = jsonOp.asCString();
     if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_DIFFERENCE)) {
@@ -1777,7 +1812,7 @@ SkClipOp get_json_clipop(Json::Value& jsonOp) {
     return kIntersect_SkClipOp;
 }
 
-SkClearCommand::SkClearCommand(SkColor color) : INHERITED(kDrawClear_OpType) {
+SkClearCommand::SkClearCommand(SkColor color) : INHERITED(kClear_OpType) {
     fColor = color;
     fInfo.push(SkObjectParser::CustomTextToString("No Parameters"));
 }
@@ -1855,8 +1890,10 @@ Json::Value SkClipRegionCommand::toJSON(UrlDataManager& urlDataManager) const {
 
 SkClipRegionCommand* SkClipRegionCommand::fromJSON(Json::Value& command,
                                                    UrlDataManager& urlDataManager) {
-    SkASSERT(false);
-    return nullptr;
+    SkRegion region;
+    extract_json_region(command[SKDEBUGCANVAS_ATTRIBUTE_REGION], &region);
+    return new SkClipRegionCommand(region,
+                                   get_json_clipop(command[SKDEBUGCANVAS_ATTRIBUTE_REGIONOP]));
 }
 
 SkClipRectCommand::SkClipRectCommand(const SkRect& rect, SkClipOp op, bool doAA)
@@ -2366,7 +2403,7 @@ Json::Value SkDrawImageLatticeCommand::toJSON(UrlDataManager& urlDataManager) co
     Json::Value result = INHERITED::toJSON(urlDataManager);
     Json::Value encoded;
     if (flatten(*fImage.get(), &encoded, urlDataManager)) {
-        result[SKDEBUGCANVAS_ATTRIBUTE_BITMAP] = encoded;
+        result[SKDEBUGCANVAS_ATTRIBUTE_IMAGE] = encoded;
         result[SKDEBUGCANVAS_ATTRIBUTE_LATTICE] = MakeJsonLattice(fLattice);
         result[SKDEBUGCANVAS_ATTRIBUTE_DST] = MakeJsonRect(fDst);
         if (fPaint.isValid()) {
@@ -2378,6 +2415,12 @@ Json::Value SkDrawImageLatticeCommand::toJSON(UrlDataManager& urlDataManager) co
     result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fDst)->c_str());
 
     return result;
+}
+
+SkDrawImageLatticeCommand* SkDrawImageLatticeCommand::fromJSON(Json::Value& command,
+                                                               UrlDataManager& urlDataManager) {
+    SkDEBUGFAIL("Not implemented yet.");
+    return nullptr;
 }
 
 SkDrawImageRectCommand::SkDrawImageRectCommand(const SkImage* image, const SkRect* src,
@@ -2426,7 +2469,7 @@ Json::Value SkDrawImageRectCommand::toJSON(UrlDataManager& urlDataManager) const
     Json::Value result = INHERITED::toJSON(urlDataManager);
     Json::Value encoded;
     if (flatten(*fImage.get(), &encoded, urlDataManager)) {
-        result[SKDEBUGCANVAS_ATTRIBUTE_BITMAP] = encoded;
+        result[SKDEBUGCANVAS_ATTRIBUTE_IMAGE] = encoded;
         if (fSrc.isValid()) {
             result[SKDEBUGCANVAS_ATTRIBUTE_SRC] = MakeJsonRect(*fSrc.get());
         }
@@ -2484,6 +2527,77 @@ SkDrawImageRectCommand* SkDrawImageRectCommand::fromJSON(Json::Value& command,
     return result;
 }
 
+SkDrawImageNineCommand::SkDrawImageNineCommand(const SkImage* image, const SkIRect& center,
+                                               const SkRect& dst, const SkPaint* paint)
+        : INHERITED(kDrawImageNine_OpType)
+        , fImage(SkRef(image))
+        , fCenter(center)
+        , fDst(dst) {
+    if (paint) {
+        fPaint = *paint;
+        fPaintPtr = &fPaint;
+    } else {
+        fPaintPtr = nullptr;
+    }
+
+    fInfo.push(SkObjectParser::ImageToString(image));
+    fInfo.push(SkObjectParser::IRectToString(center));
+    fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
+    if (paint) {
+        fInfo.push(SkObjectParser::PaintToString(*paint));
+    }
+}
+
+void SkDrawImageNineCommand::execute(SkCanvas* canvas) const {
+    canvas->drawImageNine(fImage.get(), fCenter, fDst, fPaintPtr);
+}
+
+bool SkDrawImageNineCommand::render(SkCanvas* canvas) const {
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->clear(0xFFFFFFFF);
+
+    xlate_and_scale_to_bounds(canvas, fDst);
+
+    this->execute(canvas);
+    return true;
+}
+
+Json::Value SkDrawImageNineCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+    Json::Value encoded;
+    if (flatten(*fImage.get(), &encoded, urlDataManager)) {
+        result[SKDEBUGCANVAS_ATTRIBUTE_IMAGE] = encoded;
+        result[SKDEBUGCANVAS_ATTRIBUTE_CENTER] = MakeJsonIRect(fCenter);
+        result[SKDEBUGCANVAS_ATTRIBUTE_DST] = MakeJsonRect(fDst);
+        if (fPaintPtr != nullptr) {
+            result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(*fPaintPtr, urlDataManager);
+        }
+    }
+    return result;
+}
+
+SkDrawImageNineCommand* SkDrawImageNineCommand::fromJSON(Json::Value& command,
+                                                         UrlDataManager& urlDataManager) {
+    sk_sp<SkImage> image = load_image(command[SKDEBUGCANVAS_ATTRIBUTE_IMAGE], urlDataManager);
+    if (image == nullptr) {
+        return nullptr;
+    }
+    SkIRect center;
+    extract_json_irect(command[SKDEBUGCANVAS_ATTRIBUTE_CENTER], &center);
+    SkRect dst;
+    extract_json_rect(command[SKDEBUGCANVAS_ATTRIBUTE_DST], &dst);
+    SkPaint* paintPtr;
+    SkPaint paint;
+    if (command.isMember(SKDEBUGCANVAS_ATTRIBUTE_PAINT)) {
+        extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
+        paintPtr = &paint;
+    } else {
+        paintPtr = nullptr;
+    }
+    SkDrawImageNineCommand* result = new SkDrawImageNineCommand(image.get(), center, dst, paintPtr);
+    return result;
+}
+
 SkDrawOvalCommand::SkDrawOvalCommand(const SkRect& oval, const SkPaint& paint)
     : INHERITED(kDrawOval_OpType) {
     fOval = oval;
@@ -2531,7 +2645,7 @@ SkDrawOvalCommand* SkDrawOvalCommand::fromJSON(Json::Value& command,
 
 SkDrawArcCommand::SkDrawArcCommand(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                                    bool useCenter, const SkPaint& paint)
-        : INHERITED(kDrawOval_OpType) {
+        : INHERITED(kDrawArc_OpType) {
     fOval = oval;
     fStartAngle = startAngle;
     fSweepAngle = sweepAngle;
@@ -2649,6 +2763,40 @@ SkDrawPathCommand* SkDrawPathCommand::fromJSON(Json::Value& command,
     SkPaint paint;
     extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
     return new SkDrawPathCommand(path, paint);
+}
+
+SkDrawRegionCommand::SkDrawRegionCommand(const SkRegion& region, const SkPaint& paint)
+    : INHERITED(kDrawRegion_OpType) {
+    fRegion = region;
+    fPaint = paint;
+
+    fInfo.push(SkObjectParser::RegionToString(region));
+    fInfo.push(SkObjectParser::PaintToString(paint));
+}
+
+void SkDrawRegionCommand::execute(SkCanvas* canvas) const {
+    canvas->drawRegion(fRegion, fPaint);
+}
+
+bool SkDrawRegionCommand::render(SkCanvas* canvas) const {
+    render_region(canvas, fRegion);
+    return true;
+}
+
+Json::Value SkDrawRegionCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+    result[SKDEBUGCANVAS_ATTRIBUTE_REGION] = MakeJsonRegion(fRegion);
+    result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
+    return result;
+}
+
+SkDrawRegionCommand* SkDrawRegionCommand::fromJSON(Json::Value& command,
+                                                   UrlDataManager& urlDataManager) {
+    SkRegion region;
+    extract_json_region(command[SKDEBUGCANVAS_ATTRIBUTE_REGION], &region);
+    SkPaint paint;
+    extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
+    return new SkDrawRegionCommand(region, paint);
 }
 
 SkBeginDrawPictureCommand::SkBeginDrawPictureCommand(const SkPicture* picture,
