@@ -58,8 +58,6 @@ public:
                                           SkScalar ambient, SkScalar specular);
 #endif
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
-
 private:
     SkBlurMaskFilter(); // can't be instantiated
 };
