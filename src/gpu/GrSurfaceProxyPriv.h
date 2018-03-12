@@ -75,6 +75,11 @@ public:
     }
 
     bool isSafeToUninstantiate() const {
+        SkASSERT(fProxy->fTarget);
+        SkASSERT(fProxy->fLazyInstantiateCallback);
+        SkASSERT(GrSurfaceProxy::LazyInstantiationType::kUninstantiate == lazyInstantiationType());
+
+
         return SkToBool(fProxy->fTarget) &&
                SkToBool(fProxy->fLazyInstantiateCallback) &&
                GrSurfaceProxy::LazyInstantiationType::kUninstantiate == lazyInstantiationType();

@@ -93,6 +93,7 @@ bool SkDeferredDisplayListRecorder::init() {
                 // The proxy backing the destination surface had better have been instantiated
                 // prior to the proxy backing the DLL's surface. Steal its GrRenderTarget.
                 SkASSERT(lazyProxyData->fReplayDest->priv().peekSurface());
+                SkASSERT(kBGRA_8888_GrPixelConfig == lazyProxyData->fReplayDest->priv().peekSurface()->config());
                 return sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->priv().peekSurface());
             },
             desc,

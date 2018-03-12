@@ -513,6 +513,7 @@ public:
                                           copyParams, scaleAdjust)) {
             return true;
         }
+
         return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
     }
 

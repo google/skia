@@ -118,6 +118,7 @@ public:
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    GrPixelConfig config() const { return fConfig; }
     bool hasMipMaps() const { return GrMipMapped::kYes == fMipMapped; }
     GrBackend backend() const {return fBackend; }
 
@@ -149,7 +150,7 @@ private:
     friend class GrGpu;
     friend class GrGLGpu;
     friend class GrVkGpu;
-    GrPixelConfig config() const { return fConfig; }
+    //GrPixelConfig config() const { return fConfig; }
 
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels

@@ -14,17 +14,19 @@ void GrUninstantiateProxyTracker::addProxy(GrSurfaceProxy* proxy) {
 #ifdef SK_DEBUG
     using LazyType = GrSurfaceProxy::LazyInstantiationType;
     SkASSERT(LazyType::kUninstantiate == proxy->priv().lazyInstantiationType());
-    for (int i = 0; i < fProxies.count(); ++i) {
-        SkASSERT(proxy != fProxies[i]);
+    for (int i = 0; i < fProxies1.count(); ++i) {
+        SkASSERT(proxy != fProxies1[i].get());
     }
 #endif
-    fProxies.push_back(proxy);
+    fProxies1.push_back(sk_ref_sp(proxy));
 }
 
 void GrUninstantiateProxyTracker::uninstantiateAllProxies() {
-    for (int i = 0; i < fProxies.count(); ++i) {
-        GrSurfaceProxy* proxy = fProxies[i];
+    for (int i = 0; i < fProxies1.count(); ++i) {
+        GrSurfaceProxy* proxy = fProxies1[i].get();
         SkASSERT(proxy->priv().isSafeToUninstantiate());
         proxy->deInstantiate();
     }
+
+    fProxies1.reset();
 }
