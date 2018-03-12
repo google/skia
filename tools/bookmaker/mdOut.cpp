@@ -103,6 +103,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             if (!t.eof() && '(' == t.peek() && t.strnchr(')', t.fEnd)) {
                 if (!t.skipToEndBracket(')')) {
                     t.reportError("missing close paren");
+                    fAddRefFailed = true;
                     return result;
                 }
                 t.next();
@@ -125,6 +126,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 }
                 if (suffix > '9') {
                     t.reportError("too many alts");
+                    fAddRefFailed = true;
                     return result;
                 }
                 if (!foundMatch) {
@@ -132,6 +134,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                             BmhParser::Resolvable::kOut != resolvable))) {
                         if (!result.size()) {
                             t.reportError("missing method");
+                            fAddRefFailed = true;
                         }
                         return result;
                     }
@@ -148,6 +151,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         if (!t.eof() && '(' == t.peek()) {
             if (!t.skipToEndBracket(')')) {
                 t.reportError("missing close paren");
+                fAddRefFailed = true;
                 return result;
             }
             t.next();
@@ -168,12 +172,14 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
               ref != "Skip" && ref != "Skips") {
             if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("missed Sk prefixed");
+                fAddRefFailed = true;
             }
             return result;
         }
         if (!ref.compare(0, 2, "SK")) {
             if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("missed SK prefixed");
+                fAddRefFailed = true;
             }
             return result;
         }
@@ -205,6 +211,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     }
                     if (BmhParser::Resolvable::kOut != resolvable) {
                         t.reportError("missed camelCase");
+                        fAddRefFailed = true;
                         return result;
                     }
                 }
@@ -253,6 +260,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         if (!test) {
             if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("undefined reference");
+                fAddRefFailed = true;
             }
         }
     } while (!t.eof());
@@ -337,6 +345,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
             continue;
         }
         if (!topicDef->isRoot()) {
+            fAddRefFailed = true;
             return this->reportError<bool>("expected root topic");
         }
         fRoot = topicDef->asRoot();
@@ -391,10 +400,10 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
         remove(filename.c_str());
         fOut = nullptr;
     }
-    return true;
+    return !fAddRefFailed;
 }
 
-bool MdOut::checkParamReturnBody(const Definition* def) const {
+bool MdOut::checkParamReturnBody(const Definition* def) {
     TextParser paramBody(def);
     const char* descriptionStart = paramBody.fChar;
     if (!islower(descriptionStart[0]) && !isdigit(descriptionStart[0])) {
@@ -404,11 +413,13 @@ bool MdOut::checkParamReturnBody(const Definition* def) const {
             string errorStr = MarkType::kReturn == def->fMarkType ? "return" : "param";
             errorStr += " description must start with lower case";
             paramBody.reportError(errorStr.c_str());
+            fAddRefFailed = true;
             return false;
         }
     }
     if ('.' == paramBody.fEnd[-1]) {
         paramBody.reportError("make param description a phrase; should not end with period");
+        fAddRefFailed = true;
         return false;
     }
     return true;
@@ -483,7 +494,7 @@ const Definition* MdOut::findParamType() {
     return nullptr;
 }
 
-const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, bool report) const {
+const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, bool report) {
     auto rootIter = fBmhParser.fClassMap.find(ref);
     if (rootIter != fBmhParser.fClassMap.end()) {
         return &rootIter->second;
@@ -598,11 +609,13 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
                 // for now, just try to make sure that it's there and error if not
             if ('.' != parser.backup(ref.c_str())) {
                 parser.reportError("fX member undefined");
+                fAddRefFailed = true;
                 return nullptr;
             }
         } else {
             if (report) {
                 parser.reportError("SK undefined");
+                fAddRefFailed = true;
             }
             return nullptr;
         }
@@ -632,6 +645,7 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
             }
             if (report) {
                 parser.reportError("_ undefined");
+                fAddRefFailed = true;
             }
             return nullptr;
         }
@@ -1097,6 +1111,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kPhraseRef:
             if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
                 def->reportError<void>("missing phrase definition");
+                fAddRefFailed = true;
             } else {
                 if (fColumn && ' ' >= def->fStart[0]) {
                     this->writeSpace();
