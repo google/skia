@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "73cef5df_9dfcaf29",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-12T19:48:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d3d88d4_915d9eac",
+      "revId": "843643146b85d1d0f58d54b81a0a25960134266e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4644a88b_d3449944",
         "filename": "src/core/SkColorSpaceXform_skcms.cpp",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2018-03-12T18:49:16Z",
       "side": 1,
       "message": "This is the weird alpha-type-delta parameter right?",
+      "range": {
+        "startLine": 55,
+        "startChar": 59,
+        "endLine": 55,
+        "endChar": 68
+      },
+      "revId": "843643146b85d1d0f58d54b81a0a25960134266e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fefab99_09e711f3",
+        "filename": "src/core/SkColorSpaceXform_skcms.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-12T19:48:19Z",
+      "side": 1,
+      "message": "Yup. There\u0027s a different alpha-op parameter to the static Apply(), that maps to the alphaTypes here, but that one at least describes better what each alphaType means when passed here. It\u0027s a mess, but I think this mapping is correct.",
+      "parentUuid": "4644a88b_d3449944",
       "range": {
         "startLine": 55,
         "startChar": 59,
