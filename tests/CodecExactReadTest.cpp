@@ -6,13 +6,19 @@
  */
 
 #include "Resources.h"
-#include "Test.h"
-
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkData.h"
+#include "SkImageInfo.h"
 #include "SkMakeUnique.h"
+#include "SkRefCnt.h"
 #include "SkStream.h"
+#include "SkTemplates.h"
+#include "Test.h"
+
+#include <cstring>
+#include <memory>
+#include <utility>
 
 namespace {
 // This class wraps another SkStream. It does not own the underlying stream, so

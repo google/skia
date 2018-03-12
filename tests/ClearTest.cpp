@@ -5,14 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
+#include "GrColor.h"
 #include "GrContext.h"
+#include "GrContextFactory.h"
+#include "GrContextOptions.h"
+#include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
-
+#include "GrTypes.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColor.h"
+#include "SkColorSpace.h"
+#include "SkImageInfo.h"
+#include "SkPaint.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
 #include "SkSurface.h"
+#include "Test.h"
+
+#include <cstring>
+#include <memory>
 
 static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t expectedValue,
                        uint32_t* actualValue, int* failX, int* failY) {
