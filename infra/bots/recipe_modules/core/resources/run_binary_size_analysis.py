@@ -93,8 +93,6 @@ import urllib2
 import binary_size_utils
 import elf_symbolizer
 
-from recipe_engine.types import freeze
-
 # Node dictionary keys. These are output in json read by the webapp so
 # keep them short to save file size.
 # Note: If these change, the webapp must also change.
@@ -114,12 +112,12 @@ NAME_NO_PATH_BUCKET = '(No Path)'
 BIG_BUCKET_LIMIT = 3000
 
 # Skia addition: relative dir for libskia.so from code base.
-LIBSKIA_RELATIVE_PATH = os.path.join('out', 'Release', 'lib')
+LIBSKIA_RELATIVE_PATH = os.path.join('out', 'Release')
 
 # Skia addition: dictionary mapping symbol type code to symbol name.
 # See
 # https://code.google.com/p/chromium/codesearch#chromium/src/tools/binary_size/template/D3SymbolTreeMap.js&l=74
-SYMBOL_MAP = freeze({
+SYMBOL_MAP = {
     'A': 'global_absolute',
     'B': 'global_uninitialized_data',
     'b': 'local_uninitialized_data',
@@ -146,7 +144,7 @@ SYMBOL_MAP = freeze({
     '@': 'vtable_entry',
     '-': 'stabs_debugging',
     '?': 'unrecognized',
-})
+}
 
 
 def _MkChild(node, name):
@@ -317,43 +315,16 @@ def GetBenchDict(githash, tree_root):
   return dic
 
 
-# Skia added: constructs 'gsutil cp' subprocess command list.
-def GetGsCopyCommandList(gsutil, src, dst):
-  return [gsutil, '-h', 'Content-Type:application/json', 'cp', '-a',
-          'public-read', src, dst]
-
-
-def DumpCompactTree(symbols, symbol_path_origin_dir, ha, ts, issue, gsutil):
+def DumpCompactTree(symbols, symbol_path_origin_dir, ha, ts, issue, dest):
   tree_root = MakeCompactTree(symbols, symbol_path_origin_dir)
   json_data = {'tree_data': tree_root,
                'githash': ha,
                'commit_ts': ts,
                'key': {'source_type': 'binary_size'},
                'total_size': sum(GetTreeSizes(tree_root).values()),}
-  tmpfile = tempfile.NamedTemporaryFile(delete=False).name
-  with open(tmpfile, 'w') as out:
+  with open(dest, 'w') as out:
     # Use separators without whitespace to get a smaller file.
     json.dump(json_data, out, separators=(',', ':'))
-
-  GS_PREFIX = 'gs://skia-perf/'
-  # Writes to Google Storage for visualization.
-  subprocess.check_call(GetGsCopyCommandList(
-      gsutil, tmpfile, GS_PREFIX + 'size/' + ha + '.json'))
-  # Updates the latest data.
-  if not issue:
-    subprocess.check_call(GetGsCopyCommandList(gsutil, tmpfile,
-                                               GS_PREFIX + 'size/latest.json'))
-  # Writes an extra copy using year/month/day/hour path for easy ingestion.
-  with open(tmpfile, 'w') as out:
-    json.dump(GetBenchDict(ha, tree_root), out, separators=(',', ':'))
-  now = datetime.datetime.utcnow()
-  ingest_path = '/'.join(('nano-json-v1', str(now.year).zfill(4),
-                          str(now.month).zfill(2), str(now.day).zfill(2),
-                          str(now.hour).zfill(2)))
-  if issue:
-    ingest_path = '/'.join('trybot', ingest_path, issue)
-  subprocess.check_call(GetGsCopyCommandList(gsutil, tmpfile,
-      GS_PREFIX + ingest_path + '/binarysize_' + ha + '.json'))
 
 
 def MakeSourceMap(symbols):
@@ -748,8 +719,8 @@ def main():
                     help='Timestamp for the commit. Added by Skia.')
   parser.add_option('--issue_number', default='',
                     help='The trybot issue number in string. Added by Skia.')
-  parser.add_option('--gsutil_path', default='gsutil',
-                    help='Path to gsutil binary. Added by Skia.')
+  parser.add_option('--dest', default=None,
+                    help='Destination file to write results.')
   opts, _args = parser.parse_args()
 
   if ((not opts.library) and (not opts.nm_in)) or (opts.library and opts.nm_in):
@@ -809,7 +780,7 @@ def main():
       # Just a guess. Hopefully all paths in the input file are absolute.
       symbol_path_origin_dir = os.path.abspath(os.getcwd())
     DumpCompactTree(symbols, symbol_path_origin_dir, opts.githash,
-                    opts.commit_ts, opts.issue_number, opts.gsutil_path)
+                    opts.commit_ts, opts.issue_number, opts.dest)
     print 'Report data uploaded to GS.'
 
 
