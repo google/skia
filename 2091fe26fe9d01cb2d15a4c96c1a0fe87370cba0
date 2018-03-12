@@ -16,6 +16,24 @@
       "revId": "2091fe26fe9d01cb2d15a4c96c1a0fe87370cba0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e222ab65_ea668b1a",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-03-12T11:32:45Z",
+      "side": 0,
+      "message": "I\u0027m surprised that it actually made it into the logs; normally this kind of thing would just disappear since it\u0027s between steps.  The best way is to add a step to explicitly print it out, eg. using python.inline or just \"cat\" the file in question.  I removed it here because it\u0027s spamming the recipe test logs.",
+      "parentUuid": "44c7d4d9_133c32c9",
+      "revId": "2091fe26fe9d01cb2d15a4c96c1a0fe87370cba0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
