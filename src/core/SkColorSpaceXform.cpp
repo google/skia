@@ -317,14 +317,9 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform_Base::New(
     }
 
     if (src->toXYZD50()) {
-#if defined(SK_USE_SKCMS)
-        // TODO: Use this unconditionally, once A2B transform is implemented in skcms.
-        return MakeSkcmsXform(src, dst, premulBehavior);
-#else
         return skstd::make_unique<SkColorSpaceXform_XYZ>(static_cast<SkColorSpace_XYZ*>(src),
                                                          static_cast<SkColorSpace_XYZ*>(dst),
                                                          premulBehavior);
-#endif
     }
     return skstd::make_unique<SkColorSpaceXform_A2B>(static_cast<SkColorSpace_A2B*>(src),
                                                      static_cast<SkColorSpace_XYZ*>(dst));
