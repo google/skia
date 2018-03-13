@@ -82,6 +82,30 @@
     },
     {
       "key": {
+        "uuid": "c36f675a_7080dc0f",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-13T14:54:45Z",
+      "side": 0,
+      "message": "I think \"this\" was referring to \"typedef MyBaseClass INHERITED\". I\u0027d love for this to die.",
+      "parentUuid": "b0788b04_d33983f3",
+      "range": {
+        "startLine": 342,
+        "startChar": 0,
+        "endLine": 342,
+        "endChar": 57
+      },
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b71f5e69_eeb1adc7",
         "filename": "site/dev/contrib/style.md",
         "patchSetId": 2
@@ -133,6 +157,24 @@
     },
     {
       "key": {
+        "uuid": "402b23dc_ba044647",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-13T14:54:45Z",
+      "side": 0,
+      "message": "Yeah, I think in practice most of the code uses 79 slashes.",
+      "parentUuid": "e591ac32_017fcbc9",
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9925e758_5335abae",
         "filename": "site/dev/contrib/style.md",
         "patchSetId": 2
@@ -144,6 +186,24 @@
       "writtenOn": "2018-03-13T13:57:25Z",
       "side": 0,
       "message": "I\u0027m not quite sure we\u0027re at the point to entirely reverse this, but we definitely use return by value much more than we used to, and even sometimes rely on RVO.",
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "171af268_2e2b8f96",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-13T14:54:45Z",
+      "side": 0,
+      "message": "Yep.",
+      "parentUuid": "9925e758_5335abae",
       "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true

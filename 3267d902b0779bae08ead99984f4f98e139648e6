@@ -16,6 +16,47 @@
       "revId": "3267d902b0779bae08ead99984f4f98e139648e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f613f1e0_3002d438",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-13T14:54:45Z",
+      "side": 1,
+      "message": "agreed",
+      "parentUuid": "075d3b23_0e661c84",
+      "revId": "3267d902b0779bae08ead99984f4f98e139648e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b73c74c9_99b22923",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-13T14:54:45Z",
+      "side": 1,
+      "message": "Do we even really suggest it? I don\u0027t think it\u0027s been done in the majority of new code for some time.",
+      "range": {
+        "startLine": 404,
+        "startChar": 43,
+        "endLine": 404,
+        "endChar": 51
+      },
+      "revId": "3267d902b0779bae08ead99984f4f98e139648e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
