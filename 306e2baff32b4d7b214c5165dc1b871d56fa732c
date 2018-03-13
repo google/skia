@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8777cf3c_d87a9f95",
+        "filename": "src/gpu/GrUninstantiateProxyTracker.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-13T13:29:29Z",
+      "side": 1,
+      "message": "instead of doing this can we just move the oplist reseting till after we call in uninstantiateAllProxies in GrDrawingManager?",
+      "range": {
+        "startLine": 26,
+        "startChar": 13,
+        "endLine": 26,
+        "endChar": 34
+      },
+      "revId": "306e2baff32b4d7b214c5165dc1b871d56fa732c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7ec2d9d_c023a41a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2529,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-13T13:29:29Z",
+      "side": 1,
+      "message": "I\u0027m a little confused the need for this if. This check is used for wrapping textures. They are giving us a format of RGBA8. So why are we querying what the internal format is, we know what it is, it is \"format\".\n\nThough I do think these checks seem to be missing cases since if GR_GL_RGBA8 \u003d format and we are in GLES we don\u0027t do anything. And the same for BGRA8 and GL.",
+      "range": {
+        "startLine": 2525,
+        "startChar": 19,
+        "endLine": 2529,
+        "endChar": 21
+      },
+      "revId": "306e2baff32b4d7b214c5165dc1b871d56fa732c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
