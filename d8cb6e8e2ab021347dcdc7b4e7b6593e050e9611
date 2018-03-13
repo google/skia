@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc9170f2_c52b99ee",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-13T13:28:21Z",
+      "side": 1,
+      "message": "your brain works differently than mine :)",
+      "range": {
+        "startLine": 589,
+        "startChar": 32,
+        "endLine": 589,
+        "endChar": 41
+      },
+      "revId": "d8cb6e8e2ab021347dcdc7b4e7b6593e050e9611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e07f4655_044b1c65",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-13T13:28:21Z",
+      "side": 1,
+      "message": "It\u0027s probably a good idea to check for errors here, but my reading of the spec is that we have to check the link status to know if the binary was loaded successfully. Section 2.12.4, paragraph beginning \"A program object’s program binary is replaced by calls...\" here:\nhttps://www.khronos.org/registry/OpenGL/specs/es/3.0/es_spec_3.0.pdf\n\n\nAlso, before calling ProgramBinary it\u0027d be good to clear out any previous errors. We have a helper that loops on glGetError until it returns NO_ERROR: GrGLClearErr",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 13
+      },
+      "revId": "d8cb6e8e2ab021347dcdc7b4e7b6593e050e9611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
