@@ -6,7 +6,6 @@
  */
 #include "SampleCode.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorMatrixFilter.h"
 #include "SkDiscretePathEffect.h"
@@ -23,7 +22,7 @@ static void paint_proc0(SkPaint*) {
 }
 
 static void paint_proc1(SkPaint* paint) {
-    paint->setMaskFilter(SkBlurMaskFilter::Make(
+    paint->setMaskFilter(SkMaskFilter::MakeBlur(
                                 kNormal_SkBlurStyle,
                                 SkBlurMask::ConvertRadiusToSigma(2)));
 }

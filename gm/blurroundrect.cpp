@@ -8,10 +8,10 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkLayerDrawLooper.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint.h"
@@ -55,10 +55,9 @@ public:
             info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
             info.fPostTranslate = false;
             SkPaint* paint = looperBuilder.addLayerOnTop(info);
-            paint->setMaskFilter(SkBlurMaskFilter::Make(
+            paint->setMaskFilter(SkMaskFilter::MakeBlur(
                     kNormal_SkBlurStyle,
-                    SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf),
-                    SkBlurMaskFilter::kHighQuality_BlurFlag));
+                    SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf)));
             paint->setColorFilter(SkColorFilter::MakeModeFilter(
                     sk_tool_utils::color_to_565(SK_ColorLTGRAY),
                     SkBlendMode::kSrcIn));
@@ -143,9 +142,8 @@ protected:
                 for (int k = 0; k <= 1; k++) {
                     SkPaint paint;
                     paint.setColor(SK_ColorBLACK);
-                    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
-                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])),
-                                   SkBlurMaskFilter::kHighQuality_BlurFlag));
+                    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
+                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i]))));
 
                     bool useRadial = SkToBool(k);
                     if (useRadial) {
