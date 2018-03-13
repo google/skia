@@ -33,6 +33,8 @@ struct PromiseTextureChecker {
     static void Release(void* self) {
         static_cast<PromiseTextureChecker*>(self)->fReleaseCount++;
     }
+    static void Done(void* self) {
+    }
 };
 
 // Because Vulkan may delay when it actually calls the ReleaseProcs depending on when command
@@ -107,6 +109,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                                         nullptr,
                                         PromiseTextureChecker::Fulfill,
                                         PromiseTextureChecker::Release,
+                                        PromiseTextureChecker::Done,
                                         &promiseChecker));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);

@@ -62,6 +62,7 @@ public:
 
     typedef ReleaseContext TextureContext;
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
+    typedef void (*PromiseDoneProc)(TextureContext textureContext);
 
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
@@ -111,6 +112,7 @@ public:
                                              sk_sp<SkColorSpace> colorSpace,
                                              TextureFulfillProc textureFulfillProc,
                                              TextureReleaseProc textureReleaseProc,
+                                             PromiseDoneProc promiseDoneProc,
                                              TextureContext textureContext);
 
     bool onIsValid(GrContext*) const override;

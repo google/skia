@@ -55,6 +55,7 @@ public:
     typedef void* TextureContext;
     typedef void (*TextureReleaseProc)(TextureContext textureContext);
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
+    typedef void (*PromiseDoneProc)(TextureContext textureContext);
 
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
@@ -104,6 +105,7 @@ public:
                                       sk_sp<SkColorSpace> colorSpace,
                                       TextureFulfillProc textureFulfillProc,
                                       TextureReleaseProc textureReleaseProc,
+                                      PromiseDoneProc promiseDoneProc,
                                       TextureContext textureContext);
 
 private:
