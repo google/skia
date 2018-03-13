@@ -58,7 +58,7 @@
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
-#include <utils/Trace.h>
+#include <cutils/trace.h>
 struct SkAndroidFrameworkTraceUtil {
 
     SkAndroidFrameworkTraceUtil(const char* name) {
