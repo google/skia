@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01971f74_1c455022",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-13T13:17:52Z",
+      "side": 1,
+      "message": "wasn\u0027t you but, over 100 chars",
+      "range": {
+        "startLine": 1257,
+        "startChar": 92,
+        "endLine": 1257,
+        "endChar": 107
+      },
+      "revId": "6663d0aacf03d9e299d3af8ca467b2a537312e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73bbad50_97956c84",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1433,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-13T13:17:52Z",
+      "side": 1,
+      "message": "this should be inside the if above",
+      "range": {
+        "startLine": 1427,
+        "startChar": 3,
+        "endLine": 1433,
+        "endChar": 45
+      },
+      "revId": "6663d0aacf03d9e299d3af8ca467b2a537312e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
