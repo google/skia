@@ -368,7 +368,7 @@ void render_region(SkCanvas* canvas, const SkRegion& region) {
     }
 
     SkAutoCanvasRestore acr(canvas, true);
-    xlate_and_scale_to_bounds(canvas, SkRect::Make(bounds));
+    xlate_and_scale_to_bounds(canvas, SkRect::MakeFromIRect(bounds));
 
     SkPaint p;
     p.setColor(SK_ColorBLACK);
