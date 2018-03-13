@@ -95,9 +95,8 @@ void SkMask_FreeImage(uint8_t* image) {
     SkMask::FreeImage(image);
 }
 
-bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
-                         SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                         SkIPoint* margin, bool force_quality) {
+bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src, SkScalar sigma, SkBlurStyle style,
+                         SkIPoint* margin) {
 
     if (src.fFormat != SkMask::kA8_Format) {
         return false;

@@ -7,8 +7,8 @@
 
 #include "SkAutoMalloc.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkLayerDrawLooper.h"
+#include "SkMaskFilter.h"
 #include "SkPaintPriv.h"
 #include "SkPath.h"
 #include "SkRandom.h"
@@ -147,7 +147,7 @@ DEF_TEST(Paint_copy, reporter) {
     // set a few pointers
     SkLayerDrawLooper::Builder looperBuilder;
     paint.setLooper(looperBuilder.detach());
-    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                                SkBlurMask::ConvertRadiusToSigma(1)));
 
     // copy the paint using the copy constructor and check they are the same
