@@ -22,7 +22,8 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
             st->stage == SkRasterPipeline::clamp_1) {
             continue;  // No-ops in lowp.
         }
-        if (auto fn = SkOpts::stages_lowp[st->stage]) {
+        SkOpts::StageFn fn;
+        if (!st->rawFunction && (fn = SkOpts::stages_lowp[st->stage])) {
             if (st->ctx) {
                 *--ip = st->ctx;
             }
@@ -42,7 +43,11 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
         if (st->ctx) {
             *--ip = st->ctx;
         }
-        *--ip = (void*)SkOpts::stages_highp[st->stage];
+        if (st->rawFunction) {
+            *--ip = (void*)st->stage;
+        } else {
+            *--ip = (void*)SkOpts::stages_highp[st->stage];
+        }
     }
     return SkOpts::start_pipeline_highp;
 }

@@ -16,6 +16,10 @@
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 
+#ifdef SK_LLVM_AVAILABLE
+#include "SkSLJIT.h"
+#endif
+
 static void transpose_and_scale01(float dst[20], const float src[20]) {
     const float* srcR = src + 0;
     const float* srcG = src + 5;
