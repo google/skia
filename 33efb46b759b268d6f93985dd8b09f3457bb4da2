@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a707e3f2_79d08172",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-13T16:16:39Z",
+      "side": 1,
+      "message": "Could probably use a comment about this thing",
+      "revId": "33efb46b759b268d6f93985dd8b09f3457bb4da2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4fb3067_3b518fbe",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-13T16:16:39Z",
+      "side": 1,
+      "message": "I have a minor pref to make the sk_sp mutable. But I don\u0027t really care much.",
+      "range": {
+        "startLine": 590,
+        "startChar": 8,
+        "endLine": 590,
+        "endChar": 47
+      },
+      "revId": "33efb46b759b268d6f93985dd8b09f3457bb4da2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
