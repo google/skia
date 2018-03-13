@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03125d2c_3e5efc42",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-13T14:18:03Z",
+      "side": 1,
+      "message": "Yeah, I think it\u0027s something like\n\n    # cl.exe knows implicitly by the choice of executable that it\u0027s targeting x86,\n    # but clang-cl.exe needs to be told when targeting non-host platforms.\n    # (All our builders are x86-64, so x86 is always non-host.)",
+      "revId": "19ded3bccf915831354aebc5cc30b85743eb0f7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
