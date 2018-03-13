@@ -2487,7 +2487,7 @@ int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
 }
 
 bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* config,
-                           GrGLStandard standard) {
+                           GrGLStandard standard, bool bgraIsInternalFormat) {
     *config = kUnknown_GrPixelConfig;
 
     switch (ct) {
@@ -2522,7 +2522,11 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
         case kBGRA_8888_SkColorType:
             if (GR_GL_RGBA8 == format) {
                 if (kGL_GrGLStandard == standard) {
-                    *config = kBGRA_8888_GrPixelConfig;
+                    if (bgraIsInternalFormat) {
+                        *config = kBGRA_8888_GrPixelConfig;
+                    } else {
+                        *config = kRGBA_8888_GrPixelConfig;
+                    }
                 }
             } else if (GR_GL_BGRA8 == format) {
                 if (kGLES_GrGLStandard == standard) {
@@ -2562,7 +2566,8 @@ bool GrGLCaps::validateBackendTexture(const GrBackendTexture& tex, SkColorType c
     if (!texInfo) {
         return false;
     }
-    return validate_sized_format(texInfo->fFormat, ct, config, fStandard);
+    return validate_sized_format(texInfo->fFormat, ct, config, fStandard,
+                                 this->bgraIsInternalFormat());
 }
 
 bool GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType ct,
@@ -2571,7 +2576,8 @@ bool GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkCo
     if (!fbInfo) {
         return false;
     }
-    return validate_sized_format(fbInfo->fFormat, ct, config, fStandard);
+    return validate_sized_format(fbInfo->fFormat, ct, config, fStandard,
+                                 this->bgraIsInternalFormat());
 }
 
 bool GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
@@ -2580,7 +2586,8 @@ bool GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColor
     if (!glFormat) {
         return false;
     }
-    return validate_sized_format(*glFormat, ct, config, fStandard);
+    return validate_sized_format(*glFormat, ct, config, fStandard,
+                                 this->bgraIsInternalFormat());
 }
 
 
