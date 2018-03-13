@@ -47,6 +47,7 @@ toolchain("msvc") {
   }
 
   cl_m32_flag = ""
+  extra_ldflag = ""
   if (clang_win != "") {
     if (target_cpu == "x86") {
       # cl.exe knows implicitly by the choice of executable that it's targeting
@@ -55,6 +56,11 @@ toolchain("msvc") {
       cl_m32_flag = "-m32"
     }
     cl = "$clang_win/bin/clang-cl.exe"
+
+    # Clang rev 325667 has libraries under the path "7.0.0", but looks under
+    # "6.0.0" to find these libraries. Explicitly specify the correct directory
+    # to work around this discrepancy.
+    extra_ldflag = "/LIBPATH:$clang_win/lib/clang/7.0.0/lib/windows/"
   } else {
     cl = "$bin/cl.exe"
   }
@@ -146,7 +152,8 @@ toolchain("msvc") {
     restat = true
 
     # inputs_newline works around a fixed per-line buffer size in the linker.
-    rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
+    rspfile_content =
+        "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}} $extra_ldflag"
     description = "link {{output}}"
   }
 
@@ -165,7 +172,8 @@ toolchain("msvc") {
     ]
 
     # inputs_newline works around a fixed per-line buffer size in the linker.
-    rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
+    rspfile_content =
+        "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}} $extra_ldflag"
     description = "link {{output}}"
   }
 
