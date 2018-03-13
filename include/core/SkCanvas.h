@@ -2598,7 +2598,6 @@ private:
     };
 
     static bool BoundsAffectsClip(SaveLayerFlags);
-    static SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
 
     static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                      SkBaseDevice* dst, const SkIPoint& dstOrigin,
@@ -2658,6 +2657,7 @@ private:
     void internalSetMatrix(const SkMatrix&);
 
     friend class SkAndroidFrameworkUtils;
+    friend class SkCanvasPriv;      // needs kDontClipToLayer_PrivateSaveLayerFlag
     friend class SkDrawIter;        // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
     friend class SkDebugCanvas;     // needs experimental fAllowSimplifyClip
@@ -2665,7 +2665,6 @@ private:
     friend class SkNoDrawCanvas;    // InitFlags
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
-    friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
     friend class SkOverdrawCanvas;
     friend class SkRasterHandleAllocator;
 

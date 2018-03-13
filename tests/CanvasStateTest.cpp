@@ -7,7 +7,7 @@
 
 #include "CanvasStateHelpers.h"
 #include "SkBitmap.h"
-#include "SkCanvas.h"
+#include "SkCanvasPriv.h"
 #include "SkCanvasStateUtils.h"
 #include "SkClipOpPriv.h"
 #include "SkColor.h"
@@ -85,9 +85,9 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
 
     const int layerAlpha[] = { 255, 255, 0 };
     const SkCanvas::SaveLayerFlags flags[] = {
-        static_cast<SkCanvas::SaveLayerFlags>(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag),
+        static_cast<SkCanvas::SaveLayerFlags>(SkCanvasPriv::kDontClipToLayer_SaveLayerFlag),
         0,
-        static_cast<SkCanvas::SaveLayerFlags>(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag),
+        static_cast<SkCanvas::SaveLayerFlags>(SkCanvasPriv::kDontClipToLayer_SaveLayerFlag),
     };
     REPORTER_ASSERT(reporter, sizeof(layerAlpha) == sizeof(flags));
 
@@ -192,9 +192,9 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
                                      SkRegion::kReplace_Op,
     };
     const SkCanvas::SaveLayerFlags flags[] = {
-        static_cast<SkCanvas::SaveLayerFlags>(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag),
+        static_cast<SkCanvas::SaveLayerFlags>(SkCanvasPriv::kDontClipToLayer_SaveLayerFlag),
         0,
-        static_cast<SkCanvas::SaveLayerFlags>(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag),
+        static_cast<SkCanvas::SaveLayerFlags>(SkCanvasPriv::kDontClipToLayer_SaveLayerFlag),
     };
     REPORTER_ASSERT(reporter, sizeof(clipOps) == sizeof(flags));
 
@@ -319,9 +319,9 @@ DEF_TEST(CanvasState_test_soft_clips, reporter) {
 }
 
 DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
-    const uint32_t dontSaveFlag = 1 << 31;    // secret flag for don't save
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-    static_assert(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag == dontSaveFlag, "");
+    static_assert(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag ==
+                  SkCanvasPriv::kDontClipToLayer_SaveLayerFlag, "");
 #endif
     const int WIDTH = 100;
     const int HEIGHT = 100;
@@ -337,7 +337,8 @@ DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
 
     SkIRect devClip;
     // Check that saveLayer without the kClipToLayer_SaveFlag leaves the clip unchanged.
-    canvas.saveLayer(SkCanvas::SaveLayerRec(&bounds, nullptr, dontSaveFlag));
+    canvas.saveLayer(SkCanvas::SaveLayerRec(&bounds, nullptr,
+            (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag));
     devClip = canvas.getDeviceClipBounds();
     REPORTER_ASSERT(reporter, canvas.isClipRect());
     REPORTER_ASSERT(reporter, devClip.width() == WIDTH);

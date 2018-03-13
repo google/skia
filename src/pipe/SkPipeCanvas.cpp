@@ -226,8 +226,8 @@ SkCanvas::SaveLayerStrategy SkPipeCanvas::getSaveLayerStrategy(const SaveLayerRe
     uint32_t extra = rec.fSaveLayerFlags;
 
     // remap this wacky flag
-    if (extra & (1 << 31)/*SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag*/) {
-        extra &= ~(1 << 31);
+    if (extra & SkCanvasPriv::kDontClipToLayer_SaveLayerFlag) {
+        extra &= ~SkCanvasPriv::kDontClipToLayer_SaveLayerFlag;
         extra |= kDontClipToLayer_SaveLayerMask;
     }
 
