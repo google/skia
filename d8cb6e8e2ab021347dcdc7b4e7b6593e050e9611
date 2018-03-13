@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "01a9ba2d_74866975",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-03-13T13:53:52Z",
+      "side": 1,
+      "message": "It was a brain fart. I had originally written 0 \u003d\u003d count and then changed the operator without reordering it. Happy to eschew Yoda in general in the future.",
+      "parentUuid": "8e649142_8eeb9afa",
+      "range": {
+        "startLine": 589,
+        "startChar": 32,
+        "endLine": 589,
+        "endChar": 41
+      },
+      "revId": "d8cb6e8e2ab021347dcdc7b4e7b6593e050e9611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e07f4655_044b1c65",
         "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
         "patchSetId": 2
