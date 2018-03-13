@@ -165,12 +165,13 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         return Error::Nonfatal(SkStringPrintf("Could not create brd for %s.", fPath.c_str()));
     }
 
-    if (kRGB_565_SkColorType == colorType) {
-        auto recommendedCT = brd->computeOutputColorType(colorType);
-        if (recommendedCT != colorType) {
-            return Error::Nonfatal("Skip decoding non-opaque to 565.");
-        }
+    auto recommendedCT = brd->computeOutputColorType(colorType);
+    if (kRGB_565_SkColorType == colorType && recommendedCT != colorType) {
+        return Error::Nonfatal("Skip decoding non-opaque to 565.");
     }
+    colorType = recommendedCT;
+
+    auto colorSpace = brd->computeOutputColorSpace(colorType, nullptr);
 
     const uint32_t width = brd->width();
     const uint32_t height = brd->height();
@@ -182,7 +183,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         case kFullImage_Mode: {
             SkBitmap bitmap;
             if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(0, 0, width, height),
-                    fSampleSize, colorType, false, SkColorSpace::MakeSRGB())) {
+                    fSampleSize, colorType, false, colorSpace)) {
                 return "Cannot decode (full) region.";
             }
             alpha8_to_gray8(&bitmap);
@@ -238,7 +239,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     SkBitmap bitmap;
                     if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(decodeLeft,
                             decodeTop, decodeWidth, decodeHeight), fSampleSize, colorType, false,
-                            SkColorSpace::MakeSRGB())) {
+                            colorSpace)) {
                         return "Cannot decode region.";
                     }
 
