@@ -1,0 +1,175 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e158fa26_add664f8",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T13:57:25Z",
+      "side": 0,
+      "message": "not a single one of these...",
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e39e3d4b_d2683ac4",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T13:57:25Z",
+      "side": 0,
+      "message": "reads like 4 tabs",
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e1a7711_1cf10e29",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T13:57:25Z",
+      "side": 0,
+      "message": "someone used sed here I think :)",
+      "range": {
+        "startLine": 333,
+        "startChar": 68,
+        "endLine": 334,
+        "endChar": 30
+      },
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0788b04_d33983f3",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T13:57:25Z",
+      "side": 0,
+      "message": "unclear what \"this\" is, and I don\u0027t think I can figure it out from any sort of common practice we have..",
+      "range": {
+        "startLine": 342,
+        "startChar": 0,
+        "endLine": 342,
+        "endChar": 57
+      },
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b71f5e69_eeb1adc7",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T13:57:25Z",
+      "side": 0,
+      "message": "redundant.",
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7437458d_df92c2d4",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T13:57:25Z",
+      "side": 0,
+      "message": "Yes, but we have no example here...",
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e591ac32_017fcbc9",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T13:57:25Z",
+      "side": 0,
+      "message": "This is not 80 slashes.",
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9925e758_5335abae",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T13:57:25Z",
+      "side": 0,
+      "message": "I\u0027m not quite sure we\u0027re at the point to entirely reverse this, but we definitely use return by value much more than we used to, and even sometimes rely on RVO.",
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c9c3a53_7a51ebd7",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T13:57:25Z",
+      "side": 0,
+      "message": "I cut out all mention of retention, with sk_sp-by-value supplanting that.",
+      "range": {
+        "startLine": 487,
+        "startChar": 12,
+        "endLine": 487,
+        "endChar": 50
+      },
+      "revId": "4000a5e6226e2a9bc9107eee05cfceefa67ee384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
