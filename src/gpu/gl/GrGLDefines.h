@@ -558,6 +558,8 @@
 #define GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS          0x8B49
 #define GR_GL_MAX_VERTEX_UNIFORM_COMPONENTS            0x8B4A
 #define GR_GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_FAST_SIZE 0x8F63
+#define GR_GL_SHADER_BINARY_FORMATS                    0x8DF8
+#define GR_GL_NUM_SHADER_BINARY_FORMATS                0x8DF9
 
 /* StencilFunction */
 #define GR_GL_NEVER                          0x0200

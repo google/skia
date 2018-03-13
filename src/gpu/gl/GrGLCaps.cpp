@@ -583,6 +583,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else if (version >= GR_GL_VER(3, 0)) {
         fProgramBinarySupport = true;
     }
+    if (fProgramBinarySupport) {
+        GrGLint count;
+        GR_GL_GetIntegerv(gli, GR_GL_NUM_SHADER_BINARY_FORMATS, &count);
+        fProgramBinarySupport = count > 0;
+    }
 
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.
