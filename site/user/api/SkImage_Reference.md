@@ -2073,7 +2073,7 @@ filtered <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="eabb12543886ace5e1212af220a19c6d" gpu="true"><div>In each frame of the animation, filtered <a href="#Image">Image</a> is drawn in a different location.
+<div><fiddle-embed name="17547129251dd9607c381a3cc30cff15" gpu="true"><div>In each frame of the animation, filtered <a href="#Image">Image</a> is drawn in a different location.
 By translating canvas by returned <a href="#SkImage_makeWithFilter_offset">offset</a>, <a href="#Image">Image</a> appears stationary.
 </div></fiddle-embed></div>
 

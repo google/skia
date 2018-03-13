@@ -2096,7 +2096,7 @@ By translating canvas by returned offset, Image appears stationary.
     canvas->drawLine(0, 0, offset.fX, offset.fY, paint);
     canvas->translate(offset.fX, offset.fY);
     canvas->drawImage(filtered, 0, 0);
-    canvas->drawRect(SkRect::MakeFromIRect(outSubset), paint);
+    canvas->drawRect(SkRect::Make(outSubset), paint);
 ##
 
 #SeeAlso makeShader SkPaint::setImageFilter
