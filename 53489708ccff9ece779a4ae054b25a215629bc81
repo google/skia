@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9b915161_4eb5169e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-03-13T18:42:27Z",
+      "side": 1,
+      "message": "My intent is to remove SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag and SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag once Android no longer depends on them. If this is a worthy goal, then only SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag should be referred to internally. Until then, both the priv and legacy flags are defined in terms of private to avoid multiple root definitions.",
+      "parentUuid": "f742b3c3_45ae402b",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 45
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a5db1baf_649053d4",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-03-07T15:40:46Z",
       "side": 1,
       "message": "Doesn\u0027t the bot just need to define SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG? Maybe we should just add a bot that builds with all of our LEGACY flags defined? Actually, that may be more complex than just having a bot run with all of Android\u0027s LEGACY flags defined, and one for Chrome, etc.\n\nCouldn\u0027t we run some of these tests just by switching from SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag to SkCanvasPriv::kDontClipToLayer_SaveLayerFlag? I suppose that doesn\u0027t prove that the legacy flag itself works as intended (the static_assert in one tests would do that, if we ever ran with SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG defined), but it would mean we are running the tests at all, which seems better than today.",
+      "range": {
+        "startLine": 24,
+        "startChar": 10,
+        "endLine": 25,
+        "endChar": 5
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1d52d6d_e3c24f79",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-03-13T18:42:27Z",
+      "side": 1,
+      "message": "I tried to build and run CanvasState_test_complex_layers locally. As written, it builds on Linux, but it asserts when run. I don\u0027t know if this is expected or not.\n\nWe may have a bot today that can run this, but I don\u0027t know what that bot is or when to define so that it doesn\u0027t break other bots.\n\n(I hope that) creating a bot that runs all legacy flags is beyond the scope of this CL, but I am happy to defer until that is resolved. I\u0027ll write a bug on that.",
+      "parentUuid": "a5db1baf_649053d4",
       "range": {
         "startLine": 24,
         "startChar": 10,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f8622f98_1fef693f",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2666,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-03-13T18:42:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3381fe68_718bef60",
+      "range": {
+        "startLine": 2666,
+        "startChar": 17,
+        "endLine": 2666,
+        "endChar": 29
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac4e971d_131defe1",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-03-07T15:40:46Z",
       "side": 1,
       "message": "This is inside SkCanvas, so can\u0027t this just be \"kDontClipToLayer_PrivateSaveLayerFlag\"? It seems funny that we\u0027re using an external enum that is the same as our internal enum.",
+      "range": {
+        "startLine": 943,
+        "startChar": 30,
+        "endLine": 943,
+        "endChar": 74
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fe88966_969d7e09",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 943,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-03-13T18:42:27Z",
+      "side": 1,
+      "message": "The hope is that kDontClipToLayer_PrivateSaveLayerFlag can be deleted in the near future",
+      "parentUuid": "ac4e971d_131defe1",
       "range": {
         "startLine": 943,
         "startChar": 30,
@@ -114,6 +210,30 @@
       "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4f5ed34_7454fdaa",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-03-13T18:42:27Z",
+      "side": 1,
+      "message": "done (the namespace part)\n\nhopefully, the Private one will go away soon",
+      "parentUuid": "d78263f6_687d4c1e",
+      "range": {
+        "startLine": 32,
+        "startChar": 22,
+        "endLine": 32,
+        "endChar": 66
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
