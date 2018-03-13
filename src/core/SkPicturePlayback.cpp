@@ -25,11 +25,11 @@ enum LegacySaveFlags {
     kClipToLayer_LegacySaveFlags      = 0x10,
 };
 
-SkCanvas::SaveLayerFlags SkCanvas::LegacySaveFlagsToSaveLayerFlags(uint32_t flags) {
+SkCanvas::SaveLayerFlags SkCanvasPriv::LegacySaveFlagsToSaveLayerFlags(uint32_t flags) {
     uint32_t layerFlags = 0;
 
     if (0 == (flags & kClipToLayer_LegacySaveFlags)) {
-        layerFlags |= SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag;
+        layerFlags |= kDontClipToLayer_SaveLayerFlag;
     }
     return layerFlags;
 }
@@ -689,7 +689,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRect storage;
             const SkRect* boundsPtr = get_rect_ptr(reader, &storage);
             const SkPaint* paint = fPictureData->getPaint(reader);
-            auto flags = SkCanvas::LegacySaveFlagsToSaveLayerFlags(reader->readInt());
+            auto flags = SkCanvasPriv::LegacySaveFlagsToSaveLayerFlags(reader->readInt());
             BREAK_ON_READ_ERROR(reader);
 
             canvas->saveLayer(SkCanvas::SaveLayerRec(boundsPtr, paint, flags));

@@ -7,8 +7,8 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkCanvasPriv.h"
 
-static const uint32_t SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag = 1U << 31;
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
 // In particular, it attempts to compare the performance of unclipped saveLayers with alternatives.
@@ -17,7 +17,7 @@ static void save_layer_unclipped(SkCanvas* canvas,
                                  SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
     SkRect rect = SkRect::MakeLTRB(l, t, r, b);
     canvas->saveLayer({ &rect, nullptr, nullptr, nullptr, nullptr,
-                        SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag });
+                        (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag });
 }
 
 static void do_draw(SkCanvas* canvas) {
@@ -93,7 +93,8 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     // In the future, we might also test the clipped case by allowing i = 0
     for(int i = 1; i < 2; ++i) {
         canvas->translate(100 * i, 0);
-        auto flag = i ? SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag : 0;
+        auto flag = i ?
+                (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag : 0;
         canvas->saveLayer({ &rect1, &paint1, nullptr, nullptr, nullptr, flag});
         canvas->saveLayer({ &rect2, &paint2, nullptr, nullptr, nullptr, flag});
         canvas->drawRect(rect3, paint3);
