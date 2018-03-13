@@ -48,6 +48,11 @@ toolchain("msvc") {
 
   if (clang_win != "") {
     cl = "$clang_win/bin/clang-cl.exe"
+
+    # Clang rev 325667 has libraries under the path "7.0.0", but looks under
+    # "6.0.0" to find these libraries. Explicitly specify the correct directory
+    # to work around this discrepancy.
+    lib_dirs += [ "$clang_win/lib/clang/7.0.0/lib/windows/" ]
   } else {
     cl = "$bin/cl.exe"
   }
