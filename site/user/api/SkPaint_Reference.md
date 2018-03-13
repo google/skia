@@ -143,7 +143,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_containsText">containsText</a> | returns if all text corresponds to <a href="undocumented#Glyph">Glyphs</a> |
 | <a href="#SkPaint_countText">countText</a> | returns number of <a href="undocumented#Glyph">Glyphs</a> in text |
 | <a href="#SkPaint_doComputeFastBounds">doComputeFastBounds</a> | returns bounds for quick reject tests |
-| <a href="#SkPaint_flatten">flatten</a> | serializes into a buffer |
 | <a href="#SkPaint_getAlpha">getAlpha</a> | returns <a href="undocumented#Alpha">Color Alpha</a>, color opacity |
 | <a href="#SkPaint_getBlendMode">getBlendMode</a> | returns <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with <a href="undocumented#Device">Device</a> |
 | <a href="#SkPaint_getColor">getColor</a> | returns <a href="undocumented#Alpha">Color Alpha</a> and <a href="undocumented#RGB">Color RGB</a>, one drawing color |
@@ -237,7 +236,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_setVerticalText">setVerticalText</a> | sets or clears <a href="#Vertical_Text">Vertical Text</a> |
 | <a href="#SkPaint_textToGlyphs">textToGlyphs</a> | converts text into glyph indices |
 | <a href="#SkPaint_toString">toString</a> | converts <a href="#Paint">Paint</a> to machine readable form |
-| <a href="#SkPaint_unflatten">unflatten</a> | populates from a serialized stream |
 
 ## <a name="Initializers"></a> Initializers
 
@@ -607,55 +605,6 @@ paint1.getHash() == paint2.getHash()
 ~~~~
 
 </fiddle-embed></div>
-
----
-
-<a name="SkPaint_flatten"></a>
-## flatten
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void flatten(SkWriteBuffer& buffer) const
-</pre>
-
-Serializes <a href="#Paint">Paint</a> into a <a href="#SkPaint_flatten_buffer">buffer</a>. A companion <a href="#SkPaint_unflatten">unflatten</a> call
-can reconstitute the paint at a later time.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkPaint_flatten_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
-<a href="undocumented#Write_Buffer">Write Buffer</a> receiving the flattened <a href="#Paint">Paint</a> data</td>
-  </tr>
-</table>
-
----
-
-<a name="SkPaint_unflatten"></a>
-## unflatten
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-bool unflatten(SkReadBuffer& buffer)
-</pre>
-
-Populates <a href="#Paint">Paint</a>, typically from a serialized stream, created by calling
-<a href="#SkPaint_flatten">flatten</a> at an earlier time.
-
-<a href="undocumented#SkReadBuffer">SkReadBuffer</a> class is not public, so <a href="#SkPaint_unflatten">unflatten</a> cannot be meaningfully called
-by the client.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkPaint_unflatten_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
-serialized data describing <a href="#Paint">Paint</a> content</td>
-  </tr>
-</table>
-
-### Return Value
-
-false if the <a href="#SkPaint_unflatten_buffer">buffer</a> contains invalid data
-
-### See Also
-
-<a href="undocumented#SkReadBuffer">SkReadBuffer</a>
 
 ---
 
