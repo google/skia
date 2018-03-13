@@ -56,26 +56,32 @@ void SetupAlwaysEvictAtlas(GrContext* context, int dim) {
 GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
                                       GrPixelConfig config, GrMipMapped mipMapped,
                                       GrBackendObject handle) {
+    GrBackendTexture beTex;
     switch (backend) {
 #ifdef SK_VULKAN
         case kVulkan_GrBackend: {
             GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
             SkASSERT((GrMipMapped::kYes == mipMapped) == (vkInfo->fLevelCount > 1));
-            return GrBackendTexture(width, height, *vkInfo);
+            beTex = GrBackendTexture(width, height, *vkInfo);
+            break;
         }
 #endif
         case kOpenGL_GrBackend: {
             GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
             SkASSERT(glInfo->fFormat);
-            return GrBackendTexture(width, height, mipMapped, *glInfo);
+            beTex = GrBackendTexture(width, height, mipMapped, *glInfo);
+            break;
         }
         case kMock_GrBackend: {
             GrMockTextureInfo* mockInfo = (GrMockTextureInfo*)(handle);
-            return GrBackendTexture(width, height, mipMapped, *mockInfo);
+            beTex = GrBackendTexture(width, height, mipMapped, *mockInfo);
+            break;
         }
         default:
             return GrBackendTexture();
     }
+    beTex.setPixelConfig(config);
+    return beTex;
 }
 
 GrBackendFormat CreateBackendFormatFromTexture(const GrBackendTexture& tex) {
@@ -334,16 +340,6 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
             fOnFlushCBObjects.begin();
     SkASSERT(n < fOnFlushCBObjects.count());
     fOnFlushCBObjects.removeShuffle(n);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrPixelConfig GrBackendTexture::testingOnly_getPixelConfig() const {
-    return fConfig;
-}
-
-GrPixelConfig GrBackendRenderTarget::testingOnly_getPixelConfig() const {
-    return fConfig;
 }
 
 //////////////////////////////////////////////////////////////////////////////

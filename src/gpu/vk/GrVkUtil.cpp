@@ -72,40 +72,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
     return false;
 }
 
-GrPixelConfig GrVkFormatToPixelConfig(VkFormat format) {
-    switch (format) {
-        case VK_FORMAT_R8G8B8A8_UNORM:
-            return kRGBA_8888_GrPixelConfig;
-        case VK_FORMAT_B8G8R8A8_UNORM:
-            return kBGRA_8888_GrPixelConfig;
-        case VK_FORMAT_R8G8B8A8_SRGB:
-            return kSRGBA_8888_GrPixelConfig;
-        case VK_FORMAT_B8G8R8A8_SRGB:
-            return kSBGRA_8888_GrPixelConfig;
-        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
-            return kRGBA_1010102_GrPixelConfig;
-        case VK_FORMAT_R5G6B5_UNORM_PACK16:
-            return kRGB_565_GrPixelConfig;
-            break;
-        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
-            // R4G4B4A4 is not required to be supported so we actually
-            // store RGBA_4444 data as B4G4R4A4.
-            return kRGBA_4444_GrPixelConfig;
-        case VK_FORMAT_R8_UNORM:
-            return kAlpha_8_GrPixelConfig;
-        case VK_FORMAT_R32G32B32A32_SFLOAT:
-            return kRGBA_float_GrPixelConfig;
-        case VK_FORMAT_R32G32_SFLOAT:
-            return kRG_float_GrPixelConfig;
-        case VK_FORMAT_R16G16B16A16_SFLOAT:
-            return kRGBA_half_GrPixelConfig;
-        case VK_FORMAT_R16_SFLOAT:
-            return kAlpha_half_GrPixelConfig;
-        default:
-            return kUnknown_GrPixelConfig;
-    }
-}
-
 bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
     switch (format) {
         case VK_FORMAT_R8G8B8A8_UNORM:

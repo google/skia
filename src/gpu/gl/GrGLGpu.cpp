@@ -4410,7 +4410,9 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
     // unbind the texture from the texture unit to avoid asserts
     GL_CALL(BindTexture(info.fTarget, 0));
 
-    return GrBackendTexture(w, h, mipMapped, info);
+    GrBackendTexture beTex = GrBackendTexture(w, h, mipMapped, info);
+    beTex.setPixelConfig(config);
+    return beTex;
 }
 
 bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
@@ -4499,7 +4501,9 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
         return {};
     }
     auto stencilBits = SkToInt(this->glCaps().stencilFormats()[sFormatIdx].fStencilBits);
-    return {w, h, 1, stencilBits, config, info};
+    GrBackendRenderTarget beRT = {w, h, 1, stencilBits, info};
+    beRT.setPixelConfig(config);
+    return beRT;
 }
 
 void GrGLGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
