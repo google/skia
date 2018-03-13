@@ -4410,7 +4410,7 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, i
     // unbind the texture from the texture unit to avoid asserts
     GL_CALL(BindTexture(info.fTarget, 0));
 
-    return GrBackendTexture(w, h, mipMapped, info);
+    return GrBackendTexture(w, h, config, mipMapped, info);
 }
 
 bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
