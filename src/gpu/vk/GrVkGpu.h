@@ -70,9 +70,8 @@ public:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
 #if GR_TEST_UTILS
-    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                     GrPixelConfig config,
-                                                     bool isRenderTarget,
+    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
+                                                     GrPixelConfig config, bool isRenderTarget,
                                                      GrMipMapped) override;
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
     void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
@@ -246,6 +245,12 @@ private:
 
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
+
+#if GR_TEST_UTILS
+    bool createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
+                                  bool renderable, GrMipMapped mipMapped, const void* srcData,
+                                  GrVkImageInfo* info);
+#endif
 
     sk_sp<const GrVkBackendContext> fBackendContext;
     sk_sp<GrVkCaps>                 fVkCaps;

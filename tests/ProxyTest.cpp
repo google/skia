@@ -201,12 +201,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
     static const int kWidthHeight = 100;
 
-    if (kOpenGL_GrBackend != ctxInfo.backend()) {
-        return;
-    }
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto colorType : { kAlpha_8_SkColorType, kRGBA_8888_SkColorType,
                                 kRGBA_1010102_SkColorType }) {
+            // External on-screen render target.
+            // Tests wrapBackendRenderTarget with a GrBackendRenderTarget
+            // Our test-only function that creates a backend render target doesn't currently support
+            // sample counts :(.
+            if (ctxInfo.grContext()->colorTypeSupportedAsSurface(colorType)) {
+                GrBackendRenderTarget backendRT = gpu->createTestingOnlyBackendRenderTarget(
+                        kWidthHeight, kWidthHeight, SkColorTypeToGrColorType(colorType),
+                        GrSRGBEncoded::kNo);
+                sk_sp<GrSurfaceProxy> sProxy(
+                        proxyProvider->wrapBackendRenderTarget(backendRT, origin));
+                check_surface(reporter, sProxy.get(), origin, kWidthHeight, kWidthHeight,
+                              backendRT.testingOnly_getPixelConfig(), SkBudgeted::kNo);
+                static constexpr int kExpectedNumSamples = 1;
+                check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
+                                   kExpectedNumSamples, SkBackingFit::kExact,
+                                   caps.maxWindowRectangles());
+                gpu->deleteTestingOnlyBackendRenderTarget(backendRT);
+            }
+
             for (auto numSamples : {1, 4}) {
                 GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, caps);
                 SkASSERT(kUnknown_GrPixelConfig != config);
@@ -216,14 +232,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     continue;
                 }
 
-                // External on-screen render target.
-                // Tests wrapBackendRenderTarget with a GrBackendRenderTarget
-                {
+                // Test wrapping FBO 0 (with made up properties). This tests sample count and the
+                // special case where FBO 0 doesn't support window rectangles.
+                if (kOpenGL_GrBackend == ctxInfo.backend()) {
                     GrGLFramebufferInfo fboInfo;
                     fboInfo.fFBOID = 0;
-                    GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples, 8,
-                                                    config, fboInfo);
-
+                    static constexpr int kStencilBits = 8;
+                    GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples,
+                                                    kStencilBits, config, fboInfo);
                     sk_sp<GrSurfaceProxy> sProxy(
                             proxyProvider->wrapBackendRenderTarget(backendRT, origin));
                     check_surface(reporter, sProxy.get(), origin,
