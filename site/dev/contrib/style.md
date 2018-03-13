@@ -387,28 +387,6 @@ Method calls within method calls should be prefixed with dereference of the
 this->method();
 ~~~~
 
-Comparisons
------------
-
-We prefer that equality operators between lvalues and rvalues place the lvalue 
-on the right:
-
-<!--?prettify?-->
-~~~~
-if (7 == luckyNumber) {
-    ...
-}
-~~~~
-
-However, inequality operators need not follow this rule:
-
-<!--?prettify?-->
-~~~~
-if (count > 0) {
-    ...
-}
-~~~~
-
 Comments
 --------
 
