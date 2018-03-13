@@ -162,7 +162,14 @@ GrBackendObject GrVkTexture::getTextureHandle() const {
 }
 
 GrBackendTexture GrVkTexture::getBackendTexture() const {
-    return GrBackendTexture(this->width(), this->height(), fInfo);
+    GrBackendTexture beTex = GrBackendTexture(this->width(), this->height(), fInfo);
+#if GR_TEST_UTILS
+    // We shouldn't have to set this since the client can't access it and we will handle the config
+    // correctly if we go through our public SkSurface and SkImage APIs. However, some of our tests
+    // bypass the public APIs so we need to set this manually here.
+    beTex.setPixelConfig(this->config());
+#endif
+    return beTex;
 }
 
 GrVkGpu* GrVkTexture::getVkGpu() const {
