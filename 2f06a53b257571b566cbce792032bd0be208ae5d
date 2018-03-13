@@ -16,6 +16,24 @@
       "revId": "2f06a53b257571b566cbce792032bd0be208ae5d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53a7d75d_5f5fe1ff",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-03-13T18:23:47Z",
+      "side": 0,
+      "message": "Possibly, though already (for a while now) no client ever sets the quality to anything but High, and our impls already ignore the setting.",
+      "parentUuid": "f1120d2c_7929eedd",
+      "revId": "2f06a53b257571b566cbce792032bd0be208ae5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
