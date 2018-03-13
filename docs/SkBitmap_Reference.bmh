@@ -3287,6 +3287,10 @@ Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
 #Bug 7103
 #Example
 #Height 160
+    auto radiusToSigma = [](SkScalar radius) -> SkScalar {
+         static const SkScalar kBLUR_SIGMA_SCALE = 0.57735f;
+         return radius > 0 ? kBLUR_SIGMA_SCALE * radius + 0.5f : 0.0f;
+    };
     SkBitmap alpha, bitmap;
     bitmap.allocN32Pixels(100, 100);
     SkCanvas offscreen(bitmap);
@@ -3298,9 +3302,8 @@ Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
     paint.setStrokeWidth(20);
     offscreen.drawCircle(50, 50, 39, paint);
     offscreen.flush();
-    const SkScalar kBlurSigma = SkBlurMaskFilter::ConvertRadiusToSigma(SkIntToScalar(25));
-    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma,
-                                    SkBlurMaskFilter::kHighQuality_BlurFlag));
+    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, radiusToSigma(25),
+                        SkBlurMaskFilter::kHighQuality_BlurFlag));
     SkIPoint offset;
     bitmap.extractAlpha(&alpha, &paint, &offset);
     paint.setColor(SK_ColorRED);
