@@ -208,11 +208,12 @@ int main(int argc, char** argv) {
     info.fFBOID = (GrGLuint) buffer;
     SkColorType colorType;
 
+    //SkDebugf("%s", SDL_GetPixelFormatName(windowFormat));
+    // TODO: the windowFormat is never any of these?
     if (SDL_PIXELFORMAT_RGBA8888 == windowFormat) {
         info.fFormat = GR_GL_RGBA8;
         colorType = kRGBA_8888_SkColorType;
     } else {
-        SkASSERT(SDL_PIXELFORMAT_BGRA8888);
         colorType = kBGRA_8888_SkColorType;
         if (SDL_GL_CONTEXT_PROFILE_ES == contextType) {
             info.fFormat = GR_GL_BGRA8;

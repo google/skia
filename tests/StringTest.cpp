@@ -14,6 +14,8 @@
 #include "SkString.h"
 #include "SkStringUtils.h"
 
+static const char* gThirtyWideDecimal = "%30d";
+
 DEF_TEST(String, reporter) {
     SkString    a;
     SkString    b((size_t)0);
@@ -169,7 +171,7 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter, buffer[18] == 'a');
     REPORTER_ASSERT(reporter, buffer[19] == 'a');
     REPORTER_ASSERT(reporter, buffer[20] == 'a');
-    snprintf(buffer, 20, "%30d", 0);
+    snprintf(buffer, 20, gThirtyWideDecimal, 0);
     REPORTER_ASSERT(reporter, buffer[18] == ' ');
     REPORTER_ASSERT(reporter, buffer[19] == 0);
     REPORTER_ASSERT(reporter, buffer[20] == 'a');
