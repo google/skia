@@ -10,7 +10,6 @@
 #include "png.h"
 
 #include "SkAutoMalloc.h"
-#include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
 #include "SkDashPathEffect.h"
 #include "SkImageFilter.h"
@@ -1124,6 +1123,7 @@ static void apply_paint_maskfilter(const SkPaint& paint, Json::Value* target,
                 default:
                     SkASSERT(false);
             }
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
             switch (blurRec.fQuality) {
                 case SkBlurQuality::kLow_SkBlurQuality:
                     blur[SKDEBUGCANVAS_ATTRIBUTE_QUALITY] = Json::Value(
@@ -1136,6 +1136,7 @@ static void apply_paint_maskfilter(const SkPaint& paint, Json::Value* target,
                 default:
                     SkASSERT(false);
             }
+#endif
             (*target)[SKDEBUGCANVAS_ATTRIBUTE_BLUR] = blur;
         } else {
             Json::Value jsonMaskFilter;
@@ -1590,19 +1591,7 @@ static void extract_json_paint_blur(Json::Value& jsonPaint, SkPaint* target) {
             SkASSERT(false);
             style = SkBlurStyle::kNormal_SkBlurStyle;
         }
-        SkBlurMaskFilter::BlurFlags flags;
-        const char* jsonQuality = blur[SKDEBUGCANVAS_ATTRIBUTE_QUALITY].asCString();
-        if (!strcmp(jsonQuality, SKDEBUGCANVAS_BLURQUALITY_LOW)) {
-            flags = SkBlurMaskFilter::BlurFlags::kNone_BlurFlag;
-        }
-        else if (!strcmp(jsonQuality, SKDEBUGCANVAS_BLURQUALITY_HIGH)) {
-            flags = SkBlurMaskFilter::BlurFlags::kHighQuality_BlurFlag;
-        }
-        else {
-            SkASSERT(false);
-            flags = SkBlurMaskFilter::BlurFlags::kNone_BlurFlag;
-        }
-        target->setMaskFilter(SkBlurMaskFilter::Make(style, sigma, flags));
+        target->setMaskFilter(SkMaskFilter::MakeBlur(style, sigma));
     }
 }
 
