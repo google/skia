@@ -15,16 +15,25 @@ void GrUninstantiateProxyTracker::addProxy(GrSurfaceProxy* proxy) {
     using LazyType = GrSurfaceProxy::LazyInstantiationType;
     SkASSERT(LazyType::kUninstantiate == proxy->priv().lazyInstantiationType());
     for (int i = 0; i < fProxies.count(); ++i) {
-        SkASSERT(proxy != fProxies[i]);
+        SkASSERT(proxy != fProxies[i].get());
     }
 #endif
-    fProxies.push_back(proxy);
+    fProxies.push_back(sk_ref_sp(proxy));
 }
 
 void GrUninstantiateProxyTracker::uninstantiateAllProxies() {
     for (int i = 0; i < fProxies.count(); ++i) {
-        GrSurfaceProxy* proxy = fProxies[i];
-        SkASSERT(proxy->priv().isSafeToUninstantiate());
-        proxy->deInstantiate();
+        GrSurfaceProxy* proxy = fProxies[i].get();
+        if (proxy->priv().hasUniqueRef()) {
+            // If this is the only holder just nuke the pointer
+            fProxies[i] = nullptr;
+        } else {
+            // otherwise, remove the ref held by this class so deInstantiation will work
+            fProxies[i] = nullptr;
+            SkASSERT(proxy->priv().isSafeToUninstantiate());
+            proxy->deInstantiate();
+        }
     }
+
+    fProxies.reset();
 }

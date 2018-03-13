@@ -156,6 +156,8 @@ protected:
         fTarget->fPendingWrites += fPendingWrites;
     }
 
+    bool internalHasUniqueRef() const { return 1 == fRefCnt; }
+
     bool internalHasPendingIO() const {
         if (fTarget) {
             return fTarget->internalHasPendingIO();
