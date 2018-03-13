@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
         info.fFormat = GR_GL_RGBA8;
         colorType = kRGBA_8888_SkColorType;
     } else {
-        SkASSERT(SDL_PIXELFORMAT_BGRA8888);
+        SkASSERT(SDL_PIXELFORMAT_BGRA8888 == windowFormat);
         colorType = kBGRA_8888_SkColorType;
         if (SDL_GL_CONTEXT_PROFILE_ES == contextType) {
             info.fFormat = GR_GL_BGRA8;
