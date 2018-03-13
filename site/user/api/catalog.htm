@@ -3766,10 +3766,10 @@
     "name": "SkBitmap::extractAlpha"
 },
     "SkBitmap_extractAlpha_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap alpha, bitmap;\n    bitmap.allocN32Pixels(100, 100);\n    SkCanvas offscreen(bitmap);\n    offscreen.clear(0);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setColor(SK_ColorBLUE);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    offscreen.drawCircle(50, 50, 39, paint);\n    offscreen.flush();\n    const SkScalar kBlurSigma = SkBlurMaskFilter::ConvertRadiusToSigma(SkIntToScalar(25));\n    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma,\n                                    SkBlurMaskFilter::kHighQuality_BlurFlag));\n    SkIPoint offset;\n    bitmap.extractAlpha(&alpha, &paint, &offset);\n    paint.setColor(SK_ColorRED);\n    canvas->drawBitmap(bitmap, 0, -offset.fY, &paint);\n    canvas->drawBitmap(alpha, 100 + offset.fX, 0, &paint);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    auto radiusToSigma = [](SkScalar radius) -> SkScalar {\n         static const SkScalar kBLUR_SIGMA_SCALE = 0.57735f;\n         return radius > 0 ? kBLUR_SIGMA_SCALE * radius + 0.5f : 0.0f;\n    };\n    SkBitmap alpha, bitmap;\n    bitmap.allocN32Pixels(100, 100);\n    SkCanvas offscreen(bitmap);\n    offscreen.clear(0);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setColor(SK_ColorBLUE);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    offscreen.drawCircle(50, 50, 39, paint);\n    offscreen.flush();\n    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, radiusToSigma(25),\n                        SkBlurMaskFilter::kHighQuality_BlurFlag));\n    SkIPoint offset;\n    bitmap.extractAlpha(&alpha, &paint, &offset);\n    paint.setColor(SK_ColorRED);\n    canvas->drawBitmap(bitmap, 0, -offset.fY, &paint);\n    canvas->drawBitmap(alpha, 100 + offset.fX, 0, &paint);\n}",
     "width": 256,
     "height": 160,
-    "hash": "e122936b119f20098aace454c2105a12",
+    "hash": "c102065eea5c3f109fdcad3f0e269ce5",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::extractAlpha_2"
 },

@@ -3518,7 +3518,7 @@ true if <a href="undocumented#Alpha">Alpha</a> layer was constructed in <a href=
 
 ### Example
 
-<div><fiddle-embed name="e122936b119f20098aace454c2105a12"></fiddle-embed></div>
+<div><fiddle-embed name="c102065eea5c3f109fdcad3f0e269ce5"></fiddle-embed></div>
 
 ### See Also
 
