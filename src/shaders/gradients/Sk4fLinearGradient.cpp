@@ -56,7 +56,7 @@ SkScalar pinFx<SkShader::kClamp_TileMode>(SkScalar fx) {
 
 template<>
 SkScalar pinFx<SkShader::kRepeat_TileMode>(SkScalar fx) {
-    SkScalar f = SkScalarFraction(fx);
+    SkScalar f = SkScalarIsFinite(fx) ? SkScalarFraction(fx) : 0;
     if (f < 0) {
         f = SkTMin(f + 1, nextafterf(1, 0));
     }
@@ -67,7 +67,7 @@ SkScalar pinFx<SkShader::kRepeat_TileMode>(SkScalar fx) {
 
 template<>
 SkScalar pinFx<SkShader::kMirror_TileMode>(SkScalar fx) {
-    SkScalar f = SkScalarMod(fx, 2.0f);
+    SkScalar f = SkScalarIsFinite(fx) ? SkScalarMod(fx, 2.0f) : 0;
     if (f < 0) {
         f = SkTMin(f + 2, nextafterf(2, 0));
     }
