@@ -8,7 +8,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
-#include "SkBlurMaskFilter.h"
+#include "SkMaskFilter.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
@@ -400,7 +400,7 @@ protected:
 
                     SkPaint blurPaint;
                     blurPaint.setAntiAlias(true);
-                    blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma));
+                    blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
                     canvas->drawPath(clippedPath, blurPaint);
                 } else {
                     SkASSERT(kRRectsGaussianEdge_Mode == fMode);

@@ -36,9 +36,8 @@ public:
     //                      null.
 
     static bool SK_WARN_UNUSED_RESULT BoxBlur(SkMask* dst, const SkMask& src,
-                                              SkScalar sigma, SkBlurStyle style, SkBlurQuality,
-                                              SkIPoint* margin = nullptr,
-                                              bool forceQuality = false);
+                                              SkScalar sigma, SkBlurStyle style,
+                                              SkIPoint* margin = nullptr);
 
     // the "ground truth" blur does a gaussian convolution; it's slow
     // but useful for comparison purposes.

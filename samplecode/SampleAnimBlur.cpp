@@ -7,9 +7,9 @@
 
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
-#include "SkBlurMaskFilter.h"
 #include "SkColorPriv.h"
 #include "SkCanvas.h"
+#include "SkMaskFilter.h"
 #include "SkRandom.h"
 
 SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkScalar phaseInSec) {
@@ -47,9 +47,8 @@ protected:
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gStyles); ++i) {
             SkPaint paint;
-            paint.setMaskFilter(SkBlurMaskFilter::Make(gStyles[i],
-                                                       fBlurSigma,
-                                                       SkBlurMaskFilter::kHighQuality_BlurFlag));
+            paint.setMaskFilter(SkMaskFilter::MakeBlur(gStyles[i],
+                                                       fBlurSigma));
             paint.setColor(random.nextU() | 0xff000000);
             canvas->drawCircle(200 * SK_Scalar1 + 400 * (i % 2) * SK_Scalar1,
                                200 * SK_Scalar1 + i / 2 * 400 * SK_Scalar1,

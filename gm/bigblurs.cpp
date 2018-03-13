@@ -8,7 +8,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
+#include "SkMaskFilter.h"
 #include "SkPath.h"
 
 namespace skiagm {
@@ -71,7 +71,7 @@ protected:
 
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j <= kLastEnum_SkBlurStyle; ++j) {
-                blurPaint.setMaskFilter(SkBlurMaskFilter::Make((SkBlurStyle)j, kSigma));
+                blurPaint.setMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)j, kSigma));
 
                 for (int k = 0; k < (int)SK_ARRAY_COUNT(origins); ++k) {
                     canvas->save();

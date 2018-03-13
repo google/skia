@@ -65,10 +65,9 @@ protected:
             SkPaint p;
             p.setColor(SK_ColorWHITE);
             p.setAntiAlias(true);
-            p.setMaskFilter(SkBlurMaskFilter::Make(
+            p.setMaskFilter(SkMaskFilter::MakeBlur(
                                    kNormal_SkBlurStyle,
-                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
-                                   SkBlurMaskFilter::kHighQuality_BlurFlag));
+                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5))));
             fPaints.push_back(p);
         }
 

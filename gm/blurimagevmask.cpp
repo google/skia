@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMaskFilter.h"
 #include "SkBlurImageFilter.h"
+#include "SkMaskFilter.h"
 #include "gm.h"
 #include "sk_tool_utils.h"
 
@@ -38,9 +38,7 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
         r.offset(250, 0);
 
-        paint.setMaskFilter(
-            SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma,
-                                   SkBlurMaskFilter::kHighQuality_BlurFlag));
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
         canvas->drawRect(r, paint);
         paint.setMaskFilter(nullptr);
 
@@ -61,7 +59,7 @@ DEF_SIMPLE_GM(blur_image, canvas, 500, 500) {
     auto image = GetResourceAsImage("images/mandrill_128.png");
 
     SkPaint paint;
-    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 4));
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 4));
 
     // both of these should draw with the blur, but (formerally) we had a bug where the unscaled
     // version (taking the spriteblitter code path) ignore the maskfilter.

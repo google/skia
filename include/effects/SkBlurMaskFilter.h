@@ -18,6 +18,7 @@ class SkRRect;
 
 class SK_API SkBlurMaskFilter {
 public:
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
     enum BlurFlags {
         kNone_BlurFlag              = 0x00,
         /** The blur layer's radius is not affected by transforms */
@@ -44,6 +45,7 @@ public:
                                     uint32_t flags = kNone_BlurFlag) {
         return Make(style, sigma, SkRect::MakeEmpty(), flags);
     }
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
     /** Create an emboss maskfilter
@@ -58,8 +60,10 @@ public:
                                           SkScalar ambient, SkScalar specular);
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
 private:
     SkBlurMaskFilter(); // can't be instantiated
+#endif
 };
 
 #endif

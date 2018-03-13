@@ -84,7 +84,9 @@ public:
         SkVector        fOffset;
         SkColor         fColor;
         SkBlurStyle     fStyle;
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
         SkBlurQuality   fQuality;
+#endif
     };
     /**
      *  If this looper can be interpreted as having two layers, such that

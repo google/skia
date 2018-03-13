@@ -6,8 +6,8 @@
  */
 #include "SampleCode.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkMaskFilter.h"
 #include "SkView.h"
 
 class BigBlurView : public SampleView {
@@ -29,10 +29,9 @@ protected:
         SkPaint paint;
         canvas->save();
         paint.setColor(SK_ColorBLUE);
-        paint.setMaskFilter(SkBlurMaskFilter::Make(
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(
             kNormal_SkBlurStyle,
-            SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(128)),
-            SkBlurMaskFilter::kHighQuality_BlurFlag));
+            SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(128))));
         canvas->translate(200, 200);
         canvas->drawCircle(100, 100, 200, paint);
         canvas->restore();
