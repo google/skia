@@ -5369,7 +5369,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5403,7 +5403,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5437,7 +5437,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5471,7 +5471,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5505,7 +5505,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5539,7 +5539,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5573,7 +5573,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5608,7 +5608,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5643,7 +5643,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5677,7 +5677,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5711,7 +5711,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5745,7 +5745,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5779,7 +5779,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5813,7 +5813,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5848,7 +5848,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
