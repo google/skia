@@ -246,7 +246,7 @@ static void saveLayer_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanva
 
     // unremap this wacky flag
     if (extra & kDontClipToLayer_SaveLayerMask) {
-        flags |= (1 << 31);//SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag;
+        flags |= SkCanvasPriv::kDontClipToLayer_SaveLayerFlag;
     }
 
     canvas->saveLayer(SkCanvas::SaveLayerRec(bounds, paint, backdrop.get(), clipMask.get(),
