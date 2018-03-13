@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8e649142_8eeb9afa",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-13T13:33:46Z",
+      "side": 1,
+      "message": "No, let\u0027s delete anything that told you to.\n\nIt used to be we would do equality checks that way (0 \u003d\u003d x) to prevent accidental assignment (0 \u003d x).  Nowadays at least one compiler we use will invariably smack us if we make that mistake, usually Clang saying, \"hey I\u0027m not going to accept this obvious bug unless you put an extra set of parens around it.\"\n\nThere\u0027s never been any need to do \u003c, \u003e, \u003c\u003d, \u003e\u003d, or !\u003d backwards.",
+      "parentUuid": "af647d2b_2f94e314",
+      "range": {
+        "startLine": 589,
+        "startChar": 32,
+        "endLine": 589,
+        "endChar": 41
+      },
+      "revId": "d8cb6e8e2ab021347dcdc7b4e7b6593e050e9611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e07f4655_044b1c65",
         "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
         "patchSetId": 2
