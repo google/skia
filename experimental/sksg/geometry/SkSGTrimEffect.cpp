@@ -8,9 +8,8 @@
 #include "SkSGTrimEffect.h"
 
 #include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkPathMeasure.h"
 #include "SkStrokeRec.h"
+#include "SkTrimPathEffect.h"
 
 namespace sksg {
 
@@ -41,34 +40,29 @@ SkRect TrimEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
     SkASSERT(this->hasInval());
 
     const auto childbounds = fChild->revalidate(ic, ctm);
+    const auto path        = fChild->asPath();
 
-    const auto path = fChild->asPath();
-    SkScalar pathLen = 0;
-    SkPathMeasure measure(path, false);
-    do {
-        pathLen += measure.getLength();
-    } while (measure.nextContour());
+    // TODO: relocate these funky semantics to a Skottie composite helper,
+    //       and refactor TrimEffect as a thin SkTrimpPathEffect wrapper.
+    auto start = SkTMin(fStart, fEnd) + fOffset,
+         stop  = SkTMax(fStart, fEnd) + fOffset;
 
-    const auto start  = pathLen * fStart,
-               end    = pathLen * fEnd,
-               offset = pathLen * fOffset,
-               len    = end - start;
+    sk_sp<SkPathEffect> trim;
+    if (stop - start < 1) {
+        start -= SkScalarFloorToScalar(start);
+        stop  -= SkScalarFloorToScalar(stop);
 
-    fTrimmedPath.reset();
+        trim = start <= stop
+            ? SkTrimPathEffect::Make(start, stop, SkTrimPathEffect::Mode::kNormal)
+            : SkTrimPathEffect::Make(stop, start, SkTrimPathEffect::Mode::kInverted);
+    }
 
-    if (len > 0) {
-        // If the trim is positioned exactly at the beginning of the path, we don't expect any
-        // visible wrap-around.  But due to limited precision / accumulated error, the dash effect
-        // may sometimes start one extra dash at the very end (a flickering dot during animation).
-        // To avoid this, we bump the dash len by |epsilon|.
-        const SkScalar dashes[] = { len, pathLen + SK_ScalarNearlyZero - len };
-        auto dashEffect = SkDashPathEffect::Make(dashes,
-                                                 SK_ARRAY_COUNT(dashes),
-                                                 -start - offset);
-        if (dashEffect) {
-            SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-            SkAssertResult(dashEffect->filterPath(&fTrimmedPath, path, &rec, &childbounds));
-        }
+    if (trim) {
+        fTrimmedPath.reset();
+        SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
+        SkAssertResult(trim->filterPath(&fTrimmedPath, path, &rec, &childbounds));
+    } else {
+        fTrimmedPath = path;
     }
 
     return fTrimmedPath.computeTightBounds();
