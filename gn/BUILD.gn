@@ -698,7 +698,7 @@ toolchain("gcc_like") {
 
   tool("solink") {
     soname = "{{target_output_name}}{{output_extension}}"
-    if (linux_soname_version != "") {
+    if (is_linux && linux_soname_version != "") {
       soname += ".$linux_soname_version"
     }
 
