@@ -299,7 +299,10 @@ config("warnings") {
       "-Wno-deprecated-declarations",
       "-Wno-maybe-uninitialized",
     ]
-    cflags_cc += [ "-Wnon-virtual-dtor" ]
+    cflags_cc += [
+      "-Wnon-virtual-dtor",
+      "-Wno-noexcept-type",
+    ]
   }
 
   if (is_clang) {
