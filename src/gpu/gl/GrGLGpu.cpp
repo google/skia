@@ -4345,7 +4345,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 }
 
 #if GR_TEST_UTILS
-GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
+GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                           GrPixelConfig config, bool /*isRT*/,
                                                           GrMipMapped mipMapped) {
     if (!this->caps()->isConfigTexturable(config)) {
@@ -4395,7 +4395,7 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, i
     if (!pixels) {
         // Fill in the texture with all zeros so we don't have random garbage
         pixels = defaultStorage.get();
-        memset(pixels, 0, baseLayerSize);
+        memset(defaultStorage.get(), 0, baseLayerSize);
     }
 
     int width = w;
