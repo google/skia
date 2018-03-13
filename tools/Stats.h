@@ -42,7 +42,9 @@ struct Stats {
         for (int i = 0 ; i < n; i++) {
             err += (samples[i] - mean) * (samples[i] - mean);
         }
-        var = err / (n-1);
+        if (n > 1) {
+            var = err / (n-1);
+        }
 
         SkAutoTMalloc<double> sorted(n);
         memcpy(sorted.get(), samples.begin(), n * sizeof(double));

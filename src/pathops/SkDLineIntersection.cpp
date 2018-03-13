@@ -194,7 +194,7 @@ static int horizontal_coincident(const SkDLine& line, double y) {
 }
 
 double SkIntersections::HorizontalIntercept(const SkDLine& line, double y) {
-     return SkPinT((y - line[0].fY) / (line[1].fY - line[0].fY));
+     return SkPinT(sk_ieee_float_divide(y - line[0].fY, line[1].fY - line[0].fY));
 }
 
 int SkIntersections::horizontal(const SkDLine& line, double left, double right,
@@ -270,7 +270,7 @@ static int vertical_coincident(const SkDLine& line, double x) {
 }
 
 double SkIntersections::VerticalIntercept(const SkDLine& line, double x) {
-    return SkPinT((x - line[0].fX) / (line[1].fX - line[0].fX));
+    return SkPinT(sk_ieee_float_divide(x - line[0].fX, line[1].fX - line[0].fX));
 }
 
 int SkIntersections::vertical(const SkDLine& line, double top, double bottom,

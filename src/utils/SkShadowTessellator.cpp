@@ -120,7 +120,7 @@ static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScala
 
     int steps = SkScalarFloorToInt(r*theta*kRecipPixelsPerArcSegment);
 
-    SkScalar dTheta = theta / steps;
+    SkScalar dTheta = SkScalarDiv(theta, steps);
     *rotSin = SkScalarSinCos(dTheta, rotCos);
     *n = steps;
 }
@@ -1105,7 +1105,7 @@ void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
         fCentroid.fX += (currPoint.fX + nextPoint.fX) * quadArea;
         fCentroid.fY += (currPoint.fY + nextPoint.fY) * quadArea;
         fArea += quadArea;
-        fCentroid *= SK_Scalar1 / (3 * fArea);
+        fCentroid *= SkScalarInvert(3 * fArea);
     }
 
     fCurrClipPoint = fClipPolygon.count() - 1;

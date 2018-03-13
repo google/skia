@@ -200,4 +200,11 @@ static inline float sk_ieee_float_divide(float numer, float denom) {
     return numer / denom;
 }
 
+#ifdef __clang__
+__attribute__((no_sanitize("float-divide-by-zero")))
+#endif
+static inline double sk_ieee_float_divide(double numer, double denom) {
+    return numer / denom;
+}
+
 #endif

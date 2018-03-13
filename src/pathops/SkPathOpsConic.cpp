@@ -156,9 +156,12 @@ SkDConic SkDConic::subDivide(double t1, double t2) const {
     double bx = 2 * dx - (ax + cx) / 2;
     double by = 2 * dy - (ay + cy) / 2;
     double bz = 2 * dz - (az + cz) / 2;
-    SkDConic dst = {{{{ax / az, ay / az}, {bx / bz, by / bz}, {cx / cz, cy / cz}}
+    SkDConic dst = {{{
+            {sk_ieee_float_divide(ax, az), sk_ieee_float_divide(ay, az)},
+            {sk_ieee_float_divide(bx, bz), sk_ieee_float_divide(by, bz)},
+            {sk_ieee_float_divide(cx, cz), sk_ieee_float_divide(cy, cz)}}
             SkDEBUGPARAMS(fPts.fDebugGlobalState) },
-            SkDoubleToScalar(bz / sqrt(az * cz)) };
+            SkDoubleToScalar(sk_ieee_float_divide(bz, sqrt(az * cz))) };
     return dst;
 }
 

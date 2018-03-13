@@ -235,7 +235,7 @@ static float make_zero() {
 
 static void unittest_isfinite(skiatest::Reporter* reporter) {
     float nan = sk_float_asin(2);
-    float inf = 1.0f / make_zero();
+    float inf = sk_ieee_float_divide(1.0f, make_zero());
     float big = 3.40282e+038f;
 
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(inf));

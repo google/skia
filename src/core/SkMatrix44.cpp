@@ -579,7 +579,7 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         // Calculate the determinant
         double det = b00 * b11 - b01 * b10 + b03 * b08;
 
-        double invdet = 1.0 / det;
+        double invdet = sk_ieee_float_divide(1.0, det);
         // If det is zero, we want to return false. However, we also want to return false
         // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
         // handled by checking that 1/det is finite.

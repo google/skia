@@ -56,7 +56,7 @@ static void check_invalid(skiatest::Reporter* reporter,
 // Tests that isFinite() will reject any rect with +/-inf values
 // as one of its coordinates.
 DEF_TEST(InfRect, reporter) {
-    float inf = 1 / make_zero();    // infinity
+    float inf = sk_ieee_float_divide(1, make_zero());    // infinity
     float nan = inf * 0;
     SkASSERT(!(nan == nan));
     SkScalar small = SkIntToScalar(10);
