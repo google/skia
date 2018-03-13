@@ -57,6 +57,30 @@
       "revId": "3267d902b0779bae08ead99984f4f98e139648e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b7230e6_cbcc2f8f",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-13T14:57:16Z",
+      "side": 1,
+      "message": "Oh.  It\u0027s funny... I didn\u0027t think so until I read and was swayed by this argument.   If it\u0027s a preference at all, it\u0027s definitely slight.",
+      "parentUuid": "b73c74c9_99b22923",
+      "range": {
+        "startLine": 404,
+        "startChar": 43,
+        "endLine": 404,
+        "endChar": 51
+      },
+      "revId": "3267d902b0779bae08ead99984f4f98e139648e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
