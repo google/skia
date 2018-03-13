@@ -9,8 +9,8 @@
 #include "sk_tool_utils.h"
 
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkMaskFilter.h"
 #include "SkTextBlob.h"
 
 // This test ensures that glyphs whose point size is less than the SkGlyphCache's maxmium, but
@@ -27,7 +27,7 @@ DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
         const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(40));
 
         SkPaint blurPaint(paint);
-        blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kSigma));
+        blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, kSigma));
 
         SkTextBlobBuilder builder;
 

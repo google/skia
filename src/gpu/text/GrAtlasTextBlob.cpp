@@ -184,9 +184,7 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
 
     // We only cache one masked version
     if (fKey.fHasBlur &&
-        (fBlurRec.fSigma != blurRec.fSigma ||
-         fBlurRec.fStyle != blurRec.fStyle ||
-         fBlurRec.fQuality != blurRec.fQuality)) {
+        (fBlurRec.fSigma != blurRec.fSigma || fBlurRec.fStyle != blurRec.fStyle)) {
         return true;
     }
 
@@ -409,7 +407,6 @@ void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlo
 
     SkASSERT_RELEASE(l.fBlurRec.fSigma == r.fBlurRec.fSigma);
     SkASSERT_RELEASE(l.fBlurRec.fStyle == r.fBlurRec.fStyle);
-    SkASSERT_RELEASE(l.fBlurRec.fQuality == r.fBlurRec.fQuality);
 
     SkASSERT_RELEASE(l.fStrokeInfo.fFrameWidth == r.fStrokeInfo.fFrameWidth);
     SkASSERT_RELEASE(l.fStrokeInfo.fMiterLimit == r.fStrokeInfo.fMiterLimit);

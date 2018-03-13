@@ -7,10 +7,10 @@
 
 #include "Benchmark.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkLayerDrawLooper.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint.h"
@@ -48,9 +48,8 @@ public:
             info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
             info.fPostTranslate = false;
             SkPaint* paint = looperBuilder.addLayerOnTop(info);
-            paint->setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
-                                                        SkBlurMask::ConvertRadiusToSigma(0.5),
-                                                        SkBlurMaskFilter::kHighQuality_BlurFlag));
+            paint->setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
+                                                        SkBlurMask::ConvertRadiusToSigma(0.5)));
             paint->setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorLTGRAY,
                                                                 SkBlendMode::kSrcIn));
             paint->setColor(SK_ColorGRAY);

@@ -9,7 +9,6 @@
 #include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
 #include "SkBlurImageFilter.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
@@ -186,8 +185,8 @@ static SkBlurStyle make_blur_style() {
     return static_cast<SkBlurStyle>(R(kLastEnum_SkBlurStyle+1));
 }
 
-static SkBlurMaskFilter::BlurFlags make_blur_mask_filter_flag() {
-    return static_cast<SkBlurMaskFilter::BlurFlags>(R(SkBlurMaskFilter::kAll_BlurFlag+1));
+static bool make_blur_mask_filter_respectctm() {
+    return static_cast<bool>(R(2));
 }
 
 static SkFilterQuality make_filter_quality() {
@@ -458,8 +457,8 @@ static sk_sp<SkMaskFilter> make_mask_filter() {
     sk_sp<SkMaskFilter> maskFilter;
     switch (R(3)) {
         case 0:
-            maskFilter = SkBlurMaskFilter::Make(make_blur_style(), make_scalar(),
-                                                make_blur_mask_filter_flag());
+            maskFilter = SkMaskFilter::MakeBlur(make_blur_style(), make_scalar(),
+                                                make_blur_mask_filter_respectctm());
         case 1: {
             SkEmbossMaskFilter::Light light;
             for (int i = 0; i < 3; ++i) {
