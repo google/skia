@@ -155,7 +155,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
     SkSL::Program::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
-    bool cached = nullptr != fCached.get();
+    bool cached = fGpu->glCaps().programBinarySupport() && nullptr != fCached.get();
     if (cached) {
         this->bindProgramResourceLocations(programID);
         // cache hit, just hand the binary to GL
@@ -163,15 +163,23 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         size_t offset = 0;
         memcpy(&inputs, bytes + offset, sizeof(inputs));
         offset += sizeof(inputs);
-        if (inputs.fRTHeight) {
-            this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
-        }
         int binaryFormat;
         memcpy(&binaryFormat, bytes + offset, sizeof(binaryFormat));
         offset += sizeof(binaryFormat);
-        GL_CALL(ProgramBinary(programID, binaryFormat, (void*) (bytes + offset),
-                              fCached->size() - offset));
-    } else {
+        GrGLClearErr(this->gpu()->glInterface());
+        GR_GL_CALL_NOERRCHECK(this->gpu()->glInterface(),
+                              ProgramBinary(programID, binaryFormat, (void*) (bytes + offset),
+                                            fCached->size() - offset));
+        if (GR_GL_GET_ERROR(this->gpu()->glInterface()) == GR_GL_NO_ERROR) {
+            if (inputs.fRTHeight) {
+                this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+            }
+            cached = this->checkLinkStatus(programID);
+        } else {
+            cached = false;
+        }
+    }
+    if (!cached) {
         // cache miss, compile shaders
         if (fFS.fForceHighPrecision) {
             settings.fForceHighPrecision = true;
