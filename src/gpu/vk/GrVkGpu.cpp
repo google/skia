@@ -1422,7 +1422,6 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.image = image;
         barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, mipLevels, 0, 1};
-        initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         VK_CALL(CmdPipelineBarrier(cmdBuffer,
                                    GrVkMemory::LayoutToPipelineStageFlags(initialLayout),
                                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
@@ -1430,6 +1429,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
                                    0, nullptr,
                                    0, nullptr,
                                    1, &barrier));
+        initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     }
 
     // End CommandBuffer
@@ -1498,7 +1498,9 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, i
                                         &info)) {
         return {};
     }
-    return GrBackendTexture(w, h, info);
+    GrBackendTexture beTex = GrBackendTexture(w, h, info);
+    beTex.setPixelConfig(config);
+    return beTex;
 }
 
 bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
@@ -1541,7 +1543,9 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
                                         &info)) {
         return {};
     }
-    return {w, h, 1, 0, info};
+    GrBackendRenderTarget beRT = {w, h, 1, 0, info};
+    beRT.setPixelConfig(config);
+    return beRT;
 }
 
 void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {

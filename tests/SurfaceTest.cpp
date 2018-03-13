@@ -205,6 +205,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
                                 ->accessRenderTargetContext()
                                 ->numStencilSamples();
         REPORTER_ASSERT(reporter, sampleCnt == max, "Exected: %d, actual: %d", max, sampleCnt);
+
+        gpu->deleteTestingOnlyBackendTexture(backendTex);
     }
 }
 #endif

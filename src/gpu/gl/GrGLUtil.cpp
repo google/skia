@@ -486,38 +486,3 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test) {
     return gTable[(int)test];
 }
 
-GrPixelConfig GrGLSizedFormatToPixelConfig(GrGLenum sizedFormat) {
-    switch (sizedFormat) {
-        case GR_GL_R8:
-            return kAlpha_8_as_Red_GrPixelConfig;
-        case GR_GL_ALPHA8:
-            return kAlpha_8_as_Alpha_GrPixelConfig;
-        case GR_GL_RGBA8:
-            return kRGBA_8888_GrPixelConfig;
-        case GR_GL_BGRA8:
-            return kBGRA_8888_GrPixelConfig;
-        case GR_GL_SRGB8_ALPHA8:
-            return kSRGBA_8888_GrPixelConfig;
-        case GR_GL_RGB565:
-            return kRGB_565_GrPixelConfig;
-        case GR_GL_RGB5:
-            return kRGB_565_GrPixelConfig;
-        case GR_GL_RGBA4:
-            return kRGBA_4444_GrPixelConfig;
-        case GR_GL_RGB10_A2:
-            return kRGBA_1010102_GrPixelConfig;
-        case GR_GL_LUMINANCE8:
-            return kGray_8_GrPixelConfig;
-        case GR_GL_RGBA32F:
-            return kRGBA_float_GrPixelConfig;
-        case GR_GL_RG32F:
-            return kRG_float_GrPixelConfig;
-        case GR_GL_R16F:
-            return kAlpha_half_as_Red_GrPixelConfig;
-        case GR_GL_RGBA16F:
-            return kRGBA_half_GrPixelConfig;
-        default:
-            return kUnknown_GrPixelConfig;
-    }
-}
-
