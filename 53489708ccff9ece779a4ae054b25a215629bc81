@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1bb84df8_05e0a139",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-13T19:13:23Z",
+      "side": 1,
+      "message": "Are we close to removing Android\u0027s dependence on them? (Maybe this is a question for Derek. I thought he was trying to remove them in P, but couldn\u0027t quite make it happen.)\n\nOnce Android doesn\u0027t need them, can\u0027t we remove all three?",
+      "parentUuid": "9b915161_4eb5169e",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 45
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a5db1baf_649053d4",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "I tried to build and run CanvasState_test_complex_layers locally. As written, it builds on Linux, but it asserts when run. I don\u0027t know if this is expected or not.\n\nWe may have a bot today that can run this, but I don\u0027t know what that bot is or when to define so that it doesn\u0027t break other bots.\n\n(I hope that) creating a bot that runs all legacy flags is beyond the scope of this CL, but I am happy to defer until that is resolved. I\u0027ll write a bug on that.",
       "parentUuid": "a5db1baf_649053d4",
+      "range": {
+        "startLine": 24,
+        "startChar": 10,
+        "endLine": 25,
+        "endChar": 5
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a4d2809_faa91c64",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-13T19:13:23Z",
+      "side": 1,
+      "message": "\u003e I tried to build and run CanvasState_test_complex_layers locally. As written, it builds on Linux, but it asserts when run. I don\u0027t know if this is expected or not.\n\nMy guess is that it would also fail on Android, if we ran it. It may be that the test or the code is broken. Derek would probably be the one to address that, in a follow-up.\n\n\u003e \n\u003e We may have a bot today that can run this, but I don\u0027t know what that bot is or when to define so that it doesn\u0027t break other bots.\n\nYeah, I think we\u0027ll need to fix it before we can run it on any bots.\n\n\u003e \n\u003e (I hope that) creating a bot that runs all legacy flags is beyond the scope of this CL, but I am happy to defer until that is resolved. I\u0027ll write a bug on that.\n\nHaha, yes, I think that\u0027s out of scope for this CL",
+      "parentUuid": "a1d52d6d_e3c24f79",
       "range": {
         "startLine": 24,
         "startChar": 10,
@@ -178,6 +226,30 @@
       "side": 1,
       "message": "The hope is that kDontClipToLayer_PrivateSaveLayerFlag can be deleted in the near future",
       "parentUuid": "ac4e971d_131defe1",
+      "range": {
+        "startLine": 943,
+        "startChar": 30,
+        "endLine": 943,
+        "endChar": 74
+      },
+      "revId": "53489708ccff9ece779a4ae054b25a215629bc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f757e04e_6fb64414",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 943,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-13T19:13:23Z",
+      "side": 1,
+      "message": "But why will we still need the SkCanvasPriv one? For old SKPs?",
+      "parentUuid": "8fe88966_969d7e09",
       "range": {
         "startLine": 943,
         "startChar": 30,
