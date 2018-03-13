@@ -387,6 +387,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
             break;
+        case Expression::kAppendStage_Kind:  // fall through
         case Expression::kBoolLiteral_Kind:  // fall through
         case Expression::kFloatLiteral_Kind: // fall through
         case Expression::kIntLiteral_Kind:   // fall through
