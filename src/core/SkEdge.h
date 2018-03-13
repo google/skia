@@ -13,6 +13,8 @@
 #include "SkFDot6.h"
 #include "SkMath.h"
 
+#define SK_USE_FLOAT_QUAD_EDGE
+
 // This correctly favors the lower-pixel when y0 is on a 1/2 pixel boundary
 #define SkEdge_Compute_DY(top, y0)  (SkLeftShift(top, 6) + 32 - (y0))
 
@@ -62,6 +64,16 @@ struct SkEdge {
 #endif
 };
 
+#ifdef SK_USE_FLOAT_QUAD_EDGE
+struct SkQuadraticEdge : public SkEdge {
+    float   fT, fDT;
+    SkPoint fA, fB, fC;
+
+    bool setQuadraticWithoutUpdate(const SkPoint pts[3], int shiftUp);
+    int setQuadratic(const SkPoint pts[3], int shiftUp);
+    int updateQuadratic();
+};
+#else
 struct SkQuadraticEdge : public SkEdge {
     SkFixed fQx, fQy;
     SkFixed fQDx, fQDy;
@@ -72,6 +84,7 @@ struct SkQuadraticEdge : public SkEdge {
     int setQuadratic(const SkPoint pts[3], int shiftUp);
     int updateQuadratic();
 };
+#endif
 
 struct SkCubicEdge : public SkEdge {
     SkFixed fCx, fCy;
