@@ -89,6 +89,8 @@ static const struct {
     ,{ "vkwide",               "gpu", "api=vulkan,color=f16_wide" }
     ,{ "vkmsaa4",              "gpu", "api=vulkan,samples=4" }
     ,{ "vkmsaa8",              "gpu", "api=vulkan,samples=8" }
+    ,{ "vkbetex",              "gpu", "api=vulkan,surf=betex" }
+    ,{ "vkbert",               "gpu", "api=vulkan,surf=bert" }
 #endif
 #ifdef SK_METAL
     ,{ "mtl",                   "gpu", "api=metal" }

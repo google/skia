@@ -181,7 +181,7 @@ GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrR
 }
 
 #if GR_TEST_UTILS
-GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
+GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                             GrPixelConfig config, bool isRT,
                                                             GrMipMapped mipMapped) {
     GrMockTextureInfo info;
