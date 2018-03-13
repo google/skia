@@ -583,7 +583,7 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent
     SkScalar    length = this->getLength(); // call this to force computing it
     int         count = fSegments.count();
 
-    if (count == 0 || length == 0) {
+    if (count == 0 || length == 0 || SkScalarIsNaN(distance)) {
         return false;
     }
 
@@ -634,7 +634,7 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
     if (stopD > length) {
         stopD = length;
     }
-    if (startD > stopD) {
+    if (!(startD <= stopD)) {   // catch NaN values as well
         return false;
     }
     if (!fSegments.count()) {
@@ -662,6 +662,7 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
         } while (seg->fPtIndex < stopSeg->fPtIndex);
         SkPathMeasure_segTo(&fPts[seg->fPtIndex], seg->fType, 0, stopT, dst);
     }
+
     return true;
 }
 
