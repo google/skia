@@ -48,10 +48,8 @@ static constexpr SkColorSpaceTransferFn gSRGB_TransferFn =
 static constexpr SkColorSpaceTransferFn g2Dot2_TransferFn =
         { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
-// gLinear_TransferFn.fD > 1.0f: Make sure that we use the linear segment of
-// the transfer function even when the x-value is 1.0f.
 static constexpr SkColorSpaceTransferFn gLinear_TransferFn =
-        { 0.0f, 0.0f, 0.0f, 1.0f, 1.0000001f, 0.0f, 0.0f };
+        { 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 static constexpr SkColorSpaceTransferFn gDCIP3_TransferFn =
     { 2.399994f, 0.947998047f, 0.0520019531f, 0.0769958496f, 0.0390014648f, 0.0f, 0.0f };
