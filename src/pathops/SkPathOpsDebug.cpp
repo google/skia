@@ -47,8 +47,6 @@ const char* SkPathOpsDebug::kPathOpStr[] = {"diff", "sect", "union", "xor", "rdi
 
 #if defined SK_DEBUG || !FORCE_RELEASE
 
-const char* SkPathOpsDebug::kLVerbStr[] = {"", "line", "quad", "cubic"};
-
 int SkPathOpsDebug::gContourID = 0;
 int SkPathOpsDebug::gSegmentID = 0;
 
@@ -3124,3 +3122,12 @@ void SkPathOpsDebug::VerifySimplify(const SkPath& path, const SkPath& result) {
 }
 
 #endif
+
+// global path dumps for msvs Visual Studio 17 to use from Immediate Window
+void Dump(const SkPath& path) {
+    path.dump();
+}
+
+void DumpHex(const SkPath& path) {
+    path.dumpHex();
+}
