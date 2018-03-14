@@ -6605,8 +6605,7 @@
         "device_os:MOB30Q",
         "device_type:sprout",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6640,8 +6639,7 @@
         "device_os:MOB30Q",
         "device_type:sprout",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6675,8 +6673,7 @@
         "device_os:NRD90M_G920TUVU5FQK1",
         "device_type:zerofltetmo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6710,8 +6707,7 @@
         "device_os:NRD90M_G920TUVU5FQK1",
         "device_type:zerofltetmo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6745,8 +6741,7 @@
         "device_os:NRD90M_G930AUCS4BQC2",
         "device_type:heroqlteatt",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6780,8 +6775,7 @@
         "device_os:NRD90M_G930AUCS4BQC2",
         "device_type:heroqlteatt",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6815,8 +6809,7 @@
         "device_os:NRD90M_G930FXXU1DQAS",
         "device_type:herolte",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6850,8 +6843,7 @@
         "device_os:NRD90M_G930FXXU1DQAS",
         "device_type:herolte",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6885,8 +6877,7 @@
         "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6920,8 +6911,7 @@
         "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6955,8 +6945,7 @@
         "device_os:NRD90M_1915764_848",
         "device_type:foster",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -6990,8 +6979,7 @@
         "device_os:NRD90M_1915764_848",
         "device_type:foster",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7025,8 +7013,7 @@
         "device_os:NRD90M_1915764_848",
         "device_type:foster",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7060,8 +7047,7 @@
         "device_os:NRD90M_1915764_848",
         "device_type:foster",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7095,8 +7081,7 @@
         "device_os:M4B30Z_3437181",
         "device_type:hammerhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7130,8 +7115,7 @@
         "device_os:M4B30Z_3437181",
         "device_type:hammerhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7165,8 +7149,7 @@
         "device_os:M4B30Z_3437181",
         "device_type:hammerhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7200,8 +7183,7 @@
         "device_os:M4B30Z_3437181",
         "device_type:hammerhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7235,8 +7217,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7270,8 +7251,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7305,8 +7285,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7340,8 +7319,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7375,8 +7353,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7410,8 +7387,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7445,8 +7421,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7480,8 +7455,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7515,8 +7489,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7550,8 +7523,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7585,8 +7557,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7620,8 +7591,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7655,8 +7625,7 @@
         "device_os:LMY47V_1836172",
         "device_type:grouper",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7690,8 +7659,7 @@
         "device_os:LMY47V_1836172",
         "device_type:grouper",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7725,8 +7693,7 @@
         "device_os:LMY47V_1836172",
         "device_type:grouper",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7760,8 +7727,7 @@
         "device_os:LMY47V_1836172",
         "device_type:grouper",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7795,8 +7761,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
@@ -7830,8 +7795,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
@@ -7865,8 +7829,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
@@ -7900,8 +7863,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7935,8 +7897,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7970,8 +7931,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8005,8 +7965,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8040,8 +7999,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8073,8 +8031,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8106,8 +8063,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8141,8 +8097,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8174,8 +8129,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8209,8 +8163,7 @@
         "device_os:OPD1.170816.023",
         "device_type:taimen",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8244,8 +8197,7 @@
         "device_os:OPD1.170816.023",
         "device_type:taimen",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8279,8 +8231,7 @@
         "device_os:OPD1.170816.023",
         "device_type:taimen",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8314,8 +8265,7 @@
         "device_os:OPD1.170816.023",
         "device_type:taimen",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8347,8 +8297,7 @@
         "device_os:OPR1.170623.034",
         "device_type:dragon",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8380,8 +8329,7 @@
         "device_os:OPR1.170623.034",
         "device_type:dragon",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8413,8 +8361,7 @@
         "device_os:OPR1.170623.034",
         "device_type:dragon",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8854,8 +8801,7 @@
         "device_os:1.30_109591",
         "device_type:chorizo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8887,8 +8833,7 @@
         "device_os:1.30_109591",
         "device_type:chorizo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8920,8 +8865,7 @@
         "device_os:1.30_109591",
         "device_type:chorizo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -8953,8 +8897,7 @@
         "device_os:1.30_109591",
         "device_type:chorizo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -14921,8 +14864,7 @@
         "device_os:MOB30Q",
         "device_type:sprout",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -14957,8 +14899,7 @@
         "device_os:MOB30Q",
         "device_type:sprout",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -14993,8 +14934,7 @@
         "device_os:NRD90M_G920TUVU5FQK1",
         "device_type:zerofltetmo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15029,8 +14969,7 @@
         "device_os:NRD90M_G920TUVU5FQK1",
         "device_type:zerofltetmo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15065,8 +15004,7 @@
         "device_os:NRD90M_G920TUVU5FQK1",
         "device_type:zerofltetmo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15101,8 +15039,7 @@
         "device_os:NRD90M_G930AUCS4BQC2",
         "device_type:heroqlteatt",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15137,8 +15074,7 @@
         "device_os:NRD90M_G930AUCS4BQC2",
         "device_type:heroqlteatt",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15173,8 +15109,7 @@
         "device_os:NRD90M_G930FXXU1DQAS",
         "device_type:herolte",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15209,8 +15144,7 @@
         "device_os:NRD90M_G930FXXU1DQAS",
         "device_type:herolte",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15245,8 +15179,7 @@
         "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15281,8 +15214,7 @@
         "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15317,8 +15249,7 @@
         "device_os:NRD90M_1915764_848",
         "device_type:foster",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15353,8 +15284,7 @@
         "device_os:NRD90M_1915764_848",
         "device_type:foster",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15389,8 +15319,7 @@
         "device_os:NRD90M_1915764_848",
         "device_type:foster",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15425,8 +15354,7 @@
         "device_os:NRD90M_1915764_848",
         "device_type:foster",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15461,8 +15389,7 @@
         "device_os:NRD90M_1915764_848",
         "device_type:foster",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15497,8 +15424,7 @@
         "device_os:M4B30Z_3437181",
         "device_type:hammerhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15533,8 +15459,7 @@
         "device_os:M4B30Z_3437181",
         "device_type:hammerhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15569,8 +15494,7 @@
         "device_os:M4B30Z_3437181",
         "device_type:hammerhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15605,8 +15529,7 @@
         "device_os:M4B30Z_3437181",
         "device_type:hammerhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15641,8 +15564,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15677,8 +15599,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15714,8 +15635,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15750,8 +15670,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15786,8 +15705,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15823,8 +15741,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15859,8 +15776,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15895,8 +15811,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15931,8 +15846,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15967,8 +15881,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16003,8 +15916,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16040,8 +15952,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16077,8 +15988,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16113,8 +16023,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16149,8 +16058,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16185,8 +16093,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16221,8 +16128,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16257,8 +16163,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16293,8 +16198,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16329,8 +16233,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16365,8 +16268,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16402,8 +16304,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16439,8 +16340,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16475,8 +16375,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16511,8 +16410,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16547,8 +16445,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16583,8 +16480,7 @@
         "device_os:OPR6.170623.023",
         "device_type:bullhead",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.12"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16619,8 +16515,7 @@
         "device_os:LMY47V_1836172",
         "device_type:grouper",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16655,8 +16550,7 @@
         "device_os:LMY47V_1836172",
         "device_type:grouper",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16691,8 +16585,7 @@
         "device_os:LMY47V_1836172",
         "device_type:grouper",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16727,8 +16620,7 @@
         "device_os:LMY47V_1836172",
         "device_type:grouper",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16763,8 +16655,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
@@ -16799,8 +16690,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16835,8 +16725,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
@@ -16871,8 +16760,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
@@ -16907,8 +16795,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16943,8 +16830,7 @@
         "device_os:OPR6.170623.021",
         "device_type:fugu",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -16979,8 +16865,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17015,8 +16900,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17051,8 +16935,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17087,8 +16970,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17123,8 +17005,7 @@
         "device_os:OPM1.171019.016",
         "device_type:sailfish",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17159,8 +17040,7 @@
         "device_os:OPD1.170816.023",
         "device_type:taimen",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17195,8 +17075,7 @@
         "device_os:OPD1.170816.023",
         "device_type:taimen",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17231,8 +17110,7 @@
         "device_os:OPD1.170816.023",
         "device_type:taimen",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17267,8 +17145,7 @@
         "device_os:OPD1.170816.023",
         "device_type:taimen",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17721,8 +17598,7 @@
         "device_os:1.30_109591",
         "device_type:chorizo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17755,8 +17631,7 @@
         "device_os:1.30_109591",
         "device_type:chorizo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17789,8 +17664,7 @@
         "device_os:1.30_109591",
         "device_type:chorizo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -17823,8 +17697,7 @@
         "device_os:1.30_109591",
         "device_type:chorizo",
         "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
+        "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
