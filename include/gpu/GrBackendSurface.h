@@ -149,6 +149,7 @@ private:
     friend class GrGpu;
     friend class GrGLGpu;
     friend class GrVkGpu;
+    friend class PromiseImageHelper;
     GrPixelConfig config() const { return fConfig; }
 
     int fWidth;         //<! width in pixels

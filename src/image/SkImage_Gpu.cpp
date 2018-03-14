@@ -594,7 +594,7 @@ public:
         this->resetReleaseHelper();
     }
 
-    sk_sp<GrTexture> getTexture(GrResourceProvider* resourceProvider) {
+    sk_sp<GrTexture> getTexture(GrResourceProvider* resourceProvider, GrPixelConfig config) {
         // Releases the promise helper if there are no outstanding hard refs. This means that we
         // don't have any ReleaseProcs waiting to be called so we will need to do a fulfill.
         if (fReleaseHelper && fReleaseHelper->weak_expired()) {
@@ -604,6 +604,7 @@ public:
         sk_sp<GrTexture> tex;
         if (!fReleaseHelper) {
             fFulfillProc(fContext, &fBackendTex);
+            fBackendTex.fConfig = config;
             if (!fBackendTex.isValid()) {
                 // Even though the GrBackendTexture is not valid, we must call the release
                 // proc to keep our contract of always calling Fulfill and Release in pairs.
@@ -705,13 +706,13 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     PromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, textureContext);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [promiseHelper] (GrResourceProvider* resourceProvider) mutable {
+            [promiseHelper, config] (GrResourceProvider* resourceProvider) mutable {
                 if (!resourceProvider) {
                     promiseHelper.reset();
                     return sk_sp<GrTexture>();
                 }
 
-                return promiseHelper.getTexture(resourceProvider);
+                return promiseHelper.getTexture(resourceProvider, config);
             }, desc, origin, mipMapped, GrRenderTargetFlags::kNone, SkBackingFit::kExact,
                SkBudgeted::kNo, GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 
