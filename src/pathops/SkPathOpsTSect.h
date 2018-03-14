@@ -415,6 +415,7 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::addFollowing(
         next->fPrev = result;
     }
     result->resetBounds(fCurve);
+    // world may not be consistent to call validate here
     result->validate();
     return result;
 }
@@ -1797,6 +1798,7 @@ void SkTSect<TCurve, OppCurve>::removeSpanRange(SkTSpan<TCurve, OppCurve>* first
         final->fPrev = first;
     }
     first->fNext = final;
+    // world may not be ready for validation here
     first->validate();
 }
 
@@ -1888,6 +1890,7 @@ bool SkTSect<TCurve, OppCurve>::unlinkSpan(SkTSpan<TCurve, OppCurve>* span) {
             if (next->fStartT > next->fEndT) {
                 return false;
             }
+            // world may not be ready for validate here
             next->validate();
         }
     } else {
