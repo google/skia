@@ -178,9 +178,11 @@ static void create_unique_key_for_image(const SkImage* image, GrUniqueKey* resul
     }
 
     if (const SkBitmap* bm = as_IB(image)->onPeekBitmap()) {
-        SkIPoint origin = bm->pixelRefOrigin();
-        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bm->width(), bm->height());
-        GrMakeKeyFromImageID(result, bm->getGenerationID(), subset);
+        if (!bm->isVolatile()) {
+            SkIPoint origin = bm->pixelRefOrigin();
+            SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bm->width(), bm->height());
+            GrMakeKeyFromImageID(result, bm->getGenerationID(), subset);
+        }
         return;
     }
 
@@ -199,10 +201,13 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
         proxy = proxyProvider->findOrCreateProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
-        proxy = proxyProvider->createTextureProxy(std::move(srcImage), kNone_GrSurfaceFlags, 1,
+        proxy = proxyProvider->createTextureProxy(srcImage, kNone_GrSurfaceFlags, 1,
                                                   SkBudgeted::kYes, fit);
         if (proxy && originalKey.isValid()) {
             proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
+            if (const SkBitmap* bm = as_IB(srcImage.get())->onPeekBitmap()) {
+                GrInstallBitmapUniqueKeyInvalidator(originalKey, bm->pixelRef());
+            }
         }
     }
 
