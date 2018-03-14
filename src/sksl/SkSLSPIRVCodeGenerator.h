@@ -209,7 +209,7 @@ private:
      * same dimensions, and applys all() to it to fold it down to a single bool value. Otherwise,
      * returns the original id value.
      */
-    SpvId foldToBool(SpvId id, const Type& operandType, OutputStream& out);
+    SpvId foldToBool(SpvId id, const Type& operandType, SpvOp op, OutputStream& out);
 
     SpvId writeMatrixComparison(const Type& operandType, SpvId lhs, SpvId rhs, SpvOp_ floatOperator,
                                 SpvOp_ intOperator, OutputStream& out);
