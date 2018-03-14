@@ -77,6 +77,9 @@ public:
     SkImageInfo onImageInfo() const override {
         return fBitmap.info();
     }
+    SkColorType onColorType() const override {
+        return fBitmap.colorType();
+    }
     SkAlphaType onAlphaType() const override {
         return fBitmap.alphaType();
     }
