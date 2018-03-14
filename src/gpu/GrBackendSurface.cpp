@@ -69,7 +69,7 @@ GrBackendTexture::GrBackendTexture(int width,
                                    const GrVkImageInfo& vkInfo)
         : fWidth(width)
         , fHeight(height)
-        , fConfig(kUnknown_GrPixelConfig)
+        , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
         , fMipMapped(GrMipMapped(vkInfo.fLevelCount > 1))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo) {}
@@ -99,7 +99,7 @@ GrBackendTexture::GrBackendTexture(int width,
                                    const GrGLTextureInfo& glInfo)
         : fWidth(width)
         , fHeight(height)
-        , fConfig(kUnknown_GrPixelConfig)
+        , fConfig(GrGLSizedFormatToPixelConfig(glInfo.fFormat))
         , fMipMapped(mipMapped)
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
@@ -159,7 +159,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(0)  // We always create stencil buffers internally for vulkan
-        , fConfig(kUnknown_GrPixelConfig)
+        , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo) {}
 #endif
@@ -187,7 +187,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
-        , fConfig(kUnknown_GrPixelConfig)
+        , fConfig(GrGLSizedFormatToPixelConfig(glInfo.fFormat))
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
 

@@ -91,16 +91,8 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
         numStencilBits = stencil->bits();
     }
 
-    GrBackendRenderTarget beRT = GrBackendRenderTarget(this->width(), this->height(),
-                                                       this->numColorSamples(), numStencilBits,
-                                                       fbi);
-#if GR_TEST_UTILS
-    // We shouldn't have to set this since the client can't access it and we will handle the config
-    // correctly if we go through our public SkSurface APIs. However, some of our tests bypass the
-    // public APIs so we need to set this manually here.
-    beRT.setPixelConfig(this->config());
-#endif
-    return beRT;
+    return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
+                                 numStencilBits, fbi);
 }
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {
