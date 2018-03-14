@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70984fa9_776fcbf0",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-03-14T20:57:21Z",
+      "side": 1,
+      "message": "nit:\n\n  localPaint.setShader(alloc.makeSkSp\u003cSkLocalMatrixShader\u003e(sk_ref_sp(shader), inverse));",
+      "range": {
+        "startLine": 517,
+        "startChar": 0,
+        "endLine": 518,
+        "endChar": 53
+      },
+      "revId": "cf745af5f94a1155bedce5c46266807348bb404b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
