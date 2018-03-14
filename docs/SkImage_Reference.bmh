@@ -394,8 +394,7 @@ Recognized formats vary by GPU back-end.
 #Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorType  one of: #list_of_color_types#
 ##
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 #Param colorSpace  range of colors; may be nullptr ##
 
@@ -449,8 +448,7 @@ Recognized formats vary by GPU back-end.
 #Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorType  one of: #list_of_color_types#
 ##
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 #Param colorSpace  range of colors; may be nullptr ##
 #Param textureReleaseProc  function called when texture can be released ##
@@ -613,8 +611,7 @@ Recognized formats vary by GPU back-end.
 #Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorType  one of: #list_of_color_types#
 ##
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 #Param colorSpace  range of colors; may be nullptr ##
 
@@ -898,8 +895,7 @@ Returned Image takes a reference on the buffer.
 Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 
 #Param hardwareBuffer  AHardwareBuffer Android hardware buffer ##
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 #Param colorSpace  range of colors; may be nullptr ##
 
@@ -972,6 +968,7 @@ Returns pixel row count.
 #Method SkISize dimensions() const
 #In Property
 #Line # returns width() and height() ##
+
 Returns ISize { width(), height() }.
 
 #Return integral size of width() and height() ##
@@ -982,6 +979,9 @@ Returns ISize { width(), height() }.
     SkIRect bounds = image->bounds();
     SkIRect dimensionsAsBounds = SkIRect::MakeSize(dimensions);
     SkDebugf("dimensionsAsBounds %c= bounds\n", dimensionsAsBounds == bounds ? '=' : '!');
+#StdOut
+dimensionsAsBounds == bounds
+##
 ##
 
 #SeeAlso height() width() bounds()
@@ -1046,8 +1046,7 @@ unique number.
 #Method SkAlphaType alphaType() const
 #In Property
 #Line # returns Alpha_Type ##
-Returns Alpha_Type, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-kPremul_SkAlphaType, kUnpremul_SkAlphaType.
+Returns Alpha_Type, one of: #list_of_alpha_types#.
 
 Alpha_Type returned was a parameter to an Image constructor,
 or was parsed from encoded data.

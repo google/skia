@@ -27,6 +27,11 @@ but Image and Surface may not contain Image_Info.
 #Alias Alpha_Type
 #Alias Alpha_Types
 
+#PhraseDef list_of_alpha_types
+kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+kUnpremul_SkAlphaType
+##
+
 #Enum SkAlphaType
 #Line # encoding for pixel transparency ##
 
@@ -449,7 +454,7 @@ the platform at compile time.
 #Subtopic RGB_888x
 
 RGB_888x is a 32-bit word pixel encoding that contains eight bits of red,
-eight bits of green, eight bits of blue, and eight unused bits. RGB_888x is fully 
+eight bits of green, eight bits of blue, and eight unused bits. RGB_888x is fully
 opaque as if its Color_Alpha was set to one, and should always be paired with
 kOpaque_SkAlphaType.
 
@@ -587,6 +592,11 @@ less than 3, the drawn result is undefined.
 
 #Subtopic RGB_101010x
 
+RGB_101010x is a 32-bit word pixel encoding that contains ten bits of red,
+ten bits of green, ten bits of blue, and two unused bits.  RGB_101010x is fully
+opaque as if its Color_Alpha was set to one, and should always be paired with
+kOpaque_SkAlphaType.
+
 #Illustration
 
 #Example
@@ -619,6 +629,11 @@ less than 3, the drawn result is undefined.
 
 #Subtopic Gray_8
 
+Gray_8 is an 8-bit byte pixel encoding that represents equal values for red,
+blue, and green, reprsenting colors from black to white.  Gray_8 is fully
+opaque as if its Color_Alpha was set to one, and should always be paired with
+kOpaque_SkAlphaType.
+
 #Example
 #Height 64
     canvas->scale(16, 16);
@@ -638,7 +653,27 @@ less than 3, the drawn result is undefined.
 
 #Subtopic RGBA_F16
 
+RGBA_F16 is a 64-bit word pixel encoding that contains sixteen bits of blue,
+sixteen bits of green, sixteen bits of red, and sixteen bits of alpha.
+
+Each component encodes a floating point value using
+#A Half floats # https://www.khronos.org/opengl/wiki/Small_Float_Formats ##
+. Meaningful colors are represented by the range 0.0 to 1.0, although smaller
+and larger values may be useful when used in combination with Transfer_Mode.
+
 #Illustration
+
+If paired with kPremul_SkAlphaType: blue, green, and red components are
+premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+the drawn result is undefined.
+
+If paired with kUnpremul_SkAlphaType: blue, green, red, and alpha components
+may have any value. There may be a performance penalty with unpremultipled
+pixels.
+
+If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
+blue, green, and red components are fully opaque. If any alpha component is
+less than 255, the drawn result is undefined.
 
 #ToDo
 FloatToHalf should be replaced with SkFloatToHalf if/when that's made public
@@ -701,6 +736,136 @@ void draw(SkCanvas* canvas) {
 #Subtopic Color_Type ##
 
 # ------------------------------------------------------------------------------
+
+#Method int SkColorTypeBytesPerPixel(SkColorType ct)
+#In Property
+#Line # returns Color_Type byte size ##
+
+Returns the number of bytes required to store a pixel, including unused padding.
+Returns zero if ct is kUnknown_SkColorType or invalid.
+
+#Param ct  one of: #list_of_color_types#
+##
+
+#Return bytes per pixel ##
+
+#Example
+#Height 192
+    const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
+                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
+    SkPaint paint;
+    paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
+    paint.setAntiAlias(true);
+    paint.setTextSize(10);
+    int y = 15;
+    canvas->drawString("    colorType  bytes", 10, y, paint);
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
+        int result = SkColorTypeBytesPerPixel(colorType);
+        SkString string;
+        string.printf("%13s %4d", colors[(int) colorType], result);
+        canvas->drawString(string, 10, y += 14, paint);
+    }
+##
+#SeeAlso SkImageInfo::bytesPerPixel
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool SkColorTypeIsAlwaysOpaque(SkColorType ct)
+#In Property
+#Line # returns if Color_Type includes Color_Alpha ##
+
+Returns true if Color_Type always decodes Color_Alpha to 1.0, making the pixel
+fully opaque. If true, Color_Type does not reserve bits to encode Color_Alpha.
+
+#Param ct  one of: #list_of_color_types#
+##
+
+#Return true if Color_Alpha is always set to 1.0 ##
+
+#Example
+#Height 192
+    const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
+                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
+    SkPaint paint;
+    paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
+    paint.setAntiAlias(true);
+    paint.setTextSize(10);
+    int y = 15;
+    canvas->drawString("    colorType  bytes", 10, y, paint);
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
+        bool result = SkColorTypeIsAlwaysOpaque(colorType);
+        SkString string;
+        string.printf("%13s %6s", colors[(int) colorType], result ? "true" : "false");
+        canvas->drawString(string, 10, y += 14, paint);
+    }
+##
+#SeeAlso SkColorTypeValidateAlphaType
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
+                                         SkAlphaType* canonical = nullptr)
+#In Property
+#Line # returns if Alpha_Type is valid ##
+
+Returns true if canonical can be set to a valid Alpha_Type for colorType. If
+there is more than one valid canonical Alpha_Type, set to alphaType, if valid.
+If true is returned and canonical is not nullptr, store valid Alpha_Type.
+
+Returns false only if alphaType is kUnknown_SkAlphaType, color type is not
+kUnknown_SkColorType, and Color_Type is not always opaque. If false is returned,
+canonical is ignored.
+
+For kUnknown_SkColorType: set canonical to kUnknown_SkAlphaType and return true.
+For kAlpha_8_SkColorType: set canonical to kPremul_SkAlphaType or 
+kOpaque_SkAlphaType and return true if alphaType is not kUnknown_SkAlphaType.
+For kRGB_565_SkColorType, kRGB_888x_SkColorType, kRGB_101010x_SkColorType, and
+kGray_8_SkColorType: set canonical to kOpaque_SkAlphaType and return true.
+For kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+kRGBA_1010102_SkColorType, and kRGBA_F16_SkColorType: set canonical to alphaType
+and return true if alphaType is not kUnknown_SkAlphaType.
+
+#Param colorType  one of: #list_of_color_types#
+##
+#Param alphaType  one of: #list_of_alpha_types#
+##
+#Param canonical storage for Alpha_Type ##
+
+#Return true if valid Alpha_Type can be associated with colorType ##
+
+#Example
+#Height 640
+    const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
+                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
+    const char* alphas[] = {"Unknown ", "Opaque  ", "Premul  ", "Unpremul"};
+    SkAlphaType alphaTypes[] = { #list_of_alpha_types#
+                               };
+    SkPaint paint;
+    paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
+    paint.setAntiAlias(true);
+    paint.setTextSize(10);
+    int y = 15;
+    canvas->drawString("   colorType   alphaType  canonical", 10, y, paint);
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
+        for (SkAlphaType alphaType : alphaTypes) {
+            SkAlphaType canonicalAlphaType  = kUnknown_SkAlphaType;
+            bool result = SkColorTypeValidateAlphaType(colorType, alphaType, &canonicalAlphaType);
+            SkString string;
+            string.printf("%13s %10s %10s", colors[(int) colorType], alphas[(int) alphaType],
+                     result ? alphas[(int) canonicalAlphaType] : "------  ");
+            canvas->drawString(string, 10, y += 14, paint);
+        }
+    }
+##
+#SeeAlso SkColorTypeIsAlwaysOpaque
+##
+
+# ------------------------------------------------------------------------------
 #Subtopic YUV_ColorSpace
 #Alias YUV_ColorSpace
 #Enum SkYUVColorSpace
@@ -737,30 +902,6 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 
 #Enum SkYUVColorSpace ##
 #Subtopic YUV_ColorSpace ##
-
-# ------------------------------------------------------------------------------
-#EnumClass SkDestinationSurfaceColorMode
-#Line # incomplete ##
-
-#Code
-    enum class SkDestinationSurfaceColorMode {
-        kLegacy,
-        kGammaAndColorSpaceAware,
-    };
-##
-
-#Const kLegacy 0
-##
-#Const kGammaAndColorSpaceAware 1
-##
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#EnumClass SkDestinationSurfaceColorMode ##
 
 # ------------------------------------------------------------------------------
 
@@ -837,8 +978,7 @@ combination is supported.
 #Param height  pixel row count; must be zero or greater ##
 #Param ct  one of: #list_of_color_types#
 ##
-#Param at  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                   kUnpremul_SkAlphaType
+#Param at  one of: #list_of_alpha_types#
 ##
 #Param cs  range of colors; may be nullptr ##
 
@@ -881,8 +1021,7 @@ combination is supported.
 
 #Param width  pixel column count; must be zero or greater ##
 #Param height  pixel row count; must be zero or greater ##
-#Param at  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                   kUnpremul_SkAlphaType
+#Param at  one of: #list_of_alpha_types#
 ##
 #Param cs  range of colors; may be nullptr ##
 
@@ -918,8 +1057,7 @@ combination is supported.
 
 #Param width  pixel column count; must be zero or greater ##
 #Param height  pixel row count; must be zero or greater ##
-#Param at  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                   kUnpremul_SkAlphaType
+#Param at  one of: #list_of_alpha_types#
 ##
 
 #Return created Image_Info ##
@@ -1049,7 +1187,25 @@ kPremul_SkAlphaType, with Color_Space set to nullptr.
 #Return created Image_Info ##
 
 #Example
-// incomplete
+#Height 64
+    uint8_t pixels[][8] = { { 0x00, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00},
+                            { 0x00, 0x7f, 0xff, 0x3f, 0x3f, 0x7f, 0x3f, 0x00},
+                            { 0x3f, 0xff, 0x7f, 0x00, 0x7f, 0xff, 0x7f, 0x00},
+                            { 0x00, 0x3f, 0x00, 0x00, 0x3f, 0x7f, 0x3f, 0x00},
+                            { 0x3f, 0x7f, 0x7f, 0x3f, 0x00, 0x00, 0x00, 0x00},
+                            { 0x7f, 0xff, 0xff, 0x7f, 0x00, 0x3f, 0x7f, 0x3f},
+                            { 0x7f, 0xff, 0xff, 0x7f, 0x00, 0x7f, 0xff, 0x7f},
+                            { 0x3f, 0x7f, 0x7f, 0x3f, 0x00, 0x3f, 0x7f, 0x3f} };
+    SkBitmap bitmap;
+    bitmap.installPixels(SkImageInfo::MakeA8(8, 8),
+            (void*) pixels, sizeof(pixels[0]));
+    SkPaint paint;
+    canvas->scale(4, 4);
+    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00} ) {
+        paint.setColor(color);
+        canvas->drawBitmap(bitmap, 0, 0, &paint);
+        canvas->translate(12, 0);
+    }
 ##
 
 #SeeAlso MakeN32 MakeS32 Make
@@ -1177,16 +1333,22 @@ Returns pixel row count.
 
 #Method SkColorType colorType() const
 #In Property
-#Line # incomplete ##
+#Line # returns Color_Type ##
 Returns Color_Type, one of: #list_of_color_types#.
 
 #Return Color_Type ##
 
 #Example
-// incomplete
+    const char* colors[] = {"Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
+                            "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16"};
+    SkImageInfo info = SkImageInfo::MakeA8(16, 32);
+    SkDebugf("color type: k" "%s" "_SkColorType\n", colors[info.colorType()]);
+#StdOut
+color type: kAlpha_8_SkColorType
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso alphaType SkPixmap::colorType SkBitmap::colorType
 
 #Method ##
 
@@ -1194,14 +1356,21 @@ Returns Color_Type, one of: #list_of_color_types#.
 
 #Method SkAlphaType alphaType() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # Returns Alpha_Type ##
+Returns Alpha_Type, one of: #list_of_alpha_types#.
+
+#Return Alpha_Type ##
 
 #Example
-// incomplete
+    const char* alphas[] = {"Unknown", "Opaque", "Premul", "Unpremul"};
+    SkImageInfo info = SkImageInfo::MakeA8(16, 32);
+    SkDebugf("alpha type: k" "%s" "_SkAlphaType\n", alphas[info.alphaType()]);
+#StdOut
+alpha type: kPremul_SkAlphaType
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso colorType SkPixmap::alphaType SkBitmap::alphaType
 
 #Method ##
 
@@ -1209,14 +1378,30 @@ Returns Color_Type, one of: #list_of_color_types#.
 
 #Method SkColorSpace* colorSpace() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # returns Color_Space ##
+Returns Color_Space, the range of colors. The reference count of
+Color_Space is unchanged. The returned Color_Space is immutable.
+
+#Return Color_Space, or nullptr ##
 
 #Example
-// incomplete
+#Description
+SkColorSpace::MakeSRGBLinear creates Color_Space with linear gamma
+and an sRGB gamut. This Color_Space gamma is not close to sRGB gamma.
+##
+    SkImageInfo info = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType, 
+            SkColorSpace::MakeSRGBLinear());
+    SkColorSpace* colorSpace = info.colorSpace();
+    SkDebugf("gammaCloseToSRGB: %s  gammaIsLinear: %s  isSRGB: %s\n",
+            colorSpace->gammaCloseToSRGB() ? "true" : "false",
+            colorSpace->gammaIsLinear() ? "true" : "false",
+            colorSpace->isSRGB() ? "true" : "false");
+#StdOut
+gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso Color_Space SkPixmap::colorSpace SkBitmap::colorSpace
 
 #Method ##
 
@@ -1224,14 +1409,28 @@ Returns Color_Type, one of: #list_of_color_types#.
 
 #Method sk_sp<SkColorSpace> refColorSpace() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # returns Color_Space ##
+Returns smart pointer to Color_Space, the range of colors. The smart pointer 
+tracks the number of objects sharing this Color_Space reference so the memory
+is released when the owners destruct.
+
+The returned Color_Space is immutable.
+
+#Return Color_Space wrapped in a smart pointer ##
 
 #Example
-// incomplete
+    SkImageInfo info1 = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType, 
+            SkColorSpace::MakeSRGBLinear());
+    SkImageInfo info2 = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
+            info1.refColorSpace());
+    SkColorSpace* colorSpace = info2.colorSpace();
+    SkDebugf("gammaCloseToSRGB: %s  gammaIsLinear: %s  isSRGB: %s\n",
+            colorSpace->gammaCloseToSRGB() ? "true" : "false",
+            colorSpace->gammaIsLinear() ? "true" : "false",
+            colorSpace->isSRGB() ? "true" : "false");
 ##
 
-#SeeAlso incomplete
+#SeeAlso Color_Space SkBitmap::refColorSpace
 
 #Method ##
 
@@ -1239,14 +1438,30 @@ Returns Color_Type, one of: #list_of_color_types#.
 
 #Method bool isEmpty() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # returns if dimensions contain pixels ##
+
+Returns if Image_Info describes an empty area of pixels by checking if either
+width or height is zero or smaller.
+
+#Return true if either dimension is zero or smaller ##
 
 #Example
-// incomplete
+    for (int width : { 0, 2 } ) {
+        for (int height : { 0, 2 } ) {
+             SkImageInfo imageInfo= SkImageInfo::MakeA8(width, height);
+             SkDebugf("width: %d height: %d empty: %s\n", width, height,
+                      imageInfo.isEmpty() ? "true" : "false");
+        }
+    }
+#StdOut
+width: 0 height: 0 empty: true
+width: 0 height: 2 empty: true
+width: 2 height: 0 empty: true
+width: 2 height: 2 empty: false
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso dimensions bounds SkBitmap::empty SkPixmap::bounds
 
 #Method ##
 
@@ -1254,14 +1469,41 @@ Returns Color_Type, one of: #list_of_color_types#.
 
 #Method bool isOpaque() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # returns if Alpha_Type is kOpaque_SkAlphaType ##
+
+Returns true if Alpha_Type is set to hint that all pixels are opaque; their
+Color_Alpha value is implicitly or explicitly 1.0. If true, and all pixels are
+not opaque, Skia may draw incorrectly. 
+
+Does not check if Color_Type allows Alpha, or if any pixel value has
+transparency.
+
+#Return true if Alpha_Type is kOpaque_SkAlphaType ##
 
 #Example
-// incomplete
+    const int height = 2;
+    const int width = 2;
+    SkBitmap bitmap;
+    SkImageInfo imageInfo = SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);
+    bitmap.setInfo(imageInfo);
+    for (int index = 0; index < 2; ++index) {
+        bitmap.allocPixels();
+        bitmap.eraseColor(0x00000000);
+        SkDebugf("isOpaque: %s\n", imageInfo.isOpaque() ? "true" : "false");
+        bitmap.eraseColor(0xFFFFFFFF);
+        SkDebugf("isOpaque: %s\n", imageInfo.isOpaque() ? "true" : "false");
+        imageInfo = imageInfo.makeAlphaType(kOpaque_SkAlphaType);
+        bitmap.setInfo(imageInfo);
+    }
+#StdOut
+isOpaque: false
+isOpaque: false
+isOpaque: true
+isOpaque: true
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso Color_Alpha SkColorTypeValidateAlphaType SkBitmap::isOpaque SkImage::isOpaque SkPixmap::isOpaque
 
 #Method ##
 
@@ -1269,14 +1511,26 @@ Returns Color_Type, one of: #list_of_color_types#.
 
 #Method SkISize dimensions() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # returns width() and height() ##
+
+Returns ISize { width(), height() }.
+
+#Return integral size of width() and height() ##
 
 #Example
-// incomplete
+    const int height = 2;
+    const int width = 2;
+    SkImageInfo imageInfo = SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);
+    SkISize dimensions = imageInfo.dimensions();
+    SkIRect bounds = imageInfo.bounds();
+    SkIRect dimensionsAsBounds = SkIRect::MakeSize(dimensions);
+    SkDebugf("dimensionsAsBounds %c= bounds\n", dimensionsAsBounds == bounds ? '=' : '!');
+#StdOut
+dimensionsAsBounds == bounds
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso width height bounds SkBitmap::dimensions
 
 #Method ##
 
@@ -1284,14 +1538,25 @@ Returns Color_Type, one of: #list_of_color_types#.
 
 #Method SkIRect bounds() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # returns width() and height() as Rectangle ##
+Returns IRect { 0, 0, width(), height() }.
+
+#Return integral rectangle from origin to width() and height() ##
 
 #Example
-// incomplete
+#Height 64
+#Image 4
+    canvas->scale(.5f, .5f);
+    SkImageInfo imageInfo = source.info();
+    SkIRect bounds = imageInfo.bounds();
+    for (int x : { 0, bounds.width() } ) {
+        for (int y : { 0, bounds.height() } ) {
+            canvas->drawBitmap(source, x, y);
+        }
+    }
 ##
 
-#SeeAlso incomplete
+#SeeAlso width height dimensions
 
 #Method ##
 
@@ -1299,14 +1564,23 @@ Returns Color_Type, one of: #list_of_color_types#.
 
 #Method bool gammaCloseToSRGB() const
 #In Property
-#Line # incomplete ##
-#Return incomplete ##
+#Line # Returns if Color_Space gamma is approximately the same as sRGB ##
+
+Returns true if associated Color_Space is not nullptr, and Color_Space gamma
+is approximately the same as sRGB. 
+This includes the 
+###$
+$A sRGB transfer function $ https://en.wikipedia.org/wiki/SRGB#The_sRGB_transfer_function_(%22gamma%22) $$
+$$$#
+as well as a gamma curve described by a 2.2 exponent.
+
+#Return true if Color_Space gamma is approximately the same as sRGB ##
 
 #Example
 // incomplete
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorSpace::gammaCloseToSRGB
 
 #Method ##
 

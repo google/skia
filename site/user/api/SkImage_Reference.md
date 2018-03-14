@@ -123,6 +123,7 @@ drawing.
 | <a href="#SkImage_asLegacyBitmap">asLegacyBitmap</a> | returns as <a href="undocumented#Raster_Bitmap">Raster Bitmap</a> |
 | <a href="#SkImage_bounds">bounds</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> as Rectangle |
 | <a href="#SkImage_colorSpace">colorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkImage_colorType">colorType</a> | returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
 | <a href="#SkImage_dimensions">dimensions</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> |
 | <a href="#SkImage_encodeToData">encodeToData</a> | returns encoded <a href="#Image">Image</a> as <a href="undocumented#SkData">SkData</a> |
 | <a href="#SkImage_getTextureHandle">getTextureHandle</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
@@ -474,8 +475,8 @@ one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorTyp
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
   </tr>
@@ -527,8 +528,8 @@ one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorTyp
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_textureReleaseProc"> <code><strong>textureReleaseProc </strong></code> </a></td> <td>
@@ -701,8 +702,8 @@ one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorTyp
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_2_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
   </tr>
@@ -997,8 +998,8 @@ Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 <table>  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_hardwareBuffer"> <code><strong>hardwareBuffer </strong></code> </a></td> <td>
 AHardwareBuffer Android hardware buffer</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
   </tr>
@@ -1021,6 +1022,7 @@ created <a href="#Image">Image</a>, or nullptr
 | <a href="#SkImage_alphaType">alphaType</a> | returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> |
 | <a href="#SkImage_bounds">bounds</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> as Rectangle |
 | <a href="#SkImage_colorSpace">colorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkImage_colorType">colorType</a> | returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
 | <a href="#SkImage_dimensions">dimensions</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> |
 | <a href="#SkImage_getTextureHandle">getTextureHandle</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
 | <a href="#SkImage_height">height</a> | returns pixel row count |
@@ -1094,7 +1096,15 @@ integral size of <a href="#SkImage_width">width</a> and <a href="#SkImage_height
 
 ### Example
 
-<div><fiddle-embed name="96b4bc43b3667df9ba9e2dafb770d33c"></fiddle-embed></div>
+<div><fiddle-embed name="96b4bc43b3667df9ba9e2dafb770d33c">
+
+#### Example Output
+
+~~~~
+dimensionsAsBounds == bounds
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
@@ -1157,10 +1167,8 @@ unique identifier
 SkAlphaType alphaType() const
 </pre>
 
-Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
-
-<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
+Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
 or was parsed from encoded data.
 
 ### Return Value
@@ -1174,6 +1182,29 @@ or was parsed from encoded data.
 ### See Also
 
 <a href="SkImageInfo_Reference#SkImageInfo_alphaType">SkImageInfo::alphaType</a>
+
+---
+
+<a name="SkImage_colorType"></a>
+## colorType
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+SkColorType colorType() const
+</pre>
+
+Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a> if known; otherwise, returns <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>.
+
+### Return Value
+
+<a href="SkImageInfo_Reference#Color_Type">Color Type</a> of <a href="#Image">Image</a>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+<a href="SkImageInfo_Reference#SkImageInfo_colorType">SkImageInfo::colorType</a>
 
 ---
 
@@ -1601,7 +1632,7 @@ Returns true if pixels are copied. Returns false if:
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
-<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, or <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>; <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">colorType</a> must match.
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, or <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>; <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_colorType">colorType</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_alphaType">alphaType</a> must
 match. If <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> is nullptr, <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match. Returns
@@ -1666,7 +1697,7 @@ row to the next. Returns true if pixels are copied. Returns false if:
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
-<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, or <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>; <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">colorType</a> must match.
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, or <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>; <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_colorType">colorType</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a> must
 match. If <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> is nullptr, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match. Returns
@@ -1715,12 +1746,12 @@ bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality,
 </pre>
 
 Copies <a href="#Image">Image</a> to <a href="#SkImage_scalePixels_dst">dst</a>, scaling pixels to fit <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_width">width</a> and <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_height">height</a>, and
-converting pixels to match <a href="#SkImage_scalePixels_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">colorType</a> and <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a>. Returns true if
+converting pixels to match <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_colorType">colorType</a> and <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a>. Returns true if
 pixels are copied. Returns false if <a href="#SkImage_scalePixels_dst">dst</a>.addr() is nullptr, or <a href="#SkImage_scalePixels_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">rowBytes</a> is
 less than <a href="#SkImage_scalePixels_dst">dst</a> <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a>.
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
-<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, or <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>; <a href="#SkImage_scalePixels_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">colorType</a> must match.
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, or <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>; <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_colorType">colorType</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a> must
 match. If <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> is nullptr, <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match. Returns

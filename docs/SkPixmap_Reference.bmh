@@ -467,8 +467,7 @@ color type: kAlpha_8_SkColorType
 
 #In Image_Info_Access
 #Line # returns Image_Info Alpha_Type ##
-Returns Alpha_Type, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-kPremul_SkAlphaType, kUnpremul_SkAlphaType.
+Returns Alpha_Type, one of: #list_of_alpha_types#.
 
 #Return  Alpha_Type in Image_Info ##
 
@@ -491,11 +490,11 @@ alpha type: kPremul_SkAlphaType
 
 #In Image_Info_Access
 #Line # returns Image_Info Color_Space ##
-Returns Color_Space associated with Image_Info. The
+Returns Color_Space, the range of colors, associated with Image_Info. The
 reference count of Color_Space is unchanged. The returned Color_Space is
 immutable.
 
-#Return Color_Space, the range of colors, in Image_Info ##
+#Return Color_Space in Image_Info, or nullptr ##
 
 #Example
 #Description
