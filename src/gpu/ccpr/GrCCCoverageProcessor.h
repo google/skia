@@ -150,10 +150,11 @@ public:
                                    GeometryVars*) const {}
 
         void emitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
-                          SkString* code, const char* position, const char* inputCoverage,
-                          const char* wind) {
+                          SkString* code, const char* position, const char* coverage,
+                          const char* attenuatedCoverage, const char* wind) {
             SkASSERT(GrGLSLVarying::Scope::kVertToGeo != scope);
-            this->onEmitVaryings(varyingHandler, scope, code, position, inputCoverage, wind);
+            this->onEmitVaryings(varyingHandler, scope, code, position, coverage,
+                                 attenuatedCoverage, wind);
         }
 
         void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
@@ -183,6 +184,14 @@ public:
                                                      const char* bloatDir2,
                                                      const char* outputCoverages);
 
+        // Corner boxes require an additional "attenuation" varying that is multiplied by the
+        // regular (linearly-interpolated) coverage. This function calculates the attenuation value
+        // to use in the single, outermost vertex. The remaining three vertices of the corner box
+        // all use an attenuation value of 1.
+        static void CalcCornerCoverageAttenuation(GrGLSLVertexGeoBuilder*, const char* leftDir,
+                                                  const char* rightDir,
+                                                  const char* outputAttenuation);
+
         virtual ~Shader() {}
 
     protected:
@@ -191,8 +200,8 @@ public:
         //
         // NOTE: the coverage input is only relevant for triangles. Otherwise it is null.
         virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                                    const char* position, const char* inputCoverage,
-                                    const char* wind) = 0;
+                                    const char* position, const char* coverage,
+                                    const char* attenuatedCoverage, const char* wind) = 0;
 
         // Emits the fragment code that calculates a pixel's signed coverage value.
         virtual void onEmitFragmentCode(GrGLSLFPFragmentBuilder*,

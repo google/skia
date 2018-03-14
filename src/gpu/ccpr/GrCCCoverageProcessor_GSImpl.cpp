@@ -80,10 +80,15 @@ protected:
             RenderPass::kTriangleCorners == proc.fRenderPass) {
             coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
         }
+        const char* attenuatedCoverage = nullptr;
+        if (RenderPass::kTriangleCorners == proc.fRenderPass) {
+            attenuatedCoverage = emitArgs.emplace_back("attenuated_coverage",
+                                                       kHalf2_GrSLType).c_str();
+        }
         g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
             SkString fnBody;
             fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, &fnBody,
-                                  position, coverage, wind.c_str());
+                                  position, coverage, attenuatedCoverage, wind.c_str());
             g->emitVertex(&fnBody, position, rtAdjust);
             return fnBody;
         }().c_str(), &emitVertexFn);
@@ -218,7 +223,7 @@ public:
 
 /**
  * Generates conservative rasters around triangle corners (aka pixel-size boxes) and calculates
- * coverage ramps that fix up the coverage values written by GSTriangleImpl.
+ * coverage and attenuation ramps to fix up the coverage values written by GSTriangleImpl.
  */
 class GSTriangleCornerImpl : public GrCCCoverageProcessor::GSImpl {
 public:
@@ -236,36 +241,55 @@ public:
         g->codeAppendf("float2 right = pts[(sk_InvocationID + (%s > 0 ? 1 : 2)) %% 3];",
                        wind.c_str());
 
+        g->codeAppend ("float2 leftdir = corner - left;");
+        g->codeAppend ("leftdir = (float2(0) != leftdir) ? normalize(leftdir) : float2(1, 0);");
+
+        g->codeAppend ("float2 rightdir = right - corner;");
+        g->codeAppend ("rightdir = (float2(0) != rightdir) ? normalize(rightdir) : float2(1, 0);");
+
         // Find "outbloat" and "crossbloat" at our corner. The outbloat points diagonally out of the
-        // triangle, in the direction that should ramp to zero coverage. The crossbloat runs
-        // perpindicular to outbloat, and ramps from left-edge coverage to right-edge coverage.
-        g->codeAppend ("float2 leftdir = normalize(corner - left);");
-        g->codeAppend ("float2 rightdir = normalize(right - corner);");
+        // triangle, in the direction that should ramp to zero coverage with attenuation. The
+        // crossbloat runs perpindicular to outbloat.
         g->codeAppend ("float2 outbloat = float2(leftdir.x > rightdir.x ? +1 : -1, "
                                                 "leftdir.y > rightdir.y ? +1 : -1);");
         g->codeAppend ("float2 crossbloat = float2(-outbloat.y, +outbloat.x);");
 
         g->codeAppend ("half2 left_coverages; {");
-        Shader::CalcEdgeCoveragesAtBloatVertices(g, "left", "corner", "outbloat", "crossbloat",
+        Shader::CalcEdgeCoveragesAtBloatVertices(g, "left", "corner", "-outbloat", "-crossbloat",
                                                  "left_coverages");
         g->codeAppend ("}");
 
         g->codeAppend ("half2 right_coverages; {");
-        Shader::CalcEdgeCoveragesAtBloatVertices(g, "corner", "right", "outbloat", "-crossbloat",
+        Shader::CalcEdgeCoveragesAtBloatVertices(g, "corner", "right", "-outbloat", "crossbloat",
                                                  "right_coverages");
         g->codeAppend ("}");
 
-        // Emit a corner box that erases whatever coverage was written previously, and replaces it
-        // using linearly-interpolated values that ramp to zero in bloat vertices that fall outside
-        // the triangle.
+        g->codeAppend ("half attenuation; {");
+        Shader::CalcCornerCoverageAttenuation(g, "leftdir", "rightdir", "attenuation");
+        g->codeAppend ("}");
+
+        // Emit a corner box. The first coverage argument erases the values that were written
+        // previously by the hull and edge geometry. The second pair are multiplied together by the
+        // fragment shader. They ramp to 0 with attenuation in the direction of outbloat, and
+        // linearly from left-edge coverage to right-edge coverage in the direction of crossbloat.
         //
         // NOTE: Since this is not a linear mapping, it is important that the box's diagonal shared
-        // edge points out of the triangle as much as possible.
-        g->codeAppendf("%s(corner - crossbloat * bloat, -right_coverages[1]);", emitVertexFn);
+        // edge points in the direction of outbloat.
+        g->codeAppendf("%s(corner - crossbloat * bloat, "
+                          "right_coverages[1] - left_coverages[1],"
+                          "half2(1 + left_coverages[1], 1));", emitVertexFn);
+
         g->codeAppendf("%s(corner + outbloat * bloat, "
-                          "-1 - left_coverages[0] - right_coverages[0]);", emitVertexFn);
-        g->codeAppendf("%s(corner - outbloat * bloat, 0);", emitVertexFn);
-        g->codeAppendf("%s(corner + crossbloat * bloat, -left_coverages[1]);", emitVertexFn);
+                          "1 + left_coverages[0] + right_coverages[0],"
+                          "half2(0, attenuation));", emitVertexFn);
+
+        g->codeAppendf("%s(corner - outbloat * bloat, "
+                          "-1 - left_coverages[0] - right_coverages[0],"
+                          "half2(1 + left_coverages[0] + right_coverages[0], 1));", emitVertexFn);
+
+        g->codeAppendf("%s(corner + crossbloat * bloat, "
+                          "left_coverages[1] - right_coverages[1],"
+                          "half2(1 + right_coverages[1], 1));", emitVertexFn);
 
         g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, 3);
     }

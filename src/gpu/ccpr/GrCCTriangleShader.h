@@ -18,16 +18,29 @@
  */
 class GrCCTriangleShader : public GrCCCoverageProcessor::Shader {
     void onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
-                        SkString* code, const char* /*position*/, const char* inputCoverage,
-                        const char* wind) override {
-        SkASSERT(inputCoverage);
-        fCoverageTimesWind.reset(kHalf_GrSLType, scope);
-        varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
-        code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), inputCoverage, wind);
+                        SkString* code, const char* position, const char* coverage,
+                        const char* attenuatedCoverage, const char* wind) override {
+        if (!attenuatedCoverage) {
+            fCoverageTimesWind.reset(kHalf_GrSLType, scope);
+            varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
+            code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), coverage, wind);
+        } else {
+            fCoverageTimesWind.reset(kHalf3_GrSLType, scope);
+            varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
+            code->appendf("%s = half3(%s, %s);",
+                          OutName(fCoverageTimesWind), attenuatedCoverage, coverage);
+            code->appendf("%s.yz *= %s;", OutName(fCoverageTimesWind), wind);
+        }
     }
 
     void onEmitFragmentCode(GrGLSLFPFragmentBuilder* f, const char* outputCoverage) const override {
-        f->codeAppendf("%s = %s;", outputCoverage, fCoverageTimesWind.fsIn());
+        if (kHalf_GrSLType == fCoverageTimesWind.type()) {
+            f->codeAppendf("%s = %s;", outputCoverage, fCoverageTimesWind.fsIn());
+        } else {
+            f->codeAppendf("%s = %s.x * %s.y + %s.z;",
+                           outputCoverage, fCoverageTimesWind.fsIn(), fCoverageTimesWind.fsIn(),
+                           fCoverageTimesWind.fsIn());
+        }
     }
 
     GrGLSLVarying fCoverageTimesWind;
