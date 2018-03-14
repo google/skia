@@ -7,9 +7,9 @@
 
 #include "gm.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkDrawFilter.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
@@ -45,9 +45,8 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBlur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
-                                       SkBlurMask::ConvertRadiusToSigma(10.0f),
-                                       kLow_SkBlurQuality);
+        fBlur = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
+                                       SkBlurMask::ConvertRadiusToSigma(10.0f));
     }
 
     void onDraw(SkCanvas* canvas) override {

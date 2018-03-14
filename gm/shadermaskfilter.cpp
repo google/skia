@@ -8,9 +8,9 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkBlendModePriv.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkMaskFilter.h"
 #include "SkShaderMaskFilter.h"
 
 static void draw_masked_image(SkCanvas* canvas, const SkImage* image, SkScalar x, SkScalar y,
@@ -58,7 +58,7 @@ DEF_SIMPLE_GM(shadermaskfilter_image, canvas, 560, 370) {
 
     auto image = GetResourceAsImage("images/mandrill_128.png");
     auto mask = GetResourceAsImage("images/color_wheel.png");
-    auto blurmf = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5);
+    auto blurmf = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5);
     auto gradmf = SkShaderMaskFilter::Make(make_shader(SkRect::MakeIWH(mask->width(),
                                                                        mask->height())));
 
@@ -166,7 +166,7 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
 
 #include "SkSurface.h"
 #include "SkBlurImageFilter.h"
-#include "SkBlurMaskFilter.h"
+#include "SkMaskFilter.h"
 static sk_sp<SkImage> make_circle_image(SkCanvas* canvas, SkScalar radius, int margin) {
     const int n = SkScalarCeilToInt(radius) * 2 + margin * 2;
     auto surf = sk_tool_utils::makeSurface(canvas, SkImageInfo::MakeN32Premul(n, n));
@@ -190,7 +190,7 @@ DEF_SIMPLE_GM(savelayer_maskfilter, canvas, 450, 675) {
 
     sk_sp<SkMaskFilter> mfs[] = {
         SkShaderMaskFilter::Make(maskImage->makeShader()),
-        SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 3.5f),
+        SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 3.5f),
         nullptr,
     };
     mfs[2] = SkMaskFilter::MakeCompose(mfs[1], mfs[0]);

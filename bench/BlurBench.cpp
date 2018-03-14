@@ -6,8 +6,8 @@
  */
 #include "Benchmark.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkShader.h"
@@ -31,17 +31,14 @@ static const char* gStyleName[] = {
 class BlurBench : public Benchmark {
     SkScalar    fRadius;
     SkBlurStyle fStyle;
-    uint32_t    fFlags;
     SkString    fName;
 
 public:
-    BlurBench(SkScalar rad, SkBlurStyle bs, uint32_t flags = 0) {
+    BlurBench(SkScalar rad, SkBlurStyle bs) {
         fRadius = rad;
         fStyle = bs;
-        fFlags = flags;
         const char* name = rad > 0 ? gStyleName[bs] : "none";
-        const char* quality = flags & SkBlurMaskFilter::kHighQuality_BlurFlag ? "high_quality"
-                                                                              : "low_quality";
+        const char* quality = "high_quality";
         if (SkScalarFraction(rad) != 0) {
             fName.printf("blur_%.2f_%s_%s", SkScalarToFloat(rad), name, quality);
         } else {
@@ -67,9 +64,8 @@ protected:
             r.offset(fRadius, fRadius);
 
             if (fRadius > 0) {
-                paint.setMaskFilter(SkBlurMaskFilter::Make(fStyle,
-                                                          SkBlurMask::ConvertRadiusToSigma(fRadius),
-                                                          fFlags));
+                paint.setMaskFilter(SkMaskFilter::MakeBlur(fStyle,
+                                                      SkBlurMask::ConvertRadiusToSigma(fRadius)));
             }
             canvas->drawOval(r, paint);
         }
@@ -103,16 +99,5 @@ DEF_BENCH(return new BlurBench(REAL, kNormal_SkBlurStyle);)
 DEF_BENCH(return new BlurBench(REAL, kSolid_SkBlurStyle);)
 DEF_BENCH(return new BlurBench(REAL, kOuter_SkBlurStyle);)
 DEF_BENCH(return new BlurBench(REAL, kInner_SkBlurStyle);)
-
-DEF_BENCH(return new BlurBench(MINI, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
-
-DEF_BENCH(return new BlurBench(SMALL, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
-
-DEF_BENCH(return new BlurBench(BIG, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
-
-DEF_BENCH(return new BlurBench(REALBIG, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
-
-DEF_BENCH(return new BlurBench(REAL, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
-DEF_BENCH(return new BlurBench(CUTOVER, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
 
 DEF_BENCH(return new BlurBench(0, kNormal_SkBlurStyle);)

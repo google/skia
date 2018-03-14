@@ -10,10 +10,10 @@
 
 #include "Resources.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkMaskFilter.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkSurface.h"
@@ -136,7 +136,7 @@ protected:
         // setup blur paint
         SkPaint blurPaint(paint);
         blurPaint.setColor(sk_tool_utils::color_to_565(SK_ColorBLACK));
-        blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kSigma));
+        blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, kSigma));
 
         for (int i = 0; i < 4; i++) {
             canvas->save();

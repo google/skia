@@ -7,7 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkBlurMaskFilter.h"
+#include "SkMaskFilter.h"
 #include "SkRRect.h"
 
 static SkRect offset_center_to(const SkIRect& src, SkScalar x, SkScalar y) {
@@ -46,7 +46,7 @@ static void draw_rrect(SkCanvas* canvas, const SkRRect& rr, const SkRRect& occRR
 
     // draw the blur
     SkPaint paint;
-    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma, occRect));
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, kBlurSigma, occRect));
     canvas->drawRRect(rr, paint);
 
     // draw the stroked geometry of the full occluder

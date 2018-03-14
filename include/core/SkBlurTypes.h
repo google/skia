@@ -19,12 +19,13 @@ enum SkBlurStyle {
     kLastEnum_SkBlurStyle = kInner_SkBlurStyle
 };
 
-// DEPRECATED
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
 enum SkBlurQuality {
     kLow_SkBlurQuality,     //!< e.g. box filter
     kHigh_SkBlurQuality,    //!< e.g. 3-pass similar to gaussian
 
     kLastEnum_SkBlurQuality
 };
+#endif
 
 #endif
