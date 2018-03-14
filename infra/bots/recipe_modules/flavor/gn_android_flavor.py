@@ -63,8 +63,10 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     }
 
     self.gpu_scaling = {
-      "Nexus5":  450000000,
-      "Nexus5x": 600000000,
+      "Nexus5":   450000000,
+      "Nexus5x":  600000000,
+      "Pixel":    624000000,
+      "Pixel2XL": 710000000,
     }
 
   def _run(self, title, *cmd, **kwargs):
@@ -147,8 +149,10 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if device in self.gpu_scaling:
       #https://developer.qualcomm.com/qfile/28823/lm80-p0436-11_adb_commands.pdf
       # Section 3.2.1 Commands to put the GPU in performance mode
-      # Nexus 5 is  320000000 by default
+      # Nexus 5  is 320000000 by default
       # Nexus 5x is 180000000 by default
+      # Pixel    is 214000000 by default
+      # Pixel2XL is 257000000 by default
       gpu_freq = self.gpu_scaling[device]
       self.m.run.with_retry(self.m.python.inline,
         "Lock GPU to %d (and other perf tweaks)" % gpu_freq,
@@ -170,8 +174,13 @@ if 'cannot' in log:
 
 subprocess.check_output([ADB, 'shell', 'stop', 'thermald'])
 
+subprocess.check_output([ADB, 'shell', 'echo "performance" > '
+    '/sys/class/kgsl/kgsl-3d0/devfreq/governor'])
+
 subprocess.check_output([ADB, 'shell', 'echo "%s" > '
     '/sys/class/kgsl/kgsl-3d0/gpuclk' % freq])
+
+time.sleep(1)
 
 actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
     '/sys/class/kgsl/kgsl-3d0/gpuclk']).strip()
