@@ -6,6 +6,7 @@
  */
 
 #include "SkGr.h"
+#include "GrBackendSurface.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrColorSpaceXform.h"
@@ -614,4 +615,28 @@ GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilt
 
     }
     return textureFilterMode;
+}
+
+GrBackendFormat GrCreateBackendFormatFromTexture(const GrBackendTexture& tex) {
+    switch (tex.backend()) {
+#ifdef SK_VULKAN
+        case kVulkan_GrBackend: {
+            const GrVkImageInfo* vkInfo = tex.getVkImageInfo();
+            SkASSERT(vkInfo);
+            return GrBackendFormat::MakeVk(vkInfo->fFormat);
+        }
+#endif
+        case kOpenGL_GrBackend: {
+            const GrGLTextureInfo* glInfo = tex.getGLTextureInfo();
+            SkASSERT(glInfo);
+            return GrBackendFormat::MakeGL(glInfo->fFormat, glInfo->fTarget);
+        }
+        case kMock_GrBackend: {
+            const GrMockTextureInfo* mockInfo = tex.getMockTextureInfo();
+            SkASSERT(mockInfo);
+            return GrBackendFormat::MakeMock(mockInfo->fConfig);
+        }
+        default:
+            return GrBackendFormat();
+    }
 }

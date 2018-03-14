@@ -22,6 +22,7 @@
 #include "SkPM4f.h"
 #include "SkVertices.h"
 
+class GrBackendFormat;
 class GrCaps;
 class GrColorSpaceInfo;
 class GrColorSpaceXform;
@@ -253,5 +254,10 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
     format, but we want to preserve the color space of that source. This picks an appropriate format
     to use. */
 GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace*);
+
+/**
+ * Create a GrBackendFormat object from an existing GrBackendTexture
+ */
+GrBackendFormat GrCreateBackendFormatFromTexture(const GrBackendTexture& tex);
 
 #endif
