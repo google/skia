@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29211833_4a234ad7",
+        "filename": "src/gpu/SkGr.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-14T19:23:47Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem like an SkGr thing as it is not going between and Sk objects to Gr. Let\u0027s just put it as getter on GrBackendTexture itself since that\u0027s where it will end up in the long run.",
+      "range": {
+        "startLine": 261,
+        "startChar": 0,
+        "endLine": 261,
+        "endChar": 77
+      },
+      "revId": "e594f4839e3cc510147bdca7a51e3b2262d1d5d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
