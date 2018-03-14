@@ -138,12 +138,14 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
             xform[i].fTy   = pos.y() + tan.x() * xy[i].y() - tan.y() * offset;
         }
 
-        canvas->drawTextRSXform(text, length, &xform[0], &bounds, paint);
+        SkPaint p(paint);
+        p.setTextAlign(SkPaint::kLeft_Align);
+        canvas->drawTextRSXform(text, length, &xform[0], &bounds, p);
     } else {
         canvas->drawTextOnPathHV(text, length, path, 0, baseline_offset, paint);
     }
 
-    if (true) {
+    if (false) {
         SkPaint p;
         p.setStyle(SkPaint::kStroke_Style);
         canvas->drawRect(bounds, p);
@@ -259,5 +261,86 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
             canvas->restore();
             canvas->translate(0, 145);
         }
+    }
+}
+
+static void draw_text_on_path_rigid(SkCanvas* canvas, const void* text, size_t length,
+                                    const SkPath& path, const SkPaint& paint) {
+    SkAutoTArray<SkScalar> storage(length * 3);
+    SkScalar* widths = storage.get();
+    SkPoint* pos = (SkPoint*)(widths + length);
+    int count = paint.getTextWidths(text, length, widths, nullptr);
+
+    SkScalar w = 0;
+    for (int i = 0; i < count; ++i) {
+        pos[i] = { w, 0 };
+        w += widths[i];
+    }
+
+    if (paint.getTextAlign() != SkPaint::kLeft_Align) {
+        SkPathMeasure meas(path, false);
+        SkScalar offset = meas.getLength() - w;
+        if (paint.getTextAlign() == SkPaint::kCenter_Align) {
+            offset *= 0.5f;
+        }
+        for (int i = 0; i < count; ++i) {
+            pos[i].fX += offset;
+        }
+    }
+
+    draw_text_on_path(canvas, text, length, pos, path, paint, 0, true);
+}
+
+DEF_SIMPLE_GM(textonpath_line, canvas, 400, 400) {
+    float deltaFontSize  = 0.9f;
+    float centerFontSize = 3.f;
+
+    float pixelFontSize  = 30.f;
+    float pixelLineHeight = 40.f;
+
+    SkPaint fontFill;
+    fontFill.setAntiAlias(true);
+    fontFill.setTextAlign(SkPaint::kCenter_Align);
+
+    SkPath path;
+
+    float w = 400;
+    float h = 800;
+
+    float scale = 1.f;
+
+    for(float n = h/2.f; n > pixelFontSize; n -= pixelLineHeight)
+        scale /= deltaFontSize;
+
+    for(float y = pixelFontSize; y < h; y += pixelLineHeight)
+    {
+
+        float fontSize = centerFontSize / scale;
+        float matrixScale = pixelFontSize / fontSize;
+
+        fontFill.setTextSize(fontSize);
+
+        path.rewind();
+        path.moveTo(0.f, y / matrixScale);
+        path.lineTo(w / matrixScale , y / matrixScale);
+
+        canvas->save();
+        canvas->scale(matrixScale, matrixScale);
+
+        SkString str;
+        str.printf("Font Size: %10f", fontSize);
+        canvas->drawTextOnPathHV(str.c_str(), str.size(), path, 0.f, 0.f, fontFill);
+
+        SkPaint rigidPaint = fontFill;
+        rigidPaint.setColor(0x80FF0000);
+        draw_text_on_path_rigid(canvas, str.c_str(), str.size(), path, rigidPaint);
+
+        rigidPaint.setColor(0xFF0000FF);
+        rigidPaint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawPath(path, rigidPaint);
+
+        canvas->restore();
+
+        scale *= deltaFontSize;
     }
 }
