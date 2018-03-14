@@ -150,12 +150,20 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     }
 }
 
+#include "SkGradientShader.h"
+static sk_sp<SkShader> make_shader() {
+    SkPoint pts[2] = {{0, 0}, {220, 0}};
+    SkColor colors[2] = {SK_ColorRED, SK_ColorBLUE};
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
+}
+
 static void drawTextPath(SkCanvas* canvas, bool useRSX, bool doStroke) {
     const char text0[] = "ABCDFGHJKLMNOPQRSTUVWXYZ";
     const int N = sizeof(text0) - 1;
     SkPoint pos[N];
 
     SkPaint paint;
+    paint.setShader(make_shader());
     paint.setAntiAlias(true);
     paint.setTextSize(100);
     if (doStroke) {
