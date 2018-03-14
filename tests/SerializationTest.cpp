@@ -8,6 +8,7 @@
 #include "Resources.h"
 #include "SkAnnotationKeys.h"
 #include "SkCanvas.h"
+#include "SkDashPathEffect.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
 #include "SkImage.h"
@@ -21,6 +22,7 @@
 #include "SkShaderBase.h"
 #include "SkTableColorFilter.h"
 #include "SkTemplates.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 #include "SkXfermodeImageFilter.h"
@@ -665,4 +667,36 @@ DEF_TEST(WriteBuffer_storage, reporter) {
     writer.writeInt(0);
     REPORTER_ASSERT(reporter, !writer.usingInitialStorage());   // this is the change
     REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize);
+}
+
+DEF_TEST(WriteBuffer_external_memory_textblob, reporter) {
+    SkPaint font;
+    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    font.setTypeface(SkTypeface::MakeDefault());
+
+    SkTextBlobBuilder builder;
+    int glyph_count = 5;
+    const auto& run = builder.allocRun(font, glyph_count, 1.2f, 2.3f);
+    // allocRun() allocates only the glyph buffer.
+    std::fill(run.glyphs, run.glyphs + glyph_count, 0);
+    auto blob = builder.make();
+    auto typefaceproc = [](SkTypeface* tf, void* ctx) {};
+
+    SkSerialProcs procs;
+    int32_t small_storage[4];
+    REPORTER_ASSERT(reporter, blob->serialize(typefaceproc, nullptr, small_storage, 4u) == 0u);
+    REPORTER_ASSERT(reporter, blob->serialize(procs, small_storage, 4u) == 0u);
+    int32_t large_storage[128];
+    REPORTER_ASSERT(reporter, blob->serialize(typefaceproc, nullptr, large_storage, 128u) != 0u);
+    REPORTER_ASSERT(reporter, blob->serialize(procs, large_storage, 128u) != 0u);
+}
+
+DEF_TEST(WriteBuffer_external_memory_flattenable, reporter) {
+    SkScalar intervals[] = {1.f, 1.f};
+    auto path_effect = SkDashPathEffect::Make(intervals, 2, 0);
+
+    int32_t small_storage[4];
+    REPORTER_ASSERT(reporter, path_effect->serialize(small_storage, 4u) == 0u);
+    int32_t large_storage[128];
+    REPORTER_ASSERT(reporter, path_effect->serialize(large_storage, 128u) != 0u);
 }
