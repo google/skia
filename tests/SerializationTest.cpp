@@ -637,3 +637,32 @@ DEF_TEST(Annotations, reporter) {
     TestAnnotationCanvas canvas(reporter, recs, SK_ARRAY_COUNT(recs));
     canvas.drawPicture(pict1);
 }
+
+DEF_TEST(WriteBuffer_storage, reporter) {
+    enum {
+        kSize = 32
+    };
+    int32_t storage[kSize/4];
+    char src[kSize];
+    sk_bzero(src, kSize);
+
+    SkBinaryWriteBuffer writer(storage, kSize);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == 0);
+    writer.write(src, kSize - 4);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize - 4);
+    writer.writeInt(0);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize);
+
+    writer.reset(storage, kSize-4);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == 0);
+    writer.write(src, kSize - 4);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize - 4);
+    writer.writeInt(0);
+    REPORTER_ASSERT(reporter, !writer.usingInitialStorage());   // this is the change
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize);
+}
