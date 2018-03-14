@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkGlyph_DEFINED
 #define SkGlyph_DEFINED
 
