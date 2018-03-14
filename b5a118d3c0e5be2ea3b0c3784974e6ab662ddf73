@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "056d99b0_05efed51",
+        "filename": "docs/SkImage_Reference.bmh",
+        "patchSetId": 2
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-14T19:27:48Z",
+      "side": 1,
+      "message": "nit: to make it consistent with other documentation:\nReturns Color_Type if known; otherwise, returns kUnknown_SkColorType.\n(bookmaker complained only that \u0027SkUnknown_SkColorType\u0027 was undefined)",
+      "revId": "b5a118d3c0e5be2ea3b0c3784974e6ab662ddf73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bdb7260_a079f269",
+        "filename": "docs/SkImage_Reference.bmh",
+        "patchSetId": 2
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-14T19:27:48Z",
+      "side": 1,
+      "message": "bookmaker will complain that there\u0027s no example.\n\n#NoExample\n##\n\nis a fine placeholder. (Or:\n\n#Example\n// incomplete\n##\n\nis also good)",
+      "revId": "b5a118d3c0e5be2ea3b0c3784974e6ab662ddf73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
