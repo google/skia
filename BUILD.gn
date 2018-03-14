@@ -585,7 +585,8 @@ optional("gpu") {
                            "abspath")
   libs = []
   if (is_android) {
-    sources += [ "src/gpu/gl/android/GrGLMakeNativeInterface_android.cpp" ]
+    sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
+    defines += [ "SK_WORK_AROUND_BUSTED_EGLGETPROCADDDRESS_FN" ]
 
     # this lib is required to link against AHardwareBuffer
     if (defined(ndk_api) && ndk_api >= 26) {
