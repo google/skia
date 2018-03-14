@@ -146,6 +146,7 @@ public:
 private:
     // Friending for access to the GrPixelConfig
     friend class SkImage;
+    friend class SkImage_Gpu;
     friend class SkSurface;
     friend class GrBackendTextureImageGenerator;
     friend class GrProxyProvider;
@@ -153,6 +154,7 @@ private:
     friend class GrGLGpu;
     friend class GrVkGpu;
     friend class PromiseImageHelper;
+
     GrPixelConfig config() const { return fConfig; }
 
     int fWidth;         //<! width in pixels
