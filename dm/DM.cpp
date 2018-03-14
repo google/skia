@@ -97,8 +97,6 @@ DEFINE_int32(shard,  0, "Which shard do I run?");
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
-DEFINE_bool(ddl, false, "If true, use DeferredDisplayLists for GPU SKP rendering.");
-
 DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
 DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
@@ -790,7 +788,7 @@ static bool gather_srcs() {
         push_src("gm", "", new GMSrc(r->factory()));
     }
 
-    if (FLAGS_ddl) {
+    if (FLAGS_ddl > 0) {
         gather_file_srcs<DDLSKPSrc>(FLAGS_skps, "skp");
     } else {
         gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
