@@ -7,8 +7,8 @@
 
 #include "gm.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkMaskFilter.h"
 
 // This GM tests out the quick reject bounds of the blur mask filter. It draws
 // four blurred rects around a central clip. The blurred rect geometry outset
@@ -56,7 +56,7 @@ protected:
 
         SkPaint blurPaint;
         blurPaint.setFilterQuality(kLow_SkFilterQuality);
-        blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+        blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                                     SkBlurMask::ConvertRadiusToSigma(kBlurRadius)));
 
         canvas->clear(SK_ColorBLACK);

@@ -7,8 +7,11 @@
 
 #include "SkBlurMaskFilter.h"
 
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
 sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma,
                                            const SkRect& occluder, uint32_t flags) {
     bool respectCTM = !(flags & kIgnoreTransform_BlurFlag);
     return SkMaskFilter::MakeBlur(style, sigma, occluder, respectCTM);
 }
+#endif
+

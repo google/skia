@@ -6,8 +6,8 @@
  */
 #include "SampleCode.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkMaskFilter.h"
 #include "SkParsePath.h"
 #include "SkPath.h"
 #include "SkRandom.h"
@@ -168,7 +168,7 @@ protected:
                 SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4));
                 for (int y = 0; y < 10; y++) {
                     if (x) {
-                        paint.setMaskFilter(SkBlurMaskFilter::Make(gStyle[x - 1], sigma));
+                        paint.setMaskFilter(SkMaskFilter::MakeBlur(gStyle[x - 1], sigma));
                     }
                     canvas->drawString("Title Bar", x*SkIntToScalar(100), y*SkIntToScalar(30), paint);
                     sigma *= 0.75f;

@@ -8,8 +8,8 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkMaskFilter.h"
 #include "SkTextBlob.h"
 
 #define WIDTH 800
@@ -53,7 +53,7 @@ protected:
         const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(50));
 
         SkPaint blurPaint(paint);
-        blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kSigma));
+        blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, kSigma));
 
         SkTextBlobBuilder builder;
 
