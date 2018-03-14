@@ -65,6 +65,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     self.gpu_scaling = {
       "Nexus5":  450000000,
       "Nexus5x": 600000000,
+      "Pixel":   624000000
     }
 
   def _run(self, title, *cmd, **kwargs):
@@ -149,6 +150,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Section 3.2.1 Commands to put the GPU in performance mode
       # Nexus 5 is  320000000 by default
       # Nexus 5x is 180000000 by default
+      # Pixel    is 214000000 by default
       gpu_freq = self.gpu_scaling[device]
       self.m.run.with_retry(self.m.python.inline,
         "Lock GPU to %d (and other perf tweaks)" % gpu_freq,
