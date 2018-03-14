@@ -16,6 +16,24 @@
       "revId": "0bf59e459772df75df6d9fc8720368cab077746f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e7755af_22fcb4b7",
+        "filename": "tools/skpbench/_hardware_pixel_c.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-14T16:24:06Z",
+      "side": 0,
+      "message": "They are all linked together, so if one sets the CPU speed for cpu0, it affects all of them.",
+      "parentUuid": "0f915033_eadcb223",
+      "revId": "0bf59e459772df75df6d9fc8720368cab077746f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
