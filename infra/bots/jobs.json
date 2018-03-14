@@ -224,6 +224,7 @@
   "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All",
   "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
   "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
+  "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-SkpOnly-DDL",
   "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
   "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN",
   "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan",

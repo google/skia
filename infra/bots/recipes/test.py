@@ -268,6 +268,14 @@ def dm_flags(api, bot):
     args.remove('image')
     args.remove('colorImage')
 
+  if 'SkpOnly' in bot:
+    args.remove('tests')
+    args.remove('gm')
+    args.remove('image')
+    args.remove('colorImage')
+    args.remove('svg')
+    args.add('skp')
+
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
   blacklist('glsrgb image _ _')
@@ -571,6 +579,9 @@ def dm_flags(api, bot):
   # disabled.
   if 'NoGPUThreads' in bot:
     args.extend(['--gpuThreads', '0'])
+
+  if 'DDL' in bot:
+    args.extend(['--ddl', '3'])
 
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
