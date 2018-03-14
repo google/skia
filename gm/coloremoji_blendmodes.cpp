@@ -4,12 +4,27 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkShader.h"
-#include "SkUtils.h"
+
+#include "SkBitmap.h"          // for SkBitmap
+#include "SkBlendMode.h"       // for SkBlendMode, SkBlendMode_Name, SkBlend...
+#include "SkCanvas.h"          // for SkCanvas, SkAutoCanvasRestore
+#include "SkColor.h"           // for SK_ColorBLUE, SK_ColorCYAN, SK_ColorGREEN
+#include "SkFontStyle.h"       // for SkFontStyle
+#include "SkGradientShader.h"  // for SkGradientShader
+#include "SkImageInfo.h"       // for SkImageInfo, kARGB_4444_SkColorType
+#include "SkMatrix.h"          // for SkMatrix
+#include "SkPaint.h"           // for SkPaint, SkPaint::kCenter_Align, SkPai...
+#include "SkRect.h"            // for SkRect
+#include "SkRefCnt.h"          // for sk_sp, operator==
+#include "SkScalar.h"          // for SkIntToScalar, SkScalar, SK_ScalarHalf
+#include "SkShader.h"          // for SkShader, SkShader::kRepeat_TileMode
+#include "SkSize.h"            // for SkISize
+#include "SkString.h"          // for SkString
+#include "SkTypeface.h"        // for SkTypeface
+#include "SkTypes.h"           // for SK_ARRAY_COUNT, SkUnichar, size_t, uin...
+#include "SkUtils.h"           // for SkUTF8_ToUnichar
+#include "gm.h"                // for GM, GMRegistry
+#include "sk_tool_utils.h"     // for create_portable_typeface, emoji_sample...
 
 namespace skiagm {
 
