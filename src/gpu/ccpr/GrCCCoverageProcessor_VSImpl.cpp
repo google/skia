@@ -28,6 +28,11 @@ protected:
         this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 
+    struct Coverages {
+        const char* fCoverage = nullptr; // half
+        const char* fAttenuatedCoverage = nullptr; // half2
+    };
+
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrCCCoverageProcessor& proc = args.fGP.cast<GrCCCoverageProcessor>();
 
@@ -63,13 +68,15 @@ protected:
 #endif
         v->defineConstant("bloat", bloat);
 
-        const char* coverage = this->emitVertexPosition(proc, v, gpArgs);
+        Coverages coverages;
+        this->emitVertexPosition(proc, v, gpArgs, &coverages);
         SkASSERT(kFloat2_GrSLType == gpArgs->fPositionVar.getType());
 
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         SkString varyingCode;
         fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kVertToFrag, &varyingCode,
-                              gpArgs->fPositionVar.c_str(), coverage, "wind");
+                              gpArgs->fPositionVar.c_str(), coverages.fCoverage,
+                              coverages.fAttenuatedCoverage, "wind");
         v->codeAppend(varyingCode.c_str());
 
         varyingHandler->emitAttributes(proc);
@@ -79,8 +86,8 @@ protected:
         fShader->emitFragmentCode(proc, args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
     }
 
-    virtual const char* emitVertexPosition(const GrCCCoverageProcessor&, GrGLSLVertexBuilder*,
-                                           GrGPArgs*) const = 0;
+    virtual void emitVertexPosition(const GrCCCoverageProcessor&, GrGLSLVertexBuilder*, GrGPArgs*,
+                                    Coverages* outCoverages) const = 0;
 
     virtual ~VSImpl() {}
 
@@ -187,9 +194,9 @@ static constexpr uint16_t kTriangleIndicesAsStrips[] =  {
     10, 9, 11, 14, 12, 13, kRestartStrip, // First edge.
     16, 15, 17, 20, 18, 19, kRestartStrip, // Second edge.
     22, 21, 23, 26, 24, 25, kRestartStrip, // Third edge.
-    27, 28, 30, 29, kRestartStrip, // First corner.
-    31, 32, 34, 33, kRestartStrip, // Second corner.
-    35, 36, 38, 37 // Third corner.
+    28, 27, 29, 30, kRestartStrip, // First corner.
+    32, 31, 33, 34, kRestartStrip, // Second corner.
+    36, 35, 37, 38 // Third corner.
 };
 
 static constexpr uint16_t kTriangleIndicesAsTris[] =  {
@@ -223,16 +230,16 @@ static constexpr uint16_t kTriangleIndicesAsTris[] =  {
     26, 25, 24,
 
     // First corner.
-    27, 28, 30,
-    28, 29, 30,
+    28, 27, 29,
+    27, 30, 29,
 
     // Second corner.
-    31, 32, 34,
-    32, 33, 34,
+    32, 31, 33,
+    31, 34, 33,
 
     // Third corner.
-    35, 36, 38,
-    36, 37, 38,
+    36, 35, 37,
+    35, 38, 37,
 };
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gTriangleIndexBufferKey);
@@ -300,8 +307,8 @@ public:
     VSHullAndEdgeImpl(std::unique_ptr<Shader> shader, int numSides)
             : VSImpl(std::move(shader)), fNumSides(numSides) {}
 
-    const char* emitVertexPosition(const GrCCCoverageProcessor& proc, GrGLSLVertexBuilder* v,
-                                   GrGPArgs* gpArgs) const override {
+    void emitVertexPosition(const GrCCCoverageProcessor& proc, GrGLSLVertexBuilder* v,
+                            GrGPArgs* gpArgs, Coverages* outCoverages) const override {
         Shader::GeometryVars vars;
         fShader->emitSetupCode(v, "pts", nullptr, "wind", &vars);
 
@@ -344,22 +351,26 @@ public:
         v->codeAppend ("float2 bloatdir = leftbloat;");
 
         if (3 == fNumSides) { // Only triangles emit corner boxes.
+            v->codeAppend ("float2 leftdir = corner - left;");
+            v->codeAppend ("leftdir = (float2(0) != leftdir) ? normalize(leftdir) : float2(1, 0);");
+
+            v->codeAppend ("float2 rightdir = right - corner;");
+            v->codeAppend ("rightdir = (float2(0) != rightdir)"
+                                   "? normalize(rightdir) : float2(1, 0);");
+
             v->codeAppendf("if (0 != (%s & %i)) {", // Are we a corner?
                            proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_IsCornerBit);
 
-                               // For corner boxes, we hack 'left_right_notequal' to [true, true].
-                               // This causes the upcoming code to always rotate, which is the right
-                               // thing for corners.
-            v->codeAppendf(    "left_right_notequal = bool2(true, true);");
+                               // In corner boxes, all 4 coverage values will not map linearly.
+                               // Therefore it is important to align the box so its diagonal shared
+                               // edge points out of the triangle, in the direction that ramps to 0.
+            v->codeAppend (    "bloatdir = float2(leftdir.x > rightdir.x ? +1 : -1, "
+                                                 "leftdir.y > rightdir.y ? +1 : -1);");
 
-                               // In corner boxes, all 4 coverage values will not map linearly, so
-                               // it is important to rotate the box so its diagonal shared edge
-                               // points out of the triangle, in the direction that ramps to zero.
-            v->codeAppend (    "float2 bisect = normalize(corner - right) +"
-                                               "normalize(corner - left);");
-            v->codeAppend (    "if (sign(bisect) == sign(leftbloat)) {");
-            v->codeAppend (        "bloatdir = float2(+bloatdir.y, -bloatdir.x);");
-            v->codeAppend (    "}");
+                               // For corner boxes, we hack left_right_notequal to always true. This
+                               // in turn causes the upcoming code to always rotate, generating all
+                               // 4 vertices of the corner box.
+            v->codeAppendf(    "left_right_notequal = bool2(true);");
             v->codeAppend ("}");
         }
 
@@ -392,11 +403,13 @@ public:
         v->codeAppend ("float2 vertex = corner + bloatdir * bloat;");
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
 
-        // For triangles, we also emit coverage in order to handle edges and corners.
-        const char* coverage = nullptr;
+        // For triangles, we also emit coverage and attenuation.
         if (3 == fNumSides) {
             // The hull has a coverage of +1 all around.
             v->codeAppend ("half coverage = +1;");
+
+            // Corner boxes require attenuation.
+            v->codeAppend ("half2 attenuated_coverage = half2(0);");
 
             v->codeAppendf("if (0 != (%s & %i)) {", // Are we an edge OR corner?
                            proc.getAttrib(kAttribIdx_VertexData).fName,
@@ -406,20 +419,31 @@ public:
 
             v->codeAppendf("if (0 != (%s & %i)) {", // Are we a corner?
                            proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_IsCornerBit);
-                               // Corner boxes erase whatever coverage was written previously, and
-                               // replace it with linearly-interpolated values that ramp to zero in
-                               // the diagonal that points out of the triangle, and ramp from
-                               // left-edge coverage to right-edge coverage in the other diagonal.
             v->codeAppend (    "half left_coverage = coverage;");
+
             v->codeAppend (    "half right_coverage;");
             Shader::CalcEdgeCoverageAtBloatVertex(v, "corner", "right", "bloatdir",
                                                   "right_coverage");
-            v->codeAppend (    "coverage = (1 == bloatidx) ? -1 : 0;");
-            v->codeAppend (    "if (((bloatidx + 3) & 3) < 2) {");
-            v->codeAppend (        "coverage -= left_coverage;");
+
+            v->codeAppend (    "half attenuation;");
+            Shader::CalcCornerCoverageAttenuation(v, "leftdir", "rightdir", "attenuation");
+
+                               // For corners, "coverage" erases the values that were written
+                               // previously by the hull and edge geometry.
+            v->codeAppend (    "coverage = -1 - left_coverage - right_coverage;");
+
+                               // The x and y components of "attenuated_coverage" are multiplied
+                               // together by the fragment shader. They ramp to 0 with attenuation
+                               // in the diagonal that points out of the triangle, and linearly from
+                               // left-edge coverage to right in the opposite diagonal. bloatidx=0
+                               // is the outermost vertex; the one that has attenuation.
+            v->codeAppend (    "attenuated_coverage = (0 == bloatidx)"
+                                       "? half2(0, attenuation) : half2(1);");
+            v->codeAppend (    "if (1 == bloatidx || 2 == bloatidx) {");
+            v->codeAppend (        "attenuated_coverage.x += right_coverage;");
             v->codeAppend (    "}");
-            v->codeAppend (    "if (bloatidx < 2) {");
-            v->codeAppend (        "coverage -= right_coverage;");
+            v->codeAppend (    "if (bloatidx >= 2) {");
+            v->codeAppend (        "attenuated_coverage.x += left_coverage;");
             v->codeAppend (    "}");
             v->codeAppend ("}");
 
@@ -429,10 +453,9 @@ public:
             v->codeAppend (    "coverage = -1 - coverage;");
             v->codeAppend ("}");
 
-            coverage = "coverage";
+            outCoverages->fCoverage = "coverage";
+            outCoverages->fAttenuatedCoverage = "attenuated_coverage";
         }
-
-        return coverage;
     }
 
 private:
@@ -463,8 +486,8 @@ class VSCornerImpl : public GrCCCoverageProcessor::VSImpl {
 public:
     VSCornerImpl(std::unique_ptr<Shader> shader) : VSImpl(std::move(shader)) {}
 
-    const char* emitVertexPosition(const GrCCCoverageProcessor&, GrGLSLVertexBuilder* v,
-                                   GrGPArgs* gpArgs) const override {
+    void emitVertexPosition(const GrCCCoverageProcessor&, GrGLSLVertexBuilder* v, GrGPArgs* gpArgs,
+                            Coverages* /*outCoverages*/) const override {
         Shader::GeometryVars vars;
         v->codeAppend ("int corner_id = sk_VertexID / 4;");
         fShader->emitSetupCode(v, "pts", "corner_id", "wind", &vars);
@@ -474,7 +497,6 @@ public:
         v->codeAppend ("vertex.y += (0 == (sk_VertexID & 1)) ? -bloat : +bloat;");
 
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
-        return nullptr; // Corner vertices don't have an initial coverage value.
     }
 };
 

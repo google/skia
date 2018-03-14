@@ -35,9 +35,10 @@ void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* p
 
 void GrCCQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                          GrGLSLVarying::Scope scope, SkString* code,
-                                         const char* position, const char* inputCoverage,
-                                         const char* wind) {
-    SkASSERT(!inputCoverage);
+                                         const char* position, const char* coverage,
+                                         const char* attenuatedCoverage, const char* wind) {
+    SkASSERT(!coverage);
+    SkASSERT(!attenuatedCoverage);
 
     fXYDW.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("xydw", &fXYDW);

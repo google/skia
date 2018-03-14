@@ -79,9 +79,10 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
 
 void GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                      GrGLSLVarying::Scope scope, SkString* code,
-                                     const char* position, const char* inputCoverage,
-                                     const char* /*wind*/) {
-    SkASSERT(!inputCoverage);
+                                     const char* position, const char* coverage,
+                                     const char* attenuatedCoverage, const char* /*wind*/) {
+    SkASSERT(!coverage);
+    SkASSERT(!attenuatedCoverage);
 
     fKLMD.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("klmd", &fKLMD);

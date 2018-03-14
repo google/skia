@@ -29,7 +29,8 @@ protected:
                                  GeometryVars*) const {}
 
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                        const char* position, const char* inputCoverage, const char* wind) final;
+                        const char* position, const char* coverage, const char* attenuatedCoverage,
+                        const char* wind) final;
     virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) = 0;
 
     void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const final;
