@@ -5,18 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "sk_tool_utils.h"
 #include "SampleCode.h"
-#include "SkView.h"
+#include "SkBlendMode.h"
 #include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkPointPriv.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "SkImage.h"
-#include "SkSurface.h"
 #include "SkClipOpPriv.h"
+#include "SkColor.h"
+#include "SkImageInfo.h"
+#include "SkMatrix.h"
+#include "SkPaint.h"
+#include "SkPath.h"
+#include "SkPoint.h"
+#include "SkPointPriv.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
+#include "SkShader.h"
+#include "SkString.h"
+#include "SkSurface.h"
+#include "SkTypes.h"
+#include "SkView.h"
+#include "sk_tool_utils.h"
+
+class SkEvent;
 
 #define FAT_PIXEL_COLOR     SK_ColorBLACK
 #define PIXEL_CENTER_SIZE   3
