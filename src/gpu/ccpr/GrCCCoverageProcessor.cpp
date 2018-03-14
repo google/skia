@@ -96,6 +96,43 @@ void GrCCCoverageProcessor::Shader::CalcEdgeCoveragesAtBloatVertices(GrGLSLVerte
     s->codeAppendf("}");
 }
 
+void GrCCCoverageProcessor::Shader::CalcCornerCoverageAttenuation(GrGLSLVertexGeoBuilder* s,
+                                                                  const char* leftDir,
+                                                                  const char* rightDir,
+                                                                  const char* outputAttenuation) {
+    // obtuseness = cos(corner_angle)  if corner_angle > 90 degrees
+    //                              0  if corner_angle <= 90 degrees
+    s->codeAppendf("half obtuseness = max(dot(%s, %s), 0);", leftDir, rightDir);
+
+    // axis_alignedness = 1  when the leftDir/rightDir bisector is aligned with the x- or y-axis
+    //                    0  when the bisector falls on a 45 degree angle
+    //                    (i.e. 1 - tan(angle_to_nearest_axis))
+    s->codeAppendf("half2 abs_bisect = abs(%s - %s);", leftDir, rightDir);
+    s->codeAppend ("half axis_alignedness = 1 - min(abs_bisect.y, abs_bisect.x) / "
+                                               "max(abs_bisect.x, abs_bisect.y);");
+
+    // ninety_degreesness = sin^2(corner_angle)
+    // sin^2 just because... it's always positive and the results looked better than plain sine... ?
+    s->codeAppendf("half ninety_degreesness = determinant(half2x2(%s, %s));", leftDir, rightDir);
+    s->codeAppend ("ninety_degreesness = ninety_degreesness * ninety_degreesness;");
+
+    // The below formula is not smart. It was just arrived at by considering the following
+    // observations:
+    //
+    // 1. 90-degree, axis-aligned corners have full attenuation along the bisector.
+    //    (i.e. coverage = 1 - distance_to_corner^2)
+    //    (i.e. outputAttenuation = 0)
+    //
+    // 2. 180-degree corners always have zero attenuation.
+    //    (i.e. coverage = 1 - distance_to_corner)
+    //    (i.e. outputAttenuation = 1)
+    //
+    // 3. 90-degree corners whose bisector falls on a 45 degree angle also do not attenuate.
+    //    (i.e. outputAttenuation = 1)
+    s->codeAppendf("%s = max(obtuseness, axis_alignedness * ninety_degreesness);",
+                   outputAttenuation);
+}
+
 int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f,
                                                              const char* samplesName) {
     // Standard DX11 sample locations.
