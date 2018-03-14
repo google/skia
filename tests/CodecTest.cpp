@@ -43,8 +43,6 @@
 #include "SkWebpEncoder.h"
 #include "Test.h"
 #include "png.h"
-#include "pngconf.h"
-#include "scripts/pnglibconf.h.prebuilt"
 #include "sk_tool_utils.h"
 
 #include <setjmp.h>
