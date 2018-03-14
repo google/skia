@@ -33,6 +33,10 @@ SkBinaryWriteBuffer::~SkBinaryWriteBuffer() {
     SkSafeUnref(fTFSet);
 }
 
+bool SkBinaryWriteBuffer::usingInitialStorage() const {
+    return fWriter.usingInitialStorage();
+}
+
 void SkBinaryWriteBuffer::writeByteArray(const void* data, size_t size) {
     fWriter.write32(SkToU32(size));
     fWriter.writePad(data, size);
