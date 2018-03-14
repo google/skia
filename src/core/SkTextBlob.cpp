@@ -912,6 +912,19 @@ sk_sp<SkData> SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx) con
     return this->serialize(procs);
 }
 
+size_t SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx, void* memory,
+                                    size_t memory_size) const {
+    CatalogState state = { proc, ctx };
+    SkSerialProcs procs;
+    procs.fTypefaceProc = catalog_typeface_proc;
+    procs.fTypefaceCtx  = &state;
+
+    SkBinaryWriteBuffer buffer(memory, memory_size);
+    buffer.setSerialProcs(procs);
+    this->flatten(buffer);
+    return buffer.usingInitialStorage() ? buffer.bytesWritten() : 0u;
+}
+
 namespace {
     struct ResolverState {
         SkTypefaceResolverProc  fProc;
