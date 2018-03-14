@@ -63,9 +63,16 @@ public:
         SkASSERT(0 == fPendingReads);
         SkASSERT(0 == fPendingWrites);
 
-        SkASSERT(fTarget->internalHasUniqueRef());
+        SkASSERT(fRefCnt == fTarget->fRefCnt);
         SkASSERT(!fTarget->internalHasPendingIO());
-        fTarget->unref();
+        // In the current hybrid world, the proxy and backing surface are ref/unreffed in
+        // synchrony. In this instance we're deInstantiating the proxy so, regardless of the
+        // number of refs on the backing surface, we're going to remove it. If/when the proxy
+        // is re-instantiated all the refs on the proxy (presumably due to multiple uses in ops)
+        // will be transfered to the new surface.
+        for (int refs = fTarget->fRefCnt; refs; --refs) {
+            fTarget->unref();
+        }
         fTarget = nullptr;
     }
 
