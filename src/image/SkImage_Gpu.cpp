@@ -60,11 +60,16 @@ SkImage_Gpu::~SkImage_Gpu() {
 }
 
 SkImageInfo SkImage_Gpu::onImageInfo() const {
+    return SkImageInfo::Make(fProxy->width(), fProxy->height(), this->onColorType(), fAlphaType,
+                             fColorSpace);
+}
+
+SkColorType SkImage_Gpu::onColorType() const {
     SkColorType ct;
     if (!GrPixelConfigToColorType(fProxy->config(), &ct)) {
         ct = kUnknown_SkColorType;
     }
-    return SkImageInfo::Make(fProxy->width(), fProxy->height(), ct, fAlphaType, fColorSpace);
+    return ct;
 }
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace*, CachingHint chint) const {
