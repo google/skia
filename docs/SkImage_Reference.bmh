@@ -1070,6 +1070,24 @@ or was parsed from encoded data.
 
 # ------------------------------------------------------------------------------
 
+#Method SkColorType colorType() const
+#In Property
+#Line # returns Color_Type ##
+
+Returns Color_Type if known; otherwise, returns kUnknown_SkColorType.
+
+#Return Color_Type of Image ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso SkImageInfo::colorType
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method SkColorSpace* colorSpace() const
 #In Property
 #Line # returns Color_Space ##

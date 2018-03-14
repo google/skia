@@ -500,6 +500,12 @@ public:
     */
     SkAlphaType alphaType() const;
 
+    /** Returns SkColorType if known; otherwise, returns kUnknown_SkColorType.
+
+        @return SkColorType of SkImage
+    */
+    SkColorType colorType() const;
+
     /** Returns SkColorSpace, the range of colors, associated with SkImage.  The
         reference count of SkColorSpace is unchanged. The returned SkColorSpace is
         immutable.
