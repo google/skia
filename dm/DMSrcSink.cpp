@@ -1317,6 +1317,16 @@ static sk_sp<SkImage> promise_image_creator(const void* rawData, size_t length, 
     return image;
 };
 
+static sk_sp<SkImage> find_existing(SkTArray<PromiseImageInfo>* info, SkImage* candidate) {
+    for (int i = 0; i < info->count(); ++i) {
+        if ((*info)[i].fImage->uniqueID() == candidate->uniqueID()) {
+            return (*info)[i].fImage;
+        }
+    }
+
+    return nullptr;
+}
+
 Error DDLSKPSrc::draw(SkCanvas* canvas) const {
     GrContext* context = canvas->getGrContext();
     if (!context) {
@@ -1411,10 +1421,15 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
                 auto imageInfo = static_cast<SkTArray<PromiseImageInfo>*>(ctx);
 
                 sk_sp<SkData> data = SkData::MakeWithCopy(rawData, length);
+                sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(data));
+
+                if (sk_sp<SkImage> existingImg = find_existing(imageInfo, image.get())) {
+                    return existingImg;
+                }
 
                 PromiseImageInfo newImageInfo;
                 newImageInfo.fIndex = imageInfo->count();
-                newImageInfo.fImage = SkImage::MakeFromEncoded(std::move(data));
+                newImageInfo.fImage = image;
                 SkAssertResult(newImageInfo.fImage->asLegacyBitmap(&newImageInfo.fBitmap));
 
                 imageInfo->push_back(newImageInfo);
