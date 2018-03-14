@@ -22,6 +22,30 @@
       "revId": "ac20fc5025d5d896acdcc45d3e64ba21f693a0b8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df9418f3_8002b239",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-14T17:25:31Z",
+      "side": 1,
+      "message": "Wait, I\u0027m looking at the wrong thing, this is strong, isn\u0027t it.",
+      "parentUuid": "f816ef79_81a406fb",
+      "range": {
+        "startLine": 66,
+        "startChar": 15,
+        "endLine": 66,
+        "endChar": 36
+      },
+      "revId": "ac20fc5025d5d896acdcc45d3e64ba21f693a0b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
