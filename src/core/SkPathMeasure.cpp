@@ -478,7 +478,7 @@ SkPathMeasure::SkPathMeasure() {
 }
 
 SkPathMeasure::SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale) {
-    fPath = path;
+    fPath = path.isFinite() ? path : SkPath();
     fTolerance = CHEAP_DIST_LIMIT * SkScalarInvert(resScale);
     fLength = -1;   // signal we need to compute it
     fForceClosed = forceClosed;
@@ -492,7 +492,7 @@ SkPathMeasure::~SkPathMeasure() {}
 /** Assign a new path, or null to have none.
 */
 void SkPathMeasure::setPath(const SkPath* path, bool forceClosed) {
-    if (path) {
+    if (path && path->isFinite()) {
         fPath = *path;
     } else {
         fPath.reset();
