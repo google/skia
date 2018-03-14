@@ -45,11 +45,11 @@ static size_t format_rowbytes(int width, SkMask::Format format) {
             return bits_to_bytes(width);
         case SkMask::kA8_Format:
         case SkMask::k3D_Format:
-            return SkAlign4(width);
+            return width;
         case SkMask::kARGB32_Format:
             return width * sizeof(uint32_t);
         case SkMask::kLCD16_Format:
-            return SkAlign4(width * sizeof(uint16_t));
+            return width * sizeof(uint16_t);
         default:
             SK_ABORT("Unknown mask format.");
             break;
