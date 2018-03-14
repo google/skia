@@ -46,6 +46,30 @@
       "revId": "ac20fc5025d5d896acdcc45d3e64ba21f693a0b8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d5c2b67_4253fac3",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-03-14T17:43:58Z",
+      "side": 1,
+      "message": "This is strong ordering; it takes the entire glyph id and position info into account. It is mainly here for experimenting with containers to produce a set of unique glyphs from a string of glyphs.",
+      "parentUuid": "df9418f3_8002b239",
+      "range": {
+        "startLine": 66,
+        "startChar": 15,
+        "endLine": 66,
+        "endChar": 36
+      },
+      "revId": "ac20fc5025d5d896acdcc45d3e64ba21f693a0b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
