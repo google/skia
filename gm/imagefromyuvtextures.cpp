@@ -137,11 +137,6 @@ protected:
 
         constexpr SkScalar kPad = 10.f;
 
-        SkISize sizes[] = {
-            { fYUVBmps[0].width(), fYUVBmps[0].height()},
-            { fYUVBmps[1].width(), fYUVBmps[1].height()},
-            { fYUVBmps[2].width(), fYUVBmps[2].height()},
-        };
         SkTArray<sk_sp<SkImage>> images;
         images.push_back(fRGBImage);
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
@@ -149,7 +144,7 @@ protected:
             this->createYUVTextures(context, yuvTextures);
             images.push_back(SkImage::MakeFromYUVTexturesCopy(context,
                                                               static_cast<SkYUVColorSpace>(space),
-                                                              yuvTextures, sizes,
+                                                              yuvTextures,
                                                               kTopLeft_GrSurfaceOrigin));
             this->deleteYUVTextures(context, yuvTextures);
         }
