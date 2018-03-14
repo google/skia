@@ -164,6 +164,9 @@ DEFINE_string(pr, "default",
               "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
               "[~]aalinearizing [~]small [~]tess]");
 
+DEFINE_int32(ddl, 0, "If > 0, the # of x & y divisions used for DeferredDisplayList-based "
+                     "GPU SKP rendering.");
+
 void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     static std::unique_ptr<SkExecutor> gGpuExecutor = (0 != FLAGS_gpuThreads)
         ? SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads) : nullptr;

@@ -1207,12 +1207,8 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static const int kNumDDLXTiles = 3;
-static const int kNumDDLYTiles = 3;
-static const int kDDLTileSize = 1024;
-static const SkRect kDDLSKPViewport = { 0, 0,
-                                        kNumDDLXTiles * kDDLTileSize,
-                                        kNumDDLYTiles * kDDLTileSize };
+static const int kDDLViewportSize = 2048;
+static const SkRect kDDLSKPViewport = { 0, 0, kDDLViewportSize, kDDLViewportSize };
 
 DDLSKPSrc::DDLSKPSrc(Path path) : fPath(path) { }
 
@@ -1317,10 +1313,24 @@ static sk_sp<SkImage> promise_image_creator(const void* rawData, size_t length, 
     return image;
 };
 
+// DDL TODO: it would be great if we could draw the DDL directly into the destination SkSurface
 Error DDLSKPSrc::draw(SkCanvas* canvas) const {
     GrContext* context = canvas->getGrContext();
     if (!context) {
         return SkStringPrintf("DDLs are GPU only\n");
+    }
+
+    if (1 == FLAGS_ddl) {
+        // If the number of x & y tiles is one just perform normal (non-DDL) rendering for
+        // comparison purposes
+        sk_sp<SkPicture> picture = read_skp(fPath.c_str());
+        if (!picture) {
+            return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+        }
+
+        canvas->clipRect(kDDLSKPViewport);
+        canvas->drawPicture(std::move(picture));
+        return "";
     }
 
     class TileData {
@@ -1394,7 +1404,8 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
 
     SkTArray<PromiseImageInfo> imageInfo;
     sk_sp<SkData> compressedPictureData;
-    SkRect pictureCullRect;
+
+    SkIRect viewport;  // this is our ultimate final drawing area/rect
 
     // DDL TODO: should we also be deduping in the following preprocessing?
 
@@ -1426,7 +1437,9 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
                 return SkStringPrintf("Couldn't read %s.", fPath.c_str());
             }
 
-            pictureCullRect = firstPassPicture->cullRect();
+            SkRect pictureCullRect = firstPassPicture->cullRect();
+            SkAssertResult(pictureCullRect.intersect(kDDLSKPViewport));
+            viewport = pictureCullRect.roundOut();
         }
 
         // In the second pass we convert the SkPicture into SkData replacing all the SkImages
@@ -1477,20 +1490,23 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
         }
     }
 
-    // All the destination tiles are the same size
-    const SkImageInfo tileII = SkImageInfo::MakeN32Premul(kDDLTileSize, kDDLTileSize);
+    int xTileSize = viewport.width()/FLAGS_ddl;
+    int yTileSize = viewport.height()/FLAGS_ddl;
 
     // First, create the destination tiles
-    for (int y = 0; y < kNumDDLYTiles; ++y) {
-        for (int x = 0; x < kNumDDLXTiles; ++x) {
-            SkRect clip = SkRect::MakeXYWH(x * kDDLTileSize, y * kDDLTileSize,
-                                           kDDLTileSize, kDDLTileSize);
+    for (int y = 0, yOff = 0; y < FLAGS_ddl; ++y, yOff += yTileSize) {
+        int ySize = (y < FLAGS_ddl-1) ? yTileSize : viewport.height()-yOff;
 
-            if (!clip.intersect(pictureCullRect)) {
-                continue;
-            }
+        for (int x = 0, xOff = 0; x < FLAGS_ddl; ++x, xOff += xTileSize) {
+            int xSize = (x < FLAGS_ddl-1) ? xTileSize : viewport.width()-xOff;
 
-            tileData.push_back(TileData(canvas->makeSurface(tileII), clip.roundOut()));
+            SkIRect clip = SkIRect::MakeXYWH(xOff, yOff, xSize, ySize);
+
+            SkASSERT(viewport.contains(clip));
+
+            SkImageInfo tileII = SkImageInfo::MakeN32Premul(xSize, ySize);
+
+            tileData.push_back(TileData(canvas->makeSurface(tileII), clip));
         }
     }
 
