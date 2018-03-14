@@ -1802,10 +1802,11 @@ bool is_assignment(Token::Kind op) {
     }
 }
 
-SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, OutputStream& out) {
+SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, SpvOp op,
+                                     OutputStream& out) {
     if (operandType.kind() == Type::kVector_Kind) {
         SpvId result = this->nextId();
-        this->writeInstruction(SpvOpAll, this->getType(*fContext.fBool_Type), result, id, out);
+        this->writeInstruction(op, this->getType(*fContext.fBool_Type), result, id, out);
         return result;
     }
     return id;
@@ -1877,36 +1878,38 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         return rhs;
     }
     Type tmp("<invalid>");
-    // component type we are operating on: float, int, uint
+    // overall type we are operating on: float2, int, uint4...
     const Type* operandType;
-    // IR allows mismatched types in expressions (e.g. float2* float), but they need special handling
-    // in SPIR-V
+    // IR allows mismatched types in expressions (e.g. float2 * float), but they need special
+    // handling in SPIR-V
     if (this->getActualType(b.fLeft->fType) != this->getActualType(b.fRight->fType)) {
         if (b.fLeft->fType.kind() == Type::kVector_Kind &&
             b.fRight->fType.isNumber()) {
             // promote number to vector
             SpvId vec = this->nextId();
-            this->writeOpCode(SpvOpCompositeConstruct, 3 + b.fType.columns(), out);
-            this->writeWord(this->getType(resultType), out);
+            const Type& vecType = b.fLeft->fType;
+            this->writeOpCode(SpvOpCompositeConstruct, 3 + vecType.columns(), out);
+            this->writeWord(this->getType(vecType), out);
             this->writeWord(vec, out);
-            for (int i = 0; i < resultType.columns(); i++) {
+            for (int i = 0; i < vecType.columns(); i++) {
                 this->writeWord(rhs, out);
             }
             rhs = vec;
-            operandType = &b.fRight->fType;
+            operandType = &b.fLeft->fType;
         } else if (b.fRight->fType.kind() == Type::kVector_Kind &&
                    b.fLeft->fType.isNumber()) {
             // promote number to vector
             SpvId vec = this->nextId();
-            this->writeOpCode(SpvOpCompositeConstruct, 3 + b.fType.columns(), out);
-            this->writeWord(this->getType(resultType), out);
+            const Type& vecType = b.fRight->fType;
+            this->writeOpCode(SpvOpCompositeConstruct, 3 + vecType.columns(), out);
+            this->writeWord(this->getType(vecType), out);
             this->writeWord(vec, out);
-            for (int i = 0; i < resultType.columns(); i++) {
+            for (int i = 0; i < vecType.columns(); i++) {
                 this->writeWord(lhs, out);
             }
             lhs = vec;
             ASSERT(!lvalue);
-            operandType = &b.fLeft->fType;
+            operandType = &b.fRight->fType;
         } else if (b.fLeft->fType.kind() == Type::kMatrix_Kind) {
             SpvOp_ op;
             if (b.fRight->fType.kind() == Type::kMatrix_Kind) {
@@ -1956,10 +1959,18 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
                                                    SpvOpIEqual, out);
             }
             ASSERT(resultType == *fContext.fBool_Type);
-            return this->foldToBool(this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+            const Type* tmpType;
+            if (operandType->kind() == Type::kVector_Kind) {
+                tmpType = &fContext.fBool_Type->toCompound(fContext,
+                                                           operandType->columns(),
+                                                           operandType->rows());
+            } else {
+                tmpType = &resultType;
+            }
+            return this->foldToBool(this->writeBinaryOperation(*tmpType, *operandType, lhs, rhs,
                                                                SpvOpFOrdEqual, SpvOpIEqual,
                                                                SpvOpIEqual, SpvOpLogicalEqual, out),
-                                    *operandType, out);
+                                    *operandType, SpvOpAll, out);
         }
         case Token::NEQ:
             if (operandType->kind() == Type::kMatrix_Kind) {
@@ -1967,11 +1978,19 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
                                                    SpvOpINotEqual, out);
             }
             ASSERT(resultType == *fContext.fBool_Type);
-            return this->foldToBool(this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+            const Type* tmpType;
+            if (operandType->kind() == Type::kVector_Kind) {
+                tmpType = &fContext.fBool_Type->toCompound(fContext,
+                                                           operandType->columns(),
+                                                           operandType->rows());
+            } else {
+                tmpType = &resultType;
+            }
+            return this->foldToBool(this->writeBinaryOperation(*tmpType, *operandType, lhs, rhs,
                                                                SpvOpFOrdNotEqual, SpvOpINotEqual,
                                                                SpvOpINotEqual, SpvOpLogicalNotEqual,
                                                                out),
-                                    *operandType, out);
+                                    *operandType, SpvOpAny, out);
         case Token::GT:
             ASSERT(resultType == *fContext.fBool_Type);
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
