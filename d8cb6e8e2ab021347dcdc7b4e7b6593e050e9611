@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "9edef082_4eade7b0",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 8033
+      },
+      "writtenOn": "2018-03-14T10:20:03Z",
+      "side": 1,
+      "message": "Did you mean NUM_PROGRAM_BINARY_FORMATS?\nI think that in practice they will be the same, but in theory they are different.",
+      "range": {
+        "startLine": 588,
+        "startChar": 31,
+        "endLine": 588,
+        "endChar": 62
+      },
+      "revId": "d8cb6e8e2ab021347dcdc7b4e7b6593e050e9611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc9170f2_c52b99ee",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 2
