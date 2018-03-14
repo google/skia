@@ -1493,6 +1493,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
 GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, int w, int h,
                                                           GrPixelConfig config, bool isRenderTarget,
                                                           GrMipMapped mipMapped) {
+    this->handleDirtyContext();
     GrVkImageInfo info;
     if (!this->createTestingOnlyVkImage(config, w, h, true, isRenderTarget, mipMapped, srcData,
                                         &info)) {
@@ -1534,6 +1535,7 @@ void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
 
 GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType ct,
                                                                     GrSRGBEncoded srgbEncoded) {
+    this->handleDirtyContext();
     GrVkImageInfo info;
     auto config = GrColorTypeToPixelConfig(ct, srgbEncoded);
     if (kUnknown_GrPixelConfig == config) {

@@ -4348,6 +4348,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                           GrPixelConfig config, bool /*isRT*/,
                                                           GrMipMapped mipMapped) {
+    this->handleDirtyContext();
     if (!this->caps()->isConfigTexturable(config)) {
         return GrBackendTexture();  // invalid
     }
@@ -4440,6 +4441,7 @@ void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
 GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h,
                                                                     GrColorType colorType,
                                                                     GrSRGBEncoded srgbEncoded) {
+    this->handleDirtyContext();
     auto config = GrColorTypeToPixelConfig(colorType, srgbEncoded);
     GrGLenum colorBufferFormat;
     if (!this->glCaps().getRenderbufferFormat(config, &colorBufferFormat)) {
