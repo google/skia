@@ -166,6 +166,10 @@ public:
     bool canUseFragCoord() const {
         return true;
     }
+
+    bool incompleteShortIntPrecision() const {
+        return false;
+    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
