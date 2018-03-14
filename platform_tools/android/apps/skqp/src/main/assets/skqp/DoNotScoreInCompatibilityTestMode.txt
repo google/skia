@@ -40,6 +40,7 @@ dash_line_zero_off_interval
 dashcircle
 dashing
 dashing4
+dashing5_aa
 dashing5_bw
 dftext
 dftext_blob_persp
