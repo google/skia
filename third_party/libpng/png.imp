@@ -1,0 +1,5 @@
+[
+  { include: ["\"pngconf.h\"", "private", "\"png.h\"", "public"] },
+  { include: ["\"pnglibconf.h\"", "private", "\"png.h\"", "public"] },
+  { include: ["\"scripts/pnglibconf.h.prebuilt\"", "private", "\"png.h\"", "public"] }
+]
