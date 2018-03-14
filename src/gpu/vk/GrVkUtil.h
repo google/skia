@@ -32,6 +32,11 @@ class GrVkGpu;
  */
 bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format);
 
+/**
+* Returns the GrPixelConfig for the given vulkan texture format
+*/
+GrPixelConfig GrVkFormatToPixelConfig(VkFormat format);
+
 bool GrVkFormatIsSupported(VkFormat);
 
 /**

@@ -138,10 +138,7 @@ public:
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
-#if GR_TEST_UTILS
-    GrPixelConfig getPixelConfig() const { return fConfig; }
-    void setPixelConfig(GrPixelConfig config) { fConfig = config; }
-#endif
+    GrPixelConfig testingOnly_getPixelConfig() const;
 
 private:
     // Friending for access to the GrPixelConfig
@@ -152,7 +149,6 @@ private:
     friend class GrGpu;
     friend class GrGLGpu;
     friend class GrVkGpu;
-    friend class PromiseImageHelper;
     GrPixelConfig config() const { return fConfig; }
 
     int fWidth;         //<! width in pixels
@@ -228,10 +224,7 @@ public:
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
-#if GR_TEST_UTILS
-    GrPixelConfig getPixelConfig() const { return fConfig; }
-    void setPixelConfig(GrPixelConfig config) { fConfig = config; }
-#endif
+    GrPixelConfig testingOnly_getPixelConfig() const;
 
 private:
     // Friending for access to the GrPixelConfig
