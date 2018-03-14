@@ -16,7 +16,7 @@ import subprocess
 import utils
 
 
-CLANG_REVISION = '327266'
+CLANG_REVISION = '318667'
 CLANG_SUB_REVISION = '1'
 CLANG_PKG_VERSION = '%s-%s' % (CLANG_REVISION, CLANG_SUB_REVISION)
 GS_URL = ('https://commondatastorage.googleapis.com/chromium-browser-clang'
