@@ -6,9 +6,11 @@
 from _hardware import HardwareException, Expectation
 from _hardware_android import HardwareAndroid
 
-CPU_CLOCK_RATE = 1836000
-GPU_EMC_PROFILE = '0c: core 921 MHz emc 1600 MHz a A d D *'
-GPU_EMC_PROFILE_ID = '0c'
+CPU_CLOCK_RATE = 1326000
+# If you run adb cat /sys/devices/57000000.gpu/pstate it shows all
+# possible configurations, with a * next to the current one.
+GPU_EMC_PROFILE = '04: core 307 MHz emc 1065 MHz a A d D *'
+GPU_EMC_PROFILE_ID = '04'
 
 class HardwarePixelC(HardwareAndroid):
   def __init__(self, adb):
@@ -20,17 +22,21 @@ class HardwarePixelC(HardwareAndroid):
       return self
 
     self._adb.shell('\n'.join([
-      # turn on and lock the first 3 cores.
+      # pylint: disable=line-too-long
+      # Based on https://android.googlesource.com/platform/frameworks/base/+/master/libs/hwui/tests/scripts/prep_ryu.sh
+      # All CPUs have the same scaling settings, so we only need to set it once
       '''
-      for N in 0 1 2; do
-        echo 1 > /sys/devices/system/cpu/cpu$N/online
-        echo userspace > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_governor
-        echo %i > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_max_freq
-        echo %i > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_min_freq
-        echo %i > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_setspeed
-      done''' % tuple(CPU_CLOCK_RATE for _ in range(3)),
+      stop thermal-engine
+      stop perfd
 
-      # turn off the fourth core.
+      echo userspace > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+      echo %i > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+      echo %i > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+      echo %i > /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+      ''' % tuple(CPU_CLOCK_RATE for _ in range(3)),
+      # turn off the fourth core. This will hopefully produce less heat, allowing
+      # for more consistent results.  3 cores should be enough to run Ganesh,
+      # the graphics driver, and the OS.
       '''
       echo 0 > /sys/devices/system/cpu/cpu3/online''',
 
