@@ -67,7 +67,7 @@ void SkTSect<TCurve, OppCurve>::dumpBoth(SkTSect<OppCurve, TCurve>* opp) const {
     SkDebugf("%d ", ++gDumpTSectNum);
 #endif
     this->dump();
-    SkDebugf(" ");
+    SkDebugf("\n");
     opp->dump();
     SkDebugf("\n");
 #elif DEBUG_T_SECT_DUMP == 3

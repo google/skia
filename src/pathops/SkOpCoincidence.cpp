@@ -691,7 +691,7 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
     if (overlap && os && oe && overlap->contains(os, oe)) {
         return true;
     }
-    SkASSERT(!cs || !cs->deleted());
+    FAIL_IF(cs && cs->deleted());
     FAIL_IF(os && os->deleted());
     SkASSERT(!ce || !ce->deleted());
     FAIL_IF(oe && oe->deleted());
@@ -1098,7 +1098,7 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
             FAIL_IF(windValue == -1);
             start->setWindValue(windValue);
             start->setOppValue(oppValue);
-            FAIL_IF(oWindValue == -1);
+            FAIL_IF(oWindValue <= -1);
             oStart->setWindValue(oWindValue);
             oStart->setOppValue(oOppValue);
             if (!windValue && !oppValue) {

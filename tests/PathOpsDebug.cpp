@@ -208,130 +208,134 @@ void SkIntersections::dump() const {
     SkDebugf("\n");
 }
 
-const SkOpAngle* SkPathOpsDebug::DebugAngleAngle(const SkOpAngle* angle, int id) {
+namespace SkOpDebug {
+
+const ::SkOpAngle* AngleAngle(const ::SkOpAngle* angle, int id) {
     return angle->debugAngle(id);
 }
 
-SkOpContour* SkPathOpsDebug::DebugAngleContour(SkOpAngle* angle, int id) {
+::SkOpContour* AngleContour(::SkOpAngle* angle, int id) {
     return angle->debugContour(id);
 }
 
-const SkOpPtT* SkPathOpsDebug::DebugAnglePtT(const SkOpAngle* angle, int id) {
+const ::SkOpPtT* AnglePtT(const ::SkOpAngle* angle, int id) {
     return angle->debugPtT(id);
 }
 
-const SkOpSegment* SkPathOpsDebug::DebugAngleSegment(const SkOpAngle* angle, int id) {
+const ::SkOpSegment* AngleSegment(const ::SkOpAngle* angle, int id) {
     return angle->debugSegment(id);
 }
 
-const SkOpSpanBase* SkPathOpsDebug::DebugAngleSpan(const SkOpAngle* angle, int id) {
+const ::SkOpSpanBase* AngleSpan(const ::SkOpAngle* angle, int id) {
     return angle->debugSpan(id);
 }
 
-const SkOpAngle* SkPathOpsDebug::DebugContourAngle(SkOpContour* contour, int id) {
+const ::SkOpAngle* ContourAngle(::SkOpContour* contour, int id) {
     return contour->debugAngle(id);
 }
 
-SkOpContour* SkPathOpsDebug::DebugContourContour(SkOpContour* contour, int id) {
+::SkOpContour* ContourContour(::SkOpContour* contour, int id) {
     return contour->debugContour(id);
 }
 
-const SkOpPtT* SkPathOpsDebug::DebugContourPtT(SkOpContour* contour, int id) {
+const ::SkOpPtT* ContourPtT(::SkOpContour* contour, int id) {
     return contour->debugPtT(id);
 }
 
-const SkOpSegment* SkPathOpsDebug::DebugContourSegment(SkOpContour* contour, int id) {
+const ::SkOpSegment* ContourSegment(::SkOpContour* contour, int id) {
     return contour->debugSegment(id);
 }
 
-const SkOpSpanBase* SkPathOpsDebug::DebugContourSpan(SkOpContour* contour, int id) {
+const ::SkOpSpanBase* ContourSpan(::SkOpContour* contour, int id) {
     return contour->debugSpan(id);
 }
 
-const SkOpAngle* SkPathOpsDebug::DebugCoincidenceAngle(SkOpCoincidence* coin, int id) {
+const ::SkOpAngle* CoincidenceAngle(::SkOpCoincidence* coin, int id) {
     return coin->debugAngle(id);
 }
 
-SkOpContour* SkPathOpsDebug::DebugCoincidenceContour(SkOpCoincidence* coin, int id) {
+::SkOpContour* CoincidenceContour(::SkOpCoincidence* coin, int id) {
     return coin->debugContour(id);
 }
 
-const SkOpPtT* SkPathOpsDebug::DebugCoincidencePtT(SkOpCoincidence* coin, int id) {
+const ::SkOpPtT* CoincidencePtT(::SkOpCoincidence* coin, int id) {
     return coin->debugPtT(id);
 }
 
-const SkOpSegment* SkPathOpsDebug::DebugCoincidenceSegment(SkOpCoincidence* coin, int id) {
+const ::SkOpSegment* CoincidenceSegment(::SkOpCoincidence* coin, int id) {
     return coin->debugSegment(id);
 }
 
-const SkOpSpanBase* SkPathOpsDebug::DebugCoincidenceSpan(SkOpCoincidence* coin, int id) {
+const ::SkOpSpanBase* CoincidenceSpan(::SkOpCoincidence* coin, int id) {
     return coin->debugSpan(id);
 }
 
-const SkOpAngle* SkPathOpsDebug::DebugPtTAngle(const SkOpPtT* ptT, int id) {
+const ::SkOpAngle* PtTAngle(const ::SkOpPtT* ptT, int id) {
     return ptT->debugAngle(id);
 }
 
-SkOpContour* SkPathOpsDebug::DebugPtTContour(SkOpPtT* ptT, int id) {
+::SkOpContour* PtTContour(::SkOpPtT* ptT, int id) {
     return ptT->debugContour(id);
 }
 
-const SkOpPtT* SkPathOpsDebug::DebugPtTPtT(const SkOpPtT* ptT, int id) {
+const ::SkOpPtT* PtTPtT(const ::SkOpPtT* ptT, int id) {
     return ptT->debugPtT(id);
 }
 
-const SkOpSegment* SkPathOpsDebug::DebugPtTSegment(const SkOpPtT* ptT, int id) {
+const ::SkOpSegment* PtTSegment(const ::SkOpPtT* ptT, int id) {
     return ptT->debugSegment(id);
 }
 
-const SkOpSpanBase* SkPathOpsDebug::DebugPtTSpan(const SkOpPtT* ptT, int id) {
+const ::SkOpSpanBase* PtTSpan(const ::SkOpPtT* ptT, int id) {
     return ptT->debugSpan(id);
 }
 
-const SkOpAngle* SkPathOpsDebug::DebugSegmentAngle(const SkOpSegment* span, int id) {
+const ::SkOpAngle* SegmentAngle(const ::SkOpSegment* span, int id) {
     return span->debugAngle(id);
 }
 
-SkOpContour* SkPathOpsDebug::DebugSegmentContour(SkOpSegment* span, int id) {
+::SkOpContour* SegmentContour(::SkOpSegment* span, int id) {
     return span->debugContour(id);
 }
 
-const SkOpPtT* SkPathOpsDebug::DebugSegmentPtT(const SkOpSegment* span, int id) {
+const ::SkOpPtT* SegmentPtT(const ::SkOpSegment* span, int id) {
     return span->debugPtT(id);
 }
 
-const SkOpSegment* SkPathOpsDebug::DebugSegmentSegment(const SkOpSegment* span, int id) {
+const ::SkOpSegment* SegmentSegment(const ::SkOpSegment* span, int id) {
     return span->debugSegment(id);
 }
 
-const SkOpSpanBase* SkPathOpsDebug::DebugSegmentSpan(const SkOpSegment* span, int id) {
+const ::SkOpSpanBase* SegmentSpan(const ::SkOpSegment* span, int id) {
     return span->debugSpan(id);
 }
 
-const SkOpAngle* SkPathOpsDebug::DebugSpanAngle(const SkOpSpanBase* span, int id) {
+const ::SkOpAngle* SpanAngle(const ::SkOpSpanBase* span, int id) {
     return span->debugAngle(id);
 }
 
-SkOpContour* SkPathOpsDebug::DebugSpanContour(SkOpSpanBase* span, int id) {
+::SkOpContour* SpanContour(::SkOpSpanBase* span, int id) {
     return span->debugContour(id);
 }
 
-const SkOpPtT* SkPathOpsDebug::DebugSpanPtT(const SkOpSpanBase* span, int id) {
+const ::SkOpPtT* SpanPtT(const ::SkOpSpanBase* span, int id) {
     return span->debugPtT(id);
 }
 
-const SkOpSegment* SkPathOpsDebug::DebugSpanSegment(const SkOpSpanBase* span, int id) {
+const ::SkOpSegment* SpanSegment(const ::SkOpSpanBase* span, int id) {
     return span->debugSegment(id);
 }
 
-const SkOpSpanBase* SkPathOpsDebug::DebugSpanSpan(const SkOpSpanBase* span, int id) {
+const ::SkOpSpanBase* SpanSpan(const ::SkOpSpanBase* span, int id) {
     return span->debugSpan(id);
 }
+
+} // namespace SkPathOpsDebug
 
 #if DEBUG_COIN
 void SkPathOpsDebug::DumpCoinDict() {
-    gCoinSumChangedDict.dump("unused coin algorithm", false);
-    gCoinSumVisitedDict.dump("visited coin function", true);
+    SkPathOpsDebug::gCoinSumChangedDict.dump("unused coin algorithm", false);
+    SkPathOpsDebug::gCoinSumVisitedDict.dump("visited coin function", true);
 }
 
 void SkPathOpsDebug::CoinDict::dump(const char* str, bool visitCheck) const {
@@ -1479,3 +1483,223 @@ const SkOpSpanBase* SkOpGlobalState::debugSpan(int id) const {
 #if DEBUG_T_SECT_DUMP > 1
 int gDumpTSectNum;
 #endif
+
+// global path dumps for msvs Visual Studio 17 to use from Immediate Window
+namespace SkOpDebug {
+
+    void Dump(const SkOpContour& contour) {
+        contour.dump();
+    }
+
+    void DumpAll(const SkOpContour& contour) {
+        contour.dumpAll();
+    }
+
+    void DumpAngles(const SkOpContour& contour) {
+        contour.dumpAngles();
+    }
+
+    void DumpContours(const SkOpContour& contour) {
+        contour.dumpContours();
+    }
+
+    void DumpContoursAll(const SkOpContour& contour) {
+        contour.dumpContoursAll();
+    }
+
+    void DumpContoursAngles(const SkOpContour& contour) {
+        contour.dumpContoursAngles();
+    }
+
+    void DumpContoursPts(const SkOpContour& contour) {
+        contour.dumpContoursPts();
+    }
+
+    void DumpContoursPt(const SkOpContour& contour, int segmentID) {
+        contour.dumpContoursPt(segmentID);
+    }
+
+    void DumpContoursSegment(const SkOpContour& contour, int segmentID) {
+        contour.dumpContoursSegment(segmentID);
+    }
+
+    void DumpContoursSpan(const SkOpContour& contour, int segmentID) {
+        contour.dumpContoursSpan(segmentID);
+    }
+
+    void DumpContoursSpans(const SkOpContour& contour) {
+        contour.dumpContoursSpans();
+    }
+
+    void DumpPt(const SkOpContour& contour, int pt) {
+        contour.dumpPt(pt);
+    }
+
+    void DumpPts(const SkOpContour& contour, const char* prefix) {
+        contour.dumpPts(prefix);
+    }
+
+    void DumpSegment(const SkOpContour& contour, int seg) {
+        contour.dumpSegment(seg);
+    }
+
+    void DumpSegments(const SkOpContour& contour, const char* prefix, SkPathOp op) {
+        contour.dumpSegments(prefix, op);
+    }
+
+    void DumpSpan(const SkOpContour& contour, int span) {
+        contour.dumpSpan(span);
+    }
+
+    void DumpSpans(const SkOpContour& contour ) {
+        contour.dumpSpans();
+    }
+
+    void Dump(const SkOpSegment& segment) {
+        segment.dump();
+    }
+
+    void DumpAll(const SkOpSegment& segment) {
+        segment.dumpAll();
+    }
+
+    void DumpAngles(const SkOpSegment& segment) {
+        segment.dumpAngles();
+    }
+
+    void DumpCoin(const SkOpSegment& segment) {
+        segment.dumpCoin();
+    }
+
+    void DumpPts(const SkOpSegment& segment, const char* prefix) {
+        segment.dumpPts(prefix);
+    }
+
+    void Dump(const SkOpPtT& ptT) {
+        ptT.dump();
+    }
+
+    void DumpAll(const SkOpPtT& ptT) {
+        ptT.dumpAll();
+    }
+
+    void Dump(const SkOpSpanBase& spanBase) {
+        spanBase.dump();
+    }
+
+    void DumpCoin(const SkOpSpanBase& spanBase) {
+        spanBase.dumpCoin();
+    }
+
+    void DumpAll(const SkOpSpanBase& spanBase) {
+        spanBase.dumpAll();
+    }
+
+    void DumpCoin(const SkOpSpan& span) {
+        span.dumpCoin();
+    }
+
+    bool DumpSpan(const SkOpSpan& span) {
+        return span.dumpSpan();
+    }
+
+    void Dump(const SkDConic& conic) {
+        conic.dump();
+    }
+
+    void DumpID(const SkDConic& conic, int id) {
+        conic.dumpID(id);
+    }
+
+    void Dump(const SkDCubic& cubic) {
+        cubic.dump();
+    }
+
+    void DumpID(const SkDCubic& cubic, int id) {
+        cubic.dumpID(id);
+    }
+
+    void Dump(const SkDLine& line) {
+        line.dump();
+    }
+
+    void DumpID(const SkDLine& line, int id) {
+        line.dumpID(id);
+    }
+
+    void Dump(const SkDQuad& quad) {
+        quad.dump();
+    }
+
+    void DumpID(const SkDQuad& quad, int id) {
+        quad.dumpID(id);
+    }
+
+    void Dump(const SkDPoint& point) {
+        point.dump();
+    }
+
+// dummy definitions to fool msvs Visual Studio 2018 Immediate Window
+#define DummyDefinitions(a, b)                                                                     \
+                                                                                                   \
+    void Dump(const SkDebugTCoincident##a##b& curve) {                                             \
+        ((const SkTCoincident<SkD##a, SkD##b>& ) curve).dump();                                    \
+    }                                                                                              \
+                                                                                                   \
+    void Dump(const SkDebugTSect##a##b& curve) {                                                   \
+        ((const SkTSect<SkD##a, SkD##b>& ) curve).dump();                                          \
+    }                                                                                              \
+                                                                                                   \
+    void DumpBoth(const SkDebugTSect##a##b& curve, SkDebugTSect##a##b* opp) {                      \
+        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpBoth((SkTSect<SkD##b, SkD##a>* ) opp);       \
+    }                                                                                              \
+                                                                                                   \
+    void DumpBounded(const SkDebugTSect##a##b& curve, int id) {                                    \
+        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpBounded(id);                                 \
+    }                                                                                              \
+                                                                                                   \
+    void DumpBounds(const SkDebugTSect##a##b& curve) {                                             \
+        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpBounds();                                    \
+    }                                                                                              \
+                                                                                                   \
+    void DumpCoin(const SkDebugTSect##a##b& curve) {                                               \
+        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpCoin();                                      \
+    }                                                                                              \
+                                                                                                   \
+    void DumpCoinCurves(const SkDebugTSect##a##b& curve) {                                         \
+        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpCoinCurves();                                \
+    }                                                                                              \
+                                                                                                   \
+    void DumpCurves(const SkDebugTSect##a##b& curve) {                                             \
+        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpCurves();                                    \
+    }                                                                                              \
+                                                                                                   \
+    void Dump(const SkDebugTSpan##a##b& curve) {                                                   \
+        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dump();                                          \
+    }                                                                                              \
+                                                                                                   \
+    void DumpAll(const SkDebugTSpan##a##b& curve) {                                                \
+        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dumpAll();                                       \
+    }                                                                                              \
+                                                                                                   \
+    void DumpBounded(const SkDebugTSpan##a##b& curve, int id) {                                    \
+        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dumpBounded(id);                                 \
+    }                                                                                              \
+                                                                                                   \
+    void DumpBounds(const SkDebugTSpan##a##b& curve) {                                             \
+        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dumpBounds();                                    \
+    }                                                                                              \
+                                                                                                   \
+    void DumpCoin(const SkDebugTSpan##a##b& curve) {                                               \
+        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dumpCoin();                                      \
+    }
+
+    DummyDefinitions(Quad, Quad);
+    DummyDefinitions(Conic, Quad);
+    DummyDefinitions(Conic, Conic);
+    DummyDefinitions(Cubic, Quad);
+    DummyDefinitions(Cubic, Conic);
+    DummyDefinitions(Cubic, Cubic);
+
+#undef DummyDefinitions
+}
