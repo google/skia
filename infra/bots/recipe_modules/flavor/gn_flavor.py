@@ -22,36 +22,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
           '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
           '--no-sync', '--no-hooks', '--make-output-dir'])
 
-  def _get_goma_json(self):
-    json_key = 'jwt_service_account_goma-client'
-    json_filename = json_key + '.json'
-
-    # Ensure that the tmp_dir exists.
-    self.m.run.run_once(self.m.file.ensure_directory,
-                        'makedirs tmp_dir',
-                        self.m.vars.tmp_dir)
-
-    json_file = self.m.vars.tmp_dir.join(json_filename)
-    self.m.python.inline(
-        'download ' + json_filename,
-        """
-import os
-import sys
-import urllib2
-
-TOKEN_URL = (
-    'http://metadata/computeMetadata/v1/project/attributes/%s')
-
-req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})
-contents = urllib2.urlopen(req).read()
-
-with open(sys.argv[1], 'w') as f:
-  f.write(contents)
-""" % json_key,
-        args=[json_file],
-        infra_step=True)
-    return json_file
-
   def compile(self, unused_target):
     """Build Skia with GN."""
     compiler      = self.m.vars.builder_cfg.get('compiler',      '')
@@ -60,7 +30,6 @@ with open(sys.argv[1], 'w') as f:
     os            = self.m.vars.builder_cfg.get('os',            '')
     target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
 
-    goma_dir           = None
     clang_linux        = str(self.m.vars.slave_dir.join('clang_linux'))
     emscripten_sdk     = str(self.m.vars.slave_dir.join('emscripten_sdk'))
     linux_vulkan_sdk   = str(self.m.vars.slave_dir.join('linux_vulkan_sdk'))
@@ -116,7 +85,6 @@ with open(sys.argv[1], 'w') as f:
       extra_ldflags.append('-L' + clang_linux + '/msan')
 
     args = {}
-    ninja_args = ['-k', '0', '-C', self.out_dir]
     env = {}
 
     if configuration != 'Debug':
@@ -189,26 +157,6 @@ with open(sys.argv[1], 'w') as f:
         'skia_use_icu':        'false',
         'skia_enable_gpu':     'false',
       })
-    if 'Goma' in extra_tokens or 'GomaNoFallback' in extra_tokens:
-      json_file = self._get_goma_json()
-      self.m.cipd.set_service_account_credentials(json_file)
-      goma_package = ('infra_internal/goma/client/%s' %
-                      self.m.cipd.platform_suffix())
-      goma_dir = self.m.path['cache'].join('goma')
-      self.m.cipd.ensure(goma_dir, {goma_package: 'release'})
-      env['GOMA_SERVICE_ACCOUNT_JSON_FILE'] = json_file
-      if 'GomaNoFallback' in extra_tokens:
-        env['GOMA_HERMETIC'] = 'error'
-        env['GOMA_USE_LOCAL'] = '0'
-        env['GOMA_FALLBACK'] = '0'
-      with self.m.context(cwd=goma_dir, env=env):
-        self._py('start goma', 'goma_ctl.py', args=['ensure_start'])
-      args['cc_wrapper'] = '"%s"' % goma_dir.join('gomacc')
-      if 'ANGLE' in extra_tokens and 'Win' in os:
-        # ANGLE uses case-insensitive include paths in D3D code. Not sure why
-        # only Goma warns about this.
-        extra_cflags.append('-Wno-nonportable-include-path')
-      ninja_args.extend(['-j', '2000'])
 
     sanitize = ''
     for t in extra_tokens:
@@ -240,31 +188,20 @@ with open(sys.argv[1], 'w') as f:
     ninja = 'ninja.exe' if 'Win' in os else 'ninja'
     gn = self.m.vars.skia_dir.join('bin', gn)
 
-    try:
-      with self.m.context(cwd=self.m.vars.skia_dir):
-        self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-        if 'CheckGeneratedFiles' in extra_tokens:
-          env['PATH'] = '%s:%%(PATH)s' % self.m.vars.skia_dir.join('bin')
-          self._py(
-              'fetch-clang-format',
-              self.m.vars.skia_dir.join('bin', 'fetch-clang-format'))
-        if target_arch == 'wasm':
-          fastcomp = emscripten_sdk + '/clang/fastcomp/build_incoming_64/bin'
-          env['PATH'] = '%s:%%(PATH)s' % fastcomp
+    with self.m.context(cwd=self.m.vars.skia_dir):
+      self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
+      if 'CheckGeneratedFiles' in extra_tokens:
+        env['PATH'] = '%s:%%(PATH)s' % self.m.vars.skia_dir.join('bin')
+        self._py(
+            'fetch-clang-format',
+            self.m.vars.skia_dir.join('bin', 'fetch-clang-format'))
+      if target_arch == 'wasm':
+        fastcomp = emscripten_sdk + '/clang/fastcomp/build_incoming_64/bin'
+        env['PATH'] = '%s:%%(PATH)s' % fastcomp
 
-        with self.m.env(env):
-          self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-          self._run('ninja', [ninja] + ninja_args)
-    finally:
-      if goma_dir:
-        with self.m.context(cwd=goma_dir, env=env):
-          self.m.run(self.m.python, 'print goma stats',
-                     script='goma_ctl.py', args=['stat'], infra_step=True,
-                     abort_on_failure=False, fail_build_on_failure=False)
-          self.m.run(self.m.python, 'stop goma',
-                     script='goma_ctl.py', args=['ensure_stop'],
-                     infra_step=True,
-                     abort_on_failure=False, fail_build_on_failure=False)
+      with self.m.env(env):
+        self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
+        self._run('ninja', [ninja, '-k', '0', '-C', self.out_dir])
 
   def step(self, name, cmd):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
