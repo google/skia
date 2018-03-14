@@ -62,9 +62,16 @@ struct SkPackedID {
     bool operator!=(const SkPackedID& that) const {
         return !(*this == that);
     }
+    bool operator<(SkPackedID that) const {
+        return this->fID < that.fID;
+    }
 
     uint32_t code() const {
         return fID & kCodeMask;
+    }
+
+    uint32_t getPackedID() const {
+        return fID;
     }
 
     SkFixed getSubXFixed() const {
@@ -157,7 +164,7 @@ public:
 
     void initWithGlyphID(SkPackedGlyphID glyph_id);
 
-    size_t allocImage(SkArenaAlloc* alloc) ;
+    size_t allocImage(SkArenaAlloc* alloc);
 
     size_t rowBytes() const;
     size_t rowBytesUsingFormat(SkMask::Format format) const;
