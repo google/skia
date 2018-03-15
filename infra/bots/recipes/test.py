@@ -235,6 +235,11 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr', '--cachePathMasks', 'false'])
 
+    # DDL is a GPU-only feature
+    if 'DDL' in bot:
+      configs = [c for c in configs if c == 'gl' or c == 'gles']
+      args.extend(['--ddl', "2"])
+
   tf = api.vars.builder_cfg.get('test_filter')
   if 'All' != tf:
     # Expected format: shard_XX_YY
@@ -267,6 +272,14 @@ def dm_flags(api, bot):
   if 'NativeFonts' in bot:  # images won't exercise native font integration :)
     args.remove('image')
     args.remove('colorImage')
+
+  if 'DDL' in bot:
+    args.remove('tests')
+    args.remove('gm')
+    args.remove('image')
+    args.remove('colorImage')
+    args.remove('svg')
+    args.add('skp')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
@@ -571,6 +584,9 @@ def dm_flags(api, bot):
   # disabled.
   if 'NoGPUThreads' in bot:
     args.extend(['--gpuThreads', '0'])
+
+  if 'DDL' in bot:
+    args.extend(['--ddl', '2'])
 
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
