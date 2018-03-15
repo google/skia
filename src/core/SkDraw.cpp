@@ -1540,7 +1540,8 @@ void SkDraw::drawText(const char text[], size_t byteLength, SkScalar x, SkScalar
         return;
     }
 
-    SkAutoGlyphCache cache(paint, props, this->scalerContextFlags(), fMatrix);
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
+            paint, props, this->scalerContextFlags(), fMatrix);
 
     // The Blitter Choose needs to be live while using the blitter below.
     SkAutoBlitterChoose    blitterChooser(fDst, *fMatrix, paint);
@@ -1571,7 +1572,8 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkS
     SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                         paint.isDevKernText(),
                                                                         true);
-    SkAutoGlyphCache cache(paint, props, this->scalerContextFlags(), nullptr);
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
+            paint, props, this->scalerContextFlags(), nullptr);
 
     const char*        stop = text + byteLength;
     SkTextAlignProc    alignProc(paint.getTextAlign());
@@ -1618,7 +1620,8 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
         return;
     }
 
-    SkAutoGlyphCache cache(paint, props, this->scalerContextFlags(), fMatrix);
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
+            paint, props, this->scalerContextFlags(), fMatrix);
 
     // The Blitter Choose needs to be live while using the blitter below.
     SkAutoBlitterChoose    blitterChooser(fDst, *fMatrix, paint);
