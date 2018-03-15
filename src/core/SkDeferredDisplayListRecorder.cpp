@@ -30,7 +30,7 @@ SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(
 }
 
 SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
-#if SK_SUPPORT_GPU && !defined(SK_RASTER_RECORDER_IMPLEMENTATION)
+#if SK_SUPPORT_GPU
     auto proxyProvider = fContext->contextPriv().proxyProvider();
 
     // DDL TODO: Remove this. DDL contexts should allow for deletion while still having live
@@ -47,15 +47,6 @@ bool SkDeferredDisplayListRecorder::init() {
         return false;
     }
 
-#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
-    // Use raster right now to allow threading
-    const SkImageInfo ii = SkImageInfo::Make(fCharacterization.width(), fCharacterization.height(),
-                                             kN32_SkColorType, kOpaque_SkAlphaType,
-                                             fCharacterization.refColorSpace());
-
-    fSurface = SkSurface::MakeRaster(ii, &fCharacterization.surfaceProps());
-    return SkToBool(fSurface.get());
-#else
     SkASSERT(!fLazyProxyData);
 
 #if SK_SUPPORT_GPU
@@ -113,8 +104,6 @@ bool SkDeferredDisplayListRecorder::init() {
 #else
     return false;
 #endif
-
-#endif
 }
 
 SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
@@ -128,16 +117,6 @@ SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
 }
 
 std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
-#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
-    sk_sp<SkImage> img = fSurface->makeImageSnapshot();
-    fSurface.reset();
-
-    // TODO: need to wrap the opLists associated with the deferred draws
-    // in the SkDeferredDisplayList.
-    return std::unique_ptr<SkDeferredDisplayList>(
-                            new SkDeferredDisplayList(fCharacterization, std::move(img)));
-#else
-
 #if SK_SUPPORT_GPU
     auto ddl = std::unique_ptr<SkDeferredDisplayList>(
                            new SkDeferredDisplayList(fCharacterization, std::move(fLazyProxyData)));
@@ -147,9 +126,6 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
 #else
     return nullptr;
 #endif
-
-#endif // SK_RASTER_RECORDER_IMPLEMENTATION
-
 }
 
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
@@ -164,7 +140,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         TextureFulfillProc textureFulfillProc,
         TextureReleaseProc textureReleaseProc,
         TextureContext textureContext) {
-#if !defined(SK_RASTER_RECORDER_IMPLEMENTATION) && SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
     return SkImage_Gpu::MakePromiseTexture(fContext.get(),
                                            backendFormat,
                                            width,

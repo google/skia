@@ -14,10 +14,6 @@
 #include "GrOpList.h"
 #endif
 
-#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
-class SkImage; // DDL TODO: rm this since it is just for the temporary placeholder implementation
-#endif
-
 class SkSurface;
 
 /*
@@ -28,16 +24,6 @@ class SkSurface;
  */
 class SkDeferredDisplayList {
 public:
-
-#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
-    SkDeferredDisplayList(const SkSurfaceCharacterization& characterization, sk_sp<SkImage> image)
-            : fCharacterization(characterization)
-            , fImage(std::move(image)) {
-    }
-
-    // DDL TODO: remove this. It is just scaffolding to get something up & running
-    bool draw(SkSurface*) const;
-#endif
 
 #if SK_SUPPORT_GPU
     // This object is the source from which the lazy proxy backing the DDL will pull its backing
@@ -67,16 +53,10 @@ private:
 
     const SkSurfaceCharacterization fCharacterization;
 
-#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
-    sk_sp<SkImage>               fImage;
-#else
-
 #if SK_SUPPORT_GPU
     SkTArray<sk_sp<GrOpList>>    fOpLists;
 #endif
     sk_sp<LazyProxyData>         fLazyProxyData;
-
-#endif
 };
 
 #endif
