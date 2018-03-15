@@ -22,8 +22,6 @@ namespace GrTest {
     // TODO: remove this. It is only used in the SurfaceSemaphores Test.
     GrBackendTexture CreateBackendTexture(GrBackend, int width, int height,
                                           GrPixelConfig, GrMipMapped, GrBackendObject);
-
-    GrBackendFormat CreateBackendFormatFromTexture(const GrBackendTexture& tex);
 };
 
 #endif

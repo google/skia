@@ -22,6 +22,7 @@
 #include "SkPM4f.h"
 #include "SkVertices.h"
 
+class GrBackendFormat;
 class GrCaps;
 class GrColorSpaceInfo;
 class GrColorSpaceXform;
