@@ -21,6 +21,7 @@
 #include "SkTextBlobRunIterator.h"
 #include "SkGlyphCache.h"
 #include "SkDrawFilter.h"
+#include "SkDevice.h"
 
 #include <type_traits>
 #include <chrono>
@@ -51,8 +52,13 @@ static bool gUseGpu = true;
 static bool gPurgeFontCaches = true;
 static bool gUseProcess = true;
 
+static int gFontMetrics;
+static int gMetricsImage;
+static int gPath;
+
 enum direction : int {kRead = 0, kWrite = 1};
 
+#define INSTRUMENT 0
 
 template <typename T>
 class SkArraySlice : public std::tuple<const T*, size_t> {
@@ -300,6 +306,18 @@ public:
     };
 };
 
+
+class TrackLayerDevice : public SkNoPixelsDevice {
+public:
+    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props)
+            : SkNoPixelsDevice(bounds, props) { }
+    SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
+        const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
+        return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps);
+    }
+};
+
+
 class TextBlobFilterCanvas : public SkNoDrawCanvas {
 public:
     struct StrikeSpec {
@@ -323,7 +341,7 @@ public:
                          const SkMatrix& deviceMatrix,
                          const SkSurfaceProps& props,
                          SkScalerContextFlags flags)
-        : SkNoDrawCanvas(width, height)
+        : SkNoDrawCanvas{new TrackLayerDevice{SkIRect::MakeWH(width, height), props}}
         , fDeviceMatrix{deviceMatrix}
         , fSurfaceProps{props}
         , fScalerContextFlags{flags} { }
@@ -422,6 +440,10 @@ public:
 
 
 protected:
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
+        return kFullLayer_SaveLayerStrategy;
+    }
+
     void onDrawTextBlob(
         const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) override
     {
@@ -433,12 +455,23 @@ protected:
             // applyFontToPaint() always overwrites the exact same attributes,
             // so it is safe to not re-seed the paint for this reason.
             it.applyFontToPaint(&runPaint);
+            runPaint.setFlags(this->filterTextFlags(runPaint));
             if (auto looper = runPaint.getLooper()) {
                 this->processLooper(position, it, runPaint, looper, this);
             } else {
                 this->processGlyphRun(position, it, runPaint);
             }
         }
+    }
+
+    void onDrawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {
+        SK_ABORT("DrawText");
+    }
+    void onDrawPosText(const void*, size_t, const SkPoint[], const SkPaint&) override {
+        SK_ABORT("DrawPosText");
+    }
+    void onDrawPosTextH(const void*, size_t, const SkScalar[], SkScalar, const SkPaint&) override {
+        SK_ABORT("DrawPosTextH");
     }
 
 private:
@@ -639,7 +672,7 @@ public:
         Op* op = this->startOpWrite(OpCode::kFontMetrics, tf, rec);
         fTransport->endWrite();
 
-#if 1
+#if INSTRUMENT
         SkScalerContextRecDescriptor rd{rec};
         std::cout << " metrics font op rec tf: " << rec.fFontID
                   << " tf id: " << tf.fontID()
@@ -660,11 +693,11 @@ public:
         // Send generateMetricsAndImage
         SkScalerContextRecDescriptor rd{rec};
 
-#if 1
+#if INSTRUMENT
         std::cout << " metrics image op rec tf: " << rec.fFontID
                   << " tf id: " << tf.fontID()
                   << " rec: " << rd.desc().getChecksum()
-                  << " glyphid: " << glyph->getPackedID().getPackedID()
+                  << " glyphid: " << glyph->getPackedID().getPackedID() << "\n"
                   << rec.dump().c_str() << std::endl;
 #endif
         Op* op = this->startOpWrite(OpCode::kGlyphMetricsAndImage, tf, rec);
@@ -722,7 +755,7 @@ static void prepopulate_cache(
     sk_sp<SkPicture> pic,
     TextBlobFilterCanvas* filter) {
 
-    filter->drawPicture(pic);
+    pic->playback(filter);
 
     transport->startEmplace<Op>(OpCode::kPrepopulateCache, SkFontID{0},
                                 SkScalerContextRec{});
@@ -747,7 +780,7 @@ static void prepopulate_cache(
             };
             strike = SkGlyphCache::CreateStrikeExclusive(*desc,creator);
         }
-#if 1
+#if INSTRUMENT
         std::cout << std::hex << "prepop cache " << (intptr_t)cache
                   << " desc: " << desc->getChecksum()
                   << " typeface id: " << tf->uniqueID()
@@ -771,7 +804,9 @@ static void prepopulate_cache(
 
     // needed for font metrics mistake.
     Transport in = Transport::DoubleBuffer(*transport);
+#if INSTRUMENT
     SkDebugf("========= Sending prep cache ========\n");
+#endif
 
     in.startRead();
     filter->readDataFromTransport(&in, perStrike, perGlyph, finishStrike);
@@ -797,7 +832,8 @@ static void final_draw(std::string outFilename,
     SkMatrix deviceMatrix = SkMatrix::I();
     // kFakeGammaAndBoostContrast
     TextBlobFilterCanvas filter(
-        r.width(), r.height(), deviceMatrix, s->props(), SkScalerContextFlags::kFakeGammaAndBoostContrast);
+        r.width(), r.height(), deviceMatrix, s->props(),
+        SkScalerContextFlags::kFakeGammaAndBoostContrast);
 
     if (cache != nullptr) {
         for (int i = 0; i < 0; i++) {
