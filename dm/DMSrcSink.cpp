@@ -1248,6 +1248,10 @@ static void promise_image_release_proc(void* textureContext) {
     // Do nothing. We free all the backend textures at the end.
 }
 
+static void promise_image_done_proc(void* textureContext) {
+    // Do nothing.
+}
+
 class PromiseImageCallbackContext {
 public:
     const SkTArray<PromiseImageInfo>* fImageInfo;
@@ -1308,6 +1312,7 @@ static sk_sp<SkImage> promise_image_creator(const void* rawData, size_t length, 
                                                         curImage.fBitmap.refColorSpace(),
                                                         promise_image_fulfill_proc,
                                                         promise_image_release_proc,
+                                                        promise_image_done_proc,
                                                         (void*) &curImage);
     SkASSERT(image);
     return image;
