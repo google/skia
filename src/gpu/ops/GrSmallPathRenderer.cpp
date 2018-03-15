@@ -535,8 +535,12 @@ private:
             return false;
         }
         SkMatrix drawMatrix(ctm);
-        drawMatrix.set(SkMatrix::kMTransX, SkScalarFraction(ctm.get(SkMatrix::kMTransX)));
-        drawMatrix.set(SkMatrix::kMTransY, SkScalarFraction(ctm.get(SkMatrix::kMTransY)));
+        SkScalar tx = ctm.getTranslateX();
+        SkScalar ty = ctm.getTranslateY();
+        tx -= SkScalarFloorToScalar(tx);
+        ty -= SkScalarFloorToScalar(ty);
+        drawMatrix.set(SkMatrix::kMTransX, tx);
+        drawMatrix.set(SkMatrix::kMTransY, ty);
         SkRect shapeDevBounds;
         drawMatrix.mapRect(&shapeDevBounds, bounds);
         SkScalar dx = SkScalarFloorToScalar(shapeDevBounds.fLeft);
@@ -634,8 +638,8 @@ private:
         SkRect bounds = shapeData->fBounds;
         SkRect translatedBounds(bounds);
         if (!fUsesDistanceField) {
-            translatedBounds.offset(SkScalarTruncToScalar(ctm.get(SkMatrix::kMTransX)),
-                                  SkScalarTruncToScalar(ctm.get(SkMatrix::kMTransY)));
+            translatedBounds.offset(SkScalarFloorToScalar(ctm.get(SkMatrix::kMTransX)),
+                                    SkScalarFloorToScalar(ctm.get(SkMatrix::kMTransY)));
         }
 
         // vertex positions
@@ -656,11 +660,12 @@ private:
             position = (SkPoint*)positionOffset;
             *position = quad.point(3);
         } else {
-            SkPointPriv::SetRectTriStrip(positions, translatedBounds.left(),
-                                       translatedBounds.top(),
-                                       translatedBounds.right(),
-                                       translatedBounds.bottom(),
-                                       vertexStride);
+            SkPointPriv::SetRectTriStrip(positions,
+                                         translatedBounds.left(),
+                                         translatedBounds.top(),
+                                         translatedBounds.right(),
+                                         translatedBounds.bottom(),
+                                         vertexStride);
         }
 
         // colors
