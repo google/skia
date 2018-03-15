@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98838ea0_da472642",
+        "filename": "BUILD.gn",
+        "patchSetId": 8
+      },
+      "lineNbr": 902,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-03-15T17:10:14Z",
+      "side": 1,
+      "message": "Since we `#include \u003cGLES2/gl2.h\u003e` and use symbols from that library, we must start directly link it.",
+      "revId": "2d05ebcdc5df3a0fc9e5a47354390f3c2bf0163a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
