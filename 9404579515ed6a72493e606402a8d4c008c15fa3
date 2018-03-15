@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a425d1f_40b013bf",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-15T21:18:18Z",
+      "side": 1,
+      "message": "micro nit: lower case i on Inherited?",
+      "revId": "9404579515ed6a72493e606402a8d4c008c15fa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5b06103_0350ffdf",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-15T21:18:18Z",
+      "side": 1,
+      "message": "cause -\u003e because ?",
+      "revId": "9404579515ed6a72493e606402a8d4c008c15fa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
