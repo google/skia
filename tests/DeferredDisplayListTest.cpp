@@ -404,5 +404,46 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
 
+static void dummy_fulfill_proc(void*, GrBackendTexture*) { SkASSERT(0); }
+static void dummy_release_proc(void*) { SkASSERT(0); }
+
+// Test out the behavior of an invalid DDLRecorder
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    {
+        SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
+        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+
+        SkSurfaceCharacterization characterization;
+        SkAssertResult(s->characterize(&characterization));
+
+        // never calling getCanvas means the backing surface is never allocated
+        SkDeferredDisplayListRecorder recorder(characterization);
+    }
+
+    {
+        SkSurfaceCharacterization invalid;
+
+        SkDeferredDisplayListRecorder recorder(invalid);
+
+        const SkSurfaceCharacterization c = recorder.characterization();
+        REPORTER_ASSERT(reporter, !c.isValid());
+        REPORTER_ASSERT(reporter, !recorder.getCanvas());
+        REPORTER_ASSERT(reporter, !recorder.detach());
+
+        GrBackendFormat format;
+        sk_sp<SkImage> image = recorder.makePromiseTexture(format, 32, 32, GrMipMapped::kNo,
+                                                           kTopLeft_GrSurfaceOrigin,
+                                                           kRGBA_8888_SkColorType,
+                                                           kPremul_SkAlphaType, nullptr,
+                                                           dummy_fulfill_proc,
+                                                           dummy_release_proc,
+                                                           nullptr);
+        REPORTER_ASSERT(reporter, !image);
+    }
+
+}
+
 
 #endif
