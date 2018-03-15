@@ -20,6 +20,9 @@ SKIA_COMMITTER_NAME = 'Update Meta Config'
 SKIA_REPO_TEMPLATE = 'https://skia.googlesource.com/%s.git'
 
 CQ_INCLUDE_CHROMIUM_TRYBOTS = [
+    ('luci.chromium.try', [
+        'linux_optional_gpu_tests_rel',
+    ]),
     ('master.tryserver.blink', [
         'linux_trusty_blink_dbg',
         'linux_trusty_blink_rel',
@@ -35,7 +38,6 @@ CQ_INCLUDE_CHROMIUM_TRYBOTS = [
         'linux_chromium_compile_rel_ng',
         'linux_chromium_dbg_ng',
         'linux_chromium_rel_ng',
-        'linux_optional_gpu_tests_rel',
     ]),
     ('master.tryserver.chromium.mac', [
         'mac_chromium_compile_dbg_ng',
