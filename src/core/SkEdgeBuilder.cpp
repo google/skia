@@ -178,7 +178,7 @@ void SkEdgeBuilder::addQuad(const SkPoint pts[]) {
             // TODO: unallocate edge from storage...
         }
     } else {
-        SkQuadraticEdge* edge = fAlloc.make<SkQuadraticEdge>();
+        SK_QUAD_EDGE_TYPE* edge = fAlloc.make<SK_QUAD_EDGE_TYPE>();
         if (edge->setQuadratic(pts, fShiftUp)) {
             fList.push(edge);
         } else {
