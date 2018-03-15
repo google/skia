@@ -215,9 +215,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		if os == "Win10" && parts["model"] == "Golo" {
 			// ChOps-owned machines have different Windows images than Skolo machines.
 			d["os"], ok = map[string]string{
-				// MTV lab bots with Quadro GPU have Windows 10 v1703.
-				"QuadroP400": "Windows-10-15063",
-				// Golo bots with GT610 have Windows 10 v1709, but a slightly different version than Skolo.
+				// MTV lab bots with Quadro GPU have Windows 10 v1709, but a slightly different version than Skolo or GT610..
+				"QuadroP400": "Windows-10-16299.309",
+				// Golo bots with GT610 have Windows 10 v1709, but a slightly different version than Skolo or QuadroP400.
 				"GT610": "Windows-10-16299.125",
 			}[parts["cpu_or_gpu_value"]]
 			if !ok {
