@@ -7,54 +7,71 @@
 
 #include "SkDeferredDisplayListRecorder.h"
 
-
-#if SK_SUPPORT_GPU
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrTexture.h"
-
-#include "SkGpuDevice.h"
-#include "SkGr.h"
-#include "SkImage_Gpu.h"
-#include "SkSurface_Gpu.h"
-#endif
-
-#include "SkCanvas.h" // TODO: remove
 #include "SkDeferredDisplayList.h"
 #include "SkSurface.h"
 #include "SkSurfaceCharacterization.h"
 
-SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(
-                    const SkSurfaceCharacterization& characterization)
-        : fCharacterization(characterization) {
+#if !SK_SUPPORT_GPU
+SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization&) {}
+
+SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {}
+
+bool SkDeferredDisplayListRecorder::init() { return false; }
+
+SkCanvas* SkDeferredDisplayListRecorder::getCanvas() { return nullptr; }
+
+std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() { return nullptr; }
+
+sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
+        const GrBackendFormat& backendFormat,
+        int width,
+        int height,
+        GrMipMapped mipMapped,
+        GrSurfaceOrigin origin,
+        SkColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        TextureContext textureContext) {
+    return nullptr;
+}
+
+#else
+
+#include "GrContextPriv.h"
+#include "GrProxyProvider.h"
+#include "GrTexture.h"
+
+#include "SkGr.h"
+#include "SkImage_Gpu.h"
+#include "SkSurface_Gpu.h"
+
+SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c)
+        : fCharacterization(c) {
+    if (fCharacterization.isValid()) {
+        fContext = GrContextPriv::MakeDDL(fCharacterization.refContextInfo());
+    }
 }
 
 SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
-#if SK_SUPPORT_GPU
-    auto proxyProvider = fContext->contextPriv().proxyProvider();
+    if (fContext) {
+        auto proxyProvider = fContext->contextPriv().proxyProvider();
 
-    // DDL TODO: Remove this. DDL contexts should allow for deletion while still having live
-    // uniquely keyed proxies.
-    proxyProvider->removeAllUniqueKeys();
-#endif
+        // DDL TODO: Remove this. DDL contexts should allow for deletion while still having live
+        // uniquely keyed proxies.
+        proxyProvider->removeAllUniqueKeys();
+    }
 }
 
 
 bool SkDeferredDisplayListRecorder::init() {
+    SkASSERT(fContext);
+    SkASSERT(!fLazyProxyData);
     SkASSERT(!fSurface);
 
     if (!fCharacterization.isValid()) {
         return false;
-    }
-
-    SkASSERT(!fLazyProxyData);
-
-#if SK_SUPPORT_GPU
-    if (!fContext) {
-        fContext = GrContextPriv::MakeDDL(fCharacterization.refContextInfo());
-        if (!fContext) {
-            return false;
-        }
     }
 
     fLazyProxyData = sk_sp<SkDeferredDisplayList::LazyProxyData>(
@@ -101,31 +118,30 @@ bool SkDeferredDisplayListRecorder::init() {
     fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(),
                                                       sk_ref_sp(c->asRenderTargetContext()));
     return SkToBool(fSurface.get());
-#else
-    return false;
-#endif
 }
 
 SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
-    if (!fSurface) {
-        if (!this->init()) {
-            return nullptr;
-        }
+    if (!fContext) {
+        return nullptr;
+    }
+
+    if (!fSurface && !this->init()) {
+        return nullptr;
     }
 
     return fSurface->getCanvas();
 }
 
 std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
-#if SK_SUPPORT_GPU
+    if (!fContext) {
+        return nullptr;
+    }
+
     auto ddl = std::unique_ptr<SkDeferredDisplayList>(
                            new SkDeferredDisplayList(fCharacterization, std::move(fLazyProxyData)));
 
     fContext->contextPriv().moveOpListsToDDL(ddl.get());
     return ddl;
-#else
-    return nullptr;
-#endif
 }
 
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
@@ -140,7 +156,10 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         TextureFulfillProc textureFulfillProc,
         TextureReleaseProc textureReleaseProc,
         TextureContext textureContext) {
-#if SK_SUPPORT_GPU
+    if (!fContext) {
+        return nullptr;
+    }
+
     return SkImage_Gpu::MakePromiseTexture(fContext.get(),
                                            backendFormat,
                                            width,
@@ -153,7 +172,6 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                            textureFulfillProc,
                                            textureReleaseProc,
                                            textureContext);
-#else
-    return nullptr;
-#endif
 }
+
+#endif

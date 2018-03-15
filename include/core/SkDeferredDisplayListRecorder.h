@@ -113,9 +113,9 @@ private:
 
 #if SK_SUPPORT_GPU
     sk_sp<GrContext>                            fContext;
-#endif
     sk_sp<SkDeferredDisplayList::LazyProxyData> fLazyProxyData;
     sk_sp<SkSurface>                            fSurface;
+#endif
 };
 
 #endif
