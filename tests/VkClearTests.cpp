@@ -26,7 +26,7 @@ bool does_full_buffer_contain_correct_color(GrColor* buffer,
     GrColor matchColor;
     if (kRGBA_8888_GrPixelConfig == config) {
         matchColor = clearColor;
-    } else if (kBGRA_8888_GrPixelConfig) {
+    } else if (kBGRA_8888_GrPixelConfig == config) {
         // Hack to flip the R, B componets in the GrColor so that the comparrison will work below
         matchColor = GrColorPackRGBA(GrColorUnpackB(clearColor),
                                      GrColorUnpackG(clearColor),
