@@ -2055,7 +2055,8 @@ public:
         using clip, SkMatrix, and SkPaint paint.
 
         SkRSXform array specifies a separate square scale, rotation, and translation for
-        each glyph.
+        each glyph. Note that this per-glyph xform does not affect the shader (if present)
+        on the paint, just the glyph's geometry.
 
         Optional SkRect cullRect is a conservative bounds of text, taking into account
         SkRSXform and paint. If cullRect is outside of clip, canvas can skip drawing.

@@ -14,6 +14,7 @@
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkLatticeIter.h"
+#include "SkLocalMatrixShader.h"
 #include "SkMatrixPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
@@ -495,6 +496,9 @@ void SkBaseDevice::drawTextRSXform(const void* text, size_t len,
             break;
     }
 
+    SkPaint localPaint(paint);
+    SkShader* shader = paint.getShader();
+
     SkMatrix localM, currM;
     const void* stopText = (const char*)text + len;
     while ((const char*)text < (const char*)stopText) {
@@ -502,8 +506,17 @@ void SkBaseDevice::drawTextRSXform(const void* text, size_t len,
         currM.setConcat(this->ctm(), localM);
         SkAutoDeviceCTMRestore adc(this, currM);
 
+        // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
+        // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
+        // with a localmatrixshader so that the shader draws as if there was no change to the ctm.
+        if (shader) {
+            SkMatrix inverse;
+            SkAssertResult(localM.invert(&inverse));
+            localPaint.setShader(shader->makeWithLocalMatrix(inverse));
+        }
+
         int subLen = proc((const char*)text);
-        this->drawText(text, subLen, 0, 0, paint);
+        this->drawText(text, subLen, 0, 0, localPaint);
         text = (const char*)text + subLen;
     }
 }
