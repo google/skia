@@ -533,8 +533,7 @@ color type: kAlpha_8_SkColorType
 #Method SkAlphaType alphaType() const
 #In Property
 #Line # returns Image_Info Alpha_Type ##
-Returns Alpha_Type, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-kPremul_SkAlphaType, kUnpremul_SkAlphaType.
+Returns Alpha_Type, one of: #list_of_alpha_types#.
 
 #Return  Alpha_Type in Image_Info ##
 
@@ -589,7 +588,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 #Method sk_sp<SkColorSpace> refColorSpace() const
 #In Property
 #Line # returns Image_Info Color_Space ##
-Returns a smart pointer to Color_Space, the range of colors, associated with
+Returns smart pointer to Color_Space, the range of colors, associated with
 Image_Info. The smart pointer tracks the number of objects sharing this
 Color_Space reference so the memory is released when the owners destruct.
 
@@ -654,7 +653,7 @@ color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 ##
 ##
 
-#SeeAlso rowBytes rowBytesAsPixels width shiftPerPixel
+#SeeAlso rowBytes rowBytesAsPixels width shiftPerPixel SkImageInfo::bytesPerPixel
 
 ##
 
@@ -884,8 +883,7 @@ kUnpremul_SkAlphaType, it is treated as kPremul_SkAlphaType.
 This changes Alpha_Type in Pixel_Ref; all bitmaps sharing Pixel_Ref
 are affected.
 
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 
 #Return  true if Alpha_Type is set ##
@@ -896,8 +894,8 @@ void draw(SkCanvas* canvas) {
                              "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
     const char* alphas[] = {"Unknown ", "Opaque  ", "Premul  ", "Unpremul"}; 
     SkBitmap bitmap;
-    SkAlphaType alphaTypes[] = { kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                                 kPremul_SkAlphaType, kUnpremul_SkAlphaType };
+    SkAlphaType alphaTypes[] = { #list_of_alpha_types#
+                               };
     SkDebugf("%88s", "Canonical    Unknown           Opaque            Premul            Unpremul\n");
     for (SkColorType colorType : { #list_of_color_types#
                                  } ) {
@@ -1055,11 +1053,15 @@ Triggers assert if SK_DEBUG is true, runs fine otherwise.
 #Method bool isOpaque() const
 #In Property
 #Line # returns true if Image_Info describes opaque pixels ##
-Returns true if Alpha_Type is kOpaque_SkAlphaType.
+
+Returns true if Alpha_Type is set to hint that all pixels are opaque; their
+Color_Alpha value is implicitly or explicitly 1.0. If true, and all pixels are
+not opaque, Skia may draw incorrectly. 
+
 Does not check if Color_Type allows Alpha, or if any pixel value has
 transparency.
 
-#Return  true if Image_Info describes opaque Alpha ##
+#Return  true if Image_Info Alpha_Type is kOpaque_SkAlphaType ##
 
 #Example
 #Description
@@ -1292,7 +1294,7 @@ Returns IRect { 0, 0, width(), height() }.
 #Return  integral rectangle from origin to width() and height() ##
 
 #Example
-#Height 128
+#Height 64
 #Image 4
     canvas->scale(.5f, .5f);
     SkIRect bounds = source.bounds();

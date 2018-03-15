@@ -30,6 +30,9 @@ but <a href="SkImage_Reference#Image">Image</a> and <a href="SkSurface_Reference
 
 ## <a name="Alpha_Type"></a> Alpha Type
 
+<a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>
+
 ## <a name="SkAlphaType"></a> Enum SkAlphaType
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -381,6 +384,11 @@ less than 3, the drawn result is undefined.
 
 ## <a name="Color_Type_RGB_101010x"></a> Color Type RGB 101010x
 
+<a href="#Color_Type_RGB_101010x">RGB 101010x</a> is a 32-bit word pixel encoding that contains ten bits of red,
+ten bits of green, ten bits of blue, and two unused bits.  <a href="#Color_Type_RGB_101010x">RGB 101010x</a> is fully
+opaque as if its <a href="undocumented#Alpha">Color Alpha</a> was set to one, and should always be paired with
+<a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>.
+
 ![Color_Type_RGB_101010x](https://fiddle.skia.org/i/c22477b11dabaa3e3a0b5bb33a7733cd_raster.png "")
 
 ### Example
@@ -389,17 +397,173 @@ less than 3, the drawn result is undefined.
 
 ## <a name="Color_Type_Gray_8"></a> Color Type Gray 8
 
+<a href="#Color_Type_Gray_8">Gray 8</a> is an 8-bit byte pixel encoding that represents equal values for red,
+blue, and green, reprsenting colors from black to white.  <a href="#Color_Type_Gray_8">Gray 8</a> is fully
+opaque as if its <a href="undocumented#Alpha">Color Alpha</a> was set to one, and should always be paired with
+<a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>.
+
 ### Example
 
 <div><fiddle-embed name="93da0eb0b6722a4f33dc7dae094abf0b"></fiddle-embed></div>
 
 ## <a name="Color_Type_RGBA_F16"></a> Color Type RGBA F16
 
+<a href="#Color_Type_RGBA_F16">RGBA F16</a> is a 64-bit word pixel encoding that contains sixteen bits of blue,
+sixteen bits of green, sixteen bits of red, and sixteen bits of alpha.
+
+Each component encodes a floating point value using <a href="https://www.khronos.org/opengl/wiki/Small_Float_Formats">Half floats</a> .
+Meaningful colors are represented by the range 0.0 to 1.0, although smaller
+and larger values may be useful when used in combination with <a href="undocumented#Transfer_Mode">Transfer Mode</a>.
+
 ![Color_Type_RGBA_F16](https://fiddle.skia.org/i/9344796c059ff5e4f057595e781905b3_raster.png "")
+
+If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: blue, green, and red components are
+premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+the drawn result is undefined.
+
+If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: blue, green, red, and alpha components
+may have any value. There may be a performance penalty with unpremultipled
+pixels.
+
+If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
+blue, green, and red components are fully opaque. If any alpha component is
+less than 255, the drawn result is undefined.
 
 ### Example
 
 <div><fiddle-embed name="1795410dffea303b08ba98ee78dc1556"></fiddle-embed></div>
+
+<a name="SkColorTypeBytesPerPixel"></a>
+## SkColorTypeBytesPerPixel
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+int SkColorTypeBytesPerPixel(SkColorType ct)
+</pre>
+
+Returns the number of bytes required to store a pixel, including unused padding.
+Returns zero if <a href="#SkColorTypeBytesPerPixel_ct">ct</a> is <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a> or invalid.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkColorTypeBytesPerPixel_ct"> <code><strong>ct </strong></code> </a></td> <td>
+one of: <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
+  </tr>
+</table>
+
+### Return Value
+
+bytes per pixel
+
+### Example
+
+<div><fiddle-embed name="09ef49d07cb7005ba3e34d5ea53896f5"><a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </fiddle-embed></div>
+
+### See Also
+
+<a href="#SkImageInfo_bytesPerPixel">SkImageInfo::bytesPerPixel</a>
+
+---
+
+<a name="SkColorTypeIsAlwaysOpaque"></a>
+## SkColorTypeIsAlwaysOpaque
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool SkColorTypeIsAlwaysOpaque(SkColorType ct)
+</pre>
+
+Returns true if <a href="#Color_Type">Color Type</a> always decodes <a href="undocumented#Alpha">Color Alpha</a> to 1.0, making the pixel
+fully opaque. If true, <a href="#Color_Type">Color Type</a> does not reserve bits to encode <a href="undocumented#Alpha">Color Alpha</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkColorTypeIsAlwaysOpaque_ct"> <code><strong>ct </strong></code> </a></td> <td>
+one of: <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
+  </tr>
+</table>
+
+### Return Value
+
+true if <a href="undocumented#Alpha">Color Alpha</a> is always set to 1.0
+
+### Example
+
+<div><fiddle-embed name="9b3eb5aaa0dfea9feee54e7650fa5446"><a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </fiddle-embed></div>
+
+### See Also
+
+<a href="#SkColorTypeValidateAlphaType">SkColorTypeValidateAlphaType</a>
+
+---
+
+<a name="SkColorTypeValidateAlphaType"></a>
+## SkColorTypeValidateAlphaType
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
+                                  SkAlphaType* canonical = nullptr)
+</pre>
+
+Returns true if <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> can be set to a valid <a href="#Alpha_Type">Alpha Type</a> for <a href="#SkColorTypeValidateAlphaType_colorType">colorType</a>. If
+there is more than one valid <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> <a href="#Alpha_Type">Alpha Type</a>, set to <a href="#SkColorTypeValidateAlphaType_alphaType">alphaType</a>, if valid.
+If true is returned and <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> is not nullptr, store valid <a href="#Alpha_Type">Alpha Type</a>.
+
+Returns false only if <a href="#SkColorTypeValidateAlphaType_alphaType">alphaType</a> is <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, color type is not
+<a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, and <a href="#Color_Type">Color Type</a> is not always opaque. If false is returned,
+<a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> is ignored.
+
+For <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>: set <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> to <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a> and return true.
+For <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>: set <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> to <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a> or
+<a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a> and return true if <a href="#SkColorTypeValidateAlphaType_alphaType">alphaType</a> is not <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>.
+For <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>, and
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>: set <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> to <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a> and return true.
+For <a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
+<a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, and <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>: set <a href="#SkColorTypeValidateAlphaType_canonical">canonical</a> to <a href="#SkColorTypeValidateAlphaType_alphaType">alphaType</a>
+and return true if <a href="#SkColorTypeValidateAlphaType_alphaType">alphaType</a> is not <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkColorTypeValidateAlphaType_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
+one of: <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
+  </tr>  <tr>    <td><a name="SkColorTypeValidateAlphaType_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
+one of: <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
+  </tr>  <tr>    <td><a name="SkColorTypeValidateAlphaType_canonical"> <code><strong>canonical </strong></code> </a></td> <td>
+storage for <a href="#Alpha_Type">Alpha Type</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+true if valid <a href="#Alpha_Type">Alpha Type</a> can be associated with <a href="#SkColorTypeValidateAlphaType_colorType">colorType</a>
+
+### Example
+
+<div><fiddle-embed name="befac1c29ed21507d367e4d824383a04"><a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </fiddle-embed></div>
+
+### See Also
+
+<a href="#SkColorTypeIsAlwaysOpaque">SkColorTypeIsAlwaysOpaque</a>
+
+---
 
 ## <a name="YUV_ColorSpace"></a> YUV ColorSpace
 
@@ -445,36 +609,6 @@ incomplete
 
 
 
-## <a name="SkDestinationSurfaceColorMode"></a> Enum SkDestinationSurfaceColorMode
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum class <a href="#SkDestinationSurfaceColorMode">SkDestinationSurfaceColorMode</a> {
-<a href="#SkDestinationSurfaceColorMode_kLegacy">kLegacy</a>,
-<a href="#SkDestinationSurfaceColorMode_kGammaAndColorSpaceAware">kGammaAndColorSpaceAware</a>,
-};
-</pre>
-
-### Constants
-
-<table>
-  <tr>
-    <td><a name="SkDestinationSurfaceColorMode_kLegacy"> <code><strong>SkDestinationSurfaceColorMode::kLegacy </strong></code> </a></td><td>0</td><td></td>
-  </tr>
-  <tr>
-    <td><a name="SkDestinationSurfaceColorMode_kGammaAndColorSpaceAware"> <code><strong>SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware </strong></code> </a></td><td>1</td><td></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-
-
 # <a name="SkImageInfo"></a> Struct SkImageInfo
 Describes pixel dimensions and encoding. <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="SkImage_Reference#Image">Image</a>, PixMap, and <a href="SkSurface_Reference#Surface">Surface</a>
 can be created from <a href="#Image_Info">Image Info</a>. <a href="#Image_Info">Image Info</a> can be retrieved from <a href="SkBitmap_Reference#Bitmap">Bitmap</a> and
@@ -496,27 +630,27 @@ and green; and <a href="undocumented#Color_Space">Color Space</a>, the range and
 | <a href="#SkImageInfo_MakeN32Premul">MakeN32Premul</a> | creates <a href="#Image_Info">Image Info</a> with <a href="#Color_Type_Native">Native Color Type</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a> |
 | <a href="#SkImageInfo_MakeS32">MakeS32</a> | creates <a href="#Image_Info">Image Info</a> with <a href="#Color_Type_Native">Native Color Type</a>, sRGB <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_MakeUnknown">MakeUnknown</a> | creates <a href="#Image_Info">Image Info</a> with <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a> |
-| <a href="#SkImageInfo_alphaType">alphaType</a> | incomplete |
-| <a href="#SkImageInfo_bounds">bounds</a> | incomplete |
+| <a href="#SkImageInfo_alphaType">alphaType</a> | Returns <a href="#Alpha_Type">Alpha Type</a> |
+| <a href="#SkImageInfo_bounds">bounds</a> | returns <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a> as Rectangle |
 | <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a> | incomplete |
-| <a href="#SkImageInfo_colorSpace">colorSpace</a> | incomplete |
-| <a href="#SkImageInfo_colorType">colorType</a> | incomplete |
+| <a href="#SkImageInfo_colorSpace">colorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkImageInfo_colorType">colorType</a> | returns <a href="#Color_Type">Color Type</a> |
 | <a href="#SkImageInfo_computeByteSize">computeByteSize</a> | incomplete |
 | <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a> | incomplete |
 | <a href="#SkImageInfo_computeOffset">computeOffset</a> | incomplete |
-| <a href="#SkImageInfo_dimensions">dimensions</a> | incomplete |
+| <a href="#SkImageInfo_dimensions">dimensions</a> | returns <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a> |
 | <a href="#SkImageInfo_flatten">flatten</a> | incomplete |
-| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | incomplete |
+| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | Returns if <a href="undocumented#Color_Space">Color Space</a> gamma is approximately the same as sRGB |
 | <a href="#SkImageInfo_height">height</a> | returns pixel row count |
-| <a href="#SkImageInfo_isEmpty">isEmpty</a> | incomplete |
-| <a href="#SkImageInfo_isOpaque">isOpaque</a> | incomplete |
+| <a href="#SkImageInfo_isEmpty">isEmpty</a> | returns if dimensions contain pixels |
+| <a href="#SkImageInfo_isOpaque">isOpaque</a> | returns if <a href="#Alpha_Type">Alpha Type</a> is <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a> |
 | <a href="#SkImageInfo_makeAlphaType">makeAlphaType</a> | creates <a href="#Image_Info">Image Info</a> with changed <a href="#Alpha_Type">Alpha Type</a> |
 | <a href="#SkImageInfo_makeColorSpace">makeColorSpace</a> | creates <a href="#Image_Info">Image Info</a> with changed <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_makeColorType">makeColorType</a> | creates <a href="#Image_Info">Image Info</a> with changed <a href="#Color_Type">Color Type</a> |
 | <a href="#SkImageInfo_makeWH">makeWH</a> | creates <a href="#Image_Info">Image Info</a> with changed dimensions |
 | <a href="#SkImageInfo_minRowBytes">minRowBytes</a> | incomplete |
 | <a href="#SkImageInfo_minRowBytes64">minRowBytes64</a> | incomplete |
-| <a href="#SkImageInfo_refColorSpace">refColorSpace</a> | incomplete |
+| <a href="#SkImageInfo_refColorSpace">refColorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_reset">reset</a> | incomplete |
 | <a href="#SkImageInfo_shiftPerPixel">shiftPerPixel</a> | incomplete |
 | <a href="#SkImageInfo_unflatten">unflatten</a> | incomplete |
@@ -608,7 +742,7 @@ one of: <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlp
 <a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
   </tr>  <tr>    <td><a name="SkImageInfo_Make_at"> <code><strong>at </strong></code> </a></td> <td>
 one of: <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
-<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>  <tr>    <td><a name="SkImageInfo_Make_cs"> <code><strong>cs </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
   </tr>
@@ -653,7 +787,7 @@ pixel column count; must be zero or greater</td>
 pixel row count; must be zero or greater</td>
   </tr>  <tr>    <td><a name="SkImageInfo_MakeN32_at"> <code><strong>at </strong></code> </a></td> <td>
 one of: <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
-<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>  <tr>    <td><a name="SkImageInfo_MakeN32_cs"> <code><strong>cs </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
   </tr>
@@ -694,7 +828,7 @@ pixel column count; must be zero or greater</td>
 pixel row count; must be zero or greater</td>
   </tr>  <tr>    <td><a name="SkImageInfo_MakeS32_at"> <code><strong>at </strong></code> </a></td> <td>
 one of: <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
-<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>
 </table>
 
@@ -819,7 +953,7 @@ created <a href="#Image_Info">Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="547388991687b8e10d482d8b1c82777d"></fiddle-embed></div>
 
 ### See Also
 
@@ -893,19 +1027,19 @@ created <a href="#Image_Info">Image Info</a>
 
 | name | description |
 | --- | --- |
-| <a href="#SkImageInfo_alphaType">alphaType</a> | incomplete |
-| <a href="#SkImageInfo_bounds">bounds</a> | incomplete |
+| <a href="#SkImageInfo_alphaType">alphaType</a> | Returns <a href="#Alpha_Type">Alpha Type</a> |
+| <a href="#SkImageInfo_bounds">bounds</a> | returns <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a> as Rectangle |
 | <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a> | incomplete |
-| <a href="#SkImageInfo_colorSpace">colorSpace</a> | incomplete |
-| <a href="#SkImageInfo_colorType">colorType</a> | incomplete |
-| <a href="#SkImageInfo_dimensions">dimensions</a> | incomplete |
-| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | incomplete |
+| <a href="#SkImageInfo_colorSpace">colorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkImageInfo_colorType">colorType</a> | returns <a href="#Color_Type">Color Type</a> |
+| <a href="#SkImageInfo_dimensions">dimensions</a> | returns <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a> |
+| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | Returns if <a href="undocumented#Color_Space">Color Space</a> gamma is approximately the same as sRGB |
 | <a href="#SkImageInfo_height">height</a> | returns pixel row count |
-| <a href="#SkImageInfo_isEmpty">isEmpty</a> | incomplete |
-| <a href="#SkImageInfo_isOpaque">isOpaque</a> | incomplete |
+| <a href="#SkImageInfo_isEmpty">isEmpty</a> | returns if dimensions contain pixels |
+| <a href="#SkImageInfo_isOpaque">isOpaque</a> | returns if <a href="#Alpha_Type">Alpha Type</a> is <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a> |
 | <a href="#SkImageInfo_minRowBytes">minRowBytes</a> | incomplete |
 | <a href="#SkImageInfo_minRowBytes64">minRowBytes64</a> | incomplete |
-| <a href="#SkImageInfo_refColorSpace">refColorSpace</a> | incomplete |
+| <a href="#SkImageInfo_refColorSpace">refColorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_shiftPerPixel">shiftPerPixel</a> | incomplete |
 | <a href="#SkImageInfo_width">width</a> | returns pixel column count |
 
@@ -973,11 +1107,19 @@ Returns <a href="#Color_Type">Color Type</a>, one of: <a href="#kUnknown_SkColor
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="06ecc3ce7f35cc7f930cbc2a662e3105">
+
+#### Example Output
+
+~~~~
+color type: kAlpha_8_SkColorType
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImageInfo_alphaType">alphaType</a> <a href="SkPixmap_Reference#SkPixmap_colorType">SkPixmap::colorType</a> <a href="SkBitmap_Reference#SkBitmap_colorType">SkBitmap::colorType</a>
 
 ---
 
@@ -988,17 +1130,28 @@ incomplete
 SkAlphaType alphaType() const
 </pre>
 
+Returns <a href="#Alpha_Type">Alpha Type</a>, one of: <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
+
 ### Return Value
 
-incomplete
+<a href="#Alpha_Type">Alpha Type</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="5c1d2499a4056b6cff38c1cf924158a1">
+
+#### Example Output
+
+~~~~
+alpha type: kPremul_SkAlphaType
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImageInfo_colorType">colorType</a> <a href="SkPixmap_Reference#SkPixmap_alphaType">SkPixmap::alphaType</a> <a href="SkBitmap_Reference#SkBitmap_alphaType">SkBitmap::alphaType</a>
 
 ---
 
@@ -1009,17 +1162,30 @@ incomplete
 SkColorSpace* colorSpace() const
 </pre>
 
+Returns <a href="undocumented#Color_Space">Color Space</a>, the range of colors. The reference count of
+<a href="undocumented#Color_Space">Color Space</a> is unchanged. The returned <a href="undocumented#Color_Space">Color Space</a> is immutable.
+
 ### Return Value
 
-incomplete
+<a href="undocumented#Color_Space">Color Space</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="2952a6c863bd504484c9f66cc727f968"><div><a href="undocumented#SkColorSpace_MakeSRGBLinear">SkColorSpace::MakeSRGBLinear</a> creates <a href="undocumented#Color_Space">Color Space</a> with linear gamma
+and an sRGB gamut. This <a href="undocumented#Color_Space">Color Space</a> gamma is not close to sRGB gamma.
+</div>
+
+#### Example Output
+
+~~~~
+gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="undocumented#Color_Space">Color Space</a> <a href="SkPixmap_Reference#SkPixmap_colorSpace">SkPixmap::colorSpace</a> <a href="SkBitmap_Reference#SkBitmap_colorSpace">SkBitmap::colorSpace</a>
 
 ---
 
@@ -1030,17 +1196,23 @@ incomplete
 sk_sp&lt;SkColorSpace&gt; refColorSpace() const
 </pre>
 
+Returns smart pointer to <a href="undocumented#Color_Space">Color Space</a>, the range of colors. The smart pointer
+tracks the number of objects sharing this <a href="undocumented#Color_Space">Color Space</a> reference so the memory
+is released when the owners destruct.
+
+The returned <a href="undocumented#Color_Space">Color Space</a> is immutable.
+
 ### Return Value
 
-incomplete
+<a href="undocumented#Color_Space">Color Space</a> wrapped in a smart pointer
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="f36afcc295602f5c8c4c2c2025c25884"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="undocumented#Color_Space">Color Space</a> <a href="SkBitmap_Reference#SkBitmap_refColorSpace">SkBitmap::refColorSpace</a>
 
 ---
 
@@ -1051,17 +1223,31 @@ incomplete
 bool isEmpty() const
 </pre>
 
+Returns if <a href="#Image_Info">Image Info</a> describes an empty area of pixels by checking if either
+width or height is zero or smaller.
+
 ### Return Value
 
-incomplete
+true if either dimension is zero or smaller
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="b8757200da5be0b43763cf79feb681a7">
+
+#### Example Output
+
+~~~~
+width: 0 height: 0 empty: true
+width: 0 height: 2 empty: true
+width: 2 height: 0 empty: true
+width: 2 height: 2 empty: false
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImageInfo_dimensions">dimensions</a> <a href="#SkImageInfo_bounds">bounds</a> <a href="SkBitmap_Reference#SkBitmap_empty">SkBitmap::empty</a> <a href="SkPixmap_Reference#SkPixmap_bounds">SkPixmap::bounds</a>
 
 ---
 
@@ -1072,17 +1258,35 @@ incomplete
 bool isOpaque() const
 </pre>
 
+Returns true if <a href="#Alpha_Type">Alpha Type</a> is set to hint that all pixels are opaque; their
+<a href="undocumented#Alpha">Color Alpha</a> value is implicitly or explicitly 1.0. If true, and all pixels are
+not opaque, Skia may draw incorrectly.
+
+Does not check if <a href="#Color_Type">Color Type</a> allows <a href="undocumented#Alpha">Alpha</a>, or if any pixel value has
+transparency.
+
 ### Return Value
 
-incomplete
+true if <a href="#Alpha_Type">Alpha Type</a> is <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="e9bd4f02b6cfb3ac864cb7fee7d7299c">
+
+#### Example Output
+
+~~~~
+isOpaque: false
+isOpaque: false
+isOpaque: true
+isOpaque: true
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="undocumented#Alpha">Color Alpha</a> <a href="#SkColorTypeValidateAlphaType">SkColorTypeValidateAlphaType</a> <a href="SkBitmap_Reference#SkBitmap_isOpaque">SkBitmap::isOpaque</a> <a href="SkImage_Reference#SkImage_isOpaque">SkImage::isOpaque</a> <a href="SkPixmap_Reference#SkPixmap_isOpaque">SkPixmap::isOpaque</a>
 
 ---
 
@@ -1093,17 +1297,27 @@ incomplete
 SkISize dimensions() const
 </pre>
 
+Returns <a href="undocumented#ISize">ISize</a> { <a href="#SkImageInfo_width">width</a>, <a href="#SkImageInfo_height">height</a> }.
+
 ### Return Value
 
-incomplete
+integral size of <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="d5547cd2b302822aa85b7b0ae3f48458">
+
+#### Example Output
+
+~~~~
+dimensionsAsBounds == bounds
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImageInfo_width">width</a> <a href="#SkImageInfo_height">height</a> <a href="#SkImageInfo_bounds">bounds</a> <a href="SkBitmap_Reference#SkBitmap_dimensions">SkBitmap::dimensions</a>
 
 ---
 
@@ -1114,17 +1328,19 @@ incomplete
 SkIRect bounds() const
 </pre>
 
+Returns <a href="SkIRect_Reference#IRect">IRect</a> { 0, 0, <a href="#SkImageInfo_width">width</a>, <a href="#SkImageInfo_height">height</a> }.
+
 ### Return Value
 
-incomplete
+integral rectangle from origin to <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="a818be8945cd0c18f99ffe53e90afa48"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImageInfo_width">width</a> <a href="#SkImageInfo_height">height</a> <a href="#SkImageInfo_dimensions">dimensions</a>
 
 ---
 
@@ -1135,9 +1351,13 @@ incomplete
 bool gammaCloseToSRGB() const
 </pre>
 
+Returns true if associated <a href="undocumented#Color_Space">Color Space</a> is not nullptr, and <a href="undocumented#Color_Space">Color Space</a> gamma
+is approximately the same as sRGB.
+This includes the <a href="">sRGB transfer function $ https://en.wikipedia.org/wiki/SRGB#The_sRGB_transfer_function_(%22gamma%22)</a> as well as a gamma curve described by a 2.2 exponent.
+
 ### Return Value
 
-incomplete
+true if <a href="undocumented#Color_Space">Color Space</a> gamma is approximately the same as sRGB
 
 ### Example
 
@@ -1145,7 +1365,7 @@ incomplete
 
 ### See Also
 
-incomplete
+<a href="undocumented#SkColorSpace_gammaCloseToSRGB">SkColorSpace::gammaCloseToSRGB</a>
 
 ---
 
