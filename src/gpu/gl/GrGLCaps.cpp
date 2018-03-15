@@ -759,20 +759,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     }
 
     if (ctxInfo.hasExtension("GL_OES_EGL_image_external")) {
-        if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
-            shaderCaps->fExternalTextureSupport = true;
-        } else if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
-                   ctxInfo.hasExtension("OES_EGL_image_external_essl3")) {
+        shaderCaps->fExternalTextureSupport = true;
+        if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
+            ctxInfo.hasExtension("OES_EGL_image_external_essl3")) {
             // At least one driver has been found that has this extension without the "GL_" prefix.
-            shaderCaps->fExternalTextureSupport = true;
-        }
-    }
-
-    if (shaderCaps->fExternalTextureSupport) {
-        if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
-            shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
-        } else {
             shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
+        } else {
+            shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
         }
     }
 
