@@ -2445,6 +2445,7 @@ public:
 
     void private_draw_shadow_rec(const SkPath&, const SkDrawShadowRec&);
 
+
 protected:
     // default impl defers to getDevice()->newSurface(info)
     virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props);
@@ -2559,6 +2560,8 @@ protected:
     bool clipRectBounds(const SkRect* bounds, SaveLayerFlags flags, SkIRect* intersection,
                         const SkImageFilter* imageFilter = nullptr);
 
+    SkBaseDevice* getTopDevice() const;
+
 private:
     /** After calling saveLayer(), there can be any number of devices that make
      up the top-most drawing area. LayerIter can be used to iterate through
@@ -2620,7 +2623,6 @@ private:
     }
 
     SkBaseDevice* getDevice() const;
-    SkBaseDevice* getTopDevice() const;
 
     class MCRec;
 

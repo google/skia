@@ -11,6 +11,7 @@
 #include "SkRefCnt.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkRegion.h"
 #include "SkSurfaceProps.h"
 
 class SkBitmap;
@@ -20,7 +21,6 @@ class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
 class SkRasterHandleAllocator;
-class SkRegion;
 class SkSpecialImage;
 
 class SkBaseDevice : public SkRefCnt {
@@ -125,6 +125,12 @@ public:
     void setGlobalCTM(const SkMatrix& ctm);
     virtual void validateDevBounds(const SkIRect&) {}
 
+    /**
+     * Returns the text-related flags, possibly modified based on the state of the
+     * device (e.g. support for LCD).
+     */
+    uint32_t filterTextFlags(const SkPaint&) const;
+
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
@@ -134,12 +140,6 @@ protected:
     struct TextFlags {
         uint32_t    fFlags;     // SkPaint::getFlags()
     };
-
-    /**
-     * Returns the text-related flags, possibly modified based on the state of the
-     * device (e.g. support for LCD).
-     */
-    uint32_t filterTextFlags(const SkPaint&) const;
 
     virtual bool onShouldDisableLCD(const SkPaint&) const { return false; }
 
@@ -388,6 +388,58 @@ private:
     SkMatrix             fCTM;
 
     typedef SkRefCnt INHERITED;
+};
+
+class SkNoPixelsDevice : public SkBaseDevice {
+public:
+    SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props)
+            : SkBaseDevice(SkImageInfo::MakeUnknown(bounds.width(), bounds.height()), props)
+    {
+        // this fails if we enable this assert: DiscardableImageMapTest.GetDiscardableImagesInRectMaxImage
+        //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
+    }
+
+    void resetForNextPicture(const SkIRect& bounds) {
+        //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
+        this->privateResize(bounds.width(), bounds.height());
+    }
+
+protected:
+    // We don't track the clip at all (for performance), but we have to respond to some queries.
+    // We pretend to be wide-open. We could pretend to always be empty, but that *seems* worse.
+    void onSave() override {}
+    void onRestore() override {}
+    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override {}
+    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override {}
+    void onClipPath(const SkPath& path, SkClipOp, bool aa) override {}
+    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override {}
+    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override {}
+    bool onClipIsAA() const override { return false; }
+    void onAsRgnClip(SkRegion* rgn) const override {
+        rgn->setRect(SkIRect::MakeWH(this->width(), this->height()));
+    }
+    ClipType onGetClipType() const override {
+        return kRect_ClipType;
+    }
+
+    void drawPaint(const SkPaint& paint) override {}
+    void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&) override {}
+    void drawRect(const SkRect&, const SkPaint&) override {}
+    void drawOval(const SkRect&, const SkPaint&) override {}
+    void drawRRect(const SkRRect&, const SkPaint&) override {}
+    void drawPath(const SkPath&, const SkPaint&, const SkMatrix*, bool) override {}
+    void drawBitmap(const SkBitmap&, SkScalar x, SkScalar y, const SkPaint&) override {}
+    void drawSprite(const SkBitmap&, int, int, const SkPaint&) override {}
+    void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
+                        SkCanvas::SrcRectConstraint) override {}
+    void drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {}
+    void drawPosText(const void*, size_t, const SkScalar[], int, const SkPoint&,
+                     const SkPaint&) override {}
+    void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
+
+private:
+    typedef SkBaseDevice INHERITED;
 };
 
 class SkAutoDeviceCTMRestore : SkNoncopyable {
