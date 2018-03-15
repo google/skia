@@ -2445,7 +2445,10 @@ public:
 
     void private_draw_shadow_rec(const SkPath&, const SkDrawShadowRec&);
 
+
 protected:
+    uint32_t filterTextFlags(const SkPaint& paint) const;
+
     // default impl defers to getDevice()->newSurface(info)
     virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props);
 
