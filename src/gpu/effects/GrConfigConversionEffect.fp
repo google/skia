@@ -53,15 +53,20 @@
         // draw
         readRTC->discard();
 
-        GrSurfaceDesc desc;
-        desc.fWidth = kSize;
-        desc.fHeight = kSize;
-        desc.fConfig = kConfig;
-
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
-        sk_sp<GrTextureProxy> dataProxy = proxyProvider->createTextureProxy(
-                desc, SkBudgeted::kYes, data, 0);
+        SkPixmap pixmap(ii, srcData, 4 * kSize);
+
+        // This function is only ever called if we are in a GrContext that has a GrGpu since we are
+        // calling read pixels here. Thus the pixel data will be uploaded immediately and we don't
+        // need to keep the pixel data alive in the proxy. Therefore the ReleaseProc is nullptr.
+        sk_sp<SkImage> image = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
+
+        sk_sp<GrTextureProxy> dataProxy = proxyProvider->createTextureProxy(std::move(image),
+                                                                            kNone_GrSurfaceFlags,
+                                                                            1,
+                                                                            SkBudgeted::kYes,
+                                                                            SkBackingFit::kExact);
         if (!dataProxy) {
             return false;
         }
