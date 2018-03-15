@@ -5064,7 +5064,8 @@ void draw(SkCanvas* canvas) {
 #In Draw
 #Line # draws null terminated string at (x, y) using font advance ##
 Draw null terminated string, with origin at (x, y), using Clip, Matrix, and
-Paint paint.
+Paint paint. Note that this per-glyph xform does not affect the shader (if present)
+on the paint, just the glyph's geometry.
 
 string meaning depends on Paint_Text_Encoding; by default, strings are encoded
 as UTF-8. Other values of Paint_Text_Encoding are unlikely to produce the desired
