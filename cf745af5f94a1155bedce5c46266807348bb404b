@@ -22,6 +22,30 @@
       "revId": "cf745af5f94a1155bedce5c46266807348bb404b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "188a51ba_392ce21c",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-03-15T17:38:01Z",
+      "side": 1,
+      "message": "Simplified to not use alloc anymore",
+      "parentUuid": "70984fa9_776fcbf0",
+      "range": {
+        "startLine": 517,
+        "startChar": 0,
+        "endLine": 518,
+        "endChar": 53
+      },
+      "revId": "cf745af5f94a1155bedce5c46266807348bb404b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
