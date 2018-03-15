@@ -100,6 +100,14 @@ def RunSteps(api):
                                      fiddlecli_output, test_data=test_data)
         out = json.loads(content)
 
+        # Log this stuff!
+        api.run(api.step, 'Output fiddleout.json', cmd=['cat', fiddlecli_output])
+
+#        api.run(
+#            api.python.inline,
+#            'Output fiddleout.json',
+#            program="""print 'Dump of %s'print open('%s')""" % fiddlecli_output)
+
         failing_fiddles_to_errors = {}
         for fiddle_name in out:
           props = out[fiddle_name]
