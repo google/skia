@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0992c51_d6348a05",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-15T15:14:54Z",
+      "side": 1,
+      "message": "I\u0027m not sure if we want to have this check in here. We don\u0027t know where this GrBackendTexture came from or where it was used before.",
+      "range": {
+        "startLine": 395,
+        "startChar": 8,
+        "endLine": 395,
+        "endChar": 68
+      },
+      "revId": "362dfa141dc2e9604848492dc8a409037b922571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a451e7be_65c1baae",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-15T15:14:54Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 396,
+        "startChar": 93,
+        "endLine": 396,
+        "endChar": 100
+      },
+      "revId": "362dfa141dc2e9604848492dc8a409037b922571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
