@@ -138,6 +138,30 @@ const GrMockTextureInfo* GrBackendTexture::getMockTextureInfo() const {
     return nullptr;
 }
 
+GrBackendFormat GrBackendTexture::format() const {
+    switch (this->backend()) {
+#ifdef SK_VULKAN
+        case kVulkan_GrBackend: {
+            const GrVkImageInfo* vkInfo = this->getVkImageInfo();
+            SkASSERT(vkInfo);
+            return GrBackendFormat::MakeVk(vkInfo->fFormat);
+        }
+#endif
+        case kOpenGL_GrBackend: {
+            const GrGLTextureInfo* glInfo = this->getGLTextureInfo();
+            SkASSERT(glInfo);
+            return GrBackendFormat::MakeGL(glInfo->fFormat, glInfo->fTarget);
+        }
+        case kMock_GrBackend: {
+            const GrMockTextureInfo* mockInfo = this->getMockTextureInfo();
+            SkASSERT(mockInfo);
+            return GrBackendFormat::MakeMock(mockInfo->fConfig);
+        }
+        default:
+            return GrBackendFormat();
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_VULKAN

@@ -1254,31 +1254,6 @@ public:
     SkDeferredDisplayListRecorder*    fRecorder;
 };
 
-// duplicate of method in GrTest.cpp
-GrBackendFormat CreateBackendFormatFromTexture(const GrBackendTexture& tex) {
-    switch (tex.backend()) {
-#ifdef SK_VULKAN
-        case kVulkan_GrBackend: {
-            const GrVkImageInfo* vkInfo = tex.getVkImageInfo();
-            SkASSERT(vkInfo);
-            return GrBackendFormat::MakeVk(vkInfo->fFormat);
-        }
-#endif
-        case kOpenGL_GrBackend: {
-            const GrGLTextureInfo* glInfo = tex.getGLTextureInfo();
-            SkASSERT(glInfo);
-            return GrBackendFormat::MakeGL(glInfo->fFormat, glInfo->fTarget);
-        }
-        case kMock_GrBackend: {
-            const GrMockTextureInfo* mockInfo = tex.getMockTextureInfo();
-            SkASSERT(mockInfo);
-            return GrBackendFormat::MakeMock(mockInfo->fConfig);
-        }
-        default:
-            return GrBackendFormat();
-    }
-}
-
 // This generates promise images to replace the indices in the compressed picture. This
 // reconstitution is performed separately in each thread so we end of with multiple
 // promise image referring to the same GrBackendTexture.
@@ -1295,7 +1270,7 @@ static sk_sp<SkImage> promise_image_creator(const void* rawData, size_t length, 
     const PromiseImageInfo& curImage = (*imageInfo)[*indexPtr];
     SkASSERT(curImage.fIndex == *indexPtr);
 
-    GrBackendFormat backendFormat = CreateBackendFormatFromTexture(curImage.fBackendTexture);
+    GrBackendFormat backendFormat = curImage.fBackendTexture.format();
 
     // DDL TODO: sort out mipmapping
     sk_sp<SkImage> image = recorder->makePromiseTexture(backendFormat,

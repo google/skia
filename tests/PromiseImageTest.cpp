@@ -96,7 +96,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
-    GrBackendFormat backendFormat = GrTest::CreateBackendFormatFromTexture(backendTex);
+    GrBackendFormat backendFormat = backendTex.format();
     REPORTER_ASSERT(reporter, backendFormat.isValid());
 
     PromiseTextureChecker promiseChecker(backendTex);
