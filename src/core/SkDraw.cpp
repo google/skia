@@ -511,6 +511,9 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                 n = MAX_DEV_PTS;
             }
             matrix->mapPoints(devPts, pts, n);
+            if (!SkScalarsAreFinite(&devPts[0].fX, n * 2)) {
+                return;
+            }
             proc(rec, devPts, n, bltr);
             pts += n - backup;
             SkASSERT(SkToInt(count) >= n);
