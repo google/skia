@@ -320,10 +320,12 @@ public:
     };
 
     TextBlobFilterCanvas(int width, int height,
+                         const SkCanvas& deviceCanvas,
                          const SkMatrix& deviceMatrix,
                          const SkSurfaceProps& props,
                          SkScalerContextFlags flags)
         : SkNoDrawCanvas(width, height)
+        , fDeviceCanvas{deviceCanvas}
         , fDeviceMatrix{deviceMatrix}
         , fSurfaceProps{props}
         , fScalerContextFlags{flags} { }
@@ -433,12 +435,23 @@ protected:
             // applyFontToPaint() always overwrites the exact same attributes,
             // so it is safe to not re-seed the paint for this reason.
             it.applyFontToPaint(&runPaint);
+            runPaint.setFlags(fDeviceCanvas.filterTextFlags(runPaint));
             if (auto looper = runPaint.getLooper()) {
                 this->processLooper(position, it, runPaint, looper, this);
             } else {
                 this->processGlyphRun(position, it, runPaint);
             }
         }
+    }
+
+    void onDrawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {
+        SK_ABORT("DrawText");
+    }
+    void onDrawPosText(const void*, size_t, const SkPoint[], const SkPaint&) override {
+        SK_ABORT("DrawPosText");
+    }
+    void onDrawPosTextH(const void*, size_t, const SkScalar[], SkScalar, const SkPaint&) override {
+        SK_ABORT("DrawPosTextH");
     }
 
 private:
@@ -601,6 +614,7 @@ private:
         }
     }
 
+    const SkCanvas& fDeviceCanvas;
     const SkMatrix fDeviceMatrix;
     const SkSurfaceProps fSurfaceProps;
     const SkScalerContextFlags fScalerContextFlags;
@@ -664,7 +678,7 @@ public:
         std::cout << " metrics image op rec tf: " << rec.fFontID
                   << " tf id: " << tf.fontID()
                   << " rec: " << rd.desc().getChecksum()
-                  << " glyphid: " << glyph->getPackedID().getPackedID()
+                  << " glyphid: " << glyph->getPackedID().getPackedID() << "\n"
                   << rec.dump().c_str() << std::endl;
 #endif
         Op* op = this->startOpWrite(OpCode::kGlyphMetricsAndImage, tf, rec);
@@ -722,7 +736,7 @@ static void prepopulate_cache(
     sk_sp<SkPicture> pic,
     TextBlobFilterCanvas* filter) {
 
-    filter->drawPicture(pic);
+    pic->playback(filter);
 
     transport->startEmplace<Op>(OpCode::kPrepopulateCache, SkFontID{0},
                                 SkScalerContextRec{});
@@ -797,7 +811,8 @@ static void final_draw(std::string outFilename,
     SkMatrix deviceMatrix = SkMatrix::I();
     // kFakeGammaAndBoostContrast
     TextBlobFilterCanvas filter(
-        r.width(), r.height(), deviceMatrix, s->props(), SkScalerContextFlags::kFakeGammaAndBoostContrast);
+        r.width(), r.height(), *c, deviceMatrix, s->props(),
+        SkScalerContextFlags::kFakeGammaAndBoostContrast);
 
     if (cache != nullptr) {
         for (int i = 0; i < 0; i++) {

@@ -974,6 +974,10 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
     return true;
 }
 
+uint32_t SkCanvas::filterTextFlags(const SkPaint& paint) const {
+    return this->getTopDevice()->filterTextFlags(paint);
+}
+
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
     return this->saveLayer(SaveLayerRec(bounds, paint, 0));
