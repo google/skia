@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e167c81_f1326996",
+        "filename": "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-15T14:33:02Z",
+      "side": 1,
+      "message": "When I wrote this comment I didn\u0027t really understand the issue. This real issue is described in this extension:\n\nhttps://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_get_all_proc_addresses.txt\n\nI think we should have the M() thing for all unextended GLES 2.0 functions and not hide it behind a SK_WORK_AROUND... macro.\n\nThis wouldn\u0027t cover a ES3 driver that doesn\u0027t implement EGL_KHR_get_all_proc_addresses or EGL 1.5, but so far we haven\u0027t encountered that. If we also did the M() thing for ES3+ functions then we\u0027d also have to require an ES3+ header/lib (and would probably have to add a build flag to make that optional).",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 49
+      },
+      "revId": "77e8ec18fb4734aaf7b72180472daf380694a424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
