@@ -404,5 +404,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLUnusedRecorderCleanup, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+
+    SkSurfaceCharacterization characterization;
+    SkAssertResult(s->characterize(&characterization));
+    SkDeferredDisplayListRecorder recorder(characterization);
+}
+
 
 #endif
