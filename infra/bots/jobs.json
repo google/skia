@@ -436,6 +436,8 @@
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Coverage",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage",
+  "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1",
+  "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext",

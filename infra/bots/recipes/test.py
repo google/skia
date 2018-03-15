@@ -235,6 +235,14 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr', '--cachePathMasks', 'false'])
 
+    # DDL is a GPU-only feature
+    if 'DDL1' in bot:
+      configs = [c for c in configs if c == 'gl' or c == 'gles']
+      args.extend(['--ddl', "1"])
+    if 'DDL3' in bot:
+      configs = [c for c in configs if c == 'gl' or c == 'gles']
+      args.extend(['--ddl', "3"])
+
   tf = api.vars.builder_cfg.get('test_filter')
   if 'All' != tf:
     # Expected format: shard_XX_YY
@@ -267,6 +275,15 @@ def dm_flags(api, bot):
   if 'NativeFonts' in bot:  # images won't exercise native font integration :)
     args.remove('image')
     args.remove('colorImage')
+
+  # For now it only renders the skps (i.e., no tests, no gms)
+  if 'DDL1' in bot or 'DDL3' in bot:
+    args.remove('tests')
+    args.remove('gm')
+    args.remove('image')
+    args.remove('colorImage')
+    args.remove('svg')
+    args.add('skp')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
@@ -947,6 +964,7 @@ TEST_BUILDERS = [
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+  ("Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-DDL3"),
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE',
