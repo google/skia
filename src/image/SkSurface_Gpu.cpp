@@ -228,17 +228,11 @@ bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
         return false;
     }
 
-#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
-    // Ultimately need to pass opLists from the DeferredDisplayList on to the
-    // SkGpuDevice's renderTargetContext.
-    return ddl->draw(this);
-#else
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
     ctx->contextPriv().copyOpListsFromDDL(ddl, rtc->asRenderTargetProxy());
     return true;
-#endif
 }
 
 
