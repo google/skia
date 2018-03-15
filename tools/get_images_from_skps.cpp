@@ -208,7 +208,6 @@ int main(int argc, char** argv) {
             stream.writeText(Json::StyledWriter().write(fRoot).c_str());
             stream.flush();
         }
-        return -1;
     }
     return 0;
 }
