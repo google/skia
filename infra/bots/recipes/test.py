@@ -235,6 +235,22 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr', '--cachePathMasks', 'false'])
 
+    # DDL is a GPU-only feature
+    # For now it only renders the skps (i.e., no tests, no gms)
+    if 'DDL1' in bot or 'DDL3' in bot:
+      args.remove('tests')
+      args.remove('gm')
+      args.remove('image')
+      args.remove('colorImage')
+      args.remove('svg')
+      args.add('skp')
+      configs = [c for c in configs if c == 'gl' or c == 'gles']
+
+    if 'DDL1' in bot:
+      args.extend(['--ddl', "1"])
+    if 'DDL3' in bot:
+      args.extend(['--ddl', "3"])
+
   tf = api.vars.builder_cfg.get('test_filter')
   if 'All' != tf:
     # Expected format: shard_XX_YY
