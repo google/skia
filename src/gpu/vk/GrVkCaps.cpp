@@ -38,7 +38,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fOversizedStencilSupport = false; //TODO: figure this out
     fInstanceAttribSupport = true;
 
-    fBlacklistCoverageCounting = true; // blacklisting ccpr until we work through a few issues.
     fFenceSyncSupport = true;   // always available in Vulkan
     fCrossContextTextureSupport = true;
 
@@ -145,6 +144,16 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 
     if (kARM_VkVendor == properties.vendorID) {
         fInstanceAttribSupport = false;
+    }
+
+    // Intel and PowerVR crash with CCPR.
+    if (kIntel_VkVendor == properties.vendorID || kImagination_VkVendor == properties.vendorID) {
+        fBlacklistCoverageCounting = true;
+    }
+
+    // Radeon has corrupt output with CCPR.
+    if (kAMD_VkVendor == properties.vendorID) {
+        fBlacklistCoverageCounting = true;
     }
 
     // AMD advertises support for MAX_UINT vertex input attributes, but in reality only supports 32.
