@@ -649,25 +649,21 @@ Recognized formats vary by GPU back-end.
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
-                                                  const GrBackendObject yuvTextureHandles[3],
-                                                  const SkISize yuvSizes[3],
+                                                  const GrBackendTexture yuvTextures[3],
                                                   GrSurfaceOrigin surfaceOrigin,
                                                   sk_sp<SkColorSpace> colorSpace = nullptr)
 #In Constructor
 #Line # creates Image from YUV_ColorSpace data in three planes ##
 
-Creates Image from copy of yuvTextureHandles, an array of textures on GPU.
-yuvTextureHandles contain pixels for YUV planes of Image.
-yuvSizes contain dimensions for each pixel plane. Dimensions must be greater than
-zero but may differ from plane to plane. Returned Image has the dimensions
-yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors. 
+Creates Image from copy of yuvTextures, an array of textures on GPU.
+yuvTextures contain pixels for YUV planes of Image. Returned Image has the dimensions
+yuvTextures[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
 
 #Param context  GPU_Context ##
 #Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                               kRec709_SkYUVColorSpace
 ##
-#Param yuvTextureHandles  array of YUV textures on GPU ##
-#Param yuvSizes  dimensions of YUV textures ##
+#Param yuvTextures  array of YUV textures on GPU ##
 #Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorSpace  range of colors; may be nullptr ##
 
@@ -688,22 +684,17 @@ should this be moved to chrome only?
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
-                                                  const GrBackendTexture yuvTextureHandles[3],
+                                                  const GrBackendTexture yuvTextures[3],
                                                   const SkISize yuvSizes[3],
                                                   GrSurfaceOrigin surfaceOrigin,
                                                   sk_sp<SkColorSpace> colorSpace = nullptr)
-
-Creates Image from copy of yuvTextureHandles, an array of textures on GPU.
-yuvTextureHandles contain pixels for YUV planes of Image.
-yuvSizes contain dimensions for each pixel plane. Dimensions must be greater than
-zero but may differ from plane to plane. Returned Image has the dimensions
-yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors. 
+This version of MakeFromYUVTexturesCopy is over specified and should not be used.
 
 #Param context  GPU_Context ##
 #Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                               kRec709_SkYUVColorSpace
 ##
-#Param yuvTextureHandles  array of YUV textures on GPU ##
+#Param yuvTextures  array of YUV textures on GPU ##
 #Param yuvSizes  dimensions of YUV textures ##
 #Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorSpace  range of colors; may be nullptr ##
@@ -726,27 +717,24 @@ should this be moved to chrome only?
 
 #Method static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext* context,
                                                    SkYUVColorSpace yuvColorSpace,
-                                                   const GrBackendObject nv12TextureHandles[2],
-                                                   const SkISize nv12Sizes[2],
+                                                   const GrBackendTexture nv12Textures[2],
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr)
 #In Constructor
-#Line # creates Image from YUV_ColorSpace data in two planes ##
+#Line # creates Image from YUV_ColorSpace data in three planes ##
 
 Creates Image from copy of nv12TextureHandles, an array of textures on GPU.
-nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
-nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
+nv12Textures[0] contains pixels for YUV_Component_Y plane.
+nv12Textures[1] contains pixels for YUV_Component_U plane,
 followed by pixels for YUV_Component_V plane.
-nv12Sizes contain dimensions for each pixel plane. Dimensions must be greater than
-zero but may differ from plane to plane. Returned Image has the dimensions
-nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
+Returned Image has the dimensions
+nv12Textures[2]. yuvColorSpace describes how YUV colors convert to RGB colors.
 
 #Param context  GPU_Context ##
 #Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                               kRec709_SkYUVColorSpace
 ##
-#Param nv12TextureHandles  array of YUV textures on GPU ##
-#Param nv12Sizes  dimensions of YUV textures ##
+#Param nv12Textures  array of YUV textures on GPU ##
 #Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorSpace  range of colors; may be nullptr ##
 
@@ -768,24 +756,18 @@ should this be moved to chrome only?
 
 #Method static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext* context,
                                                    SkYUVColorSpace yuvColorSpace,
-                                                   const GrBackendTexture nv12TextureHandles[2],
+                                                   const GrBackendTexture nv12Textures[2],
                                                    const SkISize nv12Sizes[2],
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr)
 
-Creates Image from copy of nv12TextureHandles, an array of textures on GPU.
-nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
-nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
-followed by pixels for YUV_Component_V plane.
-nv12Sizes contain dimensions for each pixel plane. Dimensions must be greater than
-zero but may differ from plane to plane. Returned Image has the dimensions
-nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
+This version of MakeFromYUVTexturesCopy is over specified and should not be used.
 
 #Param context  GPU_Context ##
 #Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                               kRec709_SkYUVColorSpace
 ##
-#Param nv12TextureHandles  array of YUV textures on GPU ##
+#Param nv12Textures  array of YUV textures on GPU ##
 #Param nv12Sizes  dimensions of YUV textures ##
 #Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorSpace  range of colors; may be nullptr ##

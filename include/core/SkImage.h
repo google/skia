@@ -326,92 +326,54 @@ public:
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
 
-    /** Creates SkImage from copy of yuvTextureHandles, an array of textures on GPU.
-        yuvTextureHandles contain pixels for YUV planes of SkImage.
-        yuvSizes contain dimensions for each pixel plane. Dimensions must be greater than
-        zero but may differ from plane to plane. Returned SkImage has the dimensions
-        yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
+    /** Creates SkImage from copy of yuvTextures, an array of textures on GPU.
+        yuvTextures contain pixels for YUV planes of SkImage.
+        Returned SkImage has the dimensions yuvTextures[0]. yuvColorSpace describes how YUV colors
+        convert to RGB colors.
 
         @param context            GPU context
         @param yuvColorSpace      one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                                   kRec709_SkYUVColorSpace
-        @param yuvTextureHandles  array of YUV textures on GPU
-        @param yuvSizes           dimensions of YUV textures
+        @param yuvTextures        array of YUV textures on GPU
         @param surfaceOrigin      one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param colorSpace         range of colors; may be nullptr
         @return                   created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
-                                                  const GrBackendObject yuvTextureHandles[3],
+                                                  const GrBackendTexture yuvTextures[3],
+                                                  GrSurfaceOrigin surfaceOrigin,
+                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
+    /** Deprecated version that takes a redunant array of sizes of the textures. */
+    static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
+                                                  const GrBackendTexture yuvTextures[3],
                                                   const SkISize yuvSizes[3],
                                                   GrSurfaceOrigin surfaceOrigin,
                                                   sk_sp<SkColorSpace> colorSpace = nullptr);
 
     /** Creates SkImage from copy of nv12TextureHandles, an array of textures on GPU.
-        nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
-        nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
+        yuvTextures[0] contains pixels for YUV_Component_Y plane.
+        yuvTextures[1] contains pixels for YUV_Component_U plane,
         followed by pixels for YUV_Component_V plane.
-        nv12Sizes contain dimensions for each pixel plane. Dimensions must be greater than
-        zero but may differ from plane to plane. Returned SkImage has the dimensions
-        nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
+        Returned SkImage has the dimensions nv12Textures[0]. yuvColorSpace describes how YUV colors
+        convert to RGB colors.
 
         @param context             GPU context
         @param yuvColorSpace       one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                                    kRec709_SkYUVColorSpace
-        @param nv12TextureHandles  array of YUV textures on GPU
-        @param nv12Sizes           dimensions of YUV textures
+        @param nv12Textures        array of YUV textures on GPU
         @param surfaceOrigin       one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param colorSpace          range of colors; may be nullptr
         @return                    created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext* context,
                                                    SkYUVColorSpace yuvColorSpace,
-                                                   const GrBackendObject nv12TextureHandles[2],
-                                                   const SkISize nv12Sizes[2],
+                                                   const GrBackendTexture nv12Textures[2],
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr);
-
-    /** Creates SkImage from copy of yuvTextureHandles, an array of textures on GPU.
-        yuvTextureHandles contain pixels for YUV planes of SkImage.
-        yuvSizes contain dimensions for each pixel plane. Dimensions must be greater than
-        zero but may differ from plane to plane. Returned SkImage has the dimensions
-        yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
-
-        @param context            GPU context
-        @param yuvColorSpace      one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                  kRec709_SkYUVColorSpace
-        @param yuvTextureHandles  array of YUV textures on GPU
-        @param yuvSizes           dimensions of YUV textures
-        @param surfaceOrigin      one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorSpace         range of colors; may be nullptr
-        @return                   created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
-                                                  const GrBackendTexture yuvTextureHandles[3],
-                                                  const SkISize yuvSizes[3],
-                                                  GrSurfaceOrigin surfaceOrigin,
-                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
-
-    /** Creates SkImage from copy of nv12TextureHandles, an array of textures on GPU.
-        nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
-        nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
-        followed by pixels for YUV_Component_V plane.
-        nv12Sizes contain dimensions for each pixel plane. Dimensions must be greater than
-        zero but may differ from plane to plane. Returned SkImage has the dimensions
-        nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
-
-        @param context             GPU context
-        @param yuvColorSpace       one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                   kRec709_SkYUVColorSpace
-        @param nv12TextureHandles  array of YUV textures on GPU
-        @param nv12Sizes           dimensions of YUV textures
-        @param surfaceOrigin       one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorSpace          range of colors; may be nullptr
-        @return                    created SkImage, or nullptr
-    */
+    /** Deprecated version that takes a redunant array of sizes of the textures. */
     static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext* context,
                                                    SkYUVColorSpace yuvColorSpace,
-                                                   const GrBackendTexture nv12TextureHandles[2],
+                                                   const GrBackendTexture nv12Textures[2],
                                                    const SkISize nv12Sizes[2],
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr);

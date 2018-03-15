@@ -114,6 +114,12 @@ public:
                                              TextureReleaseProc textureReleaseProc,
                                              TextureContext textureContext);
 
+    /** Implementation of MakeFromYUVTexturesCopy and MakeFromNV12TexturesCopy */
+    static sk_sp<SkImage> MakeFromYUVTexturesCopyImpl(
+            GrContext* ctx, SkYUVColorSpace colorSpace, bool nv12,
+            const GrBackendTexture yuvBackendTextures[], GrSurfaceOrigin origin,
+            sk_sp<SkColorSpace> imageColorSpace);
+
     bool onIsValid(GrContext*) const override;
 
 private:
