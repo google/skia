@@ -271,7 +271,6 @@ tests_sources = [
   "$_tests/UnicodeTest.cpp",
   "$_tests/UtilsTest.cpp",
   "$_tests/VerticesTest.cpp",
-  "$_tests/VkClearTests.cpp",
   "$_tests/VkHeapTests.cpp",
   "$_tests/VkMakeCopyPipelineTest.cpp",
   "$_tests/VkUploadPixelsTests.cpp",
