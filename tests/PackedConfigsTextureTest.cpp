@@ -97,7 +97,7 @@ static void check_565(skiatest::Reporter* reporter,
 }
 
 static void run_test(skiatest::Reporter* reporter, GrContext* context, int arraySize,
-                     GrColorType colorType) {
+                     GrColorType colorType, bool opaque) {
     SkTDArray<uint16_t> controlPixelData;
     // We will read back into an 8888 buffer since 565/4444 read backs aren't supported
     SkTDArray<GrColor> readBuffer;
@@ -110,7 +110,7 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
     }
 
     const SkImageInfo dstInfo = SkImageInfo::Make(DEV_W, DEV_H,
-                                                  kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
+                                                  kRGBA_8888_SkColorType, opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
 
     for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, false, DEV_W, DEV_H, colorType,
@@ -134,11 +134,11 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
 static const int CONTROL_ARRAY_SIZE = DEV_W * DEV_H;
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RGBA4444TextureTest, reporter, ctxInfo) {
-    run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, GrColorType::kABGR_4444);
+    run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, GrColorType::kABGR_4444, false);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RGB565TextureTest, reporter, ctxInfo) {
-    run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, GrColorType::kRGB_565);
+    run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, GrColorType::kRGB_565, true);
 }
 
 #endif
