@@ -1644,7 +1644,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
 
 ////////////////////////////////////////////////////////////////////////////////
 static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
-                                            GrSurfaceFlags flags,
+                                            GrSurfaceDescFlags flags,
                                             int width, int height,
                                             int sampleCnt) {
     GrSurfaceDesc desc;
@@ -1658,7 +1658,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
 }
 
 static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
-                                               GrSurfaceFlags flags,
+                                               GrSurfaceDescFlags flags,
                                                int width, int height,
                                                int sampleCnt) {
     GrSurfaceDesc desc;

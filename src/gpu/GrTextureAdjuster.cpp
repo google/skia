@@ -81,7 +81,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSa
         return proxy;
     }
 
-    if (!gpu->isACopyNeededForTextureParams(proxy.get(), params, &copyParams, scaleAdjust)) {
+    if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(), proxy->width(), proxy->height(),
+                                              params, &copyParams, scaleAdjust)) {
         return proxy;
     }
 
