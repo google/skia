@@ -63,6 +63,7 @@ public:
 
     typedef ReleaseContext TextureContext;
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
+    typedef void (*PromiseDoneProc)(TextureContext textureContext);
 
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
@@ -83,6 +84,11 @@ public:
         In other words we will never call textureFulfillProc or textureReleaseProc multiple times
         for the same textureContext before calling the other.
 
+        We we call the promiseDoneProc when we will no longer call the textureFulfillProc again. We
+        also guarantee that there will be no outstanding textureReleaseProcs that still need to be
+        called when we call the textureDoneProc. Thus when the textureDoneProc gets called the
+        client is able to cleanup all GPU objects and meta data needed for the textureFulfill call.
+
         @param context             Gpu context
         @param backendFormat       format of promised gpu texture
         @param width               width of promised gpu texture
@@ -98,6 +104,7 @@ public:
         @param colorSpace          range of colors; may be nullptr
         @param textureFulfillProc  function called to get actual gpu texture
         @param textureReleaseProc  function called when texture can be released
+        @param promiseDoneProc     function called when we will no longer call textureFulfillProc
         @param textureContext      state passed to textureFulfillProc and textureReleaseProc
         @return                    created SkImage, or nullptr
      */
@@ -112,6 +119,7 @@ public:
                                              sk_sp<SkColorSpace> colorSpace,
                                              TextureFulfillProc textureFulfillProc,
                                              TextureReleaseProc textureReleaseProc,
+                                             PromiseDoneProc promiseDoneProc,
                                              TextureContext textureContext);
 
     /** Implementation of MakeFromYUVTexturesCopy and MakeFromNV12TexturesCopy */

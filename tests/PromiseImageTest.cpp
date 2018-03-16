@@ -22,16 +22,21 @@ struct PromiseTextureChecker {
     explicit PromiseTextureChecker(const GrBackendTexture& tex)
             : fTexture(tex)
             , fFulfillCount(0)
-            , fReleaseCount(0) {}
+            , fReleaseCount(0)
+            , fDoneCount(0) {}
     GrBackendTexture fTexture;
     int fFulfillCount;
     int fReleaseCount;
+    int fDoneCount;
     static void Fulfill(void* self, GrBackendTexture* outTexture) {
         static_cast<PromiseTextureChecker*>(self)->fFulfillCount++;
         *outTexture = static_cast<PromiseTextureChecker*>(self)->fTexture;
     }
     static void Release(void* self) {
         static_cast<PromiseTextureChecker*>(self)->fReleaseCount++;
+    }
+    static void Done(void* self) {
+        static_cast<PromiseTextureChecker*>(self)->fDoneCount++;
     }
 };
 
@@ -43,6 +48,7 @@ static bool check_fulfill_and_release_cnts(const PromiseTextureChecker& promiseC
                                            int expectedFulfillCnt,
                                            int expectedReleaseCnt,
                                            bool expectedRequired,
+                                           int expectedDoneCnt,
                                            skiatest::Reporter* reporter) {
     bool result = true;
     int countDiff = promiseChecker.fFulfillCount - promiseChecker.fReleaseCount;
@@ -81,123 +87,158 @@ static bool check_fulfill_and_release_cnts(const PromiseTextureChecker& promiseC
         }
     }
 
+    if (expectedDoneCnt != promiseChecker.fDoneCount) {
+        result = false;
+        REPORTER_ASSERT(reporter, expectedDoneCnt == promiseChecker.fDoneCount);
+    }
+
     return result;
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
-    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
 
     GrContext* ctx = ctxInfo.grContext();
     GrGpu* gpu = ctx->contextPriv().getGpu();
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-               pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
-    REPORTER_ASSERT(reporter, backendTex.isValid());
+    for (bool releaseImageEarly : {true, false}) {
+        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                nullptr, kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
+        REPORTER_ASSERT(reporter, backendTex.isValid());
 
-    GrBackendFormat backendFormat = backendTex.format();
-    REPORTER_ASSERT(reporter, backendFormat.isValid());
+        GrBackendFormat backendFormat = backendTex.format();
+        REPORTER_ASSERT(reporter, backendFormat.isValid());
 
-    PromiseTextureChecker promiseChecker(backendTex);
-    GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> refImg(
-        SkImage_Gpu::MakePromiseTexture(ctx, backendFormat, kWidth, kHeight, GrMipMapped::kNo,
-                                        texOrigin, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
-                                        nullptr,
-                                        PromiseTextureChecker::Fulfill,
-                                        PromiseTextureChecker::Release,
-                                        &promiseChecker));
+        PromiseTextureChecker promiseChecker(backendTex);
+        GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
+        sk_sp<SkImage> refImg(
+                SkImage_Gpu::MakePromiseTexture(ctx, backendFormat, kWidth, kHeight,
+                                                GrMipMapped::kNo, texOrigin,
+                                                kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                                nullptr,
+                                                PromiseTextureChecker::Fulfill,
+                                                PromiseTextureChecker::Release,
+                                                PromiseTextureChecker::Done,
+                                                &promiseChecker));
 
-    SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
-    SkCanvas* canvas = surface->getCanvas();
+        SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+        sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+        SkCanvas* canvas = surface->getCanvas();
 
-    int expectedFulfillCnt = 0;
-    int expectedReleaseCnt = 0;
+        int expectedFulfillCnt = 0;
+        int expectedReleaseCnt = 0;
+        int expectedDoneCnt = 0;
 
-    canvas->drawImage(refImg, 0, 0);
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             true,
-                                                             reporter));
+        canvas->drawImage(refImg, 0, 0);
+        REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                 true,
+                                                                 expectedFulfillCnt,
+                                                                 expectedReleaseCnt,
+                                                                 true,
+                                                                 expectedDoneCnt,
+                                                                 reporter));
 
-    bool isVulkan = kVulkan_GrBackend == ctx->contextPriv().getBackend();
-    canvas->flush();
-    expectedFulfillCnt++;
-    expectedReleaseCnt++;
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             !isVulkan,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             !isVulkan,
-                                                             reporter));
+        bool isVulkan = kVulkan_GrBackend == ctx->contextPriv().getBackend();
+        canvas->flush();
+        expectedFulfillCnt++;
+        expectedReleaseCnt++;
+        REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                 !isVulkan,
+                                                                 expectedFulfillCnt,
+                                                                 expectedReleaseCnt,
+                                                                 !isVulkan,
+                                                                 expectedDoneCnt,
+                                                                 reporter));
 
-    gpu->testingOnly_flushGpuAndSync();
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             true,
-                                                             reporter));
+        gpu->testingOnly_flushGpuAndSync();
+        REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                 true,
+                                                                 expectedFulfillCnt,
+                                                                 expectedReleaseCnt,
+                                                                 true,
+                                                                 expectedDoneCnt,
+                                                                 reporter));
 
-    canvas->drawImage(refImg, 0, 0);
-    canvas->drawImage(refImg, 0, 0);
+        canvas->drawImage(refImg, 0, 0);
+        canvas->drawImage(refImg, 0, 0);
 
-    canvas->flush();
-    expectedFulfillCnt++;
-    expectedReleaseCnt++;
+        canvas->flush();
+        expectedFulfillCnt++;
+        expectedReleaseCnt++;
 
-    gpu->testingOnly_flushGpuAndSync();
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             true,
-                                                             reporter));
+        gpu->testingOnly_flushGpuAndSync();
+        REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                 true,
+                                                                 expectedFulfillCnt,
+                                                                 expectedReleaseCnt,
+                                                                 true,
+                                                                 expectedDoneCnt,
+                                                                 reporter));
 
-    // Now test code path on Vulkan where we released the texture, but the GPU isn't done with
-    // resource yet and we do another draw. We should only call fulfill on the first draw and
-    // use the cached GrBackendTexture on the second. Release should only be called after the second
-    // draw is finished.
-    canvas->drawImage(refImg, 0, 0);
-    canvas->flush();
-    expectedFulfillCnt++;
-    expectedReleaseCnt++;
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             !isVulkan,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             !isVulkan,
-                                                             reporter));
+        // Now test code path on Vulkan where we released the texture, but the GPU isn't done with
+        // resource yet and we do another draw. We should only call fulfill on the first draw and
+        // use the cached GrBackendTexture on the second. Release should only be called after the
+        // second draw is finished.
+        canvas->drawImage(refImg, 0, 0);
+        canvas->flush();
+        expectedFulfillCnt++;
+        expectedReleaseCnt++;
+        REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                 !isVulkan,
+                                                                 expectedFulfillCnt,
+                                                                 expectedReleaseCnt,
+                                                                 !isVulkan,
+                                                                 expectedDoneCnt,
+                                                                 reporter));
 
-    canvas->drawImage(refImg, 0, 0);
-    canvas->flush();
-    expectedFulfillCnt++;
+        canvas->drawImage(refImg, 0, 0);
 
-    gpu->testingOnly_flushGpuAndSync();
-    expectedReleaseCnt++;
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             !isVulkan,
-                                                             reporter));
-    expectedFulfillCnt = promiseChecker.fFulfillCount;
-    expectedReleaseCnt = promiseChecker.fReleaseCount;
+        if (releaseImageEarly) {
+            refImg.reset();
+        }
 
-    refImg.reset();
+        REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                 !isVulkan,
+                                                                 expectedFulfillCnt,
+                                                                 expectedReleaseCnt,
+                                                                 !isVulkan,
+                                                                 expectedDoneCnt,
+                                                                 reporter));
 
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             true,
-                                                             reporter));
+        canvas->flush();
+        expectedFulfillCnt++;
 
-    gpu->deleteTestingOnlyBackendTexture(backendTex);
+        gpu->testingOnly_flushGpuAndSync();
+        expectedReleaseCnt++;
+        if (releaseImageEarly) {
+            expectedDoneCnt++;
+        }
+        REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                 true,
+                                                                 expectedFulfillCnt,
+                                                                 expectedReleaseCnt,
+                                                                 !isVulkan,
+                                                                 expectedDoneCnt,
+                                                                 reporter));
+        expectedFulfillCnt = promiseChecker.fFulfillCount;
+        expectedReleaseCnt = promiseChecker.fReleaseCount;
+
+        if (!releaseImageEarly) {
+            refImg.reset();
+            expectedDoneCnt++;
+        }
+
+        REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                 true,
+                                                                 expectedFulfillCnt,
+                                                                 expectedReleaseCnt,
+                                                                 true,
+                                                                 expectedDoneCnt,
+                                                                 reporter));
+
+        gpu->deleteTestingOnlyBackendTexture(backendTex);
+    }
 }
 
 #endif
