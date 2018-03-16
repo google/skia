@@ -2473,9 +2473,9 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     bool isBuffer = (0 != (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag));
     bool pushConstant = (0 != (intf.fVariable.fModifiers.fLayout.fFlags &
                                Layout::kPushConstant_Flag));
-    MemoryLayout layout = (pushConstant || isBuffer) ?
-                          MemoryLayout(MemoryLayout::k430_Standard) :
-                          fDefaultLayout;
+    MemoryLayout memoryLayout = (pushConstant || isBuffer) ?
+                                MemoryLayout(MemoryLayout::k430_Standard) :
+                                fDefaultLayout;
     SpvId result = this->nextId();
     const Type* type = &intf.fVariable.fType;
     if (fProgram.fInputs.fRTHeight) {
@@ -2487,7 +2487,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME), fContext.fFloat_Type.get());
         type = new Type(type->fOffset, type->name(), fields);
     }
-    SpvId typeId = this->getType(*type, layout);
+    SpvId typeId = this->getType(*type, memoryLayout);
     if (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag) {
         this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBufferBlock, fDecorationBuffer);
     } else {
@@ -2497,7 +2497,11 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     SpvId ptrType = this->nextId();
     this->writeInstruction(SpvOpTypePointer, ptrType, storageClass, typeId, fConstantBuffer);
     this->writeInstruction(SpvOpVariable, ptrType, result, storageClass, fConstantBuffer);
-    this->writeLayout(intf.fVariable.fModifiers.fLayout, result);
+    Layout layout = intf.fVariable.fModifiers.fLayout;
+    if (intf.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag && layout.fSet == -1) {
+        layout.fSet = 0;
+    }
+    this->writeLayout(layout, result);
     fVariableMap[&intf.fVariable] = result;
     if (fProgram.fInputs.fRTHeight) {
         delete type;
