@@ -29,12 +29,12 @@ private:
 
     // Deferred version
     GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, GrSurfaceOrigin, GrMipMapped,
-                               SkBackingFit, SkBudgeted, uint32_t flags);
+                               SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Lazy-callback version
     GrTextureRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType,
                                const GrSurfaceDesc& desc, GrSurfaceOrigin, GrMipMapped,
-                               SkBackingFit, SkBudgeted, uint32_t flags, GrRenderTargetFlags);
+                               SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);

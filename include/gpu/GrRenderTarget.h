@@ -38,11 +38,10 @@ public:
     GrFSAAType fsaaType() const {
         SkASSERT(fSampleCnt >= 1);
         if (fSampleCnt <= 1) {
-            SkASSERT(!(fFlags & GrRenderTargetFlags::kMixedSampled));
+            SkASSERT(!this->hasMixedSamples());
             return GrFSAAType::kNone;
         }
-        return (fFlags & GrRenderTargetFlags::kMixedSampled) ? GrFSAAType::kMixedSamples
-                                                             : GrFSAAType::kUnifiedMSAA;
+        return this->hasMixedSamples() ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
     }
 
     /**
@@ -116,9 +115,7 @@ public:
     const GrRenderTargetPriv renderTargetPriv() const;
 
 protected:
-    GrRenderTarget(GrGpu*, const GrSurfaceDesc&,
-                   GrRenderTargetFlags = GrRenderTargetFlags::kNone,
-                   GrStencilAttachment* = nullptr);
+    GrRenderTarget(GrGpu*, const GrSurfaceDesc&, GrStencilAttachment* = nullptr);
 
     // override of GrResource
     void onAbandon() override;
@@ -135,7 +132,6 @@ private:
 
     int                  fSampleCnt;
     GrStencilAttachment* fStencilAttachment;
-    GrRenderTargetFlags  fFlags;
 
     SkIRect              fResolveRect;
 

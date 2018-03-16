@@ -172,6 +172,8 @@ public:
 
     /** These flags govern which scratch resources we are allowed to return */
     enum Flags {
+        kNone_Flag            = 0x0,
+
         /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
          *  set when accessing resources during a GrOpList flush. This includes the execution of
          *  GrOp objects. The reason is that these memory operations are done immediately and

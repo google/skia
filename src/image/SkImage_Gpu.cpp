@@ -708,7 +708,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                 }
 
                 return promiseHelper.getTexture(resourceProvider, config);
-            }, desc, origin, mipMapped, GrRenderTargetFlags::kNone, SkBackingFit::kExact,
+            }, desc, origin, mipMapped, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
                SkBudgeted::kNo, GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 
     if (!proxy) {

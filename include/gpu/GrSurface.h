@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrSurface_DEFINED
 #define GrSurface_DEFINED
 
@@ -64,6 +63,20 @@ public:
                               GrMipMapped, bool useNextPow2 = false);
 
 protected:
+    void setHasMixedSamples() {
+        SkASSERT(this->asRenderTarget());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
+    }
+    bool hasMixedSamples() const { return fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled; }
+
+    void setSupportsWindowRects() {
+        SkASSERT(this->asRenderTarget());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
+    }
+    bool supportsWindowRects() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport;
+    }
+
     // Methods made available via GrSurfacePriv
     bool hasPendingRead() const;
     bool hasPendingWrite() const;
@@ -76,7 +89,10 @@ protected:
             : INHERITED(gpu)
             , fConfig(desc.fConfig)
             , fWidth(desc.fWidth)
-            , fHeight(desc.fHeight) {}
+            , fHeight(desc.fHeight)
+            , fSurfaceFlags(GrInternalSurfaceFlags::kNone) {
+    }
+
     ~GrSurface() override {}
 
 
@@ -84,9 +100,10 @@ protected:
     void onAbandon() override;
 
 private:
-    GrPixelConfig        fConfig;
-    int                  fWidth;
-    int                  fHeight;
+    GrPixelConfig          fConfig;
+    int                    fWidth;
+    int                    fHeight;
+    GrInternalSurfaceFlags fSurfaceFlags;
 
     typedef GrGpuResource INHERITED;
 };

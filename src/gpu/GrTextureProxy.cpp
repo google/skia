@@ -17,8 +17,8 @@
 // Deferred version - with data
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped mipMapped,
                                SkBackingFit fit, SkBudgeted budgeted, const void* srcData,
-                               size_t /*rowBytes*/, uint32_t flags)
-        : INHERITED(srcDesc, kTopLeft_GrSurfaceOrigin, fit, budgeted, flags)
+                               size_t /*rowBytes*/, GrInternalSurfaceFlags surfaceFlags)
+        : INHERITED(srcDesc, kTopLeft_GrSurfaceOrigin, fit, budgeted, surfaceFlags)
         , fMipMapped(mipMapped)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
@@ -28,8 +28,8 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped mipMapp
 // Deferred version - no data
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrSurfaceOrigin origin,
                                GrMipMapped mipMapped, SkBackingFit fit, SkBudgeted budgeted,
-                               uint32_t flags)
-        : INHERITED(srcDesc, origin, fit, budgeted, flags)
+                               GrInternalSurfaceFlags surfaceFlags)
+        : INHERITED(srcDesc, origin, fit, budgeted, surfaceFlags)
         , fMipMapped(mipMapped)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {}
@@ -38,11 +38,12 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrSurfaceOrigin ori
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
                                const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
                                GrMipMapped mipMapped, SkBackingFit fit, SkBudgeted budgeted,
-                               uint32_t flags)
-        : INHERITED(std::move(callback), lazyType, desc, origin, fit, budgeted, flags)
+                               GrInternalSurfaceFlags surfaceFlags)
+        : INHERITED(std::move(callback), lazyType, desc, origin, fit, budgeted, surfaceFlags)
         , fMipMapped(mipMapped)
         , fProxyProvider(nullptr)
-        , fDeferredUploader(nullptr) {}
+        , fDeferredUploader(nullptr) {
+}
 
 // Wrapped version
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)

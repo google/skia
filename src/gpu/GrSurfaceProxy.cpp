@@ -15,6 +15,7 @@
 #include "GrOpList.h"
 #include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
+#include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "GrTextureRenderTargetProxy.h"
 
@@ -49,14 +50,14 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 // Lazy-callback version
 GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
                                const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit,
-                               SkBudgeted budgeted, uint32_t flags)
+                               SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
         : fConfig(desc.fConfig)
         , fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
         , fOrigin(origin)
         , fFit(fit)
         , fBudgeted(budgeted)
-        , fFlags(flags)
+        , fSurfaceFlags(surfaceFlags)
         , fLazyInstantiateCallback(std::move(callback))
         , fLazyInstantiationType(lazyType)
         , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
@@ -79,7 +80,7 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fOrigin(origin)
         , fFit(fit)
         , fBudgeted(fTarget->resourcePriv().isBudgeted())
-        , fFlags(0)
+        , fSurfaceFlags(fTarget->surfacePriv().flags())
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
@@ -117,11 +118,11 @@ bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvi
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 GrResourceProvider* resourceProvider,
                                                 int sampleCnt, bool needsStencil,
-                                                GrSurfaceFlags flags, GrMipMapped mipMapped) const {
+                                                GrSurfaceDescFlags descFlags, GrMipMapped mipMapped) const {
     SkASSERT(GrSurfaceProxy::LazyState::kNot == this->lazyInstantiationState());
     SkASSERT(!fTarget);
     GrSurfaceDesc desc;
-    desc.fFlags = flags;
+    desc.fFlags = descFlags;
     if (fNeedsClear) {
         desc.fFlags |= kPerformInitialClear_GrSurfaceFlag;
     }
@@ -129,6 +130,11 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     desc.fHeight = fHeight;
     desc.fConfig = fConfig;
     desc.fSampleCnt = sampleCnt;
+
+    GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::kNone_Flag;
+    if (fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) {
+        resourceProviderFlags = GrResourceProvider::kNoPendingIO_Flag;
+    }
 
     sk_sp<GrSurface> surface;
     if (GrMipMapped::kYes == mipMapped) {
@@ -155,9 +161,9 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
         }
     } else {
         if (SkBackingFit::kApprox == fFit) {
-            surface = resourceProvider->createApproxTexture(desc, fFlags);
+            surface = resourceProvider->createApproxTexture(desc, resourceProviderFlags);
         } else {
-            surface = resourceProvider->createTexture(desc, fBudgeted, fFlags);
+            surface = resourceProvider->createTexture(desc, fBudgeted, resourceProviderFlags);
         }
     }
     if (!surface) {
@@ -192,8 +198,8 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 }
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                     bool needsStencil, GrSurfaceFlags flags, GrMipMapped mipMapped,
-                                     const GrUniqueKey* uniqueKey) {
+                                     bool needsStencil, GrSurfaceDescFlags descFlags,
+                                     GrMipMapped mipMapped, const GrUniqueKey* uniqueKey) {
     SkASSERT(LazyState::kNot == this->lazyInstantiationState());
     if (fTarget) {
         if (uniqueKey) {
@@ -203,7 +209,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
-                                                       flags, mipMapped);
+                                                       descFlags, mipMapped);
     if (!surface) {
         return false;
     }
@@ -215,6 +221,11 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     this->assign(std::move(surface));
+
+    // Check that our a priori computation matched the ultimate reality
+    SkASSERT((fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO) ==
+             fTarget->surfacePriv().flags());
+
     return true;
 }
 

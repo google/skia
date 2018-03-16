@@ -38,6 +38,8 @@ public:
     bool hasPendingIO() const { return fSurface->hasPendingIO(); }
     bool hasUniqueRef() const { return fSurface->internalHasUniqueRef(); }
 
+    GrInternalSurfaceFlags flags() const { return fSurface->fSurfaceFlags; }
+
 private:
     explicit GrSurfacePriv(GrSurface* surface) : fSurface(surface) {}
     GrSurfacePriv(const GrSurfacePriv&); // unimpl

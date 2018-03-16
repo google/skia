@@ -219,7 +219,7 @@ void GrTextureStripAtlas::lockTexture(GrContext* context) {
         texDesc.fConfig = fDesc.fConfig;
 
         proxy = proxyProvider->createProxy(texDesc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
-                                           SkBudgeted::kYes, GrResourceProvider::kNoPendingIO_Flag);
+                                           SkBudgeted::kYes, GrInternalSurfaceFlags::kNoPendingIO);
         if (!proxy) {
             return;
         }

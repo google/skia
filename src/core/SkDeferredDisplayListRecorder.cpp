@@ -106,7 +106,7 @@ bool SkDeferredDisplayListRecorder::init() {
             },
             desc,
             fCharacterization.origin(),
-            GrRenderTargetFlags::kNone,
+            GrInternalSurfaceFlags::kNone,
             GrProxyProvider::Textureable(fCharacterization.isTextureable()),
             GrMipMapped::kNo,
             SkBackingFit::kExact,

@@ -66,7 +66,8 @@ public:
      * testing-only.
      */
     sk_sp<GrTextureProxy> createInstantiatedProxy(const GrSurfaceDesc&, GrSurfaceOrigin,
-                                                  SkBackingFit, SkBudgeted, uint32_t flags = 0);
+                                                  SkBackingFit, SkBudgeted,
+                                                  GrSurfaceDescFlags = kNone_GrSurfaceFlags);
 
     /*
      * Create an un-mipmapped texture proxy with data.
@@ -82,7 +83,7 @@ public:
      * actually upload the data to the gpu.
      */
     sk_sp<GrTextureProxy> createTextureProxy(sk_sp<SkImage> srcImage,
-                                             GrSurfaceFlags flags,
+                                             GrSurfaceDescFlags descFlags,
                                              int sampleCnt,
                                              SkBudgeted budgeted,
                                              SkBackingFit fit);
@@ -106,11 +107,13 @@ public:
      * Create a GrSurfaceProxy without any data.
      */
     sk_sp<GrTextureProxy> createProxy(const GrSurfaceDesc&, GrSurfaceOrigin, GrMipMapped,
-                                      SkBackingFit, SkBudgeted, uint32_t flags);
+                                      SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
-    sk_sp<GrTextureProxy> createProxy(const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
-                                      SkBackingFit fit, SkBudgeted budgeted, uint32_t flags = 0) {
-        return this->createProxy(desc, origin, GrMipMapped::kNo, fit, budgeted, flags);
+    sk_sp<GrTextureProxy> createProxy(
+                            const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
+                            SkBackingFit fit, SkBudgeted budgeted,
+                            GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone) {
+        return this->createProxy(desc, origin, GrMipMapped::kNo, fit, budgeted, surfaceFlags);
     }
 
     // These match the definitions in SkImage & GrTexture.h, for whence they came
@@ -167,11 +170,11 @@ public:
      * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
      */
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
-                                          GrSurfaceOrigin, GrMipMapped, GrRenderTargetFlags,
+                                          GrSurfaceOrigin, GrMipMapped, GrInternalSurfaceFlags,
                                           SkBackingFit, SkBudgeted, LazyInstantiationType);
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
-                                          GrSurfaceOrigin, GrMipMapped, GrRenderTargetFlags,
+                                          GrSurfaceOrigin, GrMipMapped, GrInternalSurfaceFlags,
                                           SkBackingFit, SkBudgeted);
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
@@ -187,7 +190,7 @@ public:
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
                                                            const GrSurfaceDesc&,
                                                            GrSurfaceOrigin origin,
-                                                           GrRenderTargetFlags, Textureable,
+                                                           GrInternalSurfaceFlags, Textureable,
                                                            GrMipMapped, SkBackingFit, SkBudgeted);
 
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
