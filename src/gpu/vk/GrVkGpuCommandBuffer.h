@@ -159,6 +159,9 @@ private:
         SkRect                                 fBounds;
         bool                                   fIsEmpty;
         bool                                   fStartsWithClear;
+        // Array of images that will be sampled and thus need to be transfered to sampled layout.
+        // This must happen after we do anying predraw uploads or copies.
+        SkTArray<GrVkImage*>                   fSampledImages;
         // The PreDrawUploads and PreCopies are sent to the GPU before submitting the secondary
         // command buffer.
         SkTArray<InlineUploadInfo>             fPreDrawUploads;
