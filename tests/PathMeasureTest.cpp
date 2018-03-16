@@ -217,13 +217,3 @@ DEF_TEST(PathMeasureConic, reporter) {
     REPORTER_ASSERT(reporter, 19.5f < stdP.fX && stdP.fX < 20.5f);
     REPORTER_ASSERT(reporter, 19.5f < hiP.fX && hiP.fX < 20.5f);
 }
-
-// Regression test for b/26425223
-DEF_TEST(PathMeasure_nextctr, reporter) {
-    SkPath path;
-    path.moveTo(0, 0); path.lineTo(100, 0);
-
-    SkPathMeasure meas(path, false);
-    // only expect 1 contour, even if we didn't explicitly call getLength() ourselves
-    REPORTER_ASSERT(reporter, !meas.nextContour());
-}

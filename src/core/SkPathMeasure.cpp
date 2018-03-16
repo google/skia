@@ -667,7 +667,7 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
 }
 
 bool SkPathMeasure::isClosed() {
-    (void)this->getLength();    // make sure we measure the current contour
+    (void)this->getLength();
     return fIsClosed;
 }
 
@@ -675,8 +675,7 @@ bool SkPathMeasure::isClosed() {
     we're done with the path.
 */
 bool SkPathMeasure::nextContour() {
-    (void)this->getLength();    // make sure we measure the current contour
-    fLength = -1;               // now signal that we should build the next set of segments
+    fLength = -1;
     return this->getLength() > 0;
 }
 
