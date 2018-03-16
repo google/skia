@@ -74,7 +74,7 @@ static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider) {
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     return proxyProvider->createProxy(desc, kBottomLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
-                                      SkBudgeted::kYes, GrResourceProvider::kNoPendingIO_Flag);
+                                      SkBudgeted::kYes, GrInternalSurfaceFlags::kNoPendingIO);
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider) {

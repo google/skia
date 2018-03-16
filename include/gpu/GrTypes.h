@@ -376,8 +376,9 @@ enum GrSurfaceFlags {
      */
     kPerformInitialClear_GrSurfaceFlag = 0x2
 };
-
 GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
+
+typedef GrSurfaceFlags GrSurfaceDescFlags;
 
 // opaque type for 3D API object handles
 typedef intptr_t GrBackendObject;
@@ -409,7 +410,7 @@ struct GrSurfaceDesc {
             , fConfig(kUnknown_GrPixelConfig)
             , fSampleCnt(1) {}
 
-    GrSurfaceFlags         fFlags;  //!< bitfield of TextureFlags
+    GrSurfaceDescFlags     fFlags;  //!< bitfield of TextureFlags
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
 
