@@ -142,7 +142,8 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
 bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
                                         GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                         GrSurface* src, GrSurfaceOrigin srcOrigin,
-                                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
+                                        const SkIRect& srcRect, const SkIPoint& dstPoint,
+                                        bool canDiscardOutsideDstRect) {
     // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
     // swizzle.
     if (gpu->caps()->shaderCaps()->configOutputSwizzle(src->config()) !=
@@ -312,7 +313,9 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
                            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                            false);
 
-    GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+    VkAttachmentLoadOp loadOp = canDiscardOutsideDstRect ? VK_ATTACHMENT_LOAD_OP_DONT_CARE
+                                                         : VK_ATTACHMENT_LOAD_OP_LOAD;
+    GrVkRenderPass::LoadStoreOps vkColorOps(loadOp,
                                             VK_ATTACHMENT_STORE_OP_STORE);
     GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                               VK_ATTACHMENT_STORE_OP_STORE);
