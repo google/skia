@@ -19,7 +19,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     : INHERITED(contextOptions) {
     fCanUseGLSLForShaderModule = false;
     fMustDoCopiesFromOrigin = false;
-    fSupportsCopiesAsDraws = true;
     fMustSubmitCommandsBeforeCopyOp = false;
     fMustSleepOnTearDown  = false;
     fNewCBOnPipelineChange = false;
@@ -65,7 +64,7 @@ bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // render target as well.
     *origin = src->origin();
     desc->fConfig = src->config();
-    if (src->numColorSamples() > 1 || (src->asTextureProxy() && this->supportsCopiesAsDraws())) {
+    if (src->numColorSamples() > 1 || src->asTextureProxy()) {
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
     } else {
         // Just going to use CopyImage here
@@ -114,13 +113,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 
     if (kNvidia_VkVendor == properties.vendorID) {
         fMustSubmitCommandsBeforeCopyOp = true;
-    }
-
-    if (kQualcomm_VkVendor == properties.vendorID ||
-        kARM_VkVendor == properties.vendorID) {
-        fSupportsCopiesAsDraws = false;
-        // We require copies as draws to support cross context textures.
-        fCrossContextTextureSupport = false;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
