@@ -536,8 +536,8 @@ color type: kAlpha_8_SkColorType
 SkAlphaType alphaType() const
 </pre>
 
-Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
+Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
 
 ### Return Value
 
@@ -568,13 +568,13 @@ alpha type: kPremul_SkAlphaType
 SkColorSpace* colorSpace() const
 </pre>
 
-Returns <a href="undocumented#Color_Space">Color Space</a> associated with <a href="SkImageInfo_Reference#Image_Info">Image Info</a>. The
+Returns <a href="undocumented#Color_Space">Color Space</a>, the range of colors, associated with <a href="SkImageInfo_Reference#Image_Info">Image Info</a>. The
 reference count of <a href="undocumented#Color_Space">Color Space</a> is unchanged. The returned <a href="undocumented#Color_Space">Color Space</a> is
 immutable.
 
 ### Return Value
 
-<a href="undocumented#Color_Space">Color Space</a>, the range of colors, in <a href="SkImageInfo_Reference#Image_Info">Image Info</a>
+<a href="undocumented#Color_Space">Color Space</a> in <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, or nullptr
 
 ### Example
 
@@ -1684,7 +1684,7 @@ true if pixels are copied to <a href="#SkPixmap_readPixels_dstPixels">dstPixels<
 
 ### Example
 
-<div><fiddle-embed name="2b7f6cc59ea2d5ebceddccbc2f232bcf"></fiddle-embed></div>
+<div><fiddle-embed name="48ccfadec48f987c81a1e218e49cca68"></fiddle-embed></div>
 
 ### See Also
 

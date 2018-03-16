@@ -172,6 +172,15 @@ static sk_sp&lt;SkColorSpace&gt; MakeSRGBLinear()
 
 ---
 
+<a name="SkColorSpace_gammaCloseToSRGB"></a>
+## gammaCloseToSRGB
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool gammaCloseToSRGB() const
+</pre>
+
+---
+
 ## <a name="SkTransferFunctionBehavior"></a> Enum SkTransferFunctionBehavior
 
 ### Constants
@@ -889,6 +898,8 @@ Topic</table>
 # <a name="Texture"></a> Texture
 
 # <a name="GrBackendTexture"></a> Class GrBackendTexture
+
+# <a name="Transfer_Mode"></a> Transfer Mode
 
 # <a name="Typeface"></a> Typeface
 

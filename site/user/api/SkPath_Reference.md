@@ -1698,7 +1698,7 @@ Returns (0, 0) if <a href="#SkPath_getPoint_index">index</a> is out of range.
 
 ### Example
 
-<div><fiddle-embed name="1cf6b8dd2994c4ca9a2d6887ff888017">
+<div><fiddle-embed name="abd6796f0e15bc7b4fe6f52f6cd2d1a5">
 
 #### Example Output
 

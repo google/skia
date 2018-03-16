@@ -1156,7 +1156,7 @@ or when Surface is deleted.
             SkSurface::kFlushRead_BackendHandleAccess);
     if (backendObject) {
         SkString str;
-        str.printf("backendObject=%08x", backendObject);
+        str.printf("backendObject=%08lx", backendObject);
         paint.setTextSize(16);
         canvas->drawString(str, 20, 40, paint);
     }
@@ -1207,7 +1207,7 @@ In OpenGL this returns the frame buffer object ID.
     if (gpuSurface->getRenderTargetHandle(&backendObject, 
             SkSurface::kFlushRead_BackendHandleAccess)) {
         SkString str;
-        str.printf("backendObject=%d", backendObject);
+        str.printf("backendObject=%ld", backendObject);
         paint.setTextSize(16);
         canvas->drawString(str, 20, 40, paint);
     }

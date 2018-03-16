@@ -394,8 +394,7 @@ Recognized formats vary by GPU back-end.
 #Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorType  one of: #list_of_color_types#
 ##
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 #Param colorSpace  range of colors; may be nullptr ##
 
@@ -449,8 +448,7 @@ Recognized formats vary by GPU back-end.
 #Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorType  one of: #list_of_color_types#
 ##
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 #Param colorSpace  range of colors; may be nullptr ##
 #Param textureReleaseProc  function called when texture can be released ##
@@ -613,8 +611,7 @@ Recognized formats vary by GPU back-end.
 #Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 #Param colorType  one of: #list_of_color_types#
 ##
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 #Param colorSpace  range of colors; may be nullptr ##
 
@@ -688,29 +685,7 @@ should this be moved to chrome only?
                                                   const SkISize yuvSizes[3],
                                                   GrSurfaceOrigin surfaceOrigin,
                                                   sk_sp<SkColorSpace> colorSpace = nullptr)
-This version of MakeFromYUVTexturesCopy is over specified and should not be used.
-
-#Param context  GPU_Context ##
-#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                              kRec709_SkYUVColorSpace
-##
-#Param yuvTextures  array of YUV textures on GPU ##
-#Param yuvSizes  dimensions of YUV textures ##
-#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param colorSpace  range of colors; may be nullptr ##
-
-#Return created Image, or nullptr ##
-
-# seems too complicated to create an example for this
-#ToDo
-should this be moved to chrome only?
-##
-
-#NoExample
-##
-
-#SeeAlso MakeFromNV12TexturesCopy
-
+#Deprecated
 #Method ##
 
 # ------------------------------------------------------------------------------
@@ -723,12 +698,12 @@ should this be moved to chrome only?
 #In Constructor
 #Line # creates Image from YUV_ColorSpace data in three planes ##
 
-Creates Image from copy of nv12TextureHandles, an array of textures on GPU.
+Creates Image from copy of nv12Textures, an array of textures on GPU.
 nv12Textures[0] contains pixels for YUV_Component_Y plane.
 nv12Textures[1] contains pixels for YUV_Component_U plane,
 followed by pixels for YUV_Component_V plane.
-Returned Image has the dimensions
-nv12Textures[2]. yuvColorSpace describes how YUV colors convert to RGB colors.
+Returned Image has the dimensions nv12Textures[2].
+yuvColorSpace describes how YUV colors convert to RGB colors.
 
 #Param context  GPU_Context ##
 #Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
@@ -760,30 +735,7 @@ should this be moved to chrome only?
                                                    const SkISize nv12Sizes[2],
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr)
-
-This version of MakeFromYUVTexturesCopy is over specified and should not be used.
-
-#Param context  GPU_Context ##
-#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                              kRec709_SkYUVColorSpace
-##
-#Param nv12Textures  array of YUV textures on GPU ##
-#Param nv12Sizes  dimensions of YUV textures ##
-#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param colorSpace  range of colors; may be nullptr ##
-
-#Return created Image, or nullptr ##
-
-# seems too complicated to create an example for this
-#ToDo
-should this be moved to chrome only?
-##
-
-#NoExample
-##
-
-#SeeAlso MakeFromYUVTexturesCopy
-
+#Deprecated
 #Method ##
 
 # ------------------------------------------------------------------------------
@@ -880,8 +832,7 @@ Returned Image takes a reference on the buffer.
 Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 
 #Param hardwareBuffer  AHardwareBuffer Android hardware buffer ##
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 #Param colorSpace  range of colors; may be nullptr ##
 
@@ -954,6 +905,7 @@ Returns pixel row count.
 #Method SkISize dimensions() const
 #In Property
 #Line # returns width() and height() ##
+
 Returns ISize { width(), height() }.
 
 #Return integral size of width() and height() ##
@@ -964,6 +916,9 @@ Returns ISize { width(), height() }.
     SkIRect bounds = image->bounds();
     SkIRect dimensionsAsBounds = SkIRect::MakeSize(dimensions);
     SkDebugf("dimensionsAsBounds %c= bounds\n", dimensionsAsBounds == bounds ? '=' : '!');
+#StdOut
+dimensionsAsBounds == bounds
+##
 ##
 
 #SeeAlso height() width() bounds()
@@ -1028,8 +983,7 @@ unique number.
 #Method SkAlphaType alphaType() const
 #In Property
 #Line # returns Alpha_Type ##
-Returns Alpha_Type, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-kPremul_SkAlphaType, kUnpremul_SkAlphaType.
+Returns Alpha_Type, one of: #list_of_alpha_types#.
 
 Alpha_Type returned was a parameter to an Image constructor,
 or was parsed from encoded data.
@@ -1449,7 +1403,7 @@ for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
             backEndTexture, origin, kPremul_SkAlphaType, nullptr));
     GrSurfaceOrigin readBackOrigin;
     GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
-    str.printf("readBackHandle: 0x%x", readBackHandle);
+    str.printf("readBackHandle: 0x%lx", readBackHandle);
     canvas->drawString(str, 5, y += 30, paint);
     canvas->drawImage(srcImage, 80, y += 10);
     str.printf("origin: k%s_GrSurfaceOrigin", readBackOrigin ? "BottomLeft" : "TopLeft");
@@ -2096,7 +2050,7 @@ By translating canvas by returned offset, Image appears stationary.
     canvas->drawLine(0, 0, offset.fX, offset.fY, paint);
     canvas->translate(offset.fX, offset.fY);
     canvas->drawImage(filtered, 0, 0);
-    canvas->drawRect(SkRect::MakeFromIRect(outSubset), paint);
+    canvas->drawRect(SkRect::Make(outSubset), paint);
 ##
 
 #SeeAlso makeShader SkPaint::setImageFilter

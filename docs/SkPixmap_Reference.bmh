@@ -467,8 +467,7 @@ color type: kAlpha_8_SkColorType
 
 #In Image_Info_Access
 #Line # returns Image_Info Alpha_Type ##
-Returns Alpha_Type, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-kPremul_SkAlphaType, kUnpremul_SkAlphaType.
+Returns Alpha_Type, one of: #list_of_alpha_types#.
 
 #Return  Alpha_Type in Image_Info ##
 
@@ -491,11 +490,11 @@ alpha type: kPremul_SkAlphaType
 
 #In Image_Info_Access
 #Line # returns Image_Info Color_Space ##
-Returns Color_Space associated with Image_Info. The
+Returns Color_Space, the range of colors, associated with Image_Info. The
 reference count of Color_Space is unchanged. The returned Color_Space is
 immutable.
 
-#Return Color_Space, the range of colors, in Image_Info ##
+#Return Color_Space in Image_Info, or nullptr ##
 
 #Example
 #Description
@@ -1546,29 +1545,30 @@ pixels are treated as if they are linear, regardless of how they are encoded.
 #Return  true if pixels are copied to dstPixels ##
 
 #Example
-#ToDo example doesn't do anything interesting since info colorSpace is nullptr ##
+#ToDo example doesn't do anything interesting since image doesn't have alpha ##
 #Image 3
 void draw(SkCanvas* canvas) {
-    SkImageInfo info = SkImageInfo::MakeN32Premul(image->width(), image->height(),
-            canvas->imageInfo().colorSpace() ? SkColorSpace::MakeSRGB() : nullptr);
+    SkImageInfo srgb = SkImageInfo::MakeS32(image->width(), image->height(),
+            kPremul_SkAlphaType);
+    SkImageInfo linear = srgb.makeColorSpace(srgb.colorSpace()->makeLinearGamma());
     std::vector<int32_t> srcPixels;
-    srcPixels.resize(image->height() * image->width() * 4);
-    SkPixmap pixmap(info, (const void*) &srcPixels.front(), image->width() * 4);
+    size_t rowBytes = image->width() * 4;
+    srcPixels.resize(image->height() * rowBytes);
+    SkPixmap pixmap(srgb, (const void*) &srcPixels.front(), rowBytes);
     image->readPixels(pixmap, 0, 0);
-    SkTransferFunctionBehavior behavior = canvas->imageInfo().colorSpace() ?
-            SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
+    int offset = -64;
     std::vector<int32_t> dstPixels;
-    dstPixels.resize(image->height() * image->width() * 4);
-    int offset = 0;
-    for (auto behavior : { SkTransferFunctionBehavior::kRespect,
-                           SkTransferFunctionBehavior::kIgnore} ) {
-        pixmap.readPixels(info, &dstPixels.front(), image->width() * 4, offset, 0, behavior);
-        offset += 128;
+    dstPixels.resize(image->height() * rowBytes);
+    for (const auto& info : { srgb, linear } ) {
+        for (auto behavior : { SkTransferFunctionBehavior::kRespect,
+                               SkTransferFunctionBehavior::kIgnore} ) {
+            pixmap.readPixels(info, &dstPixels.front(), rowBytes, 0, 0, behavior);
+            SkBitmap bitmap;
+            SkPixmap dstmap(info, &dstPixels.front(), rowBytes);
+            bitmap.installPixels(dstmap);
+            canvas->drawBitmap(bitmap, 0, offset += 64);
+        }
     }
-    SkBitmap bitmap;
-    SkPixmap dstmap(info, &dstPixels.front(), image->width() * 4);
-    bitmap.installPixels(dstmap);
-    canvas->drawBitmap(bitmap, 0, 0);
 }
 ##
 

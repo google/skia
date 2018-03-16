@@ -176,7 +176,7 @@ Returns IPoint changing the signs of fX and fY.
 #Example
 SkIPoint test[] = { {0, -0}, {-1, -2},
                    { SK_MaxS32, SK_MinS32 },
-                   { SK_NaN32, -SK_NaN32 } };
+                   { SK_NaN32, SK_NaN32 } };
 for (const SkIPoint& pt : test) {
     SkIPoint negPt = -pt;
     SkDebugf("pt: %d, %d  negate: %d, %d\n", pt.fX, pt.fY, negPt.fX, negPt.fY);

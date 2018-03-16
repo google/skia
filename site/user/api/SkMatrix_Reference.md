@@ -2751,7 +2751,7 @@ true on successful scale
 
 ### Example
 
-<div><fiddle-embed name="58c844b8f0c36acdbc8211e8c929c253"></fiddle-embed></div>
+<div><fiddle-embed name="e6ad0bd2999613d9e4758b661d45070c"></fiddle-embed></div>
 
 ### See Also
 
@@ -3007,7 +3007,7 @@ other * Matrix = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 
 ### Example
 
-<div><fiddle-embed name="0a4214289249c77f48d59227c4ac4d9e"></fiddle-embed></div>
+<div><fiddle-embed name="e4226c55d9bdbc119264bd372b2b9835"></fiddle-embed></div>
 
 ### See Also
 
@@ -3253,7 +3253,7 @@ true if <a href="#Matrix">Matrix</a> can be inverted
 
 ### Example
 
-<div><fiddle-embed name="10a10c5bf2ac7ec88e84204441fc83b6"></fiddle-embed></div>
+<div><fiddle-embed name="0e03cd9f154603ed4b21ca56d69dae44"></fiddle-embed></div>
 
 ### See Also
 
@@ -3332,7 +3332,7 @@ true if <a href="#Matrix">Matrix</a> does not contain perspective
 
 ### Example
 
-<div><fiddle-embed name="752e4a48ed1dae05765a2499c390f277">
+<div><fiddle-embed name="3325bdf82bd86d9fbc4199f248afa82c">
 
 #### Example Output
 
@@ -3380,7 +3380,7 @@ column, then row, as:
 
 ### Example
 
-<div><fiddle-embed name="403370bd53526f59020a7141955d70b0">
+<div><fiddle-embed name="f5b6d371c4d65e5b5ac6eebdd4b237d8">
 
 #### Example Output
 
@@ -4244,7 +4244,7 @@ true if <a href="#Matrix">Matrix</a> <a href="#SkMatrix_notequal_operator_a">a</
 
 ### Example
 
-<div><fiddle-embed name="8a8fadf5fd294daa4ee152833cc0dc0e"></fiddle-embed></div>
+<div><fiddle-embed name="088ab41f877599f980a99523749b0afd"></fiddle-embed></div>
 
 ### See Also
 
@@ -4422,7 +4422,7 @@ true if scale factors were computed correctly
 
 ### Example
 
-<div><fiddle-embed name="cd4dc63d3e04226f0b5861ba8925e223">
+<div><fiddle-embed name="13adba0ecf5f82247cf051b4fa4d8a9c">
 
 #### Example Output
 

@@ -2491,7 +2491,7 @@ I(divx, divy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
 
 #Example
 #Image 3
-SkMatrix matrix, matrix2;
+SkMatrix matrix;
 SkPoint bitmapBounds[4], perspect[4] = {{50, 10}, {180, 40}, {236, 176}, {10, 206}};
 SkRect::Make(source.bounds()).toQuad(bitmapBounds);
 matrix.setPolyToPoly(bitmapBounds, perspect, 4);
@@ -2748,7 +2748,7 @@ other * Matrix = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 #Example
 #Image 3
 #Height 64
-SkMatrix matrix, matrix2;
+SkMatrix matrix;
 SkPoint bitmapBounds[4], perspect[4] = {{50, 10}, {180, 40}, {236, 176}, {10, 206}};
 SkRect::Make(source.bounds()).toQuad(bitmapBounds);
 matrix.setPolyToPoly(bitmapBounds, perspect, 4);
@@ -3015,9 +3015,10 @@ unchanged.
     paint.setStrokeWidth(3);
     paint.setStrokeCap(SkPaint::kRound_Cap);
     canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, dst, paint);
-    matrix.invert(&matrix);
-    canvas->concat(matrix);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, dst, paint);
+    if (matrix.invert(&matrix)) {
+        canvas->concat(matrix);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, dst, paint);
+    }
 ##
 
 #SeeAlso Concat
@@ -3082,12 +3083,13 @@ If Matrix contains perspective, returns false and leaves affine unchanged.
 SkMatrix matrix;
 matrix.setAll(2, 3, 4, 5, 6, 7, 0, 0, 1);
 SkScalar affine[6];
-matrix.asAffine(affine);
-const char* names[] = { "ScaleX", "SkewY", "SkewX", "ScaleY", "TransX", "TransY" };
-for (int i = 0; i < 6; ++i) {
-    SkDebugf("%s: %g ", names[i], affine[i]);
+if (matrix.asAffine(affine)) {
+    const char* names[] = { "ScaleX", "SkewY", "SkewX", "ScaleY", "TransX", "TransY" };
+    for (int i = 0; i < 6; ++i) {
+        SkDebugf("%s: %g ", names[i], affine[i]);
+    }
+    SkDebugf("\n");
 }
-SkDebugf("\n");
 #StdOut
 ScaleX: 2 SkewY: 5 SkewX: 3 ScaleY: 6 TransX: 4 TransY: 7 
 ##
@@ -3127,15 +3129,16 @@ Matrix is set, row, then column, to:
 SkMatrix matrix;
 matrix.setAll(2, 3, 4, 5, 6, 7, 0, 0, 1);
 SkScalar affine[6];
-matrix.asAffine(affine);
-const char* names[] = { "ScaleX", "SkewY", "SkewX", "ScaleY", "TransX", "TransY" };
-for (int i = 0; i < 6; ++i) {
-    SkDebugf("%s: %g ", names[i], affine[i]);
+if (matrix.asAffine(affine)) {
+    const char* names[] = { "ScaleX", "SkewY", "SkewX", "ScaleY", "TransX", "TransY" };
+    for (int i = 0; i < 6; ++i) {
+        SkDebugf("%s: %g ", names[i], affine[i]);
+    }
+    SkDebugf("\n");
+    matrix.reset();
+    matrix.setAffine(affine);
+    matrix.dump();
 }
-SkDebugf("\n");
-matrix.reset();
-matrix.setAffine(affine);
-matrix.dump();
 #StdOut
 ScaleX: 2 SkewY: 5 SkewX: 3 ScaleY: 6 TransX: 4 TransY: 7 
 [  2.0000   3.0000   4.0000][  5.0000   6.0000   7.0000][  0.0000   0.0000   1.0000]
@@ -4030,8 +4033,9 @@ contains NaN, even if the other Matrix also contains NaN.
     };
     SkMatrix a, b;
     a.setAll(1, 0, 0,   0, 1, 0,  1, 0, 1);
-    a.invert(&b);
-    debugster("identity", a, b);
+    if (a.invert(&b)) {
+        debugster("identity", a, b);
+    }
 ##
 
 #SeeAlso cheapEqualTo operator==(const SkMatrix& a, const SkMatrix& b)
@@ -4172,10 +4176,12 @@ scaleFactors to undefined values.
 #Example
     SkMatrix matrix;
     matrix.setAll(1, 0, 0,  0, 1, 0,   0, 0, 0);
-    matrix.invert(&matrix); 
-    SkScalar factor[2] = {2, 2};
-    bool result = matrix.getMinMaxScales(factor);
-    SkDebugf("matrix.getMinMaxScales() %s %g %g\n", result ? "true" : "false", factor[0], factor[1]);
+    if (matrix.invert(&matrix)) {
+        SkScalar factor[2] = {2, 2};
+        bool result = matrix.getMinMaxScales(factor);
+        SkDebugf("matrix.getMinMaxScales() %s %g %g\n",
+                result ? "true" : "false", factor[0], factor[1]);
+    }
 #StdOut
 matrix.getMinMaxScales() false 2 2
 ##

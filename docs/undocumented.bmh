@@ -167,6 +167,8 @@ FT_Load_Glyph
 #Class SkColorSpace
     #Method static sk_sp<SkColorSpace> MakeSRGBLinear()
     ##
+    #Method bool gammaCloseToSRGB() const
+    ##
 ##
 #EnumClass SkTransferFunctionBehavior
 #Const kRespect 0
@@ -702,6 +704,9 @@ FT_Load_Glyph
 #Topic Texture
 #Class GrBackendTexture
 ##
+##
+
+#Topic Transfer_Mode
 ##
 
 #Topic Typeface

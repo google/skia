@@ -1489,9 +1489,10 @@ Asserts if either a or b is empty, and if SK_DEBUG is defined.
 
 #Example
     SkIRect result;
-    bool intersected = result.intersectNoEmptyCheck({ 10, 40, 50, 80 }, { 30, 60, 70, 90 });
-    SkDebugf("intersection: %d, %d, %d, %d\n",
-             result.left(), result.top(), result.right(), result.bottom());
+    if (result.intersectNoEmptyCheck({ 10, 40, 50, 80 }, { 30, 60, 70, 90 })) {
+        SkDebugf("intersection: %d, %d, %d, %d\n",
+                 result.left(), result.top(), result.right(), result.bottom());
+    }
 #StdOut
  intersection: 30, 60, 50, 80
 ##                                 
