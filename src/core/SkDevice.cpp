@@ -511,8 +511,11 @@ void SkBaseDevice::drawTextRSXform(const void* text, size_t len,
         // with a localmatrixshader so that the shader draws as if there was no change to the ctm.
         if (shader) {
             SkMatrix inverse;
-            SkAssertResult(localM.invert(&inverse));
-            localPaint.setShader(shader->makeWithLocalMatrix(inverse));
+            if (localM.invert(&inverse)) {
+                localPaint.setShader(shader->makeWithLocalMatrix(inverse));
+            } else {
+                localPaint.setShader(nullptr);  // can't handle this xform
+            }
         }
 
         int subLen = proc((const char*)text);
