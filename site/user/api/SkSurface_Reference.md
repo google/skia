@@ -1257,7 +1257,7 @@ GPU texture reference
 
 ### Example
 
-<div><fiddle-embed name="4b5720038daaf65ba1ba546e678ddd6e" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="f7558a62985f70f2286307993db4b3bc" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1299,7 +1299,7 @@ true if <a href="#Surface">Surface</a> is backed by GPU texture
 
 ### Example
 
-<div><fiddle-embed name="16e848a4405ce08f8393bba13cc3b8bf" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="dbc6c0e01a177ba03c87c00c32a43148" gpu="true"></fiddle-embed></div>
 
 ### See Also
 

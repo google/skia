@@ -3066,7 +3066,7 @@ modifying the draw.
 #Example
     void draw(SkCanvas* canvas) {
         SkPaint paint;
-        paint.setMaskFilter(SkBlurMaskFilter::Make(kSolid_SkBlurStyle, 3));
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, 3));
         canvas->drawRect(SkRect::MakeXYWH(40, 40, 175, 175), paint);
     }
 ##
@@ -3084,7 +3084,7 @@ modifying the draw.
         void draw(SkCanvas* canvas) {
            SkPaint paint;
            SkDebugf("nullptr %c= mask filter\n", paint.getMaskFilter() ? '!' : '=');
-           paint.setMaskFilter(SkBlurMaskFilter::Make(kOuter_SkBlurStyle, 3));
+           paint.setMaskFilter(SkMaskFilter::MakeBlur(kOuter_SkBlurStyle, 3));
            SkDebugf("nullptr %c= mask filter\n", paint.getMaskFilter() ? '!' : '=');
         }
 
@@ -3109,7 +3109,7 @@ modifying the draw.
     #Example
     void draw(SkCanvas* canvas) {
         SkPaint paint1, paint2;
-        paint1.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 1));
+        paint1.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 1));
         SkDebugf("mask filter unique: %s\n", paint1.getMaskFilter()->unique() ? "true" : "false");
         paint2.setMaskFilter(paint1.refMaskFilter());
         SkDebugf("mask filter unique: %s\n", paint1.getMaskFilter()->unique() ? "true" : "false");
@@ -3140,7 +3140,7 @@ Increments maskFilter Reference_Count by one.
             SkPaint paint;
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(10);
-            paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 10));
+            paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 10));
             canvas->drawRect(SkRect::MakeXYWH(40, 40, 175, 175), paint);
         }
     ##

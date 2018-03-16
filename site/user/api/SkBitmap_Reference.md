@@ -314,7 +314,7 @@ copy of <a href="#SkBitmap_copy_const_SkBitmap_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="dbf46a0b60324ec611cc18d86772e7b9">
+<div><fiddle-embed name="f12c2af14b0fffd094d632b5f766aa1d">
 
 #### Example Output
 
@@ -355,7 +355,7 @@ copy of <a href="#SkBitmap_move_SkBitmap_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="8172a14e66cb763b7133f70dc4ff601e">
+<div><fiddle-embed name="a137b2027d2ac098a21d68d93391f5bb">
 
 #### Example Output
 
@@ -411,7 +411,7 @@ copy of <a href="#SkBitmap_copy_operator_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="6366fa1b1b3df1bebbfa3ed1c5a43457">
+<div><fiddle-embed name="98d5866308756c21c8f8b639bc4e033a">
 
 #### Example Output
 
@@ -452,7 +452,7 @@ copy of <a href="#SkBitmap_move_operator_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="5066583054077df5098bb1d2aa402149">
+<div><fiddle-embed name="02836d36fa714d553c32f0d8ea11da73">
 
 #### Example Output
 
@@ -488,7 +488,7 @@ Swaps the fields of the two bitmaps.
 
 ### Example
 
-<div><fiddle-embed name="274d02e5f33866b1a9a78423c5569e22">
+<div><fiddle-embed name="de9be45255e48fae445c916a41063abc">
 
 #### Example Output
 
@@ -729,8 +729,8 @@ color type: kAlpha_8_SkColorType
 SkAlphaType alphaType() const
 </pre>
 
-Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
+Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
 
 ### Return Value
 
@@ -796,7 +796,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 sk_sp&lt;SkColorSpace&gt; refColorSpace() const
 </pre>
 
-Returns a smart pointer to <a href="undocumented#Color_Space">Color Space</a>, the range of colors, associated with
+Returns smart pointer to <a href="undocumented#Color_Space">Color Space</a>, the range of colors, associated with
 <a href="SkImageInfo_Reference#Image_Info">Image Info</a>. The smart pointer tracks the number of objects sharing this
 <a href="undocumented#Color_Space">Color Space</a> reference so the memory is released when the owners destruct.
 
@@ -865,7 +865,7 @@ color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 
 ### See Also
 
-<a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> <a href="#SkBitmap_width">width</a> <a href="#SkBitmap_shiftPerPixel">shiftPerPixel</a>
+<a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> <a href="#SkBitmap_width">width</a> <a href="#SkBitmap_shiftPerPixel">shiftPerPixel</a> <a href="SkImageInfo_Reference#SkImageInfo_bytesPerPixel">SkImageInfo::bytesPerPixel</a>
 
 ---
 
@@ -1127,8 +1127,8 @@ are affected.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_setAlphaType_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>
 </table>
 
@@ -1138,7 +1138,8 @@ true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set
 
 ### Example
 
-<div><fiddle-embed name="38cec6acbba80274232a85539ab34af1"><a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<div><fiddle-embed name="be21305f5654a1d8ed765710813a1f14"><a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
 <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </fiddle-embed></div>
@@ -1289,13 +1290,16 @@ Writing to immutable <a href="#Bitmap">Bitmap</a> pixels triggers an assert on d
 bool isOpaque() const
 </pre>
 
-Returns true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>.
+Returns true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set to hint that all pixels are opaque; their
+<a href="undocumented#Alpha">Color Alpha</a> value is implicitly or explicitly 1.0. If true, and all pixels are
+not opaque, Skia may draw incorrectly.
+
 Does not check if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> allows <a href="undocumented#Alpha">Alpha</a>, or if any pixel value has
 transparency.
 
 ### Return Value
 
-true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> describes opaque <a href="undocumented#Alpha">Alpha</a>
+true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>
 
 ### Example
 
@@ -1539,7 +1543,7 @@ integral rectangle from origin to <a href="#SkBitmap_width">width</a> and <a hre
 
 ### Example
 
-<div><fiddle-embed name="41a60435d6eb76cb400fe9be635e3762"></fiddle-embed></div>
+<div><fiddle-embed name="3e9126152ff1cc592aef6facbcb5fc96"></fiddle-embed></div>
 
 ### See Also
 
@@ -2792,7 +2796,7 @@ generic pointer to pixel
 
 ### Example
 
-<div><fiddle-embed name="bd0e0adb48b16d75129092649eab1617">
+<div><fiddle-embed name="ffcefb2344cd38c3b99f69cfe6d64a17">
 
 #### Example Output
 
@@ -3518,7 +3522,7 @@ true if <a href="undocumented#Alpha">Alpha</a> layer was constructed in <a href=
 
 ### Example
 
-<div><fiddle-embed name="c102065eea5c3f109fdcad3f0e269ce5"></fiddle-embed></div>
+<div><fiddle-embed name="092739b4cd5d732a27c07ced8ef45f01"></fiddle-embed></div>
 
 ### See Also
 
@@ -3560,7 +3564,7 @@ true if <a href="undocumented#Alpha">Alpha</a> layer was constructed in <a href=
 
 ### Example
 
-<div><fiddle-embed name="3563cb608791d55bb584f38e842f3003"></fiddle-embed></div>
+<div><fiddle-embed name="cd7543fa8c9f3cede46dc2d72eb8c4bd"></fiddle-embed></div>
 
 ### See Also
 

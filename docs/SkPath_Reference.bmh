@@ -1740,9 +1740,6 @@ Returns (0, 0) if index is out of range.
 
 #Example
 void draw(SkCanvas* canvas) {
-    auto debugster = [](const char* prefix, const SkPath& path) -> void {
-         SkDebugf("%s point count: %d\n", prefix, path.countPoints());
-    };
     SkPath path;
     path.lineTo(20, 20);
     path.offset(-10, -10);
