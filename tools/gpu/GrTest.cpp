@@ -294,8 +294,8 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrClip& clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRenderTargetFlags GrRenderTargetProxy::testingOnly_getFlags() const {
-    return fRenderTargetFlags;
+GrInternalSurfaceFlags GrSurfaceProxy::testingOnly_getFlags() const {
+    return fSurfaceFlags;
 }
 
 //////////////////////////////////////////////////////////////////////////////

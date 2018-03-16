@@ -64,6 +64,9 @@ public:
                               GrMipMapped, bool useNextPow2 = false);
 
 protected:
+    bool hasMixedSamples() const { return fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled; }
+    bool supportsWindowRects() const { return fSurfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport; }
+
     // Methods made available via GrSurfacePriv
     bool hasPendingRead() const;
     bool hasPendingWrite() const;
@@ -72,11 +75,15 @@ protected:
     // Provides access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
 
-    GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc)
+    GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc,
+              GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone)
             : INHERITED(gpu)
             , fConfig(desc.fConfig)
             , fWidth(desc.fWidth)
-            , fHeight(desc.fHeight) {}
+            , fHeight(desc.fHeight)
+            , fSurfaceFlags(surfaceFlags) {
+    }
+
     ~GrSurface() override {}
 
 
@@ -84,9 +91,10 @@ protected:
     void onAbandon() override;
 
 private:
-    GrPixelConfig        fConfig;
-    int                  fWidth;
-    int                  fHeight;
+    GrPixelConfig          fConfig;
+    int                    fWidth;
+    int                    fHeight;
+    GrInternalSurfaceFlags fSurfaceFlags;
 
     typedef GrGpuResource INHERITED;
 };

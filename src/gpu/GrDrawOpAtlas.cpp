@@ -522,7 +522,7 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
 
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
         fProxies[i] = proxyProvider->createProxy(desc, kTopLeft_GrSurfaceOrigin,
-                SkBackingFit::kExact, SkBudgeted::kYes, GrResourceProvider::kNoPendingIO_Flag);
+                SkBackingFit::kExact, SkBudgeted::kYes, GrInternalSurfaceFlags::kNoPendingIO);
         if (!fProxies[i]) {
             return false;
         }
