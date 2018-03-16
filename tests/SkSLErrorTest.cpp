@@ -497,4 +497,9 @@ DEF_TEST(SkSLInterfaceBlockScope, r) {
                  "error: 1: unknown identifier 'x'\n1 error\n");
 }
 
+DEF_TEST(SkSLDuplicateOutput, r) {
+    test_failure(r,
+                 "layout (location=0, index=0) out half4 duplicateOutput;",
+                 "error: 1: out location=0, index=0 is reserved for sk_FragColor\n1 error\n");
+}
 #endif

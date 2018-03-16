@@ -243,6 +243,12 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
         return nullptr;
     }
     for (const auto& varDecl : decl.fVars) {
+        if (decl.fModifiers.fLayout.fLocation == 0 && decl.fModifiers.fLayout.fIndex == 0 &&
+            (decl.fModifiers.fFlags & Modifiers::kOut_Flag) && fKind == Program::kFragment_Kind &&
+            varDecl.fName != "sk_FragColor") {
+            fErrors.error(decl.fOffset,
+                          "out location=0, index=0 is reserved for sk_FragColor");
+        }
         const Type* type = baseType;
         std::vector<std::unique_ptr<Expression>> sizes;
         for (const auto& rawSize : varDecl.fSizes) {
