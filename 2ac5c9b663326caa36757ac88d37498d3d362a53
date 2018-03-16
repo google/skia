@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a289fc9_0f19bf03",
+        "filename": "include/core/SkTraceMemoryDump.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2018-03-16T02:36:46Z",
+      "side": 1,
+      "message": "I can also make this pure virtual in a follow-up once the Chrome patch lands.",
+      "range": {
+        "startLine": 80,
+        "startChar": 17,
+        "endLine": 80,
+        "endChar": 41
+      },
+      "revId": "2ac5c9b663326caa36757ac88d37498d3d362a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
