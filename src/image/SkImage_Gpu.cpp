@@ -529,17 +529,58 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
     return nullptr;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * This helper holds the normal hard ref for the Release proc as well as a hard ref on the DoneProc.
+ * Thus when a GrTexture is being released, it will unref both the ReleaseProc and DoneProc.
+ */
+class PromiseReleaseProcHelper : public GrReleaseProcHelper {
+public:
+    PromiseReleaseProcHelper(SkImage_Gpu::TextureReleaseProc releaseProc,
+                             SkImage_Gpu::TextureContext context,
+                             sk_sp<GrReleaseProcHelper> doneHelper)
+            : INHERITED(releaseProc, context)
+            , fDoneProcHelper(std::move(doneHelper)) {}
+
+    void weak_dispose() const override {
+        // Call the inherited weak_dispose first so that we call the ReleaseProc before the DoneProc
+        // if we hold the last ref to the DoneProc.
+        INHERITED::weak_dispose();
+        fDoneProcHelper.reset();
+    }
+
+private:
+    mutable sk_sp<GrReleaseProcHelper> fDoneProcHelper;
+
+    typedef GrReleaseProcHelper INHERITED;
+};
+
+/**
+ * This helper class manages the ref counting for the the ReleaseProc and DoneProc for promise
+ * images. It holds a weak ref on the ReleaseProc (hard refs are owned by GrTextures). The weak ref
+ * allows us to reuse an outstanding ReleaseProc (because we dropped our GrTexture but the GrTexture
+ * isn't done on the GPU) without needing to call FulfillProc again. It also holds a hard ref on the
+ * DoneProc. The idea is that after every flush we may call the ReleaseProc so that the client can
+ * free up their GPU memory if they want to. The life time of the DoneProc matches that of any
+ * outstanding ReleaseProc as well as the PromiseImageHelper. Thus we won't call the DoneProc until
+ * all ReleaseProcs are finished and we are finished with the PromiseImageHelper (i.e. won't call
+ * FulfillProc again).
+ */
 class PromiseImageHelper {
 public:
     PromiseImageHelper(SkImage_Gpu::TextureFulfillProc fulFillProc,
                        SkImage_Gpu::TextureReleaseProc releaseProc,
+                       SkImage_Gpu::PromiseDoneProc doneProc,
                        SkImage_Gpu::TextureContext context)
             : fFulfillProc(fulFillProc)
             , fReleaseProc(releaseProc)
-            , fContext(context) {}
+            , fContext(context)
+            , fDoneHelper(new GrReleaseProcHelper(doneProc, context)) {}
 
     void reset() {
         this->resetReleaseHelper();
+        fDoneHelper.reset();
     }
 
     sk_sp<GrTexture> getTexture(GrResourceProvider* resourceProvider, GrPixelConfig config) {
@@ -567,7 +608,7 @@ public:
                 fReleaseProc(fContext);
                 return sk_sp<GrTexture>();
             }
-            fReleaseHelper = new GrReleaseProcHelper(fReleaseProc, fContext);
+            fReleaseHelper = new PromiseReleaseProcHelper(fReleaseProc, fContext, fDoneHelper);
             // Take a weak ref
             fReleaseHelper->weak_ref();
         } else {
@@ -608,7 +649,11 @@ private:
     GrBackendTexture fBackendTex;
     // The fReleaseHelper is used to track a weak ref on the release proc. This helps us make sure
     // we are always pairing fulfill and release proc calls correctly.
-    GrReleaseProcHelper* fReleaseHelper = nullptr;
+    PromiseReleaseProcHelper* fReleaseHelper = nullptr;
+    // We don't want to call the fDoneHelper until we are done with the PromiseImageHelper and all
+    // ReleaseHelpers are finished. Thus we hold a hard ref here and we will pass a hard ref to each
+    // fReleaseHelper we make.
+    sk_sp<GrReleaseProcHelper> fDoneHelper;
 };
 
 sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
@@ -622,6 +667,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                                sk_sp<SkColorSpace> colorSpace,
                                                TextureFulfillProc textureFulfillProc,
                                                TextureReleaseProc textureReleaseProc,
+                                               PromiseDoneProc promiseDoneProc,
                                                TextureContext textureContext) {
     if (!context) {
         return nullptr;
@@ -631,7 +677,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    if (!textureFulfillProc || !textureReleaseProc) {
+    if (!textureFulfillProc || !textureReleaseProc || !promiseDoneProc) {
         return nullptr;
     }
 
@@ -651,7 +697,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     desc.fHeight = height;
     desc.fConfig = config;
 
-    PromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, textureContext);
+    PromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, promiseDoneProc,
+                                     textureContext);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [promiseHelper, config] (GrResourceProvider* resourceProvider) mutable {
@@ -671,6 +718,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, alphaType, std::move(proxy),
                                    std::move(colorSpace), SkBudgeted::kNo);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> encoded,
                                                     bool buildMips, SkColorSpace* dstColorSpace) {
