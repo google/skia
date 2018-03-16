@@ -65,11 +65,10 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
 
         "layout(set = 1, binding = 0) uniform sampler2D uTextureSampler;"
         "layout(location = 1) in half2 vTexCoord;"
-        "layout(location = 0, index = 0) out half4 fsColorOut;"
 
         "// Copy Program FS\n"
         "void main() {"
-            "fsColorOut = texture(uTextureSampler, vTexCoord);"
+            "sk_FragColor = texture(uTextureSampler, vTexCoord);"
         "}"
     );
 
