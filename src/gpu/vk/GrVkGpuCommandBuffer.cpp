@@ -174,7 +174,7 @@ void GrVkGpuRTCommandBuffer::submit() {
         for (int j = 0; j < cbInfo.fPreCopies.count(); ++j) {
             CopyInfo& copyInfo = cbInfo.fPreCopies[j];
             fGpu->copySurface(fRenderTarget, fOrigin, copyInfo.fSrc, copyInfo.fSrcOrigin,
-                              copyInfo.fSrcRect, copyInfo.fDstPoint);
+                              copyInfo.fSrcRect, copyInfo.fDstPoint, copyInfo.fShouldDiscardDst);
         }
 
         // Make sure we do the following layout changes after all copies, uploads, or any other pre
@@ -476,6 +476,10 @@ void GrVkGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin, con
         this->addAdditionalRenderPass();
     }
 
+    fCommandBufferInfos[fCurrentCmdInfo].fPreCopies.emplace_back(
+            src, srcOrigin, srcRect, dstPoint,
+            LoadStoreState::kStartsWithDiscard == cbInfo.fLoadStoreState);
+
     if (LoadStoreState::kLoadAndStore != cbInfo.fLoadStoreState) {
         // Change the render pass to do a load and store so we don't lose the results of our copy
         GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_LOAD,
@@ -503,7 +507,6 @@ void GrVkGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin, con
         cbInfo.fLoadStoreState = LoadStoreState::kLoadAndStore;
 
     }
-    fCommandBufferInfos[fCurrentCmdInfo].fPreCopies.emplace_back(src, srcOrigin, srcRect, dstPoint);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
