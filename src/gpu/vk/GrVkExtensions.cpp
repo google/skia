@@ -66,7 +66,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
         return false;
     }
     for (uint32_t i = 0; i < layerCount; ++i) {
-        if (nonPatchVersion >= remove_patch_version(layers[i].specVersion)) {
+        if (nonPatchVersion <= remove_patch_version(layers[i].specVersion)) {
             fInstanceLayerStrings->push_back() = layers[i].layerName;
         }
     }
@@ -89,7 +89,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
         return false;
     }
     for (uint32_t i = 0; i < extensionCount; ++i) {
-        if (nonPatchVersion >= remove_patch_version(extensions[i].specVersion)) {
+        if (nonPatchVersion <= remove_patch_version(extensions[i].specVersion)) {
             fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
         }
     }
@@ -116,7 +116,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
         }
         for (uint32_t i = 0; i < extensionCount; ++i) {
             // if not already in the list, add it
-            if (nonPatchVersion >= remove_patch_version(extensions[i].specVersion) &&
+            if (nonPatchVersion <= remove_patch_version(extensions[i].specVersion) &&
                 find_string(*fInstanceExtensionStrings, extensions[i].extensionName) < 0) {
                 fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
                 SkTQSort(&fInstanceExtensionStrings->front(), &fInstanceExtensionStrings->back(),
@@ -159,7 +159,7 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
         return false;
     }
     for (uint32_t i = 0; i < layerCount; ++i) {
-        if (nonPatchVersion >= remove_patch_version(layers[i].specVersion)) {
+        if (nonPatchVersion <= remove_patch_version(layers[i].specVersion)) {
             fDeviceLayerStrings->push_back() = layers[i].layerName;
         }
     }
@@ -183,7 +183,7 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
         return false;
     }
     for (uint32_t i = 0; i < extensionCount; ++i) {
-        if (nonPatchVersion >= remove_patch_version(extensions[i].specVersion)) {
+        if (nonPatchVersion <= remove_patch_version(extensions[i].specVersion)) {
             fDeviceExtensionStrings->push_back() = extensions[i].extensionName;
         }
     }
@@ -212,7 +212,7 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
         }
         for (uint32_t i = 0; i < extensionCount; ++i) {
             // if not already in the list, add it
-            if (nonPatchVersion >= remove_patch_version(extensions[i].specVersion) &&
+            if (nonPatchVersion <= remove_patch_version(extensions[i].specVersion) &&
                 find_string(*fDeviceExtensionStrings, extensions[i].extensionName) < 0) {
                 fDeviceExtensionStrings->push_back() = extensions[i].extensionName;
                 SkTQSort(&fDeviceExtensionStrings->front(), &fDeviceExtensionStrings->back(), cmp);
