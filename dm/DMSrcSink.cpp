@@ -1543,11 +1543,7 @@ SkottieSrc::SkottieSrc(Path path)
 
     // Fit kTileCount x kTileCount frames to a 1000x1000 film strip.
     static constexpr SkScalar kTargetSize = 1000;
-    const auto scale = kTargetSize / (kTileCount * std::max(fAnimation->size().width(),
-                                                            fAnimation->size().height()));
-    fTileSize = SkSize::Make(scale * fAnimation->size().width(),
-                             scale * fAnimation->size().height()).toCeil();
-
+    fTileSize = SkSize::Make(kTargetSize / kTileCount, kTargetSize / kTileCount).toCeil();
 }
 
 Error SkottieSrc::draw(SkCanvas* canvas) const {
@@ -1557,15 +1553,6 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
 
     canvas->drawColor(SK_ColorWHITE);
 
-    SkPaint paint, clockPaint;
-    paint.setColor(0xffa0a0a0);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(1);
-    paint.setAntiAlias(true);
-
-    clockPaint.setTextSize(12);
-    clockPaint.setAntiAlias(true);
-
     const auto ip = fAnimation->inPoint() * 1000 / fAnimation->frameRate(),
                op = fAnimation->outPoint() * 1000 / fAnimation->frameRate(),
                fr = (op - ip) / (kTileCount * kTileCount - 1);
@@ -1574,12 +1561,11 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
     static constexpr int frames[] = { 4, 0, 3, 1, 2 };
     static_assert(SK_ARRAY_COUNT(frames) == kTileCount, "");
 
-    const auto canvas_size = this->size();
     for (int i = 0; i < kTileCount; ++i) {
-        const SkScalar y = frames[i] * (fTileSize.height() + 1);
+        const SkScalar y = frames[i] * fTileSize.height();
 
         for (int j = 0; j < kTileCount; ++j) {
-            const SkScalar x = frames[j] * (fTileSize.width() + 1);
+            const SkScalar x = frames[j] * fTileSize.width();
             SkRect dest = SkRect::MakeXYWH(x, y, fTileSize.width(), fTileSize.height());
 
             const auto t = fr * (frames[i] * kTileCount + frames[j]);
@@ -1588,30 +1574,20 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
                 canvas->clipRect(dest, true);
                 canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(fAnimation->size()),
                                                         dest,
-                                                        SkMatrix::kFill_ScaleToFit));
+                                                        SkMatrix::kCenter_ScaleToFit));
 
                 fAnimation->animationTick(t);
                 fAnimation->render(canvas);
             }
-
-            canvas->drawLine(x + fTileSize.width() + .5f, 0,
-                             x + fTileSize.width() + .5f, canvas_size.height(), paint);
-            const auto label = SkStringPrintf("%.3f", t);
-            canvas->drawText(label.c_str(), label.size(), dest.x(),
-                             dest.bottom(), clockPaint);
         }
-
-        canvas->drawLine(0                  , y + fTileSize.height() + .5f,
-                         canvas_size.width(), y + fTileSize.height() + .5f, paint);
     }
 
     return "";
 }
 
 SkISize SkottieSrc::size() const {
-    // Padding for grid.
-    return SkISize::Make(kTileCount * (fTileSize.width()  + 1),
-                         kTileCount * (fTileSize.height() + 1));
+    return SkISize::Make(kTileCount * fTileSize.width(),
+                         kTileCount * fTileSize.height());
 }
 
 Name SkottieSrc::name() const { return fName; }
