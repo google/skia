@@ -33,6 +33,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         sk_sp<SkColorSpace> colorSpace,
         TextureFulfillProc textureFulfillProc,
         TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
         TextureContext textureContext) {
     return nullptr;
 }
@@ -155,6 +156,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         sk_sp<SkColorSpace> colorSpace,
         TextureFulfillProc textureFulfillProc,
         TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
         TextureContext textureContext) {
     if (!fContext) {
         return nullptr;
@@ -171,6 +173,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                            std::move(colorSpace),
                                            textureFulfillProc,
                                            textureReleaseProc,
+                                           promiseDoneProc,
                                            textureContext);
 }
 
