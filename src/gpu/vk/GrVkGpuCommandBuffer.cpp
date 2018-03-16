@@ -208,18 +208,18 @@ void GrVkGpuRTCommandBuffer::submit() {
                                                      false);
         }
 
-        // TODO: We can't add this optimization yet since many things create a scratch texture which
-        // adds the discard immediately, but then don't draw to it right away. This causes the
-        // discard to be ignored and we get yelled at for loading uninitialized data. However, once
-        // MDB lands, the discard will get reordered with the rest of the draw commands and we can
-        // re-enable this.
-#if 0
-        if (cbInfo.fIsEmpty && cbInfo.fLoadStoreState != kStartsWithClear) {
+        // TODO: Many things create a scratch texture which adds the discard immediately, but then
+        // don't draw to it right away. This causes the discard to be ignored and we get yelled at
+        // for loading uninitialized data. However, once MDB lands with reordering, the discard will
+        // get reordered with the rest of the draw commands and we can remove the discard check.
+        if (cbInfo.fIsEmpty &&
+            cbInfo.fLoadStoreState != LoadStoreState::kStartsWithClear &&
+            cbInfo.fLoadStoreState != LoadStoreState::kStartsWithDiscard) {
             // We have sumbitted no actual draw commands to the command buffer and we are not using
             // the render pass to do a clear so there is no need to submit anything.
             continue;
         }
-#endif
+
         if (cbInfo.fBounds.intersect(0, 0,
                                      SkIntToScalar(fRenderTarget->width()),
                                      SkIntToScalar(fRenderTarget->height()))) {
