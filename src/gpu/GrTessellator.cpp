@@ -605,6 +605,10 @@ struct Poly {
             }
             return data;
         }
+
+        void emitIndexed(SkTDArray<SkPoint>* positions, SkTDArray<uint16_t>* indices,
+                         SkTDArray<SkColor> colors) {
+        }
     };
     Poly* addEdge(Edge* e, Side side, SkArenaAlloc& alloc) {
         LOG("addEdge (%g -> %g) to poly %d, %s side\n",
@@ -2308,6 +2312,139 @@ void* outer_mesh_to_triangles(const VertexList& outerMesh, const AAParams* aaPar
     return data;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Shadow-specific code
+
+// Computes perpDot for point compared to segment.
+// A positive value means the point is to the left of the segment,
+// negative is to the right, 0 is collinear.
+static int compute_side(const SkPoint& s0, const SkPoint& s1, const SkPoint& p) {
+    SkVector v0 = s1 - s0;
+    SkVector v1 = p - s0;
+    SkScalar perpDot = v0.cross(v1);
+    if (!SkScalarNearlyZero(perpDot)) {
+        return ((perpDot > 0) ? 1 : -1);
+    }
+
+    return 0;
+}
+
+
+static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScalar r,
+                                 SkScalar* rotSin, SkScalar* rotCos, int* n) {
+    const SkScalar kRecipPixelsPerArcSegment = 0.25f;
+
+    SkScalar rCos = v1.dot(v2);
+    SkScalar rSin = v1.cross(v2);
+    SkScalar theta = SkScalarATan2(rSin, rCos);
+
+    int steps = SkScalarFloorToInt(SkScalarAbs(r*theta*kRecipPixelsPerArcSegment));
+
+    SkScalar dTheta = theta / steps;
+    *rotSin = SkScalarSinCos(dTheta, rotCos);
+    *n = steps;
+}
+
+// Compute the intersection 'p' between segments p0p1 and q0q1, if any.
+// 's' is the parametric value for the intersection along 'p0p1' & 't' is the same for 'q0q1'.
+// Returns false if there is no intersection.
+static bool compute_intersection(const SkPoint& p0, const SkPoint& p1,
+                                 const SkPoint& q0, const SkPoint& q1,
+                                 SkPoint* p, SkScalar* s, SkScalar* t) {
+    SkVector v0 = p1 - p0;
+    SkVector v1 = q1 - q0;
+
+    SkScalar perpDot = v0.cross(v1);
+    if (SkScalarNearlyZero(perpDot)) {
+        // segments are parallel
+        // check if endpoints are touching
+        if (SkPointPriv::EqualsWithinTolerance(p1, q0)) {
+            *p = p1;
+            *s = SK_Scalar1;
+            *t = 0;
+            return true;
+        }
+        if (SkPointPriv::EqualsWithinTolerance(q1, p0)) {
+            *p = q1;
+            *s = 0;
+            *t = SK_Scalar1;
+            return true;
+        }
+
+        return false;
+    }
+
+    SkVector d = q0 - p0;
+    SkScalar localS = d.cross(v1) / perpDot;
+    if (localS < 0 || localS > SK_Scalar1) {
+        return false;
+    }
+    SkScalar localT = d.cross(v0) / perpDot;
+    if (localT < 0 || localT > SK_Scalar1) {
+        return false;
+    }
+
+    v0 *= localS;
+    *p = p0 + v0;
+    *s = localS;
+    *t = localT;
+
+    return true;
+}
+
+void create_offset_contour(const VertexList* baseContour, const SkTDArray<SkVector>& normals,
+                           int winding, SkScalar offset, SkArenaAlloc& alloc,
+                           VertexList* offsetContour) {
+    // TODO: need to set alpha
+    Vertex* prev = baseContour->fTail;
+    SkVector prevNormal = normals[normals.count() - 1];
+    SkVector p0 = prev->fPoint + prevNormal;
+    SkVector p1 = baseContour->fHead->fPoint + prevNormal;
+    int normalIndex = 0;
+    for (Vertex* v = baseContour->fHead; v; v = v->fNext, ++normalIndex) {
+        Vertex* next = v->fNext ? v->fNext : baseContour->fHead;
+        SkVector currNormal = normals[normalIndex];
+        SkVector q0 = v->fPoint + currNormal;
+        SkVector q1 = next->fPoint + currNormal;
+
+        int side = compute_side(prev->fPoint, v->fPoint, next->fPoint);
+
+        if (side*winding*offset) {
+            SkPoint intersection;
+            float s, t;
+            // pre-cull simple intersections
+            if (compute_intersection(p0, p1, q0, q1,
+                                     &intersection, &s, &t)) {
+                append_point_to_contour(intersection, offsetContour, alloc);
+            } else {
+                append_point_to_contour(p1, offsetContour, alloc);
+                append_point_to_contour(v->fPoint, offsetContour, alloc);
+                append_point_to_contour(q0, offsetContour, alloc);
+            }
+        } else {
+            append_point_to_contour(p1, offsetContour, alloc);
+            // add arc
+            SkScalar rotSin, rotCos;
+            int numSteps;
+            compute_radial_steps(prevNormal, currNormal, SkScalarAbs(offset),
+                                 &rotSin, &rotCos, &numSteps);
+            for (int i = 0; i < numSteps - 1; ++i) {
+                SkVector stepNormal;
+                stepNormal.fX = prevNormal.fX*rotCos - prevNormal.fY*rotSin;
+                stepNormal.fY = prevNormal.fY*rotCos + prevNormal.fX*rotSin;
+                append_point_to_contour(v->fPoint + stepNormal, offsetContour, alloc);
+                prevNormal = stepNormal;
+            }
+            append_point_to_contour(q0, offsetContour, alloc);
+        }
+
+        prev = v;
+        prevNormal = currNormal;
+        p0 = q0;
+        p1 = q1;
+    }
+}
+
 } // namespace
 
 namespace GrTessellator {
@@ -2395,5 +2532,85 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     delete[] points;
     return actualCount;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Shadow-specific code
+
+bool PathToShadowVertices(const SkPath& path, const SkMatrix& matrix, SkScalar offset,
+                          SkColor color, bool fillCenter, SkTDArray<SkPoint>* positions,
+                          SkTDArray<uint16_t>* indices, SkTDArray<SkColor>* colors) {
+    positions->reset();
+    indices->reset();
+    colors->reset();
+
+    // We only support a single contour
+    int contourCnt = get_contour_count(path, SK_ScalarNearlyZero);
+    if (contourCnt != 1) {
+        return false;
+    }
+
+    // generate positions for transformed path
+    // TODO: Optimize this to transform, generate positions, and compute normals/winding in one pass
+    //       Remove coincident vertices and collinear edges, too.
+    SkPath xformedPath;
+    path.transform(matrix, &xformedPath);
+
+    // generate positions
+    SkRect fakeBounds;
+    SkArenaAlloc alloc(kArenaChunkSize);
+    bool linear;
+    // TODO: not sure unique_ptr is necessary
+    std::unique_ptr<VertexList> baseContour(new VertexList);
+    path_to_contours(xformedPath, SK_ScalarNearlyZero, fakeBounds, baseContour.get(), alloc,
+                     &linear);
+
+    // need at least three points
+    // TODO: need at least three non-coincident points
+    if (!baseContour->fHead || baseContour->fHead == baseContour->fTail ||
+        baseContour->fHead->fNext == baseContour->fTail) {
+        return false;
+    }
+
+    // generate normal array and winding
+    SkTDArray<SkVector> normals;
+    int approxCount = xformedPath.countPoints();
+    SkScalar quadArea = 0;
+    normals.setReserve(approxCount);
+    for (Vertex* v = baseContour->fHead; v; v = v->fNext) {
+        Vertex* next = v->fNext ? v->fNext : baseContour->fHead;
+        SkVector tangent = next->fPoint - v->fPoint;
+        SkVector normal = SkVector::Make(tangent.fY, -tangent.fX);
+        normal.setLength(offset);
+        normals.push(normal);
+        quadArea += v->fPoint.cross(next->fPoint);
+    }
+    // 1 == ccw, -1 == cw
+    // TODO: is this the same as the winding in Poly?
+    int winding = (quadArea > 0) ? 1 : -1;
+
+    // From that, create offset contours -- set alpha for outer one to 0, inner to 1.
+    std::unique_ptr<VertexList[]> contours(new VertexList[2]);
+
+    // do the offsets
+    // TODO: need to set alpha
+    create_offset_contour(baseContour.get(), normals, winding, offset, alloc, &contours[0]);
+    create_offset_contour(baseContour.get(), normals, -winding, offset, alloc, &contours[0]);
+
+    // then simplify by removing non-positive regions (necessary?)
+
+    // pass offset contours to contours_to_polys
+    //**** not sure this fill type is quite right
+    SkPath::FillType fillType = fillCenter ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType;
+    Poly* polys = contours_to_polys(contours.get(), contourCnt, fillType, path.getBounds(),
+                                    false, nullptr, alloc);
+
+    // If we end up with more than two polys, give up
+
+
+    // Now finally generate triangles
+
+    return false;
+}
+
 
 } // namespace

@@ -9,9 +9,11 @@
 #define GrTessellator_DEFINED
 
 #include "GrColor.h"
+#include "SkTDArray.h"
 #include "SkColorData.h"
 #include "SkPoint.h"
 
+class SkMatrix;
 class SkPath;
 struct SkRect;
 
@@ -49,6 +51,15 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                     VertexAllocator*, bool antialias, const GrColor& color,
                     bool canTweakAlphaForCoverage, bool *isLinear);
+
+// Offsets the transformed path both inwards and outwards, setting color on resulting contours to
+// innerColor and outerColor respectively, and tessellating between them. Will also tessellate the
+// inner contour as well if fillCenter is true.
+// Currently only supports single-contour non-intersecting paths with similarly simple offsets.
+// Returns true on success, false otherwise.
+bool PathToShadowVertices(const SkPath& path, const SkMatrix& transform, SkScalar offset,
+                          SkColor color, bool fillCenter, SkTDArray<SkPoint>* positions,
+                          SkTDArray<uint16_t>* indices, SkTDArray<SkColor>* colors);
 }
 
 #endif
