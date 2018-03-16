@@ -177,52 +177,54 @@ void GrVkGpuRTCommandBuffer::submit() {
                               copyInfo.fSrcRect, copyInfo.fDstPoint, copyInfo.fShouldDiscardDst);
         }
 
-        // Make sure we do the following layout changes after all copies, uploads, or any other pre
-        // work is done since we may change the layouts in the pre-work. Also since the draws will
-        // be submitted in different render passes, we need to guard againts write and write issues.
 
-        // Change layout of our render target so it can be used as the color attachment.
-        targetImage->setImageLayout(fGpu,
-                                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                    false);
-
-        // If we are using a stencil attachment we also need to update its layout
-        if (stencil) {
-            GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
-            vkStencil->setImageLayout(fGpu,
-                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-                                      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                      false);
-        }
-
-        // If we have any sampled images set their layout now.
-        for (int j = 0; j < cbInfo.fSampledImages.count(); ++j) {
-            cbInfo.fSampledImages[j]->setImageLayout(fGpu,
-                                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                                     VK_ACCESS_SHADER_READ_BIT,
-                                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                                     false);
-        }
-
-        // TODO: We can't add this optimization yet since many things create a scratch texture which
-        // adds the discard immediately, but then don't draw to it right away. This causes the
-        // discard to be ignored and we get yelled at for loading uninitialized data. However, once
-        // MDB lands, the discard will get reordered with the rest of the draw commands and we can
-        // re-enable this.
-#if 0
-        if (cbInfo.fIsEmpty && cbInfo.fLoadStoreState != kStartsWithClear) {
+        // TODO: Many things create a scratch texture which adds the discard immediately, but then
+        // don't draw to it right away. This causes the discard to be ignored and we get yelled at
+        // for loading uninitialized data. However, once MDB lands with reordering, the discard will
+        // get reordered with the rest of the draw commands and we can remove the discard check.
+        if (cbInfo.fIsEmpty &&
+            cbInfo.fLoadStoreState != LoadStoreState::kStartsWithClear &&
+            cbInfo.fLoadStoreState != LoadStoreState::kStartsWithDiscard) {
             // We have sumbitted no actual draw commands to the command buffer and we are not using
             // the render pass to do a clear so there is no need to submit anything.
             continue;
         }
-#endif
+
         if (cbInfo.fBounds.intersect(0, 0,
                                      SkIntToScalar(fRenderTarget->width()),
                                      SkIntToScalar(fRenderTarget->height()))) {
+            // Make sure we do the following layout changes after all copies, uploads, or any other
+            // pre-work is done since we may change the layouts in the pre-work. Also since the
+            // draws will be submitted in different render passes, we need to guard againts write
+            // and write issues.
+
+            // Change layout of our render target so it can be used as the color attachment.
+            targetImage->setImageLayout(fGpu,
+                                        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                        VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                        false);
+
+            // If we are using a stencil attachment we also need to update its layout
+            if (stencil) {
+                GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+                vkStencil->setImageLayout(fGpu,
+                                          VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                          VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                          false);
+            }
+
+            // If we have any sampled images set their layout now.
+            for (int j = 0; j < cbInfo.fSampledImages.count(); ++j) {
+                cbInfo.fSampledImages[j]->setImageLayout(fGpu,
+                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                                         VK_ACCESS_SHADER_READ_BIT,
+                                                         VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                                         false);
+            }
+
             SkIRect iBounds;
             cbInfo.fBounds.roundOut(&iBounds);
 
