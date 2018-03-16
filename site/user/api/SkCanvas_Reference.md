@@ -4386,7 +4386,7 @@ filter strictly within <a href="#SkCanvas_drawBitmapRect_src">src</a> or draw fa
 
 ### Example
 
-<div><fiddle-embed name="de449106e78ec558d9921b9f076de164"></fiddle-embed></div>
+<div><fiddle-embed name="4be3c8406a350bc3429a69e5c1daa8cd"></fiddle-embed></div>
 
 ### See Also
 
@@ -4753,7 +4753,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="75f43f11c6bd58175071b8b54ebec676"><div>The leftmost <a href="#SkCanvas_drawImageLattice_image">image</a> is smaller than center; only corners are drawn, all scaled to fit.
+<div><fiddle-embed name="47f78f3f70ccd9e6c40ee3203a5c71dd"><div>The leftmost <a href="#SkCanvas_drawImageLattice_image">image</a> is smaller than center; only corners are drawn, all scaled to fit.
 The second <a href="#SkCanvas_drawImageLattice_image">image</a> equals the size of center; only corners are drawn without scaling.
 The remaining images are larger than center. All corners draw without scaling. The sides
 are scaled if needed to take up the remaining space; the center is transparent.
@@ -4837,7 +4837,8 @@ void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint
 </pre>
 
 <a href="#Draw">Draw</a> null terminated <a href="#SkCanvas_drawString_string">string</a>, with origin at (<a href="#SkCanvas_drawString_x">x</a>, <a href="#SkCanvas_drawString_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
-<a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawString_paint">paint</a>.
+<a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawString_paint">paint</a>. Note that this per-glyph xform does not affect the shader (if present)
+on the <a href="#SkCanvas_drawString_paint">paint</a>, just the glyph's geometry.
 
 <a href="#SkCanvas_drawString_string">string</a> meaning depends on <a href="SkPaint_Reference#Text_Encoding">Paint Text Encoding</a>; by default, strings are encoded
 as UTF-8. Other values of <a href="SkPaint_Reference#Text_Encoding">Paint Text Encoding</a> are unlikely to produce the desired
@@ -5276,7 +5277,7 @@ recorded drawing commands to play</td>
 
 ### Example
 
-<div><fiddle-embed name="fde216281ff93d612768a49f2cf309ae"></fiddle-embed></div>
+<div><fiddle-embed name="a7373b01354dda73dafe8718f4fd0cfc"></fiddle-embed></div>
 
 ### See Also
 
