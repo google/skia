@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17973609_2d2dce52",
+        "filename": "src/core/SkRegion_path.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-03-16T18:29:15Z",
+      "side": 1,
+      "message": "SkTo\u003cint32_t\u003e?",
+      "range": {
+        "startLine": 148,
+        "startChar": 20,
+        "endLine": 148,
+        "endChar": 27
+      },
+      "revId": "05c016f8e03ae75b30ac6ba1dbc5791826fc19e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
