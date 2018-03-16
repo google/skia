@@ -3177,7 +3177,7 @@ modifying the draw.
 
 ### Example
 
-<div><fiddle-embed name="320b04ea1e1291d49f1e61994a0410fe"></fiddle-embed></div>
+<div><fiddle-embed name="55d7b9d482ac8e17a6153f555a8adb8d"></fiddle-embed></div>
 
 <a name="SkPaint_getMaskFilter"></a>
 ## getMaskFilter
@@ -3195,7 +3195,7 @@ Does not alter <a href="undocumented#Mask_Filter">Mask Filter</a> <a href="undoc
 
 ### Example
 
-<div><fiddle-embed name="8cd53ece8fc83e4560599ace094b0f16">
+<div><fiddle-embed name="5ac4b31371726da87bb7390b385e9fee">
 
 #### Example Output
 
@@ -3225,7 +3225,7 @@ Increases <a href="undocumented#Mask_Filter">Mask Filter</a> <a href="undocument
 
 ### Example
 
-<div><fiddle-embed name="35a397dce5d44658ee4e9e9dfb9fee22">
+<div><fiddle-embed name="084b0dc3cebd78718c651d58f257f799">
 
 #### Example Output
 
@@ -3260,7 +3260,7 @@ modifies clipping mask generated from drawn geometry</td>
 
 ### Example
 
-<div><fiddle-embed name="62c5a826692f85c3de3bab65e9e97aa9"></fiddle-embed></div>
+<div><fiddle-embed name="a993831c40f3e134f809134e3b74e4a6"></fiddle-embed></div>
 
 ---
 
