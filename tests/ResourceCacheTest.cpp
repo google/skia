@@ -1644,11 +1644,11 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
 
 ////////////////////////////////////////////////////////////////////////////////
 static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
-                                            GrSurfaceFlags flags,
+                                            GrSurfaceDescFlags descFlags,
                                             int width, int height,
                                             int sampleCnt) {
     GrSurfaceDesc desc;
-    desc.fFlags = flags;
+    desc.fFlags = descFlags;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -1658,18 +1658,18 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
 }
 
 static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
-                                               GrSurfaceFlags flags,
+                                               GrSurfaceDescFlags descFlags,
                                                int width, int height,
                                                int sampleCnt) {
     GrSurfaceDesc desc;
-    desc.fFlags = flags;
+    desc.fFlags = descFlags;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    auto origin = (flags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
-                                                        : kTopLeft_GrSurfaceOrigin;
+    auto origin = (descFlags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
+                                                            : kTopLeft_GrSurfaceOrigin;
 
     return proxyProvider->createMipMapProxy(desc, origin, SkBudgeted::kYes);
 }

@@ -36,15 +36,15 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc,
     this->init(desc, idDesc);
 }
 
-inline GrRenderTargetFlags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCaps,
-                                                          const IDDesc& idDesc) {
-    GrRenderTargetFlags flags = GrRenderTargetFlags::kNone;
+inline GrInternalSurfaceFlags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCaps,
+                                                             const IDDesc& idDesc) {
+    GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
     if (idDesc.fIsMixedSampled) {
         SkASSERT(glCaps.usesMixedSamples() && idDesc.fRTFBOID); // FBO 0 can't be mixed sampled.
-        flags |= GrRenderTargetFlags::kMixedSampled;
+        flags |= GrInternalSurfaceFlags::kMixedSampled;
     }
     if (glCaps.maxWindowRectangles() > 0 && idDesc.fRTFBOID) {
-        flags |= GrRenderTargetFlags::kWindowRectsSupport;
+        flags |= GrInternalSurfaceFlags::kWindowRectsSupport;
     }
     return flags;
 }
