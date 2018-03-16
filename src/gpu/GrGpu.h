@@ -345,11 +345,13 @@ public:
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
     // take place at the GrOpList level and this function implement faster copy paths. The rect
     // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the
-    // src/dst bounds and non-empty.
+    // src/dst bounds and non-empty. If canDiscardOutsideDstRect is set to true then we don't need
+    // to preserve any data on the dst surface outside of the copy.
     bool copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                      GrSurface* src, GrSurfaceOrigin srcOrigin,
                      const SkIRect& srcRect,
-                     const SkIPoint& dstPoint);
+                     const SkIPoint& dstPoint,
+                     bool canDiscardOutsideDstRect = false);
 
     // Creates a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
     // to the Gpu object.
@@ -599,7 +601,8 @@ private:
     // overridden by backend specific derived class to perform the copy surface
     virtual bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                GrSurface* src, GrSurfaceOrigin srcOrigin,
-                               const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
+                               const SkIRect& srcRect, const SkIPoint& dstPoint,
+                               bool canDiscardOutsideDstRect) = 0;
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
 
