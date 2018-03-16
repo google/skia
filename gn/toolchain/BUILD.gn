@@ -34,7 +34,11 @@ toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
   if (msvc == 2015) {
-    bin = "$win_vc/bin/amd64"
+    if (target_cpu == "x86") {
+      bin = "$win_vc/bin"
+    } else {
+      bin = "$win_vc/bin/amd64"
+    }
   } else {
     bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
   }
@@ -64,7 +68,7 @@ toolchain("msvc") {
     if (target_cpu == "x64") {
       _ml += "64"
     }
-    command = "$env_setup $bin/$_ml.exe /nologo /c /Fo {{output}} {{source}}"
+    command = "$env_setup $bin/$_ml.exe {{asmflags}} /nologo /c /Fo {{output}} {{source}}"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
