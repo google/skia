@@ -39,7 +39,6 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
         (VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == currentLayout)) {
-        return;
     }
 
     VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(currentLayout);
