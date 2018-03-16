@@ -27,12 +27,10 @@ public:
 
     GrFSAAType fsaaType() const {
         if (fSampleCnt <= 1) {
-            SkASSERT(!(fRenderTargetFlags & GrRenderTargetFlags::kMixedSampled));
+            SkASSERT(!this->hasMixedSamples());
             return GrFSAAType::kNone;
         }
-        return (fRenderTargetFlags & GrRenderTargetFlags::kMixedSampled)
-                                                             ? GrFSAAType::kMixedSamples
-                                                             : GrFSAAType::kUnifiedMSAA;
+        return this->hasMixedSamples() ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
     }
 
     /*
@@ -55,8 +53,6 @@ public:
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
-    GrRenderTargetFlags testingOnly_getFlags() const;
-
     // TODO: move this to a priv class!
     bool refsWrappedObjects() const;
 
@@ -65,7 +61,7 @@ protected:
 
     // Deferred version
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, GrSurfaceOrigin, SkBackingFit,
-                        SkBudgeted, uint32_t flags);
+                        SkBudgeted, GrInternalSurfaceFlags);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -79,7 +75,7 @@ protected:
     // know the final size until flush time.
     GrRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType lazyType,
                         const GrSurfaceDesc&, GrSurfaceOrigin, SkBackingFit, SkBudgeted,
-                        uint32_t flags, GrRenderTargetFlags renderTargetFlags);
+                        GrInternalSurfaceFlags);
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
@@ -96,13 +92,6 @@ private:
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the
     // deferred resource.
-
-    // These don't usually get computed until the render target is instantiated, but the render
-    // target proxy may need to answer queries about it before then. And since in the deferred case
-    // we know the newly created render target will be internal, we are able to precompute what the
-    // flags will ultimately end up being. In the wrapped case we just copy the wrapped
-    // rendertarget's info here.
-    GrRenderTargetFlags fRenderTargetFlags;
 
     typedef GrSurfaceProxy INHERITED;
 };
