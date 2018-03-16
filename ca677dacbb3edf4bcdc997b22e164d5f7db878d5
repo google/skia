@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "784c7595_4d0b48d9",
+        "filename": "docs/SkBitmap_Reference.bmh",
+        "patchSetId": 10
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-16T18:06:47Z",
+      "side": 1,
+      "message": "this is nice.",
+      "range": {
+        "startLine": 550,
+        "startChar": 28,
+        "endLine": 550,
+        "endChar": 49
+      },
+      "revId": "ca677dacbb3edf4bcdc997b22e164d5f7db878d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6afa091d_5ea8a963",
+        "filename": "docs/SkImageInfo_Reference.bmh",
+        "patchSetId": 10
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-16T18:06:47Z",
+      "side": 1,
+      "message": "Might want to check w/ Brian O about this one. I would think that it depends upon the SkColorSpace whether the equivalent RGB color has equal channel values. Though, it\u0027s true in the untagged world I suppose.",
+      "range": {
+        "startLine": 633,
+        "startChar": 55,
+        "endLine": 634,
+        "endChar": 56
+      },
+      "revId": "ca677dacbb3edf4bcdc997b22e164d5f7db878d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
