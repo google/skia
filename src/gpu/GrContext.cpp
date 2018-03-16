@@ -963,7 +963,14 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
         return nullptr;
     }
 
-    return this->makeWrappedSurfaceContext(std::move(proxy), std::move(colorSpace), props);
+    sk_sp<GrSurfaceContext> sContext = this->makeWrappedSurfaceContext(std::move(proxy),
+                                                                       std::move(colorSpace),
+                                                                       props);
+    if (sContext && sContext->asRenderTargetContext()) {
+        sContext->asRenderTargetContext()->discard();
+    }
+
+    return sContext;
 }
 
 sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackendTexture& tex,

@@ -143,13 +143,18 @@ private:
 
     struct CopyInfo {
         CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-                 const SkIPoint& dstPoint)
-            : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
+                 const SkIPoint& dstPoint, bool shouldDiscardDst)
+            : fSrc(src)
+            , fSrcOrigin(srcOrigin)
+            , fSrcRect(srcRect)
+            , fDstPoint(dstPoint)
+            , fShouldDiscardDst(shouldDiscardDst) {}
 
         GrSurface*      fSrc;
         GrSurfaceOrigin fSrcOrigin;
         SkIRect         fSrcRect;
         SkIPoint        fDstPoint;
+        bool            fShouldDiscardDst;
     };
 
     enum class LoadStoreState {
