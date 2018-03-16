@@ -4552,6 +4552,7 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
     return attribState;
 }
 
+#if 0
 bool GrGLGpu::onIsACopyNeededForTextureParams(GrTextureProxy* proxy,
                                               const GrSamplerState& textureParams,
                                               GrTextureProducer::CopyParams* copyParams,
@@ -4575,6 +4576,7 @@ bool GrGLGpu::onIsACopyNeededForTextureParams(GrTextureProxy* proxy,
     }
     return false;
 }
+#endif
 
 void GrGLGpu::onFinishFlush(bool insertedSemaphore) {
     // If we inserted semaphores during the flush, we need to call GLFlush.
