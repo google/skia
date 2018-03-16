@@ -29,7 +29,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageInfo& info,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , GrVkImage(info, GrBackendObjectOwnership::kOwned)
     , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                 mipMapsStatus)
@@ -46,7 +46,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus,
                          GrBackendObjectOwnership ownership)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , GrVkImage(info, ownership)
     , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                 mipMapsStatus)
@@ -63,7 +63,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus,
                          GrBackendObjectOwnership ownership)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , GrVkImage(info, ownership)
     , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                 mipMapsStatus)

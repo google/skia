@@ -27,9 +27,9 @@ int GrProxyProvider::numUniqueKeyProxies_TestOnly() const {
     return fUniquelyKeyedProxies.count();
 }
 
-static GrSurfaceDesc make_desc(GrSurfaceFlags flags) {
+static GrSurfaceDesc make_desc(GrSurfaceDescFlags descFlags) {
     GrSurfaceDesc desc;
-    desc.fFlags = flags;
+    desc.fFlags = descFlags;
     desc.fWidth = 64;
     desc.fHeight = 64;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -89,7 +89,7 @@ static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter,
 
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(
-            desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes, 0);
+            desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
     SkAssertResult(proxyProvider->assignUniqueKeyToProxy(key, proxy.get()));
     REPORTER_ASSERT(reporter, proxy->getUniqueKey().isValid());
     return proxy;

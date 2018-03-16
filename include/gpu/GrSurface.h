@@ -72,11 +72,14 @@ protected:
     // Provides access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
 
-    GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc)
+    GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc, GrInternalSurfaceFlags surfaceFlags)
             : INHERITED(gpu)
             , fConfig(desc.fConfig)
             , fWidth(desc.fWidth)
-            , fHeight(desc.fHeight) {}
+            , fHeight(desc.fHeight)
+            , fSurfaceFlags(surfaceFlags) {
+    }
+
     ~GrSurface() override {}
 
 
@@ -84,9 +87,12 @@ protected:
     void onAbandon() override;
 
 private:
-    GrPixelConfig        fConfig;
-    int                  fWidth;
-    int                  fHeight;
+    GrPixelConfig          fConfig;
+    int                    fWidth;
+    int                    fHeight;
+protected:
+    GrInternalSurfaceFlags fSurfaceFlags;
+
 
     typedef GrGpuResource INHERITED;
 };

@@ -42,7 +42,7 @@ static inline GrSamplerState::Filter highest_filter_mode(const GrGLTexture::IDDe
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                          const IDDesc& idDesc, GrMipMapsStatus mipMapsStatus)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
@@ -51,7 +51,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
                          GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
@@ -60,7 +60,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
                          GrMipMapsStatus mipMapsStatus)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);

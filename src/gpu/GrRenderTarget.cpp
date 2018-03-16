@@ -19,15 +19,14 @@
 #include "SkRectPriv.h"
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
-                               GrRenderTargetFlags flags,
+                               GrInternalSurfaceFlags flags,
                                GrStencilAttachment* stencil)
-        : INHERITED(gpu, desc)
+        : INHERITED(gpu, desc, flags)
         , fSampleCnt(desc.fSampleCnt)
-        , fStencilAttachment(stencil)
-        , fFlags(flags) {
+        , fStencilAttachment(stencil) {
     SkASSERT(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    SkASSERT(!(fFlags & GrRenderTargetFlags::kMixedSampled) || fSampleCnt > 1);
-    SkASSERT(!(fFlags & GrRenderTargetFlags::kWindowRectsSupport) ||
+    SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled) || fSampleCnt > 1);
+    SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport) ||
              gpu->caps()->maxWindowRectangles() > 0);
     fResolveRect = SkRectPriv::MakeILargestInverted();
 }

@@ -23,7 +23,7 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    const GrSurfaceDesc& desc,
                                    const IDDesc& idDesc,
                                    GrGLStencilAttachment* stencil)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , INHERITED(gpu, desc, ComputeFlags(gpu->glCaps(), idDesc), stencil) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
@@ -31,20 +31,20 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
 
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                    const IDDesc& idDesc)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , INHERITED(gpu, desc, ComputeFlags(gpu->glCaps(), idDesc)) {
     this->init(desc, idDesc);
 }
 
-inline GrRenderTargetFlags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCaps,
-                                                          const IDDesc& idDesc) {
-    GrRenderTargetFlags flags = GrRenderTargetFlags::kNone;
+inline GrInternalSurfaceFlags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCaps,
+                                                             const IDDesc& idDesc) {
+    GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
     if (idDesc.fIsMixedSampled) {
         SkASSERT(glCaps.usesMixedSamples() && idDesc.fRTFBOID); // FBO 0 can't be mixed sampled.
-        flags |= GrRenderTargetFlags::kMixedSampled;
+        flags |= GrInternalSurfaceFlags::kMixedSampled;
     }
     if (glCaps.maxWindowRectangles() > 0 && idDesc.fRTFBOID) {
-        flags |= GrRenderTargetFlags::kWindowRectsSupport;
+        flags |= GrInternalSurfaceFlags::kWindowRectsSupport;
     }
     return flags;
 }

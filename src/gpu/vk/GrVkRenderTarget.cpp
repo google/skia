@@ -30,7 +30,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView,
                                    GrBackendObjectOwnership ownership)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , GrVkImage(info, ownership)
     // for the moment we only support 1:1 color to stencil
     , GrRenderTarget(gpu, desc)
@@ -53,7 +53,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView,
                                    GrBackendObjectOwnership ownership)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , GrVkImage(info, ownership)
     // for the moment we only support 1:1 color to stencil
     , GrRenderTarget(gpu, desc)
@@ -74,7 +74,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrVkImageInfo& info,
                                    const GrVkImageView* colorAttachmentView,
                                    GrBackendObjectOwnership ownership)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , GrVkImage(info, ownership)
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
@@ -94,7 +94,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrVkImageInfo& info,
                                    const GrVkImageView* colorAttachmentView,
                                    GrBackendObjectOwnership ownership)
-    : GrSurface(gpu, desc)
+    : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
     , GrVkImage(info, ownership)
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)

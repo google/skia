@@ -28,7 +28,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  const GrVkImageView* resolveAttachmentView,
                                                  GrMipMapsStatus mipMapsStatus,
                                                  GrBackendObjectOwnership ownership)
-        : GrSurface(gpu, desc)
+        : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
         , GrVkImage(info, ownership)
         , GrVkTexture(gpu, desc, info, texView, mipMapsStatus, ownership)
         , GrVkRenderTarget(gpu, desc, info, msaaInfo, colorAttachmentView,
@@ -44,7 +44,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  const GrVkImageView* colorAttachmentView,
                                                  GrMipMapsStatus mipMapsStatus,
                                                  GrBackendObjectOwnership ownership)
-        : GrSurface(gpu, desc)
+        : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
         , GrVkImage(info, ownership)
         , GrVkTexture(gpu, desc, info, texView, mipMapsStatus, ownership)
         , GrVkRenderTarget(gpu, desc, info, colorAttachmentView, GrBackendObjectOwnership::kOwned) {
@@ -60,7 +60,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  const GrVkImageView* resolveAttachmentView,
                                                  GrMipMapsStatus mipMapsStatus,
                                                  GrBackendObjectOwnership ownership)
-        : GrSurface(gpu, desc)
+        : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
         , GrVkImage(info, ownership)
         , GrVkTexture(gpu, desc, info, texView, mipMapsStatus, ownership)
         , GrVkRenderTarget(gpu, desc, info, msaaInfo, colorAttachmentView,
@@ -75,7 +75,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  const GrVkImageView* colorAttachmentView,
                                                  GrMipMapsStatus mipMapsStatus,
                                                  GrBackendObjectOwnership ownership)
-        : GrSurface(gpu, desc)
+        : GrSurface(gpu, desc, GrInternalSurfaceFlags::kNone)
         , GrVkImage(info, ownership)
         , GrVkTexture(gpu, desc, info, texView, mipMapsStatus, ownership)
         , GrVkRenderTarget(gpu, desc, info, colorAttachmentView, ownership) {
