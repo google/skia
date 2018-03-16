@@ -528,11 +528,11 @@ int SkTKSearch(const T base[], int count, const K& key) {
 
     SkASSERT(base != nullptr); // base may be nullptr if count is zero
 
-    int lo = 0;
-    int hi = count - 1;
+    unsigned lo = 0;
+    unsigned hi = count - 1;
 
     while (lo < hi) {
-        int mid = (hi + lo) >> 1;
+        unsigned mid = (hi + lo) >> 1;
         if (base[mid].fDistance < key) {
             lo = mid + 1;
         } else {
