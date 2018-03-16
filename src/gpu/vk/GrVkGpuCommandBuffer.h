@@ -152,13 +152,20 @@ private:
         SkIPoint        fDstPoint;
     };
 
+    enum class LoadStoreState {
+        kUnknown,
+        kStartsWithClear,
+        kStartsWithDiscard,
+        kLoadAndStore,
+    };
+
     struct CommandBufferInfo {
         const GrVkRenderPass*                  fRenderPass;
         SkTArray<GrVkSecondaryCommandBuffer*>  fCommandBuffers;
         VkClearValue                           fColorClearValue;
         SkRect                                 fBounds;
-        bool                                   fIsEmpty;
-        bool                                   fStartsWithClear;
+        bool                                   fIsEmpty = true;
+        LoadStoreState                         fLoadStoreState = LoadStoreState::kUnknown;
         // The PreDrawUploads and PreCopies are sent to the GPU before submitting the secondary
         // command buffer.
         SkTArray<InlineUploadInfo>             fPreDrawUploads;
