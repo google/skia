@@ -7,6 +7,7 @@
 
 #include "SkRegionPriv.h"
 #include "SkBlitter.h"
+#include "SkSafeMath.h"
 #include "SkScan.h"
 #include "SkTSort.h"
 #include "SkTDArray.h"
@@ -123,26 +124,28 @@ bool SkRgnBuilder::init(int maxHeight, int maxTransitions, bool pathIsInverse) {
         return false;
     }
 
+    SkSafeMath  safe;
+
     if (pathIsInverse) {
         // allow for additional X transitions to "invert" each scanline
         // [ L' ... normal transitions ... R' ]
         //
-        maxTransitions += 2;
+        maxTransitions = safe.addInt(maxTransitions, 2);
     }
 
     // compute the count with +1 and +3 slop for the working buffer
-    int64_t count = sk_64_mul(maxHeight + 1, 3 + maxTransitions);
+    size_t count = safe.mul(safe.addInt(maxHeight, 1), safe.addInt(3, maxTransitions));
 
     if (pathIsInverse) {
         // allow for two "empty" rows for the top and bottom
         //      [ Y, 1, L, R, S] == 5 (*2 for top and bottom)
-        count += 10;
+        count = safe.add(count, 10);
     }
 
-    if (count < 0 || !sk_64_isS32(count)) {
+    if (!safe || !SkTFitsIn<int32_t>(count)) {
         return false;
     }
-    fStorageCount = sk_64_asS32(count);
+    fStorageCount = SkToS32(count);
 
     fStorage = (SkRegion::RunType*)sk_malloc_canfail(fStorageCount, sizeof(SkRegion::RunType));
     if (nullptr == fStorage) {
