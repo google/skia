@@ -2293,6 +2293,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
     // We have a special case fallback for reading eight bit alpha. We will read back all four 8
     // bit channels as RGBA and then extract A.
     if (!this->readPixelsSupported(surface, dstAsConfig)) {
+        SkDebugf("Read pixels not supoprted %d,  %d\n", surface->config(), dstAsConfig);
         if (kAlpha_8_GrPixelConfig == dstAsConfig &&
             this->readPixelsSupported(surface, kRGBA_8888_GrPixelConfig)) {
             std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
@@ -2336,6 +2337,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
     GrGLenum externalType;
     if (!this->glCaps().getReadPixelsFormat(surface->config(), dstAsConfig, &externalFormat,
                                             &externalType)) {
+        SkDebugf("No getReadPixelsFormat\n");
         return false;
     }
     bool flipY = kBottomLeft_GrSurfaceOrigin == origin;

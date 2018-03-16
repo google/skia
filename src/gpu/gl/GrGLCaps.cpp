@@ -870,6 +870,7 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
         if (readFormat != GR_GL_RED && readFormat != GR_GL_RG && readFormat != GR_GL_RGB &&
             readFormat != GR_GL_RGBA && readFormat != GR_GL_BGRA &&
             readFormat != GR_GL_RGBA_INTEGER) {
+            SkDebugf("Caps desktop fail, readFormat: %d, readType: %d\n", readFormat, readType);
             return false;
         }
         // There is also a set of allowed types, but all the types we use are in the set:
@@ -887,11 +888,6 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
     switch (fConfigTable[surfaceConfig].fFormatType) {
         case kNormalizedFixedPoint_FormatType:
             if (GR_GL_RGBA == readFormat && GR_GL_UNSIGNED_BYTE == readType) {
-                return true;
-            }
-            break;
-        case kInteger_FormatType:
-            if (GR_GL_RGBA_INTEGER == readFormat && GR_GL_INT == readType) {
                 return true;
             }
             break;
@@ -916,8 +912,12 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
         unbindRenderTarget();
     }
 
-    return fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fFormat == readFormat &&
+
+    bool allow = fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fFormat == readFormat &&
            fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fType == readType;
+    if (!allow)
+    SkDebugf("Caps ES fail, readFormat: %d, readType: %d, aformat: %d, atype: %d\n", readFormat, readType,  fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fFormat,  fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fType);
+    return allow;
 }
 
 void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
@@ -2443,11 +2443,10 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
 }
 
 bool GrGLCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
-    if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
-        if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
-            if (tex->hasBaseLevelBeenBoundToFBO()) {
-                return false;
-            }
+    if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
+        if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO &&
+            tex->hasBaseLevelBeenBoundToFBO()) {
+            return false;
         }
     }
     if (auto rt = surface->asRenderTarget()) {
@@ -2460,6 +2459,44 @@ bool GrGLCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
         return SkToBool(surface->asTexture());
     }
     return true;
+}
+
+bool GrGLCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
+    if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
+        // We don't support reading pixels directly EXTERNAL textures as it would require
+        // binding the texture to a FBO.
+        if (tex->target() == GR_GL_TEXTURE_EXTERNAL) {
+            return false;
+        }
+    }
+    return true;
+}
+
+GrColorType GrGLCaps::supportedReadPixelsColorType(GrPixelConfig config,
+                                                   GrColorType dstColorType) const {
+    // For now, we mostly report the read back format that is requried by the ES spec without
+    // checking for implementation allowed formats or consider laxer rules in non-ES GL. TODO: Relax
+    // this as makes sense to increase performance and correctness.
+    switch (fConfigTable[config].fFormatType) {
+        case kNormalizedFixedPoint_FormatType:
+            return GrColorType::kRGBA_8888;
+        case kFloat_FormatType:
+            // We cheat a little here and allow F16 read back if the src and dst match.
+            if (kRGBA_half_GrPixelConfig == config && GrColorType::kRGBA_F16 == dstColorType) {
+                return GrColorType::kRGBA_F16;
+            }
+            if ((kAlpha_half_GrPixelConfig == config ||
+                 kAlpha_half_as_Red_GrPixelConfig == config) &&
+                GrColorType::kAlpha_F16 == dstColorType) {
+                return GrColorType::kAlpha_F16;
+            }
+            // And similar for full float RG.
+            if (kRG_float_GrPixelConfig == config && GrColorType::kRG_F32 == dstColorType) {
+                return GrColorType::kRG_F32;
+            }
+            return GrColorType::kRGBA_F32;
+    }
+    return GrColorType::kUnknown;
 }
 
 bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& backendRT) const {

@@ -316,7 +316,9 @@ public:
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
-    bool surfaceSupportsWritePixels(const GrSurface* surface) const override;
+    bool surfaceSupportsWritePixels(const GrSurface*) const override;
+    bool surfaceSupportsReadPixels(const GrSurface*) const override;
+    GrColorType supportedReadPixelsColorType(GrPixelConfig, GrColorType) const override;
 
     /// Does ReadPixels support reading readConfig pixels from a FBO that is surfaceConfig?
     bool readPixelsSupported(GrPixelConfig surfaceConfig,
@@ -503,7 +505,6 @@ private:
     enum FormatType {
         kNormalizedFixedPoint_FormatType,
         kFloat_FormatType,
-        kInteger_FormatType,
     };
 
     struct ReadPixelsFormat {

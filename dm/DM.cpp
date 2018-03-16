@@ -67,7 +67,7 @@ extern void SkPDFImageDumpStats();
 extern bool gSkForceRasterPipelineBlitter;
 
 DECLARE_bool(undefok);
-DEFINE_string(src, "tests gm skp image", "Source types to test.");
+DEFINE_string(src, "tests", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<sourceOptions>/<name>.png");
@@ -1271,6 +1271,9 @@ static void gather_tests() {
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
+        if (!strstr(test.name, "4444")) {
+            continue;
+        }
         if (test.needsGpu && gpu_supported()) {
             (FLAGS_gpu_threading ? gParallelTests : gSerialTests).push(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
@@ -1318,6 +1321,8 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
 int main(int argc, char** argv) {
+    for (int i = 0; i < FLAGS_src.count(); ++i)
+        FLAGS_src.set(i, "tests");
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
     android::ProcessState::self()->startThreadPool();
 #endif
