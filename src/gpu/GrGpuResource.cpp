@@ -69,6 +69,10 @@ void GrGpuResource::abandon() {
 }
 
 void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    if (this->fRefsWrappedObjects && !traceMemoryDump->shouldDumpWrappedObjects()) {
+        return;
+    }
+
     // Dump resource as "skia/gpu_resources/resource_#".
     SkString dumpName("skia/gpu_resources/resource_");
     dumpName.appendU32(this->uniqueID().asUInt());
