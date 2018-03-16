@@ -15,6 +15,7 @@
 #include "GrShaderCaps.h"
 #include "GrTest.h"
 #include "GrTextureContext.h"
+#include "GrTextureProxyPriv.h"
 #include "gl/GLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"

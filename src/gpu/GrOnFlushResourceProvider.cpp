@@ -28,7 +28,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     // TODO: fold the kNoPendingIO_Flag into GrSurfaceFlags?
     sk_sp<GrSurfaceProxy> proxy =
             proxyProvider->createProxy(tmpDesc, origin, SkBackingFit::kExact, SkBudgeted::kYes,
-                                       GrResourceProvider::kNoPendingIO_Flag);
+                                       GrInternalSurfaceFlags::kNoPendingIO);
     if (!proxy->asRenderTargetProxy()) {
         return nullptr;
     }
