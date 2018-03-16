@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01047d89_c2c06466",
+        "filename": "src/core/SkEdge.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-16T12:17:51Z",
+      "side": 1,
+      "message": "shift \u003d SkTMin(diff_to_shift(dx, dy, shift), MAX_COEFF_SHIFT);\nany better?",
+      "revId": "0ed9000c1fd8e0d78a52c01d24b94d59698ce491",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
