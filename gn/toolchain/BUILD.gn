@@ -39,11 +39,18 @@ toolchain("msvc") {
     bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
   }
 
+  toolchain_files = [
+    cc_wrapper,
+    "$bin/lib.exe",
+    "$bin/link.exe",
+  ]
+
   env_setup = ""
   if (target_cpu == "x86") {
     # Toolchain asset includes a script that configures for x86 building.
     # We don't support x86 builds with local MSVC installations.
     env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
+    toolchain_files += [ "$win_sdk/bin/SetEnv.cmd" ]
   }
 
   cl_m32_flag = ""
@@ -59,12 +66,20 @@ toolchain("msvc") {
     cl = "$bin/cl.exe"
   }
 
+  toolchain_files += [ cl ]
+
+  _ml = "$bin/ml.exe"
+  if (target_cpu == "x64") {
+    _ml = "$bin/ml64.exe"
+  }
+
+  toolchain_files += [ _ml ]
+
+  toolchain_hash =
+      exec_script("hash.py", toolchain_files, "trim string", toolchain_files)
+
   tool("asm") {
-    _ml = "ml"
-    if (target_cpu == "x64") {
-      _ml += "64"
-    }
-    command = "$env_setup $bin/$_ml.exe /nologo /c /Fo {{output}} {{source}}"
+    command = "$env_setup $_ml /nologo /c /D DUMMY=$toolchain_hash /Fo {{output}} {{source}}"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
@@ -82,8 +97,7 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content =
-        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}}"
+    rspfile_content = "{{defines}} /DDUMMY=$toolchain_hash {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}}"
     description = "compile {{source}}"
   }
 
@@ -98,8 +112,7 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content =
-        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}}"
+    rspfile_content = "{{defines}} /DDUMMY=$toolchain_hash {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}}"
     description = "compile {{source}}"
   }
 
