@@ -24,6 +24,7 @@
 #define SK_OUTCOLOR_BUILTIN            10004
 #define SK_TRANSFORMEDCOORDS2D_BUILTIN 10005
 #define SK_TEXTURESAMPLERS_BUILTIN     10006
+#define SK_OUT_BUILTIN                 10007
 #define SK_FRAGCOORD_BUILTIN              15
 #define SK_VERTEXID_BUILTIN                5
 #define SK_INSTANCEID_BUILTIN              6

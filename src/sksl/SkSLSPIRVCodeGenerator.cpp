@@ -2436,7 +2436,7 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
         fCapabilities |= (((uint64_t) 1) << SpvCapabilityInputAttachment);
     }
     if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN &&
-        layout.fBuiltin != SK_IN_BUILTIN) {
+        layout.fBuiltin != SK_IN_BUILTIN && layout.fBuiltin != SK_OUT_BUILTIN) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationBuiltIn, layout.fBuiltin,
                                fDecorationBuffer);
     }
@@ -2949,8 +2949,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
                 intf.fSizes.emplace_back(new IntLiteral(fContext, -1, skInSize));
             }
             SpvId id = this->writeInterfaceBlock(intf);
-            if ((intf.fVariable.fModifiers.fFlags & Modifiers::kIn_Flag) ||
-                (intf.fVariable.fModifiers.fFlags & Modifiers::kOut_Flag)) {
+            if (((intf.fVariable.fModifiers.fFlags & Modifiers::kIn_Flag) ||
+                (intf.fVariable.fModifiers.fFlags & Modifiers::kOut_Flag)) &&
+                intf.fVariable.fModifiers.fLayout.fBuiltin == -1) {
                 interfaceVars.insert(id);
             }
         }
@@ -2976,8 +2977,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     for (auto entry : fVariableMap) {
         const Variable* var = entry.first;
         if (var->fStorage == Variable::kGlobal_Storage &&
-                ((var->fModifiers.fFlags & Modifiers::kIn_Flag) ||
-                 (var->fModifiers.fFlags & Modifiers::kOut_Flag))) {
+            ((var->fModifiers.fFlags & Modifiers::kIn_Flag) ||
+             (var->fModifiers.fFlags & Modifiers::kOut_Flag)) &&
+             var->fModifiers.fLayout.fBuiltin != SK_IN_BUILTIN &&
+             var->fModifiers.fLayout.fBuiltin != SK_OUT_BUILTIN) {
             interfaceVars.insert(entry.second);
         }
     }
