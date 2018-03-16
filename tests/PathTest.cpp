@@ -4898,4 +4898,3 @@ DEF_TEST(ClipPath_nonfinite, reporter) {
     }
     REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
 }
-
