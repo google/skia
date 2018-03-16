@@ -179,7 +179,7 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context
     // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt to
     // ops), so it can't have any pending IO.
     return proxyProvider->createProxy(desc, kTopLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes,
-                                      GrResourceProvider::kNoPendingIO_Flag);
+                                      GrInternalSurfaceFlags::kNoPendingIO);
 }
 
 namespace {

@@ -32,8 +32,6 @@ public:
 
     int numStencilBits() const;
 
-    GrRenderTargetFlags flags() const { return fRenderTarget->fFlags; }
-
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}
     GrRenderTargetPriv(const GrRenderTargetPriv&) {} // unimpl

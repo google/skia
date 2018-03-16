@@ -141,6 +141,16 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         test_copy_from_surface(reporter, context, rectProxy.get(), refPixels,
                                false, "RectangleTexture-copy-from");
 
+        // Should not be able to wrap as a RT
+        {
+            sk_sp<GrRenderTargetContext> temp =
+                    context->contextPriv().makeBackendTextureRenderTargetContext(
+                            rectangleTex, kBottomLeft_GrSurfaceOrigin, 1, nullptr);
+            if (temp) {
+                ERRORF(reporter, "Should not be able to wrap a Rectangle texture as a RT.");
+            }
+        }
+
         sk_sp<GrSurfaceContext> rectContext = context->contextPriv().makeWrappedSurfaceContext(
                                                                             std::move(rectProxy));
         SkASSERT(rectContext);
