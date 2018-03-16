@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13cb46a6_e1d9cf31",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-16T23:18:51Z",
+      "side": 1,
+      "message": "I just checked and GrSurfaceFlags and GrSurfaceDesc are not used by clients in case that changes the need for this alias.",
+      "range": {
+        "startLine": 381,
+        "startChar": 0,
+        "endLine": 381,
+        "endChar": 41
+      },
+      "revId": "bd17fb74b637a2ac28f7164615037ff077c90c0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
