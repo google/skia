@@ -1148,7 +1148,7 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
         SkMask  mask;
         mask.fBounds.set(ix, iy, ix + pmap.width(), iy + pmap.height());
         mask.fFormat = SkMask::kA8_Format;
-        mask.fRowBytes = SkToU32(pmap.rowBytes());
+        mask.fRowBytes = pmap.rowBytes();
         // fImage is typed as writable, but in this case it is used read-only
         mask.fImage = (uint8_t*)pmap.addr8(0, 0);
 

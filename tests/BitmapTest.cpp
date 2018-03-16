@@ -263,3 +263,92 @@ DEF_TEST(Bitmap_erase, r) {
         REPORTER_ASSERT(r, bm.getColor(0,0) != 0x00000000);
     }
 }
+
+#include "SkCanvas.h"
+
+static bool count_checker(unsigned char* checkerBytes, size_t checkerBytesSize, int checkers[2]) {
+    int checkerOnes = 0;
+    for (size_t index = 0; index < checkerBytesSize; ++index) {
+        if (!checkerBytes[index]) {
+            checkers[0]++;
+        } else if (checkerBytes[index] == 0xFF) {
+            checkers[1]++;
+        } else {
+            SkASSERT(0);
+            return false;
+        }
+    }
+    return true;
+}
+
+DEF_TEST(Bitmap_largeRowBytes, r) {
+    if (sizeof(size_t) < 8) {
+        return;
+    }
+    const int width = 32;
+    const int height = 2;
+    const int maxBytesPerPixel = 8;
+    unsigned char checkerBytes[width * height * maxBytesPerPixel];   // most memory required by any bitmap
+    unsigned char refBytes[width * height * maxBytesPerPixel]; 
+    const size_t rowBytes = 1ULL << 32;
+    sk_sp<SkColorSpace> defaultCS = nullptr;
+    sk_sp<SkColorSpace> sRGB = SkColorSpace::MakeSRGB();
+    sk_sp<SkColorSpace> linear = SkColorSpace::MakeSRGBLinear();
+    for (SkColorType colorType : { kAlpha_8_SkColorType, kRGB_565_SkColorType,
+            kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+            kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+            kGray_8_SkColorType, kRGBA_F16_SkColorType } ) {
+        SkASSERT(SkColorTypeBytesPerPixel(colorType) <= maxBytesPerPixel);
+        SkAlphaType alphaType;
+        if (!SkColorTypeValidateAlphaType(colorType, kPremul_SkAlphaType, &alphaType)) {
+            continue;
+        }
+        for (auto colorSpace : { defaultCS, sRGB, linear } ) {
+            SkImageInfo imageInfo = SkImageInfo::Make(width, height, colorType, alphaType, colorSpace);
+            SkBitmap bitmap;
+            bitmap.setInfo(imageInfo, rowBytes);
+            bitmap.allocPixels();
+            SkCanvas offscreen(bitmap);
+            bitmap.eraseColor(0);
+            SkBitmap bitmapChecker;
+            bitmapChecker.setInfo(imageInfo, imageInfo.minRowBytes());
+            bitmapChecker.setPixels(checkerBytes);
+            SkCanvas canvasChecker(bitmapChecker);
+
+            memset(refBytes, 0xFF, sizeof(refBytes));
+            SkBitmap refBits;
+            refBits.setInfo(imageInfo, imageInfo.minRowBytes());
+            refBits.setPixels(refBytes);
+            refBits.eraseColor(0);
+            int refCount[2];
+            REPORTER_ASSERT(r, count_checker(refBytes, sizeof(refBytes), refCount));
+
+            memset(checkerBytes, 0xFF, sizeof(checkerBytes));
+            canvasChecker.drawBitmap(bitmap, 0, 0);
+            int eraseCount[2];
+            REPORTER_ASSERT(r, count_checker(checkerBytes, sizeof(checkerBytes), eraseCount));
+            REPORTER_ASSERT(r, refCount[0] == eraseCount[0]);
+            REPORTER_ASSERT(r, refCount[1] == eraseCount[1]);
+            enum {
+                kPt,
+                kLine,
+            };
+            for (auto test : { kPt, kLine } ) {
+                SkPaint paint;
+                memset(refBytes, 0xFF, sizeof(refBytes));
+                refBits.eraseColor(0);
+                SkCanvas refCanvas(refBits);
+                memset(checkerBytes, 0xFF, sizeof(checkerBytes));
+                bitmap.eraseColor(0);
+                if (kPt == test) {
+                    refCanvas.drawPoint({0, 0}, paint);
+                    offscreen.drawPoint({0, 0}, paint);
+                    canvasChecker.drawBitmap(bitmap, 0, 0);
+                    REPORTER_ASSERT(r, !memcmp(checkerBytes, refBytes, sizeof(checkerBytes)));
+                    continue;
+                }
+            }
+        }
+    }
+
+}

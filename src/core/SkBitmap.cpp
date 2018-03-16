@@ -115,9 +115,6 @@ bool SkBitmap::setInfo(const SkImageInfo& info, size_t rowBytes) {
     if ((int32_t)mrb != mrb) {
         return reset_return_false(this);
     }
-    if ((int64_t)rowBytes != (int32_t)rowBytes) {
-        return reset_return_false(this);
-    }
 
     if (info.width() < 0 || info.height() < 0) {
         return reset_return_false(this);
@@ -132,7 +129,7 @@ bool SkBitmap::setInfo(const SkImageInfo& info, size_t rowBytes) {
     }
 
     fPixelRef = nullptr;  // Free pixels.
-    fPixmap.reset(info.makeAlphaType(newAT), nullptr, SkToU32(rowBytes));
+    fPixmap.reset(info.makeAlphaType(newAT), nullptr, rowBytes);
     SkDEBUGCODE(this->validate();)
     return true;
 }

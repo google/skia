@@ -33,7 +33,7 @@ struct SkMask {
 
     uint8_t*    fImage;
     SkIRect     fBounds;
-    uint32_t    fRowBytes;
+    size_t      fRowBytes;
     Format      fFormat;
 
     /** Returns true if the mask is empty: i.e. it has an empty bounds.
