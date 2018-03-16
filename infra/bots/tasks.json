@@ -1392,6 +1392,12 @@
         "Perf-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All"
       ]
     },
+    "Perf-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE"
+      ]
+    },
     "Perf-Win10-Clang-Golo-GPU-GT610-x86_64-Release-All": {
       "priority": 0.8,
       "tasks": [
@@ -2738,6 +2744,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All"
+      ]
+    },
+    "Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE"
       ]
     },
     "Test-Win10-Clang-Golo-GPU-GT610-x86_64-Release-All": {
@@ -11280,6 +11292,53 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:116"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:104a-23.21.13.9101",
+        "os:Windows-10-16299.309",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21415,6 +21474,54 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:116"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:104a-23.21.13.9101",
+        "os:Windows-10-16299.309",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -31806,6 +31913,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE": {
+      "dependencies": [
+        "Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
