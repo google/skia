@@ -192,6 +192,15 @@ void GrVkGpuRTCommandBuffer::submit() {
                                       false);
         }
 
+        // If we have any sampled images set their layout now.
+        for (int j = 0; j < cbInfo.fSampledImages.count(); ++j) {
+            cbInfo.fSampledImages[j]->setImageLayout(fGpu,
+                                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                                     VK_ACCESS_SHADER_READ_BIT,
+                                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                                     false);
+        }
+
         // TODO: We can't add this optimization yet since many things create a scratch texture which
         // adds the discard immediately, but then don't draw to it right away. This causes the
         // discard to be ignored and we get yelled at for loading uninitialized data. However, once
@@ -545,18 +554,9 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pi
     return pipelineState;
 }
 
-static void set_texture_layout(GrVkTexture* vkTexture, GrVkGpu* gpu) {
-    // TODO: If we ever decide to create the secondary command buffers ahead of time before we
-    // are actually going to submit them, we will need to track the sampled images and delay
-    // adding the layout change/barrier until we are ready to submit.
-    vkTexture->setImageLayout(gpu,
-                              VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                              VK_ACCESS_SHADER_READ_BIT,
-                              VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                              false);
-}
-
-static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkGpu* gpu) {
+static void prepare_sampled_images(const GrResourceIOProcessor& processor,
+                                   SkTArray<GrVkImage*>* sampledImages,
+                                   GrVkGpu* gpu) {
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
         GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.peekTexture());
@@ -574,7 +574,7 @@ static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkG
                 vkTexture->texturePriv().markMipMapsClean();
             }
         }
-        set_texture_layout(vkTexture, gpu);
+        sampledImages->push_back(vkTexture);
     }
 }
 
@@ -589,13 +589,16 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
     if (!meshCount) {
         return;
     }
-    prepare_sampled_images(primProc, fGpu);
+
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+
+    prepare_sampled_images(primProc, &cbInfo.fSampledImages, fGpu);
     GrFragmentProcessor::Iter iter(pipeline);
     while (const GrFragmentProcessor* fp = iter.next()) {
-        prepare_sampled_images(*fp, fGpu);
+        prepare_sampled_images(*fp, &cbInfo.fSampledImages, fGpu);
     }
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
-        set_texture_layout(static_cast<GrVkTexture*>(dstTexture), fGpu);
+        cbInfo.fSampledImages.push_back(static_cast<GrVkTexture*>(dstTexture));
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
@@ -606,8 +609,6 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
     if (!pipelineState) {
         return;
     }
-
-    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
