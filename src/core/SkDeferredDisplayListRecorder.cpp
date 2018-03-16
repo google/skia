@@ -139,6 +139,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         sk_sp<SkColorSpace> colorSpace,
         TextureFulfillProc textureFulfillProc,
         TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
         TextureContext textureContext) {
 #if SK_SUPPORT_GPU
     return SkImage_Gpu::MakePromiseTexture(fContext.get(),
@@ -152,6 +153,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                            std::move(colorSpace),
                                            textureFulfillProc,
                                            textureReleaseProc,
+                                           promiseDoneProc,
                                            textureContext);
 #else
     return nullptr;
