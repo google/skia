@@ -123,6 +123,10 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     if (fFlushing || this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
+    GrGpu* gpu = fContext->contextPriv().getGpu();
+    if (!gpu) {
+        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
+    }
     fFlushing = true;
 
     for (int i = 0; i < fOpLists.count(); ++i) {
@@ -154,8 +158,6 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         SkDEBUGCODE(bool result =) SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
         SkASSERT(result);
     }
-
-    GrGpu* gpu = fContext->contextPriv().getGpu();
 
     GrOpFlushState flushState(gpu, fContext->contextPriv().resourceProvider(),
                               &fTokenTracker);
@@ -333,6 +335,11 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     }
     SkASSERT(proxy);
 
+    GrGpu* gpu = fContext->contextPriv().getGpu();
+    if (!gpu) {
+        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
+    }
+
     GrSemaphoresSubmitted result = GrSemaphoresSubmitted::kNo;
     if (proxy->priv().hasPendingIO() || numSemaphores) {
         result = this->flush(proxy, numSemaphores, backendSemaphores);
@@ -342,10 +349,8 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
         return result;
     }
 
-    GrGpu* gpu = fContext->contextPriv().getGpu();
     GrSurface* surface = proxy->priv().peekSurface();
-
-    if (gpu && surface->asRenderTarget()) {
+    if (surface->asRenderTarget()) {
         gpu->resolveRenderTarget(surface->asRenderTarget());
     }
     return result;
