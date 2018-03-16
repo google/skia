@@ -79,7 +79,7 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
 }
 
 /**
- * Represents a vector swizzle operation such as 'float21, 2, 3).zyx'.
+ * Represents a vector swizzle operation such as 'float2(1, 2, 3).zyx'.
  */
 struct Swizzle : public Expression {
     Swizzle(const Context& context, std::unique_ptr<Expression> base, std::vector<int> components)
