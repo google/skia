@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b468e19a_294d5b43",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3453,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-16T20:14:15Z",
+      "side": 1,
+      "message": "As discussed offline, will do this in a follow up.",
+      "parentUuid": "06f90c73_edbc09c4",
+      "range": {
+        "startLine": 3453,
+        "startChar": 33,
+        "endLine": 3453,
+        "endChar": 57
+      },
+      "revId": "b964d37b822ce2bf91acc85038f95bb6691374a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "855ff2ef_9be2d03d",
         "filename": "src/gpu/vk/GrVkCopyManager.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "b964d37b822ce2bf91acc85038f95bb6691374a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d62ace7_cbfbd35f",
+        "filename": "src/gpu/vk/GrVkCopyManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-16T20:14:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "855ff2ef_9be2d03d",
+      "range": {
+        "startLine": 318,
+        "startChar": 33,
+        "endLine": 319,
+        "endChar": 74
+      },
+      "revId": "b964d37b822ce2bf91acc85038f95bb6691374a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
