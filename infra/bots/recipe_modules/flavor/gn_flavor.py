@@ -201,7 +201,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
       with self.m.env(env):
         self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-        self._run('ninja', [ninja, '-k', '0', '-C', self.out_dir])
+        # If ninja fails, do a clean then try again.
+        def ninja_clean(attempt):
+          self._run('ninja clean', [ninja, '-C', self.out_dir, '-t', 'clean'])
+        self.m.run.with_retry(self.m.step, 'ninja', 2,
+                              cmd=[ninja, '-k', '0', '-C', self.out_dir],
+                              between_attempts_fn=ninja_clean)
 
   def step(self, name, cmd):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])

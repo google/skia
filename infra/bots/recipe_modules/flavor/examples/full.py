@@ -152,6 +152,40 @@ def GenTests(api):
                      is_testing_exceptions='True')
   )
 
+  builder = 'Build-Win-Clang-x86_64-Release-UBSAN'
+  fail_step_name = 'ninja'
+  yield (
+      api.test('retry_ninja') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data(fail_step_name, retcode=1)
+  )
+
+  yield (
+      api.test('retry_ninja_clean_fails') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data(fail_step_name, retcode=1) +
+      api.step_data('ninja clean', retcode=1)
+  )
+
+  yield (
+      api.test('retry_ninja_retries_exhausted') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data(fail_step_name, retcode=1) +
+      api.step_data(fail_step_name + ' (attempt 2)', retcode=1)
+  )
+
   builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('failed_infra_step') +
