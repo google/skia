@@ -121,8 +121,15 @@ void GrVkGpuRTCommandBuffer::init() {
     } else {
         cbInfo.fBounds.setEmpty();
     }
-    cbInfo.fIsEmpty = true;
-    cbInfo.fStartsWithClear = false;
+
+    if (VK_ATTACHMENT_LOAD_OP_CLEAR == fVkColorLoadOp) {
+        cbInfo.fLoadStoreState = LoadStoreState::kStartsWithClear;
+    } else if (VK_ATTACHMENT_LOAD_OP_LOAD == fVkColorLoadOp &&
+               VK_ATTACHMENT_STORE_OP_STORE == fVkColorStoreOp) {
+        cbInfo.fLoadStoreState = LoadStoreState::kLoadAndStore;
+    } else if (VK_ATTACHMENT_LOAD_OP_DONT_CARE == fVkColorLoadOp) {
+        cbInfo.fLoadStoreState = LoadStoreState::kStartsWithDiscard;
+    }
 
     cbInfo.fCommandBuffers.push_back(fGpu->resourceProvider().findOrCreateSecondaryCommandBuffer());
     cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
@@ -207,7 +214,7 @@ void GrVkGpuRTCommandBuffer::submit() {
         // MDB lands, the discard will get reordered with the rest of the draw commands and we can
         // re-enable this.
 #if 0
-        if (cbInfo.fIsEmpty && !cbInfo.fStartsWithClear) {
+        if (cbInfo.fIsEmpty && cbInfo.fLoadStoreState != kStartsWithClear) {
             // We have sumbitted no actual draw commands to the command buffer and we are not using
             // the render pass to do a clear so there is no need to submit anything.
             continue;
@@ -253,7 +260,10 @@ void GrVkGpuRTCommandBuffer::discard() {
         SkASSERT(cbInfo.fRenderPass->isCompatible(*oldRP));
         oldRP->unref(fGpu);
         cbInfo.fBounds.join(fRenderTarget->getBoundsRect());
-        cbInfo.fStartsWithClear = false;
+        cbInfo.fLoadStoreState = LoadStoreState::kStartsWithDiscard;
+        // If we are going to discard the whole render target then the results of any copies we did
+        // immediately before to the target won't matter, so just drop them.
+        cbInfo.fPreCopies.reset();
     }
 }
 
@@ -357,7 +367,10 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
         oldRP->unref(fGpu);
 
         GrColorToRGBAFloat(color, cbInfo.fColorClearValue.color.float32);
-        cbInfo.fStartsWithClear = true;
+        cbInfo.fLoadStoreState = LoadStoreState::kStartsWithClear;
+        // If we are going to clear the whole render target then the results of any copies we did
+        // immediately before to the target won't matter, so just drop them.
+        cbInfo.fPreCopies.reset();
 
         // Update command buffer bounds
         cbInfo.fBounds.join(fRenderTarget->getBoundsRect());
@@ -437,14 +450,13 @@ void GrVkGpuRTCommandBuffer::addAdditionalRenderPass() {
                                                                      vkColorOps,
                                                                      vkStencilOps);
     }
+    cbInfo.fLoadStoreState = LoadStoreState::kLoadAndStore;
 
     cbInfo.fCommandBuffers.push_back(fGpu->resourceProvider().findOrCreateSecondaryCommandBuffer());
     // It shouldn't matter what we set the clear color to here since we will assume loading of the
     // attachment.
     memset(&cbInfo.fColorClearValue, 0, sizeof(VkClearValue));
     cbInfo.fBounds.setEmpty();
-    cbInfo.fIsEmpty = true;
-    cbInfo.fStartsWithClear = false;
 
     cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
 }
@@ -459,9 +471,37 @@ void GrVkGpuRTCommandBuffer::inlineUpload(GrOpFlushState* state,
 
 void GrVkGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
-    if (!fCommandBufferInfos[fCurrentCmdInfo].fIsEmpty ||
-        fCommandBufferInfos[fCurrentCmdInfo].fStartsWithClear) {
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+    if (!cbInfo.fIsEmpty || LoadStoreState::kStartsWithClear == cbInfo.fLoadStoreState) {
         this->addAdditionalRenderPass();
+    }
+
+    if (LoadStoreState::kLoadAndStore != cbInfo.fLoadStoreState) {
+        // Change the render pass to do a load and store so we don't lose the results of our copy
+        GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_LOAD,
+                                                VK_ATTACHMENT_STORE_OP_STORE);
+        GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_LOAD,
+                                                  VK_ATTACHMENT_STORE_OP_STORE);
+
+        const GrVkRenderPass* oldRP = cbInfo.fRenderPass;
+
+        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
+        const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
+                vkRT->compatibleRenderPassHandle();
+        if (rpHandle.isValid()) {
+            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
+                                                                         vkColorOps,
+                                                                         vkStencilOps);
+        } else {
+            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
+                                                                         vkColorOps,
+                                                                         vkStencilOps);
+        }
+        SkASSERT(cbInfo.fRenderPass->isCompatible(*oldRP));
+        oldRP->unref(fGpu);
+
+        cbInfo.fLoadStoreState = LoadStoreState::kLoadAndStore;
+
     }
     fCommandBufferInfos[fCurrentCmdInfo].fPreCopies.emplace_back(src, srcOrigin, srcRect, dstPoint);
 }
