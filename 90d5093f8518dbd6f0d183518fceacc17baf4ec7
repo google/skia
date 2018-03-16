@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3736d9ab_2122fc25",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-03-16T20:12:30Z",
+      "side": 1,
+      "message": "Intentional?",
+      "range": {
+        "startLine": 303,
+        "startChar": 23,
+        "endLine": 303,
+        "endChar": 26
+      },
+      "revId": "90d5093f8518dbd6f0d183518fceacc17baf4ec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
