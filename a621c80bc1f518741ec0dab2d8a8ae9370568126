@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8581dae4_a5316bbc",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-18T14:18:28Z",
+      "side": 1,
+      "message": "Remind me... I forget how 2015 is structured.  Is the bin/ vs. bin/amd64/ distinction really around the target_cpu as you\u0027ve written it here?  I thought I remembered it being around the platform of the tools themselves, i.e. host_cpu.\n\nDoes bin/ contain the 32- and 64-bit tools targeting 32-bit x86, and bin/amd64 contain the 32- and 64-bit tools targeting 64-bit x86?  (If so, testing target_cpu is correct then, I think.)\n\nOr does bin/ contain the 32-bit tools targeting 32-or 64-bit x86, and bin/amd64 contains the 64-bit tools targeting 32- or 64-bit x86?  (If so, I think we need to switch this to host_cpu.)",
+      "range": {
+        "startLine": 37,
+        "startChar": 8,
+        "endLine": 37,
+        "endChar": 18
+      },
+      "revId": "a621c80bc1f518741ec0dab2d8a8ae9370568126",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
