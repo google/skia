@@ -3274,7 +3274,7 @@ Mask_Filter.
         paint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr));
         canvas->drawRegion(region, paint);
         paint.setImageFilter(nullptr);
-        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5));
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5));
         canvas->translate(100, 100);
         canvas->drawRegion(region, paint);
     }
