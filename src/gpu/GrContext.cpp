@@ -26,6 +26,7 @@
 #include "GrTextureContext.h"
 #include "GrTextureStripAtlas.h"
 #include "GrTracing.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkConvertPixels.h"
 #include "SkDeferredDisplayList.h"
 #include "SkGr.h"
@@ -611,6 +612,10 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                                       int height, GrColorType dstColorType,
                                       SkColorSpace* dstColorSpace, void* buffer, size_t rowBytes,
                                       uint32_t flags) {
+#ifndef SK_LEGACY_GPU_PIXEL_OPS
+    return this->readSurfacePixels2(src, left, top, width, height, dstColorType, dstColorSpace,
+                                    buffer, rowBytes, flags);
+#endif
     // TODO: Color space conversion
 
     ASSERT_SINGLE_OWNER_PRIV
@@ -618,6 +623,10 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     SkASSERT(src);
     ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
+    SkASSERT(!(flags & kDontFlush_PixelOpsFlag));
+    if (flags & kDontFlush_PixelOpsFlag) {
+        return false;
+    }
 
     // MDB TODO: delay this instantiation until later in the method
     if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
@@ -667,7 +676,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         return false;
     }
 
-    if (!(kDontFlush_PixelOpsFlag & flags) && srcSurface->surfacePriv().hasPendingWrite()) {
+    if (srcSurface->surfacePriv().hasPendingWrite()) {
         this->flush(nullptr); // MDB TODO: tighten this
     }
 
@@ -799,6 +808,12 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
     }
 
     if (!fContext->caps()->surfaceSupportsWritePixels(dstSurface)) {
+        // We don't expect callers that are skipping flushes to require an intermediate draw.
+        SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
+        if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
+            return false;
+        }
+
         GrSurfaceDesc desc;
         desc.fConfig = dstProxy->config();
         desc.fWidth = width;
@@ -871,7 +886,7 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
                 memcpy(tempSrc.writable_addr(0, y), tempSrc.addr(0, height - 1 - y), rowBytes);
                 memcpy(tempSrc.writable_addr(0, height - 1 - y), row.get(), rowBytes);
             }
-            top = dstProxy->height() - top - height;
+            top = dstSurface->height() - top - height;
         }
     } else if (dstProxy->origin() == kBottomLeft_GrSurfaceOrigin) {
         size_t trimRowBytes = GrColorTypeBytesPerPixel(srcColorType) * width;
@@ -883,7 +898,7 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
         }
         buffer = tempBuffer.get();
         rowBytes = trimRowBytes;
-        top = dstProxy->height() - top - height;
+        top = dstSurface->height() - top - height;
     }
 
     if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) && dstSurface->surfacePriv().hasPendingIO()) {
@@ -892,6 +907,136 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
 
     return this->getGpu()->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,
                                        rowBytes);
+}
+
+bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top, int width,
+                                       int height, GrColorType dstColorType,
+                                       SkColorSpace* dstColorSpace, void* buffer, size_t rowBytes,
+                                       uint32_t flags) {
+    SkASSERT(!(flags & kDontFlush_PixelOpsFlag));
+    if (flags & kDontFlush_PixelOpsFlag){
+        return false;
+    }
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_FALSE_IF_ABANDONED_PRIV
+    SkASSERT(src);
+    SkASSERT(buffer);
+    ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels2", fContext);
+
+    // MDB TODO: delay this instantiation until later in the method
+    if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
+        return false;
+    }
+
+    GrSurfaceProxy* srcProxy = src->asSurfaceProxy();
+    GrSurface* srcSurface = srcProxy->priv().peekSurface();
+
+    if (!GrSurfacePriv::AdjustReadPixelParams(srcSurface->width(), srcSurface->height(),
+                                              GrColorTypeBytesPerPixel(dstColorType), &left, &top,
+                                              &width, &height, &buffer, &rowBytes)) {
+        return false;
+    }
+
+    // TODO: Make GrSurfaceContext know its alpha type and pass dst buffer's alpha type.
+    bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
+    bool convert = unpremul;
+
+    if (!valid_pixel_conversion(dstColorType, srcProxy->config(), unpremul)) {
+        return false;
+    }
+
+    if (!fContext->caps()->surfaceSupportsReadPixels(srcSurface)) {
+        GrSurfaceDesc desc;
+        desc.fConfig = srcProxy->config();
+        desc.fWidth = width;
+        desc.fHeight = height;
+        desc.fSampleCnt = 1;
+        auto tempProxy = this->proxyProvider()->createProxy(
+                desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
+        if (!tempProxy) {
+            return false;
+        }
+        auto tempCtx = this->drawingManager()->makeTextureContext(
+                tempProxy, src->colorSpaceInfo().refColorSpace());
+        if (!tempCtx) {
+            return false;
+        }
+        if (!tempCtx->copy(srcProxy, {left, top, width, height}, {0, 0})) {
+            return false;
+        }
+        return this->readSurfacePixels2(tempCtx.get(), 0, 0, width, height, dstColorType,
+                                        dstColorSpace, buffer, rowBytes, flags);
+    }
+
+    bool flip = srcProxy->origin() == kBottomLeft_GrSurfaceOrigin;
+    if (flip) {
+        top = srcSurface->height() - top - height;
+    }
+
+    GrColorType allowedColorType =
+            fContext->caps()->supportedReadPixelsColorType(srcProxy->config(), dstColorType);
+    convert = convert || (dstColorType != allowedColorType);
+
+    if (!src->colorSpaceInfo().colorSpace()) {
+        // "Legacy" mode - no color space conversions.
+        dstColorSpace = nullptr;
+    }
+    convert = convert || !SkColorSpace::Equals(dstColorSpace, src->colorSpaceInfo().colorSpace());
+
+    SkAutoPixmapStorage tempPixmap;
+    SkPixmap finalPixmap;
+    if (convert) {
+        SkColorType srcSkColorType = GrColorTypeToSkColorType(allowedColorType);
+        SkColorType dstSkColorType = GrColorTypeToSkColorType(dstColorType);
+        if (kUnknown_SkColorType == srcSkColorType || kUnknown_SkColorType == dstSkColorType) {
+            return false;
+        }
+        auto tempAT = SkColorTypeIsAlwaysOpaque(srcSkColorType) ? kOpaque_SkAlphaType
+                                                                : kPremul_SkAlphaType;
+        auto tempII = SkImageInfo::Make(width, height, srcSkColorType, tempAT,
+                                        src->colorSpaceInfo().refColorSpace());
+        SkASSERT(!unpremul || !SkColorTypeIsAlwaysOpaque(dstSkColorType));
+        auto finalAT = SkColorTypeIsAlwaysOpaque(srcSkColorType)
+                               ? kOpaque_SkAlphaType
+                               : unpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
+        auto finalII =
+                SkImageInfo::Make(width, height, dstSkColorType, finalAT, sk_ref_sp(dstColorSpace));
+        if (!SkImageInfoValidConversion(finalII, tempII)) {
+            return false;
+        }
+        tempPixmap.alloc(tempII);
+        finalPixmap.reset(finalII, buffer, rowBytes);
+        buffer = tempPixmap.writable_addr();
+        rowBytes = tempPixmap.rowBytes();
+    }
+
+    if (srcSurface->surfacePriv().hasPendingWrite()) {
+        this->flush(nullptr);  // MDB TODO: tighten this
+    }
+
+    if (!fContext->fGpu->readPixels(srcSurface, left, top, width, height, allowedColorType, buffer,
+                                    rowBytes)) {
+        return false;
+    }
+
+    if (flip) {
+        size_t trimRowBytes = GrColorTypeBytesPerPixel(allowedColorType) * width;
+        std::unique_ptr<char[]> row(new char[trimRowBytes]);
+        char* upper = reinterpret_cast<char*>(buffer);
+        char* lower = reinterpret_cast<char*>(buffer) + (height - 1) * rowBytes;
+        for (int y = 0; y < height / 2; ++y, upper += rowBytes, lower -= rowBytes) {
+            memcpy(row.get(), upper, trimRowBytes);
+            memcpy(upper, lower, trimRowBytes);
+            memcpy(lower, row.get(), trimRowBytes);
+        }
+    }
+    if (convert) {
+        if (!tempPixmap.readPixels(finalPixmap)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
