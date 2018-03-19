@@ -70,6 +70,8 @@ public:
     static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, GrMipMapsStatus,
                                           const IDDesc&);
 
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
+
 protected:
     // Constructor for subclasses.
     GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, GrMipMapsStatus);
@@ -82,8 +84,6 @@ protected:
 
     void onAbandon() override;
     void onRelease() override;
-    void setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
-                          const SkString& dumpName) const override;
 
     bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override;
 
