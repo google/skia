@@ -40,11 +40,13 @@ void SkPathMeasure_segTo(const SkPoint pts[], unsigned segType,
     SkASSERT(startT <= stopT);
 
     if (startT == stopT) {
-        /* if the dash as a zero-length on segment, add a corresponding zero-length line.
-           The stroke code will add end caps to zero length lines as appropriate */
-        SkPoint lastPt;
-        SkAssertResult(dst->getLastPt(&lastPt));
-        dst->lineTo(lastPt);
+        if (!dst->isEmpty()) {
+            /* if the dash as a zero-length on segment, add a corresponding zero-length line.
+               The stroke code will add end caps to zero length lines as appropriate */
+            SkPoint lastPt;
+            SkAssertResult(dst->getLastPt(&lastPt));
+            dst->lineTo(lastPt);
+        }
         return;
     }
 
