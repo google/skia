@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0601d2e_1d1b8d2d",
+        "filename": "src/pathops/SkPathOpsTSect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-19T13:29:28Z",
+      "side": 1,
+      "message": "Could/Should this be inlined?",
+      "range": {
+        "startLine": 22,
+        "startChar": 6,
+        "endLine": 22,
+        "endChar": 7
+      },
+      "revId": "bbb2d8689b865a6f1e0810fd3435c21dcde2e84e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
