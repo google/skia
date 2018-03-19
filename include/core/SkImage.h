@@ -160,27 +160,6 @@ public:
 
     typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
 
-    /** Deprecated.
-    */
-    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
-                                          const GrBackendTexture& backendTexture,
-                                          GrSurfaceOrigin origin,
-                                          SkAlphaType alphaType,
-                                          sk_sp<SkColorSpace> colorSpace) {
-        return MakeFromTexture(context, backendTexture, origin, alphaType, colorSpace, nullptr,
-                               nullptr);
-    }
-
-    /** Deprecated.
-    */
-    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
-                                          const GrBackendTexture& backendTexture,
-                                          GrSurfaceOrigin origin,
-                                          SkAlphaType alphaType,
-                                          sk_sp<SkColorSpace> colorSpace,
-                                          TextureReleaseProc textureReleaseProc,
-                                          ReleaseContext releaseContext);
-
     /** Creates SkImage from GPU texture associated with context. Caller is responsible for
         managing the lifetime of GPU texture.
 

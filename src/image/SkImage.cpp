@@ -349,7 +349,7 @@ sk_sp<SkImage> SkImage::makeRasterImage() const {
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
-                                        SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                        SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
     return nullptr;
 }

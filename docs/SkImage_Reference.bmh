@@ -355,29 +355,6 @@ for (int quality : { 100, 50, 10, 1} ) {
 #Method static sk_sp<SkImage> MakeFromTexture(GrContext* context,
                                           const GrBackendTexture& backendTexture,
                                           GrSurfaceOrigin origin,
-                                          SkAlphaType alphaType,
-                                          sk_sp<SkColorSpace> colorSpace)
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method static sk_sp<SkImage> MakeFromTexture(GrContext* context,
-                                          const GrBackendTexture& backendTexture,
-                                          GrSurfaceOrigin origin,
-                                          SkAlphaType alphaType,
-                                          sk_sp<SkColorSpace> colorSpace,
-                                          TextureReleaseProc textureReleaseProc,
-                                          ReleaseContext releaseContext)
-
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method static sk_sp<SkImage> MakeFromTexture(GrContext* context,
-                                          const GrBackendTexture& backendTexture,
-                                          GrSurfaceOrigin origin,
                                           SkColorType colorType,
                                           SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace)
