@@ -109,6 +109,19 @@ static sk_sp<SkShader> Make2ConicalInsideCenter(const SkPoint pts[2], const Grad
                                                  0, &localMatrix);
 }
 
+static sk_sp<SkShader> Make2ConicalInsideCenterReversed(const SkPoint pts[2], const GradData& data,
+                             SkShader::TileMode tm, const SkMatrix& localMatrix) {
+    SkPoint center0, center1;
+    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
+                SkScalarAve(pts[0].fY, pts[1].fY));
+    center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
+                SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
+    return SkGradientShader::MakeTwoPointConical(center0, (pts[1].fX - pts[0].fX) / 2,
+                                                 center0, (pts[1].fX - pts[0].fX) / 7,
+                                                 data.fColors, data.fPos, data.fCount, tm,
+                                                 0, &localMatrix);
+}
+
 static sk_sp<SkShader> Make2ConicalZeroRad(const SkPoint pts[2], const GradData& data,
                                            SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
@@ -270,6 +283,7 @@ constexpr GradMaker gGradMakersOutside[] = {
 constexpr GradMaker gGradMakersInside[] = {
     Make2ConicalInside, Make2ConicalInsideFlip, Make2ConicalInsideCenter,
     Make2ConicalZeroRad, Make2ConicalZeroRadFlip, Make2ConicalZeroRadCenter,
+    Make2ConicalInsideCenterReversed
 };
 
 constexpr GradMaker gGradMakersEdgeCases[] = {
