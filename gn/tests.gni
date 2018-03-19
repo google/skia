@@ -261,6 +261,7 @@ tests_sources = [
   "$_tests/TextBlobCacheTest.cpp",
   "$_tests/TextBlobTest.cpp",
   "$_tests/TextureProxyTest.cpp",
+  "$_tests/TextureStripAtlasManagerTest.cpp",
   "$_tests/Time.cpp",
   "$_tests/TopoSortTest.cpp",
   "$_tests/ToSRGBColorFilter.cpp",
