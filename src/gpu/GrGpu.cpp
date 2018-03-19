@@ -49,6 +49,20 @@ bool GrGpu::IsACopyNeededForTextureParams(const GrCaps* caps,
                                           const GrSamplerState& textureParams,
                                           GrTextureProducer::CopyParams* copyParams,
                                           SkScalar scaleAdjust[2]) {
+
+    if (textureParams.isRepeated() || GrSamplerState::Filter::kMipMap == textureParams.filter()) {
+#if 0
+        const GrGLTexture* glTexture = static_cast<const GrGLTexture*>(texture);
+        if (GR_GL_TEXTURE_EXTERNAL == glTexture->target() ||
+            GR_GL_TEXTURE_RECTANGLE == glTexture->target()) {
+            copyParams->fFilter = GrSamplerState::Filter::kNearest;
+            copyParams->fWidth = texture->width();
+            copyParams->fHeight = texture->height();
+            return true;
+        }
+#endif
+    }
+
     if (textureParams.isRepeated() && !caps->npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
         SkASSERT(scaleAdjust);
@@ -185,13 +199,11 @@ GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType,
 
 bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                         GrSurface* src, GrSurfaceOrigin srcOrigin,
-                        const SkIRect& srcRect, const SkIPoint& dstPoint,
-                        bool canDiscardOutsideDstRect) {
+                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "copySurface", fContext);
     SkASSERT(dst && src);
     this->handleDirtyContext();
-    return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
-                               canDiscardOutsideDstRect);
+    return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
 }
 
 bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, int width,

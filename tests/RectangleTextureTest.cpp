@@ -15,6 +15,7 @@
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTest.h"
+#include "GrTextureProxyPriv.h"
 #include "gl/GLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
@@ -135,11 +136,23 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             continue;
         }
 
+        SkASSERT(rectProxy->texPriv().isRect()); // check flags here
+
         test_basic_draw_as_src(reporter, context, rectProxy, refPixels);
 
         // Test copy to both a texture and RT
         test_copy_from_surface(reporter, context, rectProxy.get(), refPixels,
                                false, "RectangleTexture-copy-from");
+
+        // Should not be able to wrap as a RT
+        {
+            sk_sp<GrRenderTargetContext> temp =
+                    context->contextPriv().makeBackendTextureRenderTargetContext(
+                            rectangleTex, kBottomLeft_GrSurfaceOrigin, 1, nullptr);
+            if (temp) {
+                ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");
+            }
+        }
 
         sk_sp<GrSurfaceContext> rectContext = context->contextPriv().makeWrappedSurfaceContext(
                                                                             std::move(rectProxy));

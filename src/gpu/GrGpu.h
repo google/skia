@@ -345,13 +345,11 @@ public:
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
     // take place at the GrOpList level and this function implement faster copy paths. The rect
     // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the
-    // src/dst bounds and non-empty. If canDiscardOutsideDstRect is set to true then we don't need
-    // to preserve any data on the dst surface outside of the copy.
+    // src/dst bounds and non-empty.
     bool copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                      GrSurface* src, GrSurfaceOrigin srcOrigin,
                      const SkIRect& srcRect,
-                     const SkIPoint& dstPoint,
-                     bool canDiscardOutsideDstRect = false);
+                     const SkIPoint& dstPoint);
 
     // Creates a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
     // to the Gpu object.
@@ -503,20 +501,6 @@ public:
                                               const GrSamplerState&, GrTextureProducer::CopyParams*,
                                               SkScalar scaleAdjust[2]);
 
-    // Like the above but this variation should be called when the caller is not creating the
-    // original texture but rather was handed the original texture. It adds additional checks
-    // relevant to original textures that were created external to Skia via
-    // GrResourceProvider::wrap methods.
-    bool isACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState& params,
-                                       GrTextureProducer::CopyParams* copyParams,
-                                       SkScalar scaleAdjust[2]) const {
-        if (IsACopyNeededForTextureParams(this->caps(), proxy->width(), proxy->height(), params,
-                                          copyParams, scaleAdjust)) {
-            return true;
-        }
-        return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
-    }
-
     void handleDirtyContext() {
         if (fResetBits) {
             this->resetContext();
@@ -569,12 +553,6 @@ private:
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
 
-    virtual bool onIsACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState&,
-                                                 GrTextureProducer::CopyParams*,
-                                                 SkScalar scaleAdjust[2]) const {
-        return false;
-    }
-
     virtual bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height,
                                      size_t rowBytes, GrColorType, DrawPreference*,
                                      ReadPixelTempDrawInfo*) = 0;
@@ -601,8 +579,7 @@ private:
     // overridden by backend specific derived class to perform the copy surface
     virtual bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                GrSurface* src, GrSurfaceOrigin srcOrigin,
-                               const SkIRect& srcRect, const SkIPoint& dstPoint,
-                               bool canDiscardOutsideDstRect) = 0;
+                               const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
 
