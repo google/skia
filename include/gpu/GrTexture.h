@@ -39,6 +39,9 @@ public:
      */
     virtual void textureParamsModified() = 0;
 
+    virtual bool isExt() const { return false; }
+    virtual bool isRect() const { return false; }
+
     /**
      * This function steals the backend texture from a uniquely owned GrTexture with no pending
      * IO, passing it out to the caller. The GrTexture is deleted in the process.
