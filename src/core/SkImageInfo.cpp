@@ -44,41 +44,6 @@ enum Stored_SkColorType {
     kRGB_101010x_Stored_SkColorType         = 11,
 };
 
-static uint8_t live_to_stored(unsigned ct) {
-    switch (ct) {
-        case kUnknown_SkColorType:      return kUnknown_Stored_SkColorType;
-        case kAlpha_8_SkColorType:      return kAlpha_8_Stored_SkColorType;
-        case kRGB_565_SkColorType:      return kRGB_565_Stored_SkColorType;
-        case kARGB_4444_SkColorType:    return kARGB_4444_Stored_SkColorType;
-        case kRGBA_8888_SkColorType:    return kRGBA_8888_Stored_SkColorType;
-        case kRGB_888x_SkColorType:     return kRGB_888x_Stored_SkColorType;
-        case kBGRA_8888_SkColorType:    return kBGRA_8888_Stored_SkColorType;
-        case kRGBA_1010102_SkColorType: return kRGBA_1010102_Stored_SkColorType;
-        case kRGB_101010x_SkColorType:  return kRGB_101010x_Stored_SkColorType;
-        case kGray_8_SkColorType:       return kGray_8_Stored_SkColorType;
-        case kRGBA_F16_SkColorType:     return kRGBA_F16_Stored_SkColorType;
-    }
-    return kUnknown_Stored_SkColorType;
-}
-
-static SkColorType stored_to_live(unsigned stored) {
-    switch (stored) {
-        case kUnknown_Stored_SkColorType:            return kUnknown_SkColorType;
-        case kAlpha_8_Stored_SkColorType:            return kAlpha_8_SkColorType;
-        case kRGB_565_Stored_SkColorType:            return kRGB_565_SkColorType;
-        case kARGB_4444_Stored_SkColorType:          return kARGB_4444_SkColorType;
-        case kRGBA_8888_Stored_SkColorType:          return kRGBA_8888_SkColorType;
-        case kRGB_888x_Stored_SkColorType:           return kRGB_888x_SkColorType;
-        case kBGRA_8888_Stored_SkColorType:          return kBGRA_8888_SkColorType;
-        case kRGBA_1010102_Stored_SkColorType:       return kRGBA_1010102_SkColorType;
-        case kRGB_101010x_Stored_SkColorType:        return kRGB_101010x_SkColorType;
-        case kIndex_8_Stored_SkColorType_DEPRECATED: return kUnknown_SkColorType;
-        case kGray_8_Stored_SkColorType:             return kGray_8_SkColorType;
-        case kRGBA_F16_Stored_SkColorType:           return kRGBA_F16_SkColorType;
-    }
-    return kUnknown_SkColorType;
-}
-
 bool SkColorTypeIsAlwaysOpaque(SkColorType ct) {
     switch (ct) {
         case kRGB_565_SkColorType:
@@ -114,55 +79,9 @@ size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
     return safe ? bytes : SK_MaxSizeT;
 }
 
-static bool alpha_type_is_valid(SkAlphaType alphaType) {
-    return (alphaType >= kUnknown_SkAlphaType) && (alphaType <= kLastEnum_SkAlphaType);
-}
-
-static bool color_type_is_valid(SkColorType colorType) {
-    return (colorType >= kUnknown_SkColorType) && (colorType <= kLastEnum_SkColorType);
-}
-
 SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
     return SkImageInfo(width, height, kN32_SkColorType, at,
                        SkColorSpace::MakeSRGB());
-}
-
-static const int kColorTypeMask = 0x0F;
-static const int kAlphaTypeMask = 0x03;
-
-void SkImageInfo::unflatten(SkReadBuffer& buffer) {
-    fWidth = buffer.read32();
-    fHeight = buffer.read32();
-
-    uint32_t packed = buffer.read32();
-    fColorType = stored_to_live((packed >> 0) & kColorTypeMask);
-    fAlphaType = (SkAlphaType)((packed >> 8) & kAlphaTypeMask);
-    buffer.validate(alpha_type_is_valid(fAlphaType) && color_type_is_valid(fColorType));
-
-    sk_sp<SkData> data = buffer.readByteArrayAsData();
-    fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
-}
-
-void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
-    buffer.write32(fWidth);
-    buffer.write32(fHeight);
-
-    SkASSERT(0 == (fAlphaType & ~kAlphaTypeMask));
-    SkASSERT(0 == (fColorType & ~kColorTypeMask));
-    uint32_t packed = (fAlphaType << 8) | live_to_stored(fColorType);
-    buffer.write32(packed);
-
-    if (fColorSpace) {
-        sk_sp<SkData> data = fColorSpace->serialize();
-        if (data) {
-            buffer.writeDataAsByteArray(data.get());
-        } else {
-            buffer.writeByteArray(nullptr, 0);
-        }
-    } else {
-        sk_sp<SkData> data = SkData::MakeEmpty();
-        buffer.writeDataAsByteArray(data.get());
-    }
 }
 
 bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
