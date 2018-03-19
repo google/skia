@@ -212,9 +212,13 @@ config("default") {
     # You can either pass the sanitizers directly, e.g. "address,undefined",
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
+
+    # fyi_sanitizers only print out stacktraces of their issues
+    fyi_sanitizers = ""
     if (sanitize == "ASAN" || sanitize == "UBSAN") {
       # ASAN implicitly runs all UBSAN checks also.
       sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
+      fyi_sanitizers = "float-divide-by-zero"
       if (!is_mac && !is_win) {
         sanitizers += ",function"  # Not supported on Mac or Win.
       }
@@ -233,6 +237,7 @@ config("default") {
         # Android only easily supports address for now
         # UBSAN runs into linking errors
         sanitizers = "address"
+        fyi_sanitizers = ""
 
         # recommended by
         # https://github.com/google/sanitizers/wiki/AddressSanitizerOnAndroid
@@ -245,7 +250,7 @@ config("default") {
     }
 
     cflags += [
-      "-fsanitize=$sanitizers",
+      "-fsanitize=$sanitizers,$fyi_sanitizers",
       "-fno-sanitize-recover=$sanitizers",
     ]
     if (!is_win) {
