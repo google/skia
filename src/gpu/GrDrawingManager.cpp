@@ -205,10 +205,12 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 #endif
 
-    int startIndex, stopIndex;
     bool flushed = false;
 
-    {
+    GrResourceProvider* resourceProvider = fContext->contextPriv().resourceProvider();
+    if (resourceProvider->explicitlyAllocateGPUResources()) {
+        int startIndex, stopIndex;
+
         GrResourceAllocator alloc(fContext->contextPriv().resourceProvider());
         for (int i = 0; i < fOpLists.count(); ++i) {
             fOpLists[i]->gatherProxyIntervals(&alloc);
@@ -227,6 +229,10 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             if (this->executeOpLists(startIndex, stopIndex, &flushState)) {
                 flushed = true;
             }
+        }
+    } else {
+        if (this->executeOpLists(0, fOpLists.count(), &flushState)) {
+            flushed = true;
         }
     }
 
