@@ -68,6 +68,8 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
       '-Wno-error=unused-function',
       # Makes the binary small enough to fit on the small disk.
       '-g0',
+      ('-DDUMMY_cast_toolchain_version=%s' %
+       self.m.run.asset_version('cast_toolchain')),
     ]
 
     extra_ldflags = [
@@ -202,4 +204,3 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
 
     cmd[0] = '%s/%s' % (self.m.vars.android_bin_dir, cmd[0])
     self._ssh(str(name), *cmd, infra_step=False)
-

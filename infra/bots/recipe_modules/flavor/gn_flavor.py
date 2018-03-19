@@ -48,6 +48,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_cflags .append('-B%s/bin' % clang_linux)
       extra_ldflags.append('-B%s/bin' % clang_linux)
       extra_ldflags.append('-fuse-ld=lld')
+      extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
+                          self.m.run.asset_version('clang_linux'))
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
     elif compiler == 'GCC' and os == "Ubuntu14":
@@ -58,6 +60,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       cc   = emscripten_sdk + '/emscripten/incoming/emcc'
       cxx  = emscripten_sdk + '/emscripten/incoming/em++'
       extra_cflags.append('-Wno-unknown-warning-option')
+      extra_cflags.append('-DDUMMY_emscripten_sdk_version=%s' %
+                          self.m.run.asset_version('emscripten_sdk'))
 
     if 'Coverage' in extra_tokens:
       # See https://clang.llvm.org/docs/SourceBasedCodeCoverage.html for
@@ -149,6 +153,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_compile_processors'] = 'true'
     if compiler == 'Clang' and 'Win' in os:
       args['clang_win'] = '"%s"' % self.m.vars.slave_dir.join('clang_win')
+      extra_cflags.append('-DDUMMY_clang_win_version=%s' %
+                          self.m.run.asset_version('clang_win'))
     if target_arch == 'wasm':
       args.update({
         'skia_use_freetype':   'false',
