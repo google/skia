@@ -9,6 +9,9 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
+const char IncludeParser::gAttrDeprecated[] = "SK_ATTR_DEPRECATED";
+const size_t IncludeParser::kAttrDeprecatedLen = sizeof(gAttrDeprecated) - 1;
+
 const IncludeKey kKeyWords[] = {
     { "",           KeyWord::kNone,         KeyProperty::kNone           },
     { "SK_API",     KeyWord::kSK_API,       KeyProperty::kModifier       },
@@ -329,7 +332,8 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                     }
                     if (!def) {
-                        if ("SK_ATTR_DEPRECATED" == token.fName) {
+                        if (gAttrDeprecated == token.fName) {
+                            fAttrDeprecated = &token;
                             break;
                         }
                         if (0 == token.fName.find("SkDEBUGCODE")) {
@@ -352,6 +356,9 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         def->fVisited = true;
                         if (MarkType::kDefinedBy == def->fMarkType) {
                             def->fParent->fVisited = true;
+                        }
+                        if (token.fDeprecated && !def->fDeprecated) {
+                            fFailed = !def->reportError<bool>("expect bmh to be marked deprecated");
                         }
                     } else {
                        SkDebugf("method differs from bmh: %s\n", fullName.c_str());
@@ -1749,7 +1756,8 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                                 child->fStart, fLastObject->fLineCount);
                         if (!checkDeprecated.eof()) {
                             checkDeprecated.skipWhiteSpace();
-                            if (checkDeprecated.startsWith("SK_ATTR_DEPRECATED")) {
+                            if (checkDeprecated.startsWith(gAttrDeprecated)) {
+                                fAttrDeprecated = child;
                                 break;
                             }
                         }
@@ -1759,7 +1767,8 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                         std::advance(tokenIter, child->fParentIndex);
                         tokenIter = std::prev(tokenIter);
                         TextParser previousToken(&*tokenIter);
-                        if (previousToken.startsWith("SK_ATTR_DEPRECATED")) {
+                        if (previousToken.startsWith(gAttrDeprecated)) {
+                            fAttrDeprecated = &*tokenIter;
                             break;
                         }
                         if (Bracket::kPound == child->fParent->fBracket &&
@@ -1773,6 +1782,11 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                     }
                     if (!this->parseMethod(child, markupDef)) {
                         return child->reportError<bool>("failed to parse method");
+                    }
+                    if (fAttrDeprecated) {
+                        Definition* lastMethod = &markupDef->fTokens.back();
+                        lastMethod->fDeprecated = true;
+                        fAttrDeprecated = nullptr;
                     }
                 break;
                 case Bracket::kSlashSlash:
@@ -2047,35 +2061,7 @@ bool IncludeParser::parseChar() {
                     ']' == test ? Bracket::kSquare : Bracket::kBrace) == this->topBracket()) {
                 this->popBracket();
                 if (!fInFunction) {
-                    bool deprecatedMacro = false;
-                    if (')' == test) {
-                        auto iter = fParent->fTokens.end();
-                        bool lookForWord = false;
-                        while (fParent->fTokens.begin() != iter) {
-                            --iter;
-                            if (lookForWord) {
-                                if (Definition::Type::kWord != iter->fType) {
-                                    break;
-                                }
-                                string word(iter->fContentStart, iter->length());
-                                if ("SK_ATTR_EXTERNALLY_DEPRECATED" == word) {
-                                    deprecatedMacro = true;
-                                    // remove macro paren (would confuse method parsing later)
-                                    fParent->fTokens.pop_back();
-                                    fParent->fChildren.pop_back();
-                                }
-                                break;
-                            }
-                            if (Definition::Type::kBracket != iter->fType) {
-                                break;
-                            }
-                            if (Bracket::kParen != iter->fBracket) {
-                                break;
-                            }
-                            lookForWord = true;
-                        }
-                    }
-                    fInFunction = ')' == test && !deprecatedMacro;
+                    fInFunction = ')' == test;
                 } else {
                     fInFunction = '}' != test;
                 }

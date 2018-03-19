@@ -1643,6 +1643,7 @@ public:
         fInBrace = nullptr;
         fIncludeWord = nullptr;
         fLastObject = nullptr;
+        fAttrDeprecated = nullptr;
         fPrev = '\0';
         fInChar = false;
         fInCharCommentString = false;
@@ -1815,6 +1816,9 @@ protected:
         MarkType fMarkType;
     };
 
+    static const char gAttrDeprecated[];
+    static const size_t kAttrDeprecatedLen;
+
     DefinitionMap fMaps[Last_MarkType + 1];
     unordered_map<string, Definition> fIncludeMap;
     unordered_map<string, IClassDefinition> fIClassMap;
@@ -1829,6 +1833,7 @@ protected:
     Definition* fInBrace;
     Definition* fLastObject;
     Definition* fPriorEnum;
+    const Definition* fAttrDeprecated;
     int fPriorIndex;
     const char* fIncludeWord;
     char fPrev;
@@ -1938,7 +1943,6 @@ public:
         fEnumDef = nullptr;
         fMethodDef = nullptr;
         fBmhStructDef = nullptr;
-        fAttrDeprecated = nullptr;
         fInStruct = false;
         fWroteMethod = false;
         fIndentNext = false;
@@ -1961,7 +1965,6 @@ private:
     const Definition* fEnumDef;
     const Definition* fMethodDef;
     const Definition* fBmhStructDef;
-    const Definition* fAttrDeprecated;
     const char* fContinuation;  // used to construct paren-qualified method name
     int fAnonymousEnumCount;
     int fEnumItemValueTab;

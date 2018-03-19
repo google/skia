@@ -3524,10 +3524,10 @@
     "name": "Font_Metrics"
 },
     "Paint_Image_Filter_Methods": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(2);\n    SkRegion region;\n    region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);\n    region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);\n    paint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr));\n    canvas->drawRegion(region, paint);\n    paint.setImageFilter(nullptr);\n    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5));\n    canvas->translate(100, 100);\n    canvas->drawRegion(region, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(2);\n    SkRegion region;\n    region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);\n    region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);\n    paint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr));\n    canvas->drawRegion(region, paint);\n    paint.setImageFilter(nullptr);\n    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5));\n    canvas->translate(100, 100);\n    canvas->drawRegion(region, paint);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "0b2eec148d6397d6231e1fa0b3d1496d",
+    "hash": "250e45c5935d54eac6aca775d1fe3475",
     "file": "SkPaint_Reference",
     "name": "Image_Filter_Methods"
 },
