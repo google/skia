@@ -128,16 +128,13 @@ public:
     };
 
     /**
-     * Reads a rectangle of pixels from a surface. There are currently two versions of this.
-     * readSurfacePixels() is the older version which will be replaced by the more robust and
-     * maintainable (but perhaps slower) readSurfacePixels2().
-     *
+     * Reads a rectangle of pixels from a surface.
      * @param src           the surface context to read from.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
      * @param height        height of rectangle to read in pixels.
-     * @param dstColorType  the color type of the destination buffer
+     * @param dstConfig     the pixel config of the destination buffer
      * @param dstColorSpace color space of the destination buffer
      * @param buffer        memory to read the rectangle into.
      * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
@@ -150,9 +147,6 @@ public:
     bool readSurfacePixels(GrSurfaceContext* src, int left, int top, int width, int height,
                            GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
                            size_t rowBytes = 0, uint32_t pixelOpsFlags = 0);
-    bool readSurfacePixels2(GrSurfaceContext* src, int left, int top, int width, int height,
-                            GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
-                            size_t rowBytes = 0, uint32_t pixelOpsFlags = 0);
 
     /**
      * Writes a rectangle of pixels to a surface. There are currently two versions of this.
