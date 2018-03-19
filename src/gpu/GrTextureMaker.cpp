@@ -31,9 +31,10 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerSt
     sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
                                                                  AllowedTexGenType::kCheap));
     if (original) {
-        GrGpu* gpu = fContext->contextPriv().getGpu();
-
-        if (!gpu->isACopyNeededForTextureParams(original.get(), params, &copyParams, scaleAdjust)) {
+        // TODO: pass in original's flags here
+        if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(),
+                                                  original->width(), original->height(),
+                                                  params, &copyParams, scaleAdjust)) {
             return original;
         }
     } else {

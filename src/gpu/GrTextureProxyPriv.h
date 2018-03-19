@@ -31,6 +31,9 @@ public:
     // been instantiated or not.
     GrMipMapped proxyMipMapped() const { return fTextureProxy->fMipMapped; }
 
+    bool isExt() const { return fTextureProxy->isExt(); }
+    bool isRect() const { return fTextureProxy->isRect(); }
+
 private:
     explicit GrTextureProxyPriv(GrTextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
     GrTextureProxyPriv(const GrTextureProxyPriv&) {} // unimpl
