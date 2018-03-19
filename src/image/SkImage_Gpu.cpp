@@ -377,12 +377,9 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVTexturesCopyImpl(
     };
     auto ct = nv12 ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
     for (int i = 0; i < (nv12 ? 2 : 3); ++i) {
-        if (yuvBackendTextures[i].fConfig == kUnknown_GrPixelConfig) {
-            if (!validate_backend_texture(ctx, yuvBackendTextures[i],
-                                          &yuvBackendTextures[i].fConfig, ct, kPremul_SkAlphaType,
-                                          nullptr)) {
-                return nullptr;
-            }
+        if (!validate_backend_texture(ctx, yuvBackendTextures[i], &yuvBackendTextures[i].fConfig,
+                                      ct, kPremul_SkAlphaType, nullptr)) {
+            return nullptr;
         }
     }
     sk_sp<GrTextureProxy> yProxy = proxyProvider->wrapBackendTexture(yuvBackendTextures[0], origin);
