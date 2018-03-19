@@ -10,6 +10,7 @@
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
+#include "SkPathOpsTSect.h"
 #include "SkReduceOrder.h"
 #include "SkTSort.h"
 
@@ -246,10 +247,6 @@ void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath) {
                 return;
         }
     }
-}
-
-static bool SkDoubleIsNaN(double x) {
-    return x != x;
 }
 
 bool ValidBounds(const SkPathOpsBounds& bounds) {
