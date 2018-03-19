@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "102d2b81_b009fe62",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-19T17:43:33Z",
+      "side": 1,
+      "message": "Oops, \u003c 0 is a typo; it should be \u003e 0. This typo doesn\u0027t change the rendering because when it\u0027s not focal, this function is only used to differentiate shaders, not changing the shaders behavior.\n\nThanks Greg for spotting this.",
+      "revId": "ba2167564e3b9340e3c4ba421025ae2e404a6bb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
