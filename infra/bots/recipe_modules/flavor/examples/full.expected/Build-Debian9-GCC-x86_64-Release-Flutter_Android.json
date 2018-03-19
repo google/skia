@@ -18,7 +18,6 @@
       "retry",
       "fetch",
       "origin",
-      "master",
       "--progress"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
@@ -33,7 +32,7 @@
       "git",
       "checkout",
       "-f",
-      "FETCH_HEAD"
+      "06493714339009216197d59c5413da2a1efdf4a2"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
     "infra_step": true,
