@@ -1298,7 +1298,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height(); // always 1 here
         desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *args.fContext->caps());
-        fAtlas = atlasManager->getAtlas(desc);
+        fAtlas = atlasManager->refAtlas(desc);
         SkASSERT(fAtlas);
 
         // We always filter the gradient table. Each table is one row of a texture, always
