@@ -1533,10 +1533,8 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 memberStart = &child;
                 staticOnly = false;
             }
-            const char attrDeprecated[] = "SK_ATTR_DEPRECATED";
-            const size_t attrDeprecatedLen = sizeof(attrDeprecated) - 1;
-            if (attrDeprecatedLen == child.fContentEnd - child.fContentStart &&
-                    !strncmp(attrDeprecated, child.fStart, attrDeprecatedLen)) {
+            if (kAttrDeprecatedLen == (size_t) (child.fContentEnd - child.fContentStart) &&
+                    !strncmp(gAttrDeprecated, child.fStart, kAttrDeprecatedLen)) {
                 fAttrDeprecated = &child;
             }
             continue;

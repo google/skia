@@ -2416,19 +2416,7 @@ then r, g, and b are ignored.
 # ------------------------------------------------------------------------------
 
 #Method void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const
-#In Draw
-#Line # deprecated ##
-Deprecated. Use eraseARGB or eraseColor.
-
-#Param r    amount of red ##
-#Param g    amount of green ##
-#Param b    amount of blue ##
-
-#NoExample
-##
-
-#SeeAlso eraseColor eraseARGB erase
-
+#Deprecated 
 ##
 
 # ------------------------------------------------------------------------------

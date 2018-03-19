@@ -112,7 +112,6 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_erase">erase</a> | writes <a href="undocumented#Color">Color</a> to rectangle of pixels |
 | <a href="#SkBitmap_eraseARGB">eraseARGB</a> | writes <a href="undocumented#Color">Color</a> to pixels |
 | <a href="#SkBitmap_eraseColor">eraseColor</a> | writes <a href="undocumented#Color">Color</a> to pixels |
-| <a href="#SkBitmap_eraseRGB">eraseRGB</a> | deprecated |
 | <a href="#SkBitmap_extractAlpha">extractAlpha</a> | creates <a href="#Bitmap">Bitmap</a> containing <a href="undocumented#Alpha">Alpha</a> of pixels |
 | <a href="#SkBitmap_extractSubset">extractSubset</a> | creates <a href="#Bitmap">Bitmap</a>, sharing pixels if possible |
 | <a href="#SkBitmap_getAddr">getAddr</a> | returns readable pixel address as void pointer |
@@ -2571,7 +2570,6 @@ Marks that pixels in <a href="undocumented#Pixel_Ref">Pixel Ref</a> have changed
 | <a href="#SkBitmap_erase">erase</a> | writes <a href="undocumented#Color">Color</a> to rectangle of pixels |
 | <a href="#SkBitmap_eraseARGB">eraseARGB</a> | writes <a href="undocumented#Color">Color</a> to pixels |
 | <a href="#SkBitmap_eraseColor">eraseColor</a> | writes <a href="undocumented#Color">Color</a> to pixels |
-| <a href="#SkBitmap_eraseRGB">eraseRGB</a> | deprecated |
 
 <a name="SkBitmap_eraseColor"></a>
 ## eraseColor
@@ -2644,23 +2642,6 @@ amount of <a href="undocumented#RGB_Blue">Color RGB Blue</a>, from no blue (0) t
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const
 </pre>
-
-Deprecated. Use <a href="#SkBitmap_eraseARGB">eraseARGB</a> or <a href="#SkBitmap_eraseColor">eraseColor</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkBitmap_eraseRGB_r"> <code><strong>r </strong></code> </a></td> <td>
-amount of red</td>
-  </tr>  <tr>    <td><a name="SkBitmap_eraseRGB_g"> <code><strong>g </strong></code> </a></td> <td>
-amount of green</td>
-  </tr>  <tr>    <td><a name="SkBitmap_eraseRGB_b"> <code><strong>b </strong></code> </a></td> <td>
-amount of blue</td>
-  </tr>
-</table>
-
-### See Also
-
-<a href="#SkBitmap_eraseColor">eraseColor</a> <a href="#SkBitmap_eraseARGB">eraseARGB</a> <a href="#SkBitmap_erase">erase</a>
 
 ---
 
