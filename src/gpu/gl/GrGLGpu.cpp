@@ -3476,7 +3476,8 @@ void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface
 
 bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                             GrSurface* src, GrSurfaceOrigin srcOrigin,
-                            const SkIRect& srcRect, const SkIPoint& dstPoint) {
+                            const SkIRect& srcRect, const SkIPoint& dstPoint,
+                            bool canDiscardOutsideDstRect) {
     // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
     // swizzle.
     if (this->caps()->shaderCaps()->configOutputSwizzle(src->config()) !=

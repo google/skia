@@ -38,7 +38,8 @@ public:
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint) override {
+                       const SkIRect& srcRect, const SkIPoint& dstPoint,
+                       bool canDiscardOutsideDstRect) override {
         SkASSERT(0);
         return true;
     }

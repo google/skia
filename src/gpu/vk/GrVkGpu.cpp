@@ -1861,8 +1861,8 @@ void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 
 bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                             GrSurface* src, GrSurfaceOrigin srcOrigin,
-                            const SkIRect& srcRect,
-                            const SkIPoint& dstPoint) {
+                            const SkIRect& srcRect, const SkIPoint& dstPoint,
+                            bool canDiscardOutsideDstRect) {
     if (can_copy_as_resolve(dst, dstOrigin, src, srcOrigin, this)) {
         this->copySurfaceAsResolve(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
         return true;
@@ -1872,7 +1872,10 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         this->submitCommandBuffer(GrVkGpu::kSkip_SyncQueue);
     }
 
-    if (fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect, dstPoint)) {
+    if (fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
+                                       canDiscardOutsideDstRect)) {
+        auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
+        this->didWriteToSurface(dst, &dstRect);
         return true;
     }
 
