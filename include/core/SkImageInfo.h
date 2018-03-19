@@ -260,9 +260,6 @@ public:
         return !(*this == other);
     }
 
-    void unflatten(SkReadBuffer& buffer);
-    void flatten(SkWriteBuffer& buffer) const;
-
     /**
      *  Returns the size (in bytes) of the image buffer that this info needs, given the specified
      *  rowBytes. The rowBytes must be >= this->minRowBytes().
@@ -319,6 +316,8 @@ private:
         , fColorType(ct)
         , fAlphaType(at)
     {}
+
+    friend class SkImageInfoPriv;  // for Flatten and Unflatten
 };
 
 #endif

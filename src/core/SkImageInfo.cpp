@@ -130,30 +130,31 @@ SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
 static const int kColorTypeMask = 0x0F;
 static const int kAlphaTypeMask = 0x03;
 
-void SkImageInfo::unflatten(SkReadBuffer& buffer) {
-    fWidth = buffer.read32();
-    fHeight = buffer.read32();
+void SkImageInfoPriv::Unflatten(SkImageInfo* info, SkReadBuffer& buffer) {
+    info->fWidth = buffer.read32();
+    info->fHeight = buffer.read32();
 
     uint32_t packed = buffer.read32();
-    fColorType = stored_to_live((packed >> 0) & kColorTypeMask);
-    fAlphaType = (SkAlphaType)((packed >> 8) & kAlphaTypeMask);
-    buffer.validate(alpha_type_is_valid(fAlphaType) && color_type_is_valid(fColorType));
+    info->fColorType = stored_to_live((packed >> 0) & kColorTypeMask);
+    info->fAlphaType = (SkAlphaType)((packed >> 8) & kAlphaTypeMask);
+    buffer.validate(alpha_type_is_valid(info->fAlphaType) &&
+            color_type_is_valid(info->fColorType));
 
     sk_sp<SkData> data = buffer.readByteArrayAsData();
-    fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
+    info->fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
 }
 
-void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
-    buffer.write32(fWidth);
-    buffer.write32(fHeight);
+void SkImageInfoPriv::Flatten(const SkImageInfo& info, SkWriteBuffer& buffer) {
+    buffer.write32(info.fWidth);
+    buffer.write32(info.fHeight);
 
-    SkASSERT(0 == (fAlphaType & ~kAlphaTypeMask));
-    SkASSERT(0 == (fColorType & ~kColorTypeMask));
-    uint32_t packed = (fAlphaType << 8) | live_to_stored(fColorType);
+    SkASSERT(0 == (info.fAlphaType & ~kAlphaTypeMask));
+    SkASSERT(0 == (info.fColorType & ~kColorTypeMask));
+    uint32_t packed = (info.fAlphaType << 8) | live_to_stored(info.fColorType);
     buffer.write32(packed);
 
-    if (fColorSpace) {
-        sk_sp<SkData> data = fColorSpace->serialize();
+    if (info.fColorSpace) {
+        sk_sp<SkData> data = info.fColorSpace->serialize();
         if (data) {
             buffer.writeDataAsByteArray(data.get());
         } else {

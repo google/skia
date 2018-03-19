@@ -176,4 +176,11 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
 
     return true;
 }
+
+class SkImageInfoPriv {
+public:
+    static void Flatten(const SkImageInfo& , SkWriteBuffer& buffer);
+    static void Unflatten(SkImageInfo* , SkReadBuffer& buffer);
+};
+
 #endif  // SkImageInfoPriv_DEFINED

@@ -14,6 +14,7 @@
 #endif
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkImageInfoPriv.h"
 #include "SkSurface.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -24,7 +25,7 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
     const size_t storageBytes = 8000;
     SkAutoTMalloc<uint32_t> storage(storageBytes / sizeof(uint32_t));
     SkBinaryWriteBuffer wb(storage.get(), storageBytes);
-    info.flatten(wb);
+    SkImageInfoPriv::Flatten(info, wb);
     SkASSERT(wb.bytesWritten() < storageBytes);
 
     SkReadBuffer rb(storage.get(), wb.bytesWritten());
@@ -32,7 +33,7 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
     // pick a noisy byte pattern, so we ensure that unflatten sets all of our fields
     SkImageInfo info2 = SkImageInfo::Make(0xB8, 0xB8, (SkColorType) 0xB8, (SkAlphaType) 0xB8);
 
-    info2.unflatten(rb);
+    SkImageInfoPriv::Unflatten(&info2, rb);
     REPORTER_ASSERT(reporter, rb.offset() == wb.bytesWritten());
 
     REPORTER_ASSERT(reporter, info == info2);
