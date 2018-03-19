@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b878f26_76dc0479",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-19T19:54:29Z",
+      "side": 1,
+      "message": "Might want to make this an arg like sanitize?  That way you can set it in your GN args?",
+      "revId": "843f7b4fb1a080e8193f98dd359292b65383e7c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
