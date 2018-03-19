@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aea252d3_92d878e6",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-19T14:23:32Z",
+      "side": 1,
+      "message": "If this sticks, we might want to rewrite it as\n\n  return format \u003d\u003d SkMask::kBW_Format ? bits_to_bytes(width)\n                                      : width * format_alignment(format);\n\n?",
+      "revId": "c29c76aae518a9c368248063e84a96ffe8c75b90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
