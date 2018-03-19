@@ -3369,7 +3369,7 @@ can operate on all channels of <a href="undocumented#Color">Color</a>, while <a 
 
 ### Example
 
-<div><fiddle-embed name="0b2eec148d6397d6231e1fa0b3d1496d"></fiddle-embed></div>
+<div><fiddle-embed name="250e45c5935d54eac6aca775d1fe3475"></fiddle-embed></div>
 
 <a name="SkPaint_getImageFilter"></a>
 ## getImageFilter
