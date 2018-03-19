@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38fd9f30_95877144",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-19T15:10:39Z",
+      "side": 1,
+      "message": "Won\u0027t this allow a flush when we\u0027re not supposed to?",
+      "revId": "048a5f4ca0b24e3bbeaa114782d5e39065508fe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32417f79_4b78f1e6",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 2462,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-19T15:10:39Z",
+      "side": 1,
+      "message": "from EXTERNAL ?",
+      "revId": "048a5f4ca0b24e3bbeaa114782d5e39065508fe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c93eec60_18626c2d",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 2473,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-19T15:10:39Z",
+      "side": 1,
+      "message": "requried ?",
+      "revId": "048a5f4ca0b24e3bbeaa114782d5e39065508fe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
