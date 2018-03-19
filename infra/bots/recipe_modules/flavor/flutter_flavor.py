@@ -28,7 +28,7 @@ class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
       depot_tools = self.m.vars.checkout_root.join('depot_tools')
       self.m.git.checkout(
           'https://chromium.googlesource.com/chromium/tools/depot_tools.git',
-          dir_path=depot_tools, ref='master')
+          dir_path=depot_tools, ref='06493714339009216197d59c5413da2a1efdf4a2')
       self.m.run(
           self.m.step,
           'runhook',
