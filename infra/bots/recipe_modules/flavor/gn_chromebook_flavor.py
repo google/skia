@@ -137,6 +137,8 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
       'skia_use_system_freetype2': 'false',
       'skia_use_egl': 'true',
     }
+    extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
+                        self.m.run.asset_version('clang_linux'))
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'

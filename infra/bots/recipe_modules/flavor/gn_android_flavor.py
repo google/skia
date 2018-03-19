@@ -367,6 +367,8 @@ if actual_freq != str(freq):
         'ndk': quote(self.m.vars.slave_dir.join(ndk_asset)),
         'target_cpu': quote(target_arch),
     }
+    extra_cflags.append('-DDUMMY_ndk_version=%s' %
+                        self.m.run.asset_version(ndk_asset))
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'

@@ -97,6 +97,24 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/clang_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "env": {
+      "CC": "/usr/bin/clang",
+      "CXX": "/usr/bin/clang++"
+    },
+    "infra_step": true,
+    "name": "Get clang_linux VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
@@ -116,7 +134,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\", \"-I[START_DIR]/chromebook_x86_64_gles/include\"] extra_ldflags=[\"-L[START_DIR]/chromebook_x86_64_gles/lib\", \"-static-libstdc++\", \"-static-libgcc\", \"-fuse-ld=lld\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"x86_64\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\", \"-I[START_DIR]/chromebook_x86_64_gles/include\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-L[START_DIR]/chromebook_x86_64_gles/lib\", \"-static-libstdc++\", \"-static-libgcc\", \"-fuse-ld=lld\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"x86_64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
