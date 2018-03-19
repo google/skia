@@ -288,8 +288,9 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
         // The image could not be encoded at serialization time - return an empty placeholder.
         return MakeEmptyImage(width, height);
     }
-    if (size == 1) {
-        // legacy check (we stopped writing this for "raw" images Nov-2017)
+    if (size <= 1) {
+        // legacy check for size = 1 (we stopped writing this for "raw" images Nov-2017)
+        // If size is SK_NaN32, then it would still be negative here, causing bad allocs below.
         this->validate(false);
         return nullptr;
     }
