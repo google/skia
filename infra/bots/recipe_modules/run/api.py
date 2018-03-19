@@ -9,6 +9,7 @@
 from recipe_engine import recipe_api
 
 
+TEST_DEFAULT_ASSET_VERSION = '42'
 BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'bookmaker',
   'dm',
@@ -70,6 +71,21 @@ class SkiaStepApi(recipe_api.RecipeApi):
   def rmtree(self, path):
     """Wrapper around api.file.rmtree."""
     self.m.file.rmtree('rmtree %s' % self.m.path.basename(path), path)
+
+  def asset_version(self, asset_name, test_data=None):
+    """Return the contents of VERSION for the given asset as a string.
+
+    If test_data is not specified, reads the property
+    'test_<asset_name>_version' or if not present, uses
+    TEST_DEFAULT_ASSET_VERSION."""
+    version_file = self.m.vars.infrabots_dir.join(
+        'assets', asset_name, 'VERSION')
+    if not test_data:
+      test_data = self.m.properties.get(
+          'test_%s_version' % asset_name, TEST_DEFAULT_ASSET_VERSION)
+    return self.m.file.read_text('Get %s VERSION' % asset_name,
+                                 version_file,
+                                 test_data=test_data).rstrip()
 
   def __call__(self, steptype, name, abort_on_failure=True,
                fail_build_on_failure=True, **kwargs):

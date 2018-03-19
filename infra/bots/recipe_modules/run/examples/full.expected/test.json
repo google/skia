@@ -100,6 +100,20 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_C:\\_B_WORK]/skia/infra/bots/assets/my_asset/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get my_asset VERSION"
+  },
+  {
+    "cmd": [
       "env"
     ],
     "env": {
