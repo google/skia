@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89b141e6_55cbb3e0",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-19T13:48:18Z",
+      "side": 1,
+      "message": "How about we check this case first explicitly?  Even though we treat \u003c0 and \u003d\u003d1 the same way in the end, we do so for different reasons, and it\u0027d be nice to keep them distinguished.\n\n// We used to negate for \"custom\" encoded images etc.\nsize \u003d SkAbs32(size)\nif (size \u003c 0) {\n   // size \u003d\u003d 0x80000000, possible to get here only in Release builds;\n   // SkAbs32() would already have asserted in Debug builds.\n   this-\u003evalidate(false);\n   return nullptr;\n}\n\nif (size \u003d\u003d 0) {\n   // Failure to encode at serialization time.\n   return MakeEmptyImage(width, height);\n} else if (size \u003d\u003d 1) {\n   // Used to signal legacy raw images, not written since Nov-2017, perhaps ever.\n   this-\u003evalidate(false);\n   return nullptr;\n}",
+      "revId": "9db3346da17367b7a6fe440aa492b2ea229077a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
