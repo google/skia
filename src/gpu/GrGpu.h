@@ -272,15 +272,6 @@ public:
      */
     bool readPixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width, int height,
                     GrColorType dstColorType, void* buffer, size_t rowBytes);
-    /**
-     * This version of readPixels doesn't take an origin. TODO: Remove origin handling from
-     * GrGpu::readPixels entirely.
-     */
-    bool readPixels(GrSurface* surface, int left, int top, int width, int height,
-                    GrColorType dstColorType, void* buffer, size_t rowBytes) {
-        return this->readPixels(surface, kTopLeft_GrSurfaceOrigin, left, top, width, height,
-                                dstColorType, buffer, rowBytes);
-    }
 
     /**
      * Updates the pixels in a rectangle of a surface.  No sRGB/linear conversions are performed.

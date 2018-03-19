@@ -67,8 +67,7 @@ public:
         return 0;
     }
 
-    bool surfaceSupportsWritePixels(const GrSurface*) const override { return true; }
-    bool surfaceSupportsReadPixels(const GrSurface*) const override { return true; }
+    bool surfaceSupportsWritePixels(const GrSurface* surface) const override { return true; }
 
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
