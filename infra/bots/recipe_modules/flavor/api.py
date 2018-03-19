@@ -19,10 +19,6 @@ from . import pdfium_flavor
 from . import valgrind_flavor
 
 
-TEST_EXPECTED_SKP_VERSION = '42'
-TEST_EXPECTED_SVG_VERSION = '42'
-TEST_EXPECTED_SK_IMAGE_VERSION = '42'
-
 VERSION_FILE_SK_IMAGE = 'SK_IMAGE_VERSION'
 VERSION_FILE_SKP = 'SKP_VERSION'
 VERSION_FILE_SVG = 'SVG_VERSION'
@@ -142,8 +138,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     return self._f.cleanup_steps()
 
   def _copy_dir(self, host_version, version_file, tmp_dir,
-                host_path, device_path, test_expected_version,
-                test_actual_version):
+                host_path, device_path):
     actual_version_file = self.m.path.join(tmp_dir, version_file)
     # Copy to device.
     device_version_file = self.device_path_join(
@@ -165,14 +160,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
 
   def _copy_images(self):
     """Download and copy test images if needed."""
-    version_file = self.m.vars.infrabots_dir.join(
-        'assets', 'skimage', 'VERSION')
-    test_data = self.m.properties.get(
-        'test_downloaded_sk_image_version', TEST_EXPECTED_SK_IMAGE_VERSION)
-    version = self.m.run.readfile(
-        version_file,
-        name='Get downloaded skimage VERSION',
-        test_data=test_data).rstrip()
+    version = self.m.run.asset_version('skimage')
     self.m.run.writefile(
         self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SK_IMAGE),
         version)
@@ -181,25 +169,12 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         VERSION_FILE_SK_IMAGE,
         self.m.vars.tmp_dir,
         self.m.vars.images_dir,
-        self.device_dirs.images_dir,
-        test_expected_version=self.m.properties.get(
-            'test_downloaded_sk_image_version',
-            TEST_EXPECTED_SK_IMAGE_VERSION),
-        test_actual_version=self.m.properties.get(
-            'test_downloaded_sk_image_version',
-            TEST_EXPECTED_SK_IMAGE_VERSION))
+        self.device_dirs.images_dir)
     return version
 
   def _copy_skps(self):
     """Download and copy the SKPs if needed."""
-    version_file = self.m.vars.infrabots_dir.join(
-        'assets', 'skp', 'VERSION')
-    test_data = self.m.properties.get(
-        'test_downloaded_skp_version', TEST_EXPECTED_SKP_VERSION)
-    version = self.m.run.readfile(
-        version_file,
-        name='Get downloaded SKP VERSION',
-        test_data=test_data).rstrip()
+    version = self.m.run.asset_version('skp')
     self.m.run.writefile(
         self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SKP),
         version)
@@ -208,23 +183,12 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         VERSION_FILE_SKP,
         self.m.vars.tmp_dir,
         self.m.vars.local_skp_dir,
-        self.device_dirs.skp_dir,
-        test_expected_version=self.m.properties.get(
-            'test_downloaded_skp_version', TEST_EXPECTED_SKP_VERSION),
-        test_actual_version=self.m.properties.get(
-            'test_downloaded_skp_version', TEST_EXPECTED_SKP_VERSION))
+        self.device_dirs.skp_dir)
     return version
 
   def _copy_svgs(self):
     """Download and copy the SVGs if needed."""
-    version_file = self.m.vars.infrabots_dir.join(
-        'assets', 'svg', 'VERSION')
-    test_data = self.m.properties.get(
-        'test_downloaded_svg_version', TEST_EXPECTED_SVG_VERSION)
-    version = self.m.run.readfile(
-        version_file,
-        name='Get downloaded SVG VERSION',
-        test_data=test_data).rstrip()
+    version = self.m.run.asset_version('svg')
     self.m.run.writefile(
         self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SVG),
         version)
@@ -233,9 +197,5 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         VERSION_FILE_SVG,
         self.m.vars.tmp_dir,
         self.m.vars.local_svg_dir,
-        self.device_dirs.svg_dir,
-        test_expected_version=self.m.properties.get(
-            'test_downloaded_svg_version', TEST_EXPECTED_SVG_VERSION),
-        test_actual_version=self.m.properties.get(
-            'test_downloaded_svg_version', TEST_EXPECTED_SVG_VERSION))
+        self.device_dirs.svg_dir)
     return version

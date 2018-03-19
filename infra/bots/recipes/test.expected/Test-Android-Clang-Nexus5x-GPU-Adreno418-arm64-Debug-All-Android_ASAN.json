@@ -137,7 +137,7 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get downloaded SKP VERSION"
+    "name": "Get skp VERSION"
   },
   {
     "cmd": [
@@ -289,7 +289,7 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get downloaded skimage VERSION"
+    "name": "Get skimage VERSION"
   },
   {
     "cmd": [
@@ -441,7 +441,7 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get downloaded SVG VERSION"
+    "name": "Get svg VERSION"
   },
   {
     "cmd": [
