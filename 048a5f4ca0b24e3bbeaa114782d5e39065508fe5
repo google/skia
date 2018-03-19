@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f5467905_e580e572",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-19T16:03:35Z",
+      "side": 1,
+      "message": "The client knows we don\u0027t need to flush the surface being read but they can\u0027t know that we don\u0027t need to flush the temporary surface. Should I be somehow indicating a no-pending IO temporary above instead?",
+      "parentUuid": "38fd9f30_95877144",
+      "revId": "048a5f4ca0b24e3bbeaa114782d5e39065508fe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "32417f79_4b78f1e6",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 16
