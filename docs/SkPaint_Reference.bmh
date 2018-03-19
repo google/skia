@@ -326,7 +326,7 @@ After the call, paint is undefined, and can be safely destructed.
             paint1 != paint2
         ##
     ##
-
+#SeeAlso operator!=(const SkPaint& a, const SkPaint& b)
 ##
 
 # ------------------------------------------------------------------------------
@@ -356,7 +356,7 @@ After the call, paint is undefined, and can be safely destructed.
         paint1 == paint2
     ##
 ##
-
+#SeeAlso operator==(const SkPaint& a, const SkPaint& b)
 ##
 
 # ------------------------------------------------------------------------------

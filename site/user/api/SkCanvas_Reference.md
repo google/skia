@@ -470,7 +470,7 @@ enum class <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> {
 </td>
   </tr>
 
-</table>
+
 
 <a name="SkCanvas_const_SkBitmap"></a>
 ## SkCanvas
@@ -2461,8 +2461,6 @@ maximum allowed clip in device coordinates</td>
 #
 
 ---
-
-</table>
 
 <a name="SkCanvas_clipRRect"></a>
 ## clipRRect
@@ -4600,7 +4598,7 @@ or to fill the grid entry with a color.
 </td>
   </tr>
 
-</table>
+
 
 <a name="SkCanvas_Lattice_fXDivs"> <code><strong>const int*   fXDivs</strong></code> </a>
 
