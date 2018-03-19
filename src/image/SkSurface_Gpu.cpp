@@ -465,6 +465,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
                                                                  const GrBackendTexture& tex,
                                                                  GrSurfaceOrigin origin,
                                                                  int sampleCnt,
+                                                                 SkColorType colorType,
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  const SkSurfaceProps* props) {
     if (!context) {
@@ -474,14 +475,19 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
     sampleCnt = SkTMax(1, sampleCnt);
+    GrBackendTexture texCopy = tex;
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+                                  sampleCnt, colorType, colorSpace, false)) {
+        return nullptr;
+    }
 
     sk_sp<GrRenderTargetContext> rtc(
         context->contextPriv().makeBackendTextureAsRenderTargetRenderTargetContext(
-                                                                              tex,
-                                                                              origin,
-                                                                              sampleCnt,
-                                                                              std::move(colorSpace),
-                                                                              props));
+            texCopy,
+            origin,
+            sampleCnt,
+            std::move(colorSpace),
+            props));
     if (!rtc) {
         return nullptr;
     }
@@ -492,27 +498,6 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
-}
-
-sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
-                                                                 const GrBackendTexture& tex,
-                                                                 GrSurfaceOrigin origin,
-                                                                 int sampleCnt,
-                                                                 SkColorType colorType,
-                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                 const SkSurfaceProps* props) {
-    if (!context) {
-        return nullptr;
-    }
-    sampleCnt = SkTMax(1, sampleCnt);
-    GrBackendTexture texCopy = tex;
-    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
-                                  sampleCnt, colorType, colorSpace, false)) {
-        return nullptr;
-    }
-
-    return MakeFromBackendTextureAsRenderTarget(context, texCopy, origin, sampleCnt, colorSpace,
-                                                props);
 }
 
 #endif
