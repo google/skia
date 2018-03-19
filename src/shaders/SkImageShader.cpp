@@ -432,6 +432,10 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             p->append(SkRasterPipeline::clamp_0);
             p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
                                          : SkRasterPipeline::clamp_a);
+            // Further, if the input was opaque, un-filter it back to opaque.
+            if (info.alphaType() == kOpaque_SkAlphaType) {
+                p->append(SkRasterPipeline::force_opaque);
+            }
         }
         append_gamut_transform(p, alloc, info.colorSpace(), rec.fDstCS,
                                fClampAsIfUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
