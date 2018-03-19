@@ -73,11 +73,6 @@ public:
         return fMustDoCopiesFromOrigin;
     }
 
-    // Check whether we support using draws for copies.
-    bool supportsCopiesAsDraws() const {
-        return fSupportsCopiesAsDraws;
-    }
-
     // On Nvidia there is a current bug where we must the current command buffer before copy
     // operations or else the copy will not happen. This includes copies, blits, resolves, and copy
     // as draws.
@@ -171,8 +166,6 @@ private:
     bool fCanUseGLSLForShaderModule;
 
     bool fMustDoCopiesFromOrigin;
-
-    bool fSupportsCopiesAsDraws;
 
     bool fMustSubmitCommandsBeforeCopyOp;
 
