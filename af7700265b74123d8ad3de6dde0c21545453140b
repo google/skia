@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea6a2d39_1faf7998",
+        "filename": "infra/bots/recipe_modules/flavor/__init__.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-19T21:08:48Z",
+      "side": 0,
+      "message": "Drive-by cleanup.",
+      "range": {
+        "startLine": 8,
+        "startChar": 3,
+        "endLine": 8,
+        "endChar": 19
+      },
+      "revId": "af7700265b74123d8ad3de6dde0c21545453140b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4ca9404_b32fa971",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-19T21:08:48Z",
+      "side": 0,
+      "message": "Unused.",
+      "range": {
+        "startLine": 145,
+        "startChar": 38,
+        "endLine": 146,
+        "endChar": 35
+      },
+      "revId": "af7700265b74123d8ad3de6dde0c21545453140b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
