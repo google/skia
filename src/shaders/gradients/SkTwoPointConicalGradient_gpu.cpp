@@ -239,7 +239,7 @@ protected:
         const char* p = coords2D.c_str();
 
         if (effect.getType() == Type::kRadial) {
-            char sign = effect.diffRadius() < 0 ? '-' : '+';
+            char sign = effect.isRadiusIncreasing() ? '+' : '-';
             fragBuilder->codeAppendf("half %s = %clength(%s) - %s;", tName, sign, p, p0.c_str());
         } else {
             // output will default to transparent black (we simply won't write anything
