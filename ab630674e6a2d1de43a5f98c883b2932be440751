@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b2b7d92_dabc3ff8",
+        "filename": "src/pathops/SkPathOpsTSect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-19T12:47:48Z",
+      "side": 1,
+      "message": "This is a check for NaN, right?  Is there a more explicit helper function we can use?",
+      "range": {
+        "startLine": 574,
+        "startChar": 8,
+        "endLine": 574,
+        "endChar": 26
+      },
+      "revId": "ab630674e6a2d1de43a5f98c883b2932be440751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
