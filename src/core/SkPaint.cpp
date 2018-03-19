@@ -1735,8 +1735,12 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     if (fPaint.getPathEffect() == nullptr) {
         fPaint.setTextSize(SkIntToScalar(SkPaint::kCanonicalTextSizeForPaths));
         fScale = paint.getTextSize() / SkPaint::kCanonicalTextSizeForPaths;
+        // Note: fScale can be zero here (even if it wasn't before the divide). It can also
+        // be very very small. We call sk_ieee_float_divide below to ensure IEEE divide behavior,
+        // since downstream we will check for the resulting coordinates being non-finite anyway.
+        // Thus we don't need to check for zero here.
         if (has_thick_frame(fPaint)) {
-            fPaint.setStrokeWidth(fPaint.getStrokeWidth() / fScale);
+            fPaint.setStrokeWidth(sk_ieee_float_divide(fPaint.getStrokeWidth(), fScale));
         }
     } else {
         fScale = SK_Scalar1;
