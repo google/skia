@@ -332,7 +332,7 @@ public:
 
     const char* name() const override { return "ColorTable"; }
 
-    const GrTextureStripAtlas* atlas() const { return fAtlas; }
+    const GrTextureStripAtlas* atlas() const { return fAtlas.get(); }
     int atlasRow() const { return fRow; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -344,12 +344,12 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    ColorTableEffect(sk_sp<GrTextureProxy> proxy, GrTextureStripAtlas* atlas, int row);
+    ColorTableEffect(sk_sp<GrTextureProxy> proxy, sk_sp<GrTextureStripAtlas> atlas, int row);
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     TextureSampler fTextureSampler;
-    GrTextureStripAtlas* fAtlas;
+    sk_sp<GrTextureStripAtlas> fAtlas;
     int fRow;
 
     typedef GrFragmentProcessor INHERITED;
@@ -452,7 +452,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
 
     auto atlasManager = context->contextPriv().textureStripAtlasManager();
 
-    GrTextureStripAtlas* atlas = atlasManager->getAtlas(desc);
+    sk_sp<GrTextureStripAtlas> atlas = atlasManager->refAtlas(desc);
     int row = atlas->lockRow(context, bitmap);
     sk_sp<GrTextureProxy> proxy;
     if (-1 == row) {
@@ -474,14 +474,16 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
         return nullptr;
     }
 
-    return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(std::move(proxy), atlas, row));
+    return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(std::move(proxy),
+                                                                     std::move(atlas), row));
 }
 
-ColorTableEffect::ColorTableEffect(sk_sp<GrTextureProxy> proxy, GrTextureStripAtlas* atlas, int row)
+ColorTableEffect::ColorTableEffect(sk_sp<GrTextureProxy> proxy,
+                                   sk_sp<GrTextureStripAtlas> atlas, int row)
         : INHERITED(kColorTableEffect_ClassID,
                     kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
         , fTextureSampler(std::move(proxy))
-        , fAtlas(atlas)
+        , fAtlas(std::move(atlas))
         , fRow(row) {
     this->addTextureSampler(&fTextureSampler);
 }
