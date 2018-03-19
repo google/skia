@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "4ebd5c4c_cce63db6",
+        "filename": "gm/gradients_2pt_conical.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-19T17:53:11Z",
+      "side": 1,
+      "message": "why make center 1 here?",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 74
+      },
+      "revId": "ba2167564e3b9340e3c4ba421025ae2e404a6bb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31263500_6027ec54",
+        "filename": "gm/gradients_2pt_conical.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-19T17:53:11Z",
+      "side": 1,
+      "message": "why make a center1 here?",
+      "range": {
+        "startLine": 117,
+        "startChar": 5,
+        "endLine": 118,
+        "endChar": 74
+      },
+      "revId": "ba2167564e3b9340e3c4ba421025ae2e404a6bb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "102d2b81_b009fe62",
         "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
         "patchSetId": 1
