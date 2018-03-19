@@ -77,10 +77,6 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
-    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                       GrSurface* src, GrSurfaceOrigin srcOrigin,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-
     void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override;
 
@@ -210,6 +206,10 @@ private:
                           int left, int top, int width, int height,
                           GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override;
+
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
+                       GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
 
     void onFinishFlush(bool insertedSemaphores) override;
 

@@ -35,10 +35,6 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override { return true; }
 
-    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                       GrSurface* src, GrSurfaceOrigin srcOrigin,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint) override { return true; }
-
     void onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {
         *effectiveSampleCnt = rt->numStencilSamples();
@@ -122,6 +118,12 @@ private:
     }
 
     void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin) override { return; }
+
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
+                       GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override {
+        return true;
+    }
 
     void onFinishFlush(bool insertedSemaphores) override {}
 
