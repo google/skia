@@ -63,7 +63,8 @@ void SkOverdrawCanvas::onDrawText(const void* text, size_t byteLength, SkScalar 
     ProcessOneGlyphBounds processBounds(this);
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     this->getProps(&props);
-    SkAutoGlyphCache cache(paint, &props, SkScalerContextFlags::kNone, &this->getTotalMatrix());
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
+            paint, &props, SkScalerContextFlags::kNone, &this->getTotalMatrix());
     SkFindAndPlaceGlyph::ProcessText(paint.getTextEncoding(), (const char*) text, byteLength,
                                      SkPoint::Make(x, y), SkMatrix(), paint.getTextAlign(),
                                      cache.get(), processBounds);
@@ -75,7 +76,8 @@ void SkOverdrawCanvas::drawPosTextCommon(const void* text, size_t byteLength, co
     ProcessOneGlyphBounds processBounds(this);
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     this->getProps(&props);
-    SkAutoGlyphCache cache(paint, &props, SkScalerContextFlags::kNone, &this->getTotalMatrix());
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
+            paint, &props, SkScalerContextFlags::kNone, &this->getTotalMatrix());
     SkFindAndPlaceGlyph::ProcessPosText(paint.getTextEncoding(), (const char*) text, byteLength,
                                         SkPoint::Make(0, 0), SkMatrix(), (const SkScalar*) pos, 2,
                                         paint.getTextAlign(), cache.get(), processBounds);
