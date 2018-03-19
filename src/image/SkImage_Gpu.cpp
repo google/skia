@@ -320,17 +320,6 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
                                    at, std::move(proxy), std::move(colorSpace), SkBudgeted::kNo);
 }
 
-sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
-                                        const GrBackendTexture& tex, GrSurfaceOrigin origin,
-                                        SkAlphaType at, sk_sp<SkColorSpace> cs,
-                                        TextureReleaseProc releaseP, ReleaseContext releaseC) {
-    if (!ctx) {
-        return nullptr;
-    }
-    return new_wrapped_texture_common(ctx, tex, origin, at, std::move(cs), kBorrow_GrWrapOwnership,
-                                      releaseP, releaseC);
-}
-
 bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPixelConfig* config,
                               SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs) {
     // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
@@ -354,7 +343,8 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
     if (!validate_backend_texture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
         return nullptr;
     }
-    return MakeFromTexture(ctx, texCopy, origin, at, cs, releaseP, releaseC);
+    return new_wrapped_texture_common(ctx, texCopy, origin, at, std::move(cs),
+                                      kBorrow_GrWrapOwnership, releaseP, releaseC);
 }
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
