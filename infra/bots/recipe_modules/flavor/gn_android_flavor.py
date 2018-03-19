@@ -357,14 +357,17 @@ if actual_freq != str(freq):
       extra_cflags.append('-O1')
 
     ndk_asset = 'android_ndk_linux'
+    ndk_path = ndk_asset
     if 'Mac' in os:
       ndk_asset = 'android_ndk_darwin'
+      ndk_path = ndk_asset
     elif 'Win' in os:
-      ndk_asset = 'n'
+      ndk_asset = 'android_ndk_win'
+      ndk_path = 'n'
 
     quote = lambda x: '"%s"' % x
     args = {
-        'ndk': quote(self.m.vars.slave_dir.join(ndk_asset)),
+        'ndk': quote(self.m.vars.slave_dir.join(ndk_path)),
         'target_cpu': quote(target_arch),
     }
     extra_cflags.append('-DDUMMY_ndk_version=%s' %

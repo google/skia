@@ -101,7 +101,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\infra\\bots\\assets\\n\\VERSION",
+      "[CUSTOM_C:\\_B_WORK]\\skia\\infra\\bots\\assets\\android_ndk_win\\VERSION",
       "/path/to/tmp/"
     ],
     "env": {
@@ -109,7 +109,7 @@
       "CXX": "/usr/bin/clang++"
     },
     "infra_step": true,
-    "name": "Get n VERSION"
+    "name": "Get android_ndk_win VERSION"
   },
   {
     "cmd": [
