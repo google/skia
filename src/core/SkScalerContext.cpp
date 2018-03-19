@@ -805,6 +805,9 @@ std::unique_ptr<SkScalerContext> SkTypeface::createScalerContext(
         c = skstd::make_unique<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)),
                                                       effects, desc);
     }
+    if (!allowFailure) {
+        SkASSERT(c != nullptr);
+    }
     return c;
 }
 
