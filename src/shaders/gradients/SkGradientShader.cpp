@@ -1298,19 +1298,19 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height(); // always 1 here
         desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *args.fContext->caps());
-        fAtlas = atlasManager->getAtlas(desc);
-        SkASSERT(fAtlas);
+        fAtlas1 = atlasManager->refAtlas(desc);
+        SkASSERT(fAtlas1);
 
         // We always filter the gradient table. Each table is one row of a texture, always
         // y-clamp.
         GrSamplerState samplerState(args.fWrapMode, GrSamplerState::Filter::kBilerp);
 
-        fRow = fAtlas->lockRow(args.fContext, bitmap);
+        fRow = fAtlas1->lockRow(args.fContext, bitmap);
         if (-1 != fRow) {
-            fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
+            fYCoord = fAtlas1->getYOffset(fRow)+SK_ScalarHalf*fAtlas1->getNormalizedTexelHeight();
             // This is 1/2 places where auto-normalization is disabled
-            fCoordTransform.reset(*args.fMatrix, fAtlas->asTextureProxyRef().get(), false);
-            fTextureSampler.reset(fAtlas->asTextureProxyRef(), samplerState);
+            fCoordTransform.reset(*args.fMatrix, fAtlas1->asTextureProxyRef().get(), false);
+            fTextureSampler.reset(fAtlas1->asTextureProxyRef(), samplerState);
         } else {
             // In this instance we know the samplerState state is:
             //   clampY, bilerp
@@ -1352,7 +1352,7 @@ GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
         , fCoordTransform(that.fCoordTransform)
         , fTextureSampler(that.fTextureSampler)
         , fYCoord(that.fYCoord)
-        , fAtlas(that.fAtlas)
+        , fAtlas1(that.fAtlas1)
         , fRow(that.fRow)
         , fIsOpaque(that.fIsOpaque)
         , fStrategy(that.fStrategy)
@@ -1363,13 +1363,13 @@ GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
         this->addTextureSampler(&fTextureSampler);
     }
     if (this->useAtlas()) {
-        fAtlas->lockRow(fRow);
+        fAtlas1->lockRow(fRow);
     }
 }
 
 GrGradientEffect::~GrGradientEffect() {
     if (this->useAtlas()) {
-        fAtlas->unlockRow(fRow);
+        fAtlas1->unlockRow(fRow);
     }
 }
 
