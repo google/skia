@@ -42,6 +42,11 @@ public:
     GrBackendObject getTextureHandle() const override;
     GrBackendTexture getBackendTexture() const override;
 
+#ifdef SK_DEBUG
+    bool isExt() const { return GR_GL_TEXTURE_EXTERNAL == this->target(); }
+    bool isRect() const { return GR_GL_TEXTURE_RECTANGLE == this->target(); }
+#endif
+
     void textureParamsModified() override { fTexParams.invalidate(); }
 
     void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
