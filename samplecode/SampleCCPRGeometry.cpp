@@ -49,7 +49,8 @@ public:
 
 private:
     class Click;
-    class Op;
+    class DrawCoverageCountOp;
+    class VisualizeCoverageCountFP;
 
     void updateAndInval() { this->updateGpuData(); }
 
@@ -68,15 +69,17 @@ private:
     typedef SampleView INHERITED;
 };
 
-class CCPRGeometryView::Op : public GrDrawOp {
+class CCPRGeometryView::DrawCoverageCountOp : public GrDrawOp {
     DEFINE_OP_CLASS_ID
 
 public:
-    Op(CCPRGeometryView* view) : INHERITED(ClassID()), fView(view) {
+    DrawCoverageCountOp(CCPRGeometryView* view) : INHERITED(ClassID()), fView(view) {
         this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "[Testing/Sample code] CCPRGeometryView::Op"; }
+    const char* name() const override {
+        return "[Testing/Sample code] CCPRGeometryView::DrawCoverageCountOp";
+    }
 
 private:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
@@ -92,6 +95,32 @@ private:
     CCPRGeometryView* fView;
 
     typedef GrDrawOp INHERITED;
+};
+
+class CCPRGeometryView::VisualizeCoverageCountFP : public GrFragmentProcessor {
+public:
+    VisualizeCoverageCountFP() : GrFragmentProcessor(kTestFP_ClassID, kNone_OptimizationFlags) {}
+
+private:
+    const char* name() const override {
+        return "[Testing/Sample code] CCPRGeometryView::VisualizeCoverageCountFP";
+    }
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return skstd::make_unique<VisualizeCoverageCountFP>();
+    }
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+
+    class Impl : public GrGLSLFragmentProcessor {
+        void emitCode(EmitArgs& args) override {
+            GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
+            f->codeAppendf("half count = %s.a;", args.fInputColor);
+            f->codeAppendf("%s = half4(clamp(-count, 0, 1), clamp(+count, 0, 1), 0, abs(count));",
+                           args.fOutputColor);
+        }
+    };
+
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new Impl; }
 };
 
 static void draw_klm_line(int w, int h, SkCanvas* canvas, const SkScalar line[3], SkColor color) {
@@ -153,7 +182,29 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
     SkString caption;
     if (GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext()) {
-        rtc->priv().testingOnly_addDrawOp(skstd::make_unique<Op>(this));
+        // Render coverage count.
+        GrContext* ctx = canvas->getGrContext();
+        SkASSERT(ctx);
+        sk_sp<GrRenderTargetContext> ccbuff =
+                ctx->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                                   this->width(), this->height(),
+                                                                   kAlpha_half_GrPixelConfig,
+                                                                   nullptr);
+        SkASSERT(ccbuff);
+        ccbuff->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
+        ccbuff->priv().testingOnly_addDrawOp(skstd::make_unique<DrawCoverageCountOp>(this));
+
+        // Visualize coverage count in main canvas.
+        GrPaint paint;
+        paint.addColorFragmentProcessor(
+                GrSimpleTextureEffect::Make(sk_ref_sp(ccbuff->asTextureProxy()), SkMatrix::I()));
+        paint.addColorFragmentProcessor(
+                skstd::make_unique<VisualizeCoverageCountFP>());
+        paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
+        rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                      SkRect::MakeIWH(this->width(), this->height()));
+
+        // Add label.
         caption.appendf("RenderPass_%s", GrCCCoverageProcessor::RenderPassName(fRenderPass));
         if (RenderPass::kCubics == fRenderPass) {
             caption.appendf(" (%s)", SkCubicTypeName(fCubicType));
@@ -238,7 +289,7 @@ void CCPRGeometryView::updateGpuData() {
     }
 }
 
-void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
+void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state) {
     this->drawRenderPass(state, fView->fRenderPass);
 
     RenderPass cornerPass = RenderPass((int)fView->fRenderPass + 1);
@@ -247,7 +298,8 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
     }
 }
 
-void CCPRGeometryView::Op::drawRenderPass(GrOpFlushState* state, RenderPass renderPass) {
+void CCPRGeometryView::DrawCoverageCountOp::drawRenderPass(GrOpFlushState* state,
+                                                           RenderPass renderPass) {
     GrResourceProvider* rp = state->resourceProvider();
     GrContext* context = state->gpu()->getContext();
     GrGLGpu* glGpu = kOpenGL_GrBackend == context->contextPriv().getBackend()
@@ -255,7 +307,7 @@ void CCPRGeometryView::Op::drawRenderPass(GrOpFlushState* state, RenderPass rend
                              : nullptr;
 
     GrCCCoverageProcessor proc(rp, renderPass, GrCCCoverageProcessor::WindMethod::kCrossProduct);
-    SkDEBUGCODE(proc.enableDebugVisualizations(kDebugBloat));
+    SkDEBUGCODE(proc.enableDebugBloat(kDebugBloat));
 
     SkSTArray<1, GrMesh> mesh;
     if (RenderPass::kCubics == renderPass) {
