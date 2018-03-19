@@ -2110,7 +2110,7 @@ enum <a href="#SkImage_LegacyBitmapMode">LegacyBitmapMode</a> {
 </td>
   </tr>
 
-</table>
+
 
 <a name="SkImage_asLegacyBitmap"></a>
 ## asLegacyBitmap

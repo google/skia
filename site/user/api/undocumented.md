@@ -32,7 +32,7 @@ undocumented
     <td><a name="SkBlendMode_kPlus"> <code><strong>SkBlendMode::kPlus </strong></code> </a></td><td>12</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Circle"></a> Circle
 
@@ -50,7 +50,7 @@ undocumented
     <td><a name="SkClipOp_kIntersect"> <code><strong>SkClipOp::kIntersect </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Color"></a> Color
 
@@ -181,6 +181,15 @@ bool gammaCloseToSRGB() const
 
 ---
 
+<a name="SkColorSpace_Equals"></a>
+## Equals
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static bool Equals(const SkColorSpace* src, const SkColorSpace* dst)
+</pre>
+
+---
+
 ## <a name="SkTransferFunctionBehavior"></a> Enum SkTransferFunctionBehavior
 
 ### Constants
@@ -193,7 +202,7 @@ bool gammaCloseToSRGB() const
     <td><a name="SkTransferFunctionBehavior_kIgnore"> <code><strong>SkTransferFunctionBehavior::kIgnore </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Core_Graphics"></a> Core Graphics
 
@@ -329,7 +338,7 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
     <td><a name="SkEncodedImageFormat_kHEIF"> <code><strong>SkEncodedImageFormat::kHEIF </strong></code> </a></td><td>12</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Filter_Quality"></a> Filter Quality
 
@@ -351,7 +360,7 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
     <td><a name="kHigh_SkFilterQuality"> <code><strong>kHigh_SkFilterQuality </strong></code> </a></td><td>3</td><td></td>
   </tr>
 
-</table>
+
 
 ## <a name="Nearest_Neighbor"></a> Nearest Neighbor
 
@@ -616,7 +625,6 @@ template &lt;typename D, typename S&gt; inline bool SkTFitsIn(S s)
   <tr>
     <td><a name="SkPaintDefaults_MiterLimit"> <code><strong>SkPaintDefaults_MiterLimit </strong></code> </a></td><td>4</td><td></td>
   </tr>
-</table>
 
 # <a name="Patch"></a> Patch
 
@@ -837,7 +845,7 @@ void dumpHex() const
     <td><a name="SkShader_kMirror_TileMode"> <code><strong>SkShader::kMirror_TileMode </strong></code> </a></td><td>2</td><td></td>
   </tr>
 
-</table>
+
 
 <a name="SkShader_MakeBitmapShader"></a>
 ## MakeBitmapShader
@@ -887,7 +895,7 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
   </tr>
 
 #
-Topic</table>
+Topic
 
 # <a name="Text"></a> Text
 
@@ -919,7 +927,7 @@ Topic</table>
     <td><a name="kTopLeft_GrSurfaceOrigin"> <code><strong>kTopLeft_GrSurfaceOrigin </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 ## <a name="Budgeted"></a> Budgeted
 
@@ -935,7 +943,7 @@ Topic</table>
     <td><a name="SkBudgeted_kYes"> <code><strong>SkBudgeted::kYes </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 ## <a name="GrSemaphoresSubmitted"></a> Enum GrSemaphoresSubmitted
 
@@ -949,7 +957,7 @@ Topic</table>
     <td><a name="GrSemaphoresSubmitted_kYes"> <code><strong>GrSemaphoresSubmitted::kYes </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Unpremultiply"></a> Unpremultiply
 
