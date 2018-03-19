@@ -184,6 +184,30 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
             }
             break;
         }
+        case kRGBA_1010102_SkColorType: {
+            auto src32 = (const uint32_t*) src;
+            for (int y = 0; y < srcInfo.height(); y++) {
+                for (int x = 0; x < srcInfo.width(); x++) {
+                    switch (src32[x] >> 30) {
+                        case 0:
+                            dst[x] = 0;
+                            break;
+                        case 1:
+                            dst[x] = 0x55;
+                            break;
+                        case 2:
+                            dst[x] = 0xAA;
+                            break;
+                        case 3:
+                            dst[x] = 0xFF;
+                            break;
+                    }
+                }
+                dst = SkTAddOffset<uint8_t>(dst, dstRB);
+                src32 = SkTAddOffset<const uint32_t>(src32, srcRB);
+            }
+            break;
+        }
         case kARGB_4444_SkColorType: {
             auto src16 = (const uint16_t*) src;
             for (int y = 0; y < srcInfo.height(); y++) {
@@ -225,8 +249,19 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         case kRGBA_8888_SkColorType:
             pipeline.append(SkRasterPipeline::load_8888, &src);
             break;
+        case kRGB_888x_SkColorType:
+            pipeline.append(SkRasterPipeline::load_8888, &src);
+            pipeline.append(SkRasterPipeline::force_opaque);
+            break;
         case kBGRA_8888_SkColorType:
             pipeline.append(SkRasterPipeline::load_bgra, &src);
+            break;
+        case kRGBA_1010102_SkColorType:
+            pipeline.append(SkRasterPipeline::load_1010102, &src);
+            break;
+        case kRGB_101010x_SkColorType:
+            pipeline.append(SkRasterPipeline::load_1010102, &src);
+            pipeline.append(SkRasterPipeline::force_opaque);
             break;
         case kRGB_565_SkColorType:
             pipeline.append(SkRasterPipeline::load_565, &src);
@@ -325,8 +360,19 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         case kRGBA_8888_SkColorType:
             pipeline.append(SkRasterPipeline::store_8888, &dst);
             break;
+        case kRGB_888x_SkColorType:
+            pipeline.append(SkRasterPipeline::force_opaque);
+            pipeline.append(SkRasterPipeline::store_8888, &dst);
+            break;
         case kBGRA_8888_SkColorType:
             pipeline.append(SkRasterPipeline::store_bgra, &dst);
+            break;
+        case kRGBA_1010102_SkColorType:
+            pipeline.append(SkRasterPipeline::store_1010102, &dst);
+            break;
+        case kRGB_101010x_SkColorType:
+            pipeline.append(SkRasterPipeline::force_opaque);
+            pipeline.append(SkRasterPipeline::store_1010102, &dst);
             break;
         case kRGB_565_SkColorType:
             pipeline.append(SkRasterPipeline::store_565, &dst);
@@ -345,6 +391,16 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     pipeline.run(0,0, srcInfo.width(), srcInfo.height());
 }
 
+static bool swizzle_and_multiply_color_type(SkColorType ct) {
+    switch (ct) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return true;
+        default:
+            return false;
+    }
+}
+
 void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                      const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
                      SkColorTable* ctable, SkTransferFunctionBehavior behavior) {
@@ -361,7 +417,8 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
     SkASSERT(srcInfo.colorSpace() || !isColorAware);
 
     // Fast Path 2: Simple swizzles and premuls.
-    if (4 == srcInfo.bytesPerPixel() && 4 == dstInfo.bytesPerPixel() && !isColorAware) {
+    if (swizzle_and_multiply_color_type(srcInfo.colorType()) &&
+        swizzle_and_multiply_color_type(dstInfo.colorType()) && !isColorAware) {
         swizzle_and_multiply(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
         return;
     }
