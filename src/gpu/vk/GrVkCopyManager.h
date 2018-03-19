@@ -30,7 +30,8 @@ public:
     bool copySurfaceAsDraw(GrVkGpu* gpu,
                            GrSurface* dst, GrSurfaceOrigin dstOrigin,
                            GrSurface* src, GrSurfaceOrigin srcOrigin,
-                           const SkIRect& srcRect, const SkIPoint& dstPoint);
+                           const SkIRect& srcRect, const SkIPoint& dstPoint,
+                           bool canDiscardOutsideDstRect);
 
     void destroyResources(GrVkGpu* gpu);
     void abandonResources();
