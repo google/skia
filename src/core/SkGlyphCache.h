@@ -295,24 +295,20 @@ public:
         : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(
             paint, surfaceProps, SkScalerContextFlags::kFakeGammaAndBoostContrast, matrix)) {}
 
-    SkAutoGlyphCache(const SkPaint& paint,
-                     const SkSurfaceProps* surfaceProps,
-                     SkScalerContextFlags scalerContextFlags,
-                     const SkMatrix* matrix)
-        : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(
-                paint, surfaceProps, scalerContextFlags, matrix)) {}
-
 private:
     using INHERITED = SkExclusiveStrikePtr;
 };
 
-class SkAutoGlyphCacheNoGamma : public SkAutoGlyphCache {
+class SkAutoGlyphCacheNoGamma : public SkExclusiveStrikePtr {
 public:
     SkAutoGlyphCacheNoGamma(const SkPaint& paint,
                             const SkSurfaceProps* surfaceProps,
                             const SkMatrix* matrix)
-        : SkAutoGlyphCache(paint, surfaceProps, SkScalerContextFlags::kNone, matrix)
-    {}
+        : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(
+            paint, surfaceProps, SkScalerContextFlags::kNone, matrix)) {}
+
+private:
+    using INHERITED = SkExclusiveStrikePtr;
 };
 #define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
