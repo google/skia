@@ -192,11 +192,21 @@ bool GrGLRenderTarget::canAttemptStencilAttachment() const {
 }
 
 void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
-    // Don't log the backing texture's contribution to the memory size. This will be handled by the
-    // texture object.
+    // Don't check this->fRefsWrappedObjects, as we might be the base of a GrGLTextureRenderTarget
+    // which is multiply inherited from both ourselves and a texture. In these cases, one part
+    // (texture, rt) may be wrapped, while the other is owned by Skia.
+    bool refsWrappedRenderTargetObjects =
+            this->fRTFBOOwnership == GrBackendObjectOwnership::kBorrowed;
+    if (refsWrappedRenderTargetObjects && !traceMemoryDump->shouldDumpWrappedObjects()) {
+        return;
+    }
 
-    // Log any renderbuffer's contribution to memory. We only do this if we own the renderbuffer
-    // (have a fMSColorRenderbufferID).
+    // Don't log the framebuffer, as the framebuffer itself doesn't contribute to meaningful
+    // memory usage. It is always a wrapper around either:
+    // - a texture, which is owned elsewhere, and will be dumped there
+    // - a renderbuffer, which will be dumped below.
+
+    // Log any renderbuffer's contribution to memory.
     if (fMSColorRenderbufferID) {
         size_t size = GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                              this->msaaSamples(), GrMipMapped::kNo);
