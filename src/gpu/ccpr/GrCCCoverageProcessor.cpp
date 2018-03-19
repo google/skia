@@ -23,12 +23,6 @@ void GrCCCoverageProcessor::Shader::emitFragmentCode(const GrCCCoverageProcessor
     this->onEmitFragmentCode(f, "coverage");
     f->codeAppendf("%s.a = coverage;", skOutputColor);
     f->codeAppendf("%s = half4(1);", skOutputCoverage);
-#ifdef SK_DEBUG
-    if (proc.debugVisualizationsEnabled()) {
-        f->codeAppendf("%s = half4(-%s.a, %s.a, 0, abs(%s.a));",
-                       skOutputColor, skOutputColor, skOutputColor, skOutputColor);
-    }
-#endif
 }
 
 void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder* s,

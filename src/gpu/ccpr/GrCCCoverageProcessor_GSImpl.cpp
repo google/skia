@@ -95,7 +95,7 @@ protected:
 
         float bloat = kAABloatRadius;
 #ifdef SK_DEBUG
-        if (proc.debugVisualizationsEnabled()) {
+        if (proc.debugBloatEnabled()) {
             bloat *= proc.debugBloat();
         }
 #endif

@@ -104,11 +104,10 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 #ifdef SK_DEBUG
-    // Increases the 1/2 pixel AA bloat by a factor of debugBloat and outputs color instead of
-    // coverage (coverage=+1 -> green, coverage=0 -> black, coverage=-1 -> red).
-    void enableDebugVisualizations(float debugBloat) { fDebugBloat = debugBloat; }
-    bool debugVisualizationsEnabled() const { return fDebugBloat > 0; }
-    float debugBloat() const { SkASSERT(this->debugVisualizationsEnabled()); return fDebugBloat; }
+    // Increases the 1/2 pixel AA bloat by a factor of debugBloat.
+    void enableDebugBloat(float debugBloat) { fDebugBloat = debugBloat; }
+    bool debugBloatEnabled() const { return fDebugBloat > 0; }
+    float debugBloat() const { SkASSERT(this->debugBloatEnabled()); return fDebugBloat; }
 #endif
 
     // Appends a GrMesh that will draw the provided instances. The instanceBuffer must be an array
