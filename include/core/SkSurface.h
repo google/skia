@@ -286,30 +286,6 @@ public:
         @param backendTexture  texture residing on GPU
         @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorSpace      range of colors
-        @param surfaceProps    LCD striping orientation and setting for device independent
-                               fonts; may be nullptr
-        @return                SkSurface if all parameters are valid; otherwise, nullptr
-    */
-    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,
-                                                            const GrBackendTexture& backendTexture,
-                                                            GrSurfaceOrigin origin,
-                                                            int sampleCnt,
-                                                            sk_sp<SkColorSpace> colorSpace,
-                                                            const SkSurfaceProps* surfaceProps);
-
-    /** Used to wrap a GPU-backed texture as a SkSurface. Skia will treat the texture as
-        a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
-        the associated render target objects (but not the provided texture). Skia will not assume
-        ownership of the texture and the client must ensure the texture is valid for the lifetime
-        of the SkSurface.
-
-        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-        @param context         GPU context
-        @param backendTexture  texture residing on GPU
-        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
         @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
                                kRGB_565_SkColorType, kARGB_4444_SkColorType,
                                kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
