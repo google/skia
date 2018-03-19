@@ -73,6 +73,12 @@ public:
      */
     virtual LevelOfDetail getRequestedDetails() const = 0;
 
+    /**
+     * Returns true if we should dump wrapped objects. Wrapped objects come from outside Skia, and
+     * may be independently tracked there.
+     */
+    virtual bool shouldDumpWrappedObjects() const { return true; }
+
 protected:
     virtual ~SkTraceMemoryDump() { }
 };

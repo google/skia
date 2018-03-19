@@ -101,14 +101,6 @@ GrBackendTexture GrGLTexture::getBackendTexture() const {
     return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(), fInfo);
 }
 
-void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
-                                   const SkString& dumpName) const {
-    SkString texture_id;
-    texture_id.appendU32(this->textureID());
-    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_texture",
-                                      texture_id.c_str());
-}
-
 sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                             GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc) {
     return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, mipMapsStatus, idDesc));
@@ -125,4 +117,36 @@ bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,
     // cleaned up by us.
     this->GrGLTexture::onAbandon();
     return true;
+}
+
+void GrGLTexture::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    // Don't check this->fRefsWrappedObjects, as we might be the base of a GrGLTextureRenderTarget
+    // which is multiply inherited from both ourselves and a texture. In these cases, one part
+    // (texture, rt) may be wrapped, while the other is owned by Skia.
+    bool refsWrappedTextureObjects =
+            this->fTextureIDOwnership == GrBackendObjectOwnership::kBorrowed;
+    if (refsWrappedTextureObjects && !traceMemoryDump->shouldDumpWrappedObjects()) {
+        return;
+    }
+
+    // Dump as skia/gpu_resources/resource_#/texture, to avoid conflicts in the
+    // GrGLTextureRenderTarget case, where multiple things may dump to the same resource. This
+    // has no downside in the normal case.
+    SkString dumpName("skia/gpu_resources/resource_");
+    dumpName.appendU32(this->uniqueID().asUInt());
+    dumpName.append("/texture");
+
+    // As we are only dumping our texture memory (not any additional memory tracked by classes
+    // which may inherit from us), specifically call GrGLTexture::gpuMemorySize to avoid
+    // hitting an override.
+    size_t size = GrGLTexture::gpuMemorySize();
+    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
+
+    if (this->isPurgeable()) {
+        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes", size);
+    }
+
+    SkString texture_id;
+    texture_id.appendU32(this->textureID());
+    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_texture", texture_id.c_str());
 }
