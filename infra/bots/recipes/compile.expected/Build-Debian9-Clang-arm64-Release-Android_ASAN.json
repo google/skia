@@ -97,6 +97,24 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/android_ndk_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "env": {
+      "CC": "/usr/bin/clang",
+      "CXX": "/usr/bin/clang++"
+    },
+    "infra_step": true,
+    "name": "Get android_ndk_linux VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
@@ -116,7 +134,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android_ASAN/Release",
-      "--args=is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" sanitize=\"ASAN\" target_cpu=\"arm64\""
+      "--args=extra_cflags=[\"-DDUMMY_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" sanitize=\"ASAN\" target_cpu=\"arm64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

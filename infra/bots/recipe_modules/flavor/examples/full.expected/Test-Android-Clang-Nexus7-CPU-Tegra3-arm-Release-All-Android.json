@@ -3,6 +3,20 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/android_ndk_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get android_ndk_linux VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[START_DIR]/skia/bin/fetch-gn"
     ],
     "cwd": "[START_DIR]/skia",
@@ -20,7 +34,7 @@
       "[START_DIR]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Release",
-      "--args=is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" target_cpu=\"None\""
+      "--args=extra_cflags=[\"-DDUMMY_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" target_cpu=\"None\""
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

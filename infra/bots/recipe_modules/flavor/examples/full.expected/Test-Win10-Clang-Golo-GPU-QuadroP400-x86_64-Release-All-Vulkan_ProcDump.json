@@ -3,6 +3,20 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/clang_win/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get clang_win VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[START_DIR]/skia/bin/fetch-gn"
     ],
     "cwd": "[START_DIR]/skia",
@@ -20,7 +34,7 @@
       "[START_DIR]/skia/bin/gn.exe",
       "gen",
       "[START_DIR]/out/Release_x64",
-      "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" is_debug=false skia_enable_vulkan_debug_layers=false skia_vulkan_sdk=\"[START_DIR]/win_vulkan_sdk\" win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
+      "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_clang_win_version=42\"] is_debug=false skia_enable_vulkan_debug_layers=false skia_vulkan_sdk=\"[START_DIR]/win_vulkan_sdk\" win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

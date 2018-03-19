@@ -3,6 +3,20 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_C:\\_B_WORK]/skia/infra/bots/assets/android_ndk_windows/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get android_ndk_windows VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[CUSTOM_C:\\_B_WORK]/skia/bin/fetch-gn"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
@@ -20,7 +34,7 @@
       "[CUSTOM_C:\\_B_WORK]/skia/bin/gn.exe",
       "gen",
       "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android/Release",
-      "--args=is_debug=false ndk=\"[START_DIR]/n\" target_cpu=\"arm64\""
+      "--args=extra_cflags=[\"-DDUMMY_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/n\" target_cpu=\"arm64\""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
