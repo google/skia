@@ -334,7 +334,7 @@ private:
     GrCoordTransform fCoordTransform;
     TextureSampler fTextureSampler;
     SkScalar fYCoord;
-    GrTextureStripAtlas* fAtlas;
+    sk_sp<GrTextureStripAtlas> fAtlas;
     int fRow;
     bool fIsOpaque;
 
