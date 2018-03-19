@@ -130,41 +130,6 @@ SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
 static const int kColorTypeMask = 0x0F;
 static const int kAlphaTypeMask = 0x03;
 
-void SkImageInfo::unflatten(SkReadBuffer& buffer) {
-    fWidth = buffer.read32();
-    fHeight = buffer.read32();
-
-    uint32_t packed = buffer.read32();
-    fColorType = stored_to_live((packed >> 0) & kColorTypeMask);
-    fAlphaType = (SkAlphaType)((packed >> 8) & kAlphaTypeMask);
-    buffer.validate(alpha_type_is_valid(fAlphaType) && color_type_is_valid(fColorType));
-
-    sk_sp<SkData> data = buffer.readByteArrayAsData();
-    fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
-}
-
-void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
-    buffer.write32(fWidth);
-    buffer.write32(fHeight);
-
-    SkASSERT(0 == (fAlphaType & ~kAlphaTypeMask));
-    SkASSERT(0 == (fColorType & ~kColorTypeMask));
-    uint32_t packed = (fAlphaType << 8) | live_to_stored(fColorType);
-    buffer.write32(packed);
-
-    if (fColorSpace) {
-        sk_sp<SkData> data = fColorSpace->serialize();
-        if (data) {
-            buffer.writeDataAsByteArray(data.get());
-        } else {
-            buffer.writeByteArray(nullptr, 0);
-        }
-    } else {
-        sk_sp<SkData> data = SkData::MakeEmpty();
-        buffer.writeDataAsByteArray(data.get());
-    }
-}
-
 bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
                                   SkAlphaType* canonical) {
     switch (colorType) {
