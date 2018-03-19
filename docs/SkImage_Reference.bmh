@@ -680,16 +680,6 @@ should this be moved to chrome only?
 
 # ------------------------------------------------------------------------------
 
-#Method static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
-                                                  const GrBackendTexture yuvTextures[3],
-                                                  const SkISize yuvSizes[3],
-                                                  GrSurfaceOrigin surfaceOrigin,
-                                                  sk_sp<SkColorSpace> colorSpace = nullptr)
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
 #Method static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext* context,
                                                    SkYUVColorSpace yuvColorSpace,
                                                    const GrBackendTexture nv12Textures[2],
@@ -725,17 +715,6 @@ should this be moved to chrome only?
 
 #SeeAlso MakeFromYUVTexturesCopy
 
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext* context,
-                                                   SkYUVColorSpace yuvColorSpace,
-                                                   const GrBackendTexture nv12Textures[2],
-                                                   const SkISize nv12Sizes[2],
-                                                   GrSurfaceOrigin surfaceOrigin,
-                                                   sk_sp<SkColorSpace> colorSpace = nullptr)
-#Deprecated
 #Method ##
 
 # ------------------------------------------------------------------------------

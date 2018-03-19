@@ -457,41 +457,12 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
                                                     origin, std::move(imageColorSpace));
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
-                                                const GrBackendTexture yuvTextures[3],
-                                                const SkISize yuvSizes[3], GrSurfaceOrigin origin,
-                                                sk_sp<SkColorSpace> imageColorSpace) {
-    for (int i = 0; i < 3; ++i) {
-        if (yuvSizes[i].fWidth != yuvTextures[i].width() ||
-            yuvSizes[i].fHeight != yuvTextures[i].height()) {
-            return nullptr;
-        }
-    }
-    return SkImage::MakeFromYUVTexturesCopy(ctx, colorSpace, yuvTextures, origin,
-                                            std::move(imageColorSpace));
-}
-
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                  const GrBackendTexture nv12Textures[2],
                                                  GrSurfaceOrigin origin,
                                                  sk_sp<SkColorSpace> imageColorSpace) {
     return SkImage_Gpu::MakeFromYUVTexturesCopyImpl(ctx, colorSpace, true, nv12Textures,
                                                     origin, std::move(imageColorSpace));
-}
-
-sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
-                                                 const GrBackendTexture nv12Textures[2],
-                                                 const SkISize yuvSizes[2],
-                                                 GrSurfaceOrigin origin,
-                                                 sk_sp<SkColorSpace> imageColorSpace) {
-    for (int i = 0; i < 2; ++i) {
-        if (yuvSizes[i].fWidth != nv12Textures[i].width() ||
-            yuvSizes[i].fHeight != nv12Textures[i].height()) {
-            return nullptr;
-        }
-    }
-    return SkImage_Gpu::MakeFromNV12TexturesCopy(ctx, colorSpace, nv12Textures, origin,
-                                                 std::move(imageColorSpace));
 }
 
 static sk_sp<SkImage> create_image_from_maker(GrContext* context, GrTextureMaker* maker,
