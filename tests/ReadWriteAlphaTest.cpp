@@ -99,6 +99,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             // read the texture back
             result = sContext->readPixels(ii, readback.get(), rowBytes, 0, 0);
+            // We don't require reading from kAlpha_8 to be supported if it is not a renderable
+            // format.
+            if (!result && !context->colorTypeSupportedAsSurface(kAlpha_8_SkColorType)) {
+                continue;
+            }
             REPORTER_ASSERT(reporter, result, "Initial A8 readPixels failed");
 
             // make sure the original & read back versions match
