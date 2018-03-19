@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b51f427_8d50ca70",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1739,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-19T16:01:35Z",
+      "side": 1,
+      "message": "sk_ieee_float_divide",
+      "range": {
+        "startLine": 1739,
+        "startChar": 39,
+        "endLine": 1739,
+        "endChar": 50
+      },
+      "revId": "f9fdc253d339cb8b9bd82ba18747e4d8e1c4a3fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
