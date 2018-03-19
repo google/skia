@@ -7,6 +7,7 @@
 
 #include "GrVkCopyManager.h"
 
+#include "GrRenderTargetPriv.h"
 #include "GrSamplerState.h"
 #include "GrShaderCaps.h"
 #include "GrSurface.h"
@@ -311,6 +312,17 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
                            VK_ACCESS_SHADER_READ_BIT,
                            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                            false);
+
+    GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment();
+    if (stencil) {
+        GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+        vkStencil->setImageLayout(gpu,
+                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                  false);
+    }
 
     GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                                             VK_ATTACHMENT_STORE_OP_STORE);
