@@ -458,7 +458,6 @@ nested_flipY_bw
 new_texture_image
 ninepatch-stretch
 nonclosedpaths
-not_native32_bitmap_config
 occludedrrectblur
 offsetimagefilter
 onebadarc
@@ -608,7 +607,6 @@ tablecolorfilter
 tall_stretched_bitmaps
 teenyStrokes
 testgradient
-texdata
 text_scale_skew
 textblob
 textblobblockreordering
