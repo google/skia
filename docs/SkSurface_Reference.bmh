@@ -349,63 +349,6 @@ void draw(SkCanvas* ) {
 #Method static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
                                                    const GrBackendTexture& backendTexture,
                                                    GrSurfaceOrigin origin, int sampleCnt,
-                                                   sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* surfaceProps)
-#In Constructor
-#Line # creates Surface from GPU-backed texture ##
-
-Wraps a GPU-backed texture into Surface. Caller must ensure the texture is
-valid for the lifetime of returned Surface. If sampleCnt greater than zero,
-creates an intermediate MSAA Surface which is used for drawing backendTexture.
-
-Surface is returned if all parameters are valid. backendTexture is valid if
-its pixel configuration agrees with colorSpace and context; for instance, if
-backendTexture has an sRGB configuration, then context must support sRGB,
-and colorSpace must be present. Further, backendTexture width and height must
-not exceed context capabilities, and the context must be able to support
-back-end textures.
-
-If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-#Param context  GPU_Context ##
-#Param backendTexture  texture residing on GPU ##
-#Param origin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param sampleCnt  samples per pixel, or 0 to disable full scene anti-aliasing ##
-#Param colorSpace  range of colors ##
-#Param surfaceProps  LCD striping orientation and setting for device independent
-                     fonts; may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
-
-#Example
-#ToDo  remove !fiddle below once backEndTextureRenderTarget is available ##
-#Platform !fiddle gpu cpu
-    SkPaint paint;
-    paint.setTextSize(32);
-    GrContext* context = canvas->getGrContext();
-    if (!context) {
-         canvas->drawString("GPU only!", 20, 40, paint);
-         return;
-    }
-    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTexture(context,
-            backEndTextureRenderTarget, kTopLeft_GrSurfaceOrigin, 0, nullptr, nullptr);
-    auto surfaceCanvas = gpuSurface->getCanvas();
-    surfaceCanvas->clear(SK_ColorWHITE);
-    surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
-    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
-    canvas->drawImage(image, 0, 0);
-##
-
-#SeeAlso GrBackendTexture MakeFromBackendRenderTarget MakeRenderTarget
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
-                                                   const GrBackendTexture& backendTexture,
-                                                   GrSurfaceOrigin origin, int sampleCnt,
                                                    SkColorType colorType,
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps)

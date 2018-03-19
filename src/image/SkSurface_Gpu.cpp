@@ -312,37 +312,6 @@ sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(GrContext* context,
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-
-sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
-                                                   GrSurfaceOrigin origin, int sampleCnt,
-                                                   sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* props) {
-    if (!context) {
-        return nullptr;
-    }
-    if (!SkSurface_Gpu::Valid(context, tex.config(), colorSpace.get())) {
-        return nullptr;
-    }
-    sampleCnt = SkTMax(1, sampleCnt);
-
-    sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeBackendTextureRenderTargetContext(
-                                                                    tex,
-                                                                    origin,
-                                                                    sampleCnt,
-                                                                    std::move(colorSpace),
-                                                                    props));
-    if (!rtc) {
-        return nullptr;
-    }
-
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), tex.width(), tex.height(),
-                                                SkGpuDevice::kUninit_InitContents));
-    if (!device) {
-        return nullptr;
-    }
-    return sk_make_sp<SkSurface_Gpu>(std::move(device));
-}
-
 bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPixelConfig* config,
                               int sampleCnt, SkColorType ct, sk_sp<SkColorSpace> cs,
                               bool texturable) {
@@ -385,7 +354,31 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
         return nullptr;
     }
 
-    return MakeFromBackendTexture(context, texCopy, origin, sampleCnt, colorSpace, props);
+    if (!context) {
+        return nullptr;
+    }
+    if (!SkSurface_Gpu::Valid(context, texCopy.config(), colorSpace.get())) {
+        return nullptr;
+    }
+    sampleCnt = SkTMax(1, sampleCnt);
+
+    sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeBackendTextureRenderTargetContext(
+        texCopy,
+        origin,
+        sampleCnt,
+        std::move(colorSpace),
+        props));
+    if (!rtc) {
+        return nullptr;
+    }
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), texCopy.width(),
+                                                texCopy.height(),
+                                                SkGpuDevice::kUninit_InitContents));
+    if (!device) {
+        return nullptr;
+    }
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
