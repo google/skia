@@ -9,8 +9,9 @@
 #define GrTextureStripAtlas_DEFINED
 
 #include "SkBitmap.h"
-#include "SkOpts.h"
 #include "SkGr.h"
+#include "SkOpts.h"
+#include "SkRefCnt.h"
 #include "SkTDArray.h"
 #include "SkTDynamicHash.h"
 #include "SkTypes.h"
@@ -22,7 +23,7 @@ class GrTextureProxy;
  * Maintains a single large texture whose rows store many textures of a small fixed height,
  * stored in rows across the x-axis such that we can safely wrap/repeat them horizontally.
  */
-class GrTextureStripAtlas {
+class GrTextureStripAtlas : public SkRefCnt {
 public:
     /**
      * Descriptor struct which we'll use as a hash table key
@@ -87,7 +88,7 @@ private:
      * The state of a single row in our cache, next/prev pointers allow these to be chained
      * together to represent LRU status
      */
-    struct AtlasRow : SkNoncopyable {
+    struct AtlasRow : ::SkNoncopyable {
         AtlasRow() : fKey(kEmptyAtlasRowKey), fLocks(0), fNext(nullptr), fPrev(nullptr) { }
         // GenerationID of the bitmap that is represented by this row, 0xffffffff means "empty"
         uint32_t fKey;
@@ -174,7 +175,7 @@ public:
     /**
      * Try to find an atlas with the required parameters, creates a new one if necessary
      */
-    GrTextureStripAtlas* getAtlas(const GrTextureStripAtlas::Desc&);
+    sk_sp<GrTextureStripAtlas> refAtlas(const GrTextureStripAtlas::Desc&);
 
 private:
     void deleteAllAtlases();
@@ -182,11 +183,11 @@ private:
     // Hash table entry for atlases
     class AtlasEntry : public ::SkNoncopyable {
     public:
-        AtlasEntry(const GrTextureStripAtlas::Desc& desc, GrTextureStripAtlas* atlas)
+        AtlasEntry(const GrTextureStripAtlas::Desc& desc, sk_sp<GrTextureStripAtlas> atlas)
             : fDesc(desc)
-            , fAtlas(atlas) {
+            , fAtlas(std::move(atlas)) {
         }
-        ~AtlasEntry() { delete fAtlas; }
+        ~AtlasEntry() { }
 
         // for SkTDynamicHash
         static const GrTextureStripAtlas::Desc& GetKey(const AtlasEntry& entry) {
@@ -197,7 +198,7 @@ private:
         }
 
         const GrTextureStripAtlas::Desc fDesc;
-        GrTextureStripAtlas* fAtlas;
+        sk_sp<GrTextureStripAtlas> fAtlas;
     };
 
     typedef SkTDynamicHash<AtlasEntry, GrTextureStripAtlas::Desc> AtlasHash;
