@@ -99,6 +99,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             // read the texture back
             result = sContext->readPixels(ii, readback.get(), rowBytes, 0, 0);
+            // We don't require reading from kAlpha_8 to be supported. TODO: At least make this work
+            // when kAlpha_8 is renderable.
+            if (!result) {
+                continue;
+            }
             REPORTER_ASSERT(reporter, result, "Initial A8 readPixels failed");
 
             // make sure the original & read back versions match
