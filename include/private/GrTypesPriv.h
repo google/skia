@@ -679,7 +679,8 @@ enum class GrInternalSurfaceFlags {
 
     // Texture-only
 
-    /* coming soon */
+    kExt                = 1 << 1,
+    kRect               = 1 << 2,
 
     // RT-only
 
