@@ -47,11 +47,6 @@ public:
             const SkDescriptor* desc,
             SkRemoteScalerContext* rsc);
 
-    void setFontMetrics(const SkPaint::FontMetrics& fontMetrics) {
-        fFontMetrics = fontMetrics;
-        fHaveFontMetrics = true;
-    }
-
 protected:
     unsigned generateGlyphCount(void) override { SK_ABORT("Should never be called."); return 0;}
     uint16_t generateCharToGlyph(SkUnichar uni) override {
@@ -75,8 +70,6 @@ private:
 
     SkArenaAlloc  fAlloc{kMinAllocAmount};
     SkRemoteScalerContext* const fRemote;
-    bool fHaveFontMetrics{false};
-    SkPaint::FontMetrics fFontMetrics;
     typedef SkScalerContext INHERITED;
 };
 

@@ -774,14 +774,8 @@ static void prepopulate_cache(
         // TODO: implement effects handling.
         SkScalerContextEffects effects;
         if ((strike = SkGlyphCache::FindStrikeExclusive(*desc)) == nullptr) {
-            auto creator = [&effects, &tf, &fontMetrics](
-                const SkDescriptor& descriptor, bool canFail)
-            {
-                auto scaler = tf->createScalerContext(effects, &descriptor, canFail);
-                ((SkScalerContextProxy*)scaler.get())->setFontMetrics(*fontMetrics);
-                return scaler;
-            };
-            strike = SkGlyphCache::CreateStrikeExclusive(*desc,creator);
+            auto scaler = SkGlyphCache::CreateScalerContext(*desc, effects, *tf);
+            strike = SkGlyphCache::CreateStrikeExclusive(*desc, std::move(scaler), fontMetrics);
         }
 #if INSTRUMENT
         std::cout << std::hex << "prepop cache " << (intptr_t)cache
