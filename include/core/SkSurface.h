@@ -173,34 +173,6 @@ public:
         @param backendTexture  texture residing on GPU
         @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorSpace      range of colors
-        @param surfaceProps    LCD striping orientation and setting for device independent
-                               fonts; may be nullptr
-        @return                SkSurface if all parameters are valid; otherwise, nullptr
-    */
-    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
-                                                   const GrBackendTexture& backendTexture,
-                                                   GrSurfaceOrigin origin, int sampleCnt,
-                                                   sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* surfaceProps);
-
-    /** Wraps a GPU-backed texture into SkSurface. Caller must ensure the texture is
-        valid for the lifetime of returned SkSurface. If sampleCnt greater than zero,
-        creates an intermediate MSAA SkSurface which is used for drawing backendTexture.
-
-        SkSurface is returned if all parameters are valid. backendTexture is valid if
-        its pixel configuration agrees with colorSpace and context; for instance, if
-        backendTexture has an sRGB configuration, then context must support sRGB,
-        and colorSpace must be present. Further, backendTexture width and height must
-        not exceed context capabilities, and the context must be able to support
-        back-end textures.
-
-        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-        @param context         GPU context
-        @param backendTexture  texture residing on GPU
-        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
         @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
                                kRGB_565_SkColorType, kARGB_4444_SkColorType,
                                kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
