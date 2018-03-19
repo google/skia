@@ -16,7 +16,7 @@ SkScalerContextProxy::SkScalerContextProxy(
         const SkScalerContextEffects& effects,
         const SkDescriptor* desc,
         SkRemoteScalerContext* rsc)
-    : SkScalerContext{std::move(tf), effects, desc}
+    : INHERITED{std::move(tf), effects, desc}
     , fRemote{rsc} {}
 
 void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {

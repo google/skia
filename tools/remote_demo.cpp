@@ -306,19 +306,114 @@ public:
     };
 };
 
-
-class TrackLayerDevice : public SkNoPixelsDevice {
+class SkStrikesPrimeSpec {
 public:
-    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props)
+    virtual ~SkStrikesPrimeSpec() {}
+    virtual void perSession(int strikeCount) = 0;
+    virtual void perStrike(SkFontID, const SkDescriptor&, int glyphCount) = 0;
+    virtual void perGlyph(SkPackedGlyphID) = 0;
+};
+
+class SkStrikesPrimeData {
+public:
+    virtual ~SkStrikesPrimeData() {}
+    virtual void  perSession(int strikeCount) = 0;
+    virtual void  perStrike(SkFontID, const SkDescriptor&, SkPaint::FontMetrics&) = 0;
+    virtual void  perGlyph(const SkGlyph&) = 0;
+    virtual void* allocateImage(SkGlyph*, size_t) = 0;
+};
+
+// TODO: Handle effects.
+class SkStrikePrimeSpecToData final : public SkStrikesPrimeSpec {
+public:
+    explicit SkStrikePrimeSpecToData(SkStrikesPrimeData* primeData)
+        : fPrimeData{primeData} {}
+    void perSession(int strikeCount) override {
+        fPrimeData->perSession(strikeCount);
+    }
+
+    void perStrike(SkFontID typefaceID, const SkDescriptor& desc, int glyphCount) override {
+        SkScalerContextRecDescriptor recDesc{desc};
+        fScalerContext = fStrikeToScaler->generateScalerContext(recDesc, typefaceID);
+        SkPaint::FontMetrics fontMetrics;
+        fScalerContext->getFontMetrics(&fontMetrics);
+        fPrimeData->perStrike(typefaceID, desc, fontMetrics);
+    }
+
+    void perGlyph(SkPackedGlyphID glyphID) override {
+        SkGlyph glyph;
+        glyph.initWithGlyphID(glyphID);
+        fScalerContext->getMetrics(&glyph);
+        auto imageSize = glyph.computeImageSize();
+        glyph.fImage = nullptr;
+        glyph.fPathData = nullptr;
+
+        if (imageSize > 0) {
+            glyph.fImage = fPrimeData->allocateImage(&glyph, imageSize);
+            fScalerContext->getImage(glyph);
+        }
+        fPrimeData->perGlyph(glyph);
+    }
+
+private:
+    SkStrikesPrimeData* const fPrimeData;
+    SkScalerContext* fScalerContext;
+    SkRemoteGlyphCacheRenderer* fStrikeToScaler;
+};
+
+// Fill in a cache given the data for the different caches.
+// This is a sink.
+class SkFillGlyphCache final : public SkStrikesPrimeData {
+public:
+    // Nothing to do because this is a sink.
+    void perSession(int) override {}
+
+    void perStrike(
+            SkFontID typefaceID, const SkDescriptor& desc, SkPaint::FontMetrics& fontMetrics) override {
+        auto tf = fTypefaceIDToTypeface->lookupTypeface(typefaceID);
+        // TODO: implement effects handling.
+        SkScalerContextEffects effects;
+        if ((fStrike = SkGlyphCache::FindStrikeExclusive(desc)) == nullptr) {
+            auto scaler = SkGlyphCache::CreateScalerContext(desc, effects, *tf);
+            fStrike = SkGlyphCache::CreateStrikeExclusive(desc, std::move(scaler), &fontMetrics);
+        }
+    }
+
+    // TODO: move setFontMetrics to SkScalerContext. This would make it so this code is not GPU
+    // specific.
+    void perGlyph(const SkGlyph& inGlyph) override {
+        if (!fStrike->isGlyphInCache(inGlyph.getPackedID())) {
+            SkGlyph *allocatedGlyph = fStrike->getRawGlyphByID(inGlyph.getPackedID());
+            *allocatedGlyph = inGlyph;
+            auto imageSize = inGlyph.computeImageSize();
+            if (imageSize > 0) {
+                memcpy(allocatedGlyph->fImage, inGlyph.fImage, imageSize);
+            }
+        }
+    }
+
+    void* allocateImage(SkGlyph* glyph, size_t size) override {
+        glyph->allocImage(fStrike->getAlloc());
+        return glyph->fImage;
+    }
+
+private:
+    SkExclusiveStrikePtr   fStrike;
+    SkRemoteGlyphCacheGPU* fTypefaceIDToTypeface;
+    using INHERITED = SkStrikesPrimeData;
+};
+
+class SkGlyphCachePrimerDevice : public SkNoPixelsDevice {
+public:
+    SkGlyphCachePrimerDevice(const SkIRect& bounds, const SkSurfaceProps& props)
             : SkNoPixelsDevice(bounds, props) { }
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-        return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps);
+        return new SkGlyphCachePrimerDevice(this->getGlobalBounds(), surfaceProps);
     }
 };
 
-
-class TextBlobFilterCanvas : public SkNoDrawCanvas {
+class SkGlyphCachePrimerCanvas : public SkNoDrawCanvas {
 public:
     struct StrikeSpec {
         StrikeSpec(SkFontID typefaceID_, uint32_t descLength_, int glyphCount_)
@@ -337,14 +432,27 @@ public:
         const int strikeCount;
     };
 
-    TextBlobFilterCanvas(int width, int height,
+    SkGlyphCachePrimerCanvas(int width, int height,
                          const SkMatrix& deviceMatrix,
                          const SkSurfaceProps& props,
                          SkScalerContextFlags flags)
-        : SkNoDrawCanvas{new TrackLayerDevice{SkIRect::MakeWH(width, height), props}}
+        : SkNoDrawCanvas{new SkGlyphCachePrimerDevice{SkIRect::MakeWH(width, height), props}}
         , fDeviceMatrix{deviceMatrix}
         , fSurfaceProps{props}
         , fScalerContextFlags{flags} { }
+
+    void generateSpec(SkStrikesPrimeSpec* primerSpec) {
+        primerSpec->perSession(fDescMap.size());
+        for (auto& i : fDescMap) {
+            auto accum = &i.second;
+            primerSpec->perStrike(accum->typefaceID, *accum->desc, accum->glyphIDs->count());
+            accum->glyphIDs->foreach(
+                [primerSpec](SkPackedGlyphID id) {
+                    primerSpec->perGlyph(id);
+                }
+            );
+        }
+    }
 
     void writeSpecToTransport(Transport* transport) {
         transport->emplace<Header>((int)fDescMap.size());
@@ -402,10 +510,10 @@ public:
                                PerHeader perHeader,
                                PerStrike perStrike,
                                PerGlyph perGlyph) {
-        auto header = transport->read<TextBlobFilterCanvas::Header>();
+        auto header = transport->read<SkGlyphCachePrimerCanvas::Header>();
         perHeader(header);
         for (int i = 0; i < header->strikeCount; i++) {
-            auto strike = transport->read<TextBlobFilterCanvas::StrikeSpec>();
+            auto strike = transport->read<SkGlyphCachePrimerCanvas::StrikeSpec>();
             auto desc = transport->readDescriptor();
             //desc->assertChecksum();
             perStrike(strike, desc);
@@ -416,9 +524,9 @@ public:
         }
     }
 
-    template <typename PerStrike, typename PerGlyph, typename FinishStrike>
+    template <typename PerStrike, typename PerGlyph>
     void readDataFromTransport(
-        Transport* transport, PerStrike perStrike, PerGlyph perGlyph, FinishStrike finishStrike) {
+        Transport* transport, PerStrike perStrike, PerGlyph perGlyph) {
         auto header = transport->read<Header>();
         for (int i = 0; i < header->strikeCount; i++) {
             auto strike = transport->read<StrikeSpec>();
@@ -434,10 +542,8 @@ public:
                 }
                 perGlyph(glyph, image);
             }
-            finishStrike();
         }
     }
-
 
 protected:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
@@ -464,24 +570,13 @@ protected:
         }
     }
 
-    void onDrawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {
-        SK_ABORT("DrawText");
-    }
-    void onDrawPosText(const void*, size_t, const SkPoint[], const SkPaint&) override {
-        SK_ABORT("DrawPosText");
-    }
-    void onDrawPosTextH(const void*, size_t, const SkScalar[], SkScalar, const SkPaint&) override {
-        SK_ABORT("DrawPosTextH");
-    }
-
 private:
     using PosFn = SkPoint(*)(int index, const SkScalar* pos);
     using MapFn = SkPoint(*)(const SkMatrix& m, SkPoint pt);
 
     struct CacheAccum {
-        SkFontID typefaceID;
+        sk_sp<SkTypeface> typeface;
         SkDescriptor* desc;
-        //std::vector<SkPackedGlyphID> glyphIDs;
         std::unique_ptr<SkTHashSet<SkPackedGlyphID>> glyphIDs;
     };
 
@@ -603,8 +698,10 @@ private:
             CacheAccum newAccum;
             newAccum.desc = newDescPtr;
 
-            newAccum.typefaceID =
-                SkTypefaceProxy::DownCast(runPaint.getTypeface())->fontID();
+            newAccum.typeface = runPaint.refTypeface();
+
+            //newAccum.typefaceID =
+                //SkTypefaceProxy::DownCast(runPaint.getTypeface())->fontID();
 
             newAccum.glyphIDs = skstd::make_unique<SkTHashSet<SkPackedGlyphID>>();
             mapIter = fDescMap.emplace_hint(mapIter, newDescPtr, std::move(newAccum));
@@ -756,7 +853,7 @@ static void prepopulate_cache(
     Transport* transport,
     SkRemoteGlyphCacheGPU* cache,
     sk_sp<SkPicture> pic,
-    TextBlobFilterCanvas* filter) {
+    SkGlyphCachePrimerCanvas* filter) {
 
     pic->playback(filter);
 
@@ -767,7 +864,7 @@ static void prepopulate_cache(
 
     SkExclusiveStrikePtr strike;
 
-    auto perStrike = [&strike, cache](TextBlobFilterCanvas::StrikeSpec* spec,
+    auto perStrike = [&strike, cache](SkGlyphCachePrimerCanvas::StrikeSpec* spec,
                                           SkDescriptor* desc,
                                           SkPaint::FontMetrics* fontMetrics) {
         auto tf = cache->lookupTypeface(spec->typefaceID);
@@ -784,6 +881,8 @@ static void prepopulate_cache(
                   << " glyph count: " << spec->glyphCount << std::endl;
         auto rec = (SkScalerContextRec*)desc->findEntry(kRec_SkDescriptorTag, nullptr);
         SkDebugf("%s\n", rec->dump().c_str());
+        SkDebugf("========= Sending prep cache ========\n");
+
 #endif
 
     };
@@ -795,18 +894,11 @@ static void prepopulate_cache(
         memcpy(allocatedGlyph->fImage, image.data(), image.size());
     };
 
-    auto finishStrike = [&strike]() {
-        strike.reset(nullptr);
-    };
-
     // needed for font metrics mistake.
     Transport in = Transport::DoubleBuffer(*transport);
-#if INSTRUMENT
-    SkDebugf("========= Sending prep cache ========\n");
-#endif
 
     in.startRead();
-    filter->readDataFromTransport(&in, perStrike, perGlyph, finishStrike);
+    filter->readDataFromTransport(&in, perStrike, perGlyph);
     in.endRead();
 }
 
@@ -828,7 +920,7 @@ static void final_draw(std::string outFilename,
 
     SkMatrix deviceMatrix = SkMatrix::I();
     // kFakeGammaAndBoostContrast
-    TextBlobFilterCanvas filter(
+    SkGlyphCachePrimerCanvas filter(
         r.width(), r.height(), deviceMatrix, s->props(),
         SkScalerContextFlags::kFakeGammaAndBoostContrast);
 
@@ -981,12 +1073,11 @@ static int renderer(
                     Transport out = Transport::DoubleBuffer(transport);
 
                     out.startWrite();
-                    TextBlobFilterCanvas::WriteDataToTransport(&in ,&out, &rc);
+
+                    SkGlyphCachePrimerCanvas::WriteDataToTransport(&in ,&out, &rc);
+
                     out.endWrite();
                     in.endRead();
-
-                    //std::cout << "read prepopulate spec size: " << in.size() << std::endl;
-                    //std::cout << "write prepopulate data size: " << out.size() << std::endl;
                     break;
                 }
                 default:

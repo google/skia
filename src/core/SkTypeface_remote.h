@@ -68,7 +68,7 @@ private:
 
     SkTypefaceProxy* typefaceProxy();
 
-    SkArenaAlloc  fAlloc{kMinAllocAmount};
+    SkArenaAlloc                 fAlloc{kMinAllocAmount};
     SkRemoteScalerContext* const fRemote;
     typedef SkScalerContext INHERITED;
 };
