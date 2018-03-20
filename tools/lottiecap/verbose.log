@@ -1,0 +1,20 @@
+168ms	6 srcs * 1 sinks + 0 tests == 6 tasks
+168ms	start 8888 json  client_secret_31977622648-utchjftf485h6q7fih17jdl7pusqabc4.apps.googleusercontent.com.json
+168ms	start 8888 json  client_secret_31977622648-1873k0c1e5edaka4adpv1ppvhr5id3qm.apps.googleusercontent.com.json
+168ms	168ms	start 8888 json  online-offline.json
+start 8888 json  merry_christmas.json
+168ms	start 8888 json  client_secret_575346572923.apps.googleusercontent.com.json
+168ms	start 8888 json  client_secret_31977622648-utchjftf485h6q7fih17jdl7pusqabc4.apps.googleusercontent.com (1).json
+169ms	169ms	done  8888 json  client_secret_31977622648-utchjftf485h6q7fih17jdl7pusqabc4.apps.googleusercontent.com.json
+169ms	done  8888 json  client_secret_575346572923.apps.googleusercontent.com.json
+done  8888 json  client_secret_31977622648-1873k0c1e5edaka4adpv1ppvhr5id3qm.apps.googleusercontent.com.json
+169ms	done  8888 json  client_secret_31977622648-utchjftf485h6q7fih17jdl7pusqabc4.apps.googleusercontent.com (1).json
+327ms	done  8888 json  online-offline.json
+581ms	done  8888 json  merry_christmas.json
+581ms	
+46MB RAM, 52MB peak, 581ms elapsed, 0 queued, 0 active:
+582ms		8888 json  client_secret_31977622648-utchjftf485h6q7fih17jdl7pusqabc4.apps.googleusercontent.com.json: Unable to parse file: client_secret_31977622648-utchjftf485h6q7fih17jdl7pusqabc4.apps.googleusercontent.com.json
+582ms		8888 json  client_secret_31977622648-1873k0c1e5edaka4adpv1ppvhr5id3qm.apps.googleusercontent.com.json: Unable to parse file: client_secret_31977622648-1873k0c1e5edaka4adpv1ppvhr5id3qm.apps.googleusercontent.com.json
+582ms		8888 json  client_secret_575346572923.apps.googleusercontent.com.json: Unable to parse file: client_secret_575346572923.apps.googleusercontent.com.json
+582ms		8888 json  client_secret_31977622648-utchjftf485h6q7fih17jdl7pusqabc4.apps.googleusercontent.com (1).json: Unable to parse file: client_secret_31977622648-utchjftf485h6q7fih17jdl7pusqabc4.apps.googleusercontent.com (1).json
+582ms	4 failures

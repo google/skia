@@ -49,7 +49,8 @@
         },
       });
 
-      anim.addEventListener('data_ready', e => {
+      anim.addEventListener('data_ready', (e) => {
+        console.log("got here");
         // Once the first tile is loaded, calculate what
         // the filmstrip should look like.
         let width = anim.animationData.w;
@@ -59,7 +60,7 @@
         let tileHeight = Math.ceil(scale * height);
 
         let inPoint = anim.animationData.ip || 0;
-        let outPoint = anim.animationData.op || anim.animationData.totalFrames - 1;
+        let outPoint = (anim.animationData.op || anim.animationData.totalFrames) - 1;
         let frameStep = (outPoint - inPoint) / (TILE_COUNT * TILE_COUNT - 1);
 
         let main = document.querySelector('main');
@@ -73,33 +74,41 @@
         // Clear out the first div now that our measurements are done.
         main.firstElementChild.remove();
 
-        // Add in the 5x5 tiled divs.
-        for (let i = 0; i < (TILE_COUNT*TILE_COUNT); i++) {
+        let i = 0;
+        document.addEventListener('add-next-tile', (e) => {
           let div = document.createElement('div');
           div.classList.add('anim');
           div.style.width = tileWidth + 'px';
           div.style.height = tileHeight + 'px';
           main.appendChild(div);
 
-          let frameStop = i * frameStep;
+          let frameStop = Math.round(Math.min(outPoint, Math.ceil(i * frameStep)));
 
           let anim = lottie.loadAnimation({
             container: div,
             renderer: renderer,
             loop: false,
-            autoplay: true,
+            autoplay: false,
             path: PATH,
             rendererSettings: {
               preserveAspectRatio:'xMidYMid meet'
             },
           });
+
           anim.addEventListener('enterFrame', (e) => {
+            console.log(i, anim.currentFrame, Math.round(anim.currentFrame), frameStop, Math.round(frameStop));
             if (Math.round(anim.currentFrame) >= frameStop) {
               anim.pause();
               window._tileCount += 1;
+              i += 1;
+              if (i<25) {
+                document.dispatchEvent(new CustomEvent('add-next-tile'));
+              }
             }
           });
-        }
+          anim.goToAndPlay(frameStop-1, true);
+        });
+        document.dispatchEvent(new CustomEvent('add-next-tile'));
       });
     })();
   </script>
