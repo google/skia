@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76d44bc5_a1bbd1e6",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-20T19:24:51Z",
+      "side": 1,
+      "message": "shouldn\u0027t we be checking if the bitmap is mutable or not?",
+      "range": {
+        "startLine": 203,
+        "startChar": 9,
+        "endLine": 203,
+        "endChar": 71
+      },
+      "revId": "ad39390a9e6502cf4410d795da1100c89f2cdb3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
