@@ -368,12 +368,17 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     Sk2s B = coeff.fB;
     Sk2s C = coeff.fC;
     Sk2s D = coeff.fD;
+    Sk2s zero(0);
     for (int i = 1; i < lines; ++i) {
         t = t + dt;
-        (((A * t + B) * t + C) * t + D).store(&tmp[i]);
+        Sk2s p = ((A * t + B) * t + C) * t + D;
+        zero = zero * p;
+        p.store(&tmp[i]);
     }
-    tmp[lines] = pts[3];
-    lineproc(tmp, lines + 1, clip, blitter);
+    if ((zero == Sk2s(0)).allTrue()) {
+        tmp[lines] = pts[3];
+        lineproc(tmp, lines + 1, clip, blitter);
+    } // else some point(s) are non-finite, so don't draw
 }
 
 static SkRect compute_nocheck_cubic_bounds(const SkPoint pts[4]) {
