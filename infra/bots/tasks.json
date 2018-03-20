@@ -467,6 +467,12 @@
         "Build-Win-Clang-x86-Debug"
       ]
     },
+    "Build-Win-Clang-x86-Debug-Exceptions": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86-Debug-Exceptions"
+      ]
+    },
     "Build-Win-Clang-x86-Release": {
       "priority": 0.8,
       "tasks": [
@@ -525,12 +531,6 @@
       "priority": 0.8,
       "tasks": [
         "Build-Win-MSVC-x86-Debug"
-      ]
-    },
-    "Build-Win-MSVC-x86-Debug-Exceptions": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Win-MSVC-x86-Debug-Exceptions"
       ]
     },
     "Build-Win-MSVC-x86-Release": {
@@ -5470,6 +5470,40 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Win-Clang-x86-Debug-Exceptions": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86-Debug-Exceptions",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Win-Clang-x86-Release": {
       "cipd_packages": [
         {
@@ -5795,33 +5829,6 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Win-MSVC-x86-Debug-Exceptions": {
-      "dependencies": [
-        "Housekeeper-PerCommit-IsolateWinToolchain"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highcpu-64",
-        "os:Windows-2016Server-14393",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Win-MSVC-x86-Debug-Exceptions",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
