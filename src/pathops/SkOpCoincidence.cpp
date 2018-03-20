@@ -1324,7 +1324,7 @@ bool SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
         SkOpSpanBase* oStart = coin->oppPtTStartWritable()->span();
         SkOPASSERT(!oStart->deleted());
         SkOpSpanBase* oEnd = coin->oppPtTEndWritable()->span();
-        SkASSERT(!oEnd->deleted());
+        FAIL_IF(oEnd->deleted());
         bool flipped = coin->flipped();
         if (flipped) {
             SkTSwap(oStart, oEnd);
