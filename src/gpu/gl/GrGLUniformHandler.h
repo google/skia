@@ -43,8 +43,8 @@ private:
     SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrSLType, GrSLPrecision,
                              const char* name) override;
 
-    const GrShaderVar& samplerVariable(SamplerHandle handle) const override {
-        return fSamplers[handle.toIndex()].fVariable;
+    const char* samplerVariable(SamplerHandle handle) const override {
+        return fSamplers[handle.toIndex()].fVariable.c_str();
     }
 
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override {

@@ -367,7 +367,8 @@ public:
             , fColor(color)
             , fCoverage(coverage)
             , fViewMatrix(viewMatrix)
-            , fIsHairline(isHairline) {
+            , fIsHairline(isHairline)
+            , fTriangleFansSupported(true) {
         fPaths.emplace_back(PathData{path, tolerance});
 
         this->setBounds(devBounds, HasAABloat::kNo,
@@ -378,6 +379,7 @@ public:
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                 GrPixelConfigIsClamped dstIsClamped) override {
+        fTriangleFansSupported = caps.triangleFanSupport();
         GrProcessorAnalysisCoverage gpCoverage =
                 this->coverage() == 0xFF ? GrProcessorAnalysisCoverage::kNone
                                          : GrProcessorAnalysisCoverage::kSingleChannel;
@@ -415,6 +417,10 @@ private:
             primitiveType = isIndexed ? GrPrimitiveType::kTriangles : GrPrimitiveType::kTriangleFan;
         }
 
+        if (GrPrimitiveType::kTriangleFan == primitiveType && !fTriangleFansSupported) {
+            primitiveType = GrPrimitiveType::kTriangles;
+            isIndexed = true;
+        }
         PathGeoBuilder pathGeoBuilder(primitiveType, target, gp.get(),
                                       fHelper.makePipeline(target));
 
@@ -468,6 +474,7 @@ private:
     uint8_t fCoverage;
     SkMatrix fViewMatrix;
     bool fIsHairline;
+    bool fTriangleFansSupported;
 
     typedef GrMeshDrawOp INHERITED;
 };

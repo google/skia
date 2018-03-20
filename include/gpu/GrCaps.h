@@ -38,6 +38,7 @@ public:
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
         only for POT textures) */
     bool mipMapSupport() const { return fMipMapSupport; }
+    bool triangleFanSupport() const { return fTriangleFanSupport; }
 
     /**
      * Skia convention is that a device only has sRGB support if it supports sRGB formats for both
@@ -73,6 +74,8 @@ public:
     // On tilers, an initial fullscreen clear is an OPTIMIZATION. It allows the hardware to
     // initialize each tile with a constant value rather than loading each pixel from memory.
     bool preferFullscreenClears() const { return fPreferFullscreenClears; }
+
+    bool useDrawForClear() const { return fUseDrawForClear; }
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
@@ -260,6 +263,8 @@ protected:
 
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipMapSupport                              : 1;
+    bool fTriangleFanSupport                         : 1;
+    bool fUseDrawForClear                            : 1;
     bool fSRGBSupport                                : 1;
     bool fSRGBWriteControl                           : 1;
     bool fSRGBDecodeDisableSupport                   : 1;

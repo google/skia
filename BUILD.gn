@@ -29,6 +29,7 @@ declare_args() {
   skia_use_piex = !is_win
   skia_use_zlib = true
   skia_use_metal = false
+  skia_use_nxt = true
   skia_use_libheif = is_skia_dev_build
   skia_use_skcms = is_skia_dev_build
 
@@ -55,6 +56,11 @@ declare_args() {
   skia_skqp_enable_driver_correctness_workarounds = false
   skia_skqp_global_error_tolerance = 0
 }
+
+if (skia_use_nxt) {
+  import("third_party/nxt/features.gni")
+}
+
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
@@ -122,6 +128,9 @@ if (skia_enable_atlas_text) {
 }
 if (skia_use_metal) {
   skia_public_includes += [ "include/gpu/mtl" ]
+}
+if (skia_use_nxt) {
+  skia_public_includes += [ "include/gpu/nxt" ]
 }
 
 # Skia public API, generally provided by :skia.
@@ -615,6 +624,33 @@ optional("gpu") {
     public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 
+  if (skia_use_nxt) {
+    public_defines += [ "SK_NXT" ]
+    sources += skia_nxt_sources
+    deps += [
+      "//third_party/nxt:nxt_backend",
+      "//third_party/nxt:nxtcpp",
+    ]
+    if (skia_nxt_enable_opengl) {
+      public_defines += [ "SK_NXT_OPENGL" ]
+    }
+    if (skia_nxt_enable_metal) {
+      public_defines += [ "SK_NXT_METAL" ]
+      libs += [ "Metal.framework" ]
+    }
+    if (skia_nxt_enable_d3d12) {
+      public_defines += [ "SK_NXT_D3D12" ]
+      libs += [
+        "d3d12.lib",
+        "dxgi.lib",
+        "d3dcompiler.lib",
+      ]
+      if (is_debug) {
+        libs += [ "dxguid.lib" ]
+      }
+    }
+  }
+
   cflags_objcc = []
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
@@ -761,6 +797,11 @@ optional("xml") {
 component("skia") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
+  if (skia_use_nxt) {
+    public_deps = [
+      "//third_party/nxt:nxt",
+    ]
+  }
 
   deps = [
     ":arm64",
@@ -1215,6 +1256,12 @@ if (skia_enable_tools) {
       }
       if (skia_use_metal) {
         sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
+      }
+      if (skia_use_nxt) {
+        sources += [ "tools/gpu/nxt/NXTTestContext.cpp" ]
+      }
+      if (skia_nxt_enable_metal) {
+        sources += [ "tools/gpu/nxt/InitNXTMTL.mm" ]
       }
     }
   }
@@ -1924,6 +1971,30 @@ if (skia_enable_tools) {
           libs += [ "X11-xcb" ]
         } else if (is_win) {
           sources += [ "tools/sk_app/win/VulkanWindowContext_win.cpp" ]
+        }
+      }
+
+      if (skia_use_nxt) {
+        sources += [ "tools/sk_app/NXTWindowContext.cpp" ]
+        sources += [ "tools/sk_app/NXTGLWindowContext.cpp" ]
+        if (is_linux) {
+          if (skia_nxt_enable_opengl) {
+            sources += [ "tools/sk_app/unix/NXTGLWindowContext_unix.cpp" ]
+          }
+        } else if (is_mac) {
+          if (skia_nxt_enable_metal) {
+            sources += [ "tools/sk_app/mac/NXTMTLWindowContext_mac.mm" ]
+          }
+          if (skia_nxt_enable_opengl) {
+            sources += [ "tools/sk_app/mac/NXTGLWindowContext_mac.cpp" ]
+          }
+        } else if (is_win) {
+          if (skia_nxt_enable_d3d12) {
+            sources += [ "tools/sk_app/win/NXTD3D12WindowContext_win.cpp" ]
+          }
+          if (skia_nxt_enable_opengl) {
+            sources += [ "tools/sk_app/win/NXTGLWindowContext_win.cpp" ]
+          }
         }
       }
 

@@ -166,6 +166,10 @@ public:
     bool canUseFragCoord() const {
         return true;
     }
+
+    bool combinedTextureShaderSupport() const {
+        return true;
+    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
