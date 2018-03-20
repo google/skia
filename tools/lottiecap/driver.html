@@ -49,7 +49,7 @@
         },
       });
 
-      anim.addEventListener('data_ready', e => {
+      anim.addEventListener('data_ready', (e) => {
         // Once the first tile is loaded, calculate what
         // the filmstrip should look like.
         let width = anim.animationData.w;
@@ -58,8 +58,8 @@
         let tileWidth = Math.ceil(scale * width);
         let tileHeight = Math.ceil(scale * height);
 
-        let inPoint = anim.animationData.ip || 0;
-        let outPoint = anim.animationData.op || anim.animationData.totalFrames - 1;
+        let inPoint = (anim.animationData.ip || 0) / anim.frameRate;
+        let outPoint = (anim.animationData.op || (anim.animationData.totalFrames - 1)) / anim.frameRate;
         let frameStep = (outPoint - inPoint) / (TILE_COUNT * TILE_COUNT - 1);
 
         let main = document.querySelector('main');
@@ -73,8 +73,8 @@
         // Clear out the first div now that our measurements are done.
         main.firstElementChild.remove();
 
-        // Add in the 5x5 tiled divs.
-        for (let i = 0; i < (TILE_COUNT*TILE_COUNT); i++) {
+        // Add in all the tiles.
+        for (let i = 0; i < TILE_COUNT*TILE_COUNT; i++) {
           let div = document.createElement('div');
           div.classList.add('anim');
           div.style.width = tileWidth + 'px';
@@ -87,17 +87,18 @@
             container: div,
             renderer: renderer,
             loop: false,
-            autoplay: true,
+            autoplay: false,
             path: PATH,
             rendererSettings: {
               preserveAspectRatio:'xMidYMid meet'
             },
           });
-          anim.addEventListener('enterFrame', (e) => {
-            if (Math.round(anim.currentFrame) >= frameStop) {
-              anim.pause();
-              window._tileCount += 1;
-            }
+
+          anim.addEventListener('data_ready', (e) => {
+            console.log(frameStop*1000);
+            // Once data is loaded, jump to the right frame.
+            anim.goToAndStop(frameStop * anim.frameRate, true);
+            window._tileCount += 1;
           });
         }
       });
