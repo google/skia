@@ -14,7 +14,7 @@ layout(builtin=10007) out sk_PerVertex {
     layout(builtin=3) float sk_ClipDistance[1];
 };
 
-layout(builtin=8) int sk_InvocationID;
+layout(builtin=8) in int sk_InvocationID;
 
 sk_has_side_effects void EmitStreamVertex(int stream);
 sk_has_side_effects void EndStreamPrimitive(int stream);
