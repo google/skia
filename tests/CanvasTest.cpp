@@ -135,7 +135,9 @@ template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
     proc(SkPictureRecorder().beginRecording(SkRect::MakeIWH(w, h)));
 
     SkNullWStream stream;
-    proc(SkDocument::MakePDF(&stream)->beginPage(SkIntToScalar(w), SkIntToScalar(h)));
+    if (auto doc = SkDocument::MakePDF(&stream)) {
+        proc(doc->beginPage(SkIntToScalar(w), SkIntToScalar(h)));
+    }
 
     proc(SkSurface::MakeRasterN32Premul(w, h, nullptr)->getCanvas());
 }
@@ -562,8 +564,8 @@ TEST_STEP(NestedSaveRestoreWithFlush, NestedSaveRestoreWithFlushTestStep);
 static void TestPdfDevice(skiatest::Reporter* reporter, const TestData& d, CanvasTestStep* step) {
     SkDynamicMemoryWStream outStream;
     sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
-    REPORTER_ASSERT(reporter, doc);
     if (!doc) {
+        INFOF(reporter, "PDF disabled; TestPdfDevice test skipped.");
         return;
     }
     SkCanvas* canvas = doc->beginPage(SkIntToScalar(d.fWidth),
@@ -805,7 +807,9 @@ DEF_TEST(CanvasClipType, r) {
 
     // test clipstack backend
     SkDynamicMemoryWStream stream;
-    test_cliptype(SkDocument::MakePDF(&stream)->beginPage(100, 100), r);
+    if (auto doc = SkDocument::MakePDF(&stream)) {
+        test_cliptype(doc->beginPage(100, 100), r);
+    }
 }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
