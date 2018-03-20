@@ -1,0 +1,1 @@
+./node_modules/lottie-web/build/player/lottie.min.js
