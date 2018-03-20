@@ -327,6 +327,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
             modifiers.fLayout.fInvocations = -1;
             Variable* invocationId = (Variable*) (*fSymbolTable)["sk_InvocationID"];
             ASSERT(invocationId);
+            invocationId->fModifiers.fFlags = 0;
             invocationId->fModifiers.fLayout.fBuiltin = -1;
             if (modifiers.fLayout.description() == "") {
                 return nullptr;
