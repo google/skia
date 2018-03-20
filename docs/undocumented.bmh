@@ -33,6 +33,7 @@
  SK_HAS_JPEG_LIBRARY # ditto
  SK_HAS_PNG_LIBRARY # ditto
  SK_HAS_WEBP_LIBRARY # ditto
+ SK_PMCOLOR_BYTE_ORDER # ditto
 
 # FreeType related
 FT_LOAD_TARGET_LIGHT
@@ -168,6 +169,8 @@ FT_Load_Glyph
     #Method static sk_sp<SkColorSpace> MakeSRGBLinear()
     ##
     #Method bool gammaCloseToSRGB() const
+    ##
+    #Method static bool Equals(const SkColorSpace* src, const SkColorSpace* dst)
     ##
 ##
 #EnumClass SkTransferFunctionBehavior

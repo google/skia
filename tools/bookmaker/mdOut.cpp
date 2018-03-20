@@ -1129,7 +1129,9 @@ void MdOut::markTypeOut(Definition* def) {
             SkASSERT(0); // handle everything
             break;
     }
+    TableState saveState = fTableState;
     this->childrenOut(def, textStart);
+    fTableState = saveState;
     switch (def->fMarkType) {  // post child work, at least for tables
         case MarkType::kAnchor:
             if (fColumn > 0) {
@@ -1451,10 +1453,11 @@ void MdOut::subtopicOut(const TableContents& tableContents) {
             }
         }
         if (!oneLiner) {
-            SkDebugf(""); // convenient place to set a breakpoint
+            TextParser parser(entry.second->fFileName, entry.second->fStart,
+                    entry.second->fContentStart, entry.second->fLineCount);
+            parser.reportError("missing #Line");
+            continue;
         }
-        // TODO: detect this earlier? throw error here?
-        SkASSERT(oneLiner);
         this->rowOut(entry.first.c_str(), string(oneLiner->fContentStart,
             oneLiner->fContentEnd - oneLiner->fContentStart));
         if (tableContents.fShowClones && entry.second->fCloned) {

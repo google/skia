@@ -573,7 +573,7 @@ Result is rounded down.
    SkDebugf("left: %d right: %d centerX: %d ", rect.left(), rect.right(), rect.centerX());
    SkDebugf("safe mid x: %d\n", rect.left() / 2 + rect.right() / 2);
 #StdOut
-left: 1073741824 right: 1073741826 centerX: -1073741823 safe mid x: 1073741825
+left: 1073741824 right: 1073741826 centerX: 1073741825 safe mid x: 1073741825
 ##
 ##
 

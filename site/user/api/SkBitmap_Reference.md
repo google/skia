@@ -3629,7 +3629,7 @@ SK_DEBUG is defined at compile time.
 
 ### See Also
 
-<a href="SkImageInfo_Reference#SkImageInfo_validate">SkImageInfo::validate()</a>
+<a href="SkImageInfo_Reference#SkImageInfo_validate">SkImageInfo::validate</a>
 
 ---
 
