@@ -197,6 +197,11 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
 
     create_unique_key_for_image(srcImage.get(), &originalKey);
 
+    // If we are making copies of mutable bitmaps then the utility of the change listener is
+    // greatly decreased. In fact it will only be invoked when the bitmap is destroyed (i.e.,
+    // when the DDL is deleted in the DDL-world).
+    bool installInvalidator = !proxyProvider->mutableBitmapsNeedCopy();
+
     if (originalKey.isValid()) {
         proxy = proxyProvider->findOrCreateProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
     }
@@ -205,7 +210,8 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
                                                   SkBudgeted::kYes, fit);
         if (proxy && originalKey.isValid()) {
             proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
-            if (const SkBitmap* bm = as_IB(srcImage.get())->onPeekBitmap()) {
+            const SkBitmap* bm = as_IB(srcImage.get())->onPeekBitmap();
+            if (bm && installInvalidator) {
                 GrInstallBitmapUniqueKeyInvalidator(originalKey, bm->pixelRef());
             }
         }
