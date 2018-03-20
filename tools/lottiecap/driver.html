@@ -49,7 +49,11 @@
         },
       });
 
-      anim.addEventListener('data_ready', e => {
+      async function incrementallAddTiles() {
+        await new Promise(resolve => {
+          anim.addEventListener('data_ready', resolve);
+        });
+        console.log("got here");
         // Once the first tile is loaded, calculate what
         // the filmstrip should look like.
         let width = anim.animationData.w;
@@ -93,14 +97,21 @@
               preserveAspectRatio:'xMidYMid meet'
             },
           });
-          anim.addEventListener('enterFrame', (e) => {
-            if (Math.round(anim.currentFrame) >= frameStop) {
-              anim.pause();
-              window._tileCount += 1;
-            }
+
+          await new Promise(resolve => {
+            anim.addEventListener('enterFrame', (e) => {
+              if (Math.round(anim.currentFrame) >= frameStop) {
+                anim.pause();
+                window._tileCount += 1;
+                resolve();
+              }
+            });
           });
         }
-      });
+      }
+
+      incrementallAddTiles();
+
     })();
   </script>
 </body>
