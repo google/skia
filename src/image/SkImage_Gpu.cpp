@@ -761,9 +761,12 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkP
 
         if (SkImageInfoIsValid(pixmap.info(), colorMode)) {
             ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
-            GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *proxyProvider->caps());
-            proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, pixmap.addr(),
-                                                      pixmap.rowBytes());
+            // We don't need a release proc on the data in pixmap since we know we are in a
+            // GrContext that has a resource provider. Thus the createTextureProxy call will
+            // immediately upload the data.
+            sk_sp<SkImage> image = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
+            proxy = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
+                                                      SkBudgeted::kYes, SkBackingFit::kExact);
         }
     }
 
