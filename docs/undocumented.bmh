@@ -169,6 +169,8 @@ FT_Load_Glyph
     ##
     #Method bool gammaCloseToSRGB() const
     ##
+    #Method static bool Equals(const SkColorSpace* src, const SkColorSpace* dst)
+    ##
 ##
 #EnumClass SkTransferFunctionBehavior
 #Const kRespect 0

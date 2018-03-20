@@ -352,6 +352,8 @@ void draw(SkCanvas* ) {
                                                    SkColorType colorType,
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps)
+#In Constructor
+#Line # creates Surface from GPU texture ##
 
 Wraps a GPU-backed texture into Surface. Caller must ensure the texture is
 valid for the lifetime of returned Surface. If sampleCnt greater than zero,
@@ -372,7 +374,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 #Param sampleCnt  samples per pixel, or 0 to disable full scene anti-aliasing ##
 #Param colorType  one of: #list_of_color_types#
 ##
-#Param colorSpace  range of colors ##
+#Param colorSpace  range of colors; may be nullptr ##
 #Param surfaceProps  LCD striping orientation and setting for device independent
                      fonts; may be nullptr
 ##
@@ -380,8 +382,8 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 #Return Surface if all parameters are valid; otherwise, nullptr ##
 
 #Example
-#ToDo  remove !fiddle below once backEndTextureRenderTarget is available ##
-#Platform !fiddle gpu cpu
+#Platform gpu cpu
+#Image 3
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -390,10 +392,9 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
          return;
     }
     sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTexture(context,
-            backEndTextureRenderTarget, kTopLeft_GrSurfaceOrigin,
-            kRGBA_8888_SkColorType, 0, nullptr, nullptr);
+            backEndTexture, kTopLeft_GrSurfaceOrigin, 0,
+            kRGBA_8888_SkColorType, nullptr, nullptr);
     auto surfaceCanvas = gpuSurface->getCanvas();
-    surfaceCanvas->clear(SK_ColorWHITE);
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
@@ -448,7 +449,6 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
     sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendRenderTarget(context,
             backEndRenderTarget, kTopLeft_GrSurfaceOrigin, nullptr, nullptr);
     auto surfaceCanvas = gpuSurface->getCanvas();
-    surfaceCanvas->clear(SK_ColorWHITE);
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
@@ -467,8 +467,8 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps)
 
-Wraps a GPU-backed buffer into Surface. Caller must ensure render target is
-valid for the lifetime of returned Surface.
+Wraps a GPU-backed buffer into Surface. Caller must ensure backendRenderTarget
+is valid for the lifetime of returned Surface.
 
 Surface is returned if all parameters are valid. backendRenderTarget is valid if
 its pixel configuration agrees with colorSpace and context; for instance, if
@@ -505,7 +505,6 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
             backEndRenderTarget, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
             nullptr, nullptr);
     auto surfaceCanvas = gpuSurface->getCanvas();
-    surfaceCanvas->clear(SK_ColorWHITE);
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);
@@ -524,12 +523,21 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                             SkColorType colorType,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps)
+#In Constructor
+#Line # creates Surface from GPU back-end render target ##
 
-Used to wrap a GPU-backed texture as a SkSurface. Skia will treat the texture as
-a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
-the associated render target objects (but not the provided texture). Skia will not assume
-ownership of the texture and the client must ensure the texture is valid for the lifetime
-of the SkSurface.
+Wraps a GPU-backed texture into Surface. Caller must ensure backendTexture is
+valid for the lifetime of returned Surface. If sampleCnt greater than zero,
+creates an intermediate MSAA Surface which is used for drawing backendTexture.
+
+Surface is returned if all parameters are valid. backendTexture is valid if
+its pixel configuration agrees with colorSpace and context; for instance, if
+backendTexture has an sRGB configuration, then context must support sRGB,
+and colorSpace must be present. Further, backendTexture width and height must
+not exceed context capabilities.
+
+Returned Surface is available only for drawing into, and cannot generate an
+Image.
 
 If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 
@@ -539,7 +547,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 #Param sampleCnt  samples per pixel, or 0 to disable full scene anti-aliasing ##
 #Param colorType  one of: #list_of_color_types#
 ##
-#Param colorSpace  range of colors ##
+#Param colorSpace  range of colors; may be nullptr ##
 #Param surfaceProps  LCD striping orientation and setting for device independent
                      fonts; may be nullptr
 ##
@@ -547,7 +555,9 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 #Return Surface if all parameters are valid; otherwise, nullptr ##
 
 #Example
-#Platform !fiddle gpu
+#ToDo example is bogus; gpuSurface should not make image ##
+#Platform gpu
+#Image 3
     SkPaint paint;
     paint.setTextSize(32);
     GrContext* context = canvas->getGrContext();
@@ -556,10 +566,9 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
          return;
     }
     sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTextureAsRenderTarget(
-            context, backEndTextureRenderTarget, kTopLeft_GrSurfaceOrigin, 0,
+            context, backEndTexture, kTopLeft_GrSurfaceOrigin, 0,
             kRGBA_8888_SkColorType, nullptr, nullptr);
     auto surfaceCanvas = gpuSurface->getCanvas();
-    surfaceCanvas->clear(SK_ColorWHITE);
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
     canvas->drawImage(image, 0, 0);

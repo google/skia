@@ -254,6 +254,12 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
         if (!enumDef) {
             enumDef = root->find(fullName, RootDefinition::AllowParens::kNo);
         }
+        if (!enumDef) {
+            auto mapEntry = fBmhParser->fEnumMap.find(enumName);
+            if (fBmhParser->fEnumMap.end() != mapEntry) {
+                enumDef = &mapEntry->second;
+            }
+        }
         SkASSERT(enumDef);
         // child[0] should be #Code comment starts at child[0].fTerminator
             // though skip until #Code is found (in case there's a #ToDo, etc)
@@ -477,9 +483,12 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
             break;
         }
         SkASSERT(token);
-        string itemName = root->fName + "::";
-        if (KeyWord::kClass == child.fParent->fKeyWord) {
-            itemName += child.fParent->fName + "::";
+        string itemName;
+        if (!fEnumDef->isRoot()) {
+            itemName = root->fName + "::";
+            if (KeyWord::kClass == child.fParent->fKeyWord) {
+                itemName += child.fParent->fName + "::";
+            }
         }
         itemName += string(token->fContentStart, (int) (token->fContentEnd - token->fContentStart));
         for (auto& enumItem : fEnumDef->fChildren) {
@@ -1029,6 +1038,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
+        if (51 == child.fLineCount) {
+            SkDebugf("");
+        }
         if (KeyWord::kOperator == child.fKeyWord && method &&
                 Definition::MethodType::kOperator == method->fMethodType) {
             eatOperator = true;
@@ -1155,8 +1167,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                         fContinuation = nullptr;
                         continue;
                     }
-                    fLineCount = child.fLineCount;
-                    return this->reportError<bool>("method not found");
+                    return child.reportError<bool>("method not found");
                 }
                 this->methodOut(method, child);
                 continue;
@@ -1184,8 +1195,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 fContinuation = nullptr;
                 continue;
             }
-            fLineCount = child.fLineCount;
-            return this->reportError<bool>("method not found");
+            return child.reportError<bool>("method not found");
         }
         if (Bracket::kSlashSlash == child.fBracket || Bracket::kSlashStar == child.fBracket) {
             if (!fDeferComment) {
@@ -1221,13 +1231,16 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             }
             startDef = &child;
             fStart = child.fContentStart;
-            methodName = root->fName + "::" + child.fName;
-            inConstructor = root->fName == child.fName;
+            auto mapFind = fBmhParser->fMethodMap.find(child.fName);
+            if (fBmhParser->fMethodMap.end() != mapFind) {
+                inConstructor = false;
+                method = &mapFind->second;
+            } else {
+                methodName = root->fName + "::" + child.fName;
+                inConstructor = root->fName == child.fName;
+                method = root->find(methodName, RootDefinition::AllowParens::kNo);
+            }
             fContinuation = child.fContentEnd;
-            method = root->find(methodName, RootDefinition::AllowParens::kNo);
-//            if (!method) {
-//                method = root->find(methodName + "()", RootDefinition::AllowParens::kNo);
-//            }
             if (!method) {
                 continue;
             }
