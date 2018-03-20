@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4de6d136_23cd08e2",
+        "filename": "infra/bots/assets/clang_win/create.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-20T12:27:37Z",
+      "side": 1,
+      "message": "Probably better to leave this bit off, or the link will stay pinned to that CL.",
+      "range": {
+        "startLine": 19,
+        "startChar": 73,
+        "endLine": 19,
+        "endChar": 118
+      },
+      "revId": "be5282f917ebde38518cf24170aafe138436cf67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
