@@ -531,6 +531,10 @@ paint1 != paint2
 
 </fiddle-embed></div>
 
+### See Also
+
+<a href="#SkPaint_notequal_operator">operator!=(const SkPaint& a, const SkPaint& b)</a>
+
 ---
 
 <a name="SkPaint_notequal_operator"></a>
@@ -569,6 +573,10 @@ paint1 == paint2
 ~~~~
 
 </fiddle-embed></div>
+
+### See Also
+
+<a href="#SkPaint_equal_operator">operator==(const SkPaint& a, const SkPaint& b)</a>
 
 ---
 
@@ -806,7 +814,7 @@ multiple settings at once.
   </tr>
 <a href="#Flags">Flags</a> default to all flags clear, disabling the associated feature.
 
-</table>
+
 
 ## <a name="SkPaint_ReserveFlags"></a> Enum SkPaint::ReserveFlags
 
@@ -829,7 +837,7 @@ enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
     <td><a name="SkPaint_kStrikeThruText_ReserveFlag"> <code><strong>SkPaint::kStrikeThruText_ReserveFlag </strong></code> </a></td><td>0x0010</td><td>soon</td>
   </tr>
 
-</table>
+
 
 <a name="SkPaint_getFlags"></a>
 ## getFlags
@@ -2109,7 +2117,7 @@ and the set <a href="SkPath_Reference#Fill_Type">Path Fill Type</a> is ignored.
 </td>
   </tr>
 
-</table>
+
 
 ## <a name="SkPaint__anonymous"></a> Enum SkPaint::_anonymous
 
@@ -2128,7 +2136,7 @@ May be used to verify that <a href="#SkPaint_Style">Style</a> is a legal value.
 </td>
   </tr>
 
-</table>
+
 
 <a name="SkPaint_getStyle"></a>
 ## getStyle
@@ -2447,8 +2455,6 @@ at the contour point.
 <a href="#Stroke_Width">Stroke Width</a> at the contour point.
 
 <a href="#Stroke_Cap">Stroke Cap</a> is <a href="#SkPaint_kButt_Cap">kButt Cap</a> by default.
-
-</table>
 
 ### Example
 
@@ -3617,7 +3623,7 @@ and by its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kV
 </td>
   </tr>
 
-</table>
+
 
 ## <a name="SkPaint__anonymous_2"></a> Enum SkPaint::_anonymous_2
 
@@ -3635,7 +3641,7 @@ enum {
 </td>
   </tr>
 
-</table>
+
 
 ### Example
 
@@ -3914,7 +3920,7 @@ A glyph index is a 16-bit word.
 </td>
   </tr>
 
-</table>
+
 
 ### Example
 
@@ -4088,7 +4094,7 @@ Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
 </td>
   </tr>
 
-</table>
+
 
 <a name="SkPaint_FontMetrics_fFlags"> <code><strong>uint32_t    fFlags</strong></code> </a>
 

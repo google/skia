@@ -740,7 +740,7 @@
     "hash": "687d833b042fb018f8948764e73a37b1",
     "file": "SkIRect_Reference",
     "name": "SkIRect::centerY",
-        "stdout": "left: 1073741824 right: 1073741826 centerX: -1073741823 safe mid x: 1073741825\\n"
+        "stdout": "left: 1073741824 right: 1073741826 centerX: 1073741825 safe mid x: 1073741825\\n"
     },
         "SkIRect_contains": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = { 30, 50, 40, 60 };\n    SkIPoint pts[] = { { 30, 50}, { 40, 50}, { 30, 60} };\n    for (auto pt : pts) {\n        SkDebugf(\"rect: (%d, %d, %d, %d) %s (%d, %d)\\n\",\n                 rect.left(), rect.top(), rect.right(), rect.bottom(),\n                 rect.contains(pt.x(), pt.y()) ? \"contains\" : \"does not contain\", pt.x(), pt.y());\n    }\n}",
@@ -1015,6 +1015,13 @@
     "name": "SkIRect::y()",
         "stdout": "unsorted.fTop: 25 unsorted.y(): 25\\nsorted.fTop: 5 sorted.y(): 5\\n"
     },
+        "SkImageInfo_ByteSizeOverflowed": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(2, 1000000000);\n    for (size_t rowBytes = 100000000; rowBytes < 10000000000000LL; rowBytes *= 10) {\n        const size_t size = info.computeByteSize(rowBytes);\n        SkDebugf(\"rowBytes:%llu size:%llu overflowed:%s\\n\", rowBytes, size,\n                 SkImageInfo::ByteSizeOverflowed(size) ? \"true\" : \"false\");\n    }\n}",
+    "hash": "6a63dfdd62ab77ff57783af8c33d7b78",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::ByteSizeOverflowed",
+        "stdout": "rowBytes:100000000 size:99999999900000008 overflowed:false\\nrowBytes:1000000000 size:999999999000000008 overflowed:false\\nrowBytes:10000000000 size:9999999990000000008 overflowed:false\\nrowBytes:100000000000 size:18446744073709551615 overflowed:true\\nrowBytes:1000000000000 size:18446744073709551615 overflowed:true\\n"
+    },
         "SkImageInfo_alphaType": {
     "code": "void draw(SkCanvas* canvas) {\n    const char* alphas[] = {\"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\"};\n    SkImageInfo info = SkImageInfo::MakeA8(16, 32);\n    SkDebugf(\"alpha type: k\" \"%s\" \"_SkAlphaType\\n\", alphas[info.alphaType()]);\n}",
     "hash": "5c1d2499a4056b6cff38c1cf924158a1",
@@ -1050,6 +1057,13 @@
     "name": "SkImageInfo::dimensions()",
         "stdout": "dimensionsAsBounds == bounds\\n"
     },
+        "SkImageInfo_equal1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info1 = SkImageInfo::Make(10, 20, kGray_8_SkColorType, kPremul_SkAlphaType);\n    SkImageInfo info2 = SkImageInfo::Make(20, 10, kAlpha_8_SkColorType, kUnpremul_SkAlphaType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 == info2 ? '=' : '!');\n    info2 = info2.makeWH(10, 20);\n    SkDebugf(\"info1 %c= info2\\n\", info1 == info2 ? '=' : '!');\n    info2 = info2.makeColorType(kGray_8_SkColorType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 == info2 ? '=' : '!');\n    info2 = info2.makeAlphaType(kPremul_SkAlphaType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 == info2 ? '=' : '!');\n}",
+    "hash": "53c212c4f2449df0b0eedbc6227b6ab7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::operator==(const SkImageInfo& other)_const",
+        "stdout": "info1 != info2\\ninfo1 != info2\\ninfo1 != info2\\ninfo1 == info2\\n"
+    },
         "SkImageInfo_isEmpty": {
     "code": "void draw(SkCanvas* canvas) {\n    for (int width : { 0, 2 } ) {\n        for (int height : { 0, 2 } ) {\n             SkImageInfo imageInfo= SkImageInfo::MakeA8(width, height);\n             SkDebugf(\"width: %d height: %d empty: %s\\n\", width, height,\n                      imageInfo.isEmpty() ? \"true\" : \"false\");\n        }\n    }\n}",
     "hash": "b8757200da5be0b43763cf79feb681a7",
@@ -1078,6 +1092,13 @@
     "name": "SkImageInfo::minRowBytes64",
         "stdout": "RGBA_F16 width 16777216 (0x01000000) OK\\nRGBA_F16 width 33554432 (0x02000000) OK\\nRGBA_F16 width 67108864 (0x04000000) OK\\nRGBA_F16 width 134217728 (0x08000000) OK\\nRGBA_F16 width 268435456 (0x10000000) too large\\nRGBA_F16 width 536870912 (0x20000000) too large\\nRGBA_F16 width 1073741824 (0x40000000) too large\\nRGBA_F16 width -2147483648 (0x80000000) too large\\n"
     },
+        "SkImageInfo_notequal1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info1 = SkImageInfo::Make(10, 20, kGray_8_SkColorType, kPremul_SkAlphaType);\n    SkImageInfo info2 = SkImageInfo::Make(20, 10, kAlpha_8_SkColorType, kUnpremul_SkAlphaType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 != info2 ? '!' : '=');\n    info2 = info2.makeWH(10, 20);\n    SkDebugf(\"info1 %c= info2\\n\", info1 != info2 ? '!' : '=');\n    info2 = info2.makeColorType(kGray_8_SkColorType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 != info2 ? '!' : '=');\n    info2 = info2.makeAlphaType(kPremul_SkAlphaType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 != info2 ? '!' : '=');\n}",
+    "hash": "8c039fde0a476ac1aa62bf9de5d61c77",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::operator!=(const SkImageInfo& other)_const",
+        "stdout": "info1 != info2\\ninfo1 != info2\\ninfo1 != info2\\ninfo1 == info2\\n"
+    },
         "SkImageInfo_refColorSpace": {
     "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info1 = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType, \n            SkColorSpace::MakeSRGBLinear());\n    SkImageInfo info2 = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,\n            info1.refColorSpace());\n    SkColorSpace* colorSpace = info2.colorSpace();\n    SkDebugf(\"gammaCloseToSRGB: %s  gammaIsLinear: %s  isSRGB: %s\\n\",\n            colorSpace->gammaCloseToSRGB() ? \"true\" : \"false\",\n            colorSpace->gammaIsLinear() ? \"true\" : \"false\",\n            colorSpace->isSRGB() ? \"true\" : \"false\");\n}",
     "hash": "f36afcc295602f5c8c4c2c2025c25884",
@@ -1085,12 +1106,26 @@
     "name": "SkImageInfo::refColorSpace",
         "stdout": "gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false\\n"
     },
+        "SkImageInfo_reset": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(16, 8);\n    SkImageInfo copy = info;\n    SkDebugf(\"info %c= copy\\n\", info == copy ? '=' : '!');\n    copy.reset();\n    SkDebugf(\"info %c= reset copy\\n\", info == copy ? '=' : '!');\n    SkDebugf(\"SkImageInfo() %c= reset copy\\n\", SkImageInfo() == copy ? '=' : '!');\n}",
+    "hash": "ab7e73786805c936de386b6c1ebe1f13",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::reset()",
+        "stdout": "info == copy\\ninfo != reset copy\\nSkImageInfo() == reset copy\\n"
+    },
         "SkImageInfo_shiftPerPixel": {
     "code": "void draw(SkCanvas* canvas) {\n    const char* colors[] = {\"Unknown\", \"Alpha_8\", \"RGB_565\", \"ARGB_4444\", \"RGBA_8888\", \"RGB_888x\",\n                            \"BGRA_8888\", \"RGBA_1010102\", \"RGB_101010x\", \"Gray_8\", \"RGBA_F16\"};\n    for (SkColorType colorType : {\n    kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,\n    kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,\n    kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,\n    kGray_8_SkColorType, kRGBA_F16_SkColorType\n                                 } ) {\n        SkImageInfo info = SkImageInfo::Make(1, 1, colorType, kOpaque_SkAlphaType);\n        SkDebugf(\"color: k\" \"%s\" \"_SkColorType\" \"%*s\" \"shiftPerPixel: %d\\n\",\n                colors[colorType], 14 - strlen(colors[colorType]), \" \",\n                info.shiftPerPixel());\n    }\n}",
     "hash": "e47b911f94fc629f756a829e523a2a89",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::shiftPerPixel",
         "stdout": "color: kUnknown_SkColorType       shiftPerPixel: 0\\ncolor: kAlpha_8_SkColorType       shiftPerPixel: 0\\ncolor: kRGB_565_SkColorType       shiftPerPixel: 1\\ncolor: kARGB_4444_SkColorType     shiftPerPixel: 1\\ncolor: kRGBA_8888_SkColorType     shiftPerPixel: 2\\ncolor: kRGB_888x_SkColorType      shiftPerPixel: 2\\ncolor: kBGRA_8888_SkColorType     shiftPerPixel: 2\\ncolor: kRGBA_1010102_SkColorType  shiftPerPixel: 2\\ncolor: kRGB_101010x_SkColorType   shiftPerPixel: 2\\ncolor: kGray_8_SkColorType        shiftPerPixel: 0\\ncolor: kRGBA_F16_SkColorType      shiftPerPixel: 3\\n"
+    },
+        "SkImageInfo_validRowBytes": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(16, 8);\n    for (size_t rowBytes = 60; rowBytes < 72; rowBytes += sizeof(SkPMColor)) {\n        SkDebugf(\"validRowBytes(%llu): %s\\n\", rowBytes, info.validRowBytes(rowBytes) ?\n                 \"true\" : \"false\");\n    }\n}",
+    "hash": "c6b0f6a3f493cb08d9abcdefe12de245",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::validRowBytes",
+        "stdout": "validRowBytes(60): false\\nvalidRowBytes(64): true\\nvalidRowBytes(68): true\\n"
     },
         "SkImage_MakeFromRaster": {
     "code": "static void releaseProc(const void* pixels, SkImage::ReleaseContext context) {\n     int* countPtr = static_cast<int*>(context);\n     *countPtr += 1;\n}\n\nvoid draw(SkCanvas* canvas) {\n    SkColor color = 0;\n    SkPixmap pixmap(SkImageInfo::MakeN32(1, 1, kPremul_SkAlphaType), &color, 4);\n    int releaseCount = 0;\n    sk_sp<SkImage> image(SkImage::MakeFromRaster(pixmap, releaseProc, &releaseCount));\n    SkDebugf(\"before reset: %d\\n\", releaseCount);\n    image.reset();\n    SkDebugf(\"after reset: %d\\n\", releaseCount);\n}\n",
@@ -2308,7 +2343,7 @@
     "hash": "9c6edd836c573a0fd232d2b8aa11a678",
     "file": "SkPath_Reference",
     "name": "SkPath::readFromMemory",
-        "stdout": "length = 60; returned by readFromMemory = 0\\nlength = 68; returned by readFromMemory = 64\\n"
+        "stdout": "length = 32; returned by readFromMemory = 0\\nlength = 40; returned by readFromMemory = 36\\n"
     },
         "SkPath_reset": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path1, path2;\n    path1.setFillType(SkPath::kInverseWinding_FillType);\n    path1.addRect({10, 20, 30, 40});\n    SkDebugf(\"path1 %c= path2\\n\", path1 == path2 ? '=' : '!');\n    path1.reset();\n    SkDebugf(\"path1 %c= path2\\n\", path1 == path2 ? '=' : '!');\n}",
@@ -4883,14 +4918,6 @@
     "file": "SkIPoint_Reference",
     "name": "SkIPoint::operator-=(const SkIVector& v)"
 },
-    "SkImageInfo_ByteSizeOverflowed": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::ByteSizeOverflowed"
-},
     "SkImageInfo_Make": {
     "code": "void draw(SkCanvas* canvas) {\n    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },\n                            { 0xAC, 0xA8, 0x89, 0xA7, 0x87 },\n                            { 0x9B, 0xB5, 0xE5, 0x95, 0x46 },\n                            { 0x90, 0x81, 0xC5, 0x71, 0x33 },\n                            { 0x75, 0x55, 0x44, 0x40, 0x30 }};\n    SkImageInfo imageInfo = SkImageInfo::Make(5, 5, kGray_8_SkColorType, kOpaque_SkAlphaType);\n    SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->scale(8, 8);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
@@ -4918,16 +4945,16 @@
     "SkImageInfo_MakeN32Premul": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(18, 18));\n    SkCanvas offscreen(bitmap);\n    offscreen.clear(SK_ColorWHITE);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(15);\n    offscreen.drawString(\"\\xF0\\x9F\\x98\\xB8\", 1, 15, paint);\n    canvas->scale(6, 6);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "077084c05471d6bbd54338d92ea799e3",
+    "height": 128,
+    "hash": "525650a67e19fdd8ca9f72b7eda65174",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::MakeN32Premul"
 },
     "SkImageInfo_MakeN32Premul_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul({18, 18}));\n    SkCanvas offscreen(bitmap);\n    offscreen.clear(SK_ColorWHITE);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(15);\n    offscreen.drawString(\"\\xF0\\x9F\\x98\\xB9\", 1, 15, paint);\n    canvas->scale(6, 6);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "897f42eb3b27d749ec792435fb389a07",
+    "height": 128,
+    "hash": "b9026d7f39029756bd7cab9542c64f4e",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::MakeN32Premul_2"
 },
@@ -4964,26 +4991,26 @@
     "name": "SkImageInfo::bounds()"
 },
     "SkImageInfo_computeByteSize": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);\n    const size_t size = info.computeByteSize(100000);\n    SkAutoTMalloc<SkPMColor> storage(size);\n    SkPMColor* pixels = storage.get();\n    SkBitmap bitmap;\n    bitmap.setInfo(info);\n    bitmap.setPixels(pixels);\n    bitmap.eraseColor(SK_ColorRED);\n    canvas->scale(50, 50);\n    canvas->rotate(8);\n    canvas->drawBitmap(bitmap, 2, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 130,
+    "hash": "9def507d2295f7051effd0c83bb04436",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::computeByteSize"
 },
     "SkImageInfo_computeMinByteSize": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);\n    const size_t size = info.computeMinByteSize();\n    SkAutoTMalloc<SkPMColor> storage(size);\n    SkPMColor* pixels = storage.get();\n    SkBitmap bitmap;\n    bitmap.setInfo(info);\n    bitmap.setPixels(pixels);\n    bitmap.eraseColor(SK_ColorRED);\n    canvas->scale(50, 50);\n    canvas->rotate(8);\n    canvas->drawBitmap(bitmap, 2, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 130,
+    "hash": "fc18640fdde437cb35338aed7c68d399",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::computeMinByteSize"
 },
     "SkImageInfo_computeOffset": {
     "code": "void draw(SkCanvas* canvas) {\n    uint8_t pixels[][12] = { { 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},\n                             { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00},\n                             { 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00},\n                             { 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF},\n                             { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},\n                             { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00},\n                             { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00},\n                             { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00} };\n    SkImageInfo imageInfo = SkImageInfo::MakeA8(8, 8);\n    SkBitmap bitmap;\n    bitmap.installPixels(imageInfo, (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    paint.setColor(SK_ColorRED);\n    canvas->drawBitmapRect(bitmap, SkRect::MakeWH(8, 8), SkRect::MakeWH(32, 32), &paint);\n    size_t offset = imageInfo.computeOffset(2, 3, sizeof(pixels[0]));\n    pixels[0][offset] = 0x7F;\n    offset = imageInfo.computeOffset(5, 3, sizeof(pixels[0]));\n    pixels[0][offset] = 0x7F;\n    bitmap.installPixels(imageInfo, (void*) pixels, sizeof(pixels[0]));\n    canvas->drawBitmapRect(bitmap, SkRect::MakeWH(8, 8), SkRect::MakeWH(128, 128), &paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "0a1ddddfe4f01c025e893ae826cb4ece",
+    "height": 128,
+    "hash": "818e4e1191e39d2a642902cbf253b399",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::computeOffset"
 },
@@ -4994,22 +5021,6 @@
     "hash": "f206f698e7a8db3d84334c26b1a702dc",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::SkImageInfo()"
-},
-    "SkImageInfo_equal1_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::operator==(const SkImageInfo& other)_const"
-},
-    "SkImageInfo_flatten": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::flatten()"
 },
     "SkImageInfo_gammaCloseToSRGB": {
     "code": "void draw(SkCanvas* canvas) {\n    const int width = 256;\n    const int height = 64;\n    auto drawLabel = [=](const char* what, bool closeToSRGB) -> void {\n        SkString string;\n        string.printf(\"%s gamma is %s\" \"close to sRGB\", what, closeToSRGB ? \"\" : \"not \");\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawString(string, width / 2, 56, paint);\n    };\n    SkColor  gradColors[] = { 0xFFFF7F00, 0xFF00FF7F,  0xFF0000FF, 0xFF7F7FFF };\n    SkPoint  gradPoints[] = { { 0, 0 }, { width, 0 }, { width * 2, 0 }, { width * 3, 0 } };\n    SkPaint gradPaint;\n    gradPaint.setShader(SkGradientShader::MakeLinear(gradPoints, gradColors, nullptr,\n                    SK_ARRAY_COUNT(gradColors), SkShader::kClamp_TileMode));\n    canvas->drawRect(SkRect::MakeWH(width, height), gradPaint);\n    drawLabel(\"canvas\", canvas->imageInfo().gammaCloseToSRGB());\n    SkBitmap bitmap;\n    SkImageInfo offscreenInfo = SkImageInfo::MakeS32(width, height, kPremul_SkAlphaType);\n    bitmap.allocPixels(offscreenInfo);\n    SkCanvas sRGBOffscreen(bitmap);\n    sRGBOffscreen.drawRect(SkRect::MakeWH(width, height), gradPaint);\n    canvas->translate(0, 80);\n    canvas->drawBitmap(bitmap, 0, 0);\n    drawLabel(\"offscreen\", offscreenInfo.gammaCloseToSRGB());\n}",
@@ -5058,46 +5069,6 @@
     "hash": "26827898b6b199d6c4b5e4d2c6e6bac8",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::makeWH"
-},
-    "SkImageInfo_notequal1_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::operator!=(const SkImageInfo& other)_const"
-},
-    "SkImageInfo_reset": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::reset()"
-},
-    "SkImageInfo_unflatten": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::unflatten()"
-},
-    "SkImageInfo_validRowBytes": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::validRowBytes"
-},
-    "SkImageInfo_validate": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::validate()"
 },
     "SkImageInfo_width": {
     "code": "void draw(SkCanvas* canvas) {\n    canvas->translate(10, 10);\n    canvas->drawBitmap(source, 0, 0);\n    SkImageInfo imageInfo = source.info();\n    canvas->translate(0, imageInfo.height());\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawLine(0, 10, imageInfo.width(), 10, paint);\n    canvas->drawString(\"width\", imageInfo.width() / 2, 25, paint);\n}",
@@ -7043,6 +7014,22 @@
     "file": "SkSurface_Reference",
     "name": "SkSurface::BackendHandleAccess"
 },
+    "SkSurface_MakeFromBackendTexture": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTexture(context,\n            backEndTexture, kTopLeft_GrSurfaceOrigin, 0,\n            kRGBA_8888_SkColorType, nullptr, nullptr);\n    auto surfaceCanvas = gpuSurface->getCanvas();\n    surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    canvas->drawImage(image, 0, 0);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "d3aec071998f871809f515e58abb1b0e",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeFromBackendTexture"
+},
+    "SkSurface_MakeFromBackendTextureAsRenderTarget": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTextureAsRenderTarget(\n            context, backEndTexture, kTopLeft_GrSurfaceOrigin, 0,\n            kRGBA_8888_SkColorType, nullptr, nullptr);\n    auto surfaceCanvas = gpuSurface->getCanvas();\n    surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    canvas->drawImage(image, 0, 0);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "5e87093b9cbe95124ae14cbe77091eb7",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeFromBackendTextureAsRenderTarget"
+},
     "SkSurface_MakeRenderTarget": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    SkImageInfo info = SkImageInfo::MakeN32(256, 64, kOpaque_SkAlphaType);\n    for (auto surfaceOrigin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        auto gpuSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,\n               surfaceOrigin, nullptr));\n        auto surfaceCanvas = gpuSurface->getCanvas();\n        surfaceCanvas->clear(SK_ColorWHITE);\n        surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n        sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n        canvas->drawImage(image, 0, 0);\n       canvas->translate(0, 128);\n    }\n}",
     "width": 256,
@@ -7178,14 +7165,6 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkSurface_Reference",
     "name": "SkSurface::writePixels_2"
-},
-    "SkYUVColorSpace": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImageInfo_Reference",
-    "name": "SkYUVColorSpace"
 }
     }
     var canvas
