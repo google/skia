@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "336451ea_1ad8001d",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-20T17:10:34Z",
+      "side": 1,
+      "message": "Isn\u0027t this\n\nSkASSERT(c || allowFailure)",
+      "range": {
+        "startLine": 808,
+        "startChar": 4,
+        "endLine": 810,
+        "endChar": 5
+      },
+      "revId": "942f069254f2931baaa1fee9d3263f07085c6f65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
