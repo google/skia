@@ -299,6 +299,7 @@ private:
     using INHERITED = SkExclusiveStrikePtr;
 };
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 class SkAutoGlyphCacheNoGamma : public SkExclusiveStrikePtr {
 public:
     SkAutoGlyphCacheNoGamma(const SkPaint& paint,
@@ -310,7 +311,9 @@ public:
 private:
     using INHERITED = SkExclusiveStrikePtr;
 };
-#define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
+#endif
+
+#define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 
 #endif
