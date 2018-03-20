@@ -4669,8 +4669,8 @@ number of bytes read, or zero on failure
 #### Example Output
 
 ~~~~
-length = 60; returned by readFromMemory = 0
-length = 68; returned by readFromMemory = 64
+length = 32; returned by readFromMemory = 0
+length = 40; returned by readFromMemory = 36
 ~~~~
 
 </fiddle-embed></div>

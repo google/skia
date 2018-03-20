@@ -775,7 +775,7 @@ midpoint in y
 #### Example Output
 
 ~~~~
-left: 1073741824 right: 1073741826 centerX: -1073741823 safe mid x: 1073741825
+left: 1073741824 right: 1073741826 centerX: 1073741825 safe mid x: 1073741825
 ~~~~
 
 </fiddle-embed></div>
