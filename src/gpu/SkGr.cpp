@@ -84,8 +84,8 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider* proxyProvide
     // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
     // even if it's mutable. In ddl, if the bitmap is mutable then we must make a copy since the
     // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
-    SkCopyPixelsMode cpyMode = proxyProvider->mutableBitmapsNeedCopy() ? kIfMutable_SkCopyPixelsMode
-                                                                       : kNever_SkCopyPixelsMode;
+    SkCopyPixelsMode cpyMode = proxyProvider->recordingDDL() ? kIfMutable_SkCopyPixelsMode
+                                                             : kNever_SkCopyPixelsMode;
     sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
 
     return proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
@@ -160,8 +160,8 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider* proxyProvider,
     // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
     // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
     // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
-    SkCopyPixelsMode cpyMode = proxyProvider->mutableBitmapsNeedCopy() ? kIfMutable_SkCopyPixelsMode
-                                                                       : kNever_SkCopyPixelsMode;
+    SkCopyPixelsMode cpyMode = proxyProvider->recordingDDL() ? kIfMutable_SkCopyPixelsMode
+                                                             : kNever_SkCopyPixelsMode;
     sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
 
     if (!image) {
@@ -205,7 +205,10 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
                                                   SkBudgeted::kYes, fit);
         if (proxy && originalKey.isValid()) {
             proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
-            if (const SkBitmap* bm = as_IB(srcImage.get())->onPeekBitmap()) {
+            const SkBitmap* bm = as_IB(srcImage.get())->onPeekBitmap();
+            // When recording DDLs we do not want to install change listeners because doing
+            // so isn't threadsafe.
+            if (bm && !proxyProvider->recordingDDL()) {
                 GrInstallBitmapUniqueKeyInvalidator(originalKey, bm->pixelRef());
             }
         }
