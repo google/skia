@@ -987,7 +987,7 @@ TEST_BUILDERS = [
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
-  'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug-All',
+  'Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All',
   'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
 ]
 
