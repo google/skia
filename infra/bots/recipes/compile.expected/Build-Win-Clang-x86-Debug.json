@@ -97,14 +97,34 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_C:\\_B_WORK]\\skia\\infra\\bots\\assets\\clang_win\\VERSION",
+      "/path/to/tmp/"
+    ],
+    "env": {
+      "CC": "/usr/bin/clang",
+      "CXX": "/usr/bin/clang++"
+    },
+    "infra_step": true,
+    "name": "Get clang_win VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[CUSTOM_C:\\_B_WORK]\\skia\\bin\\fetch-gn"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
       "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-Clang-x86-Debug"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -113,15 +133,17 @@
     "cmd": [
       "[CUSTOM_C:\\_B_WORK]\\skia\\bin\\gn.exe",
       "gen",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug\\Debug",
-      "--args=target_cpu=\"x86\" win_sdk=\"[START_DIR]\\t\\depot_tools\\win_toolchain\\vs_files\\a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]\\t\\depot_tools\\win_toolchain\\vs_files\\a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
+      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug",
+      "--args=cc=\"clang\" clang_win=\"[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"-DDUMMY_clang_win_version=42\"] target_cpu=\"x86\" win_sdk=\"[START_DIR]\\t\\depot_tools\\win_toolchain\\vs_files\\a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]\\t\\depot_tools\\win_toolchain\\vs_files\\a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
       "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-Clang-x86-Debug"
     },
     "name": "gn gen"
   },
@@ -131,14 +153,16 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug\\Debug"
+      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
       "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-Clang-x86-Debug"
     },
     "name": "ninja"
   },
@@ -147,7 +171,7 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug\\Debug",
+      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug",
       "[CUSTOM_[SWARM_OUT_DIR]]\\out\\Debug"
     ],
     "infra_step": true,
