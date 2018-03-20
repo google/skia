@@ -152,6 +152,11 @@ public:
         SkScalerContextFlags scalerContextFlags,
         const SkMatrix* deviceMatrix);
 
+    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(const SkPaint& paint) {
+        return FindOrCreateStrikeExclusive(
+                paint, nullptr, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
+    }
+
     template <typename ScalerContextCreator>
     static SkExclusiveStrikePtr CreateStrikeExclusive(
         const SkDescriptor& desc, ScalerContextCreator creator)

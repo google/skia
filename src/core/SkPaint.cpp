@@ -430,8 +430,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyp
         return SkToInt(byteLength >> 1);
     }
 
-    SkAutoGlyphCache autoCache(*this, nullptr, nullptr);
-    SkGlyphCache*    cache = autoCache.get();
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(*this);
 
     const char* text = (const char*)textData;
     const char* stop = text + byteLength;
@@ -488,8 +487,7 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
         return true;
     }
 
-    SkAutoGlyphCache autoCache(*this, nullptr, nullptr);
-    SkGlyphCache*    cache = autoCache.get();
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(*this);
 
     switch (this->getTextEncoding()) {
         case SkPaint::kUTF8_TextEncoding: {
@@ -538,8 +536,8 @@ void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar tex
     SkASSERT(textData != nullptr);
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    SkAutoGlyphCache autoCache(*this, &props, nullptr);
-    SkGlyphCache*    cache = autoCache.get();
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
+            *this, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 
     for (int index = 0; index < count; index++) {
         textData[index] = cache->glyphToUnichar(glyphs[index]);
@@ -804,15 +802,14 @@ SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bound
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
 
-    SkAutoGlyphCache    autoCache(paint, nullptr, nullptr);
-    SkGlyphCache*       cache = autoCache.get();
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(paint);
 
     SkScalar width = 0;
 
     if (length > 0) {
         int tempCount;
 
-        width = paint.measure_text(cache, text, length, &tempCount, bounds);
+        width = paint.measure_text(cache.get(), text, length, &tempCount, bounds);
         if (scale) {
             width *= scale;
             if (bounds) {
@@ -858,8 +855,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
         maxWidth /= scale;
     }
 
-    SkAutoGlyphCache    autoCache(paint, nullptr, nullptr);
-    SkGlyphCache*       cache = autoCache.get();
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(paint);
 
     GlyphCacheProc   glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                  paint.isDevKernText(),
@@ -871,7 +867,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
         int rsb = 0;
         while (text < stop) {
             const char* curr = text;
-            const SkGlyph& g = glyphCacheProc(cache, &text);
+            const SkGlyph& g = glyphCacheProc(cache.get(), &text);
             SkScalar x = SkAutoKern_Adjust(rsb, g.fLsbDelta) + advance(g, xyIndex);
             if ((width += x) > maxWidth) {
                 width -= x;
@@ -883,7 +879,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     } else {
         while (text < stop) {
             const char* curr = text;
-            SkScalar x = advance(glyphCacheProc(cache, &text), xyIndex);
+            SkScalar x = advance(glyphCacheProc(cache.get(), &text), xyIndex);
             if ((width += x) > maxWidth) {
                 width -= x;
                 text = curr;
@@ -964,8 +960,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
 
-    SkAutoGlyphCache    autoCache(paint, nullptr, nullptr);
-    SkGlyphCache*       cache = autoCache.get();
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(paint);
     GlyphCacheProc      glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                     paint.isDevKernText(),
                                                                     nullptr != bounds);
@@ -982,7 +977,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
 
         if (scale) {
             while (text < stop) {
-                const SkGlyph& g = glyphCacheProc(cache, &text);
+                const SkGlyph& g = glyphCacheProc(cache.get(), &text);
                 if (widths) {
                     SkScalar adjust = autokern.adjust(g);
 
@@ -1001,7 +996,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
             }
         } else {
             while (text < stop) {
-                const SkGlyph& g = glyphCacheProc(cache, &text);
+                const SkGlyph& g = glyphCacheProc(cache.get(), &text);
                 if (widths) {
                     SkScalar adjust = autokern.adjust(g);
 
@@ -1022,7 +1017,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     } else {    // no devkern
         if (scale) {
             while (text < stop) {
-                const SkGlyph& g = glyphCacheProc(cache, &text);
+                const SkGlyph& g = glyphCacheProc(cache.get(), &text);
                 if (widths) {
                     *widths++ = advance(g, xyIndex) * scale;
                 }
@@ -1033,7 +1028,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
             }
         } else {
             while (text < stop) {
-                const SkGlyph& g = glyphCacheProc(cache, &text);
+                const SkGlyph& g = glyphCacheProc(cache.get(), &text);
                 if (widths) {
                     *widths++ = advance(g, xyIndex);
                 }
