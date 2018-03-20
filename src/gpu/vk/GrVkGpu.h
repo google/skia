@@ -237,10 +237,10 @@ private:
 
     // helpers for onCreateTexture and writeTexturePixels
     bool uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                             int width, int height, GrColorType colorType, const void* data,
+                             int width, int height, GrColorType srcColorType, const void* data,
                              size_t rowBytes);
     bool uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                              int width, int height, GrColorType colorType,
+                              int width, int height, GrColorType srcColorType,
                               const GrMipLevel texels[], int mipLevelCount);
 
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
