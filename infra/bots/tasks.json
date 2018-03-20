@@ -180,12 +180,6 @@
         "Build-Debian9-Clang-x86_64-Debug-SafeStack"
       ]
     },
-    "Build-Debian9-Clang-x86_64-Debug-TSAN": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Debian9-Clang-x86_64-Debug-TSAN"
-      ]
-    },
     "Build-Debian9-Clang-x86_64-Debug-Vulkan": {
       "priority": 0.8,
       "tasks": [
@@ -2674,12 +2668,6 @@
         "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_TSAN": {
-      "priority": 0.8,
-      "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_TSAN"
-      ]
-    },
     "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "priority": 0.8,
       "tasks": [
@@ -2702,6 +2690,18 @@
       "priority": 0.8,
       "tasks": [
         "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN"
+      ]
+    },
+    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN"
+      ]
+    },
+    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"
       ]
     },
     "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext": {
@@ -4180,36 +4180,6 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-Clang-x86_64-Debug-SafeStack",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Debian9-Clang-x86_64-Debug-TSAN": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:11"
-        }
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Debian9-Clang-x86_64-Debug-TSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20885,59 +20855,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_TSAN": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:34"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:116"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:11"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-Clang-x86_64-Debug-TSAN",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_TSAN",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "cipd_packages": [
         {
@@ -21179,6 +21096,112 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:116"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Release-ASAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-384.59",
+        "os:Ubuntu-17.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:116"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Release-TSAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-384.59",
+        "os:Ubuntu-17.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
