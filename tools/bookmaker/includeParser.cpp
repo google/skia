@@ -1360,9 +1360,12 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
     const char* nameStart = enumName.fChar;
     enumName.skipToSpace();
     if (markupDef) {
-        markupChild->fName = markupDef->fName + "::";
+        markupChild->fName = markupDef->fName + "::" +
+                string(nameStart, (size_t) (enumName.fChar - nameStart));
     }
-    markupChild->fName += string(nameStart, (size_t) (enumName.fChar - nameStart));
+    if (string::npos != markupChild->fName.find("SkColorType")) {
+        SkDebugf("");
+    }
     if (!this->findComments(*child, markupChild)) {
         return false;
     }

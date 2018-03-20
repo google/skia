@@ -154,6 +154,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 if (!this->popParentStack(definition)) {
                     return false;
                 }
+                if (fRoot == definition) {
+                    fRoot = nullptr;
+                }
             } else {
                 definition->fStart = defStart;
                 this->skipSpace();
@@ -1051,6 +1054,9 @@ bool BmhParser::findDefinitions() {
     const char* lastMC = nullptr;
     fParent = nullptr;
     while (!this->eof()) {
+        if (195 == fLineCount && "docs\\SkImageInfo_Reference.bmh" == fFileName) {
+            SkDebugf("");
+        }
         if (this->peek() == fMC) {
             lastMC = fChar;
             this->next();
