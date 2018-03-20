@@ -22,6 +22,30 @@
       "revId": "942f069254f2931baaa1fee9d3263f07085c6f65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de71a1da_b295f194",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-03-20T17:28:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "336451ea_1ad8001d",
+      "range": {
+        "startLine": 808,
+        "startChar": 4,
+        "endLine": 810,
+        "endChar": 5
+      },
+      "revId": "942f069254f2931baaa1fee9d3263f07085c6f65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
