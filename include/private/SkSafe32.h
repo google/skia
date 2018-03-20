@@ -9,7 +9,7 @@
 #define SkSafe32_DEFINED
 
 static constexpr int32_t Sk64_pin_to_s32(int64_t x) {
-    return x < SK_MinS32 ? SK_MinS32 : (x > SK_MaxS32 ? SK_MaxS32 : x);
+    return x < SK_MinS32 ? SK_MinS32 : (x > SK_MaxS32 ? SK_MaxS32 : (int32_t)x);
 }
 
 static constexpr int32_t Sk32_sat_add(int32_t a, int32_t b) {
