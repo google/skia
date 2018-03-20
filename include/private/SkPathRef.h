@@ -495,13 +495,13 @@ private:
     void setIsOval(bool isOval, bool isCCW, unsigned start) {
         fIsOval = isOval;
         fRRectOrOvalIsCCW = isCCW;
-        fRRectOrOvalStartIdx = start;
+        fRRectOrOvalStartIdx = SkToU8(start);
     }
 
     void setIsRRect(bool isRRect, bool isCCW, unsigned start) {
         fIsRRect = isRRect;
         fRRectOrOvalIsCCW = isCCW;
-        fRRectOrOvalStartIdx = start;
+        fRRectOrOvalStartIdx = SkToU8(start);
     }
 
     // called only by the editor. Note that this is not a const function.
