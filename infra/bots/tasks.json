@@ -1752,16 +1752,16 @@
         "Upload-Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
-    "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
+        "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
       ]
     },
-    "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Upload-Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
       ]
     },
     "Perf-Win7-Clang-Golo-CPU-AVX-x86-Debug-All": {
@@ -3214,16 +3214,16 @@
         "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
-    "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
+        "Upload-Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
       ]
     },
-    "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Upload-Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
       ]
     },
     "Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All": {
@@ -14200,7 +14200,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14219,7 +14219,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-ANGLE",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -14234,7 +14234,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All",
+        "buildername=Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14247,7 +14247,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14266,7 +14266,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-ANGLE",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -14281,7 +14281,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
+        "buildername=Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -25331,7 +25331,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -25350,7 +25350,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-ANGLE",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -25366,7 +25366,7 @@
         "test",
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All",
+        "buildername=Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -25379,7 +25379,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -25398,7 +25398,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-ANGLE",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -25414,7 +25414,7 @@
         "test",
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
+        "buildername=Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -28837,9 +28837,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Upload-Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
       "dependencies": [
-        "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -28852,7 +28852,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
+        "buildername=Perf-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -34434,9 +34434,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Upload-Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
       "dependencies": [
-        "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
+        "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -34449,7 +34449,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All",
+        "buildername=Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -34461,9 +34461,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Upload-Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
       "dependencies": [
-        "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -34476,7 +34476,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
+        "buildername=Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
