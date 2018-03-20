@@ -690,32 +690,15 @@ template <typename T> void bubble_sort(T array[], int count) {
             }
 }
 
-/**
- *  Given an array and count, remove all pair-wise duplicates from the array,
- *  keeping the existing sorting, and return the new count
- */
-static int collaps_duplicates(SkScalar array[], int count) {
-    for (int n = count; n > 1; --n) {
-        if (array[0] == array[1]) {
-            for (int i = 1; i < n; ++i) {
-                array[i - 1] = array[i];
-            }
-            count -= 1;
-        } else {
-            array += 1;
-        }
-    }
-    return count;
-}
 
 #ifdef SK_DEBUG
+#include "SkOnce.h"
 
 #define TEST_COLLAPS_ENTRY(array)   array, SK_ARRAY_COUNT(array)
 
+static int collaps_duplicates(SkScalar array[], int count);
+
 static void test_collaps_duplicates() {
-    static bool gOnce;
-    if (gOnce) { return; }
-    gOnce = true;
     const SkScalar src0[] = { 0 };
     const SkScalar src1[] = { 0, 0 };
     const SkScalar src2[] = { 0, 1 };
@@ -747,6 +730,29 @@ static void test_collaps_duplicates() {
     }
 }
 #endif
+
+/**
+ *  Given an array and count, remove all pair-wise duplicates from the array,
+ *  keeping the existing sorting, and return the new count
+ */
+static int collaps_duplicates(SkScalar array[], int count) {
+#ifdef SK_DEBUG
+    static SkOnce once;
+    once([]{ test_collaps_duplicates(); });
+#endif
+
+    for (int n = count; n > 1; --n) {
+        if (array[0] == array[1]) {
+            for (int i = 1; i < n; ++i) {
+                array[i - 1] = array[i];
+            }
+            count -= 1;
+        } else {
+            array += 1;
+        }
+    }
+    return count;
+}
 
 static SkScalar SkScalarCubeRoot(SkScalar x) {
     return SkScalarPow(x, 0.3333333f);
