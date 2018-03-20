@@ -272,14 +272,6 @@ public:
     static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
                                                      bool buildMips, SkColorSpace* dstColorSpace);
 
-    /** Deprecated.
-    */
-    static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
-                                                 const GrBackendTexture& backendTexture,
-                                                 GrSurfaceOrigin surfaceOrigin,
-                                                 SkAlphaType alphaType = kPremul_SkAlphaType,
-                                                 sk_sp<SkColorSpace> colorSpace = nullptr);
-
     /** Creates SkImage from backendTexture associated with context. backendTexture and
         returned SkImage are managed internally, and are released when no longer needed.
 

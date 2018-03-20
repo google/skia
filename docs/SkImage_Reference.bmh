@@ -562,16 +562,6 @@ if (source.peekPixels(&pixmap)) {
 #Method static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
                                                  const GrBackendTexture& backendTexture,
                                                  GrSurfaceOrigin surfaceOrigin,
-                                                 SkAlphaType alphaType = kPremul_SkAlphaType,
-                                                 sk_sp<SkColorSpace> colorSpace = nullptr)
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
-                                                 const GrBackendTexture& backendTexture,
-                                                 GrSurfaceOrigin surfaceOrigin,
                                                  SkColorType colorType,
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr)

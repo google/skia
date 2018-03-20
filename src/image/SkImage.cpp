@@ -363,12 +363,6 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext*,
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
-                                               SkAlphaType at, sk_sp<SkColorSpace> cs) {
-    return nullptr;
-}
-
-sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
-                                               const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkColorType ct, SkAlphaType at,
                                                sk_sp<SkColorSpace> cs) {
     return nullptr;

@@ -350,24 +350,18 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
-                                               SkAlphaType at, sk_sp<SkColorSpace> cs) {
-    if (!ctx->contextPriv().resourceProvider()) {
+                                               SkColorType ct, SkAlphaType at,
+                                               sk_sp<SkColorSpace> cs) {
+    if (!ctx || !ctx->contextPriv().resourceProvider()) {
         // We have a DDL context and we don't support adopted textures for them.
         return nullptr;
     }
-    return new_wrapped_texture_common(ctx, tex, origin, at, std::move(cs), kAdopt_GrWrapOwnership,
-                                      nullptr, nullptr);
-}
-
-sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
-                                               const GrBackendTexture& tex, GrSurfaceOrigin origin,
-                                               SkColorType ct, SkAlphaType at,
-                                               sk_sp<SkColorSpace> cs) {
     GrBackendTexture texCopy = tex;
     if (!validate_backend_texture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
         return nullptr;
     }
-    return MakeFromAdoptedTexture(ctx, texCopy, origin, at, cs);
+    return new_wrapped_texture_common(ctx, texCopy, origin, at, std::move(cs),
+                                      kAdopt_GrWrapOwnership, nullptr, nullptr);
 }
 
 sk_sp<SkImage> SkImage_Gpu::MakeFromYUVTexturesCopyImpl(
