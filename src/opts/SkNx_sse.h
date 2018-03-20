@@ -268,6 +268,53 @@ public:
 };
 
 template <>
+class SkNx<2, uint32_t> {
+public:
+    AI SkNx(const __m128i& vec) : fVec(vec) {}
+
+    AI SkNx() {}
+    AI SkNx(uint32_t val) : fVec(_mm_set1_epi32(val)) {}
+    AI static SkNx Load(const void* ptr) { return _mm_loadl_epi64((const __m128i*)ptr); }
+    AI SkNx(uint32_t a, uint32_t b) : fVec(_mm_setr_epi32(a,b,0,0)) {}
+
+    AI void store(void* ptr) const { _mm_storel_epi64((__m128i*)ptr, fVec); }
+
+    AI SkNx operator + (const SkNx& o) const { return _mm_add_epi32(fVec, o.fVec); }
+    AI SkNx operator - (const SkNx& o) const { return _mm_sub_epi32(fVec, o.fVec); }
+    AI SkNx operator * (const SkNx& o) const { return mullo32(fVec, o.fVec);       }
+
+    AI SkNx operator & (const SkNx& o) const { return _mm_and_si128(fVec, o.fVec); }
+    AI SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec);  }
+    AI SkNx operator ^ (const SkNx& o) const { return _mm_xor_si128(fVec, o.fVec); }
+
+    AI SkNx operator << (int bits) const { return _mm_slli_epi32(fVec, bits); }
+    AI SkNx operator >> (int bits) const { return _mm_srli_epi32(fVec, bits); }
+
+    AI SkNx operator == (const SkNx& o) const { return _mm_cmpeq_epi32 (fVec, o.fVec); }
+    AI SkNx operator != (const SkNx& o) const { return (*this == o) ^ 0xffffffff; }
+    // operator < and > take a little extra fiddling to make work for unsigned ints.
+
+    AI uint32_t operator[](int k) const {
+        SkASSERT(0 <= k && k < 2);
+        union { __m128i v; uint32_t us[4]; } pun = {fVec};
+        return pun.us[k&1];
+    }
+
+    AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+        return _mm_blendv_epi8(e.fVec, t.fVec, fVec);
+#else
+        return _mm_or_si128(_mm_and_si128   (fVec, t.fVec),
+                            _mm_andnot_si128(fVec, e.fVec));
+#endif
+    }
+
+    AI bool allTrue() const { return 0xff == (_mm_movemask_epi8(fVec) & 0xff); }
+
+    __m128i fVec;
+};
+
+template <>
 class SkNx<4, uint32_t> {
 public:
     AI SkNx(const __m128i& vec) : fVec(vec) {}
@@ -291,6 +338,8 @@ public:
     AI SkNx operator >> (int bits) const { return _mm_srli_epi32(fVec, bits); }
 
     AI SkNx operator == (const SkNx& o) const { return _mm_cmpeq_epi32 (fVec, o.fVec); }
+    AI SkNx operator != (const SkNx& o) const { return (*this == o) ^ 0xffffffff; }
+
     // operator < and > take a little extra fiddling to make work for unsigned ints.
 
     AI uint32_t operator[](int k) const {
