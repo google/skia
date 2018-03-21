@@ -595,15 +595,21 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
                     iterStack.emplace_back(token.fTokens.begin(), token.fTokens.end());
                     iterState = &iterStack.back();
                     preprocessorWord = true;
-                } else if (KeyWord::kEndif == token.fKeyWord) {
+                } else if (KeyWord::kEndif == token.fKeyWord || KeyWord::kElif == token.fKeyWord
+                        || KeyWord::kElse == token.fKeyWord) {
                     iterStack.pop_back();
                     iterState = &iterStack.back();
+                    if (KeyWord::kElif == token.fKeyWord) {
+                        iterStack.emplace_back(token.fTokens.begin(), token.fTokens.end());
+                        iterState = &iterStack.back();
+                        preprocessorWord = true;
+                    }
                 } else {
                     SkASSERT(0); // incomplete
                 }
                 continue;
             }
-            SkASSERT(0); // incomplete
+            continue;
         }
         if (Definition::Type::kWord != token.fType) {
             SkASSERT(0); // incomplete
