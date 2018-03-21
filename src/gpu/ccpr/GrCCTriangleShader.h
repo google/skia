@@ -19,31 +19,28 @@
 class GrCCTriangleShader : public GrCCCoverageProcessor::Shader {
     void onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
                         SkString* code, const char* position, const char* coverage,
-                        const char* attenuatedCoverage, const char* wind) override {
+                        const char* attenuatedCoverage) override {
         if (!attenuatedCoverage) {
-            fCoverageTimesWind.reset(kHalf_GrSLType, scope);
-            varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
-            code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), coverage, wind);
+            fCoverages.reset(kHalf_GrSLType, scope);
+            varyingHandler->addVarying("coverage", &fCoverages);
+            code->appendf("%s = %s;", OutName(fCoverages), coverage);
         } else {
-            fCoverageTimesWind.reset(kHalf3_GrSLType, scope);
-            varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
-            code->appendf("%s = half3(%s, %s);",
-                          OutName(fCoverageTimesWind), attenuatedCoverage, coverage);
-            code->appendf("%s.yz *= %s;", OutName(fCoverageTimesWind), wind);
+            fCoverages.reset(kHalf3_GrSLType, scope);
+            varyingHandler->addVarying("coverages", &fCoverages);
+            code->appendf("%s = half3(%s, %s);", OutName(fCoverages), attenuatedCoverage, coverage);
         }
     }
 
     void onEmitFragmentCode(GrGLSLFPFragmentBuilder* f, const char* outputCoverage) const override {
-        if (kHalf_GrSLType == fCoverageTimesWind.type()) {
-            f->codeAppendf("%s = %s;", outputCoverage, fCoverageTimesWind.fsIn());
+        if (kHalf_GrSLType == fCoverages.type()) {
+            f->codeAppendf("%s = %s;", outputCoverage, fCoverages.fsIn());
         } else {
             f->codeAppendf("%s = %s.x * %s.y + %s.z;",
-                           outputCoverage, fCoverageTimesWind.fsIn(), fCoverageTimesWind.fsIn(),
-                           fCoverageTimesWind.fsIn());
+                           outputCoverage, fCoverages.fsIn(), fCoverages.fsIn(), fCoverages.fsIn());
         }
     }
 
-    GrGLSLVarying fCoverageTimesWind;
+    GrGLSLVarying fCoverages;
 };
 
 #endif
