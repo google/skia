@@ -1703,12 +1703,18 @@ DEF_FUZZ(NullCanvas, fuzz) {
     fuzz_canvas(fuzz, SkMakeNullCanvas().get());
 }
 
-// 8.5x11 letter paper at 72ppi.
-constexpr SkISize kCanvasSize = {612, 792};
+
+#if defined(IS_FUZZING_WITH_LIBFUZZER)
+    // make it a bit smaller to avoid allocating too much memory.
+    constexpr SkISize kCanvasSize = {128, 160};
+#else
+    // 8.5x11 letter paper at 72ppi.
+    constexpr SkISize kCanvasSize = {612, 792};
+#endif
 
 DEF_FUZZ(RasterN32Canvas, fuzz) {
     auto surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(), kCanvasSize.height());
-    SkASSERT(surface && surface->getCanvas());
+    if (!(surface && surface->getCanvas())) { fuzz->signalBug(); }
     fuzz_canvas(fuzz, surface->getCanvas());
 }
 
