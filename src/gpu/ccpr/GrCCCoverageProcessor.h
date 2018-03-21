@@ -70,9 +70,19 @@ public:
     static bool RenderPassIsCubic(RenderPass);
     static const char* RenderPassName(RenderPass);
 
-    constexpr static bool DoesRenderPass(RenderPass renderPass, const GrCaps& caps) {
-        return RenderPass::kTriangleCorners != renderPass ||
-               caps.shaderCaps()->geometryShaderSupport();
+    static bool DoesRenderPass(RenderPass renderPass, const GrCaps& caps) {
+        switch (renderPass) {
+            case RenderPass::kTriangles:
+            case RenderPass::kQuadratics:
+            case RenderPass::kCubics:
+                return true;
+            case RenderPass::kTriangleCorners:
+            case RenderPass::kQuadraticCorners:
+            case RenderPass::kCubicCorners:
+                return caps.shaderCaps()->geometryShaderSupport();
+        }
+        SK_ABORT("Invalid RenderPass");
+        return false;
     }
 
     enum class WindMethod : bool {
@@ -126,34 +136,20 @@ public:
     // provides details about shape-specific geometry.
     class Shader {
     public:
-        union GeometryVars {
-            struct {
-                const char* fAlternatePoints; // floatNx2 (if left null, will use input points).
-            } fHullVars;
-
-            struct {
-                const char* fPoint; // float2
-            } fCornerVars;
-
-            GeometryVars() { memset(this, 0, sizeof(*this)); }
-        };
-
-        // Called before generating geometry. Subclasses must fill out the applicable fields in
-        // GeometryVars (if any), and may also use this opportunity to setup internal member
-        // variables that will be needed during onEmitVaryings (e.g. transformation matrices).
+        // Called before generating geometry. Subclasses may set up internal member variables during
+        // this time that will be needed during onEmitVaryings (e.g. transformation matrices).
         //
-        // repetitionID is a 0-based index and indicates which edge or corner is being generated.
-        // It will be null when generating a hull.
-        virtual void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts,
-                                   const char* repetitionID, const char* wind,
-                                   GeometryVars*) const {}
+        // If the optional 'tighterHull' parameter is not null and gets filled out by the subclass,
+        // the the Impl will generate geometry around those points rather than the input points.
+        virtual void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* wind,
+                                   const char** tighterHull = nullptr) const {}
 
         void emitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
                           SkString* code, const char* position, const char* coverage,
-                          const char* attenuatedCoverage, const char* wind) {
+                          const char* attenuatedCoverage) {
             SkASSERT(GrGLSLVarying::Scope::kVertToGeo != scope);
             this->onEmitVaryings(varyingHandler, scope, code, position, coverage,
-                                 attenuatedCoverage, wind);
+                                 attenuatedCoverage);
         }
 
         void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
@@ -195,12 +191,13 @@ public:
 
     protected:
         // Here the subclass adds its internal varyings to the handler and produces code to
-        // initialize those varyings from a given position, input coverage value, and wind.
+        // initialize those varyings from a given position and coverage values.
         //
-        // NOTE: the coverage inputs are only relevant for triangles. Otherwise they are null.
+        // NOTE: the coverage values are signed appropriately for wind.
+        //       'coverage' will only be +1 or -1 on curves.
         virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                                     const char* position, const char* coverage,
-                                    const char* attenuatedCoverage, const char* wind) = 0;
+                                    const char* attenuatedCoverage) = 0;
 
         // Emits the fragment code that calculates a pixel's signed coverage value.
         virtual void onEmitFragmentCode(GrGLSLFPFragmentBuilder*,
@@ -213,15 +210,12 @@ public:
             SkASSERT(Scope::kVertToGeo != varying.scope());
             return Scope::kGeoToFrag == varying.scope() ? varying.gsOut() : varying.vsOut();
         }
-
-        // Defines a global float2 array that contains MSAA sample locations as offsets from pixel
-        // center. Subclasses can use this for software multisampling.
-        //
-        // Returns the number of samples.
-        static int DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f, const char* samplesName);
     };
 
     class GSImpl;
+    class GSTriangleHullImpl;
+    class GSCurveHullImpl;
+    class GSCornerImpl;
     class VSImpl;
 
 private:
