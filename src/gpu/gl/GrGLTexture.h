@@ -80,6 +80,7 @@ protected:
     // Constructor for instances wrapping backend objects.
     GrGLTexture(GrGLGpu*, Wrapped, const GrSurfaceDesc&, GrMipMapsStatus, const IDDesc&);
 
+    void setFlags(const IDDesc&);
     void init(const GrSurfaceDesc&, const IDDesc&);
 
     void onAbandon() override;

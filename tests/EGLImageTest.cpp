@@ -13,8 +13,11 @@
 #include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrShaderCaps.h"
+#include "GrSurfacePriv.h"
 #include "GrTest.h"
+#include "GrTexture.h"
 #include "GrTextureContext.h"
+#include "GrTextureProxyPriv.h"
 #include "gl/GLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
@@ -158,6 +161,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
+
+    SkASSERT(surfaceContext->asTextureProxy()->texPriv().doesNotSupportMipMaps());
+    SkASSERT(surfaceContext->asTextureProxy()->priv().peekTexture()->surfacePriv().doesNotSupportMipMaps());
+
+    SkASSERT(surfaceContext->asTextureProxy()->texPriv().isClampOnly());
+    SkASSERT(surfaceContext->asTextureProxy()->priv().peekTexture()->surfacePriv().isClampOnly());
 
     // Should not be able to wrap as a RT
     {

@@ -45,6 +45,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
+    this->setFlags(idDesc);
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
@@ -54,6 +55,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
+    this->setFlags(idDesc);
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
@@ -63,7 +65,16 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& 
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
+    this->setFlags(idDesc);
     this->init(desc, idDesc);
+}
+
+void GrGLTexture::setFlags(const IDDesc& idDesc) {
+    if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
+        idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
+        this->setDoesNotSupportMipMaps();
+        this->isClampOnly();
+    }
 }
 
 void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {

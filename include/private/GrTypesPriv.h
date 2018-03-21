@@ -672,14 +672,24 @@ enum GrAccessPattern {
 
 // Flags shared between the GrSurface & GrSurfaceProxy class hierarchies
 enum class GrInternalSurfaceFlags {
-    kNone               = 0,
+    kNone                  = 0,
 
     // Surface-level
-    kNoPendingIO        = 1 << 0,
+    kNoPendingIO           = 1 << 0,
 
-    // Texture-only
+    // Texture-only flags
 
-    /* coming soon */
+    // This flag is set when the internal texture target doesn't support mipmaps (e.g.,
+    // external and rectangle textures). Note that Ganesh does not internally
+    // create resources with this limitation - this flag will only appear on resources passed
+    // into Ganesh.
+    kDoesNotSupportMipMaps = 1 << 1,
+
+    // This flag is set when the internal texture target only supports the clamp wrap mode (e.g.,
+    // external and rectangle textures). Note that Ganesh does not internally
+    // create resources with this limitation - this flag will only appear on resources passed
+    // into Ganesh.
+    kIsClampOnly           = 1 << 2,
 
     // RT-only
 
@@ -689,14 +699,14 @@ enum class GrInternalSurfaceFlags {
     //    this is disabled for FBO0
     //    but, otherwise, is enabled whenever MSAA is enabled and GrCaps reports mixed samples
     //        are supported
-    kMixedSampled       = 1 << 3,
+    kMixedSampled          = 1 << 3,
 
     // For internal resources:
     //    this is enabled whenever GrCaps reports window rect support
     // For wrapped resources1
     //    this is disabled for FBO0
     //    but, otherwise, is enabled whenever GrCaps reports window rect support
-    kWindowRectsSupport = 1 << 4
+    kWindowRectsSupport    = 1 << 4
 };
 GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
 
