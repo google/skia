@@ -55,6 +55,12 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         fProxyProvider = fTarget->asTexture()->getContext()->contextPriv().proxyProvider();
         fProxyProvider->adoptUniqueKeyFromSurface(this, fTarget);
     }
+    if (fTarget->asTexture()->isExt()) {
+        this->setIsExt();
+    }
+    if (fTarget->asTexture()->isRect()) {
+        this->setIsRect();
+    }
 }
 
 GrTextureProxy::~GrTextureProxy() {

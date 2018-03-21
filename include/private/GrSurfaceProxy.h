@@ -420,6 +420,12 @@ protected:
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
                          GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*);
 
+    void setIsExt() { fSurfaceFlags |= GrInternalSurfaceFlags::kExt; }
+    bool isExt() const { return fSurfaceFlags & GrInternalSurfaceFlags::kExt; }
+
+    void setIsRect() { fSurfaceFlags |= GrInternalSurfaceFlags::kRect; }
+    bool isRect() const { return fSurfaceFlags & GrInternalSurfaceFlags::kRect; }
+
     void setHasMixedSamples() {
         SkASSERT(this->asRenderTargetProxy());
         fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
