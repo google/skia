@@ -127,26 +127,6 @@ void GrCCCoverageProcessor::Shader::CalcCornerCoverageAttenuation(GrGLSLVertexGe
                    outputAttenuation);
 }
 
-int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f,
-                                                             const char* samplesName) {
-    // Standard DX11 sample locations.
-#if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
-    f->defineConstant("float2[8]", samplesName, "float2[8]("
-        "float2(+1, -3)/16, float2(-1, +3)/16, float2(+5, +1)/16, float2(-3, -5)/16, "
-        "float2(-5, +5)/16, float2(-7, -1)/16, float2(+3, +7)/16, float2(+7, -7)/16."
-    ")");
-    return 8;
-#else
-    f->defineConstant("float2[16]", samplesName, "float2[16]("
-        "float2(+1, +1)/16, float2(-1, -3)/16, float2(-3, +2)/16, float2(+4, -1)/16, "
-        "float2(-5, -2)/16, float2(+2, +5)/16, float2(+5, +3)/16, float2(+3, -5)/16, "
-        "float2(-2, +6)/16, float2( 0, -7)/16, float2(-4, -6)/16, float2(-6, +4)/16, "
-        "float2(-8,  0)/16, float2(+7, -4)/16, float2(+6, +7)/16, float2(-7, -8)/16."
-    ")");
-    return 16;
-#endif
-}
-
 void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
                                                 GrProcessorKeyBuilder* b) const {
     int key = (int)fRenderPass << 2;
@@ -172,16 +152,12 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
             shader = skstd::make_unique<GrCCTriangleShader>();
             break;
         case RenderPass::kQuadratics:
-            shader = skstd::make_unique<GrCCQuadraticHullShader>();
-            break;
         case RenderPass::kQuadraticCorners:
-            shader = skstd::make_unique<GrCCQuadraticCornerShader>();
+            shader = skstd::make_unique<GrCCQuadraticShader>();
             break;
         case RenderPass::kCubics:
-            shader = skstd::make_unique<GrCCCubicHullShader>();
-            break;
         case RenderPass::kCubicCorners:
-            shader = skstd::make_unique<GrCCCubicCornerShader>();
+            shader = skstd::make_unique<GrCCCubicShader>();
             break;
     }
     return Impl::kGeometryShader == fImpl ? this->createGSImpl(std::move(shader))
