@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba27ed8e_6a6ca640",
+        "filename": "src/opts/SkNx_neon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-21T11:46:29Z",
+      "side": 1,
+      "message": "probably just \u0027ab\u0027?",
+      "range": {
+        "startLine": 38,
+        "startChar": 22,
+        "endLine": 38,
+        "endChar": 25
+      },
+      "revId": "4def78bae2b30bcb36209e66d04273e845073656",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "580e35e8_43eec22a",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-21T11:46:29Z",
+      "side": 1,
+      "message": "This will probably work fine as written, but it\u0027s worth noting there\u0027s an intrinsic for this one if you\u0027re interested:\n\n  auto vals \u003d _mm_unpacklo_ps(a.fVec, b.fVec);",
+      "range": {
+        "startLine": 33,
+        "startChar": 20,
+        "endLine": 33,
+        "endChar": 56
+      },
+      "revId": "4def78bae2b30bcb36209e66d04273e845073656",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
