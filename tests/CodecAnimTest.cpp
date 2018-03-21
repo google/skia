@@ -17,6 +17,7 @@
 #include "SkSize.h"
 #include "SkString.h"
 #include "SkTypes.h"
+#include "SkUnPreMultiply.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 
@@ -422,9 +423,40 @@ DEF_TEST(AndroidCodec_animated, r) {
             options.fPriorFrame = i - 1;
             info = info.makeAlphaType(frameInfo.fAlphaType);
 
-            const auto result = codec->codec()->getPixels(info, bm.getPixels(), bm.rowBytes(),
-                                                          &options);
+            auto result = codec->codec()->getPixels(info, bm.getPixels(), bm.rowBytes(),
+                                                    &options);
             REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+            // Now compare to not using prior frame.
+            SkBitmap bm2;
+            bm2.allocPixels(info);
+
+            options.fPriorFrame = SkCodec::kNone;
+            result = codec->codec()->getPixels(info, bm2.getPixels(), bm2.rowBytes(),
+                                               &options);
+            REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+            bool skip = false;
+            for (int x = 0; x < info.width();  ++x) {
+                if (skip) break;
+                for (int y = 0; y < info.height(); ++y) {
+                    SkColor c1 = SkUnPreMultiply::PMColorToColor(*bm.getAddr32(x, y));
+                    SkColor c2 = SkUnPreMultiply::PMColorToColor(*bm2.getAddr32(x, y));
+                    if (c1 != c2) {
+                        ERRORF(r, "pixel mismatch for sample size %i, frame %i resulting in "
+                                  "dimensions %i x %i; pixel: %i, %i\n\texpected: %x\n\tactual: %x",
+                                  sampleSize, i, info.width(), info.height(), x, y);
+                        SkString name = SkStringPrintf("bm_%i_%ix%i_%i", sampleSize, info.width(),
+                                                       info.height(), i, c1, c2);
+                        write_bm(name.c_str(), bm);
+                        name = SkStringPrintf("bm2_%i_%ix%i_%i", sampleSize, info.width(),
+                                              info.height(), i);
+                        write_bm(name.c_str(), bm);
+                        skip = true;
+                        break;
+                    }
+                }
+            }
         }
     }
 }
