@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd4d6ab9_036a45c7",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1709,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-21T14:12:24Z",
+      "side": 1,
+      "message": "let\u0027s just do this unconditionally?",
+      "revId": "5d928600a4fb2cd37a24db8e9c39a0ce8fe5a673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22cde98d_5d01c544",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1717,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-21T14:12:24Z",
+      "side": 1,
+      "message": "might be easier to read De Morgan\u0027d?\n\n  if (!surface || !surface-\u003egetCanvas()) { fuzz-\u003esignalBug(); }",
+      "range": {
+        "startLine": 1717,
+        "startChar": 7,
+        "endLine": 1717,
+        "endChar": 42
+      },
+      "revId": "5d928600a4fb2cd37a24db8e9c39a0ce8fe5a673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
