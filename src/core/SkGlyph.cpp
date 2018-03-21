@@ -39,24 +39,6 @@ static size_t bits_to_bytes(size_t bits) {
     return (bits + 7) >> 3;
 }
 
-static size_t format_rowbytes(int width, SkMask::Format format) {
-    switch (format) {
-        case SkMask::kBW_Format:
-            return bits_to_bytes(width);
-        case SkMask::kA8_Format:
-        case SkMask::k3D_Format:
-            return width;
-        case SkMask::kARGB32_Format:
-            return width * sizeof(uint32_t);
-        case SkMask::kLCD16_Format:
-            return width * sizeof(uint16_t);
-        default:
-            SK_ABORT("Unknown mask format.");
-            break;
-    }
-    return 0;
-}
-
 static size_t format_alignment(SkMask::Format format) {
     switch (format) {
         case SkMask::kBW_Format:
@@ -72,6 +54,11 @@ static size_t format_alignment(SkMask::Format format) {
             break;
     }
     return 0;
+}
+
+static size_t format_rowbytes(int width, SkMask::Format format) {
+    return format == SkMask::kBW_Format ? bits_to_bytes(width)
+                                        : width * format_alignment(format);
 }
 
 size_t SkGlyph::allocImage(SkArenaAlloc* alloc) {
