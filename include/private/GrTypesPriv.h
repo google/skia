@@ -678,8 +678,8 @@ enum class GrInternalSurfaceFlags {
     kNoPendingIO        = 1 << 0,
 
     // Texture-only
-
-    /* coming soon */
+    kExt                = 1 << 1,
+    kRect               = 1 << 2,
 
     // RT-only
 
