@@ -42,6 +42,16 @@ public:
     GrBackendObject getTextureHandle() const override;
     GrBackendTexture getBackendTexture() const override;
 
+    bool doesNotSupportMipMaps() const override {
+        return GR_GL_TEXTURE_RECTANGLE == this->target() ||
+               GR_GL_TEXTURE_EXTERNAL == this->target();
+    }
+
+    bool isClampOnly() const override {
+        return GR_GL_TEXTURE_RECTANGLE == this->target() ||
+               GR_GL_TEXTURE_EXTERNAL == this->target();
+    }
+
     void textureParamsModified() override { fTexParams.invalidate(); }
 
     void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {

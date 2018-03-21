@@ -15,6 +15,7 @@
 #include "GrShaderCaps.h"
 #include "GrTest.h"
 #include "GrTextureContext.h"
+#include "GrTextureProxyPriv.h"
 #include "gl/GLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
@@ -158,6 +159,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
+
+    SkASSERT(surfaceContext->asTextureProxy()->texPriv().isExt());
+    SkASSERT(surfaceContext->asTextureProxy()->priv().peekTexture()->isExt());
 
     // Should not be able to wrap as a RT
     {

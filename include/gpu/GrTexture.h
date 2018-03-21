@@ -39,6 +39,9 @@ public:
      */
     virtual void textureParamsModified() = 0;
 
+    virtual bool doesNotSupportMipMaps() const { return false; }
+    virtual bool isClampOnly() const { return false; }
+
     /**
      * This function steals the backend texture from a uniquely owned GrTexture with no pending
      * IO, passing it out to the caller. The GrTexture is deleted in the process.
