@@ -590,8 +590,37 @@ static bool ShouldUseDAA(const SkPath& path) {
     if (!gSkUseDeltaAA) {
         return false;
     }
-    const SkRect& bounds = path.getBounds();
-    return !path.isConvex() && path.countPoints() >= SkTMax(bounds.width(), bounds.height()) / 8;
+
+    constexpr int kSampleSize = 8;
+    constexpr SkScalar kComplexityThreshold = 0.25;
+
+    int n = path.countPoints();
+    if (path.isConvex() || n < kSampleSize) {
+        return false;
+    }
+
+    SkScalar sumLength = .0f;
+    SkPoint lastPoint = path.getPoint(0);
+    for(int i = 1; i < kSampleSize; ++i) {
+        SkPoint point = path.getPoint(i);
+        sumLength += SkPoint::Distance(lastPoint, point);
+        lastPoint = point;
+    }
+    SkScalar diagonal = SkPoint::Length(path.getBounds().width(), path.getBounds().height());
+
+    // On average, what's the distance between two consecutive points; the number is normalized
+    // to a range of [0, 1] where 1 corresponds to the maximum length of the diagonal.
+    SkScalar sampleSpan = sumLength / (kSampleSize - 1) / diagonal;
+
+
+    // If the path is consist of random line segments, the number of intersections should be
+    // proportional to (n * sampleSpan)^2
+    SkScalar intersections = (n * sampleSpan) * (n * sampleSpan);
+
+    // The number of intersections per scanline should be proportional to this number.
+    SkScalar complexity = intersections / path.getBounds().height();
+
+    return complexity >= kComplexityThreshold;
 }
 
 static bool ShouldUseAAA(const SkPath& path) {
