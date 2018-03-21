@@ -179,6 +179,11 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 
 void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
     SkASSERT(!fTarget && surface);
+
+    // Check that our a priori computation matched the ultimate reality
+    SkASSERT((fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO) ==
+             surface->surfacePriv().flags());
+
     fTarget = surface.release();
 
     this->INHERITED::transferRefs();
@@ -221,10 +226,6 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     this->assign(std::move(surface));
-
-    // Check that our a priori computation matched the ultimate reality
-    SkASSERT((fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO) ==
-             fTarget->surfacePriv().flags());
 
     return true;
 }
