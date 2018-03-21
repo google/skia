@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "007a45e0_1d2add5d",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1709,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-21T14:18:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd4d6ab9_036a45c7",
+      "revId": "5d928600a4fb2cd37a24db8e9c39a0ce8fe5a673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22cde98d_5d01c544",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "5d928600a4fb2cd37a24db8e9c39a0ce8fe5a673",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce295e8b_9d615202",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1717,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-21T14:18:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22cde98d_5d01c544",
+      "range": {
+        "startLine": 1717,
+        "startChar": 7,
+        "endLine": 1717,
+        "endChar": 42
+      },
+      "revId": "5d928600a4fb2cd37a24db8e9c39a0ce8fe5a673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
