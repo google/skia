@@ -77,16 +77,19 @@ class SkTypefaceProxy : public SkTypeface {
 public:
     SkTypefaceProxy(
             SkFontID fontId,
+            int glyphCount,
             const SkFontStyle& style,
             bool isFixed,
             SkRemoteScalerContext* rsc)
             : INHERITED{style, false}
             , fFontId{fontId}
+            , fGlyphCount{glyphCount}
             , fRsc{rsc} { }
     SkFontID fontID() const {return fFontId;}
+    int glyphCount() const {return fGlyphCount;}
     static SkTypefaceProxy* DownCast(SkTypeface* typeface) {
-        // TODO: how to check the safty of the down cast.
-        return (SkTypefaceProxy*) typeface;
+        // TODO: how to check the safety of the down cast?
+        return (SkTypefaceProxy*)typeface;
     }
 
 protected:
@@ -159,6 +162,7 @@ protected:
 
 private:
     const SkFontID fFontId;
+    const int fGlyphCount;
     // const std::thread::id fThreadId;  // TODO: figure out a good solutions for this.
     SkRemoteScalerContext* const fRsc;
 

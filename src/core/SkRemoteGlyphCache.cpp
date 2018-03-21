@@ -9,9 +9,10 @@
 
 struct WireTypeface {
     // std::thread::id thread_id;  // TODO:need to figure a good solution
-    SkFontID        typeface_id;
+    SkFontID        typefaceID;
+    int             glyphCount;
     SkFontStyle     style;
-    bool            is_fixed;
+    bool            isFixed;
 };
 
 void SkRemoteGlyphCacheRenderer::prepareSerializeProcs(SkSerialProcs* procs) {
@@ -47,6 +48,7 @@ SkScalerContext* SkRemoteGlyphCacheRenderer::generateScalerContext(
 sk_sp<SkData> SkRemoteGlyphCacheRenderer::encodeTypeface(SkTypeface* tf) {
     WireTypeface wire = {
         SkTypeface::UniqueID(tf),
+        tf->countGlyphs(),
         tf->fontStyle(),
         tf->isFixedPitch()
     };
@@ -84,16 +86,17 @@ sk_sp<SkTypeface> SkRemoteGlyphCacheGPU::decodeTypeface(const void* buf, size_t 
     }
     memcpy(&wire, buf, sizeof(wire));
 
-    auto typeFace = fMapIdToTypeface.find(wire.typeface_id);
+    auto typeFace = fMapIdToTypeface.find(wire.typefaceID);
     if (typeFace == nullptr) {
 
         auto newTypeface = sk_make_sp<SkTypefaceProxy>(
-            wire.typeface_id,
+            wire.typefaceID,
+            wire.glyphCount,
             wire.style,
-            wire.is_fixed,
+            wire.isFixed,
             fRemoteScalerContext.get());
 
-        typeFace = fMapIdToTypeface.set(wire.typeface_id, newTypeface);
+        typeFace = fMapIdToTypeface.set(wire.typefaceID, newTypeface);
     }
     return *typeFace;
 }
