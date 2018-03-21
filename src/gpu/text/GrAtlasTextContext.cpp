@@ -500,8 +500,8 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
     SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(pathPaint.getTextEncoding(),
                                                                         pathPaint.isDevKernText(),
                                                                         true);
-    SkAutoGlyphCache           autoCache(pathPaint, &props, nullptr);
-    SkGlyphCache*              cache = autoCache.get();
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
+            pathPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 
     const char*        stop = text + byteLength;
     const char*        lastText = text;
@@ -509,7 +509,7 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
     SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
 
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text);
+        const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);
         if (glyph.fWidth) {
             SkPoint tmsLoc;
             tmsProc(pos, &tmsLoc);
