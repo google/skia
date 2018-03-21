@@ -102,6 +102,8 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
             meas.getSegment(0, length, dst, true);  // to short for us to mangle
         } else {
             int         n = SkScalarRoundToInt(length / fSegLength);
+            constexpr int kMaxReasonableIterations = 100000;
+            n = SkTMin(n, kMaxReasonableIterations);
             SkScalar    delta = length / n;
             SkScalar    distance = 0;
 
