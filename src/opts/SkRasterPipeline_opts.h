@@ -700,28 +700,32 @@ static const size_t N = sizeof(F) / sizeof(float);
 //    tail != 0 ~~> work on only the first tail pixels
 // tail is always < N.
 
-// Any custom ABI to use for all non-externally-facing stage functions.
-#if defined(__ARM_NEON) && defined(__arm__)
+// Any custom ABI to use for all (non-externally-facing) stage functions?
+// Also decide here whether to use narrow (compromise) or wide (ideal) stages.
+#if defined(__arm__) && defined(__ARM_NEON)
     // This lets us pass vectors more efficiently on 32-bit ARM.
+    // We can still only pass 16 floats, so best as 4x {r,g,b,a}.
     #define ABI __attribute__((pcs("aapcs-vfp")))
-#elif 0 || defined(__clang__) && defined(_MSC_VER)
-    // TODO: can we use sysv_abi here instead?  It'd allow passing far more registers.
-    #define ABI __attribute__((vectorcall))
-#else
-    #define ABI
-#endif
-
-// On 32-bit x86 we've only got 8 xmm registers, so we keep the 4 hottest (r,g,b,a)
-// in registers and the d-registers on the stack (giving us 4 temporary registers).
-// General-purpose registers are also tight, so we put most of those on the stack too.
-//
-// On ARMv7, we do the same so that we can make the r,g,b,a vectors wider.
-//
-// Finally, this narrower stage calling convention also fits Windows' __vectorcall very well.
-#if 0 || defined(__i386__) || defined(_M_IX86) || defined(__arm__) || defined(_MSC_VER)
     #define JUMPER_NARROW_STAGES 1
-#else
+#elif 0 && defined(_MSC_VER) && defined(__clang__) && defined(__x86_64__)
+    // SysV ABI makes it very sensible to use wide stages with clang-cl.
+    // TODO: crashes during compilation  :(
+    #define ABI __attribute__((sysv_abi))
     #define JUMPER_NARROW_STAGES 0
+#elif defined(_MSC_VER)
+    // Even if not vectorized, this lets us pass {r,g,b,a} as registers,
+    // instead of {b,a} on the stack.  Narrow stages work best for __vectorcall.
+    #define ABI __vectorcall
+    #define JUMPER_NARROW_STAGES 1
+#elif defined(__x86_64__) || defined(__aarch64__)
+    // These platforms are ideal for wider stages, and their default ABI is ideal.
+    #define ABI
+    #define JUMPER_NARROW_STAGES 0
+#else
+    // 32-bit or unknown... shunt them down the narrow path.
+    // Odds are these have few registers and are better off there.
+    #define ABI
+    #define JUMPER_NARROW_STAGES 1
 #endif
 
 #if JUMPER_NARROW_STAGES
@@ -767,7 +771,7 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
     #define STAGE(name, ...)                                                    \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,        \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);   \
-        static ABI void name(Params* params, void** program,                    \
+        static void ABI name(Params* params, void** program,                    \
                              F r, F g, F b, F a) {                              \
             name##_k(Ctx{program},params->dx,params->dy,params->tail, r,g,b,a,  \
                      params->dr, params->dg, params->db, params->da);           \
@@ -780,7 +784,7 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
     #define STAGE(name, ...)                                                         \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,             \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);        \
-        static ABI void name(size_t tail, void** program, size_t dx, size_t dy,      \
+        static void ABI name(size_t tail, void** program, size_t dx, size_t dy,      \
                              F r, F g, F b, F a, F dr, F dg, F db, F da) {           \
             name##_k(Ctx{program},dx,dy,tail, r,g,b,a, dr,dg,db,da);                 \
             auto next = (Stage)load_and_inc(program);                                \
@@ -794,9 +798,9 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
 // just_return() is a simple no-op stage that only exists to end the chain,
 // returning back up to start_pipeline(), and from there to the caller.
 #if JUMPER_NARROW_STAGES
-    static ABI void just_return(Params*, void**, F,F,F,F) {}
+    static void ABI just_return(Params*, void**, F,F,F,F) {}
 #else
-    static ABI void just_return(size_t, void**, size_t,size_t, F,F,F,F, F,F,F,F) {}
+    static void ABI just_return(size_t, void**, size_t,size_t, F,F,F,F, F,F,F,F) {}
 #endif
 
 
@@ -2375,9 +2379,9 @@ static void start_pipeline(const size_t x0,     const size_t y0,
 }
 
 #if JUMPER_NARROW_STAGES
-    static ABI void just_return(Params*, void**, U16,U16,U16,U16) {}
+    static void ABI just_return(Params*, void**, U16,U16,U16,U16) {}
 #else
-    static ABI void just_return(size_t,void**,size_t,size_t, U16,U16,U16,U16, U16,U16,U16,U16) {}
+    static void ABI just_return(size_t,void**,size_t,size_t, U16,U16,U16,U16, U16,U16,U16,U16) {}
 #endif
 
 // All stages use the same function call ABI to chain into each other, but there are three types:
@@ -2393,7 +2397,7 @@ static void start_pipeline(const size_t x0,     const size_t y0,
 #if JUMPER_NARROW_STAGES
     #define STAGE_GG(name, ...)                                                            \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y);      \
-        static ABI void name(Params* params, void** program, U16 r, U16 g, U16 b, U16 a) { \
+        static void ABI name(Params* params, void** program, U16 r, U16 g, U16 b, U16 a) { \
             auto x = join<F>(r,g),                                                         \
                  y = join<F>(b,a);                                                         \
             name##_k(Ctx{program}, params->dx,params->dy,params->tail, x,y);               \
@@ -2408,7 +2412,7 @@ static void start_pipeline(const size_t x0,     const size_t y0,
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F x, F y,         \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da);                              \
-        static ABI void name(Params* params, void** program, U16 r, U16 g, U16 b, U16 a) { \
+        static void ABI name(Params* params, void** program, U16 r, U16 g, U16 b, U16 a) { \
             auto x = join<F>(r,g),                                                         \
                  y = join<F>(b,a);                                                         \
             name##_k(Ctx{program}, params->dx,params->dy,params->tail, x,y, r,g,b,a,       \
@@ -2424,7 +2428,7 @@ static void start_pipeline(const size_t x0,     const size_t y0,
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da);                              \
-        static ABI void name(Params* params, void** program, U16 r, U16 g, U16 b, U16 a) { \
+        static void ABI name(Params* params, void** program, U16 r, U16 g, U16 b, U16 a) { \
             name##_k(Ctx{program}, params->dx,params->dy,params->tail, r,g,b,a,            \
                      params->dr,params->dg,params->db,params->da);                         \
             auto next = (Stage)load_and_inc(program);                                      \
@@ -2436,7 +2440,7 @@ static void start_pipeline(const size_t x0,     const size_t y0,
 #else
     #define STAGE_GG(name, ...)                                                            \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y);      \
-        static ABI void name(size_t tail, void** program, size_t dx, size_t dy,            \
+        static void ABI name(size_t tail, void** program, size_t dx, size_t dy,            \
                              U16  r, U16  g, U16  b, U16  a,                               \
                              U16 dr, U16 dg, U16 db, U16 da) {                             \
             auto x = join<F>(r,g),                                                         \
@@ -2453,7 +2457,7 @@ static void start_pipeline(const size_t x0,     const size_t y0,
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F x, F y,         \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da);                              \
-        static ABI void name(size_t tail, void** program, size_t dx, size_t dy,            \
+        static void ABI name(size_t tail, void** program, size_t dx, size_t dy,            \
                              U16  r, U16  g, U16  b, U16  a,                               \
                              U16 dr, U16 dg, U16 db, U16 da) {                             \
             auto x = join<F>(r,g),                                                         \
@@ -2470,7 +2474,7 @@ static void start_pipeline(const size_t x0,     const size_t y0,
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da);                              \
-        static ABI void name(size_t tail, void** program, size_t dx, size_t dy,            \
+        static void ABI name(size_t tail, void** program, size_t dx, size_t dy,            \
                              U16  r, U16  g, U16  b, U16  a,                               \
                              U16 dr, U16 dg, U16 db, U16 da) {                             \
             name##_k(Ctx{program}, dx,dy,tail, r,g,b,a, dr,dg,db,da);                      \

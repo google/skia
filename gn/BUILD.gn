@@ -112,9 +112,7 @@ config("default") {
       "-mfpu=neon",
       "-mthumb",
     ]
-  } else if (current_cpu == "x86" && is_win) {
-    cflags += [ "/arch:SSE2" ]
-  } else if (current_cpu == "x86") {
+  } else if (current_cpu == "x86" && !is_win) {
     asmflags += [ "-m32" ]
     cflags += [
       "-m32",
