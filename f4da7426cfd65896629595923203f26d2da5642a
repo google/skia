@@ -22,6 +22,30 @@
       "revId": "f4da7426cfd65896629595923203f26d2da5642a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d2b03ed_196a7e80",
+        "filename": "src/gpu/ccpr/GrCCQuadraticShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-21T12:14:21Z",
+      "side": 1,
+      "message": "also if you think it won\u0027t get optimized and we end up with an extra multiply by pulling it out, feel free to just a comment as well.",
+      "parentUuid": "8d7acaa5_5b85c8ad",
+      "range": {
+        "startLine": 82,
+        "startChar": 31,
+        "endLine": 82,
+        "endChar": 38
+      },
+      "revId": "f4da7426cfd65896629595923203f26d2da5642a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
