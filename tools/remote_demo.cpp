@@ -39,14 +39,11 @@
 #include <sys/uio.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include <SkFindAndPlaceGlyph.h>
 #include <SkDrawLooper.h>
 #include "SkTypeface_remote.h"
 #include "SkRemoteGlyphCache.h"
 #include "SkMakeUnique.h"
-
-static const size_t kPageSize = 4096;
 
 static bool gUseGpu = true;
 static bool gPurgeFontCaches = true;
@@ -60,608 +57,40 @@ enum direction : int {kRead = 0, kWrite = 1};
 
 #define INSTRUMENT 0
 
-template <typename T>
-class SkArraySlice : public std::tuple<const T*, size_t> {
+class ReadWriteTransport : public SkTransport {
 public:
-    // Additional constructors as needed.
-    SkArraySlice(const T* data, size_t size) : std::tuple<const T*, size_t>{data, size} { }
-    SkArraySlice() : SkArraySlice<T>(nullptr, 0) { }
-    friend const T* begin(const SkArraySlice<T>& slice) {
-        return slice.data();
+    ReadWriteTransport(int readFd, int writeFd) : fReadFd{readFd}, fWriteFd{writeFd} {}
+    ~ReadWriteTransport() override {
+        // TODO: turn this back on after old transport is gone.
+        //close(fWriteFd);
+        //close(fReadFd);
     }
-
-    friend const T* end(const SkArraySlice<T>& slice) {
-        return &slice.data()[slice.size()];
-    }
-
-    const T* data() const {
-        return std::get<0>(*this);
-    }
-
-    size_t size() const {
-        return std::get<1>(*this);
-    }
-};
-
-// TODO: handle alignment
-// TODO: handle overflow
-class Transport {
-public:
-    enum IOResult : bool {kFail = false, kSuccess = true};
-
-    Transport(Transport&& t)
-        : fReadFd{t.fReadFd}
-        , fWriteFd{t.fWriteFd}
-        , fBuffer{std::move(t.fBuffer)}
-        , fCloser{t.fCloser} { }
-
-    Transport(const Transport& t)
-        : fReadFd{t.fReadFd}
-        , fWriteFd{t.fWriteFd}
-        , fBuffer{new uint8_t[kBufferSize]}
-        , fCloser{t.fCloser} { }
-
-    Transport(int readFd, int writeFd)
-        : fReadFd{readFd}
-        , fWriteFd{writeFd}
-        , fCloser{std::make_shared<Closer>(readFd, writeFd)} { }
-
-    static Transport DoubleBuffer(const Transport& transport) {
-        return Transport{transport};
-    }
-
-    struct Closer {
-        Closer(int readFd, int writeFd) : fReadFd{readFd}, fWriteFd{writeFd} { }
-        ~Closer() {
-            close(fWriteFd);
-            close(fReadFd);
-        }
-        int fReadFd,
-            fWriteFd;
-    };
-
-    void startRead() {
-        fCursor = 0;
-        fEnd = 0;
-    }
-
-    template <typename T>
-    T* startRead() {
-        this->startRead();
-        return this->read<T>();
-    }
-
-    template <typename T>
-    T* read() {
-        T* result = (T*)this->ensureAtLeast(sizeof(T));
-        fCursor += sizeof(T);
-        return result;
-    }
-
-    SkDescriptor* readDescriptor() {
-        SkDescriptor* result = (SkDescriptor*)this->ensureAtLeast(sizeof(SkDescriptor));
-        size_t size = result->getLength();
-        this->ensureAtLeast(size);
-        fCursor += size;
-        return result;
-    }
-
-    template <typename T>
-    SkArraySlice<T> readArray(int count) {
-        size_t size = count * sizeof(T);
-        const T* base = (const T*)this->ensureAtLeast(size);
-        SkArraySlice<T> result = SkArraySlice<T>{base, (uint32_t)count};
-        fCursor += size;
-        return result;
-    }
-
-    size_t endRead() {return size();}
-
-    sk_sp<SkData> readEntireData() {
-        size_t* size = this->startRead<size_t>();
-        if (size == nullptr) {
-            return nullptr;
-        }
-        const uint8_t* data = this->readArray<uint8_t>(*size).data();
-        if (size == nullptr || data == nullptr) {
-            this->endRead();
-            return sk_sp<SkData>(nullptr);
-        }
-        auto result = SkData::MakeWithCopy(data, *size);
-        this->endRead();
-        return result;
-    }
-
-    void startWrite() {
-        fCursor = 0;
-    }
-
-    template <typename T>
-    void startWrite(const T& data) {
-        this->startWrite();
-        this->write<T>(data);
-    }
-
-    template <typename T, typename... Args>
-    T* startEmplace(Args&&... args) {
-        this->startWrite();
-        return this->emplace<T>(std::forward<Args>(args)...);
-    }
-
-    template <typename T, typename... Args>
-    T* emplace(Args&&... args) {
-        T* result = new (&fBuffer[fCursor]) T{std::forward<Args>(args)...};
-        fCursor += sizeof(T);
-        return result;
-    }
-
-    template <typename T>
-    void write(const T& data) {
-        // TODO: guard against bad T.
-        memcpy(&fBuffer[fCursor], &data, sizeof(data));
-        fCursor += sizeof(data);
-    }
-
-    void writeDescriptor(const SkDescriptor& desc) {
-        memcpy(&fBuffer[fCursor], &desc, desc.getLength());
-        fCursor += desc.getLength();
-    }
-
-    template <typename T>
-    T* allocateArray(int count) {
-        T* result = (T*)&fBuffer[fCursor];
-        fCursor += count * sizeof(T);
-        return result;
-    }
-
-    IOResult endWrite() {
-        ssize_t written;
-        if((written = ::write(fWriteFd, fBuffer.get(), fCursor)) < 0) {
+    IOResult write(void* buffer, size_t size) override {
+        ssize_t writeSize = ::write(fWriteFd, buffer, size);
+        if (writeSize < 0) {
+            err(1,"Failed write %zu", size);
             return kFail;
         }
         return kSuccess;
     }
 
-    IOResult writeEntireData(const SkData& data) {
-        size_t size = data.size();
-        iovec vec[2];
-        vec[0].iov_base = &size;
-        vec[0].iov_len = sizeof(size);
-        vec[1].iov_base = (void *)data.data();
-        vec[1].iov_len = size;
-
-        if(::writev(fWriteFd, vec, 2) < 0) {
-            return kFail;
+    std::tuple<size_t, IOResult> read(void* buffer, size_t size) override {
+        ssize_t readSize = ::read(fReadFd, buffer, size);
+        if (readSize < 0) {
+            err(1,"Failed read %zu", size);
+            return {size, kFail};
         }
-        return kSuccess;
+        return {size, kSuccess};
     }
-
-    size_t size() {return fCursor;}
 
 private:
-    void* ensureAtLeast(size_t size) {
-        if (size > fEnd - fCursor) {
-            if (readAtLeast(size) == kFail) {
-                return nullptr;
-            }
-        }
-        return &fBuffer[fCursor];
-    }
-
-    IOResult readAtLeast(size_t size) {
-        size_t readSoFar = 0;
-        size_t bufferLeft = kBufferSize - fCursor;
-        size_t needed = size - (fEnd - fCursor);
-        while (readSoFar < needed) {
-            ssize_t readSize;
-            if ((readSize = ::read(fReadFd, &fBuffer[fEnd+readSoFar], bufferLeft - readSoFar)) <= 0) {
-                if (readSize != 0) {
-                    err(1,"Failed read %zu", size);
-                }
-                return kFail;
-            }
-            readSoFar += readSize;
-        }
-        fEnd += readSoFar;
-        return kSuccess;
-    }
-
-    static constexpr size_t kBufferSize = kPageSize * 2000;
     const int fReadFd,
               fWriteFd;
-
-    std::unique_ptr<uint8_t[]> fBuffer{new uint8_t[kBufferSize]};
-    std::shared_ptr<Closer> fCloser;
-
-    size_t fCursor{0};
-    size_t fEnd{0};
 };
-
-enum class OpCode : int32_t {
-    kFontMetrics          = 0,
-    kGlyphPath            = 1,
-    kGlyphMetricsAndImage = 2,
-    kPrepopulateCache     = 3,
-};
-
-class Op {
-public:
-    Op(OpCode opCode, SkFontID typefaceId, const SkScalerContextRec& rec)
-        : opCode{opCode}
-        , typefaceId{typefaceId}
-        , descriptor{rec} { }
-    const OpCode opCode;
-    const SkFontID typefaceId;
-    const SkScalerContextRecDescriptor descriptor;
-    union {
-        // op 0
-        SkPaint::FontMetrics fontMetrics;
-        // op 1, 2, and 4
-        SkGlyph glyph;
-        // op 3
-        struct {
-            SkGlyphID glyphId;
-            size_t pathSize;
-        };
-    };
-};
-
-
-class TrackLayerDevice : public SkNoPixelsDevice {
-public:
-    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props)
-            : SkNoPixelsDevice(bounds, props) { }
-    SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
-        const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-        return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps);
-    }
-};
-
-
-class TextBlobFilterCanvas : public SkNoDrawCanvas {
-public:
-    struct StrikeSpec {
-        StrikeSpec(SkFontID typefaceID_, uint32_t descLength_, int glyphCount_)
-            : typefaceID{typefaceID_}
-            , descLength{descLength_}
-            , glyphCount{glyphCount_} { }
-        SkFontID typefaceID;
-        uint32_t descLength;
-        int glyphCount;
-        /* desc */
-        /* n X (glyphs ids) */
-    };
-
-    struct Header {
-        Header(int strikeCount_) : strikeCount{strikeCount_} {}
-        const int strikeCount;
-    };
-
-    TextBlobFilterCanvas(int width, int height,
-                         const SkMatrix& deviceMatrix,
-                         const SkSurfaceProps& props,
-                         SkScalerContextFlags flags)
-        : SkNoDrawCanvas{new TrackLayerDevice{SkIRect::MakeWH(width, height), props}}
-        , fDeviceMatrix{deviceMatrix}
-        , fSurfaceProps{props}
-        , fScalerContextFlags{flags} { }
-
-    void writeSpecToTransport(Transport* transport) {
-        transport->emplace<Header>((int)fDescMap.size());
-        for (auto& i : fDescMap) {
-            auto accum = &i.second;
-            transport->emplace<StrikeSpec>(
-                accum->typefaceID, accum->desc->getLength(), accum->glyphIDs->count());
-            transport->writeDescriptor(*accum->desc);
-            accum->glyphIDs->foreach([&](SkPackedGlyphID id) {
-                transport->write<SkPackedGlyphID>(id);
-            });
-        }
-    }
-
-    static void WriteDataToTransport(
-        Transport* in, Transport* out, SkRemoteGlyphCacheRenderer* rc) {
-        auto perHeader = [out](Header* header) {
-          out->write<Header>(*header);
-        };
-
-        struct {
-            SkScalerContext* scaler{nullptr};
-        } strikeData;
-
-        auto perStrike = [out, &strikeData, rc](StrikeSpec* spec, SkDescriptor* desc) {
-            out->write<StrikeSpec>(*spec);
-            out->writeDescriptor(*desc);
-            SkScalerContextRecDescriptor recDesc{*desc};
-            strikeData.scaler = rc->generateScalerContext(recDesc, spec->typefaceID);
-            SkPaint::FontMetrics fontMetrics;
-            strikeData.scaler->getFontMetrics(&fontMetrics);
-            out->write<SkPaint::FontMetrics>(fontMetrics);
-        };
-
-        auto perGlyph = [out, &strikeData](SkPackedGlyphID glyphID) {
-            SkGlyph glyph;
-            glyph.initWithGlyphID(glyphID);
-            strikeData.scaler->getMetrics(&glyph);
-            auto imageSize = glyph.computeImageSize();
-            glyph.fImage = nullptr;
-            glyph.fPathData = nullptr;
-            out->write<SkGlyph>(glyph);
-
-            if (imageSize > 0) {
-                glyph.fImage = out->allocateArray<uint8_t>(imageSize);
-                strikeData.scaler->getImage(glyph);
-            }
-        };
-
-        ReadSpecFromTransport(in, perHeader, perStrike, perGlyph);
-    }
-
-    template <typename PerHeader, typename PerStrike, typename PerGlyph>
-    static void ReadSpecFromTransport(Transport* transport,
-                               PerHeader perHeader,
-                               PerStrike perStrike,
-                               PerGlyph perGlyph) {
-        auto header = transport->read<TextBlobFilterCanvas::Header>();
-        perHeader(header);
-        for (int i = 0; i < header->strikeCount; i++) {
-            auto strike = transport->read<TextBlobFilterCanvas::StrikeSpec>();
-            auto desc = transport->readDescriptor();
-            //desc->assertChecksum();
-            perStrike(strike, desc);
-            auto glyphIDs = transport->readArray<SkPackedGlyphID>(strike->glyphCount);
-            for (auto glyphID : glyphIDs) {
-                perGlyph(glyphID);
-            }
-        }
-    }
-
-    template <typename PerStrike, typename PerGlyph, typename FinishStrike>
-    void readDataFromTransport(
-        Transport* transport, PerStrike perStrike, PerGlyph perGlyph, FinishStrike finishStrike) {
-        auto header = transport->read<Header>();
-        for (int i = 0; i < header->strikeCount; i++) {
-            auto strike = transport->read<StrikeSpec>();
-            auto desc = transport->readDescriptor();
-            auto fontMetrics = transport->read<SkPaint::FontMetrics>();
-            perStrike(strike, desc, fontMetrics);
-            for (int j = 0; j < strike->glyphCount; j++) {
-                auto glyph = transport->read<SkGlyph>();
-                SkArraySlice<uint8_t> image = SkArraySlice<uint8_t>{};
-                auto imageSize = glyph->computeImageSize();
-                if (imageSize != 0) {
-                    image = transport->readArray<uint8_t>(imageSize);
-                }
-                perGlyph(glyph, image);
-            }
-            finishStrike();
-        }
-    }
-
-
-protected:
-    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
-        return kFullLayer_SaveLayerStrategy;
-    }
-
-    void onDrawTextBlob(
-        const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) override
-    {
-        SkPoint position{x, y};
-
-        SkPaint runPaint{paint};
-        SkTextBlobRunIterator it(blob);
-        for (;!it.done(); it.next()) {
-            // applyFontToPaint() always overwrites the exact same attributes,
-            // so it is safe to not re-seed the paint for this reason.
-            it.applyFontToPaint(&runPaint);
-            runPaint.setFlags(this->getTopDevice()->filterTextFlags(runPaint));
-            if (auto looper = runPaint.getLooper()) {
-                this->processLooper(position, it, runPaint, looper, this);
-            } else {
-                this->processGlyphRun(position, it, runPaint);
-            }
-        }
-    }
-
-    void onDrawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {
-        SK_ABORT("DrawText");
-    }
-    void onDrawPosText(const void*, size_t, const SkPoint[], const SkPaint&) override {
-        SK_ABORT("DrawPosText");
-    }
-    void onDrawPosTextH(const void*, size_t, const SkScalar[], SkScalar, const SkPaint&) override {
-        SK_ABORT("DrawPosTextH");
-    }
-
-private:
-    using PosFn = SkPoint(*)(int index, const SkScalar* pos);
-    using MapFn = SkPoint(*)(const SkMatrix& m, SkPoint pt);
-
-    struct CacheAccum {
-        SkFontID typefaceID;
-        SkDescriptor* desc;
-        //std::vector<SkPackedGlyphID> glyphIDs;
-        std::unique_ptr<SkTHashSet<SkPackedGlyphID>> glyphIDs;
-    };
-
-    void processLooper(
-        const SkPoint& position,
-        const SkTextBlobRunIterator& it,
-        const SkPaint& origPaint,
-        SkDrawLooper* looper,
-        SkCanvas* canvas)
-    {
-        SkSTArenaAlloc<48> alloc;
-        auto context = looper->makeContext(canvas, &alloc);
-        SkPaint runPaint = origPaint;
-        while (context->next(this, &runPaint)) {
-            canvas->save();
-            this->processGlyphRun(position, it, runPaint);
-            canvas->restore();
-            runPaint = origPaint;
-        }
-    }
-
-    void processGlyphRun(
-        const SkPoint& position,
-        const SkTextBlobRunIterator& it,
-        const SkPaint& runPaint)
-    {
-
-        if (runPaint.getTextEncoding() != SkPaint::TextEncoding::kGlyphID_TextEncoding) {
-            return;
-        }
-
-        // All other alignment modes need the glyph advances. Use the slow drawing mode.
-        if (runPaint.getTextAlign() != SkPaint::kLeft_Align) {
-            return;
-        }
-
-        PosFn posFn;
-        switch (it.positioning()) {
-            case SkTextBlob::kDefault_Positioning:
-                // Default positioning needs advances. Can't do that.
-                return;
-
-            case SkTextBlob::kHorizontal_Positioning:
-                posFn = [](int index, const SkScalar* pos) {
-                    return SkPoint{pos[index], 0};
-                };
-
-                break;
-
-            case SkTextBlob::kFull_Positioning:
-                posFn = [](int index, const SkScalar* pos) {
-                    return SkPoint{pos[2 * index], pos[2 * index + 1]};
-                };
-                break;
-
-            default:
-                posFn = nullptr;
-                SK_ABORT("unhandled positioning mode");
-        }
-
-        SkMatrix blobMatrix{fDeviceMatrix};
-        blobMatrix.preConcat(this->getTotalMatrix());
-        if (blobMatrix.hasPerspective()) {
-            return;
-        }
-        blobMatrix.preTranslate(position.x(), position.y());
-
-        SkMatrix runMatrix{blobMatrix};
-        runMatrix.preTranslate(it.offset().x(), it.offset().y());
-
-        MapFn mapFn;
-        switch ((int)runMatrix.getType()) {
-            case SkMatrix::kIdentity_Mask:
-            case SkMatrix::kTranslate_Mask:
-                mapFn = [](const SkMatrix& m, SkPoint pt) {
-                    pt.offset(m.getTranslateX(), m.getTranslateY());
-                    return pt;
-                };
-                break;
-            case SkMatrix::kScale_Mask:
-            case SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask:
-                mapFn = [](const SkMatrix& m, SkPoint pt) {
-                    return SkPoint{pt.x() * m.getScaleX() + m.getTranslateX(),
-                                   pt.y() * m.getScaleY() + m.getTranslateY()};
-                };
-                break;
-            case SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask:
-            case SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask:
-                mapFn = [](const SkMatrix& m, SkPoint pt) {
-                    return SkPoint{
-                        pt.x() * m.getScaleX() + pt.y() * m.getSkewX() + m.getTranslateX(),
-                        pt.x() * m.getSkewY() + pt.y() * m.getScaleY() + m.getTranslateY()};
-                };
-                break;
-            default:
-                mapFn = nullptr;
-                SK_ABORT("Bad matrix.");
-        }
-
-        SkAutoDescriptor ad;
-        SkScalerContextRec rec;
-        SkScalerContextEffects effects;
-
-        SkScalerContext::MakeRecAndEffects(runPaint, &fSurfaceProps, &runMatrix,
-                                           fScalerContextFlags, &rec, &effects);
-
-        SkAxisAlignment axisAlignment = SkAxisAlignment::kNone_SkAxisAlignment;
-        if (it.positioning() == SkTextBlob::kHorizontal_Positioning) {
-            axisAlignment = rec.computeAxisAlignmentForHText();
-        }
-
-        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
-
-        auto mapIter = fDescMap.find(desc);
-        if (mapIter == fDescMap.end()) {
-            auto newDesc = desc->copy();
-            auto newDescPtr = newDesc.get();
-            fUniqueDescriptors.emplace_back(std::move(newDesc));
-            CacheAccum newAccum;
-            newAccum.desc = newDescPtr;
-
-            newAccum.typefaceID =
-                SkTypefaceProxy::DownCast(runPaint.getTypeface())->fontID();
-
-            newAccum.glyphIDs = skstd::make_unique<SkTHashSet<SkPackedGlyphID>>();
-            mapIter = fDescMap.emplace_hint(mapIter, newDescPtr, std::move(newAccum));
-        }
-
-        auto accum = &mapIter->second;
-
-        auto cache = SkGlyphCache::FindStrikeExclusive(*desc);
-        bool isSubpixel = SkToBool(rec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
-
-        auto pos = it.pos();
-        const uint16_t* glyphs = it.glyphs();
-        for (uint32_t index = 0; index < it.glyphCount(); index++) {
-            SkIPoint subPixelPos{0, 0};
-            if (runPaint.isAntiAlias() && isSubpixel) {
-                SkPoint glyphPos = mapFn(runMatrix, posFn(index, pos));
-                subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
-            }
-
-            if (cache &&
-                cache->isGlyphCached(glyphs[index], subPixelPos.x(), subPixelPos.y())) {
-                continue;
-            }
-
-            SkPackedGlyphID glyphID{glyphs[index], subPixelPos.x(), subPixelPos.y()};
-            accum->glyphIDs->add(glyphID);
-        }
-    }
-
-    const SkMatrix fDeviceMatrix;
-    const SkSurfaceProps fSurfaceProps;
-    const SkScalerContextFlags fScalerContextFlags;
-
-    struct DescHash {
-        size_t operator()(const SkDescriptor* key) const {
-            return key->getChecksum();
-        }
-    };
-
-    struct DescEq {
-        bool operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
-            return lhs->getChecksum() == rhs->getChecksum();
-        }
-    };
-
-    using DescMap = std::unordered_map<SkDescriptor*, CacheAccum, DescHash, DescEq>;
-    DescMap fDescMap{16, DescHash(), DescEq()};
-    std::vector<std::unique_ptr<SkDescriptor>> fUniqueDescriptors;
-
-    std::vector<SkPackedGlyphID> fTempGlyphs;
-    std::vector<SkPackedGlyphID> runGlyphs;
-};
-
 
 class RemoteScalerContextFIFO : public SkRemoteScalerContext {
 public:
-    explicit RemoteScalerContextFIFO(Transport* transport)
+    explicit RemoteScalerContextFIFO(AllInOneTransport* transport)
         : fTransport{transport} { }
     void generateFontMetrics(const SkTypefaceProxy& tf,
                              const SkScalerContextRec& rec,
@@ -730,7 +159,7 @@ public:
         SkScalerContextRecDescriptor rd{rec};
 
         std::cout << " path op rec tf: " << rec.fFontID
-                  << " tf id: " << tf.fontID()
+                  << " tf id: " << tf.remoteTypefaceID()
                   << " rec: " << rd.desc().getChecksum()
                   << " glyphid: " << glyph << std::endl;
         Op* op = this->startOpWrite(OpCode::kGlyphPath, tf, rec);
@@ -746,28 +175,41 @@ public:
 private:
     Op* startOpWrite(OpCode opCode, const SkTypefaceProxy& tf,
                      const SkScalerContextRec& rec) {
-        return fTransport->startEmplace<Op>(opCode, tf.fontID(), rec);
+        return fTransport->startEmplace<Op>(opCode, tf.remoteTypefaceID(), rec);
     }
 
-    Transport* const fTransport;
+    AllInOneTransport* const fTransport;
 };
 
 static void prepopulate_cache(
-    Transport* transport,
+    AllInOneTransport* transport,
     SkRemoteGlyphCacheGPU* cache,
     sk_sp<SkPicture> pic,
-    TextBlobFilterCanvas* filter) {
+    SkIRect bounds, const SkSurfaceProps& props) {
 
-    pic->playback(filter);
+    ReadWriteTransport rwTransport{transport->fReadFd, transport->fWriteFd};
+
+    SkPrepopulateCache(transport, &rwTransport, cache, pic, bounds, props);
+
+    /*
+    SkMatrix deviceMatrix = SkMatrix::I();
+
+    SkStrikeCacheDifferenceSpec strikeDifference;
+    SkTextBlobCacheDiffCanvas filter(
+            bounds.width(), bounds.height(), deviceMatrix, props,
+            SkScalerContextFlags::kFakeGammaAndBoostContrast,
+            &strikeDifference);
+
+    pic->playback(&filter);
 
     transport->startEmplace<Op>(OpCode::kPrepopulateCache, SkFontID{0},
                                 SkScalerContextRec{});
-    filter->writeSpecToTransport(transport);
+    strikeDifference.writeSpecToTransport(transport);
     transport->endWrite();
 
     SkExclusiveStrikePtr strike;
 
-    auto perStrike = [&strike, cache](TextBlobFilterCanvas::StrikeSpec* spec,
+    auto perStrike = [&strike, cache](SkTextBlobCacheDiffCanvas::StrikeSpec* spec,
                                           SkDescriptor* desc,
                                           SkPaint::FontMetrics* fontMetrics) {
         auto tf = cache->lookupTypeface(spec->typefaceID);
@@ -777,15 +219,6 @@ static void prepopulate_cache(
             auto scaler = SkGlyphCache::CreateScalerContext(*desc, effects, *tf);
             strike = SkGlyphCache::CreateStrikeExclusive(*desc, std::move(scaler), fontMetrics);
         }
-#if INSTRUMENT
-        std::cout << std::hex << "prepop cache " << (intptr_t)cache
-                  << " desc: " << desc->getChecksum()
-                  << " typeface id: " << tf->uniqueID()
-                  << " glyph count: " << spec->glyphCount << std::endl;
-        auto rec = (SkScalerContextRec*)desc->findEntry(kRec_SkDescriptorTag, nullptr);
-        SkDebugf("%s\n", rec->dump().c_str());
-#endif
-
     };
 
     auto perGlyph = [&strike](SkGlyph* glyph, SkArraySlice<uint8_t> image) {
@@ -800,19 +233,17 @@ static void prepopulate_cache(
     };
 
     // needed for font metrics mistake.
-    Transport in = Transport::DoubleBuffer(*transport);
-#if INSTRUMENT
-    SkDebugf("========= Sending prep cache ========\n");
-#endif
+    AllInOneTransport in = AllInOneTransport::AllInOneTransport(*transport);
 
     in.startRead();
-    filter->readDataFromTransport(&in, perStrike, perGlyph, finishStrike);
+    filter.readDataFromTransport(&in, perStrike, perGlyph, finishStrike);
     in.endRead();
+     */
 }
 
 std::string gSkpName;
 static void final_draw(std::string outFilename,
-                       Transport* transport,
+                       AllInOneTransport* transport,
                        SkDeserialProcs* procs,
                        SkData* picData,
                        SkRemoteGlyphCacheGPU* cache) {
@@ -827,15 +258,17 @@ static void final_draw(std::string outFilename,
     auto picUnderTest = SkPicture::MakeFromData(picData, procs);
 
     SkMatrix deviceMatrix = SkMatrix::I();
-    // kFakeGammaAndBoostContrast
-    TextBlobFilterCanvas filter(
+
+    SkStrikeCacheDifferenceSpec strikeDifference;
+    SkTextBlobCacheDiffCanvas filter(
         r.width(), r.height(), deviceMatrix, s->props(),
-        SkScalerContextFlags::kFakeGammaAndBoostContrast);
+        SkScalerContextFlags::kFakeGammaAndBoostContrast,
+        &strikeDifference);
 
     if (cache != nullptr) {
         for (int i = 0; i < 0; i++) {
             auto start = std::chrono::high_resolution_clock::now();
-            prepopulate_cache(transport, cache, picUnderTest, &filter);
+            prepopulate_cache(transport, cache, picUnderTest, r, s->props());
 
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
@@ -854,7 +287,7 @@ static void final_draw(std::string outFilename,
         }
         auto start = std::chrono::high_resolution_clock::now();
         if (cache != nullptr) {
-            prepopulate_cache(transport, cache, picUnderTest, &filter);
+            prepopulate_cache(transport, cache, picUnderTest, r, s->props());
         }
         c->drawPicture(picUnderTest);
         auto end = std::chrono::high_resolution_clock::now();
@@ -879,7 +312,8 @@ static void final_draw(std::string outFilename,
 
 static void gpu(int readFd, int writeFd) {
 
-    Transport transport{readFd, writeFd};
+    AllInOneTransport transport{readFd, writeFd};
+
 
     auto picData = transport.readEntireData();
     if (picData == nullptr) {
@@ -902,7 +336,7 @@ static void gpu(int readFd, int writeFd) {
 static int renderer(
     const std::string& skpName, int readFd, int writeFd)
 {
-    Transport transport{readFd, writeFd};
+    AllInOneTransport transport{readFd, writeFd};
 
     auto skpData = SkData::MakeFromFileName(skpName.c_str());
     std::cout << "skp stream is " << skpData->size() << " bytes long " << std::endl;
@@ -925,7 +359,7 @@ static int renderer(
         return 0;
     }
 
-    if (transport.writeEntireData(*stream) == Transport::kFail) {
+    if (transport.writeEntireData(*stream) == AllInOneTransport::kFail) {
         return 1;
     }
 
@@ -977,11 +411,11 @@ static int renderer(
                 }
                 case OpCode::kPrepopulateCache : {
 
-                    Transport& in = transport;
-                    Transport out = Transport::DoubleBuffer(transport);
+                    AllInOneTransport& in = transport;
+                    AllInOneTransport out = AllInOneTransport::AllInOneTransport(transport);
 
                     out.startWrite();
-                    TextBlobFilterCanvas::WriteDataToTransport(&in ,&out, &rc);
+                    SkTextBlobCacheDiffCanvas::WriteDataToTransport(&in ,&out, &rc);
                     out.endWrite();
                     in.endRead();
 
