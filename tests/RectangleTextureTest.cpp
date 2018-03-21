@@ -15,6 +15,7 @@
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTest.h"
+#include "GrTextureProxyPriv.h"
 #include "gl/GLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
@@ -134,6 +135,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
             continue;
         }
+
+        SkASSERT(rectProxy->texPriv().isRect());
+        SkASSERT(rectProxy->priv().peekTexture()->isRect());
 
         test_basic_draw_as_src(reporter, context, rectProxy, refPixels);
 
