@@ -28,6 +28,7 @@
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
+#include "gl/GrGLDefines.h"
 #include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
@@ -617,6 +618,17 @@ private:
     sk_sp<GrReleaseProcHelper> fDoneHelper;
 };
 
+static GrInternalSurfaceFlags get_flags_from_format(const GrBackendFormat& backendFormat) {
+    if (const GrGLenum* target = backendFormat.getGLTarget()) {
+        if (GR_GL_TEXTURE_RECTANGLE == *target || GR_GL_TEXTURE_EXTERNAL == *target) {
+            return GrInternalSurfaceFlags::kDoesNotSupportMipMaps |
+                   GrInternalSurfaceFlags::kIsClampOnly;
+        }
+    }
+
+    return GrInternalSurfaceFlags::kNone;
+}
+
 sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                                const GrBackendFormat& backendFormat,
                                                int width,
@@ -661,6 +673,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     PromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, promiseDoneProc,
                                      textureContext);
 
+    GrInternalSurfaceFlags formatFlags = get_flags_from_format(backendFormat);
+
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [promiseHelper, config] (GrResourceProvider* resourceProvider) mutable {
                 if (!resourceProvider) {
@@ -669,7 +683,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                 }
 
                 return promiseHelper.getTexture(resourceProvider, config);
-            }, desc, origin, mipMapped, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
+            }, desc, origin, mipMapped, formatFlags, SkBackingFit::kExact,
                SkBudgeted::kNo, GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 
     if (!proxy) {

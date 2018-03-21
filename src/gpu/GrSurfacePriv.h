@@ -40,6 +40,9 @@ public:
 
     GrInternalSurfaceFlags flags() const { return fSurface->fSurfaceFlags; }
 
+    bool doesNotSupportMipMaps() const { return fSurface->doesNotSupportMipMaps(); }
+    bool isClampOnly() const { return fSurface->isClampOnly(); }
+
 private:
     explicit GrSurfacePriv(GrSurface* surface) : fSurface(surface) {}
     GrSurfacePriv(const GrSurfacePriv&); // unimpl

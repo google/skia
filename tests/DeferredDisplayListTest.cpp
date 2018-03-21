@@ -11,9 +11,12 @@
 
 #include "GrBackendSurface.h"
 #include "GrGpu.h"
+#include "GrTextureProxyPriv.h"
+
 #include "SkCanvas.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkGpuDevice.h"
+#include "SkImage_Gpu.h"
 #include "SkSurface.h"
 #include "SkSurface_Gpu.h"
 #include "SkSurfaceCharacterization.h"
@@ -406,7 +409,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
 
 static void dummy_fulfill_proc(void*, GrBackendTexture*) { SkASSERT(0); }
 static void dummy_release_proc(void*) { SkASSERT(0); }
-static void dummy_done_proc(void*) { SkASSERT(0); }
+static void dummy_done_proc(void*) { }
 
 // Test out the behavior of an invalid DDLRecorder
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
@@ -433,7 +436,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, !recorder.getCanvas());
         REPORTER_ASSERT(reporter, !recorder.detach());
 
-        GrBackendFormat format;
+        GrBackendFormat format = create_backend_format(context, kRGBA_8888_SkColorType);
         sk_sp<SkImage> image = recorder.makePromiseTexture(format, 32, 32, GrMipMapped::kNo,
                                                            kTopLeft_GrSurfaceOrigin,
                                                            kRGBA_8888_SkColorType,
@@ -464,4 +467,42 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
     canvas->getGrContext()->flush();
 }
 
+// Check that the texture-specific flags (i.e., for external & rectangle textures) work
+// for promise images. As such, this is a GL-only test.
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+
+    SkSurfaceCharacterization characterization;
+    SkAssertResult(s->characterize(&characterization));
+
+    SkDeferredDisplayListRecorder recorder(characterization);
+
+    for (GrGLenum target : { GR_GL_TEXTURE_EXTERNAL, GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_2D } ) {
+        GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
+
+        sk_sp<SkImage> image = recorder.makePromiseTexture(format, 32, 32, GrMipMapped::kNo,
+                                                           kTopLeft_GrSurfaceOrigin,
+                                                           kRGBA_8888_SkColorType,
+                                                           kPremul_SkAlphaType, nullptr,
+                                                           dummy_fulfill_proc,
+                                                           dummy_release_proc,
+                                                           dummy_done_proc,
+                                                           nullptr);
+        REPORTER_ASSERT(reporter, image);
+
+        GrTextureProxy* backingProxy = ((SkImage_Gpu*) image.get())->peekProxy();
+
+        if (GR_GL_TEXTURE_2D == target) {
+            REPORTER_ASSERT(reporter, !backingProxy->texPriv().doesNotSupportMipMaps());
+            REPORTER_ASSERT(reporter, !backingProxy->texPriv().isClampOnly());
+        } else {
+            REPORTER_ASSERT(reporter, backingProxy->texPriv().doesNotSupportMipMaps());
+            REPORTER_ASSERT(reporter, backingProxy->texPriv().isClampOnly());
+        }
+    }
+
+}
 #endif
