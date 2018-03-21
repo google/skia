@@ -310,7 +310,7 @@ void CCPRGeometryView::DrawCoverageCountOp::drawRenderPass(GrOpFlushState* state
     SkDEBUGCODE(proc.enableDebugBloat(kDebugBloat));
 
     SkSTArray<1, GrMesh> mesh;
-    if (RenderPass::kCubics == renderPass) {
+    if (GrCCCoverageProcessor::RenderPassIsCubic(renderPass)) {
         sk_sp<GrBuffer> instBuff(rp->createBuffer(
                 fView->fQuadPointInstances.count() * sizeof(QuadPointInstance),
                 kVertex_GrBufferType, kDynamic_GrAccessPattern,

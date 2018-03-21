@@ -35,7 +35,8 @@ protected:
     void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const final;
     virtual void emitCoverage(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const = 0;
 
-    const GrShaderVar fCanonicalMatrix{"canonical_matrix", kFloat3x3_GrSLType};
+    const GrShaderVar fQCoordMatrix{"qcoord_matrix", kFloat2x2_GrSLType};
+    const GrShaderVar fQCoord0{"qcoord0", kFloat2_GrSLType};
     const GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
     GrGLSLVarying fXYDW;
 };

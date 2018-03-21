@@ -112,9 +112,10 @@ void GrCCCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
     fGradMatrix.reset(kFloat2x2_GrSLType, scope);
     varyingHandler->addVarying("grad_matrix", &fGradMatrix);
     // "klm" was just defined by the base class.
-    code->appendf("%s[0] = 3 * klm[0] * %s[0].xy;", OutName(fGradMatrix), fKLMMatrix.c_str());
-    code->appendf("%s[1] = -klm[1] * %s[2].xy - klm[2] * %s[1].xy;",
-                    OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
+    code->appendf("%s[0] = 2*bloat * 3 * klm[0] * %s[0].xy;",
+                  OutName(fGradMatrix), fKLMMatrix.c_str());
+    code->appendf("%s[1] = -2*bloat * (klm[1] * %s[2].xy + klm[2] * %s[1].xy);",
+                  OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
 }
 
 void GrCCCubicHullShader::emitCoverage(GrGLSLFPFragmentBuilder* f,
@@ -138,13 +139,13 @@ void GrCCCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
 
     fdKLMDdx.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("dklmddx", &fdKLMDdx, Interpolation::kCanBeFlat);
-    code->appendf("%s = float4(%s[0].x, %s[1].x, %s[2].x, %s.x);",
+    code->appendf("%s = 2*bloat * float4(%s[0].x, %s[1].x, %s[2].x, %s.x);",
                   OutName(fdKLMDdx), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
                   fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
 
     fdKLMDdy.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("dklmddy", &fdKLMDdy, Interpolation::kCanBeFlat);
-    code->appendf("%s = float4(%s[0].y, %s[1].y, %s[2].y, %s.y);",
+    code->appendf("%s = 2*bloat * float4(%s[0].y, %s[1].y, %s[2].y, %s.y);",
                   OutName(fdKLMDdy), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
                   fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
 }
