@@ -1218,16 +1218,16 @@
       ],
       "trigger": "master"
     },
-    "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs"
+        "Perf-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs"
       ]
     },
-    "Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs"
+        "Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs"
       ]
     },
     "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All": {
@@ -2529,23 +2529,23 @@
         "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-TSAN"
       ]
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_100k_SKPs": {
+    "Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_100k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_100k_SKPs"
+        "Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_100k_SKPs"
       ]
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs": {
+    "Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs"
+        "Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs"
       ],
       "trigger": "weekly"
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs": {
+    "Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs"
+        "Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs"
       ]
     },
     "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All": {
@@ -9920,7 +9920,14 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        }
+      ],
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.2"
@@ -9931,7 +9938,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs",
+        "buildername=Perf-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -9943,7 +9950,14 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        }
+      ],
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.2"
@@ -9954,7 +9968,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
+        "buildername=Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19750,7 +19764,14 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_100k_SKPs": {
+    "Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_100k_SKPs": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        }
+      ],
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.2"
@@ -19761,7 +19782,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_100k_SKPs",
+        "buildername=Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_100k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19773,7 +19794,14 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs": {
+    "Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        }
+      ],
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.2"
@@ -19784,7 +19812,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs",
+        "buildername=Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19796,7 +19824,14 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs": {
+    "Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        }
+      ],
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.2"
@@ -19807,7 +19842,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs",
+        "buildername=Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

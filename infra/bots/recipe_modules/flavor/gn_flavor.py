@@ -50,10 +50,11 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_ldflags.append('-fuse-ld=lld')
       extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
                           self.m.run.asset_version('clang_linux'))
+      if os == 'Ubuntu14':
+        extra_ldflags.extend(['-static-libstdc++', '-static-libgcc'])
+
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
-    elif compiler == 'GCC' and os == "Ubuntu14":
-      cc, cxx = 'gcc-4.8', 'g++-4.8'
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
     elif compiler == 'EMCC':

@@ -94,7 +94,7 @@ TEST_BUILDERS = [
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
-  'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs',
+  'Perf-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs',
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android',
   'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',

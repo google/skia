@@ -3,6 +3,20 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/clang_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get clang_linux VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
@@ -20,7 +34,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Release",
-      "--args=cc=\"gcc-4.8\" cxx=\"g++-4.8\" is_debug=false"
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-static-libstdc++\", \"-static-libgcc\"] is_debug=false"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
