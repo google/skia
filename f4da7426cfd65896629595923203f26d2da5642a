@@ -46,6 +46,30 @@
       "revId": "f4da7426cfd65896629595923203f26d2da5642a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db9ea004_2f865123",
+        "filename": "src/gpu/ccpr/GrCCQuadraticShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-21T18:16:26Z",
+      "side": 1,
+      "message": "Done\n\nNot too worried about risking a couple extra multiplies in a vertex shader for the sake of clarity.",
+      "parentUuid": "9d2b03ed_196a7e80",
+      "range": {
+        "startLine": 82,
+        "startChar": 31,
+        "endLine": 82,
+        "endChar": 38
+      },
+      "revId": "f4da7426cfd65896629595923203f26d2da5642a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
