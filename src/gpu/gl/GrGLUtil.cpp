@@ -380,6 +380,11 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
         if (0 == strncmp(rendererString, kMaliTStr, SK_ARRAY_COUNT(kMaliTStr) - 1)) {
             return kMaliT_GrGLRenderer;
         }
+        int mali400Num;
+        if (1 == sscanf(rendererString, "Mali-%d", &mali400Num) && mali400Num >= 400 &&
+            mali400Num < 500) {
+            return kMali4xx_GrGLRenderer;
+        }
         if (is_renderer_angle(rendererString)) {
             return kANGLE_GrGLRenderer;
         }
@@ -494,6 +499,8 @@ GrPixelConfig GrGLSizedFormatToPixelConfig(GrGLenum sizedFormat) {
             return kAlpha_8_as_Alpha_GrPixelConfig;
         case GR_GL_RGBA8:
             return kRGBA_8888_GrPixelConfig;
+        case GR_GL_RGB8:
+            return kRGB_888_GrPixelConfig;
         case GR_GL_BGRA8:
             return kBGRA_8888_GrPixelConfig;
         case GR_GL_SRGB8_ALPHA8:
