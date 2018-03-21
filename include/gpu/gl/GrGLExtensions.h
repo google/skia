@@ -23,14 +23,14 @@ class SkJSONWriter;
  */
 class SK_API GrGLExtensions {
 public:
-    GrGLExtensions() : fInitialized(false), fStrings(new SkTArray<SkString>) {}
+    GrGLExtensions() {}
 
     GrGLExtensions(const GrGLExtensions&);
 
     GrGLExtensions& operator=(const GrGLExtensions&);
 
     void swap(GrGLExtensions* that) {
-        fStrings.swap(that->fStrings);
+        fStrings.swap(&that->fStrings);
         SkTSwap(fInitialized, that->fInitialized);
     }
 
@@ -63,13 +63,13 @@ public:
      */
     void add(const char[]);
 
-    void reset() { fStrings->reset(); }
+    void reset() { fStrings.reset(); }
 
     void dumpJSON(SkJSONWriter*) const;
 
 private:
-    bool                                fInitialized;
-    std::unique_ptr<SkTArray<SkString>> fStrings;
+    bool fInitialized = false;
+    SkTArray<SkString> fStrings;
 };
 
 #endif
