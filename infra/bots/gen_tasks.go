@@ -536,7 +536,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
 		}
-	} else if strings.Contains(name, "Debian") {
+	} else if strings.Contains(name, "Debian") || strings.Contains(name, "Ubuntu14") {
 		if strings.Contains(name, "Clang") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 		}

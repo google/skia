@@ -52,8 +52,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
                           self.m.run.asset_version('clang_linux'))
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
-    elif compiler == 'GCC' and os == "Ubuntu14":
-      cc, cxx = 'gcc-4.8', 'g++-4.8'
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
     elif compiler == 'EMCC':
