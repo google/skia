@@ -72,6 +72,26 @@ private:
     EGLSurface fSurface;
 };
 
+static EGLContext create_gles_egl_context(EGLDisplay display,
+                                          EGLConfig surfaceConfig,
+                                          EGLContext eglShareContext,
+                                          EGLint eglContextClientVersion) {
+    const EGLint contextAttribsForOpenGLES[] = {
+        EGL_CONTEXT_CLIENT_VERSION,
+        eglContextClientVersion,
+        EGL_NONE
+    };
+    return eglCreateContext(display, surfaceConfig, eglShareContext, contextAttribsForOpenGLES);
+}
+static EGLContext create_gl_egl_context(EGLDisplay display,
+                                        EGLConfig surfaceConfig,
+                                        EGLContext eglShareContext) {
+    const EGLint contextAttribsForOpenGL[] = {
+        EGL_NONE
+    };
+    return eglCreateContext(display, surfaceConfig, eglShareContext, contextAttribsForOpenGL);
+}
+
 EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* shareContext)
     : fContext(EGL_NO_CONTEXT)
     , fDisplay(EGL_NO_DISPLAY)
@@ -79,43 +99,19 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
 
     EGLContext eglShareContext = shareContext ? shareContext->fContext : nullptr;
 
-    static const EGLint kEGLContextAttribsForOpenGL[] = {
-        EGL_NONE
+    static const GrGLStandard kStandards[] = {
+        kGL_GrGLStandard,
+        kGLES_GrGLStandard,
     };
 
-    static const EGLint kEGLContextAttribsForOpenGLES[] = {
-        EGL_CONTEXT_CLIENT_VERSION, 2,
-        EGL_NONE
-    };
-
-    static const struct {
-        const EGLint* fContextAttribs;
-        EGLenum fAPI;
-        EGLint  fRenderableTypeBit;
-        GrGLStandard fStandard;
-    } kAPIs[] = {
-        {   // OpenGL
-            kEGLContextAttribsForOpenGL,
-            EGL_OPENGL_API,
-            EGL_OPENGL_BIT,
-            kGL_GrGLStandard
-        },
-        {   // OpenGL ES. This seems to work for both ES2 and 3 (when available).
-            kEGLContextAttribsForOpenGLES,
-            EGL_OPENGL_ES_API,
-            EGL_OPENGL_ES2_BIT,
-            kGLES_GrGLStandard
-        },
-    };
-
-    size_t apiLimit = SK_ARRAY_COUNT(kAPIs);
+    size_t apiLimit = SK_ARRAY_COUNT(kStandards);
     size_t api = 0;
     if (forcedGpuAPI == kGL_GrGLStandard) {
         apiLimit = 1;
     } else if (forcedGpuAPI == kGLES_GrGLStandard) {
         api = 1;
     }
-    SkASSERT(forcedGpuAPI == kNone_GrGLStandard || kAPIs[api].fStandard == forcedGpuAPI);
+    SkASSERT(forcedGpuAPI == kNone_GrGLStandard || kStandards[api] == forcedGpuAPI);
 
     sk_sp<const GrGLInterface> gl;
 
@@ -132,15 +128,16 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
         SkDebugf("VERSION: %s\n", eglQueryString(fDisplay, EGL_VERSION));
         SkDebugf("EXTENSIONS %s\n", eglQueryString(fDisplay, EGL_EXTENSIONS));
 #endif
+        bool gles = kGLES_GrGLStandard == kStandards[api];
 
-        if (!eglBindAPI(kAPIs[api].fAPI)) {
+        if (!eglBindAPI(gles ? EGL_OPENGL_ES_API : EGL_OPENGL_API)) {
             continue;
         }
 
         EGLint numConfigs = 0;
         const EGLint configAttribs[] = {
             EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-            EGL_RENDERABLE_TYPE, kAPIs[api].fRenderableTypeBit,
+            EGL_RENDERABLE_TYPE, gles ? EGL_OPENGL_ES2_BIT : EGL_OPENGL_BIT,
             EGL_RED_SIZE, 8,
             EGL_GREEN_SIZE, 8,
             EGL_BLUE_SIZE, 8,
@@ -159,8 +156,14 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
-        fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext,
-                                    kAPIs[api].fContextAttribs);
+        if (gles) {
+            fContext = create_gles_egl_context(fDisplay, surfaceConfig, eglShareContext, 3);
+            if (EGL_NO_CONTEXT == fContext) {
+                fContext = create_gles_egl_context(fDisplay, surfaceConfig, eglShareContext, 2);
+            }
+        } else {
+            fContext = create_gl_egl_context(fDisplay, surfaceConfig, eglShareContext);
+        }
         if (EGL_NO_CONTEXT == fContext) {
             SkDebugf("eglCreateContext failed.  EGL Error: 0x%08x\n", eglGetError());
             continue;
