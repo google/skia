@@ -112,7 +112,7 @@ cc_library_shared {
     ],
     static_libs: [
           "libjpeg_static_ndk",
-          "libjsoncpp",
+          "libjsoncpp_ndk",
           "libpng_ndk",
           "libwebp-decode",
           "libwebp-encode",
