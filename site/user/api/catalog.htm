@@ -5142,21 +5142,21 @@
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromPicture"
 },
-    "SkImage_MakeFromTexture_3": {
+    "SkImage_MakeFromTexture": {
     "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    canvas->scale(.25f, .25f);\n    int x = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,\n               origin, kN32_SkColorType, kOpaque_SkAlphaType, nullptr);\n        canvas->drawImage(image, x, 0);\n    x += 512;\n    }\n}",
     "width": 256,
     "height": 128,
     "hash": "fdc498de45b53569743ec13012bf476c",
     "file": "SkImage_Reference",
-    "name": "SkImage::MakeFromTexture_3"
+    "name": "SkImage::MakeFromTexture"
 },
-    "SkImage_MakeFromTexture_4": {
+    "SkImage_MakeFromTexture_2": {
     "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    auto debugster = [](SkImage::ReleaseContext releaseContext) -> void {\n        *((int *) releaseContext) += 128;\n    };\n    int x = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,\n               origin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr, debugster, &x);\n        canvas->drawImage(image, x, 0);\n        x += 128;\n    }\n}",
     "width": 256,
     "height": 256,
     "hash": "c7be9423f7c2ef819523ba4d607d17b8",
     "file": "SkImage_Reference",
-    "name": "SkImage::MakeFromTexture_4"
+    "name": "SkImage::MakeFromTexture_2"
 },
     "SkImage_MakeRasterCopy": {
     "code": "void draw(SkCanvas* canvas) {\n    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },\n                            { 0xAC, 0xA8, 0x89, 0xA7, 0x87 },\n                            { 0x9B, 0xB5, 0xE5, 0x95, 0x46 },\n                            { 0x90, 0x81, 0xC5, 0x71, 0x33 },\n                            { 0x75, 0x55, 0x44, 0x40, 0x30 }};\n    SkImageInfo imageInfo = SkImageInfo::Make(5, 5, kGray_8_SkColorType, kOpaque_SkAlphaType);\n    SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);\n    *pixmap.writable_addr8(2, 2) = 0x00;\n    canvas->scale(10, 10);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawImage(image, 10, 0);\n}",
@@ -5183,10 +5183,10 @@
     "name": "SkImage::alphaType"
 },
     "SkImage_asLegacyBitmap": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitImage;\n    if (image->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 0, 0);\n    }\n    GrContext* grContext = canvas->getGrContext();\n    if (!grContext) {\n        return;\n    }\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(grContext, backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    canvas->drawImage(textureImage, 45, 45);\n    if (textureImage->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 90, 90);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitImage;\n    if (image->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 0, 0);\n    }\n    GrContext* grContext = canvas->getGrContext();\n    if (!grContext) {\n        return;\n    }\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(grContext, backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                                nullptr));\n    canvas->drawImage(textureImage, 45, 45);\n    if (textureImage->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 90, 90);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "eddfe9735342052ce2f8869ee5eb737a",
+    "hash": "5d88bd87c3585a5dfeca39c2ebd08e52",
     "file": "SkImage_Reference",
     "name": "SkImage::asLegacyBitmap"
 },
@@ -5231,18 +5231,18 @@
     "name": "SkImage::encodeToData_2"
 },
     "SkImage_getTextureHandle": {
-    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkString str;\n    int y = -10;\n    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,\n                backEndTexture, origin, kPremul_SkAlphaType, nullptr));\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);\n        str.printf(\"readBackHandle: 0x%lx\", readBackHandle);\n        canvas->drawString(str, 5, y += 30, paint);\n        canvas->drawImage(srcImage, 80, y += 10);\n        str.printf(\"origin: k%s_GrSurfaceOrigin\", readBackOrigin ? \"BottomLeft\" : \"TopLeft\");\n        canvas->drawString(str, 5, y += srcImage->height() + 10, paint);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkString str;\n    int y = -10;\n    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,\n                backEndTexture, origin, kN32_SkColorType, kPremul_SkAlphaType, nullptr));\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);\n        str.printf(\"readBackHandle: 0x%lx\", readBackHandle);\n        canvas->drawString(str, 5, y += 30, paint);\n        canvas->drawImage(srcImage, 80, y += 10);\n        str.printf(\"origin: k%s_GrSurfaceOrigin\", readBackOrigin ? \"BottomLeft\" : \"TopLeft\");\n        canvas->drawString(str, 5, y += srcImage->height() + 10, paint);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "1de691e4159745d7ee5e82158acdb349",
+    "hash": "c321079049b0363c3b53bb76991768d4",
     "file": "SkImage_Reference",
     "name": "SkImage::getTextureHandle"
 },
     "SkImage_getTextureHandle_a": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, image->height() / 4);\n        canvas->drawString(label, image->width() / 2, image->height() / 8, paint);\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = image->getTextureHandle(false, &readBackOrigin);\n        canvas->drawString(readBackHandle ? \"has readBackHandle\" : \"no readBackHandle\",\n                           image->width() / 2, image->height() * 11 / 8, paint);\n    };\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    drawImage(textureImage, \"backEndTexture\");\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, image->height() / 4);\n        canvas->drawString(label, image->width() / 2, image->height() / 8, paint);\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = image->getTextureHandle(false, &readBackOrigin);\n        canvas->drawString(readBackHandle ? \"has readBackHandle\" : \"no readBackHandle\",\n                           image->width() / 2, image->height() * 11 / 8, paint);\n    };\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                                nullptr));\n    drawImage(textureImage, \"backEndTexture\");\n}",
     "width": 256,
     "height": 256,
-    "hash": "a86c580638fcf83f782047b95c60f43f",
+    "hash": "7161810a96a75540c55af0021a1e5bb9",
     "file": "SkImage_Reference",
     "name": "SkImage::getTextureHandle_2"
 },
@@ -5263,26 +5263,26 @@
     "name": "SkImage::isLazyGenerated"
 },
     "SkImage_isLazyGenerated_a": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, 0);\n        canvas->drawString(label, image->width() / 2, image->height() / 4, paint);\n        canvas->drawString(\n                image->isLazyGenerated() ? \"is lazily generated\" : \"not lazily generated\",\n                image->width() / 2, image->height() * 3 / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, 0);\n        canvas->drawString(label, image->width() / 2, image->height() / 4, paint);\n        canvas->drawString(\n                image->isLazyGenerated() ? \"is lazily generated\" : \"not lazily generated\",\n                image->width() / 2, image->height() * 3 / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                                nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "070dd0405890b84c07827d93fa01c331",
+    "hash": "678ceb21c29c89a95628b71440e9784f",
     "file": "SkImage_Reference",
     "name": "SkImage::isLazyGenerated_2"
 },
     "SkImage_isTextureBacked": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, 0);\n        canvas->drawString(label, image->width() / 2, image->height() / 4, paint);\n        canvas->drawString(image->isTextureBacked() ? \"is GPU texture\" : \"not GPU texture\",\n                           image->width() / 2, image->height() * 3 / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, 0);\n        canvas->drawString(label, image->width() / 2, image->height() / 4, paint);\n        canvas->drawString(image->isTextureBacked() ? \"is GPU texture\" : \"not GPU texture\",\n                           image->width() / 2, image->height() * 3 / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                                nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}",
     "width": 256,
     "height": 256,
-    "hash": "96fd92d399778486a51c5d828ef99322",
+    "hash": "2cc1b659ebfefe530a6ce57d2d66a910",
     "file": "SkImage_Reference",
     "name": "SkImage::isTextureBacked"
 },
     "SkImage_isValid": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, 0);\n        canvas->drawString(label, image->width() / 2, image->height() / 4, paint);\n        if (canvas->getGrContext()) {\n            canvas->drawString(image->isValid(canvas->getGrContext()) ? \"is valid on GPU\" :\n                    \"not valid on GPU\", image->width() / 2, image->height() * 5 / 8, paint);\n        }\n        canvas->drawString(image->isValid(nullptr) ? \"is valid on CPU\" :\n                \"not valid on CPU\", image->width() / 2, image->height() * 7 / 8, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, 0);\n        canvas->drawString(label, image->width() / 2, image->height() / 4, paint);\n        if (canvas->getGrContext()) {\n            canvas->drawString(image->isValid(canvas->getGrContext()) ? \"is valid on GPU\" :\n                    \"not valid on GPU\", image->width() / 2, image->height() * 5 / 8, paint);\n        }\n        canvas->drawString(image->isValid(nullptr) ? \"is valid on CPU\" :\n                \"not valid on CPU\", image->width() / 2, image->height() * 7 / 8, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                                nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}",
     "width": 256,
     "height": 256,
-    "hash": "daf1507ab3a5f7cb0f90058cbc028402",
+    "hash": "d900e5b1a6548041a630c74a69e777c6",
     "file": "SkImage_Reference",
     "name": "SkImage::isValid"
 },
@@ -5295,18 +5295,18 @@
     "name": "SkImage::makeColorSpace"
 },
     "SkImage_makeNonTextureImage": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        sk_sp<SkImage> nonTexture(image->makeNonTextureImage());\n        canvas->drawImage(nonTexture, 0, 0);\n        canvas->drawString(label, nonTexture->width() / 2, nonTexture->height() / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        sk_sp<SkImage> nonTexture(image->makeNonTextureImage());\n        canvas->drawImage(nonTexture, 0, 0);\n        canvas->drawString(label, nonTexture->width() / 2, nonTexture->height() / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                                nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}",
     "width": 256,
     "height": 256,
-    "hash": "220d369551a553f8ba4cd1c21b97a793",
+    "hash": "fef31e26a8cd73dc835d656c93624994",
     "file": "SkImage_Reference",
     "name": "SkImage::makeNonTextureImage"
 },
     "SkImage_makeRasterImage": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        sk_sp<SkImage> raster(image->makeRasterImage());\n        canvas->drawImage(raster, 0, 0);\n        canvas->drawString(label, raster->width() / 2, raster->height() / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        sk_sp<SkImage> raster(image->makeRasterImage());\n        canvas->drawImage(raster, 0, 0);\n        canvas->drawString(label, raster->width() / 2, raster->height() / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                                nullptr));\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, \"backEndTexture\");\n}",
     "width": 256,
     "height": 256,
-    "hash": "d821b8e345df9ff0c8cbb6d91c588c02",
+    "hash": "b60e637abc24199e99682c4f04ac3bfc",
     "file": "SkImage_Reference",
     "name": "SkImage::makeRasterImage"
 },
@@ -5335,10 +5335,10 @@
     "name": "SkImage::makeSubset"
 },
     "SkImage_makeTextureImage": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, GrContext* context, const char* label) -> void {\n        if (nullptr == image || nullptr == context) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        sk_sp<SkImage> texture(image->makeTextureImage(context, nullptr));\n        canvas->drawImage(texture, 0, 0);\n        canvas->drawString(label, texture->width() / 2, texture->height() / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    GrContext* context = canvas->getGrContext();\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(context, backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    drawImage(image, context, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, context, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, context, \"backEndTexture\");\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, GrContext* context, const char* label) -> void {\n        if (nullptr == image || nullptr == context) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        sk_sp<SkImage> texture(image->makeTextureImage(context, nullptr));\n        canvas->drawImage(texture, 0, 0);\n        canvas->drawString(label, texture->width() / 2, texture->height() / 4, paint);\n    };\n    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));\n    GrContext* context = canvas->getGrContext();\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(context, backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                                nullptr));\n    drawImage(image, context, \"image\");\n    canvas->translate(image->width(), 0);\n    drawImage(bitmapImage, context, \"source\");\n    canvas->translate(-image->width(), image->height());\n    drawImage(textureImage, context, \"backEndTexture\");\n}",
     "width": 256,
     "height": 256,
-    "hash": "7d060e137662b233960200b7b2597ba6",
+    "hash": "3ccb7e57d7a2e6d95f0567ce5c723009",
     "file": "SkImage_Reference",
     "name": "SkImage::makeTextureImage"
 },
@@ -5375,10 +5375,10 @@
     "name": "SkImage::refColorSpace"
 },
     "SkImage_refEncodedData": {
-    "code": "void draw(SkCanvas* canvas) {\n    struct {\n        const char* name;\n        sk_sp<SkImage> image;\n    } tests[] = { { \"image\", image }, { \"bitmap\", SkImage::MakeFromBitmap(source) },\n          { \"texture\", SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                            kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr) } };\n    SkString string;\n    SkPaint paint;\n    for (const auto& test : tests ) {\n        if (!test.image) {\n            string.printf(\"no %s\", test.name);\n        } else {\n            string.printf(\"%s\" \"encoded %s\", test.image->refEncodedData() ? \"\" : \"no \", test.name);\n        }\n        canvas->drawString(string, 10, 20, paint);\n        canvas->translate(0, 20);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    struct {\n        const char* name;\n        sk_sp<SkImage> image;\n    } tests[] = { { \"image\", image }, { \"bitmap\", SkImage::MakeFromBitmap(source) },\n          { \"texture\", SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                            kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                            nullptr) } };\n    SkString string;\n    SkPaint paint;\n    for (const auto& test : tests ) {\n        if (!test.image) {\n            string.printf(\"no %s\", test.name);\n        } else {\n            string.printf(\"%s\" \"encoded %s\", test.image->refEncodedData() ? \"\" : \"no \", test.name);\n        }\n        canvas->drawString(string, 10, 20, paint);\n        canvas->translate(0, 20);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "91866923b37edd673c18232fdf3eabd8",
+    "hash": "897b831f8a144d267538dc0262f8babd",
     "file": "SkImage_Reference",
     "name": "SkImage::refEncodedData"
 },
@@ -5391,10 +5391,10 @@
     "name": "SkImage::scalePixels"
 },
     "SkImage_toString": {
-    "code": "void draw(SkCanvas* canvas) {\n    struct {\n        const char* name;\n        sk_sp<SkImage> image;\n    } tests[] = { { \"image\", image }, { \"bitmap\", SkImage::MakeFromBitmap(source) },\n          { \"texture\", SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                            kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr) } };\n    SkString string;\n    SkPaint paint;\n    for (const auto& test : tests ) {\n        string.printf(\"%s: \", test.name);\n        test.image ? (void) test.image->toString(&string) : string.append(\"no image\");\n        canvas->drawString(string, 10, 20, paint);\n        canvas->translate(0, 20);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    struct {\n        const char* name;\n        sk_sp<SkImage> image;\n    } tests[] = { { \"image\", image }, { \"bitmap\", SkImage::MakeFromBitmap(source) },\n          { \"texture\", SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                            kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                            nullptr) } };\n    SkString string;\n    SkPaint paint;\n    for (const auto& test : tests ) {\n        string.printf(\"%s: \", test.name);\n        test.image ? (void) test.image->toString(&string) : string.append(\"no image\");\n        canvas->drawString(string, 10, 20, paint);\n        canvas->translate(0, 20);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "e5eae6d362434154730e3bacff165ebd",
+    "hash": "91cd1d8fa0bc1e541898d0aa78e1219a",
     "file": "SkImage_Reference",
     "name": "SkImage::toString"
 },

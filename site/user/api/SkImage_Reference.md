@@ -80,8 +80,9 @@ drawing.
 | <a href="#SkImage_MakeFromNV12TexturesCopy">MakeFromNV12TexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#YUV_ColorSpace">YUV ColorSpace</a> data in three planes |
 | <a href="#SkImage_MakeFromPicture">MakeFromPicture</a> | creates <a href="#Image">Image</a> from <a href="undocumented#Picture">Picture</a> |
 | <a href="#SkImage_MakeFromRaster">MakeFromRaster</a> | creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, with release |
-| <a href="#SkImage_MakeFromTexture_3">MakeFromTexture 3</a> | creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a> |
-|  | static <a href="undocumented#sk_sp">sk sp</a>&lt;<a href="#SkImage">SkImage</a>&gt; <a href="#SkImage_MakeFromTexture_3">MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, SkColorType colorType, SkAlphaType alphaType, sk sp&lt;SkColorSpace&gt; colorSpace)</a> |
+| <a href="#SkImage_MakeFromTexture">MakeFromTexture</a> | creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a> |
+|  | <a href="#SkImage_MakeFromTexture">MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, SkColorType colorType, SkAlphaType alphaType, sk sp&lt;SkColorSpace&gt; colorSpace)</a> |
+|  | <a href="#SkImage_MakeFromTexture_2">MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, SkColorType colorType, SkAlphaType alphaType, sk sp&lt;SkColorSpace&gt; colorSpace, TextureReleaseProc textureReleaseProc, ReleaseContext releaseContext)</a> |
 | <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#YUV_ColorSpace">YUV ColorSpace</a> data in three planes |
 | <a href="#SkImage_MakeRasterCopy">MakeRasterCopy</a> | creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a> and copied pixels |
 | <a href="#SkImage_MakeRasterData">MakeRasterData</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#Image_Info">Image Info</a> and shared pixels |
@@ -111,7 +112,7 @@ drawing.
 | <a href="#SkImage_MakeFromNV12TexturesCopy">MakeFromNV12TexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#YUV_ColorSpace">YUV ColorSpace</a> data in three planes |
 | <a href="#SkImage_MakeFromPicture">MakeFromPicture</a> | creates <a href="#Image">Image</a> from <a href="undocumented#Picture">Picture</a> |
 | <a href="#SkImage_MakeFromRaster">MakeFromRaster</a> | creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, with release |
-| <a href="#SkImage_MakeFromTexture_3">MakeFromTexture 3</a> | creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a> |
+| <a href="#SkImage_MakeFromTexture">MakeFromTexture</a> | creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a> |
 | <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#YUV_ColorSpace">YUV ColorSpace</a> data in three planes |
 | <a href="#SkImage_MakeRasterCopy">MakeRasterCopy</a> | creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a> and copied pixels |
 | <a href="#SkImage_MakeRasterData">MakeRasterData</a> | creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#Image_Info">Image Info</a> and shared pixels |
@@ -421,29 +422,7 @@ created <a href="#Image">Image</a>, or nullptr
 ---
 
 <a name="SkImage_MakeFromTexture"></a>
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-static sk_sp&lt;SkImage&gt; MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture,
-                                      GrSurfaceOrigin origin, SkAlphaType alphaType,
-                                      sk_sp&lt;SkColorSpace&gt; colorSpace)
-</pre>
-
----
-
-<a name="SkImage_MakeFromTexture_2"></a>
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-static sk_sp&lt;SkImage&gt; MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture,
-                                      GrSurfaceOrigin origin, SkAlphaType alphaType,
-                                      sk_sp&lt;SkColorSpace&gt; colorSpace,
-                                      TextureReleaseProc textureReleaseProc,
-                                      ReleaseContext releaseContext)
-</pre>
-
----
-
-<a name="SkImage_MakeFromTexture_3"></a>
-## MakeFromTexture_3
+## MakeFromTexture
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static sk_sp&lt;SkImage&gt; MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture,
@@ -451,29 +430,29 @@ static sk_sp&lt;SkImage&gt; MakeFromTexture(GrContext* context, const GrBackendT
                                       SkAlphaType alphaType, sk_sp&lt;SkColorSpace&gt; colorSpace)
 </pre>
 
-Creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a> associated with <a href="#SkImage_MakeFromTexture_3_context">context</a>. Caller is responsible for
+Creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a> associated with <a href="#SkImage_MakeFromTexture_context">context</a>. Caller is responsible for
 managing the lifetime of <a href="undocumented#GPU_Texture">GPU Texture</a>.
 
-<a href="#Image">Image</a> is returned if format of <a href="#SkImage_MakeFromTexture_3_backendTexture">backendTexture</a> is recognized and supported.
+<a href="#Image">Image</a> is returned if format of <a href="#SkImage_MakeFromTexture_backendTexture">backendTexture</a> is recognized and supported.
 Recognized formats vary by GPU back-end.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromTexture_3_context"> <code><strong>context </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkImage_MakeFromTexture_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
 texture residing on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_origin"> <code><strong>origin </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_origin"> <code><strong>origin </strong></code> </a></td> <td>
 one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
 one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
 <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
 one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
 <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
   </tr>
 </table>
@@ -493,7 +472,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ---
 
-<a name="SkImage_MakeFromTexture_4"></a>
+<a name="SkImage_MakeFromTexture_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static sk_sp&lt;SkImage&gt; MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture,
@@ -503,35 +482,35 @@ static sk_sp&lt;SkImage&gt; MakeFromTexture(GrContext* context, const GrBackendT
                                       ReleaseContext releaseContext)
 </pre>
 
-Creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a> associated with <a href="#SkImage_MakeFromTexture_4_context">context</a>. <a href="undocumented#GPU_Texture">GPU Texture</a> must stay
-valid and unchanged until <a href="#SkImage_MakeFromTexture_4_textureReleaseProc">textureReleaseProc</a> is called. <a href="#SkImage_MakeFromTexture_4_textureReleaseProc">textureReleaseProc</a> is
-passed <a href="#SkImage_MakeFromTexture_4_releaseContext">releaseContext</a> when <a href="#Image">Image</a> is deleted or no longer refers to texture.
+Creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a> associated with <a href="#SkImage_MakeFromTexture_2_context">context</a>. <a href="undocumented#GPU_Texture">GPU Texture</a> must stay
+valid and unchanged until <a href="#SkImage_MakeFromTexture_2_textureReleaseProc">textureReleaseProc</a> is called. <a href="#SkImage_MakeFromTexture_2_textureReleaseProc">textureReleaseProc</a> is
+passed <a href="#SkImage_MakeFromTexture_2_releaseContext">releaseContext</a> when <a href="#Image">Image</a> is deleted or no longer refers to texture.
 
-<a href="#Image">Image</a> is returned if format of <a href="#SkImage_MakeFromTexture_4_backendTexture">backendTexture</a> is recognized and supported.
+<a href="#Image">Image</a> is returned if format of <a href="#SkImage_MakeFromTexture_2_backendTexture">backendTexture</a> is recognized and supported.
 Recognized formats vary by GPU back-end.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromTexture_4_context"> <code><strong>context </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkImage_MakeFromTexture_2_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
 texture residing on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_origin"> <code><strong>origin </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_origin"> <code><strong>origin </strong></code> </a></td> <td>
 one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
 one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
 <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
 one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
 <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_textureReleaseProc"> <code><strong>textureReleaseProc </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_textureReleaseProc"> <code><strong>textureReleaseProc </strong></code> </a></td> <td>
 function called when texture can be released</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_releaseContext"> <code><strong>releaseContext </strong></code> </a></td> <td>
-state passed to <a href="#SkImage_MakeFromTexture_4_textureReleaseProc">textureReleaseProc</a></td>
+  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_releaseContext"> <code><strong>releaseContext </strong></code> </a></td> <td>
+state passed to <a href="#SkImage_MakeFromTexture_2_textureReleaseProc">textureReleaseProc</a></td>
   </tr>
 </table>
 
@@ -715,7 +694,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### See Also
 
-<a href="#SkImage_MakeFromTexture">MakeFromTexture</a> <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy</a>
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a><sup><a href="#SkImage_MakeFromTexture_2">[2]</a></sup> <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy</a>
 
 ---
 
@@ -1384,11 +1363,11 @@ true if <a href="#Image">Image</a> is a <a href="undocumented#GPU_Texture">GPU T
 
 ### Example
 
-<div><fiddle-embed name="96fd92d399778486a51c5d828ef99322" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="2cc1b659ebfefe530a6ce57d2d66a910" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-<a href="#SkImage_MakeFromTexture">MakeFromTexture</a> <a href="#SkImage_isValid">isValid</a>
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a><sup><a href="#SkImage_MakeFromTexture_2">[2]</a></sup> <a href="#SkImage_isValid">isValid</a>
 
 ---
 
@@ -1420,7 +1399,7 @@ true if <a href="#Image">Image</a> can be drawn
 
 ### Example
 
-<div><fiddle-embed name="daf1507ab3a5f7cb0f90058cbc028402" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="d900e5b1a6548041a630c74a69e777c6" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1456,15 +1435,15 @@ back-end API texture handle, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="1de691e4159745d7ee5e82158acdb349" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="c321079049b0363c3b53bb76991768d4" gpu="true"></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="a86c580638fcf83f782047b95c60f43f" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="7161810a96a75540c55af0021a1e5bb9" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-<a href="#SkImage_MakeFromTexture">MakeFromTexture</a> <a href="#SkImage_isTextureBacked">isTextureBacked</a>
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a><sup><a href="#SkImage_MakeFromTexture_2">[2]</a></sup> <a href="#SkImage_isTextureBacked">isTextureBacked</a>
 
 ---
 
@@ -1783,7 +1762,7 @@ encoded <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="91866923b37edd673c18232fdf3eabd8" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="897b831f8a144d267538dc0262f8babd" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1824,7 +1803,7 @@ storage for description; existing content is preserved</td>
 
 ### Example
 
-<div><fiddle-embed name="e5eae6d362434154730e3bacff165ebd"></fiddle-embed></div>
+<div><fiddle-embed name="91cd1d8fa0bc1e541898d0aa78e1219a"></fiddle-embed></div>
 
 ### See Also
 
@@ -1895,11 +1874,11 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="7d060e137662b233960200b7b2597ba6" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="3ccb7e57d7a2e6d95f0567ce5c723009" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-<a href="#SkImage_MakeFromTexture">MakeFromTexture</a>
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a><sup><a href="#SkImage_MakeFromTexture_2">[2]</a></sup>
 
 ---
 
@@ -1922,7 +1901,7 @@ Returns nullptr if backed by <a href="undocumented#GPU_Texture">GPU Texture</a> 
 
 ### Example
 
-<div><fiddle-embed name="220d369551a553f8ba4cd1c21b97a793" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="fef31e26a8cd73dc835d656c93624994" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1949,7 +1928,7 @@ Returns nullptr if copy, decode, or pixel read fails.
 
 ### Example
 
-<div><fiddle-embed name="d821b8e345df9ff0c8cbb6d91c588c02" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="b60e637abc24199e99682c4f04ac3bfc" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2060,7 +2039,7 @@ true if backend texture was created
 
 ### See Also
 
-<a href="#SkImage_MakeFromTexture">MakeFromTexture</a> <a href="#SkImage_makeTextureImage">makeTextureImage</a>
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a><sup><a href="#SkImage_MakeFromTexture_2">[2]</a></sup> <a href="#SkImage_makeTextureImage">makeTextureImage</a>
 
 ---
 
@@ -2111,7 +2090,7 @@ true if <a href="SkBitmap_Reference#Bitmap">Bitmap</a> was created
 
 ### Example
 
-<div><fiddle-embed name="eddfe9735342052ce2f8869ee5eb737a" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="5d88bd87c3585a5dfeca39c2ebd08e52" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2139,7 +2118,7 @@ true if <a href="#Image">Image</a> is created as needed
 
 ### Example
 
-<div><fiddle-embed name="070dd0405890b84c07827d93fa01c331" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="678ceb21c29c89a95628b71440e9784f" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2191,7 +2170,7 @@ created <a href="#Image">Image</a> in <a href="#SkImage_makeColorSpace_target">t
 
 ### See Also
 
-MakeFromPixture <a href="#SkImage_MakeFromTexture">MakeFromTexture</a>
+MakeFromPixture <a href="#SkImage_MakeFromTexture">MakeFromTexture</a><sup><a href="#SkImage_MakeFromTexture_2">[2]</a></sup>
 
 ---
 
