@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2adea50d_9b45b276",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-21T14:33:54Z",
+      "side": 1,
+      "message": "(I think they don\u0027t complain when the double can be exactly represented as a float.)",
+      "parentUuid": "6ce77d6d_6127e848",
+      "revId": "281a87d2d99be84d9301a0b46af5ae7370e51e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f8b03b05_04130cd2",
         "filename": "src/core/SkScan_AntiPath.cpp",
         "patchSetId": 4
