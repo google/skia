@@ -93,6 +93,14 @@ bool SkDeferredDisplayListRecorder::init() {
     // proxy, when instantiated, will use the GrRenderTarget that backs the SkSurface that the
     // DDL is being replayed into.
 
+    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
+    if (fContext->caps()->usesMixedSamples() && desc.fSampleCnt > 1) {
+        surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
+    }
+    if (fContext->caps()->maxWindowRectangles() > 0) {
+        surfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
+    }
+
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [lazyProxyData](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
@@ -106,7 +114,7 @@ bool SkDeferredDisplayListRecorder::init() {
             },
             desc,
             fCharacterization.origin(),
-            GrInternalSurfaceFlags::kNone,
+            surfaceFlags,
             GrProxyProvider::Textureable(fCharacterization.isTextureable()),
             GrMipMapped::kNo,
             SkBackingFit::kExact,
