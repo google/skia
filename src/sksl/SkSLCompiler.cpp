@@ -1159,6 +1159,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
                                                   const Program::Settings& settings) {
+    printf("%s\n", text.c_str());
     fErrorText = "";
     fErrorCount = 0;
     fIRGenerator->start(&settings);

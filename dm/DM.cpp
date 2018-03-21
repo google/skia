@@ -404,7 +404,8 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
     if (in_shard() &&
         FLAGS_src.contains(tag) &&
-        !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
+        !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str()) &&
+        !strcmp(src->name().c_str(), "pathfill")) {
         TaggedSrc& s = gSrcs.push_back();
         s.reset(src.release());
         s.tag = tag;
@@ -1258,6 +1259,7 @@ struct Task {
 static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
 static void gather_tests() {
+    return;
     if (!FLAGS_src.contains("tests")) {
         return;
     }
