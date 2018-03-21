@@ -16,14 +16,12 @@ using Shader = GrCCCoverageProcessor::Shader;
 void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
                                         const char* repetitionID, const char* wind,
                                         GeometryVars* vars) const {
-    s->declareGlobal(fCanonicalMatrix);
-    s->codeAppendf("%s = float3x3(0.0, 0, 1, "
-                                 "0.5, 0, 1, "
-                                 "1.0, 1, 1) * "
-                        "inverse(float3x3(%s[0], 1, "
-                                         "%s[1], 1, "
-                                         "%s[2], 1));",
-                   fCanonicalMatrix.c_str(), pts, pts, pts);
+    s->declareGlobal(fQCoordMatrix);
+    s->codeAppendf("%s = float2x2(1, 1, .5, 0) * inverse(float2x2(%s[2] - %s[0], %s[1] - %s[0]));",
+                   fQCoordMatrix.c_str(), pts, pts, pts, pts);
+
+    s->declareGlobal(fQCoord0);
+    s->codeAppendf("%s = %s[0];", fQCoord0.c_str(), pts);
 
     s->declareGlobal(fEdgeDistanceEquation);
     s->codeAppendf("float2 edgept0 = %s[%s > 0 ? 2 : 0];", pts, wind);
@@ -42,8 +40,8 @@ void GrCCQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
 
     fXYDW.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("xydw", &fXYDW);
-    code->appendf("%s.xy = (%s * float3(%s, 1)).xy;",
-                  OutName(fXYDW), fCanonicalMatrix.c_str(), position);
+    code->appendf("%s.xy = %s * (%s - %s);",
+                  OutName(fXYDW), fQCoordMatrix.c_str(), position, fQCoord0.c_str());
     code->appendf("%s.z = dot(%s.xy, %s) + %s.z;",
                   OutName(fXYDW), fEdgeDistanceEquation.c_str(), position,
                   fEdgeDistanceEquation.c_str());
@@ -81,8 +79,8 @@ void GrCCQuadraticHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandle
                                              GrGLSLVarying::Scope scope, SkString* code) {
     fGrad.reset(kFloat2_GrSLType, scope);
     varyingHandler->addVarying("grad", &fGrad);
-    code->appendf("%s = float2(2 * %s.x, -1) * float2x2(%s);",
-                  OutName(fGrad), OutName(fXYDW), fCanonicalMatrix.c_str());
+    code->appendf("%s = 2*bloat * float2(2 * %s.x, -1) * %s;",
+                  OutName(fGrad), OutName(fXYDW), fQCoordMatrix.c_str());
 }
 
 void GrCCQuadraticHullShader::emitCoverage(GrGLSLFPFragmentBuilder* f,
@@ -106,14 +104,14 @@ void GrCCQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHand
 
     fdXYDdx.reset(kFloat3_GrSLType, scope);
     varyingHandler->addVarying("dXYDdx", &fdXYDdx, Interpolation::kCanBeFlat);
-    code->appendf("%s = float3(%s[0].x, %s[0].y, %s.x);",
-                  OutName(fdXYDdx), fCanonicalMatrix.c_str(), fCanonicalMatrix.c_str(),
+    code->appendf("%s = 2*bloat * float3(%s[0].x, %s[0].y, %s.x);",
+                  OutName(fdXYDdx), fQCoordMatrix.c_str(), fQCoordMatrix.c_str(),
                   fEdgeDistanceEquation.c_str());
 
     fdXYDdy.reset(kFloat3_GrSLType, scope);
     varyingHandler->addVarying("dXYDdy", &fdXYDdy, Interpolation::kCanBeFlat);
-    code->appendf("%s = float3(%s[1].x, %s[1].y, %s.y);",
-                  OutName(fdXYDdy), fCanonicalMatrix.c_str(), fCanonicalMatrix.c_str(),
+    code->appendf("%s = 2*bloat * float3(%s[1].x, %s[1].y, %s.y);",
+                  OutName(fdXYDdy), fQCoordMatrix.c_str(), fQCoordMatrix.c_str(),
                   fEdgeDistanceEquation.c_str());
 }
 
