@@ -21,6 +21,7 @@ SKIA_REPO_TEMPLATE = 'https://skia.googlesource.com/%s.git'
 
 CQ_INCLUDE_CHROMIUM_TRYBOTS = [
     ('luci.chromium.try', [
+        'android_optional_gpu_tests_rel',
         'linux_optional_gpu_tests_rel',
         'mac_chromium_compile_dbg_ng',
         'mac_optional_gpu_tests_rel',
@@ -60,7 +61,6 @@ CQ_INCLUDE_CHROMIUM_TRYBOTS = [
         'android_compile_rel',
         'android_n5x_swarming_dbg',
         'android_n5x_swarming_rel',
-        'android_optional_gpu_tests_rel',
     ])
 ]
 
