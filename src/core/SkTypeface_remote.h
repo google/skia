@@ -12,6 +12,7 @@
 #include "SkDescriptor.h"
 #include "SkFontDescriptor.h"
 #include "SkFontStyle.h"
+#include "SkRemoteGlyphCache.h"
 #include "SkPaint.h"
 #include "SkScalerContext.h"
 #include "SkTypeface.h"
@@ -45,7 +46,7 @@ public:
             sk_sp<SkTypeface> tf,
             const SkScalerContextEffects& effects,
             const SkDescriptor* desc,
-            SkRemoteScalerContext* rsc);
+            SkStrikeClient* rsc);
 
 protected:
     unsigned generateGlyphCount(void) override { SK_ABORT("Should never be called."); return 0;}
@@ -69,7 +70,7 @@ private:
     SkTypefaceProxy* typefaceProxy();
 
     SkArenaAlloc  fAlloc{kMinAllocAmount};
-    SkRemoteScalerContext* const fRemote;
+    SkStrikeClient* const fRemote;
     typedef SkScalerContext INHERITED;
 };
 
@@ -80,12 +81,12 @@ public:
             int glyphCount,
             const SkFontStyle& style,
             bool isFixed,
-            SkRemoteScalerContext* rsc)
+            SkStrikeClient* rsc)
             : INHERITED{style, false}
             , fFontId{fontId}
             , fGlyphCount{glyphCount}
             , fRsc{rsc} { }
-    SkFontID fontID() const {return fFontId;}
+    SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
     static SkTypefaceProxy* DownCast(SkTypeface* typeface) {
         // TODO: how to check the safety of the down cast?
@@ -164,7 +165,7 @@ private:
     const SkFontID fFontId;
     const int fGlyphCount;
     // const std::thread::id fThreadId;  // TODO: figure out a good solutions for this.
-    SkRemoteScalerContext* const fRsc;
+    SkStrikeClient* const fRsc;
 
     typedef SkTypeface INHERITED;
 };

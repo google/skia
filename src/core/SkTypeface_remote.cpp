@@ -15,7 +15,7 @@ SkScalerContextProxy::SkScalerContextProxy(
         sk_sp<SkTypeface> tf,
         const SkScalerContextEffects& effects,
         const SkDescriptor* desc,
-        SkRemoteScalerContext* rsc)
+        SkStrikeClient* rsc)
     : SkScalerContext{std::move(tf), effects, desc}
     , fRemote{rsc} {}
 
