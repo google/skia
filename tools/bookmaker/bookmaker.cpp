@@ -50,6 +50,9 @@ trouble with aliases, plurals
     need to keep first letter of includeWriter @param / @return lowercase
     Quad -> quad, Quads -> quads
 deprecated methods should be sorted down in md out, and show include "Deprecated." text body.
+rewrap text to fit in some number of columns
+#Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
+     would rather keep links for boby above #Literal, and/or make it a block and not a one-liner
 see head of selfCheck.cpp for additional todos
  */
 
