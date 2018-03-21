@@ -85,7 +85,7 @@ public:
             , fFontId{fontId}
             , fGlyphCount{glyphCount}
             , fRsc{rsc} { }
-    SkFontID fontID() const {return fFontId;}
+    SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
     static SkTypefaceProxy* DownCast(SkTypeface* typeface) {
         // TODO: how to check the safety of the down cast?
