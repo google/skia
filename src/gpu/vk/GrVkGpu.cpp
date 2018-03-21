@@ -337,6 +337,7 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
 bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width,
                                    int height, GrColorType srcColorType,
                                    DrawPreference* drawPreference,
@@ -357,29 +358,52 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
     }
     GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
 
+    // We only support writing pixels to textures. Forcing a draw lets us write to pure RTs.
+    if (!dstSurface->asTexture()) {
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    }
+    // If the dst is MSAA, we have to draw, or we'll just be writing to the resolve target.
+    if (renderTarget && renderTarget->numColorSamples() > 1) {
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    }
+
     if (GrPixelConfigToColorType(dstSurface->config()) == srcColorType) {
-        // We only support writing pixels to textures. Forcing a draw lets us write to pure RTs.
-        if (!dstSurface->asTexture()) {
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        }
-        // If the dst is MSAA, we have to draw, or we'll just be writing to the resolve target.
-        if (renderTarget && renderTarget->numColorSamples() > 1) {
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        }
         return true;
     }
 
-    // Any color type change requires a draw
-    ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-
+    // Our onWritePixels() implementation can handle converting between any of kRGBA_8888,
+    // kBGRA_8888, and kRGB_888x. Any other conversion requires an intermediate draw.
     auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType, srcConfigSRGBEncoded);
     SkASSERT(srcAsConfig != kUnknown_GrPixelConfig);
-    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcAsConfig) == dstSurface->config();
+    bool requireDrawForConfigChange = true;
+    if (kRGBA_8888_GrPixelConfig == dstSurface->config()) {
+        if (GrColorType::kRGB_888x == srcColorType) {
+            requireDrawForConfigChange = false;
+        } else if (GrColorType::kBGRA_8888 == srcColorType) {
+            requireDrawForConfigChange = false;
+        }
+    } else if (kBGRA_8888_GrPixelConfig == dstSurface->config()) {
+        if (GrColorType::kRGB_888x == srcColorType) {
+            requireDrawForConfigChange = false;
+        } else if (GrColorType::kRGBA_8888 == srcColorType) {
+            requireDrawForConfigChange = false;
+        }
+    }
 
-    if (!this->vkCaps().isConfigTexturable(srcAsConfig) && configsAreRBSwaps) {
-        tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
-        tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-        tempDrawInfo->fWriteColorType = GrPixelConfigToColorType(dstSurface->config());
+    ElevateDrawPreference(drawPreference, requireDrawForConfigChange ? kRequireDraw_DrawPreference
+                                                      : kGpuPrefersDraw_DrawPreference);
+
+    if (!this->vkCaps().isConfigTexturable(srcAsConfig)) {
+        if (GrColorType::kRGB_888x == srcColorType) {
+            // Our onWritePixels can write kRGB_888x data to a kRGBA_8888 texture.
+            tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
+        } else if (GrColorType::kBGRA_8888 == srcColorType) {
+            // We know kRGBA_8888 must be texturable, so upload our BGRA data as that and then
+            // swizzle when drawing.
+            tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
+            tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
+            tempDrawInfo->fWriteColorType = GrColorType::kRGBA_8888;
+        }
     }
     return true;
 }
@@ -542,8 +566,48 @@ void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresS
     }
 }
 
+static inline void copy_row(void* dst, const void* src, int w, int bpp, bool swapRB32bit, bool writeAlphaOne32bit) {
+    if (!swapRB32bit && !writeAlphaOne32bit) {
+        memcpy(dst, src, w * bpp);
+        return;
+    }
+    SkASSERT(4 == bpp);
+    for (int i = 0; i < w; ++i) {
+        uint32_t s = *reinterpret_cast<const uint32_t*>(src);
+        uint32_t* d = reinterpret_cast<uint32_t*>(dst);
+        if (swapRB32bit) {
+            s = (s & 0xFF000000) | ((s & 0x00FF0000) >> 16) | (s & 0x0000FF00) |
+                ((s & 0x000000FF) << 16);
+        }
+        if (writeAlphaOne32bit) {
+            s |= 0xFF000000;
+        }
+        *d = s;
+        src = reinterpret_cast<const uint32_t*>(src) + 1;
+        dst = reinterpret_cast<uint32_t*>(dst) + 1;
+    }
+}
+
+void determine_swap_and_force_alpha(GrPixelConfig texConfig, GrColorType srcColorType, bool* swapRB, bool* forceAlphaOne) {
+    *swapRB = false;
+    *forceAlphaOne = false;
+    if (GrColorType::kRGB_888x == srcColorType &&
+        (kRGBA_8888_GrPixelConfig == texConfig || kBGRA_8888_GrPixelConfig == texConfig)) {
+        *forceAlphaOne = true;
+        *swapRB = kBGRA_8888_GrPixelConfig == texConfig;
+    } else if (GrColorType::kRGBA_8888 == srcColorType && kBGRA_8888_GrPixelConfig == texConfig) {
+        *swapRB = true;
+    } else if (GrColorType::kBGRA_8888 == srcColorType && (kRGBA_8888_GrPixelConfig == texConfig ||
+                                                           kRGB_888_GrPixelConfig == texConfig)) {
+        *swapRB = true;
+    } else {
+        SkASSERT(GrPixelConfigToColorType(texConfig) == srcColorType ||
+                 (GrColorType::kRGBA_8888 == srcColorType && kRGB_888_GrPixelConfig == texConfig));
+    }
+}
+
 bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                                  int width, int height, GrColorType dataColorType,
+                                  int width, int height, GrColorType srcColorType,
                                   const void* data, size_t rowBytes) {
     SkASSERT(data);
     SkASSERT(tex->isLinearTiled());
@@ -553,11 +617,15 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
         SkIRect bounds = SkIRect::MakeWH(tex->width(), tex->height());
         SkASSERT(bounds.contains(subRect));
     )
-    int bpp = GrColorTypeBytesPerPixel(dataColorType);
+    int bpp = GrColorTypeBytesPerPixel(srcColorType);
+    SkASSERT(GrBytesPerPixel(tex->config()) == static_cast<size_t>(bpp));
     size_t trimRowBytes = width * bpp;
     if (!rowBytes) {
         rowBytes = trimRowBytes;
     }
+
+    bool swapRB, forceAlphaOne;
+    determine_swap_and_force_alpha(tex->config(), srcColorType, &swapRB, &forceAlphaOne);
 
     SkASSERT(VK_IMAGE_LAYOUT_PREINITIALIZED == tex->currentLayout() ||
              VK_IMAGE_LAYOUT_GENERAL == tex->currentLayout());
@@ -601,18 +669,15 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
     }
     mapPtr = reinterpret_cast<char*>(mapPtr) + offsetDiff;
 
-    if (kBottomLeft_GrSurfaceOrigin == texOrigin) {
-        // copy into buffer by rows
-        const char* srcRow = reinterpret_cast<const char*>(data);
-        char* dstRow = reinterpret_cast<char*>(mapPtr)+(height - 1)*layout.rowPitch;
-        for (int y = 0; y < height; y++) {
-            memcpy(dstRow, srcRow, trimRowBytes);
-            srcRow += rowBytes;
-            dstRow -= layout.rowPitch;
-        }
-    } else {
-        SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
-                     height);
+    bool flip = kBottomLeft_GrSurfaceOrigin == texOrigin;
+    // copy into buffer by rows
+    const char* srcRow = reinterpret_cast<const char*>(data);
+    char* dstRow = flip ? reinterpret_cast<char*>(mapPtr)+(height - 1)*layout.rowPitch
+                        : reinterpret_cast<char*>(mapPtr);
+    for (int y = 0; y < height; y++) {
+        copy_row(dstRow, srcRow, width, bpp, swapRB, forceAlphaOne);
+        srcRow += rowBytes;
+        dstRow = flip ? (dstRow - layout.rowPitch) : (dstRow + layout.rowPitch);
     }
 
     GrVkMemory::FlushMappedAlloc(this, alloc, offset, size);
@@ -622,7 +687,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
 }
 
 bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                                   int width, int height, GrColorType dataColorType,
+                                   int width, int height, GrColorType srcColorType,
                                    const GrMipLevel texels[], int mipLevelCount) {
     SkASSERT(!tex->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
@@ -638,7 +703,10 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
     }
 
     SkASSERT(this->caps()->isConfigTexturable(tex->config()));
-    int bpp = GrColorTypeBytesPerPixel(dataColorType);
+    int bpp = GrColorTypeBytesPerPixel(srcColorType);
+
+    bool swapRB, forceAlphaOne;
+    determine_swap_and_force_alpha(tex->config(), srcColorType, &swapRB, &forceAlphaOne);
 
     // texels is const.
     // But we may need to adjust the fPixels ptr based on the copyRect, or fRowBytes.
@@ -713,13 +781,11 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
             const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
             if (flipY) {
                 src += (currentHeight - 1) * rowBytes;
-                for (int y = 0; y < currentHeight; y++) {
-                    memcpy(dst, src, trimRowBytes);
-                    src -= rowBytes;
-                    dst += trimRowBytes;
-                }
-            } else {
-                SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
+            }
+            for (int y = 0; y < currentHeight; y++) {
+                copy_row(dst, src, width, bpp, swapRB, forceAlphaOne);
+                src = flipY ? (src - rowBytes) : (src + rowBytes);
+                dst += trimRowBytes;
             }
 
             VkBufferImageCopy& region = regions.push_back();

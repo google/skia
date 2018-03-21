@@ -286,58 +286,29 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
 }
 
 /**
- * Pixel configurations.
+ * Pixel configurations. This type conflates texture formats, CPU pixel formats, and
+ * premultipliedness. We are moving away from it towards SkColorType and backend API (GL, Vulkan)
+ * texture formats in the pulbic API. Right now this mostly refers to texture formats as we're
+ * migrating.
  */
 enum GrPixelConfig {
     kUnknown_GrPixelConfig,
     kAlpha_8_GrPixelConfig,
     kGray_8_GrPixelConfig,
     kRGB_565_GrPixelConfig,
-    /**
-     * Premultiplied
-     */
     kRGBA_4444_GrPixelConfig,
-    /**
-     * Premultiplied. Byte order is r,g,b,a.
-     */
     kRGBA_8888_GrPixelConfig,
-    /**
-     * Premultiplied. Byte order is b,g,r,a.
-     */
+    kRGB_888_GrPixelConfig,
     kBGRA_8888_GrPixelConfig,
-    /**
-     * Premultiplied and sRGB. Byte order is r,g,b,a.
-     */
     kSRGBA_8888_GrPixelConfig,
-    /**
-     * Premultiplied and sRGB. Byte order is b,g,r,a.
-     */
     kSBGRA_8888_GrPixelConfig,
-
-    /**
-     * Premultiplied.
-     */
     kRGBA_1010102_GrPixelConfig,
-
-    /**
-     * Byte order is r, g, b, a.  This color format is 32 bits per channel
-     */
     kRGBA_float_GrPixelConfig,
-    /**
-     * Byte order is r, g.  This color format is 32 bits per channel
-     */
     kRG_float_GrPixelConfig,
-
-    /**
-     * This color format is a single 16 bit float channel
-     */
     kAlpha_half_GrPixelConfig,
-
-    /**
-    * Byte order is r, g, b, a.  This color format is 16 bits per channel
-    */
     kRGBA_half_GrPixelConfig,
 
+    /** For internal usage. */
     kPrivateConfig1_GrPixelConfig,
     kPrivateConfig2_GrPixelConfig,
     kPrivateConfig3_GrPixelConfig,

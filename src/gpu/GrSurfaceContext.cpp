@@ -49,8 +49,15 @@ bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::readPixels");
 
     // TODO: this seems to duplicate code in SkImage_Gpu::onReadPixels
-    if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
+    if (kUnpremul_SkAlphaType == dstInfo.alphaType() &&
+        !GrPixelConfigIsOpaque(this->asSurfaceProxy()->config())) {
         flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
+    }
+    // This matches a rule in SkImageInfoValidConversion. We don't know how to produce opaque results from a non-opaque
+    // src. TODO: This really should consider the alpha type of the src not its config but we don't currently have an
+    // alpha type.
+    if (kOpaque_SkAlphaType == dstInfo.alphaType() && !GrPixelConfigIsOpaque(this->asSurfaceProxy()->config())) {
+        return false;
     }
     auto colorType = SkColorTypeToGrColorType(dstInfo.colorType());
     if (GrColorType::kUnknown == colorType) {
