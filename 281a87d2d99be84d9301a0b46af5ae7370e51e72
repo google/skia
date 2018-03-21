@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "a2cbf611_1e3a50f2",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-21T18:09:44Z",
+      "side": 1,
+      "message": "Thanks for letting me know the potential problem and why it doesn\u0027t happen here. I\u0027ll use 0.25 here and 0 below.",
+      "parentUuid": "2adea50d_9b45b276",
+      "revId": "281a87d2d99be84d9301a0b46af5ae7370e51e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8b03b05_04130cd2",
         "filename": "src/core/SkScan_AntiPath.cpp",
         "patchSetId": 4
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "6388055b_84192788",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-21T18:09:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8b03b05_04130cd2",
+      "revId": "281a87d2d99be84d9301a0b46af5ae7370e51e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bec9d693_5c0bc7ea",
         "filename": "src/core/SkScan_AntiPath.cpp",
         "patchSetId": 4
@@ -65,6 +101,24 @@
       "writtenOn": "2018-03-21T14:14:44Z",
       "side": 1,
       "message": "can\u0027t help but notice that diagonal is computed with a sqrt() which is then squared...",
+      "revId": "281a87d2d99be84d9301a0b46af5ae7370e51e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17992583_348cb374",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-21T18:09:44Z",
+      "side": 1,
+      "message": "Right, it now looks bad to me as well. I also didn\u0027t find a cleaner solution now so I\u0027ll continue with this and see if something better come up in the future.",
+      "parentUuid": "bec9d693_5c0bc7ea",
       "revId": "281a87d2d99be84d9301a0b46af5ae7370e51e72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
