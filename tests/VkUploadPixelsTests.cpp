@@ -67,7 +67,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
 
-        SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kOpaque_SkAlphaType);
+        SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 
         bool result = sContext->readPixels(dstInfo, dstBuffer, 0, 0, 0);
         REPORTER_ASSERT(reporter, result);
@@ -76,7 +76,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
                                                                          kWidth,
                                                                          kHeight));
 
-        dstInfo = SkImageInfo::Make(10, 2, ct, kOpaque_SkAlphaType);
+        dstInfo = SkImageInfo::Make(10, 2, ct, kPremul_SkAlphaType);
         result = sContext->writePixels(dstInfo, srcBuffer, 0, 2, 10);
         REPORTER_ASSERT(reporter, result);
 
@@ -97,7 +97,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
 
-        SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kOpaque_SkAlphaType);
+        SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 
         bool result = sContext->readPixels(dstInfo, dstBuffer, 0, 0, 0);
         REPORTER_ASSERT(reporter, result);
@@ -106,7 +106,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
                                                                          kWidth,
                                                                          kHeight));
 
-        dstInfo = SkImageInfo::Make(4, 5, ct, kOpaque_SkAlphaType);
+        dstInfo = SkImageInfo::Make(4, 5, ct, kPremul_SkAlphaType);
         result = sContext->writePixels(dstInfo, srcBuffer, 0, 5, 4);
         REPORTER_ASSERT(reporter, result);
 
