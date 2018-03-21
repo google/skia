@@ -51,10 +51,12 @@ static const struct {
     { "gl4444",                "gpu", "api=gl,color=4444" },
     { "gl565",                 "gpu", "api=gl,color=565" },
     { "glf16",                 "gpu", "api=gl,color=f16" },
+    { "gl888x",                "gpu", "api=gl,color=888x" },
     { "gl1010102",             "gpu", "api=gl,color=1010102" },
     { "glsrgb",                "gpu", "api=gl,color=srgb" },
     { "glsrgbnl",              "gpu", "api=gl,color=srgbnl" },
     { "glesf16",               "gpu", "api=gles,color=f16" },
+    { "gles888x",              "gpu", "api=gles,color=888x" },
     { "gles1010102",           "gpu", "api=gles,color=1010102" },
     { "glessrgb",              "gpu", "api=gles,color=srgb" },
     { "glessrgbnl",            "gpu", "api=gles,color=srgbnl" },
@@ -148,6 +150,7 @@ static const char configExtendedHelp[] =
     "\t    Select framebuffer color format.\n"
     "\t    Options:\n"
     "\t\t8888\t\t\tLinear 8888.\n"
+    "\t\t888x\t\t\tLinear 888x.\n"
     "\t\t4444\t\t\tLinear 4444.\n"
     "\t\t565\t\t\tLinear 565.\n"
     "\t\tf16{_gamut}\t\tLinear 16-bit floating point.\n"
@@ -294,6 +297,10 @@ static bool parse_option_gpu_color(const SkString& value,
 
     if (value.equals("8888")) {
         *outColorType = kRGBA_8888_SkColorType;
+        *outColorSpace = nullptr;
+        return true;
+    } else if (value.equals("888x")) {
+        *outColorType = kRGB_888x_SkColorType;
         *outColorSpace = nullptr;
         return true;
     } else if (value.equals("4444")) {
