@@ -22,6 +22,7 @@ SKIA_REPO_TEMPLATE = 'https://skia.googlesource.com/%s.git'
 CQ_INCLUDE_CHROMIUM_TRYBOTS = [
     ('luci.chromium.try', [
         'linux_optional_gpu_tests_rel',
+        'mac_chromium_compile_dbg_ng',
     ]),
     ('master.tryserver.blink', [
         'linux_trusty_blink_dbg',
@@ -40,7 +41,6 @@ CQ_INCLUDE_CHROMIUM_TRYBOTS = [
         'linux_chromium_rel_ng',
     ]),
     ('master.tryserver.chromium.mac', [
-        'mac_chromium_compile_dbg_ng',
         'mac_chromium_compile_rel_ng',
         'mac_chromium_dbg_ng',
         'mac_chromium_rel_ng',
