@@ -11,6 +11,7 @@
 typedef SkScalar (*MakePathProc)(SkPath*);
 
 static SkScalar make_frame(SkPath* path) {
+    printf("MAKING FRAME\n");
     SkRect r = { SkIntToScalar(10), SkIntToScalar(10),
                  SkIntToScalar(630), SkIntToScalar(470) };
     path->addRoundRect(r, SkIntToScalar(15), SkIntToScalar(15));
@@ -21,7 +22,7 @@ static SkScalar make_frame(SkPath* path) {
     paint.getFillPath(*path, path);
     return SkIntToScalar(15);
 }
-
+/*
 static SkScalar make_triangle(SkPath* path) {
     constexpr int gCoord[] = {
         10, 20, 15, 5, 30, 30
@@ -271,10 +272,10 @@ static void make_visualizer(SkPath* path) {
     path->lineTo(1.0000f, 6.1900f);
     path->close();
 }
-
+*/
 constexpr MakePathProc gProcs[] = {
     make_frame,
-    make_triangle,
+/*    make_triangle,
     make_rect,
     make_oval,
     make_sawtooth_32,
@@ -282,7 +283,7 @@ constexpr MakePathProc gProcs[] = {
     make_star_13,
     make_line,
     make_house,
-    make_sawtooth_3,
+    make_sawtooth_3,*/
 };
 
 #define N   SK_ARRAY_COUNT(gProcs)
@@ -299,9 +300,9 @@ protected:
             fDY[i] = gProcs[i](&fPath[i]);
         }
 
-        make_info(&fInfoPath);
-        make_accessibility(&fAccessibilityPath);
-        make_visualizer(&fVisualizerPath);
+//        make_info(&fInfoPath);
+//        make_accessibility(&fAccessibilityPath);
+//        make_visualizer(&fVisualizerPath);
     }
 
 
