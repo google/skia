@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ce77d6d_6127e848",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-21T14:14:44Z",
+      "side": 1,
+      "message": "I\u0027m surprised the compile doesn\u0027t complain and insist on 0.25f;",
+      "revId": "281a87d2d99be84d9301a0b46af5ae7370e51e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8b03b05_04130cd2",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-21T14:14:44Z",
+      "side": 1,
+      "message": "(nit) Here, though 0 should work as well",
+      "revId": "281a87d2d99be84d9301a0b46af5ae7370e51e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bec9d693_5c0bc7ea",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-21T14:14:44Z",
+      "side": 1,
+      "message": "can\u0027t help but notice that diagonal is computed with a sqrt() which is then squared...",
+      "revId": "281a87d2d99be84d9301a0b46af5ae7370e51e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
