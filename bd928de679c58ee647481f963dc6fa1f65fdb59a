@@ -16,6 +16,24 @@
       "revId": "bd928de679c58ee647481f963dc6fa1f65fdb59a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a6d5c33_40b5fc39",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-21T20:01:29Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "f6163fc8_d4593b0d",
+      "revId": "bd928de679c58ee647481f963dc6fa1f65fdb59a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
