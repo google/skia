@@ -143,8 +143,7 @@ static SkTArray<SkString> gFailures;
 
 static void fail(const SkString& err) {
     SkAutoMutexAcquire lock(gFailuresMutex);
-    SkDebugf("\n\nFAILURE: %s\n\n", err.c_str());
-    gFailures.push_back(err);
+    SkDebugf("\n\nFAILURE: %s\n\n", err.c_str());gFailures.push_back(err);
 }
 
 struct Running {
