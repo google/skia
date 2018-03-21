@@ -219,14 +219,22 @@ bool SkEdgeClipper::clipQuad(const SkPoint srcPts[3], const SkRect& clip) {
 
     SkRect  bounds;
     bounds.set(srcPts, 3);
-
+    for (int i = 0; i < 3; ++i) {
+        SkASSERT(srcPts[i].isFinite());
+    }
     if (!quick_reject(bounds, clip)) {
         SkPoint monoY[5];
         int countY = SkChopQuadAtYExtrema(srcPts, monoY);
         for (int y = 0; y <= countY; y++) {
             SkPoint monoX[5];
+            for (int i = 0; i < 3; ++i) {
+                SkASSERT(monoY[y * 2 + i].isFinite());
+            }
             int countX = SkChopQuadAtXExtrema(&monoY[y * 2], monoX);
             for (int x = 0; x <= countX; x++) {
+                for (int i = 0; i < 3; ++i) {
+                    SkASSERT(monoX[x * 2 + i].isFinite());
+                }
                 this->clipMonoQuad(&monoX[x * 2], clip);
                 SkASSERT(fCurrVerb - fVerbs < kMaxVerbs);
                 SkASSERT(fCurrPoint - fPoints <= kMaxPoints);
@@ -264,6 +272,11 @@ static SkScalar mono_cubic_closestT(const SkScalar src[], SkScalar x) {
         t += loc < x ? step : -step;
         step *= 0.5f;
     } while (closest > 0.25f && lastT != t);
+    if (bestT <= 0) {
+        bestT = FLT_EPSILON;
+    } else if (bestT >= 1) {
+        bestT = 1 - FLT_EPSILON;
+    }
     return bestT;
 }
 
