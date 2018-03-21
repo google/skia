@@ -506,25 +506,11 @@ public:
     virtual void clearStencil(GrRenderTarget* target, int clearValue) = 0;
 
     // Determines whether a texture will need to be rescaled in order to be used with the
-    // GrSamplerState. This variation is called when the caller will create a new texture using the
-    // resource provider from a non-texture src (cpu-backed image, ...).
-    static bool IsACopyNeededForTextureParams(const GrCaps*, int width, int height,
+    // GrSamplerState.
+    static bool IsACopyNeededForTextureParams(const GrCaps*, GrTextureProxy* texProxy,
+                                              int width, int height,
                                               const GrSamplerState&, GrTextureProducer::CopyParams*,
                                               SkScalar scaleAdjust[2]);
-
-    // Like the above but this variation should be called when the caller is not creating the
-    // original texture but rather was handed the original texture. It adds additional checks
-    // relevant to original textures that were created external to Skia via
-    // GrResourceProvider::wrap methods.
-    bool isACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState& params,
-                                       GrTextureProducer::CopyParams* copyParams,
-                                       SkScalar scaleAdjust[2]) const {
-        if (IsACopyNeededForTextureParams(this->caps(), proxy->width(), proxy->height(), params,
-                                          copyParams, scaleAdjust)) {
-            return true;
-        }
-        return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
-    }
 
     void handleDirtyContext() {
         if (fResetBits) {
@@ -577,12 +563,6 @@ private:
                                                                      int sampleCnt) = 0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
-
-    virtual bool onIsACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState&,
-                                                 GrTextureProducer::CopyParams*,
-                                                 SkScalar scaleAdjust[2]) const {
-        return false;
-    }
 
     virtual bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height,
                                      size_t rowBytes, GrColorType, DrawPreference*,
