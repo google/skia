@@ -303,7 +303,7 @@ opts("sse42") {
 opts("avx") {
   enabled = is_x86
   sources = skia_opts.avx_sources
-  if (!is_clang && is_win) {
+  if (is_win) {
     cflags = [ "/arch:AVX" ]
   } else {
     cflags = [ "-mavx" ]
@@ -313,14 +313,10 @@ opts("avx") {
 opts("hsw") {
   enabled = is_x86
   sources = skia_opts.hsw_sources
-  if (!is_clang && is_win) {
+  if (is_win) {
     cflags = [ "/arch:AVX2" ]
   } else {
-    cflags = [
-      "-mavx2",
-      "-mf16c",
-      "-mfma",
-    ]
+    cflags = [ "-march=haswell" ]
   }
 
   # Oddly, clang-cl doesn't recognize this as a valid flag.
