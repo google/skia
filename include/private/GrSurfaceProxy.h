@@ -420,6 +420,20 @@ protected:
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
                          GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*);
 
+    void setDoesNotSupportMipMaps() {
+        SkASSERT(this->asTextureProxy());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
+    }
+    bool doesNotSupportMipMaps() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
+    }
+
+    void setIsClampOnly() {
+        SkASSERT(this->asTextureProxy());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kIsClampOnly;
+    }
+    bool isClampOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kIsClampOnly; }
+
     void setHasMixedSamples() {
         SkASSERT(this->asRenderTargetProxy());
         fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
