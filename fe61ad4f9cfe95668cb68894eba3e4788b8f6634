@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88190cba_c0e0a8a8",
+        "filename": "tools/fonts/SkTestSVGTypeface.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 1169,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-22T16:20:32Z",
+      "side": 1,
+      "message": "lets\u0027s explain this a bit?",
+      "revId": "fe61ad4f9cfe95668cb68894eba3e4788b8f6634",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
