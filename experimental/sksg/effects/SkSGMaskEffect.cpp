@@ -8,6 +8,9 @@
 #include "SkSGMaskEffect.h"
 
 #include "SkCanvas.h"
+#include "SkPictureRecorder.h"
+#include "SkPictureShader.h"
+#include "SkShaderMaskFilter.h"
 
 namespace sksg {
 
@@ -28,12 +31,8 @@ void MaskEffect::onRender(SkCanvas* canvas) const {
 
     SkAutoCanvasRestore acr(canvas, false);
 
-    canvas->saveLayer(this->bounds(), nullptr);
-    fMaskNode->render(canvas);
-
-
     SkPaint p;
-    p.setBlendMode(fMaskMode == Mode::kNormal ? SkBlendMode::kSrcIn : SkBlendMode::kSrcOut);
+    p.setMaskFilter(fMaskFilter);
     canvas->saveLayer(this->bounds(), &p);
 
     this->INHERITED::onRender(canvas);
@@ -43,12 +42,39 @@ void MaskEffect::onRender(SkCanvas* canvas) const {
 SkRect MaskEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
-    const auto maskBounds = fMaskNode->revalidate(ic, ctm);
-    auto childBounds = this->INHERITED::onRevalidate(ic, ctm);
+    // TODO: it would be cool to use kDecal instead of devspace padding, but
+    //   1) it isn't currently supported on Ganesh
+    //   2) produces aliased edges
 
-    return (fMaskMode == Mode::kInvert || childBounds.intersect(maskBounds))
-        ? childBounds
-        : SkRect::MakeEmpty();
+    SkSize scale;
+    if (!ctm.decomposeScale(&scale, nullptr)) {
+        scale = SkSize::Make(SkVector::Length(ctm.getScaleX(), ctm.getSkewY()),
+                             SkVector::Length(ctm.getScaleY(), ctm.getSkewX()));
+    }
+
+    static constexpr SkScalar kDevPadding = 1.0f;
+    const auto minScale = SkTMin(scale.width(), scale.height()),
+                // when the scale collapses to 0, we're not going to draw anyway.
+                padding = SkScalarNearlyZero(minScale) ? 0 : kDevPadding / minScale;
+
+    auto childBounds = this->INHERITED::onRevalidate(ic, ctm);
+    const auto maskBounds = fMaskNode->revalidate(ic, ctm).makeOutset(padding, padding),
+                   bounds = (fMaskMode == Mode::kInvert || childBounds.intersect(maskBounds))
+                                ? childBounds
+                                : SkRect::MakeEmpty();
+
+    const auto localMatrix = SkMatrix::MakeTrans(maskBounds.x(), maskBounds.y());
+
+    // TODO: only rebuild the mask filter when the mask is invalidate.
+    SkPictureRecorder recorder;
+    fMaskNode->render(recorder.beginRecording(maskBounds));
+    fMaskFilter = SkShaderMaskFilter::Make(
+        SkPictureShader::Make(recorder.finishRecordingAsPicture(),
+                              SkShader::kClamp_TileMode,
+                              SkShader::kClamp_TileMode,
+                              &localMatrix, nullptr));
+
+    return bounds;
 }
 
 } // namespace sksg
