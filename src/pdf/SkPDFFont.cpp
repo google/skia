@@ -6,7 +6,6 @@
  */
 
 #include "SkData.h"
-#include "SkGlyphCache.h"
 #include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
 #include "SkPDFConvertType1FontStream.h"
@@ -26,7 +25,7 @@
     #include "sample/chromium/font_subsetter.h"
 #endif
 
-SkAutoGlyphCache SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
+SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
     SkPaint tmpPaint;
     tmpPaint.setHinting(SkPaint::kNo_Hinting);
     tmpPaint.setTypeface(sk_ref_sp(face));
@@ -39,9 +38,8 @@ SkAutoGlyphCache SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
     }
     tmpPaint.setTextSize((SkScalar)unitsPerEm);
     const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    SkAutoGlyphCache glyphCache(tmpPaint, &props, nullptr);
-    SkASSERT(glyphCache.get());
-    return glyphCache;
+    return SkGlyphCache::FindOrCreateStrikeExclusive(
+            tmpPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 }
 
 namespace {
@@ -459,7 +457,7 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
     int16_t defaultWidth = 0;
     {
         int emSize;
-        SkAutoGlyphCache glyphCache = SkPDFFont::MakeVectorCache(face, &emSize);
+        auto glyphCache = SkPDFFont::MakeVectorCache(face, &emSize);
         sk_sp<SkPDFArray> widths = SkPDFMakeCIDGlyphWidthsArray(
                 glyphCache.get(), &this->glyphUsage(), SkToS16(emSize), &defaultWidth);
         if (widths && widths->size() > 0) {
@@ -535,7 +533,7 @@ static void populate_type_1_font(SkPDFDict* font,
     font->insertInt("LastChar", (size_t)glyphCount);
     {
         int emSize;
-        SkAutoGlyphCache glyphCache = SkPDFFont::MakeVectorCache(typeface, &emSize);
+        auto glyphCache = SkPDFFont::MakeVectorCache(typeface, &emSize);
         auto widths = sk_make_sp<SkPDFArray>();
         SkScalar advance = glyphCache->getGlyphIDAdvance(0).fAdvanceX;
         widths->appendScalar(from_font_units(advance, SkToU16(emSize)));
@@ -630,7 +628,7 @@ static void add_type3_font_info(SkPDFCanon* canon,
         --lastGlyphID;
     }
     int unitsPerEm;
-    SkAutoGlyphCache cache = SkPDFFont::MakeVectorCache(typeface, &unitsPerEm);
+    auto cache = SkPDFFont::MakeVectorCache(typeface, &unitsPerEm);
     SkScalar emSize = (SkScalar)unitsPerEm;
     font->insertName("Subtype", "Type3");
     // Flip about the x-axis and scale by 1/emSize.
