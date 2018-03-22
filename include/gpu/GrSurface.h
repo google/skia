@@ -100,6 +100,8 @@ protected:
     void onAbandon() override;
 
 private:
+    const char* getResourceType() const override { return "Surface"; }
+
     GrPixelConfig          fConfig;
     int                    fWidth;
     int                    fHeight;

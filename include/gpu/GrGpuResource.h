@@ -248,6 +248,7 @@ public:
      * need to override setMemoryBacking.
      **/
     virtual void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
+    virtual const char* getResourceType() const = 0;
 
     static uint32_t CreateUniqueID();
 

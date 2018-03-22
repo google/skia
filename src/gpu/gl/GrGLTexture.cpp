@@ -141,6 +141,13 @@ void GrGLTexture::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const
     // hitting an override.
     size_t size = GrGLTexture::gpuMemorySize();
     traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
+    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "type", "Texture", 0);
+
+    const char* tag = "Scratch";
+    if (getUniqueKey().isValid()) {
+        tag = (getUniqueKey().tag() != nullptr) ? getUniqueKey().tag() : "Other";
+    }
+    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "category", tag, 0);
 
     if (this->isPurgeable()) {
         traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes", size);

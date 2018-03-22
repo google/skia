@@ -221,6 +221,15 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
         dumpName.append("/renderbuffer");
 
         traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
+        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "type", "RenderTarget", 0);
+
+        const char* tag = "Scratch";
+        if (getUniqueKey().isValid()) {
+            tag = (getUniqueKey().tag() != nullptr) ? getUniqueKey().tag() : "Other";
+        }
+        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "category", tag, 0);
+
+
 
         if (this->isPurgeable()) {
             traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes", size);

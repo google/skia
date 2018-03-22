@@ -78,11 +78,20 @@ void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) con
     dumpName.appendU32(this->uniqueID().asUInt());
 
     traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", this->gpuMemorySize());
+    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "type", this->getResourceType(), 0);
+
+    const char* tag = "Scratch";
+    if (fUniqueKey.isValid()) {
+        tag = (fUniqueKey.tag() != nullptr) ? fUniqueKey.tag() : "Other";
+    }
+    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "category", tag, 0);
 
     if (this->isPurgeable()) {
         traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes",
                                           this->gpuMemorySize());
     }
+
+
 
     // Call setMemoryBacking to allow sub-classes with implementation specific backings (such as GL
     // objects) to provide additional information.

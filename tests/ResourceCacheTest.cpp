@@ -340,6 +340,7 @@ private:
     }
 
     size_t onGpuMemorySize() const override { return fSize; }
+    const char* getResourceType() const override { return "Test"; }
 
     TestResource* fToDelete;
     size_t fSize;
