@@ -723,7 +723,7 @@ int32_t centerX() const
 </pre>
 
 Returns average of left edge and right edge. Result does not change if <a href="#IRect">IRect</a>
-is sorted. Result may be incorrect if <a href="#IRect">IRect</a> is far from the origin.
+is sorted.
 
 Result is rounded down.
 
@@ -760,7 +760,7 @@ int32_t centerY() const
 </pre>
 
 Returns average of top edge and bottom edge. Result does not change if <a href="#IRect">IRect</a>
-is sorted. Result may be incorrect if <a href="#IRect">IRect</a> is far from the origin.
+is sorted.
 
 Result is rounded down.
 
@@ -770,12 +770,12 @@ midpoint in y
 
 ### Example
 
-<div><fiddle-embed name="687d833b042fb018f8948764e73a37b1">
+<div><fiddle-embed name="6449f7156330efbb3f344c0b787330a5">
 
 #### Example Output
 
 ~~~~
-left: 1073741824 right: 1073741826 centerX: 1073741825 safe mid x: 1073741825
+left: 1073741824 right: 1073741826 centerX: 1073741825
 ~~~~
 
 </fiddle-embed></div>
