@@ -15,7 +15,6 @@
 #include "SkRefCnt.h"
 
 class SkAutoDescriptor;
-class SkAutoGlyphCache;
 class SkColorFilter;
 class SkData;
 class SkDescriptor;
@@ -1700,7 +1699,6 @@ private:
     friend class GrGLPathRendering;
     friend class GrPathRendering;
     friend class GrTextUtils;
-    friend class SkAutoGlyphCache;
     friend class SkAutoGlyphCacheNoGamma;
     friend class SkCanonicalizePaint;
     friend class SkCanvas;

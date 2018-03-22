@@ -181,7 +181,7 @@ void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
 
 void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     FlushInfo flushInfo;
-    SkAutoGlyphCache autoGlyphCache;
+    SkExclusiveStrikePtr autoGlyphCache;
     auto& context = target->context()->internal();
     auto glyphCache = context.grContext()->contextPriv().getGlyphCache();
     auto atlasManager = context.grContext()->contextPriv().getAtlasManager();

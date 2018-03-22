@@ -195,7 +195,7 @@ Regenerator::VertexRegenerator(GrResourceProvider* resourceProvider, GrAtlasText
                                int runIdx, int subRunIdx,
                                const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                                GrDeferredUploadTarget* uploadTarget, GrGlyphCache* glyphCache,
-                               GrAtlasManager* fullAtlasManager, SkAutoGlyphCache* lazyCache)
+                               GrAtlasManager* fullAtlasManager, SkExclusiveStrikePtr* lazyCache)
         : fResourceProvider(resourceProvider)
         , fViewMatrix(viewMatrix)
         , fBlob(blob)
