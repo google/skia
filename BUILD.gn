@@ -1521,7 +1521,6 @@ if (skia_enable_tools) {
       sources = samples_sources
       deps = [
         ":experimental_sksg",
-        ":experimental_svg_model",
         ":flags",
         ":gm",
         ":skshaper",
@@ -1530,6 +1529,9 @@ if (skia_enable_tools) {
         ":xml",
       ]
 
+      if (skia_use_expat) {
+        deps += [ ":experimental_svg_model" ]
+      }
       if (skia_use_lua) {
         sources += [ "samplecode/SampleLua.cpp" ]
         deps += [
@@ -1550,7 +1552,6 @@ if (skia_enable_tools) {
         ":common_flags",
         ":experimental_skottie",
         ":experimental_sksg",
-        ":experimental_svg_model",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
@@ -1560,6 +1561,9 @@ if (skia_enable_tools) {
         "//third_party/jsoncpp",
         "//third_party/libpng",
       ]
+      if (skia_use_expat) {
+        deps += [ ":experimental_svg_model" ]
+      }
     }
   }
 
@@ -1582,7 +1586,6 @@ if (skia_enable_tools) {
       ":bench",
       ":common_flags",
       ":experimental_sksg",
-      ":experimental_svg_model",
       ":flags",
       ":gm",
       ":gpu_tool_utils",
@@ -1590,6 +1593,9 @@ if (skia_enable_tools) {
       ":tool_utils",
       "//third_party/jsoncpp",
     ]
+    if (skia_use_expat) {
+      deps += [ ":experimental_svg_model" ]
+    }
   }
 
   test_app("skpinfo") {
