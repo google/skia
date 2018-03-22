@@ -263,7 +263,7 @@ switch (color) {
 }
 ~~~~
 
-Fallthrough from one case to the next is commented unless it is trivial:
+Fallthrough from one case to the next is commented unless it is trivial (i.e. consecuetive cases with no code in between):
 
 <!--?prettify?-->
 ~~~~
@@ -274,6 +274,11 @@ switch (recipe) {
         // fallthrough
     case kPlainOmelette_Recipe:
         ingredients |= (kEgg_Ingredient | kMilk_Ingredient);
+        break;
+    ...
+    case kScrambledEgg_Recipe:
+    case kSunnySideUp_Recipe:
+        ingredients |= kEgg_Ingredient;
         break;
     ...
 }
