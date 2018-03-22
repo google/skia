@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6d07d70_0bc70d9e",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1532,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-22T19:25:36Z",
+      "side": 1,
+      "message": "So we can\u0027t use :experimental_svg_model without expat, right?\n\nHow about we make :experimental_svg_model no-op itself when !skia_use_expat?  That way we don\u0027t have to keep splatting this if (skia_use_expat) logic all over the place.",
+      "revId": "0373328120d68f90b581e10e8ab40dd512198083",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
