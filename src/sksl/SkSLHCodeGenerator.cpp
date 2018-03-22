@@ -176,9 +176,9 @@ void HCodeGenerator::writeConstructor() {
         const char* msg = "may not be present when constructor is overridden";
         this->failOnSection(CONSTRUCTOR_CODE_SECTION, msg);
         this->failOnSection(CONSTRUCTOR_PARAMS_SECTION, msg);
-        this->failOnSection(COORD_TRANSFORM_SECTION, msg);
         this->failOnSection(INITIALIZERS_SECTION, msg);
         this->failOnSection(OPTIMIZATION_FLAGS_SECTION, msg);
+        return;
     }
     this->writef("    %s(", fFullName.c_str());
     const char* separator = "";

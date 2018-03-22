@@ -53,7 +53,7 @@ private:
                                 (GrPixelConfigIsOpaque(image->config())
                                          ? kPreservesOpaqueInput_OptimizationFlag
                                          : kNone_OptimizationFlags))
-            , fImage(std::move(image), samplerParams)
+            , fImage(image, samplerParams)  // std::move(image) removed for crbug.com/822680
             , fMatrix(matrix)
             , fImageCoordTransform(matrix, fImage.proxy()) {
         this->addTextureSampler(&fImage);
