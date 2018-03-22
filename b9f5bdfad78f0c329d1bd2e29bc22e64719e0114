@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "423ba9d2_3b2115ee",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-03-22T17:26:58Z",
+      "side": 1,
+      "message": "Not clear why size\u003d\u003d4 should fail and size\u003d\u003d128 should succeed.\n\nCan the test first serialize via the method that returns the exact size (e.g. SkData), and then use that size to call the direct version with sizes \u003c and \u003e\u003d the exact size?",
+      "range": {
+        "startLine": 685,
+        "startChar": 4,
+        "endLine": 685,
+        "endChar": 17
+      },
+      "revId": "b9f5bdfad78f0c329d1bd2e29bc22e64719e0114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67215290_5608f79d",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-03-22T17:26:58Z",
+      "side": 1,
+      "message": "Same comment about knowing what sizes should fail or succeed.",
+      "range": {
+        "startLine": 698,
+        "startChar": 12,
+        "endLine": 698,
+        "endChar": 25
+      },
+      "revId": "b9f5bdfad78f0c329d1bd2e29bc22e64719e0114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
