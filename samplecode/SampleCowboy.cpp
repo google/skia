@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
+#ifdef SK_XML
+
 #include "SampleCode.h"
 #include "Resources.h"
 #include "SkCanvas.h"
@@ -143,3 +147,4 @@ private:
 
 DEF_SAMPLE( return new CowboyView(); )
 
+#endif  // SK_XML

@@ -39,7 +39,6 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPictureRecorder.h"
-#include "SkSVGDOM.h"
 #include "SkScan.h"
 #include "SkString.h"
 #include "SkSurface.h"
@@ -47,6 +46,10 @@
 #include "SkTraceEvent.h"
 #include "Stats.h"
 #include "ios_utils.h"
+
+#ifdef SK_XML
+#include "SkSVGDOM.h"
+#endif  // SK_XML
 
 #include <stdlib.h>
 #include <thread>
@@ -685,6 +688,7 @@ public:
             return nullptr;
         }
 
+#ifdef SK_XML
         sk_sp<SkSVGDOM> svgDom = SkSVGDOM::MakeFromStream(stream);
         if (!svgDom) {
             SkDebugf("Could not parse %s.\n", path);
@@ -701,6 +705,9 @@ public:
         svgDom->render(recorder.beginRecording(svgDom->containerSize().width(),
                                                svgDom->containerSize().height()));
         return recorder.finishRecordingAsPicture();
+#else
+        return nullptr;
+#endif  // SK_XML
     }
 
     Benchmark* next() {

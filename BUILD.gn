@@ -1331,15 +1331,13 @@ if (skia_enable_tools) {
     }
     deps = [
       ":experimental_sksg",
+      ":experimental_svg_model",
       ":flags",
       ":skia",
       ":tool_utils",
       "//third_party/libpng",
       "//third_party/zlib",
     ]
-    if (skia_use_expat) {
-      deps += [ ":experimental_svg_model" ]
-    }
     public_deps = [
       ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
@@ -1375,35 +1373,39 @@ if (skia_enable_tools) {
   }
 
   test_lib("experimental_svg_model") {
-    public_include_dirs = [ "experimental/svg/model" ]
-    sources = [
-      "experimental/svg/model/SkSVGAttribute.cpp",
-      "experimental/svg/model/SkSVGAttributeParser.cpp",
-      "experimental/svg/model/SkSVGCircle.cpp",
-      "experimental/svg/model/SkSVGClipPath.cpp",
-      "experimental/svg/model/SkSVGContainer.cpp",
-      "experimental/svg/model/SkSVGDOM.cpp",
-      "experimental/svg/model/SkSVGEllipse.cpp",
-      "experimental/svg/model/SkSVGGradient.cpp",
-      "experimental/svg/model/SkSVGLine.cpp",
-      "experimental/svg/model/SkSVGLinearGradient.cpp",
-      "experimental/svg/model/SkSVGNode.cpp",
-      "experimental/svg/model/SkSVGPath.cpp",
-      "experimental/svg/model/SkSVGPattern.cpp",
-      "experimental/svg/model/SkSVGPoly.cpp",
-      "experimental/svg/model/SkSVGRadialGradient.cpp",
-      "experimental/svg/model/SkSVGRect.cpp",
-      "experimental/svg/model/SkSVGRenderContext.cpp",
-      "experimental/svg/model/SkSVGSVG.cpp",
-      "experimental/svg/model/SkSVGShape.cpp",
-      "experimental/svg/model/SkSVGStop.cpp",
-      "experimental/svg/model/SkSVGTransformableNode.cpp",
-      "experimental/svg/model/SkSVGUse.cpp",
-      "experimental/svg/model/SkSVGValue.cpp",
-    ]
-    deps = [
-      ":skia",
-    ]
+    public_include_dirs = []
+    if (skia_use_expat) {
+      public_include_dirs += [ "experimental/svg/model" ]
+      sources = [
+        "experimental/svg/model/SkSVGAttribute.cpp",
+        "experimental/svg/model/SkSVGAttributeParser.cpp",
+        "experimental/svg/model/SkSVGCircle.cpp",
+        "experimental/svg/model/SkSVGClipPath.cpp",
+        "experimental/svg/model/SkSVGContainer.cpp",
+        "experimental/svg/model/SkSVGDOM.cpp",
+        "experimental/svg/model/SkSVGEllipse.cpp",
+        "experimental/svg/model/SkSVGGradient.cpp",
+        "experimental/svg/model/SkSVGLine.cpp",
+        "experimental/svg/model/SkSVGLinearGradient.cpp",
+        "experimental/svg/model/SkSVGNode.cpp",
+        "experimental/svg/model/SkSVGPath.cpp",
+        "experimental/svg/model/SkSVGPattern.cpp",
+        "experimental/svg/model/SkSVGPoly.cpp",
+        "experimental/svg/model/SkSVGRadialGradient.cpp",
+        "experimental/svg/model/SkSVGRect.cpp",
+        "experimental/svg/model/SkSVGRenderContext.cpp",
+        "experimental/svg/model/SkSVGSVG.cpp",
+        "experimental/svg/model/SkSVGShape.cpp",
+        "experimental/svg/model/SkSVGStop.cpp",
+        "experimental/svg/model/SkSVGTransformableNode.cpp",
+        "experimental/svg/model/SkSVGUse.cpp",
+        "experimental/svg/model/SkSVGValue.cpp",
+      ]
+      deps = [
+        ":skia",
+        ":xml",
+      ]
+    }
   }
 
   test_lib("experimental_sksg") {
