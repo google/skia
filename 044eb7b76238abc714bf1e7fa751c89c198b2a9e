@@ -1,0 +1,293 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83188bd5_8f45a615",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "Is there going to be kSRGB_888 someday?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ca4c0a7_bb574b9a",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "// Assuming GPUs store this 4-byte aligned. ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ae6f3bf_1ada9747",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "Is this just !gray ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7379768a_00df76cb",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "\u0027added only support\u0027 -\u003e \u0027are only supported by\u0027 ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff59a77f_9945c890",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b191bee3_4c3127dc",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1352,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "// comment as to why ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdecee63_d0869e38",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1433,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "support -\u003e supported ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a98898d_de07ea06",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1438,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "but _we_ don\u0027t ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06eb7971_9d2cdf3d",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1930,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "to be in _the_ client provided x_the_x \u0027x\u0027 slot ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd6e499f_aa75b22a",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 17
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "// MTL TODO: add the correct format here ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c3d884b_0aa1a8b7",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "*format \u003d VK_FORMAT_R8G8B8_UNORM; ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95f904d4_4fd7c986",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "// fall through ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5fb3426_383520b4",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "Unexpected read result: expected: %d actual: %d ?\nand maybe the colorType involved ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd41bdd7_f43bd8ea",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "Keep this in parallel w/ the _Gpu version ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8099af4_38ced790",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "here too ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "506a910e_51ebfd71",
+        "filename": "tests/WritePixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "// fall through ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d57af860_d8237d08",
+        "filename": "tests/WritePixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T12:34:13Z",
+      "side": 1,
+      "message": "fall through ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
