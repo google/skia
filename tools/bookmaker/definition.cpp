@@ -200,7 +200,7 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
     SkAssertResult(iParser.skipExact("operator"));
     iParser.skipWhiteSpace();
     fMethodType = Definition::MethodType::kOperator;
-    TextParser::Save save(&iParser);
+    TextParserSave save(&iParser);
     for (auto parser : opData) {
         save.restore();
         if (!iParser.skipExact(parser.fSymbol)) {
@@ -670,7 +670,7 @@ string Definition::formatFunction(Format format) const {
         indent = (size_t) (lastEnd - lastStart);
     }
     // trim indent so longest line doesn't exceed box width
-    TextParser::Save savePlace(&methodParser);
+    TextParserSave savePlace(&methodParser);
     const char* saveStart = lastStart;
     ptrdiff_t maxLine = 0;
     do {
@@ -889,7 +889,7 @@ string Definition::methodName() const {
 bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndPtr,
         string* paramName) const {
     int parenCount = 0;
-    TextParser::Save saveState(methodParser);
+    TextParserSave saveState(methodParser);
     while (true) {
         if (methodParser->eof()) {
             return methodParser->reportError<bool>("#Method function missing close paren");
