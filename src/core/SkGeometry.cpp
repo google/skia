@@ -157,6 +157,17 @@ void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
     dst[2] = to_point(interp(p01, p12, tt));
     dst[3] = to_point(p12);
     dst[4] = to_point(p2);
+    // p01 or p12 may compute infinities if interp overflows
+    // dst[2] may compute NaN if multiplying infinity times zero
+    // NaN down the road will trigger asserts, but infinity won't
+    // note that this loses the sign of the infinity
+    if (SkScalarIsNaN(dst[2].fX)) {
+        dst[2].fX = SK_ScalarInfinity;
+    }
+    if (SkScalarIsNaN(dst[2].fY)) {
+        dst[2].fY = SK_ScalarInfinity;
+    }
+
 }
 
 void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
