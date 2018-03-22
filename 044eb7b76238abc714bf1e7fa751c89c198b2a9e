@@ -528,6 +528,24 @@
     },
     {
       "key": {
+        "uuid": "c6b90fc1_c84198c9",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:21:44Z",
+      "side": 1,
+      "message": "Ah, I think I\u0027ll defer on that for a future fuller rewrite of read/write tests. This CL only affects the GPU backend.",
+      "parentUuid": "c381936d_6647264c",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c8099af4_38ced790",
         "filename": "tests/ReadPixelsTest.cpp",
         "patchSetId": 17
