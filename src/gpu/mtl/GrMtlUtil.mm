@@ -21,6 +21,9 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kRGBA_8888_GrPixelConfig:
             *format = MTLPixelFormatRGBA8Unorm;
             return true;
+        case kRGB_888_GrPixelConfig:
+            // TODO: MTLPixelFormatRGB8Unorm
+            return false;
         case kBGRA_8888_GrPixelConfig:
             *format = MTLPixelFormatBGRA8Unorm;
             return true;
