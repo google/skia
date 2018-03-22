@@ -22,6 +22,30 @@
       "revId": "6a867948f8979cb979622eb13cc69ee9f62a4ea6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ea77477_4631fd06",
+        "filename": "src/gpu/ccpr/GrCCCubicShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-22T14:11:32Z",
+      "side": 1,
+      "message": "There is a built-in for the approximate hardware derivatives, but in these shaders we calculate the derivatives mathematically instead. It\u0027s more accurate and looks better. Also, some platforms have especially inaccurate derivatives.\n\nPerformance is the same either way. We gained a divide and some absolute values, lost a dot product and inverse square root. And these shaders actually aren\u0027t a significant bottleneck.",
+      "parentUuid": "93923b1c_c821e6fa",
+      "range": {
+        "startLine": 109,
+        "startChar": 26,
+        "endLine": 109,
+        "endChar": 33
+      },
+      "revId": "6a867948f8979cb979622eb13cc69ee9f62a4ea6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
