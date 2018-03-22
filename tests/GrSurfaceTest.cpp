@@ -87,6 +87,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kRGB_565_GrPixelConfig,
         kRGBA_4444_GrPixelConfig,
         kRGBA_8888_GrPixelConfig,
+        kRGB_888_GrPixelConfig,
         kBGRA_8888_GrPixelConfig,
         kSRGBA_8888_GrPixelConfig,
         kSBGRA_8888_GrPixelConfig,
@@ -97,7 +98,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kAlpha_half_as_Red_GrPixelConfig,
         kRGBA_half_GrPixelConfig,
     };
-    SkASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
+    GR_STATIC_ASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
 
     GrSurfaceDesc desc;
     desc.fWidth = 64;

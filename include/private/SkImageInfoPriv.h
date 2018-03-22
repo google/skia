@@ -15,8 +15,49 @@ enum class SkDestinationSurfaceColorMode {
     kGammaAndColorSpaceAware,
 };
 
+enum SkColorTypeComponentFlag {
+    kRed_SkColorTypeComponentFlag    = 0x1,
+    kGreen_SkColorTypeComponentFlag  = 0x2,
+    kBlue_SkColorTypeComponentFlag   = 0x4,
+    kAlpha_SkColorTypeComponentFlag  = 0x8,
+    kGray_SkColorTypeComponentFlag   = 0x10,
+    kRGB_SkColorTypeComponentFlags   = kRed_SkColorTypeComponentFlag |
+                                       kGreen_SkColorTypeComponentFlag |
+                                       kBlue_SkColorTypeComponentFlag,
+    kRGBA_SkColorTypeComponentFlags  = kRGB_SkColorTypeComponentFlags |
+                                       kAlpha_SkColorTypeComponentFlag,
+};
+
+static inline uint32_t SkColorTypeComponentFlags(SkColorType ct) {
+    switch (ct) {
+        case kUnknown_SkColorType:      return 0;
+        case kAlpha_8_SkColorType:      return kAlpha_SkColorTypeComponentFlag;
+        case kRGB_565_SkColorType:      return kRGB_SkColorTypeComponentFlags;
+        case kARGB_4444_SkColorType:    return kRGBA_SkColorTypeComponentFlags;
+        case kRGBA_8888_SkColorType:    return kRGBA_SkColorTypeComponentFlags;
+        case kRGB_888x_SkColorType:     return kRGB_SkColorTypeComponentFlags;
+        case kBGRA_8888_SkColorType:    return kRGBA_SkColorTypeComponentFlags;
+        case kRGBA_1010102_SkColorType: return kRGBA_SkColorTypeComponentFlags;
+        case kRGB_101010x_SkColorType:  return kRGB_SkColorTypeComponentFlags;
+        case kGray_8_SkColorType:       return kGray_SkColorTypeComponentFlag;
+        case kRGBA_F16_SkColorType:     return kRGBA_SkColorTypeComponentFlags;
+    }
+    return 0;
+}
+
+static inline bool SkColorTypeIsAlphaOnly(SkColorType ct) {
+    return kAlpha_SkColorTypeComponentFlag == SkColorTypeComponentFlags(ct);
+}
+
 static inline bool SkAlphaTypeIsValid(unsigned value) {
     return value <= kLastEnum_SkAlphaType;
+}
+
+static inline bool SkColorTypeIsGray(SkColorType ct) {
+    auto flags = SkColorTypeComponentFlags(ct);
+    // Currently assuming that a color type has only gray or does not have gray.
+    SkASSERT(!(kGray_SkColorTypeComponentFlag & flags) || kGray_SkColorTypeComponentFlag == flags);
+    return kGray_SkColorTypeComponentFlag == flags;
 }
 
 static int SkColorTypeShiftPerPixel(SkColorType ct) {
@@ -152,8 +193,8 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
         return false;
     }
 
-    if (kGray_8_SkColorType == dst.colorType()) {
-        if (kGray_8_SkColorType != src.colorType()) {
+    if (SkColorTypeIsGray(dst.colorType())) {
+        if (!SkColorTypeIsGray(src.colorType())) {
             return false;
         }
 
@@ -162,7 +203,7 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
         }
     }
 
-    if (kAlpha_8_SkColorType != dst.colorType() && kAlpha_8_SkColorType == src.colorType()) {
+    if (!SkColorTypeIsAlphaOnly(dst.colorType()) && SkColorTypeIsAlphaOnly(src.colorType())) {
         return false;
     }
 

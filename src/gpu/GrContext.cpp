@@ -358,6 +358,7 @@ static bool valid_premul_config(GrPixelConfig config) {
         case kRGB_565_GrPixelConfig:            return false;
         case kRGBA_4444_GrPixelConfig:          return true;
         case kRGBA_8888_GrPixelConfig:          return true;
+        case kRGB_888_GrPixelConfig:            return false;
         case kBGRA_8888_GrPixelConfig:          return true;
         case kSRGBA_8888_GrPixelConfig:         return true;
         case kSBGRA_8888_GrPixelConfig:         return true;
@@ -383,6 +384,7 @@ static bool valid_premul_color_type(GrColorType ct) {
         case GrColorType::kRGB_565:      return false;
         case GrColorType::kABGR_4444:    return true;
         case GrColorType::kRGBA_8888:    return true;
+        case GrColorType::kRGB_888x:     return false;
         case GrColorType::kBGRA_8888:    return true;
         case GrColorType::kRGBA_1010102: return true;
         case GrColorType::kGray_8:       return false;
@@ -402,7 +404,6 @@ static bool valid_pixel_conversion(GrColorType cpuColorType, GrPixelConfig gpuCo
         (!valid_premul_color_type(cpuColorType) || !valid_premul_config(gpuConfig))) {
         return false;
     }
-
     return true;
 }
 
@@ -471,10 +472,20 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
                                        int height, GrColorType srcColorType,
                                        SkColorSpace* srcColorSpace, const void* buffer,
                                        size_t rowBytes, uint32_t pixelOpsFlags) {
-#ifndef SK_LEGACY_GPU_PIXEL_OPS
-    return this->writeSurfacePixels2(dst, left, top, width, height, srcColorType, srcColorSpace,
-                                     buffer, rowBytes, pixelOpsFlags);
+    bool useLegacyPath = false;
+#ifdef SK_LEGACY_GPU_PIXEL_OPS
+    useLegacyPath = true;
 #endif
+    // Newly added color types/configs are only supported by the new code path.
+    if (srcColorType == GrColorType::kRGB_888x ||
+        dst->asSurfaceProxy()->config() == kRGB_888_GrPixelConfig) {
+        useLegacyPath = false;
+    }
+
+    if (!useLegacyPath) {
+        return this->writeSurfacePixels2(dst, left, top, width, height, srcColorType, srcColorSpace,
+                                         buffer, rowBytes, pixelOpsFlags);
+    }
 
     // TODO: Color space conversion
 
@@ -495,6 +506,14 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     const bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
 
     if (!valid_pixel_conversion(srcColorType, dstProxy->config(), premul)) {
+        return false;
+    }
+    // There is no way to store alpha values in the dst.
+    if (GrColorTypeHasAlpha(srcColorType) && GrPixelConfigIsOpaque(dstProxy->config())) {
+        return false;
+    }
+    // The source has no alpha value and the dst is only alpha
+    if (!GrColorTypeHasAlpha(srcColorType) && GrPixelConfigIsAlphaOnly(dstProxy->config())) {
         return false;
     }
 
@@ -612,10 +631,21 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                                       int height, GrColorType dstColorType,
                                       SkColorSpace* dstColorSpace, void* buffer, size_t rowBytes,
                                       uint32_t flags) {
-#ifndef SK_LEGACY_GPU_PIXEL_OPS
-    return this->readSurfacePixels2(src, left, top, width, height, dstColorType, dstColorSpace,
-                                    buffer, rowBytes, flags);
+    bool useLegacyPath = false;
+#ifdef SK_LEGACY_GPU_PIXEL_OPS
+    useLegacyPath = true;
 #endif
+    // Newly added color types/configs are only supported by the new code path.
+    if (dstColorType == GrColorType::kRGB_888x ||
+        src->asSurfaceProxy()->config() == kRGB_888_GrPixelConfig) {
+        useLegacyPath = false;
+    }
+
+    if (!useLegacyPath) {
+        return this->readSurfacePixels2(src, left, top, width, height, dstColorType, dstColorSpace,
+                                        buffer, rowBytes, flags);
+    }
+
     // TODO: Color space conversion
 
     ASSERT_SINGLE_OWNER_PRIV
@@ -640,6 +670,18 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
 
     if (!valid_pixel_conversion(dstColorType, srcProxy->config(), unpremul)) {
+        return false;
+    }
+    // The source is alpha-only but the dst is not. TODO: Make non-alpha channels in the dst be 0?
+    if (GrPixelConfigIsAlphaOnly(srcProxy->config()) && !GrColorTypeIsAlphaOnly(dstColorType)) {
+        return false;
+    }
+    // The source has no alpha, the dst is alpha-only. TODO: set all values in dst to 1?
+    if (GrPixelConfigIsOpaque(srcProxy->config()) && GrColorTypeIsAlphaOnly(dstColorType)) {
+        return false;
+    }
+    // Not clear if we should unpremul in this case.
+    if (!GrPixelConfigIsOpaque(srcProxy->config()) && !GrColorTypeHasAlpha(dstColorType)) {
         return false;
     }
 
@@ -913,16 +955,17 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
                                        int height, GrColorType dstColorType,
                                        SkColorSpace* dstColorSpace, void* buffer, size_t rowBytes,
                                        uint32_t flags) {
-    SkASSERT(!(flags & kDontFlush_PixelOpsFlag));
-    if (flags & kDontFlush_PixelOpsFlag){
-        return false;
-    }
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_FALSE_IF_ABANDONED_PRIV
     SkASSERT(src);
     SkASSERT(buffer);
     ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels2", fContext);
+
+    SkASSERT(!(flags & kDontFlush_PixelOpsFlag));
+    if (flags & kDontFlush_PixelOpsFlag) {
+        return false;
+    }
 
     // MDB TODO: delay this instantiation until later in the method
     if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {

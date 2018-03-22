@@ -419,9 +419,9 @@ public:
 private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
-        kOther_ExternalFormatUsage,
+        kReadPixels_ExternalFormatUsage,
 
-        kLast_ExternalFormatUsage = kOther_ExternalFormatUsage
+        kLast_ExternalFormatUsage = kReadPixels_ExternalFormatUsage
     };
     static const int kExternalFormatUsageCnt = kLast_ExternalFormatUsage + 1;
     bool getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memoryConfig,

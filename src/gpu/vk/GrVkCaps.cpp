@@ -466,6 +466,7 @@ bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config)
             }
             break;
         case kRGB_888x_SkColorType:
+            // TODO: VK_FORMAT_R8G8B8_UNORM
             return false;
         case kBGRA_8888_SkColorType:
             if (VK_FORMAT_B8G8R8A8_UNORM == format) {

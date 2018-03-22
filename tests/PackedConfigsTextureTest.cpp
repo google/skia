@@ -109,8 +109,8 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
         controlPixelData[i + 1] = 0xFA62;
     }
 
-    const SkImageInfo dstInfo = SkImageInfo::Make(DEV_W, DEV_H,
-                                                  kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
+    const SkImageInfo dstInfo =
+            SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
     for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, false, DEV_W, DEV_H,
