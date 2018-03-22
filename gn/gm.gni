@@ -229,6 +229,7 @@ gm_sources = [
   "$_gm/pathfill.cpp",
   "$_gm/pathinterior.cpp",
   "$_gm/pathmaskcache.cpp",
+  "$_gm/pathmeasure.cpp",
   "$_gm/pathopsinverse.cpp",
   "$_gm/pathopsskpclip.cpp",
   "$_gm/pathreverse.cpp",
