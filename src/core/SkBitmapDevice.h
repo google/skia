@@ -137,6 +137,9 @@ protected:
     void validateDevBounds(const SkIRect& r) override;
     ClipType onGetClipType() const override;
 
+    virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
+                            const SkPaint&);
+
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip

@@ -30,7 +30,6 @@ protected:
 
     void drawPath(const SkPath&, const SkPaint&, const SkMatrix* prePathMatrix,
                   bool pathIsMutable) override;
-    void drawBitmap(const SkBitmap&, SkScalar x, SkScalar y, const SkPaint&) override;
     void drawSprite(const SkBitmap&, int x, int y, const SkPaint&) override;
 
     void drawText(const void* text, size_t len, SkScalar x, SkScalar y,
@@ -39,6 +38,9 @@ protected:
                      int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
+
+    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
+                    const SkPaint&) override;
 
     void flush() override;
 

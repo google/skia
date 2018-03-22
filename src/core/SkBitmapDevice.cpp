@@ -331,7 +331,12 @@ void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                                 const SkPaint& paint) {
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
     LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
-    LOOP_TILER( drawBitmap(bitmap, matrix, nullptr, paint))
+    this->drawBitmap(bitmap, matrix, nullptr, paint);
+}
+
+void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
+                                const SkRect* dstOrNull, const SkPaint& paint) {
+    LOOP_TILER( drawBitmap(bitmap, matrix, dstOrNull, paint))
 }
 
 static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& paint) {
@@ -426,7 +431,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
         // matrix with the CTM, and try to call drawSprite if it can. If not,
         // it will make a shader and call drawRect, as we do below.
         if (CanApplyDstMatrixAsCTM(matrix, paint)) {
-            LOOP_TILER( drawBitmap(*bitmapPtr, matrix, dstPtr, paint))
+            this->drawBitmap(*bitmapPtr, matrix, dstPtr, paint);
             return;
         }
     }
