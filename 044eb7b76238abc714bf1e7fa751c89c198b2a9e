@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "39921922_9531db9b",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Only if someone asks for it :) But it could happen.",
+      "parentUuid": "83188bd5_8f45a615",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6ca4c0a7_bb574b9a",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 17
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-22T12:34:13Z",
       "side": 1,
       "message": "// Assuming GPUs store this 4-byte aligned. ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e70a997_82b0b687",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "GrColorType is always about CPU formats.",
+      "parentUuid": "6ca4c0a7_bb574b9a",
       "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a58c67c7_dbb218e2",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "No there are RG formats and full float formats omitted here. I\u0027m not really sure why we have this assert. Should I just delete it?",
+      "parentUuid": "7ae6f3bf_1ada9747",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7379768a_00df76cb",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 17
@@ -67,6 +121,24 @@
       "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "463e1256_f6f19721",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7379768a_00df76cb",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "85fdb715_7e5f582a",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff59a77f_9945c890",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b191bee3_4c3127dc",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 17
@@ -98,6 +188,24 @@
       "writtenOn": "2018-03-22T12:34:13Z",
       "side": 1,
       "message": "// comment as to why ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f618dde2_78400a36",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1352,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Moved the comment from below here.",
+      "parentUuid": "b191bee3_4c3127dc",
       "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "44b45d06_e026271a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1433,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bdecee63_d0869e38",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a98898d_de07ea06",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 17
@@ -135,6 +261,24 @@
       "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e55c594d_eb94adfb",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1438,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a98898d_de07ea06",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "57787cac_60def3ec",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1930,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06eb7971_9d2cdf3d",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd6e499f_aa75b22a",
         "filename": "src/gpu/mtl/GrMtlUtil.mm",
         "patchSetId": 17
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "6fb494cd_1bf83186",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 17
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd6e499f_aa75b22a",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c3d884b_0aa1a8b7",
         "filename": "src/gpu/vk/GrVkUtil.cpp",
         "patchSetId": 17
@@ -183,6 +363,24 @@
       "writtenOn": "2018-03-22T12:34:13Z",
       "side": 1,
       "message": "*format \u003d VK_FORMAT_R8G8B8_UNORM; ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "960598e9_7b8c2906",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Did as TODO. I want to do more cleanup before adding Vk support.",
+      "parentUuid": "6c3d884b_0aa1a8b7",
       "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -206,6 +404,24 @@
     },
     {
       "key": {
+        "uuid": "7c84a247_88761ffd",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95f904d4_4fd7c986",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5fb3426_383520b4",
         "filename": "tests/ReadPixelsTest.cpp",
         "patchSetId": 17
@@ -217,6 +433,24 @@
       "writtenOn": "2018-03-22T12:34:13Z",
       "side": 1,
       "message": "Unexpected read result: expected: %d actual: %d ?\nand maybe the colorType involved ?",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bf08786_d1b99fc1",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Changed to:\n\n                REPORTER_ASSERT(reporter, check_success_expectation(expectSuccess, success),\n                                \"Read succeed\u003d%d unexpectedly, src ct/at: %d/%d, dst ct/at: %d/%d\", success, surfaceInfo.colorType(), surfaceInfo.alphaType(), bmp.info().colorType(), bmp.info().alphaType());",
+      "parentUuid": "c5fb3426_383520b4",
       "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -240,6 +474,24 @@
     },
     {
       "key": {
+        "uuid": "30dcdc22_49bc3ef3",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "I don\u0027t follow what you mean by this.",
+      "parentUuid": "cd41bdd7_f43bd8ea",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c8099af4_38ced790",
         "filename": "tests/ReadPixelsTest.cpp",
         "patchSetId": 17
@@ -254,6 +506,24 @@
       "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2a34d48_4f52adf4",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-22T14:01:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8099af4_38ced790",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
