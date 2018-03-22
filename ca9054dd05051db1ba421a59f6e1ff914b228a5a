@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42ae9d1c_07cd3412",
+        "filename": "src/core/SkEdgeClipper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-03-22T17:12:59Z",
+      "side": 1,
+      "message": "good comment + fix",
+      "range": {
+        "startLine": 268,
+        "startChar": 19,
+        "endLine": 268,
+        "endChar": 27
+      },
+      "revId": "ca9054dd05051db1ba421a59f6e1ff914b228a5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ff83251_3ef10766",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-03-22T17:12:59Z",
+      "side": 1,
+      "message": "This fix seems odd to me, since at least for drawing, we can\u0027t handle inf either. Where is the assert firing downstream that doesn\u0027t like nan but can handle inf?\n\nMy guess would have been that it is the responsibility downstream (i.e. drawing) to detect non-finite across the board (but I guess that is not always the case).",
+      "range": {
+        "startLine": 164,
+        "startChar": 8,
+        "endLine": 164,
+        "endChar": 21
+      },
+      "revId": "ca9054dd05051db1ba421a59f6e1ff914b228a5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
