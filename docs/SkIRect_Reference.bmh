@@ -528,7 +528,7 @@ original rect: 20, 30, 40, 50  size: 20, 20
 #In Property
 #Line # returns midpoint in x ##
 Returns average of left edge and right edge. Result does not change if IRect
-is sorted. Result may be incorrect if IRect is far from the origin.
+is sorted.
 
 Result is rounded down.
 
@@ -561,7 +561,7 @@ left: -10 right:  11 centerX:   0 div2:   0
 #In Property
 #Line # returns midpoint in y ##
 Returns average of top edge and bottom edge. Result does not change if IRect
-is sorted. Result may be incorrect if IRect is far from the origin. 
+is sorted.
 
 Result is rounded down.
 
@@ -571,9 +571,8 @@ Result is rounded down.
    SkIRect rect = { 0, 0, 2, 2 };
    rect.offset(0x40000000, 0x40000000);
    SkDebugf("left: %d right: %d centerX: %d ", rect.left(), rect.right(), rect.centerX());
-   SkDebugf("safe mid x: %d\n", rect.left() / 2 + rect.right() / 2);
 #StdOut
-left: 1073741824 right: 1073741826 centerX: 1073741825 safe mid x: 1073741825
+left: 1073741824 right: 1073741826 centerX: 1073741825
 ##
 ##
 

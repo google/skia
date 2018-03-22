@@ -736,11 +736,11 @@
         "stdout": "left:  20 right:  41 centerX:  30 div2:  30\\nleft: -20 right: -41 centerX: -31 div2: -30\\nleft: -10 right:  11 centerX:   0 div2:   0\\n"
     },
         "SkIRect_centerY": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = { 0, 0, 2, 2 };\n    rect.offset(0x40000000, 0x40000000);\n    SkDebugf(\"left: %d right: %d centerX: %d \", rect.left(), rect.right(), rect.centerX());\n    SkDebugf(\"safe mid x: %d\\n\", rect.left() / 2 + rect.right() / 2);\n}",
-    "hash": "687d833b042fb018f8948764e73a37b1",
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = { 0, 0, 2, 2 };\n    rect.offset(0x40000000, 0x40000000);\n    SkDebugf(\"left: %d right: %d centerX: %d \", rect.left(), rect.right(), rect.centerX());\n}",
+    "hash": "6449f7156330efbb3f344c0b787330a5",
     "file": "SkIRect_Reference",
     "name": "SkIRect::centerY",
-        "stdout": "left: 1073741824 right: 1073741826 centerX: 1073741825 safe mid x: 1073741825\\n"
+        "stdout": "left: 1073741824 right: 1073741826 centerX: 1073741825"
     },
         "SkIRect_contains": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = { 30, 50, 40, 60 };\n    SkIPoint pts[] = { { 30, 50}, { 40, 50}, { 30, 60} };\n    for (auto pt : pts) {\n        SkDebugf(\"rect: (%d, %d, %d, %d) %s (%d, %d)\\n\",\n                 rect.left(), rect.top(), rect.right(), rect.bottom(),\n                 rect.contains(pt.x(), pt.y()) ? \"contains\" : \"does not contain\", pt.x(), pt.y());\n    }\n}",
@@ -5102,13 +5102,13 @@
     "file": "SkImage_Reference",
     "name": "SkImage::MakeCrossContextFromPixmap"
 },
-    "SkImage_MakeFromAdoptedTexture_2": {
+    "SkImage_MakeFromAdoptedTexture": {
     "code": "void draw(SkCanvas* canvas) {\n    if (!canvas->getGrContext()) {\n        return;\n    }\n    canvas->scale(.5f, .5f);\n    canvas->clear(0x7f3f5f7f);\n    int x = 0, y = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        for (auto alpha : { kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType } ) {\n            sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(canvas->getGrContext(),\n                                                                   backEndTexture, origin, \n                                                                   kRGBA_8888_SkColorType, alpha);\n            canvas->drawImage(image, x, y);\n            x += 160;\n        }\n        x -= 160 * 3;\n        y += 256;\n    }\n}",
     "width": 256,
     "height": 256,
     "hash": "b07964ec9c5c8a6febba805f1cf4d071",
     "file": "SkImage_Reference",
-    "name": "SkImage::MakeFromAdoptedTexture_2"
+    "name": "SkImage::MakeFromAdoptedTexture"
 },
     "SkImage_MakeFromBitmap": {
     "code": "void draw(SkCanvas* canvas) {\n    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },\n                            { 0xAC, 0xA8, 0x89, 0xA7, 0x87 },\n                            { 0x9B, 0xB5, 0xE5, 0x95, 0x46 },\n                            { 0x90, 0x81, 0xC5, 0x71, 0x33 },\n                            { 0x75, 0x55, 0x44, 0x40, 0x30 }};\n    SkImageInfo imageInfo = SkImageInfo::Make(5, 5, kGray_8_SkColorType, kOpaque_SkAlphaType);\n    SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    sk_sp<SkImage> image1 = SkImage::MakeFromBitmap(bitmap);\n    bitmap.setImmutable();\n    sk_sp<SkImage> image2 = SkImage::MakeFromBitmap(bitmap);\n    *pixmap.writable_addr8(2, 2) = 0x00;\n    canvas->scale(10, 10);\n    canvas->drawImage(image1, 0, 0);\n    canvas->drawImage(image2, 10, 0);\n}",
