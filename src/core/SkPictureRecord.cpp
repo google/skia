@@ -805,14 +805,14 @@ void SkPictureRecord::onDrawAnnotation(const SkRect& rect, const char key[], SkD
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename T> int find_or_append_uniqueID(SkTDArray<const T*>& array, const T* obj) {
-    int index = array.select([&](const T* elem) {
-        return elem->uniqueID() == obj->uniqueID();
-    });
-    if (index < 0) {
-        index = array.count();
-        *array.append() = SkRef(obj);
+    for (int i = 0; i < array.count(); i++) {
+        if (array[i]->uniqueID() == obj->uniqueID()) {
+            return i;
+        }
     }
-    return index;
+    int i = array.count();
+    *array.append() = SkRef(obj);
+    return i;
 }
 
 sk_sp<SkSurface> SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {
