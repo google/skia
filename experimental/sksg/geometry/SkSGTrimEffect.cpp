@@ -42,22 +42,7 @@ SkRect TrimEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
     const auto childbounds = fChild->revalidate(ic, ctm);
     const auto path        = fChild->asPath();
 
-    // TODO: relocate these funky semantics to a Skottie composite helper,
-    //       and refactor TrimEffect as a thin SkTrimpPathEffect wrapper.
-    auto start = SkTMin(fStart, fEnd) + fOffset,
-         stop  = SkTMax(fStart, fEnd) + fOffset;
-
-    sk_sp<SkPathEffect> trim;
-    if (stop - start < 1) {
-        start -= SkScalarFloorToScalar(start);
-        stop  -= SkScalarFloorToScalar(stop);
-
-        trim = start <= stop
-            ? SkTrimPathEffect::Make(start, stop, SkTrimPathEffect::Mode::kNormal)
-            : SkTrimPathEffect::Make(stop, start, SkTrimPathEffect::Mode::kInverted);
-    }
-
-    if (trim) {
+    if (auto trim = SkTrimPathEffect::Make(fStart, fStop, fMode)) {
         fTrimmedPath.reset();
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
         SkAssertResult(trim->filterPath(&fTrimmedPath, path, &rec, &childbounds));
