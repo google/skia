@@ -8,7 +8,7 @@ out sk_PerVertex {
     layout(builtin=3) float sk_ClipDistance[1];
 };
 
-layout(builtin=5) in int sk_VertexID;
-layout(builtin=6) in int sk_InstanceID;
+layout(builtin=42) in int sk_VertexID;
+layout(builtin=43) in int sk_InstanceID;
 
 )
