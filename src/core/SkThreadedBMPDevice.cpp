@@ -169,14 +169,20 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
     }
 }
 
-void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
-        const SkPaint& paint) {
-    SkMatrix matrix = SkMatrix::MakeTrans(x, y);
-    LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
-    SkRect drawBounds = SkRect::MakeWH(bitmap.width(), bitmap.height());
-    matrix.mapRect(&drawBounds);
+void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
+                                     const SkRect* dstOrNull, const SkPaint& paint) {
+    SkRect drawBounds;
+    SkRect* clonedDstOrNull = nullptr;
+    if (dstOrNull == nullptr) {
+        drawBounds = SkRect::MakeWH(bitmap.width(), bitmap.height());
+        matrix.mapRect(&drawBounds);
+    } else {
+        drawBounds = *dstOrNull;
+        clonedDstOrNull = fAlloc.make<SkRect>(*dstOrNull);
+    }
+
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawBitmap(bitmap, matrix, nullptr, paint);
+        TileDraw(ds, tileBounds).drawBitmap(bitmap, matrix, clonedDstOrNull, paint);
     });
 }
 
