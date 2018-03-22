@@ -2092,6 +2092,7 @@ Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
                                       xmlWriter.get())
                             .get());
 #else
+    (void)fPageIndex;
     return Error("SVG sink is disabled.");
 #endif // SK_XML
 }
