@@ -11,11 +11,11 @@
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitSet.h"
+#include "SkGlyphCache.h"
 #include "SkPDFTypes.h"
 #include "SkTDArray.h"
 #include "SkTypeface.h"
 
-class SkAutoGlyphCache;
 class SkPDFCanon;
 class SkPDFFont;
 
@@ -48,7 +48,7 @@ public:
                type == SkAdvancedTypefaceMetrics::kTrueType_Font;
     }
 
-    static SkAutoGlyphCache MakeVectorCache(SkTypeface*, int* sizeOut);
+    static SkExclusiveStrikePtr MakeVectorCache(SkTypeface*, int* sizeOut);
 
     /** Returns true if this font encoding supports glyph IDs above 255.
      */
