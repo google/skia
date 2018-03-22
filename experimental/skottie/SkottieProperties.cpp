@@ -15,6 +15,7 @@
 #include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
+#include "SkSGTrimEffect.h"
 
 #include <cmath>
 
@@ -188,6 +189,39 @@ void CompositeRadialGradient::onApply() {
     grad->setEndCenter(this->startPoint());
     grad->setStartRadius(0);
     grad->setEndRadius(SkPoint::Distance(this->startPoint(), this->endPoint()));
+}
+
+CompositeTrimEffect::CompositeTrimEffect(sk_sp<sksg::TrimEffect> trimEffect)
+    : fTrimEffect(std::move(trimEffect)) {
+    SkASSERT(fTrimEffect);
+}
+
+void CompositeTrimEffect::apply() {
+    // BM semantics: start/end are percentages, offset is "degrees" (?!).
+    const auto  start = fStart  / 100,
+                  end = fEnd    / 100,
+               offset = fOffset / 360;
+
+    auto startT = SkTMin(start, end) + offset,
+          stopT = SkTMax(start, end) + offset;
+    auto   mode = SkTrimPathEffect::Mode::kNormal;
+
+    if (stopT - startT < 1) {
+        startT -= SkScalarFloorToScalar(startT);
+        stopT  -= SkScalarFloorToScalar(stopT);
+
+        if (startT > stopT) {
+            SkTSwap(startT, stopT);
+            mode = SkTrimPathEffect::Mode::kInverted;
+        }
+    } else {
+        startT = 0;
+        stopT  = 1;
+    }
+
+    fTrimEffect->setStart(startT);
+    fTrimEffect->setStop(stopT);
+    fTrimEffect->setMode(mode);
 }
 
 } // namespace skottie

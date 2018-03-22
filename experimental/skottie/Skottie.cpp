@@ -427,19 +427,21 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
     std::vector<sk_sp<sksg::GeometryNode>> trimmed;
     trimmed.reserve(inputs.size());
     for (const auto& i : inputs) {
-        const auto trim = sksg::TrimEffect::Make(i);
-        trimmed.push_back(trim);
+        const auto trimEffect = sksg::TrimEffect::Make(i);
+        trimmed.push_back(trimEffect);
+
+        const auto trimComposite = sk_make_sp<CompositeTrimEffect>(std::move(trimEffect));
         BindProperty<ScalarValue>(jtrim["s"], &ctx->fAnimators,
-            [trim](const ScalarValue& s) {
-                trim->setStart(s * 0.01f);
+            [trimComposite](const ScalarValue& s) {
+                trimComposite->setStart(s);
             });
         BindProperty<ScalarValue>(jtrim["e"], &ctx->fAnimators,
-            [trim](const ScalarValue& e) {
-                trim->setEnd(e * 0.01f);
+            [trimComposite](const ScalarValue& e) {
+                trimComposite->setEnd(e);
             });
         BindProperty<ScalarValue>(jtrim["o"], &ctx->fAnimators,
-            [trim](const ScalarValue& o) {
-                trim->setOffset(o / 360);
+            [trimComposite](const ScalarValue& o) {
+                trimComposite->setOffset(o);
             });
     }
 
