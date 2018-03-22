@@ -1208,13 +1208,13 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 static const int kDDLViewportSize = 2048;
-static const SkRect kDDLSKPViewport = { 0, 0, kDDLViewportSize, kDDLViewportSize };
+static const SkRect kDDLSKPViewport1 = { 0, 0, kDDLViewportSize, kDDLViewportSize };
 
 DDLSKPSrc::DDLSKPSrc(Path path) : fPath(path) { }
 
 SkISize DDLSKPSrc::size() const {
     SkRect viewport = get_cull_rect_for_skp(fPath.c_str());
-    if (!viewport.intersect(kDDLSKPViewport)) {
+    if (!viewport.intersect(kDDLSKPViewport1)) {
         return {0, 0};
     }
     return viewport.roundOut().size();
@@ -1228,11 +1228,16 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
     return SkStringPrintf("DDLs are GPU only\n");
 }
 
+Error DDLGMSrc::draw(SkCanvas* canvas) const {
+    return SkStringPrintf("DDLs are GPU only\n");
+}
+
 #else
 
 class PromiseImageInfo {
 public:
     int              fIndex;
+    uint32_t         fOriginalUniqueID;
     sk_sp<SkImage>   fImage;
     SkBitmap         fBitmap;
     GrBackendTexture fBackendTexture;
@@ -1241,6 +1246,7 @@ public:
 static void promise_image_fulfill_proc(void* textureContext, GrBackendTexture* outTexture) {
     const PromiseImageInfo* imgInfo = static_cast<const PromiseImageInfo*>(textureContext);
 
+    SkASSERT(imgInfo->fBackendTexture.isValid());
     *outTexture = imgInfo->fBackendTexture;
 }
 
@@ -1252,6 +1258,9 @@ static void promise_image_done_proc(void* textureContext) {
     // Do nothing.
 }
 
+// This class lets us pass the collected image information and the DDLRecorder to the
+// promise_image_creator callback when reconstituting a deflated SKP for a particular tile (i.e.,
+// in a thread).
 class PromiseImageCallbackContext {
 public:
     const SkTArray<PromiseImageInfo>* fImageInfo;
@@ -1293,6 +1302,75 @@ static sk_sp<SkImage> promise_image_creator(const void* rawData, size_t length, 
     return image;
 };
 
+// DDLTileData class encapsulates the information and behavior for a single tile/thread in
+// a DDL rendering.
+class DDLTileData {
+public:
+    // Note: we could just pass in surface characterization
+    DDLTileData(sk_sp<SkSurface> surf, const SkIRect& clip)
+            : fSurface(std::move(surf))
+            , fClip(clip) {
+        SkAssertResult(fSurface->characterize(&fCharacterization));
+    }
+
+    // This method operates in parallel
+    // In each thread we will reconvert the compressedPictureData into an SkPicture
+    // replacing each image-index with a promise image.
+    void preprocess(SkData* compressedPictureData, const SkTArray<PromiseImageInfo>* imageInfo) {
+        SkDeferredDisplayListRecorder recorder(fCharacterization);
+
+        // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
+        // Maybe set it up in the ctor?
+        SkCanvas* subCanvas = recorder.getCanvas();
+
+        sk_sp<SkPicture> reconstitutedPicture;
+
+        {
+            PromiseImageCallbackContext callbackCtx = { imageInfo, &recorder };
+
+            SkDeserialProcs procs;
+            procs.fImageCtx = &callbackCtx;
+            procs.fImageProc = promise_image_creator;
+
+            reconstitutedPicture = SkPicture::MakeFromData(compressedPictureData, &procs);
+            if (!reconstitutedPicture) {
+                return;
+            }
+        }
+
+        subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
+        subCanvas->translate(-fClip.fLeft, -fClip.fTop);
+
+        // Note: in this use case we only render a picture to the deferred canvas
+        // but, more generally, clients will use arbitrary draw calls.
+        subCanvas->drawPicture(reconstitutedPicture);
+
+        fDisplayList = recorder.detach();
+    }
+
+    // This method operates serially and replays the recorded DDL into the tile surface.
+    void draw() {
+        fSurface->draw(fDisplayList.get());
+    }
+
+    // This method also operates serially and composes the results of replaying the DDL into
+    // the final destination surface.
+    void compose(SkCanvas* dst) {
+        sk_sp<SkImage> img = fSurface->makeImageSnapshot();
+        dst->save();
+        dst->clipRect(SkRect::Make(fClip));
+        dst->drawImage(std::move(img), fClip.fLeft, fClip.fTop);
+        dst->restore();
+    }
+
+private:
+    sk_sp<SkSurface> fSurface;
+    SkIRect          fClip;    // in the device space of the destination canvas
+    std::unique_ptr<SkDeferredDisplayList> fDisplayList;
+    SkSurfaceCharacterization              fCharacterization;
+};
+
+
 // DDL TODO: it would be great if we could draw the DDL directly into the destination SkSurface
 Error DDLSKPSrc::draw(SkCanvas* canvas) const {
     GrContext* context = canvas->getGrContext();
@@ -1308,86 +1386,15 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
             return SkStringPrintf("Couldn't read %s.", fPath.c_str());
         }
 
-        canvas->clipRect(kDDLSKPViewport);
+        canvas->clipRect(kDDLSKPViewport1);
         canvas->drawPicture(std::move(picture));
         return "";
     }
-
-    class TileData {
-    public:
-        // Note: we could just pass in surface characterization
-        TileData(sk_sp<SkSurface> surf, const SkIRect& clip)
-                : fSurface(std::move(surf))
-                , fClip(clip) {
-            SkAssertResult(fSurface->characterize(&fCharacterization));
-        }
-
-        // This method operates in parallel
-        // In each thread we will reconvert the compressedPictureData into an SkPicture
-        // replacing each image-index with a promise image.
-        void preprocess(SkData* compressedPictureData,
-                        const SkTArray<PromiseImageInfo>* imageInfo) {
-            SkDeferredDisplayListRecorder recorder(fCharacterization);
-
-            // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
-            // Maybe set it up in the ctor?
-            SkCanvas* subCanvas = recorder.getCanvas();
-
-            sk_sp<SkPicture> reconstitutedPicture;
-
-            {
-                PromiseImageCallbackContext callbackCtx = { imageInfo, &recorder };
-
-                SkDeserialProcs procs;
-                procs.fImageCtx = &callbackCtx;
-                procs.fImageProc = promise_image_creator;
-
-                reconstitutedPicture = SkPicture::MakeFromData(compressedPictureData, &procs);
-                if (!reconstitutedPicture) {
-                    return;
-                }
-            }
-
-            subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
-            subCanvas->translate(-fClip.fLeft, -fClip.fTop);
-
-            // Note: in this use case we only render a picture to the deferred canvas
-            // but, more generally, clients will use arbitrary draw calls.
-            subCanvas->drawPicture(reconstitutedPicture);
-
-            fDisplayList = recorder.detach();
-        }
-
-        // This method operates serially
-        void draw() {
-            fSurface->draw(fDisplayList.get());
-        }
-
-        // This method also operates serially
-        void compose(SkCanvas* dst) {
-            sk_sp<SkImage> img = fSurface->makeImageSnapshot();
-            dst->save();
-            dst->clipRect(SkRect::Make(fClip));
-            dst->drawImage(std::move(img), fClip.fLeft, fClip.fTop);
-            dst->restore();
-        }
-
-    private:
-        sk_sp<SkSurface> fSurface;
-        SkIRect          fClip;    // in the device space of the destination canvas
-        std::unique_ptr<SkDeferredDisplayList> fDisplayList;
-        SkSurfaceCharacterization              fCharacterization;
-    };
-
-    SkTArray<TileData> tileData;
-    tileData.reserve(16);
 
     SkTArray<PromiseImageInfo> imageInfo;
     sk_sp<SkData> compressedPictureData;
 
     SkIRect viewport;  // this is our ultimate final drawing area/rect
-
-    // DDL TODO: should we also be deduping in the following preprocessing?
 
     // Massage the input picture into something we can use with DDL
     {
@@ -1405,6 +1412,7 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
 
                 PromiseImageInfo newImageInfo;
                 newImageInfo.fIndex = imageInfo->count();
+                newImageInfo.fOriginalUniqueID = -1; // unused in DDLSKPSrc version
                 newImageInfo.fImage = SkImage::MakeFromEncoded(std::move(data));
                 SkAssertResult(newImageInfo.fImage->asLegacyBitmap(&newImageInfo.fBitmap));
 
@@ -1418,7 +1426,7 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
             }
 
             SkRect pictureCullRect = firstPassPicture->cullRect();
-            SkAssertResult(pictureCullRect.intersect(kDDLSKPViewport));
+            SkAssertResult(pictureCullRect.intersect(kDDLSKPViewport1));
             viewport = pictureCullRect.roundOut();
         }
 
@@ -1449,7 +1457,7 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
         }
 
         // In the third pass we go through all the images and upload them to the GPU and
-        // get rid of the SkImage from the first pass
+        // get rid of the SkImages from the first pass
         {
             GrGpu* gpu = context->contextPriv().getGpu();
             if (!gpu) {
@@ -1473,6 +1481,9 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
     int xTileSize = viewport.width()/FLAGS_ddl;
     int yTileSize = viewport.height()/FLAGS_ddl;
 
+    SkTArray<DDLTileData> tileData;
+    tileData.reserve(FLAGS_ddl*FLAGS_ddl);
+
     // First, create the destination tiles
     for (int y = 0, yOff = 0; y < FLAGS_ddl; ++y, yOff += yTileSize) {
         int ySize = (y < FLAGS_ddl-1) ? yTileSize : viewport.height()-yOff;
@@ -1486,7 +1497,7 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
 
             SkImageInfo tileII = SkImageInfo::MakeN32Premul(xSize, ySize);
 
-            tileData.push_back(TileData(canvas->makeSurface(tileII), clip));
+            tileData.push_back(DDLTileData(canvas->makeSurface(tileII), clip));
         }
     }
 
@@ -1525,6 +1536,18 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
         }
     }
 
+    return "";
+}
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+Error DDLGMSrc::draw(SkCanvas* canvas) const {
+    skiagm::GM* gm(fFactory(nullptr));
+
+    SkIRect contentRect =  SkIRect::MakeSize(gm->getISize());
+//    ddl_draw(canvas, contentRect, [gm](SkCanvas* canvas) { gm->draw(canvas); });
+    delete gm;
     return "";
 }
 
@@ -2319,6 +2342,214 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         }
         return "";
     });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static Error ddl_draw(SkCanvas* canvas) {
+    return "";
+}
+
+ViaDDL::ViaDDL(int numDivisions, Sink* sink)
+    : Via(sink)
+    , fNumDivisions(numDivisions) {
+}
+
+class Helper {
+public:
+    bool isValidID(int id) const {
+        return id >= 0 && id < fImageInfo.count();
+    }
+
+    // returns -1 on failure
+    int findOrDefineImage(SkImage* image) {
+        if (int preExistingID = this->findImage(image) >= 0) {
+            return preExistingID;
+        }
+
+        int newID = this->addImage(image);
+        SkASSERT(this->isValidID(newID));
+        return newID;
+    }
+
+    void uploadAllToGPU(GrContext* context) {
+        GrGpu* gpu = context->contextPriv().getGpu();
+        SkASSERT(gpu);
+
+        for (int i = 0; i < fImageInfo.count(); ++i) {
+            // DDL TODO: how can we tell if we need mipmapping!
+            fImageInfo[i].fBackendTexture = gpu->createTestingOnlyBackendTexture(
+                                                                fImageInfo[i].fBitmap.getPixels(),
+                                                                fImageInfo[i].fBitmap.width(),
+                                                                fImageInfo[i].fBitmap.height(),
+                                                                fImageInfo[i].fBitmap.colorType(),
+                                                                false, GrMipMapped::kNo);
+            SkAssertResult(fImageInfo[i].fBackendTexture.isValid());
+        }
+    }
+
+    void cleanUpVRAM(GrContext* context) {
+        GrGpu* gpu = context->contextPriv().getGpu();
+        SkASSERT(gpu);
+
+        for (int i = 0; i < fImageInfo.count(); ++i) {
+            gpu->deleteTestingOnlyBackendTexture(fImageInfo[i].fBackendTexture);
+        }
+    }
+
+private:
+    // returns -1 if not found
+    int findImage(SkImage* image) const {
+        for (int i = 0; i < fImageInfo.count(); ++i) {
+            if (fImageInfo[i].fOriginalUniqueID == image->uniqueID()) {
+                SkASSERT(fImageInfo[i].fIndex == i);
+                SkASSERT(this->isValidID(i) && this->isValidID(fImageInfo[i].fIndex));
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // returns -1 on failure
+    int addImage(SkImage* image) {
+        sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
+
+        SkImageInfo ii = SkImageInfo::Make(rasterImage->width(), rasterImage->height(),
+                                           rasterImage->colorType(), rasterImage->alphaType(),
+                                           rasterImage->refColorSpace());
+
+        SkBitmap bm;
+        bm.allocPixels(ii);
+
+        if (!rasterImage->readPixels(bm.pixmap(), 0, 0)) {
+            return -1;
+        }
+
+        bm.setImmutable();
+
+        PromiseImageInfo newImageInfo;
+        newImageInfo.fIndex = fImageInfo.count();
+        newImageInfo.fOriginalUniqueID = image->uniqueID();
+        newImageInfo.fImage = nullptr;  // Unused in ViaDDL version
+        newImageInfo.fBitmap = bm;
+
+        fImageInfo.push_back(newImageInfo);
+        SkASSERT(newImageInfo.fIndex == fImageInfo.count()-1);
+        return fImageInfo.count()-1;
+    }
+
+public: // !!!!
+    SkTArray<PromiseImageInfo> fImageInfo;
+};
+
+// TODO: need to increase size of skp source
+Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    auto size = src.size();
+    SkPictureRecorder recorder;
+    Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
+                                                 SkIntToScalar(size.height())));
+    if (!err.isEmpty()) {
+        return err;
+    }
+    sk_sp<SkPicture> inputPicture(recorder.finishRecordingAsPicture());
+
+    if (1 == fNumDivisions) {
+        // If the number of x & y tiles is one just perform normal (non-DDL) rendering for
+        // comparison purposes
+        return draw_to_canvas(fSink.get(), bitmap, stream, log, size,
+                    [&](SkCanvas* canvas) -> Error {
+                        canvas->drawPicture(inputPicture);
+                        return "";
+                    });
+    }
+
+    // this is our ultimate final drawing area/rect
+    SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
+
+    Helper helper;
+    sk_sp<SkData> compressedPictureData;
+
+    // Convert the SkPicture into SkData replacing all the SkImages with an index.
+    {
+        SkSerialProcs procs;
+
+        procs.fImageCtx = &helper;
+        procs.fImageProc = [](SkImage* image, void* ctx) -> sk_sp<SkData> {
+            auto helper = static_cast<Helper*>(ctx);
+
+            int id = helper->findOrDefineImage(image);
+            if (id >= 0) {
+                SkASSERT(helper->isValidID(id));
+                return SkData::MakeWithCopy(&id, sizeof(id));
+            }
+
+            return nullptr;
+        };
+
+        compressedPictureData = inputPicture->serialize(&procs);
+        if (!compressedPictureData) {
+            return SkStringPrintf("ViaDDL: Couldn't deflate SkPicture");
+        }
+    }
+
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size,
+                [&](SkCanvas* canvas) -> Error {
+                    GrContext* context = canvas->getGrContext();
+                    if (!context || !context->contextPriv().getGpu()) {
+                        return SkStringPrintf("DDLs are GPU only");
+                    }
+
+                    helper.uploadAllToGPU(context);
+
+                    int xTileSize = viewport.width()/fNumDivisions;
+                    int yTileSize = viewport.height()/fNumDivisions;
+
+                    SkTArray<DDLTileData> tileData;
+                    tileData.reserve(fNumDivisions*fNumDivisions);
+
+                    // First, create the destination tiles
+                    for (int y = 0, yOff = 0; y < fNumDivisions; ++y, yOff += yTileSize) {
+                        int ySize = (y < fNumDivisions-1) ? yTileSize : viewport.height()-yOff;
+
+                        for (int x = 0, xOff = 0; x < fNumDivisions; ++x, xOff += xTileSize) {
+                            int xSize = (x < fNumDivisions-1) ? xTileSize : viewport.width()-xOff;
+
+                            SkIRect clip = SkIRect::MakeXYWH(xOff, yOff, xSize, ySize);
+
+                            SkASSERT(viewport.contains(clip));
+
+                            SkImageInfo tileII = SkImageInfo::MakeN32Premul(xSize, ySize);
+
+                            tileData.push_back(DDLTileData(canvas->makeSurface(tileII), clip));
+                        }
+                    }
+
+                    // Second, run the cpu pre-processing in threads
+                    SkTaskGroup().batch(tileData.count(), [&](int i) {
+                        tileData[i].preprocess(compressedPictureData.get(), &helper.fImageInfo);
+                    });
+
+                    // Third, synchronously render the display lists into the dest tiles
+                    // TODO: it would be cool to not wait until all the tiles are drawn to begin
+                    // drawing to the GPU
+                    for (int i = 0; i < tileData.count(); ++i) {
+                        tileData[i].draw();
+                    }
+
+                    // Finally, compose the drawn tiles into the result
+                    // Note: the separation between the tiles and the final composition better
+                    // matches Chrome but costs us a copy
+                    for (int i = 0; i < tileData.count(); ++i) {
+                        tileData[i].compose(canvas);
+                    }
+
+                    // All promise images need to be fulfulled before leaving this method since we
+                    // are about to delete their backing GrBackendTextures
+                    context->flush();
+
+                    helper.cleanUpVRAM(context);
+                    return "";
+                });
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

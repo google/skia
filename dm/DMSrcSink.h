@@ -110,8 +110,21 @@ public:
     Name name() const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
 
-private:
+protected:
     skiagm::GMRegistry::Factory fFactory;
+
+private:
+    typedef Src INHERITED;
+};
+
+class DDLGMSrc : public GMSrc {
+public:
+    explicit DDLGMSrc(skiagm::GMRegistry::Factory factory) : INHERITED(factory) {}
+
+    Error draw(SkCanvas*) const override;
+
+private:
+    typedef GMSrc INHERITED;
 };
 
 class CodecSrc : public Src {
@@ -535,6 +548,14 @@ public:
 private:
     const int                   fW, fH;
     std::unique_ptr<SkBBHFactory> fFactory;
+};
+
+class ViaDDL : public Via {
+public:
+    ViaDDL(int numDivisions, Sink* sink);
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+private:
+    const int fNumDivisions;
 };
 
 class ViaSVG : public Via {

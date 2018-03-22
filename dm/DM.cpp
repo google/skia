@@ -783,14 +783,19 @@ void gather_file_srcs(const SkCommandLineFlags::StringArray& flags, const char* 
     }
 }
 
-static bool gather_srcs() {
+template <typename T>
+void gather_gm_srcs() {
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
-        push_src("gm", "", new GMSrc(r->factory()));
+        push_src("gm", "", new T(r->factory()));
     }
+}
 
+static bool gather_srcs() {
     if (FLAGS_ddl > 0) {
+        gather_gm_srcs<DDLGMSrc>();
         gather_file_srcs<DDLSKPSrc>(FLAGS_skps, "skp");
     } else {
+        gather_gm_srcs<GMSrc>();
         gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     }
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
@@ -956,6 +961,9 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("pic",       ViaPicture,           wrapped);
     VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
+
+    VIA("ddl1",      ViaDDL, 1,            wrapped);
+    VIA("ddl3",      ViaDDL, 3,            wrapped);
 
     if (FLAGS_matrix.count() == 4) {
         SkMatrix m;
