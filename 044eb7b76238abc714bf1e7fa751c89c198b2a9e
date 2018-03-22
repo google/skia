@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "3124e47c_275855b1",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T14:18:10Z",
+      "side": 1,
+      "message": "I\u0027ld say leave it for now - but it is kind of weird.",
+      "parentUuid": "a58c67c7_dbb218e2",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7379768a_00df76cb",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 17
@@ -486,6 +504,24 @@
       "side": 1,
       "message": "I don\u0027t follow what you mean by this.",
       "parentUuid": "cd41bdd7_f43bd8ea",
+      "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c381936d_6647264c",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-22T14:18:10Z",
+      "side": 1,
+      "message": "Possibly make the raster test iterate over more image infos just like the ReadPixels_Gpu test.",
+      "parentUuid": "30dcdc22_49bc3ef3",
       "revId": "044eb7b76238abc714bf1e7fa751c89c198b2a9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
