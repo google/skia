@@ -45,6 +45,30 @@
       "revId": "ca9054dd05051db1ba421a59f6e1ff914b228a5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d07061b5_dc8c5a95",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-22T17:44:39Z",
+      "side": 1,
+      "message": "The particular assert that fires is in SkEdgeClipper::158,159, which checks to see if edges are sorted in x. Since commenting out these asserts allows everything to run, another option would be to bracket this code in #if SK_DEBUG.",
+      "parentUuid": "7ff83251_3ef10766",
+      "range": {
+        "startLine": 164,
+        "startChar": 8,
+        "endLine": 164,
+        "endChar": 21
+      },
+      "revId": "ca9054dd05051db1ba421a59f6e1ff914b228a5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
