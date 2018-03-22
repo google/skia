@@ -193,7 +193,7 @@ SkPath SubsetVerbs::getSubsetPath() const {
     bool addLineTo = false;
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         bool enabled = SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb
-            ? fSelected[verbIndex++] : false;
+            ? (bool)fSelected[verbIndex++] : false;
         if (enabled) {
             if (addMoveTo) {
                 result.moveTo(pts[0]);
