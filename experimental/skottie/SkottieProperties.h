@@ -28,6 +28,7 @@ class Path;
 class RadialGradient;
 class RRect;
 class RenderNode;;
+class TrimEffect;
 }
 
 namespace Json { class Value; }
@@ -159,6 +160,22 @@ private:
     void onApply() override;
 
     using INHERITED = CompositeGradient;
+};
+
+class CompositeTrimEffect final : public SkRefCnt {
+public:
+    explicit CompositeTrimEffect(sk_sp<sksg::TrimEffect>);
+
+    COMPOSITE_PROPERTY(Start , SkScalar,   0)
+    COMPOSITE_PROPERTY(End   , SkScalar, 100)
+    COMPOSITE_PROPERTY(Offset, SkScalar,   0)
+
+private:
+    void apply();
+
+    sk_sp<sksg::TrimEffect> fTrimEffect;
+
+    using INHERITED = SkRefCnt;
 };
 
 #undef COMPOSITE_PROPERTY
