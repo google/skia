@@ -446,7 +446,16 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     GET_PROC(BindAttribLocation);
     GET_PROC(BindBuffer);
     GET_PROC(BindTexture);
-    GET_PROC_SUFFIX(BindVertexArray, OES);
+
+    if (version >= GR_GL_VER(3,0)) {
+        GET_PROC(BindVertexArray);
+        GET_PROC(DeleteVertexArrays);
+        GET_PROC(GenVertexArrays);
+    } else if (extensions.has("GL_OES_vertex_array_object")) {
+        GET_PROC_SUFFIX(BindVertexArray, OES);
+        GET_PROC_SUFFIX(DeleteVertexArrays, OES);
+        GET_PROC_SUFFIX(GenVertexArrays, OES);
+    }
 
     if (version >= GR_GL_VER(3,0) && extensions.has("GL_EXT_blend_func_extended")) {
         GET_PROC_SUFFIX(BindFragDataLocation, EXT);
@@ -483,7 +492,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     GET_PROC(DeleteProgram);
     GET_PROC(DeleteShader);
     GET_PROC(DeleteTextures);
-    GET_PROC_SUFFIX(DeleteVertexArrays, OES);
     GET_PROC(DepthMask);
     GET_PROC(Disable);
     GET_PROC(DisableVertexAttribArray);
@@ -515,7 +523,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     GET_PROC(GenBuffers);
     GET_PROC(GenerateMipmap);
     GET_PROC(GenTextures);
-    GET_PROC_SUFFIX(GenVertexArrays, OES);
     GET_PROC(GetBufferParameteriv);
     GET_PROC(GetError);
     GET_PROC(GetIntegerv);
