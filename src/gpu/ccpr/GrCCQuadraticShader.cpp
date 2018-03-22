@@ -73,7 +73,8 @@ void GrCCQuadraticShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
     f->codeAppendf("float x = %s.x, y = %s.y;", fCoord.fsIn(), fCoord.fsIn());
     f->codeAppend ("float f = x*x - y;");
     f->codeAppendf("float2 grad = %s.zw;", fCoord.fsIn());
-    f->codeAppendf("%s = clamp(0.5 - f * inversesqrt(dot(grad, grad)), 0, 1);", outputCoverage);
+    f->codeAppend ("float fwidth = abs(grad.x) + abs(grad.y);");
+    f->codeAppendf("%s = clamp(0.5 - f/fwidth, 0, 1);", outputCoverage);
 
     f->codeAppendf("half d = min(%s.x, 0);", fCoverages.fsIn()); // Flat edge opposite the curve.
     f->codeAppendf("half wind = %s.y;", fCoverages.fsIn());
