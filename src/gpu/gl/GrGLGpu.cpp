@@ -776,7 +776,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left
                                srcAsConfig, texels, mipLevelCount);
 }
 
-// For GL_[UN]PACK_ALIGNMENT.
+// For GL_[UN]PACK_ALIGNMENT. TODO: This really wants to be GrColorType.
 static inline GrGLint config_alignment(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
@@ -793,6 +793,7 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return 2;
         case kRGBA_8888_GrPixelConfig:
+        case kRGB_888_GrPixelConfig:  // We're really talking about GrColorType::kRGB_888x here.
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:

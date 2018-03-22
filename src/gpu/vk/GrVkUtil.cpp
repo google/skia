@@ -22,6 +22,8 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kRGBA_8888_GrPixelConfig:
             *format = VK_FORMAT_R8G8B8A8_UNORM;
             return true;
+        case kRGB_888_GrPixelConfig:
+            return false;
         case kBGRA_8888_GrPixelConfig:
             *format = VK_FORMAT_B8G8R8A8_UNORM;
             return true;
