@@ -105,8 +105,9 @@ void GrCCCubicShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
                                          const char* outputCoverage) const {
     f->codeAppendf("float k = %s.x, l = %s.y, m = %s.z;", fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn());
     f->codeAppend ("float f = k*k*k - l*m;");
-    f->codeAppendf("float2 grad_f = %s * float2(k, 1);", fGradMatrix.fsIn());
-    f->codeAppendf("%s = clamp(0.5 - f * inversesqrt(dot(grad_f, grad_f)), 0, 1);", outputCoverage);
+    f->codeAppendf("float2 grad = %s * float2(k, 1);", fGradMatrix.fsIn());
+    f->codeAppend ("float fwidth = abs(grad.x) + abs(grad.y);");
+    f->codeAppendf("%s = clamp(0.5 - f/fwidth, 0, 1);", outputCoverage);
 
     f->codeAppendf("half d = min(%s.w, 0);", fKLMD.fsIn()); // Flat edge opposite the curve.
     // Wind is the sign of both L and/or M. Take the sign of whichever has the larger magnitude.
