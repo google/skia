@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93923b1c_c821e6fa",
+        "filename": "src/gpu/ccpr/GrCCCubicShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-22T13:25:20Z",
+      "side": 1,
+      "message": "Isn\u0027t there a built-in for this? And how does the divide affect performance?",
+      "range": {
+        "startLine": 109,
+        "startChar": 26,
+        "endLine": 109,
+        "endChar": 33
+      },
+      "revId": "6a867948f8979cb979622eb13cc69ee9f62a4ea6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
