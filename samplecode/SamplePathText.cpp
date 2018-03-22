@@ -24,8 +24,7 @@ public:
 
     PathText() {
         SkPaint defaultPaint;
-        SkAutoGlyphCache agc(defaultPaint, nullptr, &SkMatrix::I());
-        SkGlyphCache* cache = agc.get();
+        auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(defaultPaint);
         SkPath glyphPaths[52];
         for (int i = 0; i < 52; ++i) {
             // I and l are rects on OS X ...

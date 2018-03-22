@@ -269,7 +269,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     char* currVertex = reinterpret_cast<char*>(vertices);
 
-    SkAutoGlyphCache autoGlyphCache;
+    SkExclusiveStrikePtr autoGlyphCache;
     // each of these is a SubRun
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
