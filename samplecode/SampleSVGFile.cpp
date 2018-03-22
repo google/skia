@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
+#ifdef SK_XML
+
 #include "SampleCode.h"
 #include "SkCanvas.h"
 #include "SkDOM.h"
@@ -78,3 +82,4 @@ SampleView* CreateSampleSVGFileView(const SkString& filename);
 SampleView* CreateSampleSVGFileView(const SkString& filename) {
     return new SVGFileView(filename);
 }
+#endif  // SK_XML
