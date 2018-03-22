@@ -1107,7 +1107,8 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kWidth:
             break;
         case MarkType::kPhraseDef:
-            break;
+            // skip text and children
+            return;
         case MarkType::kPhraseRef:
             if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
                 def->reportError<void>("missing phrase definition");

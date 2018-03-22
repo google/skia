@@ -1433,7 +1433,7 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         if ('/' == parser.next()) {
             char slashStar = parser.next();
             if ('/' == slashStar || '*' == slashStar) {
-                TextParser::Save save(&parser);
+                TextParserSave save(&parser);
                 char doxCheck = parser.next();
                 if ((slashStar != doxCheck && '!' != doxCheck) || '<' != parser.next()) {
                     save.restore();
@@ -1954,7 +1954,7 @@ bool IncludeParser::parseChar() {
                     return reportError<bool>("malformed closing comment");
                 }
                 if (Bracket::kSlashStar == this->topBracket()) {
-                    TextParser::Save save(this);
+                    TextParserSave save(this);
                     this->next();  // include close in bracket
                     this->popBracket();
                     save.restore(); // put things back so nothing is skipped

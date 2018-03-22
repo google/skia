@@ -50,6 +50,9 @@ trouble with aliases, plurals
     need to keep first letter of includeWriter @param / @return lowercase
     Quad -> quad, Quads -> quads
 deprecated methods should be sorted down in md out, and show include "Deprecated." text body.
+rewrap text to fit in some number of columns
+#Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
+     would rather keep links for boby above #Literal, and/or make it a block and not a one-liner
 see head of selfCheck.cpp for additional todos
  */
 
@@ -639,7 +642,7 @@ string BmhParser::className(MarkType markType) {
     const char* end = this->lineEnd();
     const char* mc = this->strnchr(fMC, end);
     string classID;
-    TextParser::Save savePlace(this);
+    TextParserSave savePlace(this);
     this->skipSpace();
     const char* wordStart = fChar;
     this->skipToNonAlphaNum();
@@ -1570,7 +1573,7 @@ string BmhParser::methodName() {
     bool addConst = false;
     if (isConstructor || expectOperator) {
         paren = this->strnchr(')', end) + 1;
-        TextParser::Save saveState(this);
+        TextParserSave saveState(this);
         this->skipTo(paren);
         if (this->skipExact("_const")) {
             addConst = true;
@@ -1593,7 +1596,7 @@ string BmhParser::methodName() {
         }
         this->next();
     }
-    TextParser::Save saveState(this);
+    TextParserSave saveState(this);
     this->skipWhiteSpace();
     if (this->startsWith("const")) {
         this->skipName("const");
@@ -1736,6 +1739,22 @@ void TextParser::reportWarning(const char* errorStr) const {
         }
         SkDebugf("%.*s\n", (int) lineLen, err.fLine);
         SkDebugf("%*s^\n", (int) spaces, "");
+    }
+}
+
+void TextParser::setForErrorReporting(const Definition* definition, const char* str) {
+    fFileName = definition->fFileName;
+    fStart = definition->fContentStart;
+    fLine = str;
+    while (fLine > fStart && fLine[-1] != '\n') {
+        --fLine;
+    }
+    fChar = str;
+    fEnd = definition->fContentEnd;
+    fLineCount = definition->fLineCount;
+    const char* lineInc = fStart;
+    while (lineInc < str) {
+        fLineCount += '\n' == *lineInc++;
     }
 }
 

@@ -240,31 +240,11 @@ public:
 class Definition;
 
 class TextParser : public NonAssignable {
-    TextParser() {}  // only for ParserCommon to call
+    TextParser() {}  // only for ParserCommon, TextParserSave
     friend class ParserCommon;
+    friend class TextParserSave;
 public:
     virtual ~TextParser() {}
-    class Save {
-    public:
-        Save(TextParser* parser) {
-            fParser = parser;
-            fLine = parser->fLine;
-            fChar = parser->fChar;
-            fLineCount = parser->fLineCount;
-        }
-
-        void restore() const {
-            fParser->fLine = fLine;
-            fParser->fChar = fChar;
-            fParser->fLineCount = fLineCount;
-        }
-
-    private:
-        TextParser* fParser;
-        const char* fLine;
-        const char* fChar;
-        int fLineCount;
-    };
 
     TextParser(const string& fileName, const char* start, const char* end, int lineCount)
         : fFileName(fileName)
@@ -416,6 +396,8 @@ public:
         }
         return true;
     }
+
+    void setForErrorReporting(const Definition* , const char* );
 
     bool skipToEndBracket(char endBracket, const char* end = nullptr) {
         if (nullptr == end) {
@@ -689,6 +671,33 @@ public:
     const char* fEnd;
     size_t fLineCount;
 };
+
+class TextParserSave {
+public:
+    TextParserSave(TextParser* parser) {
+        fParser = parser;
+        fSave.fFileName = parser->fFileName;
+        fSave.fStart = parser->fStart;
+        fSave.fLine = parser->fLine;
+        fSave.fChar = parser->fChar;
+        fSave.fEnd = parser->fEnd;
+        fSave.fLineCount = parser->fLineCount;
+    }
+
+    void restore() const {
+        fParser->fFileName = fSave.fFileName;
+        fParser->fStart = fSave.fStart;
+        fParser->fLine = fSave.fLine;
+        fParser->fChar = fSave.fChar;
+        fParser->fEnd = fSave.fEnd;
+        fParser->fLineCount = fSave.fLineCount;
+    }
+
+private:
+    TextParser* fParser;
+    TextParser fSave;
+};
+
 
 class EscapeParser : public TextParser {
 public:
@@ -1888,6 +1897,11 @@ public:
         kChars,
     };
 
+    enum class MemberPass {
+        kCount,
+        kOut,
+    };
+
     struct IterState {
         IterState (list<Definition>::iterator tIter, list<Definition>::iterator tIterEnd)
             : fDefIter(tIter)
@@ -1900,6 +1914,17 @@ public:
     struct ParentPair {
         const Definition* fParent;
         const ParentPair* fPrev;
+    };
+
+    struct Preprocessor {
+        Preprocessor()
+            : fStart(nullptr)
+            , fEnd(nullptr)
+            , fWord(false) {
+        }
+        const char* fStart;
+        const char* fEnd;
+        bool fWord;
     };
 
     IncludeWriter() : IncludeParser() {
@@ -1924,7 +1949,10 @@ public:
     void descriptionOut(const Definition* def, SkipFirstLine , Phrase );
     void enumHeaderOut(const RootDefinition* root, const Definition& child);
     void enumMembersOut(const RootDefinition* root, Definition& child);
+    bool enumPreprocessor(Definition* token, MemberPass pass,
+        vector<IterState>& iterStack, IterState** iterState, Preprocessor* );
     void enumSizeItems(const Definition& child);
+    bool findEnumSubtopic(string undername, const Definition** ) const;
 	Definition* findMemberCommentBlock(const vector<Definition*>& bmhChildren, const string& name) const;
     int lookupMethod(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite,
