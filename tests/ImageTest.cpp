@@ -842,6 +842,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
 }
 
 static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,
+                                     const char* testName,
                                      std::function<sk_sp<SkImage>(GrContext*)> imageMaker) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory testFactory(options);
@@ -875,6 +876,11 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
         sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+        if (!surface) {
+            ERRORF(reporter, "SkSurface::MakeRenderTarget failed for %s.", testName);
+            continue;
+        }
+
         SkCanvas* canvas = surface->getCanvas();
 
         // Case #2: Create image, draw, flush, free image
@@ -998,7 +1004,8 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
     sk_sp<SkData> data = GetResourceAsData("images/mandrill_128.png");
     SkASSERT(data.get());
 
-    test_cross_context_image(reporter, options, [&data](GrContext* ctx) {
+    test_cross_context_image(reporter, options, "SkImage_MakeCrossContextFromEncodedRelease",
+                             [&data](GrContext* ctx) {
         return SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr);
     });
 }
@@ -1008,7 +1015,8 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     SkPixmap pixmap;
     SkAssertResult(GetResourceAsBitmap("images/mandrill_128.png", &bitmap) && bitmap.peekPixels(&pixmap));
 
-    test_cross_context_image(reporter, options, [&pixmap](GrContext* ctx) {
+    test_cross_context_image(reporter, options, "SkImage_MakeCrossContextFromPixmapRelease",
+                             [&pixmap](GrContext* ctx) {
         return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
     });
 }
