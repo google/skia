@@ -9,33 +9,26 @@
 #define sk_tool_utils_DEFINED
 
 #include "SkColor.h"
-#include "SkData.h"
-#include "SkEncodedImageFormat.h"
-#include "SkFontStyle.h"
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
 #include "SkRandom.h"
-#include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkScalar.h"
 #include "SkStream.h"
-#include "SkTArray.h"
 #include "SkTDArray.h"
-#include "SkTypes.h"
+#include "SkTypeface.h"
 
 class SkBitmap;
 class SkCanvas;
-class SkFontStyle;
+class SkColorFilter;
 class SkImage;
 class SkPaint;
 class SkPath;
-class SkPixmap;
 class SkRRect;
 class SkShader;
 class SkSurface;
 class SkSurfaceProps;
+class SkTestFont;
 class SkTextBlobBuilder;
-class SkTypeface;
 
 namespace sk_tool_utils {
 

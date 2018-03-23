@@ -8,24 +8,17 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkDescriptor.h"
 #include "SkFontDescriptor.h"
 #include "SkGlyph.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
+#include "SkMakeUnique.h"
+#include "SkMask.h"
 #include "SkOTUtils.h"
 #include "SkPaintPriv.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkRect.h"
 #include "SkScalerContext.h"
-#include "SkString.h"
-#include "SkTestTypeface.h"
-#include "SkTDArray.h"
+#include "SkTestScalerContext.h"
+#include "SkTypefaceCache.h"
 #include "SkUtils.h"
-
-#include <utility>
-
-class SkDescriptor;
 
 SkTestFont::SkTestFont(const SkTestFontData& fontData)
     : INHERITED()

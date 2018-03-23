@@ -830,13 +830,6 @@ uint16_t SkScalerContext_GDI::generateCharToGlyph(SkUnichar utf32) {
         HRZM(ScriptItemize(utf16, numWCHAR, maxItems, &sc, nullptr, si, &numItems),
              "Could not itemize character.");
 
-        // Disable any attempt at shaping.
-        // Without this ScriptShape may return 0x80040200 (USP_E_SCRIPT_NOT_IN_FONT)
-        // when all that is desired here is a simple cmap lookup.
-        for (SCRIPT_ITEM& item : si) {
-            item.a.eScript = SCRIPT_UNDEFINED;
-        }
-
         // Sometimes ScriptShape cannot find a glyph for a non-BMP and returns 2 space glyphs.
         static const int maxGlyphs = 2;
         SCRIPT_VISATTR vsa[maxGlyphs];

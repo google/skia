@@ -8,8 +8,6 @@
 #include "SkFontDescriptor.h"
 #include "SkTestFontMgr.h"
 #include "sk_tool_utils.h"
-#include "SkTestTypeface.h"
-#include "SkTestSVGTypeface.h"
 
 namespace {
 
@@ -17,28 +15,6 @@ static constexpr const char* kFamilyNames[] = {
     "Toy Liberation Sans",
     "Toy Liberation Serif",
     "Toy Liberation Mono",
-    "Emoji",
-};
-
-class JustOneTypefaceStyleSet final : public SkFontStyleSet {
-public:
-    explicit JustOneTypefaceStyleSet(sk_sp<SkTypeface> typeface) : fTypeface(std::move(typeface)) {}
-    int count() override { return 1; }
-
-    void getStyle(int index, SkFontStyle* style, SkString* name) override {
-        if (style) { *style = SkFontStyle::Normal(); }
-        if (name)  { *name = "Normal"; }
-    }
-
-    SkTypeface* createTypeface(int index) override {
-        return SkRef(fTypeface.get());
-    }
-
-    SkTypeface* matchStyle(const SkFontStyle& pattern) override {
-        return this->matchStyleCSS3(pattern);
-    }
-private:
-    sk_sp<SkTypeface> fTypeface;
 };
 
 class FontStyleSet final : public SkFontStyleSet {
@@ -93,7 +69,6 @@ public:
         fFamilies[0] = sk_make_sp<FontStyleSet>(0);
         fFamilies[1] = sk_make_sp<FontStyleSet>(1);
         fFamilies[2] = sk_make_sp<FontStyleSet>(2);
-        fFamilies[3] = sk_make_sp<JustOneTypefaceStyleSet>(SkTestSVGTypeface::Default());
     }
 
     int onCountFamilies() const override { return SK_ARRAY_COUNT(fFamilies); }
@@ -111,7 +86,6 @@ public:
             if (strstr(familyName,  "ans")) { return this->createStyleSet(0); }
             if (strstr(familyName, "erif")) { return this->createStyleSet(1); }
             if (strstr(familyName,  "ono")) { return this->createStyleSet(2); }
-            if (strstr(familyName,  "oji")) { return this->createStyleSet(3); }
         }
         return this->createStyleSet(0);
     }
@@ -164,7 +138,7 @@ public:
     }
 
 private:
-    sk_sp<SkFontStyleSet> fFamilies[4];
+    sk_sp<FontStyleSet> fFamilies[3];
 };
 }
 

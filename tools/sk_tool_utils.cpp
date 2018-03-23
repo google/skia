@@ -5,29 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkBlendMode.h"
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkColorPriv.h"
-#include "SkFloatingPoint.h"
-#include "SkImage.h"
-#include "SkMatrix.h"
-#include "SkPM4f.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPixelRef.h"
-#include "SkPixmap.h"
-#include "SkPoint.h"
-#include "SkRRect.h"
-#include "SkShader.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
 #include "sk_tool_utils.h"
 
-#include <cmath>
-#include <cstring>
-#include <memory>
+#include "Resources.h"
+#include "SkBitmap.h"
+#include "SkCanvas.h"
+#include "SkImage.h"
+#include "SkPixelRef.h"
+#include "SkPM4f.h"
+#include "SkPoint3.h"
+#include "SkShader.h"
+#include "SkSurface.h"
+#include "SkTestScalerContext.h"
+#include "SkTextBlob.h"
 
 namespace sk_tool_utils {
 
@@ -169,7 +159,7 @@ SkPath make_star(const SkRect& bounds, int numPts, int step) {
     #pragma optimize("", off)
 #endif
 void make_big_path(SkPath& path) {
-    #include "BigPathBench.inc" // IWYU pragma: keep
+    #include "BigPathBench.inc"
 }
 
 static float gaussian2d_value(int x, int y, float sigma) {
