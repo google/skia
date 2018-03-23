@@ -8,6 +8,7 @@
 #ifndef GrSWMaskHelper_DEFINED
 #define GrSWMaskHelper_DEFINED
 
+#include "GrTypesPriv.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkDraw.h"
 #include "SkMatrix.h"
