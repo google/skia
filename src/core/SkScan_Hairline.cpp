@@ -345,11 +345,9 @@ static bool quick_cubic_niceness_check(const SkPoint pts[4]) {
            lt_90(pts[2], pts[3], pts[0]);
 }
 
-typedef SkNx<2, uint32_t> Sk2x32;
-
-static inline Sk2x32 sk2s_is_finite(const Sk2s& x) {
-    const Sk2x32 exp_mask = Sk2x32(0xFF << 23);
-    return (Sk2x32::Load(&x) & exp_mask) != exp_mask;
+static inline Sk2u sk2s_is_finite(const Sk2s& x) {
+    const Sk2u exp_mask = Sk2u(0xFF << 23);
+    return (Sk2u::Load(&x) & exp_mask) != exp_mask;
 }
 
 static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* blitter,
@@ -375,7 +373,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     Sk2s B = coeff.fB;
     Sk2s C = coeff.fC;
     Sk2s D = coeff.fD;
-    Sk2x32 is_finite(~0);   // start out as true
+    Sk2u is_finite(~0);   // start out as true
     for (int i = 1; i < lines; ++i) {
         t = t + dt;
         Sk2s p = ((A * t + B) * t + C) * t + D;

@@ -116,6 +116,24 @@ void test_Ni(skiatest::Reporter* r) {
     assert_eq(a << 1, 2,4,6,8,10,12,14,16);
 
     REPORTER_ASSERT(r, a[1] == 2);
+
+    static const T kTrue = (T)-1, kFalse = (T)0;
+
+    static const int loopCount = (1 << N);
+    for (int i = 0; i < loopCount; i++) {
+        T vals[] = { (i & 1) ? kTrue : kFalse,
+                     (i & 2) ? kTrue : kFalse,
+                     (i & 4) ? kTrue : kFalse,
+                     (i & 8) ? kTrue : kFalse,
+                     (i & 16) ? kTrue : kFalse,
+                     (i & 32) ? kTrue : kFalse,
+                     (i & 64) ? kTrue : kFalse,
+                     (i & 128) ? kTrue : kFalse, };
+        SkNx<N, T> v = SkNx<N, T>::Load(vals);
+        REPORTER_ASSERT(r, v.anyTrue() == (i != 0), "N=%d, i=%d", N, i);
+        REPORTER_ASSERT(r, v.allTrue() == (i == loopCount - 1), "N=%d, i=%d", N, i);
+    }
+
 }
 
 DEF_TEST(SkNx, r) {
@@ -126,6 +144,11 @@ DEF_TEST(SkNx, r) {
     test_Ni<2, int>(r);
     test_Ni<4, int>(r);
     test_Ni<8, int>(r);
+
+    test_Ni<2, uint32_t>(r);
+    test_Ni<4, uint32_t>(r);
+    test_Ni<8, uint32_t>(r);
+
 }
 
 DEF_TEST(SkNi_min_lt, r) {
@@ -394,13 +417,13 @@ DEF_TEST(SkNx_neg, r) {
 }
 
 DEF_TEST(SkNx_thenElse, r) {
-    auto fs = (Sk4f(0.0f, -0.0f, 2.0f, -4.0f) < 0).thenElse(-1, 1);
+    auto fs = (Sk4f(0.0f, -0.0f, 2.0f, -4.0f) < 0).thenElse<float>(-1, 1);
     REPORTER_ASSERT(r, fs[0] == 1);
     REPORTER_ASSERT(r, fs[1] == 1);
     REPORTER_ASSERT(r, fs[2] == 1);
     REPORTER_ASSERT(r, fs[3] == -1);
-    auto fshi = (Sk2f(0.0f, -0.0f) < 0).thenElse(-1, 1);
-    auto fslo = (Sk2f(2.0f, -4.0f) < 0).thenElse(-1, 1);
+    auto fshi = (Sk2f(0.0f, -0.0f) < 0).thenElse<float>(-1, 1);
+    auto fslo = (Sk2f(2.0f, -4.0f) < 0).thenElse<float>(-1, 1);
     REPORTER_ASSERT(r, fshi[0] == 1);
     REPORTER_ASSERT(r, fshi[1] == 1);
     REPORTER_ASSERT(r, fslo[0] == 1);

@@ -19,10 +19,17 @@
 
 namespace {
 
+// By default, comparing values of type T returns a result of type T
+template <typename T> struct SkNxCmpResult { typedef T type; };
+// Specialize for floating point types to return the appropriate unsigned integer type
+template <> struct SkNxCmpResult<float> { typedef uint32_t type; };
+template <> struct SkNxCmpResult<double> { typedef uint64_t type; };
+
 // The default SkNx<N,T> just proxies down to a pair of SkNx<N/2, T>.
 template <int N, typename T>
 struct SkNx {
     typedef SkNx<N/2, T> Half;
+    typedef SkNx<N, typename SkNxCmpResult<T>::type> CmpResult;
 
     Half fLo, fHi;
 
@@ -123,12 +130,12 @@ struct SkNx {
     AI SkNx operator|(const SkNx& y) const { return { fLo | y.fLo, fHi | y.fHi }; }
     AI SkNx operator^(const SkNx& y) const { return { fLo ^ y.fLo, fHi ^ y.fHi }; }
 
-    AI SkNx operator==(const SkNx& y) const { return { fLo == y.fLo, fHi == y.fHi }; }
-    AI SkNx operator!=(const SkNx& y) const { return { fLo != y.fLo, fHi != y.fHi }; }
-    AI SkNx operator<=(const SkNx& y) const { return { fLo <= y.fLo, fHi <= y.fHi }; }
-    AI SkNx operator>=(const SkNx& y) const { return { fLo >= y.fLo, fHi >= y.fHi }; }
-    AI SkNx operator< (const SkNx& y) const { return { fLo <  y.fLo, fHi <  y.fHi }; }
-    AI SkNx operator> (const SkNx& y) const { return { fLo >  y.fLo, fHi >  y.fHi }; }
+    AI CmpResult operator==(const SkNx& y) const { return { fLo == y.fLo, fHi == y.fHi }; }
+    AI CmpResult operator!=(const SkNx& y) const { return { fLo != y.fLo, fHi != y.fHi }; }
+    AI CmpResult operator<=(const SkNx& y) const { return { fLo <= y.fLo, fHi <= y.fHi }; }
+    AI CmpResult operator>=(const SkNx& y) const { return { fLo >= y.fLo, fHi >= y.fHi }; }
+    AI CmpResult operator< (const SkNx& y) const { return { fLo <  y.fLo, fHi <  y.fHi }; }
+    AI CmpResult operator> (const SkNx& y) const { return { fLo >  y.fLo, fHi >  y.fHi }; }
 
     AI SkNx saturatedAdd(const SkNx& y) const {
         return { fLo.saturatedAdd(y.fLo), fHi.saturatedAdd(y.fHi) };
@@ -137,7 +144,9 @@ struct SkNx {
     AI SkNx mulHi(const SkNx& m) const {
         return { fLo.mulHi(m.fLo), fHi.mulHi(m.fHi) };
     }
-    AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
+
+    template <class U>
+    AI SkNx<N, U> thenElse(const SkNx<N, U>& t, const SkNx<N, U>& e) const {
         return { fLo.thenElse(t.fLo, e.fLo), fHi.thenElse(t.fHi, e.fHi) };
     }
     AI static SkNx Min(const SkNx& x, const SkNx& y) {
@@ -151,6 +160,7 @@ struct SkNx {
 // The N -> N/2 recursion bottoms out at N == 1, a scalar value.
 template <typename T>
 struct SkNx<1,T> {
+    typedef SkNx<1, typename SkNxCmpResult<T>::type> CmpResult;
     T fVal;
 
     AI SkNx() = default;
@@ -226,12 +236,12 @@ struct SkNx<1,T> {
     AI SkNx operator|(const SkNx& y) const { return FromBits(ToBits(fVal) | ToBits(y.fVal)); }
     AI SkNx operator^(const SkNx& y) const { return FromBits(ToBits(fVal) ^ ToBits(y.fVal)); }
 
-    AI SkNx operator==(const SkNx& y) const { return FromBits(fVal == y.fVal ? ~0 : 0); }
-    AI SkNx operator!=(const SkNx& y) const { return FromBits(fVal != y.fVal ? ~0 : 0); }
-    AI SkNx operator<=(const SkNx& y) const { return FromBits(fVal <= y.fVal ? ~0 : 0); }
-    AI SkNx operator>=(const SkNx& y) const { return FromBits(fVal >= y.fVal ? ~0 : 0); }
-    AI SkNx operator< (const SkNx& y) const { return FromBits(fVal <  y.fVal ? ~0 : 0); }
-    AI SkNx operator> (const SkNx& y) const { return FromBits(fVal >  y.fVal ? ~0 : 0); }
+    AI CmpResult operator==(const SkNx& y) const { return fVal == y.fVal ? ~0 : 0; }
+    AI CmpResult operator!=(const SkNx& y) const { return fVal != y.fVal ? ~0 : 0; }
+    AI CmpResult operator<=(const SkNx& y) const { return fVal <= y.fVal ? ~0 : 0; }
+    AI CmpResult operator>=(const SkNx& y) const { return fVal >= y.fVal ? ~0 : 0; }
+    AI CmpResult operator< (const SkNx& y) const { return fVal <  y.fVal ? ~0 : 0; }
+    AI CmpResult operator> (const SkNx& y) const { return fVal >  y.fVal ? ~0 : 0; }
 
     AI static SkNx Min(const SkNx& x, const SkNx& y) { return x.fVal < y.fVal ? x : y; }
     AI static SkNx Max(const SkNx& x, const SkNx& y) { return x.fVal > y.fVal ? x : y; }
@@ -248,7 +258,8 @@ struct SkNx<1,T> {
         return static_cast<T>((static_cast<uint64_t>(fVal) * m.fVal) >> (sizeof(T)*8));
     }
 
-    AI SkNx thenElse(const SkNx& t, const SkNx& e) const { return fVal != 0 ? t : e; }
+    template <class U>
+    AI SkNx<1, U> thenElse(const SkNx<1, U>& t, const SkNx<1, U>& e) const { return fVal != 0 ? t : e; }
 
 private:
     // Helper functions to choose the right float/double methods.  (In <cmath> madness lies...)
@@ -281,6 +292,7 @@ private:
 
 // Allow scalars on the left or right of binary operators, and things like +=, &=, etc.
 #define V template <int N, typename T> AI static SkNx<N,T>
+#define C template <int N, typename T> AI static SkNx<N, typename SkNxCmpResult<T>::type>
     V operator+ (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) +  y; }
     V operator- (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) -  y; }
     V operator* (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) *  y; }
@@ -288,12 +300,12 @@ private:
     V operator& (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) &  y; }
     V operator| (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) |  y; }
     V operator^ (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) ^  y; }
-    V operator==(T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) == y; }
-    V operator!=(T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) != y; }
-    V operator<=(T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) <= y; }
-    V operator>=(T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) >= y; }
-    V operator< (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) <  y; }
-    V operator> (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) >  y; }
+    C operator==(T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) == y; }
+    C operator!=(T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) != y; }
+    C operator<=(T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) <= y; }
+    C operator>=(T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) >= y; }
+    C operator< (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) <  y; }
+    C operator> (T x, const SkNx<N,T>& y) { return SkNx<N,T>(x) >  y; }
 
     V operator+ (const SkNx<N,T>& x, T y) { return x +  SkNx<N,T>(y); }
     V operator- (const SkNx<N,T>& x, T y) { return x -  SkNx<N,T>(y); }
@@ -302,12 +314,12 @@ private:
     V operator& (const SkNx<N,T>& x, T y) { return x &  SkNx<N,T>(y); }
     V operator| (const SkNx<N,T>& x, T y) { return x |  SkNx<N,T>(y); }
     V operator^ (const SkNx<N,T>& x, T y) { return x ^  SkNx<N,T>(y); }
-    V operator==(const SkNx<N,T>& x, T y) { return x == SkNx<N,T>(y); }
-    V operator!=(const SkNx<N,T>& x, T y) { return x != SkNx<N,T>(y); }
-    V operator<=(const SkNx<N,T>& x, T y) { return x <= SkNx<N,T>(y); }
-    V operator>=(const SkNx<N,T>& x, T y) { return x >= SkNx<N,T>(y); }
-    V operator< (const SkNx<N,T>& x, T y) { return x <  SkNx<N,T>(y); }
-    V operator> (const SkNx<N,T>& x, T y) { return x >  SkNx<N,T>(y); }
+    C operator==(const SkNx<N,T>& x, T y) { return x == SkNx<N,T>(y); }
+    C operator!=(const SkNx<N,T>& x, T y) { return x != SkNx<N,T>(y); }
+    C operator<=(const SkNx<N,T>& x, T y) { return x <= SkNx<N,T>(y); }
+    C operator>=(const SkNx<N,T>& x, T y) { return x >= SkNx<N,T>(y); }
+    C operator< (const SkNx<N,T>& x, T y) { return x <  SkNx<N,T>(y); }
+    C operator> (const SkNx<N,T>& x, T y) { return x >  SkNx<N,T>(y); }
 
     V& operator<<=(SkNx<N,T>& x, int bits) { return (x = x << bits); }
     V& operator>>=(SkNx<N,T>& x, int bits) { return (x = x >> bits); }
@@ -328,6 +340,7 @@ private:
     V& operator |=(SkNx<N,T>& x, T y) { return (x = x | SkNx<N,T>(y)); }
     V& operator ^=(SkNx<N,T>& x, T y) { return (x = x ^ SkNx<N,T>(y)); }
 #undef V
+#undef C
 
 // SkNx<N,T> ~~> SkNx<N/2,T> + SkNx<N/2,T>
 template <int N, typename T>
@@ -390,6 +403,7 @@ typedef SkNx<16, uint16_t> Sk16h;
 
 typedef SkNx<4,  int32_t> Sk4i;
 typedef SkNx<8,  int32_t> Sk8i;
+typedef SkNx<2, uint32_t> Sk2u;
 typedef SkNx<4, uint32_t> Sk4u;
 
 // Include platform specific specializations if available.
