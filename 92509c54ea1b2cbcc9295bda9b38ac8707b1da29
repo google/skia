@@ -16,6 +16,24 @@
       "revId": "92509c54ea1b2cbcc9295bda9b38ac8707b1da29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "becf7fd6_b54c830e",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-03-23T18:37:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "423a116a_10dc60e6",
+      "revId": "92509c54ea1b2cbcc9295bda9b38ac8707b1da29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
