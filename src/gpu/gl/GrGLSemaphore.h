@@ -9,7 +9,7 @@
 #define GrGLSemaphore_DEFINED
 
 #include "GrSemaphore.h"
-
+#include "GrTypesPriv.h"
 #include "GrBackendSemaphore.h"
 
 class GrGLGpu;

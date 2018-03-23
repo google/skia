@@ -14,6 +14,7 @@
 #include "SkRasterClip.h"
 #include "SkRegion.h"
 #include "SkTypes.h"
+#include "GrTypesPriv.h"
 
 class GrShape;
 class GrTextureProxy;
