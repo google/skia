@@ -316,11 +316,7 @@ opts("hsw") {
   if (is_win) {
     cflags = [ "/arch:AVX2" ]
   } else {
-    cflags = [
-      "-mavx2",
-      "-mf16c",
-      "-mfma",
-    ]
+    cflags = [ "-march=haswell" ]
   }
 
   # Oddly, clang-cl doesn't recognize this as a valid flag.
