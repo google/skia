@@ -16,6 +16,24 @@
       "revId": "2455252f95b61d958b2b6c328c7d590231a6efc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3333e7ff_b66cc777",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-23T15:28:11Z",
+      "side": 1,
+      "message": "yep, done. Also removed unnecessary surf-\u003ereset() as surf is constructed after freeTex.",
+      "parentUuid": "bb60cb41_c1226c8a",
+      "revId": "2455252f95b61d958b2b6c328c7d590231a6efc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
