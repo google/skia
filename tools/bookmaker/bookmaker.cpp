@@ -50,6 +50,9 @@ trouble with aliases, plurals
     need to keep first letter of includeWriter @param / @return lowercase
     Quad -> quad, Quads -> quads
 deprecated methods should be sorted down in md out, and show include "Deprecated." text body.
+rewrap text to fit in some number of columns
+#Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
+     would rather keep links for boby above #Literal, and/or make it a block and not a one-liner
 see head of selfCheck.cpp for additional todos
  */
 
@@ -639,7 +642,7 @@ string BmhParser::className(MarkType markType) {
     const char* end = this->lineEnd();
     const char* mc = this->strnchr(fMC, end);
     string classID;
-    TextParser::Save savePlace(this);
+    TextParserSave savePlace(this);
     this->skipSpace();
     const char* wordStart = fChar;
     this->skipToNonAlphaNum();
@@ -1054,9 +1057,6 @@ bool BmhParser::findDefinitions() {
     const char* lastMC = nullptr;
     fParent = nullptr;
     while (!this->eof()) {
-        if (195 == fLineCount && "docs\\SkImageInfo_Reference.bmh" == fFileName) {
-            SkDebugf("");
-        }
         if (this->peek() == fMC) {
             lastMC = fChar;
             this->next();
@@ -1570,7 +1570,7 @@ string BmhParser::methodName() {
     bool addConst = false;
     if (isConstructor || expectOperator) {
         paren = this->strnchr(')', end) + 1;
-        TextParser::Save saveState(this);
+        TextParserSave saveState(this);
         this->skipTo(paren);
         if (this->skipExact("_const")) {
             addConst = true;
@@ -1593,7 +1593,7 @@ string BmhParser::methodName() {
         }
         this->next();
     }
-    TextParser::Save saveState(this);
+    TextParserSave saveState(this);
     this->skipWhiteSpace();
     if (this->startsWith("const")) {
         this->skipName("const");
@@ -1736,6 +1736,22 @@ void TextParser::reportWarning(const char* errorStr) const {
         }
         SkDebugf("%.*s\n", (int) lineLen, err.fLine);
         SkDebugf("%*s^\n", (int) spaces, "");
+    }
+}
+
+void TextParser::setForErrorReporting(const Definition* definition, const char* str) {
+    fFileName = definition->fFileName;
+    fStart = definition->fContentStart;
+    fLine = str;
+    while (fLine > fStart && fLine[-1] != '\n') {
+        --fLine;
+    }
+    fChar = str;
+    fEnd = definition->fContentEnd;
+    fLineCount = definition->fLineCount;
+    const char* lineInc = fStart;
+    while (lineInc < str) {
+        fLineCount += '\n' == *lineInc++;
     }
 }
 
@@ -2289,7 +2305,7 @@ int main(int argc, char** const argv) {
         if (FLAGS_tokens)  {
             IncludeParser::RemoveFile(FLAGS_bmh[0], FLAGS_include[0]);
         }
-        if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh")) {
+        if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh", ParserCommon::OneFile::kNo)) {
             return -1;
         }
     } else if (!FLAGS_status.isEmpty()) {
@@ -2304,7 +2320,7 @@ int main(int argc, char** const argv) {
             return 1;
         }
         HackParser hacker(bmhParser);
-        if (!hacker.parseFile(FLAGS_bmh[0], ".bmh")) {
+        if (!hacker.parseFile(FLAGS_bmh[0], ".bmh", ParserCommon::OneFile::kNo)) {
             SkDebugf("hack failed\n");
             return -1;
         }
@@ -2317,7 +2333,7 @@ int main(int argc, char** const argv) {
     if (!FLAGS_include.isEmpty() && FLAGS_tokens) {
         IncludeParser includeParser;
         includeParser.validate();
-        if (!includeParser.parseFile(FLAGS_include[0], ".h")) {
+        if (!includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
             return -1;
         }
         if (FLAGS_tokens) {
@@ -2332,7 +2348,7 @@ int main(int argc, char** const argv) {
             IncludeParser includeParser;
             includeParser.validate();
             if (!FLAGS_include.isEmpty() &&
-                    !includeParser.parseFile(FLAGS_include[0], ".h")) {
+                    !includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
                 return -1;
             }
             if (!FLAGS_status.isEmpty() && !includeParser.parseStatus(FLAGS_status[0], ".h",
@@ -2347,7 +2363,7 @@ int main(int argc, char** const argv) {
             IncludeWriter includeWriter;
             includeWriter.validate();
             if (!FLAGS_include.isEmpty() &&
-                    !includeWriter.parseFile(FLAGS_include[0], ".h")) {
+                    !includeWriter.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
                 return -1;
             }
             if (!FLAGS_status.isEmpty() && !includeWriter.parseStatus(FLAGS_status[0], ".h",
@@ -2364,7 +2380,7 @@ int main(int argc, char** const argv) {
     }
     if (!done && !FLAGS_fiddle.isEmpty() && FLAGS_examples.isEmpty()) {
         FiddleParser fparser(&bmhParser);
-        if (!fparser.parseFile(FLAGS_fiddle[0], ".txt")) {
+        if (!fparser.parseFile(FLAGS_fiddle[0], ".txt", ParserCommon::OneFile::kNo)) {
             return -1;
         }
     }
@@ -2377,7 +2393,7 @@ int main(int argc, char** const argv) {
         if (!FLAGS_status.isEmpty() && !cparser.openStatus(FLAGS_status[0], FLAGS_ref[0])) {
             return -1;
         }
-        if (!cparser.parseFile(FLAGS_fiddle[0], ".txt")) {
+        if (!cparser.parseFile(FLAGS_fiddle[0], ".txt", ParserCommon::OneFile::kNo)) {
             return -1;
         }
         if (!cparser.closeCatalog()) {
@@ -2387,9 +2403,16 @@ int main(int argc, char** const argv) {
         done = true;
     }
     if (!done && !FLAGS_ref.isEmpty() && FLAGS_examples.isEmpty()) {
+        IncludeParser includeParser;
+        includeParser.validate();
+        if (!FLAGS_include.isEmpty() && !includeParser.parseFile(FLAGS_include[0], ".h",
+                ParserCommon::OneFile::kYes)) {
+            return -1;
+        }
         MdOut mdOut(bmhParser);
         mdOut.fDebugOut = FLAGS_stdout;
-        if (!FLAGS_bmh.isEmpty() && mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0])) {
+        if (!FLAGS_bmh.isEmpty() && mdOut.buildReferences(includeParser,
+                FLAGS_bmh[0], FLAGS_ref[0])) {
             bmhParser.fWroteOut = true;
         }
         if (!FLAGS_status.isEmpty() && mdOut.buildStatus(FLAGS_status[0], FLAGS_ref[0])) {

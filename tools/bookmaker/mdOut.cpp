@@ -135,8 +135,10 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                         if (!result.size()) {
                             t.reportError("missing method");
                             fAddRefFailed = true;
+                            return result;
                         }
-                        return result;
+//                        continue;
+                        SkDebugf("");
                     }
                     ref = fullRef;
                 }
@@ -145,6 +147,11 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
 				add_ref(leadingSpaces, ref, &result);
 				continue;
 			}
+            if (!def) {
+                t.reportError("missing method");
+                fAddRefFailed = true;
+                return result;
+            }
 			result += linkRef(leadingSpaces, def, ref, resolvable);
             continue;
         }
@@ -173,15 +180,15 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("missed Sk prefixed");
                 fAddRefFailed = true;
+                return result;
             }
-            return result;
         }
         if (!ref.compare(0, 2, "SK")) {
             if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("missed SK prefixed");
                 fAddRefFailed = true;
+                return result;
             }
-            return result;
         }
         if (!isupper(start[0])) {
             // TODO:
@@ -261,6 +268,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("undefined reference");
                 fAddRefFailed = true;
+            } else {
+				add_ref(leadingSpaces, ref, &result);
             }
         }
     } while (!t.eof());
@@ -269,25 +278,22 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
 
 
 
-bool MdOut::buildReferences(const char* docDir, const char* mdFileOrPath) {
+bool MdOut::buildReferences(const IncludeParser& includeParser, const char* docDir,
+        const char* mdFileOrPath) {
     if (!sk_isdir(mdFileOrPath)) {
-        SkString mdFile = SkOSPath::Basename(mdFileOrPath);
-        SkString bmhFile = SkOSPath::Join(docDir, mdFile.c_str());
-        bmhFile.remove(bmhFile.size() - 3, 3);
-        bmhFile += ".bmh";
-        SkString mdPath = SkOSPath::Dirname(mdFileOrPath);
-        if (!this->buildRefFromFile(bmhFile.c_str(), mdPath.c_str())) {
-            SkDebugf("failed to parse %s\n", mdFileOrPath);
-            return false;
+        SkDebugf("must pass directory %s\n", mdFileOrPath);
+        SkDebugf("pass -i SkXXX.h to build references for a single include\n");
+        return false;
+    }
+    SkOSFile::Iter it(docDir, ".bmh");
+    for (SkString file; it.next(&file); ) {
+        if (!includeParser.references(file)) {
+            continue;
         }
-    } else {
-        SkOSFile::Iter it(docDir, ".bmh");
-        for (SkString file; it.next(&file); ) {
-            SkString p = SkOSPath::Join(docDir, file.c_str());
-            if (!this->buildRefFromFile(p.c_str(), mdFileOrPath)) {
-                SkDebugf("failed to parse %s\n", p.c_str());
-                return false;
-            }
+        SkString p = SkOSPath::Join(docDir, file.c_str());
+        if (!this->buildRefFromFile(p.c_str(), mdFileOrPath)) {
+            SkDebugf("failed to parse %s\n", p.c_str());
+            return false;
         }
     }
     return true;
@@ -797,6 +803,7 @@ void MdOut::markTypeOut(Definition* def) {
             FPRINTF("<pre style=\"padding: 1em 1em 1em 1em;"
                     "width: 62.5em; background-color: #f0f0f0\">");
             this->lf(1);
+            fResolveAndIndent = true;
             break;
         case MarkType::kColumn:
             this->writePending();
@@ -889,7 +896,7 @@ void MdOut::markTypeOut(Definition* def) {
                 if (def->fWrapper.length() > 0) {
                     FPRINTF("%s", def->fWrapper.c_str());
                 }
-                fRespectLeadingSpace = true;
+                fLiteralAndIndent = true;
             }
             } break;
         case MarkType::kExperimental:
@@ -1107,7 +1114,8 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kWidth:
             break;
         case MarkType::kPhraseDef:
-            break;
+            // skip text and children
+            return;
         case MarkType::kPhraseRef:
             if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
                 def->reportError<void>("missing phrase definition");
@@ -1139,9 +1147,12 @@ void MdOut::markTypeOut(Definition* def) {
             }
             break;
         case MarkType::kCode:
+            fIndent = 0;
+            this->lf(1);
             this->writePending();
             FPRINTF("</pre>");
             this->lf(2);
+            fResolveAndIndent = false;
             break;
         case MarkType::kColumn:
             if (fInList) {
@@ -1174,7 +1185,7 @@ void MdOut::markTypeOut(Definition* def) {
                 FPRINTF("</pre>");
             }
             this->lf(2);
-            fRespectLeadingSpace = false;
+            fLiteralAndIndent = false;
             break;
         case MarkType::kLink:
             this->writeString("</a>");
@@ -1317,9 +1328,15 @@ void MdOut::populateTables(const Definition* def) {
 }
 
 void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable resolvable) {
-    if ((BmhParser::Resolvable::kLiteral == resolvable || fRespectLeadingSpace) && end > start) {
+    if ((BmhParser::Resolvable::kLiteral == resolvable || fLiteralAndIndent ||
+            fResolveAndIndent) && end > start) {
+        int linefeeds = 0;
         while ('\n' == *start) {
+            ++linefeeds;
             ++start;
+        }
+        if (fResolveAndIndent && linefeeds) {
+            this->lf(linefeeds);
         }
         const char* spaceStart = start;
         while (' ' == *start) {
@@ -1328,6 +1345,8 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
         if (start > spaceStart) {
             fIndent = start - spaceStart;
         }
+    }
+    if (BmhParser::Resolvable::kLiteral == resolvable || fLiteralAndIndent) {
         this->writeBlockTrim(end - start, start);
         if ('\n' == end[-1]) {
             this->lf(1);
@@ -1347,14 +1366,20 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
     trim_end_spaces(resolved);
     if (resolved.length()) {
         TextParser paragraph(fFileName, &*resolved.begin(), &*resolved.end(), fLineCount);
-        TextParser original(fFileName, start, end, fLineCount);
-        while (!original.eof() && '\n' == original.peek()) {
-            original.next();
-        }
-        original.skipSpace();
         while (!paragraph.eof()) {
+            while ('\n' == paragraph.peek()) {
+                paragraph.next();
+                if (paragraph.eof()) {
+                    return;
+                }
+            }
+            const char* lineStart = paragraph.fChar;
             paragraph.skipWhiteSpace();
             const char* contentStart = paragraph.fChar;
+            if (fResolveAndIndent && contentStart > lineStart) {
+                this->writePending();
+                this->indentToColumn(contentStart - lineStart);
+            }
             paragraph.skipToEndBracket('\n');
             ptrdiff_t lineLength = paragraph.fChar - contentStart;
             if (lineLength) {
@@ -1364,17 +1389,6 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
                 string str(contentStart, lineLength);
                 this->writeString(str.c_str());
             }
-#if 0
-            int linefeeds = 0;
-            while (lineLength > 0 && '\n' == contentStart[--lineLength]) {
-
-                ++linefeeds;
-            }
-            if (lineLength > 0) {
-                this->nl();
-            }
-            fLinefeeds += linefeeds;
-#endif
             if (paragraph.eof()) {
                 break;
             }
@@ -1386,12 +1400,6 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
                 this->lf(linefeeds);
             }
         }
-#if 0
-        while (end > start && end[0] == '\n') {
-            FPRINTF("\n");
-            --end;
-        }
-#endif
     }
 }
 
