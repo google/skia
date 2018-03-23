@@ -103,6 +103,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
     // Wrapped textures require both image and allocation (because they can be mapped)
     SkASSERT(VK_NULL_HANDLE != info->fImage && VK_NULL_HANDLE != info->fAlloc.fMemory);
 
+    SkDebugf("making wrapped image: image: %d,  w: %d, h: %d\n", info->fImage, desc.fWidth, desc.fHeight);
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, info->fImage, info->fFormat,
                                                            GrVkImageView::kColor_Type,
                                                            info->fLevelCount);
