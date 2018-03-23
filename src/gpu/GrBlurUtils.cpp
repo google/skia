@@ -98,6 +98,9 @@ static bool sw_draw_with_mask_filter(GrContext* context,
                                                                         kNone_GrSurfaceFlags,
                                                                         1, SkBudgeted::kYes,
                                                                         SkBackingFit::kApprox);
+    if (!maskProxy) {
+        return false;
+    }
 
     return draw_mask(renderTargetContext, clipData, viewMatrix,
                      dstM.fBounds, std::move(paint), std::move(maskProxy));
