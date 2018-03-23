@@ -1855,9 +1855,9 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                 auto colorType = SkColorTypeToGrColorType(info.colorType());
                 backendRT = context->contextPriv().getGpu()->createTestingOnlyBackendRenderTarget(
                         info.width(), info.height(), colorType, srgbEncoded);
-                surface = SkSurface::MakeFromBackendRenderTarget(context, backendRT,
-                                                                 kBottomLeft_GrSurfaceOrigin,
-                                                                 info.refColorSpace(), &props);
+                surface = SkSurface::MakeFromBackendRenderTarget(
+                        context, backendRT, kBottomLeft_GrSurfaceOrigin, info.colorType(),
+                        info.refColorSpace(), &props);
             }
             break;
     }
