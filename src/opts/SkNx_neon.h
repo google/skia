@@ -34,6 +34,14 @@ public:
     AI static SkNx Load(const void* ptr) { return vld1_f32((const float*)ptr); }
     AI void store(void* ptr) const { vst1_f32((float*)ptr, fVec); }
 
+    AI static void Store2(void* dst, const SkNx& a, const SkNx& b) {
+        float32x2x2_t ab = {{
+            a.fVec,
+            b.fVec,
+        }};
+        vst2_f32((float*) dst, ab);
+    }
+
     AI static void Store3(void* dst, const SkNx& a, const SkNx& b, const SkNx& c) {
         float32x2x3_t abc = {{
             a.fVec,
