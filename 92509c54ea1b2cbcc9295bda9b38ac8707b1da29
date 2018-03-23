@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "423a116a_10dc60e6",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-03-23T17:41:15Z",
+      "side": 1,
+      "message": "skip check if sumLength is not small:\n\nif (sumLength \u003c kSmallCubicThreshold * (kSampleSize - 1)) {\n    uint8_t sampleVerbs...\n    ...\n    if (2 * cubicCount \u003e\u003d verbCount) {\n        return true;\n    }\n}",
+      "revId": "92509c54ea1b2cbcc9295bda9b38ac8707b1da29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
