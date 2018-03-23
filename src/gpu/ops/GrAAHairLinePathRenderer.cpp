@@ -933,6 +933,13 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
 
     int lineCount = lines.count() / 2;
     int conicCount = conics.count() / 3;
+    int quadAndConicCount = conicCount + quadCount;
+
+    static constexpr int kMaxLines = SK_MaxS32 / kLineSegNumVertices;
+    static constexpr int kMaxQuadsAndConics = SK_MaxS32 / kQuadNumVertices;
+    if (lineCount > kMaxLines || quadAndConicCount > kMaxQuadsAndConics) {
+        return;
+    }
 
     const GrPipeline* pipeline = fHelper.makePipeline(target);
     // do lines first
@@ -1000,7 +1007,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         sk_sp<const GrBuffer> quadsIndexBuffer = get_quads_index_buffer(target->resourceProvider());
 
         size_t vertexStride = sizeof(BezierVertex);
-        int vertexCount = kQuadNumVertices * quadCount + kQuadNumVertices * conicCount;
+        int vertexCount = kQuadNumVertices * quadAndConicCount;
         void *vertices = target->makeVertexSpace(vertexStride, vertexCount,
                                                  &vertexBuffer, &firstVertex);
 
