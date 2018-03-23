@@ -95,29 +95,6 @@ private:
     typedef GrContext INHERITED;
 };
 
-GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext) {
-    GrContextOptions defaultOptions;
-    return Create(backend, backendContext, defaultOptions);
-}
-
-GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
-                             const GrContextOptions& options) {
-
-    sk_sp<GrContext> context(new GrDirectContext(backend));
-
-    context->fGpu = GrGpu::Make(backend, backendContext, options, context.get());
-    if (!context->fGpu) {
-        return nullptr;
-    }
-
-    context->fCaps = context->fGpu->refCaps();
-    if (!context->init(options)) {
-        return nullptr;
-    }
-
-    return context.release();
-}
-
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
     GrContextOptions defaultOptions;
     return MakeGL(std::move(interface), defaultOptions);
