@@ -84,6 +84,7 @@ public:
     // Creates an invalid backend texture.
     GrBackendTexture() : fConfig(kUnknown_GrPixelConfig) {}
 
+#if GR_TEST_UTILS
     // GrGLTextureInfo::fFormat is ignored
     // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendTexture(int width,
@@ -98,6 +99,7 @@ public:
                      GrPixelConfig config,
                      GrMipMapped,
                      const GrGLTextureInfo& glInfo);
+#endif
 
     // The GrGLTextureInfo must have a valid fFormat.
     GrBackendTexture(int width,
@@ -178,6 +180,7 @@ public:
     // Creates an invalid backend texture.
     GrBackendRenderTarget() : fConfig(kUnknown_GrPixelConfig) {}
 
+#if GR_TEST_UTILS
     // GrGLTextureInfo::fFormat is ignored
     // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendRenderTarget(int width,
@@ -186,6 +189,7 @@ public:
                           int stencilBits,
                           GrPixelConfig config,
                           const GrGLFramebufferInfo& glInfo);
+#endif
 
     // The GrGLTextureInfo must have a valid fFormat.
     GrBackendRenderTarget(int width,
