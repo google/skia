@@ -15,6 +15,7 @@
 #include "SkString.h"
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
+#include "SkSLJIT.h"
 
 static void transpose_and_scale01(float dst[20], const float src[20]) {
     const float* srcR = src + 0;
@@ -161,6 +162,23 @@ void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
     if (    needsClamp0) { p->append(SkRasterPipeline::clamp_0); }
     if (    needsClamp1) { p->append(SkRasterPipeline::clamp_1); }
     if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+    #ifdef SK_LLVM_AVAILABLE
+      SkSL::Compiler compiler;
+      SkSL::Program::Settings settings;
+      std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kCPU_Kind,
+          "void swap(int x, int y, inout float4 color) {"
+          "    color.rb = color.br;"
+          "}",
+          settings);
+      if (!program) {
+          printf("%s\n", compiler.errorText().c_str());
+          abort();
+      }
+      SkSL::JIT& jit = *scratch->make<SkSL::JIT>(&compiler);
+      std::unique_ptr<SkSL::JIT::Module> module = jit.compile(std::move(program));
+      void* func = module->getJumperStage("swap");
+      p->append(func, nullptr);
+    #endif
 }
 
 sk_sp<SkColorFilter>

@@ -87,6 +87,10 @@ public:
         return fErrorCount;
     }
 
+    Context& context() {
+        return *fContext;
+    }
+
     static const char* OperatorName(Token::Kind token);
 
     static bool IsAssignment(Token::Kind token);
@@ -133,7 +137,7 @@ private:
     int fFlags;
 
     const String* fSource;
-    Context fContext;
+    std::shared_ptr<Context> fContext;
     int fErrorCount;
     String fErrorText;
 };
