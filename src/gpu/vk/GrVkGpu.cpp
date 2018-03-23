@@ -73,12 +73,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
 }
 #endif
 
-sk_sp<GrGpu> GrVkGpu::Make(GrBackendContext backendContext, const GrContextOptions& options,
-                           GrContext* context) {
-    const auto* backend = reinterpret_cast<const GrVkBackendContext*>(backendContext);
-    return Make(sk_ref_sp(backend), options, context);
-}
-
 sk_sp<GrGpu> GrVkGpu::Make(sk_sp<const GrVkBackendContext> backendContext,
                            const GrContextOptions& options, GrContext* context) {
     if (!backendContext) {

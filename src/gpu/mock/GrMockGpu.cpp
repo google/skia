@@ -38,11 +38,6 @@ int GrMockGpu::NextExternalRenderTargetID() {
     return sk_atomic_inc(&gID);
 }
 
-sk_sp<GrGpu> GrMockGpu::Make(GrBackendContext backendContext,
-                             const GrContextOptions& contextOptions, GrContext* context) {
-    return Make(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
-}
-
 sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
                              const GrContextOptions& contextOptions, GrContext* context) {
     static const GrMockOptions kDefaultOptions = GrMockOptions();

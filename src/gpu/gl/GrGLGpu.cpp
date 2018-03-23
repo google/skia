@@ -175,12 +175,6 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrGpu> GrGLGpu::Make(GrBackendContext backendContext, const GrContextOptions& options,
-                           GrContext* context) {
-    const auto* interface = reinterpret_cast<const GrGLInterface*>(backendContext);
-    return Make(sk_ref_sp(interface), options, context);
-}
-
 sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContextOptions& options,
                            GrContext* context) {
     if (!interface) {

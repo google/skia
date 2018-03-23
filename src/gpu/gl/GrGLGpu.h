@@ -34,7 +34,6 @@ class GrSwizzle;
 
 class GrGLGpu final : public GrGpu, private GrMesh::SendToGpuImpl {
 public:
-    static sk_sp<GrGpu> Make(GrBackendContext backendContext, const GrContextOptions&, GrContext*);
     static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrContext*);
     ~GrGLGpu() override;
 
