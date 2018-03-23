@@ -44,15 +44,6 @@ class SkJSONWriter;
 
 class GrGpu : public SkRefCnt {
 public:
-    /**
-     * Create an instance of GrGpu that matches the specified backend. If the requested backend is
-     * not supported (at compile-time or run-time) this returns nullptr. The context will not be
-     * fully constructed and should not be used by GrGpu until after this function returns.
-     */
-    static sk_sp<GrGpu> Make(GrBackend, GrBackendContext, const GrContextOptions&, GrContext*);
-
-    ////////////////////////////////////////////////////////////////////////////
-
     GrGpu(GrContext* context);
     ~GrGpu() override;
 

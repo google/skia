@@ -57,9 +57,6 @@ public:
     /**
      * Creates a GrContext for a backend context.
      */
-    static GrContext* Create(GrBackend, GrBackendContext, const GrContextOptions& options);
-    static GrContext* Create(GrBackend, GrBackendContext);
-
     static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
     static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>);
     // Deprecated

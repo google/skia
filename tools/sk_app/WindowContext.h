@@ -45,7 +45,6 @@ public:
         fSurfaceProps = props;
     }
 
-    virtual GrBackendContext getBackendContext() = 0;
     GrContext* getGrContext() const { return fContext.get(); }
 
     int width() const { return fWidth; }

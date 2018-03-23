@@ -58,18 +58,22 @@ extern bool gSkForceRasterPipelineBlitter;
 
 #ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
+
 #endif
 
 #if SK_SUPPORT_GPU
-    #include "gl/GrGLDefines.h"
     #include "GrCaps.h"
-    #include "GrContextPriv.h"
     #include "GrContextFactory.h"
-    #include "gl/GrGLUtil.h"
+    #include "GrContextPriv.h"
     #include "SkGr.h"
+    #include "gl/GrGLDefines.h"
+    #include "gl/GrGLGpu.h"
+    #include "gl/GrGLUtil.h"
+
     using sk_gpu_test::ContextInfo;
     using sk_gpu_test::GrContextFactory;
     using sk_gpu_test::TestContext;
+
     GrContextOptions grContextOpts;
 #endif
 
@@ -217,8 +221,9 @@ struct GPUTarget : public Target {
     void fillOptions(ResultsWriter* log) override {
         const GrGLubyte* version;
         if (this->contextInfo.backend() == kOpenGL_GrBackend) {
-            const GrGLInterface* gl = reinterpret_cast<const GrGLInterface*>(
-                    this->contextInfo.testContext()->backendContext());
+            const GrGLInterface* gl =
+                    static_cast<GrGLGpu*>(this->contextInfo.grContext()->contextPriv().getGpu())
+                            ->glInterface();
             GR_GL_CALL_RET(gl, version, GetString(GR_GL_VERSION));
             log->configOption("GL_VERSION", (const char*)(version));
 
