@@ -265,23 +265,6 @@ private:
     size_t                  fMemoryUsed;
 };
 
-class SkAutoGlyphCache : public SkExclusiveStrikePtr {
-public:
-    SkAutoGlyphCache() = default;
-
-    SkAutoGlyphCache(SkGlyphCache* cache) : INHERITED(cache) {}
-
-    /** deprecated: always enables fake gamma */
-    SkAutoGlyphCache(const SkPaint& paint,
-                     const SkSurfaceProps* surfaceProps,
-                     const SkMatrix* matrix)
-        : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(
-            paint, surfaceProps, SkScalerContextFlags::kFakeGammaAndBoostContrast, matrix)) {}
-
-private:
-    using INHERITED = SkExclusiveStrikePtr;
-};
-
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 class SkAutoGlyphCacheNoGamma : public SkExclusiveStrikePtr {
 public:
@@ -296,7 +279,5 @@ private:
 };
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
 #endif
-
-#define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 
 #endif
