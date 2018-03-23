@@ -7,6 +7,8 @@
 
 #include "GrCCCoverageProcessor.h"
 
+#include "GrGpuCommandBuffer.h"
+#include "GrOpFlushState.h"
 #include "SkMakeUnique.h"
 #include "ccpr/GrCCCubicShader.h"
 #include "ccpr/GrCCQuadraticShader.h"
@@ -129,7 +131,10 @@ void GrCCCoverageProcessor::Shader::CalcCornerCoverageAttenuation(GrGLSLVertexGe
 
 void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
                                                 GrProcessorKeyBuilder* b) const {
-    int key = (int)fRenderPass << 2;
+    int key = (int)fPrimitiveType << 3;
+    if (GSSubpass::kCorners == fGSSubpass) {
+        key |= 4;
+    }
     if (WindMethod::kInstanceData == fWindMethod) {
         key |= 2;
     }
@@ -146,20 +151,32 @@ void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
 
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShaderCaps&) const {
     std::unique_ptr<Shader> shader;
-    switch (fRenderPass) {
-        case RenderPass::kTriangles:
-        case RenderPass::kTriangleCorners:
+    switch (fPrimitiveType) {
+        case PrimitiveType::kTriangles:
             shader = skstd::make_unique<GrCCTriangleShader>();
             break;
-        case RenderPass::kQuadratics:
-        case RenderPass::kQuadraticCorners:
+        case PrimitiveType::kQuadratics:
             shader = skstd::make_unique<GrCCQuadraticShader>();
             break;
-        case RenderPass::kCubics:
-        case RenderPass::kCubicCorners:
+        case PrimitiveType::kCubics:
             shader = skstd::make_unique<GrCCCubicShader>();
             break;
     }
     return Impl::kGeometryShader == fImpl ? this->createGSImpl(std::move(shader))
                                           : this->createVSImpl(std::move(shader));
+}
+
+void GrCCCoverageProcessor::draw(GrOpFlushState* flushState, const GrPipeline& pipeline,
+                                 const GrMesh meshes[],
+                                 const GrPipeline::DynamicState dynamicStates[], int meshCount,
+                                 const SkRect& drawBounds) const {
+    GrGpuRTCommandBuffer* cmdBuff = flushState->rtCommandBuffer();
+    cmdBuff->draw(pipeline, *this, meshes, dynamicStates, meshCount, drawBounds);
+
+    // Geometry shader backend draws primitives in two subpasses.
+    if (Impl::kGeometryShader == fImpl) {
+        SkASSERT(GSSubpass::kHulls == fGSSubpass);
+        GrCCCoverageProcessor cornerProc(*this, GSSubpass::kCorners);
+        cmdBuff->draw(pipeline, cornerProc, meshes, dynamicStates, meshCount, drawBounds);
+    }
 }
