@@ -8,6 +8,10 @@
 in uniform sampler2D image;
 in half4x4 matrix;
 
+@constructorParams {
+    GrSamplerState samplerParams
+}
+
 @coordTransform(image) {
     matrix
 }
@@ -41,20 +45,10 @@ in half4x4 matrix;
     }
 }
 
-@constructor {
-    GrSimpleTextureEffect(sk_sp<GrTextureProxy> image, SkMatrix44 matrix,
-                          GrSamplerState samplerParams)
-            : INHERITED(kGrSimpleTextureEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-                                (GrPixelConfigIsOpaque(image->config())
-                                         ? kPreservesOpaqueInput_OptimizationFlag
-                                         : kNone_OptimizationFlags))
-            , fImage(image, samplerParams) // std::move(image) removed for crbug.com/822680
-            , fMatrix(matrix)
-            , fImageCoordTransform(matrix, fImage.proxy()) {
-        this->addTextureSampler(&fImage);
-        this->addCoordTransform(&fImageCoordTransform);
-    }
+@optimizationFlags {
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+    (GrPixelConfigIsOpaque(image->config()) ? kPreservesOpaqueInput_OptimizationFlag :
+                                              kNone_OptimizationFlags)
 }
 
 void main() {
