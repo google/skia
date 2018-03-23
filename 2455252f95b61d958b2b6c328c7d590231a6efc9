@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb60cb41_c1226c8a",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-23T15:21:01Z",
+      "side": 1,
+      "message": "Does it make sense to check is backendTex is valid before this ?",
+      "revId": "2455252f95b61d958b2b6c328c7d590231a6efc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
