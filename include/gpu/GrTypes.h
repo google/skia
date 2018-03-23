@@ -215,51 +215,6 @@ enum class GrMipMapped : bool {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * Pixel configurations. This type conflates texture formats, CPU pixel formats, and
- * premultipliedness. We are moving away from it towards SkColorType and backend API (GL, Vulkan)
- * texture formats in the pulbic API. Right now this mostly refers to texture formats as we're
- * migrating.
- */
-enum GrPixelConfig {
-    kUnknown_GrPixelConfig,
-    kAlpha_8_GrPixelConfig,
-    kGray_8_GrPixelConfig,
-    kRGB_565_GrPixelConfig,
-    kRGBA_4444_GrPixelConfig,
-    kRGBA_8888_GrPixelConfig,
-    kRGB_888_GrPixelConfig,
-    kBGRA_8888_GrPixelConfig,
-    kSRGBA_8888_GrPixelConfig,
-    kSBGRA_8888_GrPixelConfig,
-    kRGBA_1010102_GrPixelConfig,
-    kRGBA_float_GrPixelConfig,
-    kRG_float_GrPixelConfig,
-    kAlpha_half_GrPixelConfig,
-    kRGBA_half_GrPixelConfig,
-
-    /** For internal usage. */
-    kPrivateConfig1_GrPixelConfig,
-    kPrivateConfig2_GrPixelConfig,
-    kPrivateConfig3_GrPixelConfig,
-    kPrivateConfig4_GrPixelConfig,
-    kPrivateConfig5_GrPixelConfig,
-
-    kLast_GrPixelConfig = kPrivateConfig5_GrPixelConfig
-};
-static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
-
-// Aliases for pixel configs that match skia's byte order.
-#ifndef SK_CPU_LENDIAN
-    #error "Skia gpu currently assumes little endian"
-#endif
-#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-    static const GrPixelConfig kSkia8888_GrPixelConfig = kBGRA_8888_GrPixelConfig;
-#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-    static const GrPixelConfig kSkia8888_GrPixelConfig = kRGBA_8888_GrPixelConfig;
-#else
-    #error "SK_*32_SHIFT values must correspond to GL_BGRA or GL_RGBA format."
-#endif
 
 /**
  * Opaque type for 3D API object handles. We are moving away from this type and towards type-safe

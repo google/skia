@@ -8,9 +8,10 @@
 #ifndef GrMtlUtil_DEFINED
 #define GrMtlUtil_DEFINED
 
-#include "GrTypes.h"
-
 #import <Metal/Metal.h>
+
+#include "GrTypesPriv.h"
+
 
 /**
  * Returns the Metal texture format for the given GrPixelConfig

@@ -11,6 +11,7 @@
 #include "gl/GrGLInterface.h"
 #include "GrGLDefines.h"
 #include "GrStencilSettings.h"
+#include "GrTypesPriv.h"
 
 class SkMatrix;
 

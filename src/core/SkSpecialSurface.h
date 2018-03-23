@@ -13,7 +13,7 @@
 #include "SkSurfaceProps.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTypes.h"
+#include "GrTypesPriv.h"
 #endif
 
 class GrContext;
