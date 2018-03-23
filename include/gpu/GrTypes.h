@@ -206,16 +206,6 @@ typedef intptr_t GrBackendContext;
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * Used to control antialiasing in draw calls.
- */
-enum class GrAA : bool {
-    kNo = false,
-    kYes = true
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
  * Used to say whether a texture has mip levels allocated or not.
  */
 enum class GrMipMapped : bool {
@@ -224,66 +214,6 @@ enum class GrMipMapped : bool {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-/**
-* Geometric primitives used for drawing.
-*/
-enum class GrPrimitiveType {
-    kTriangles,
-    kTriangleStrip,
-    kTriangleFan,
-    kPoints,
-    kLines,     // 1 pix wide only
-    kLineStrip, // 1 pix wide only
-    kLinesAdjacency // requires geometry shader support.
-};
-static constexpr int kNumGrPrimitiveTypes = (int) GrPrimitiveType::kLinesAdjacency + 1;
-
-static constexpr bool GrIsPrimTypeLines(GrPrimitiveType type) {
-    return GrPrimitiveType::kLines == type ||
-           GrPrimitiveType::kLineStrip == type ||
-           GrPrimitiveType::kLinesAdjacency == type;
-}
-
-static constexpr bool GrIsPrimTypeTris(GrPrimitiveType type) {
-    return GrPrimitiveType::kTriangles == type     ||
-           GrPrimitiveType::kTriangleStrip == type ||
-           GrPrimitiveType::kTriangleFan == type;
-}
-
-static constexpr bool GrPrimTypeRequiresGeometryShaderSupport(GrPrimitiveType type) {
-    return GrPrimitiveType::kLinesAdjacency == type;
-}
-
-/**
- *  Formats for masks, used by the font cache.
- *  Important that these are 0-based.
- */
-enum GrMaskFormat {
-    kA8_GrMaskFormat,    //!< 1-byte per pixel
-    kA565_GrMaskFormat,  //!< 2-bytes per pixel, RGB represent 3-channel LCD coverage
-    kARGB_GrMaskFormat,  //!< 4-bytes per pixel, color format
-
-    kLast_GrMaskFormat = kARGB_GrMaskFormat
-};
-static const int kMaskFormatCount = kLast_GrMaskFormat + 1;
-
-/**
- *  Return the number of bytes-per-pixel for the specified mask format.
- */
-static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
-    SkASSERT(format < kMaskFormatCount);
-    // kA8   (0) -> 1
-    // kA565 (1) -> 2
-    // kARGB (2) -> 4
-    static const int sBytesPerPixel[] = { 1, 2, 4 };
-    static_assert(SK_ARRAY_COUNT(sBytesPerPixel) == kMaskFormatCount, "array_size_mismatch");
-    static_assert(kA8_GrMaskFormat == 0, "enum_order_dependency");
-    static_assert(kA565_GrMaskFormat == 1, "enum_order_dependency");
-    static_assert(kARGB_GrMaskFormat == 2, "enum_order_dependency");
-
-    return sBytesPerPixel[(int) format];
-}
 
 /**
  * Pixel configurations. This type conflates texture formats, CPU pixel formats, and
@@ -332,98 +262,22 @@ static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 #endif
 
 /**
- * Optional bitfield flags that can be set on GrSurfaceDesc (below).
+ * Opaque type for 3D API object handles. We are moving away from this type and towards type-safe
+ * GrBackend* classes (e.g. GrBackendTexture). However, not all replacement APIs are in place yet.
  */
-enum GrSurfaceFlags {
-    kNone_GrSurfaceFlags = 0x0,
-    /**
-     * Creates a texture that can be rendered to as a GrRenderTarget. Use
-     * GrTexture::asRenderTarget() to access.
-     */
-    kRenderTarget_GrSurfaceFlag = 0x1,
-    /**
-     * Clears to zero on creation. It will cause creation failure if initial data is supplied to the
-     * texture. This only affects the base level if the texture is created with MIP levels.
-     */
-    kPerformInitialClear_GrSurfaceFlag = 0x2
-};
-GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
-
-typedef GrSurfaceFlags GrSurfaceDescFlags;
-
-// opaque type for 3D API object handles
 typedef intptr_t GrBackendObject;
 
 /**
- * Some textures will be stored such that the upper and left edges of the content meet at the
- * the origin (in texture coord space) and for other textures the lower and left edges meet at
- * the origin.
+ * GPU SkImage and SkSurfaces can be stored such that (0, 0) in texture space may correspond to
+ * either the top-left or bottom-left content pixel.
  */
-
 enum GrSurfaceOrigin {
     kTopLeft_GrSurfaceOrigin,
     kBottomLeft_GrSurfaceOrigin,
 };
 
-struct GrMipLevel {
-    const void* fPixels;
-    size_t fRowBytes;
-};
-
 /**
- * Describes a surface to be created.
- */
-struct GrSurfaceDesc {
-    GrSurfaceDesc()
-            : fFlags(kNone_GrSurfaceFlags)
-            , fWidth(0)
-            , fHeight(0)
-            , fConfig(kUnknown_GrPixelConfig)
-            , fSampleCnt(1) {}
-
-    GrSurfaceDescFlags     fFlags;  //!< bitfield of TextureFlags
-    int                    fWidth;  //!< Width of the texture
-    int                    fHeight; //!< Height of the texture
-
-    /**
-     * Format of source data of the texture. Not guaranteed to be the same as
-     * internal format used by 3D API.
-     */
-    GrPixelConfig          fConfig;
-
-    /**
-     * The number of samples per pixel. Zero is treated equivalently to 1. This only
-     * applies if the kRenderTarget_GrSurfaceFlag is set. The actual number
-     * of samples may not exactly match the request. The request will be rounded
-     * up to the next supported sample count. A value larger than the largest
-     * supported sample count will fail.
-     */
-    int                    fSampleCnt;
-};
-
-/**
- * Clips are composed from these objects.
- */
-enum GrClipType {
-    kRect_ClipType,
-    kPath_ClipType
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-/** Ownership rules for external GPU resources imported into Skia. */
-enum GrWrapOwnership {
-    /** Skia will assume the client will keep the resource alive and Skia will not free it. */
-    kBorrow_GrWrapOwnership,
-
-    /** Skia will assume ownership of the resource and free it. */
-    kAdopt_GrWrapOwnership,
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- * The GrContext's cache of backend context state can be partially invalidated.
+ * A GrContext's cache of backend context state can be partially invalidated.
  * These enums are specific to the GL backend and we'd add a new set for an alternative backend.
  */
 enum GrGLBackendState {
@@ -448,8 +302,10 @@ enum GrGLBackendState {
  */
 static const uint32_t kAll_GrBackendState = 0xffffffff;
 
-// Enum used as return value when flush with semaphores so the client knows whether the
-// semaphores were submitted to GPU or not.
+/**
+ * Enum used as return value when flush with semaphores so the client knows whether the semaphores
+ * were submitted to GPU or not.
+ */
 enum class GrSemaphoresSubmitted : bool {
     kNo = false,
     kYes = true

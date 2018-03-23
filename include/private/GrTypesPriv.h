@@ -27,8 +27,141 @@ using GrStdSteadyClock = std::chrono::monotonic_clock;
 using GrStdSteadyClock = std::chrono::steady_clock;
 #endif
 
-/** This enum is used to specify the load operation to be used when an
- *  opList/GrGpuCommandBuffer begins execution.
+/**
+ * Geometric primitives used for drawing.
+ */
+enum class GrPrimitiveType {
+    kTriangles,
+    kTriangleStrip,
+    kTriangleFan,
+    kPoints,
+    kLines,          // 1 pix wide only
+    kLineStrip,      // 1 pix wide only
+    kLinesAdjacency  // requires geometry shader support.
+};
+static constexpr int kNumGrPrimitiveTypes = (int)GrPrimitiveType::kLinesAdjacency + 1;
+
+static constexpr bool GrIsPrimTypeLines(GrPrimitiveType type) {
+    return GrPrimitiveType::kLines == type ||
+           GrPrimitiveType::kLineStrip == type ||
+           GrPrimitiveType::kLinesAdjacency == type;
+}
+
+static constexpr bool GrIsPrimTypeTris(GrPrimitiveType type) {
+    return GrPrimitiveType::kTriangles == type     ||
+           GrPrimitiveType::kTriangleStrip == type ||
+           GrPrimitiveType::kTriangleFan == type;
+}
+
+static constexpr bool GrPrimTypeRequiresGeometryShaderSupport(GrPrimitiveType type) {
+    return GrPrimitiveType::kLinesAdjacency == type;
+}
+
+/**
+ *  Formats for masks, used by the font cache. Important that these are 0-based.
+ */
+enum GrMaskFormat {
+    kA8_GrMaskFormat,    //!< 1-byte per pixel
+    kA565_GrMaskFormat,  //!< 2-bytes per pixel, RGB represent 3-channel LCD coverage
+    kARGB_GrMaskFormat,  //!< 4-bytes per pixel, color format
+
+    kLast_GrMaskFormat = kARGB_GrMaskFormat
+};
+static const int kMaskFormatCount = kLast_GrMaskFormat + 1;
+
+/**
+ *  Return the number of bytes-per-pixel for the specified mask format.
+ */
+static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
+    SkASSERT(format < kMaskFormatCount);
+    // kA8   (0) -> 1
+    // kA565 (1) -> 2
+    // kARGB (2) -> 4
+    static const int sBytesPerPixel[] = {1, 2, 4};
+    static_assert(SK_ARRAY_COUNT(sBytesPerPixel) == kMaskFormatCount, "array_size_mismatch");
+    static_assert(kA8_GrMaskFormat == 0, "enum_order_dependency");
+    static_assert(kA565_GrMaskFormat == 1, "enum_order_dependency");
+    static_assert(kARGB_GrMaskFormat == 2, "enum_order_dependency");
+
+    return sBytesPerPixel[(int)format];
+}
+
+/**
+ * Optional bitfield flags that can be set on GrSurfaceDesc (below).
+ */
+enum GrSurfaceFlags {
+    kNone_GrSurfaceFlags = 0x0,
+    /**
+     * Creates a texture that can be rendered to as a GrRenderTarget. Use
+     * GrTexture::asRenderTarget() to access.
+     */
+    kRenderTarget_GrSurfaceFlag = 0x1,
+    /**
+     * Clears to zero on creation. It will cause creation failure if initial data is supplied to the
+     * texture. This only affects the base level if the texture is created with MIP levels.
+     */
+    kPerformInitialClear_GrSurfaceFlag = 0x2
+};
+GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
+
+typedef GrSurfaceFlags GrSurfaceDescFlags;
+
+/**
+ * Describes a surface to be created.
+ */
+struct GrSurfaceDesc {
+    GrSurfaceDesc()
+            : fFlags(kNone_GrSurfaceFlags)
+            , fWidth(0)
+            , fHeight(0)
+            , fConfig(kUnknown_GrPixelConfig)
+            , fSampleCnt(1) {}
+
+    GrSurfaceDescFlags     fFlags;  //!< bitfield of TextureFlags
+    int                    fWidth;  //!< Width of the texture
+    int                    fHeight; //!< Height of the texture
+
+    /**
+     * Format of source data of the texture. Not guaranteed to be the same as
+     * internal format used by 3D API.
+     */
+    GrPixelConfig          fConfig;
+
+    /**
+     * The number of samples per pixel. Zero is treated equivalently to 1. This only
+     * applies if the kRenderTarget_GrSurfaceFlag is set. The actual number
+     * of samples may not exactly match the request. The request will be rounded
+     * up to the next supported sample count. A value larger than the largest
+     * supported sample count will fail.
+     */
+    int                    fSampleCnt;
+};
+
+/** Ownership rules for external GPU resources imported into Skia. */
+enum GrWrapOwnership {
+    /** Skia will assume the client will keep the resource alive and Skia will not free it. */
+    kBorrow_GrWrapOwnership,
+
+    /** Skia will assume ownership of the resource and free it. */
+    kAdopt_GrWrapOwnership,
+};
+
+/**
+ * Clips are composed from these objects.
+ */
+enum GrClipType {
+    kRect_ClipType,
+    kPath_ClipType
+};
+
+struct GrMipLevel {
+    const void* fPixels;
+    size_t fRowBytes;
+};
+
+/**
+ * This enum is used to specify the load operation to be used when an opList/GrGpuCommandBuffer
+ * begins execution.
  */
 enum class GrLoadOp {
     kLoad,
@@ -36,12 +169,21 @@ enum class GrLoadOp {
     kDiscard,
 };
 
-/** This enum is used to specify the store operation to be used when an
- *  opList/GrGpuCommandBuffer ends execution.
+/**
+ * This enum is used to specify the store operation to be used when an opList/GrGpuCommandBuffer
+ * ends execution.
  */
 enum class GrStoreOp {
     kStore,
     kDiscard,
+};
+
+/**
+ * Used to control antialiasing in draw calls.
+ */
+enum class GrAA : bool {
+    kNo = false,
+    kYes = true
 };
 
 /** This enum indicates the type of antialiasing to be performed. */
