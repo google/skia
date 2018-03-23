@@ -50,7 +50,8 @@ public:
                         VkImageLayout newLayout,
                         VkAccessFlags dstAccessMask,
                         VkPipelineStageFlags dstStageMask,
-                        bool byRegion);
+                        bool byRegion,
+                        bool releaseFamilyQueue = false);
 
     // This simply updates our tracking of the image layout and does not actually do any gpu work.
     // This is only used for mip map generation where we are manually changing the layouts as we

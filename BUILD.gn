@@ -79,6 +79,9 @@ declare_args() {
       skia_tools_vulkan_header_dir = "$fuchsia_vulkan_sdk/include"
     } else if (is_linux || is_win) {
       skia_tools_vulkan_header_dir = "$skia_vulkan_sdk/include"
+    } else if (is_android) {
+      skia_tools_vulkan_header_dir =
+          "/usr/local/google/home/egdaniel/software/vulkanAndroidHeaders"
     }
   }
 }

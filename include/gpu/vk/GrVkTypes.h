@@ -68,6 +68,8 @@ struct GrVkImageInfo {
     VkImageLayout  fImageLayout;
     VkFormat       fFormat;
     uint32_t       fLevelCount;
+    uint32_t       fInitialQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+    uint32_t       fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
 
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle
