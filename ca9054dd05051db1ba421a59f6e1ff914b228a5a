@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b4130e5b_b4f5d572",
+        "filename": "src/core/SkEdgeClipper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-03-23T14:56:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42ae9d1c_07cd3412",
+      "range": {
+        "startLine": 268,
+        "startChar": 19,
+        "endLine": 268,
+        "endChar": 27
+      },
+      "revId": "ca9054dd05051db1ba421a59f6e1ff914b228a5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ff83251_3ef10766",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 3
