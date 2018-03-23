@@ -181,8 +181,10 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
     SkASSERT(!fTarget && surface);
 
     // Check that our a priori computation matched the ultimate reality
-    SkASSERT((fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO) ==
-             surface->surfacePriv().flags());
+    // DDL TODO: re-enable this after skbug.com/7748 (Add FBO-0-ness to SkSurfaceCharacterization)
+    // is fixed.
+//    SkASSERT((fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO) ==
+//             surface->surfacePriv().flags());
 
     fTarget = surface.release();
 
