@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a392529e_6674b8c1",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-03-23T03:36:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "423ba9d2_3b2115ee",
+      "range": {
+        "startLine": 685,
+        "startChar": 4,
+        "endLine": 685,
+        "endChar": 17
+      },
+      "revId": "b9f5bdfad78f0c329d1bd2e29bc22e64719e0114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67215290_5608f79d",
         "filename": "tests/SerializationTest.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "b9f5bdfad78f0c329d1bd2e29bc22e64719e0114",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12a7110d_39a30ef9",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-03-23T03:36:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67215290_5608f79d",
+      "range": {
+        "startLine": 698,
+        "startChar": 12,
+        "endLine": 698,
+        "endChar": 25
+      },
+      "revId": "b9f5bdfad78f0c329d1bd2e29bc22e64719e0114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
