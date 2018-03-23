@@ -113,7 +113,8 @@ sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& d
 
 bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,
                                         SkImage::BackendTextureReleaseProc* releaseProc) {
-    *backendTexture = GrBackendTexture(width(), height(), config(), fInfo);
+    *backendTexture = GrBackendTexture(this->width(), this->height(),
+                                       this->texturePriv().mipMapped(), fInfo);
     // Set the release proc to a no-op function. GL doesn't require any special cleanup.
     *releaseProc = [](GrBackendTexture){};
 

@@ -75,6 +75,8 @@ GrBackendTexture::GrBackendTexture(int width,
         , fVkInfo(vkInfo) {}
 #endif
 
+#if GR_TEST_UTILS
+
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrPixelConfig config,
@@ -92,6 +94,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fMipMapped(mipMapped)
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
+#endif
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
@@ -188,6 +191,8 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fVkInfo(vkInfo) {}
 #endif
 
+#if GR_TEST_UTILS
+
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -201,6 +206,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fConfig(config)
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
+#endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
