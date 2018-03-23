@@ -204,32 +204,6 @@ public:
         @param context              GPU context
         @param backendRenderTarget  GPU intermediate memory buffer
         @param origin               one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorSpace           range of colors
-        @param surfaceProps         LCD striping orientation and setting for device independent
-                                    fonts; may be nullptr
-        @return                     SkSurface if all parameters are valid; otherwise, nullptr
-    */
-    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
-                                                const GrBackendRenderTarget& backendRenderTarget,
-                                                GrSurfaceOrigin origin,
-                                                sk_sp<SkColorSpace> colorSpace,
-                                                const SkSurfaceProps* surfaceProps);
-
-    /** Wraps a GPU-backed buffer into SkSurface. Caller must ensure render target is
-        valid for the lifetime of returned SkSurface.
-
-        SkSurface is returned if all parameters are valid. backendRenderTarget is valid if
-        its pixel configuration agrees with colorSpace and context; for instance, if
-        backendRenderTarget has an sRGB configuration, then context must support sRGB,
-        and colorSpace must be present. Further, backendRenderTarget width and height must
-        not exceed context capabilities, and the context must be able to support
-        back-end render targets.
-
-        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-        @param context              GPU context
-        @param backendRenderTarget  GPU intermediate memory buffer
-        @param origin               one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param colorType            one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
                                     kRGB_565_SkColorType, kARGB_4444_SkColorType,
                                     kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
