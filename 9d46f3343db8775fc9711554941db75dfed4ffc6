@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1c2f99c_6fd34f0f",
+        "filename": "docs/SkSurface_Reference.bmh",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-03-23T19:22:01Z",
+      "side": 1,
+      "message": "I think this had windows line endings before. No real change.",
+      "revId": "9d46f3343db8775fc9711554941db75dfed4ffc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
