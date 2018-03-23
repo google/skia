@@ -137,6 +137,14 @@ SkVector SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t) {
     return to_vector(T + T);
 }
 
+static inline SkPoint double_interp(const SkPoint& v0, const SkPoint& v1, SkScalar t) {
+    double v0x = v0.fX;
+    double x = v0x + (v1.fX - v0x) * t;
+    double v0y = v0.fY;
+    double y = v0y + (v1.fY - v0y) * t;
+    return {SkDoubleToScalar(x), SkDoubleToScalar(y)};
+}
+
 static inline Sk2s interp(const Sk2s& v0, const Sk2s& v1, const Sk2s& t) {
     return v0 + (v1 - v0) * t;
 }
@@ -157,6 +165,11 @@ void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
     dst[2] = to_point(interp(p01, p12, tt));
     dst[3] = to_point(p12);
     dst[4] = to_point(p2);
+    if (!SkScalarsAreFinite(&dst[1].fX, 6)) {
+        dst[1] = double_interp(src[0], src[1], t);
+        dst[3] = double_interp(src[1], src[2], t);
+        dst[2] = double_interp(dst[1], dst[3], t);
+    }
 }
 
 void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
