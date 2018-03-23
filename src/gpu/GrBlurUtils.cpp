@@ -92,12 +92,18 @@ static bool sw_draw_with_mask_filter(GrContext* context,
     bm.setImmutable();
 
     sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
+    if (!image) {
+        return false;
+    }
 
     auto proxyProvider = context->contextPriv().proxyProvider();
     sk_sp<GrTextureProxy> maskProxy = proxyProvider->createTextureProxy(std::move(image),
                                                                         kNone_GrSurfaceFlags,
                                                                         1, SkBudgeted::kYes,
                                                                         SkBackingFit::kApprox);
+    if (!maskProxy) {
+        return false;
+    }
 
     return draw_mask(renderTargetContext, clipData, viewMatrix,
                      dstM.fBounds, std::move(paint), std::move(maskProxy));
