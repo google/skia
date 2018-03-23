@@ -191,7 +191,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
         auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                 nullptr, kSize, kSize, colorType, true, GrMipMapped::kNo);
-
+        SkScopeExit freeTex([backendTex, gpu] {gpu->deleteTestingOnlyBackendTexture(backendTex);});
         auto info = SkImageInfo::Make(kSize, kSize, colorType, kOpaque_SkAlphaType, nullptr);
         auto surf = SkSurface::MakeFromBackendTexture(ctxInfo.grContext(), backendTex,
                                                       kTopLeft_GrSurfaceOrigin, max,
@@ -205,6 +205,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
                                 ->accessRenderTargetContext()
                                 ->numStencilSamples();
         REPORTER_ASSERT(reporter, sampleCnt == max, "Exected: %d, actual: %d", max, sampleCnt);
+        surf.reset();
     }
 }
 #endif
