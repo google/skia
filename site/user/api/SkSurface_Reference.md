@@ -35,7 +35,6 @@ of the requested dimensions are zero, then nullptr will be returned.
 
 | name | description |
 | --- | --- |
-| <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU memory buffer |
 | <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> | creates <a href="#Surface">Surface</a> from GPU texture |
 | <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU back-end render target |
 | <a href="#SkSurface_MakeNull">MakeNull</a> | creates <a href="#Surface">Surface</a> without backing pixels |
@@ -67,7 +66,6 @@ of the requested dimensions are zero, then nullptr will be returned.
 
 | name | description |
 | --- | --- |
-| <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU memory buffer |
 | <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> | creates <a href="#Surface">Surface</a> from GPU texture |
 | <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU back-end render target |
 | <a href="#SkSurface_MakeNull">MakeNull</a> | creates <a href="#Surface">Surface</a> without backing pixels |
@@ -422,7 +420,7 @@ fonts; may be nullptr</td>
 
 ### See Also
 
-<a href="undocumented#GrBackendTexture">GrBackendTexture</a> <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a><sup><a href="#SkSurface_MakeFromBackendRenderTarget_2">[2]</a></sup> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
+<a href="undocumented#GrBackendTexture">GrBackendTexture</a> <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
 
 ---
 
@@ -432,13 +430,13 @@ fonts; may be nullptr</td>
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static sk_sp&lt;SkSurface&gt; MakeFromBackendRenderTarget(GrContext* context,
                                                    const GrBackendRenderTarget& backendRenderTarget,
-                                                   GrSurfaceOrigin origin,
+                                                   GrSurfaceOrigin origin, SkColorType colorType,
                                                    sk_sp&lt;SkColorSpace&gt; colorSpace,
                                                    const SkSurfaceProps* surfaceProps)
 </pre>
 
-Wraps a GPU-backed buffer into <a href="#Surface">Surface</a>. Caller must ensure render target is
-valid for the lifetime of returned <a href="#Surface">Surface</a>.
+Wraps a GPU-backed buffer into <a href="#Surface">Surface</a>. Caller must ensure <a href="#SkSurface_MakeFromBackendRenderTarget_backendRenderTarget">backendRenderTarget</a>
+is valid for the lifetime of returned <a href="#Surface">Surface</a>.
 
 <a href="#Surface">Surface</a> is returned if all parameters are valid. <a href="#SkSurface_MakeFromBackendRenderTarget_backendRenderTarget">backendRenderTarget</a> is valid if
 its pixel configuration agrees with <a href="#SkSurface_MakeFromBackendRenderTarget_colorSpace">colorSpace</a> and <a href="#SkSurface_MakeFromBackendRenderTarget_context">context</a>; for instance, if
@@ -457,82 +455,14 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 GPU intermediate memory buffer</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_origin"> <code><strong>origin </strong></code> </a></td> <td>
 one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
-  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
-range of colors</td>
-  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
-LCD striping orientation and setting for device independent
-fonts; may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-<a href="#Surface">Surface</a> if all parameters are valid; otherwise, nullptr
-
-### Example
-
-<pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-
-    SkPaint paint;
-    paint.setTextSize(32);
-    GrContext* context = canvas->getGrContext();
-    if (!context) {
-         canvas->drawString("GPU only!", 20, 40, paint);
-         return;
-    }
-    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendRenderTarget(context,
-            backEndRenderTarget, kTopLeft_GrSurfaceOrigin, nullptr, nullptr);
-    auto surfaceCanvas = gpuSurface->getCanvas();
-    surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
-    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
-    canvas->drawImage(image, 0, 0);
-
-</pre>
-
-### See Also
-
-<a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
-
----
-
-<a name="SkSurface_MakeFromBackendRenderTarget_2"></a>
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-static sk_sp&lt;SkSurface&gt; MakeFromBackendRenderTarget(GrContext* context,
-                                                   const GrBackendRenderTarget& backendRenderTarget,
-                                                   GrSurfaceOrigin origin, SkColorType colorType,
-                                                   sk_sp&lt;SkColorSpace&gt; colorSpace,
-                                                   const SkSurfaceProps* surfaceProps)
-</pre>
-
-Wraps a GPU-backed buffer into <a href="#Surface">Surface</a>. Caller must ensure <a href="#SkSurface_MakeFromBackendRenderTarget_2_backendRenderTarget">backendRenderTarget</a>
-is valid for the lifetime of returned <a href="#Surface">Surface</a>.
-
-<a href="#Surface">Surface</a> is returned if all parameters are valid. <a href="#SkSurface_MakeFromBackendRenderTarget_2_backendRenderTarget">backendRenderTarget</a> is valid if
-its pixel configuration agrees with <a href="#SkSurface_MakeFromBackendRenderTarget_2_colorSpace">colorSpace</a> and <a href="#SkSurface_MakeFromBackendRenderTarget_2_context">context</a>; for instance, if
-<a href="#SkSurface_MakeFromBackendRenderTarget_2_backendRenderTarget">backendRenderTarget</a> has an sRGB configuration, then <a href="#SkSurface_MakeFromBackendRenderTarget_2_context">context</a> must support sRGB,
-and <a href="#SkSurface_MakeFromBackendRenderTarget_2_colorSpace">colorSpace</a> must be present. Further, <a href="#SkSurface_MakeFromBackendRenderTarget_2_backendRenderTarget">backendRenderTarget</a> width and height must
-not exceed <a href="#SkSurface_MakeFromBackendRenderTarget_2_context">context</a> capabilities, and the <a href="#SkSurface_MakeFromBackendRenderTarget_2_context">context</a> must be able to support
-back-end render targets.
-
-If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_backendRenderTarget"> <code><strong>backendRenderTarget </strong></code> </a></td> <td>
-GPU intermediate memory buffer</td>
-  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_origin"> <code><strong>origin </strong></code> </a></td> <td>
-one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
-  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
 one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
 <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
-  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors</td>
-  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
 LCD striping orientation and setting for device independent
 fonts; may be nullptr</td>
   </tr>
@@ -628,7 +558,7 @@ fonts; may be nullptr</td>
 
 ### See Also
 
-<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a><sup><a href="#SkSurface_MakeFromBackendRenderTarget_2">[2]</a></sup> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
+<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
 
 ---
 
@@ -691,7 +621,7 @@ hint that <a href="#Surface">Surface</a> will host Mip_Map images</td>
 
 ### See Also
 
-<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a><sup><a href="#SkSurface_MakeFromBackendRenderTarget_2">[2]</a></sup> <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a>
+<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a>
 
 ---
 
@@ -747,7 +677,7 @@ or red green blue.
 
 ### See Also
 
-<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a><sup><a href="#SkSurface_MakeFromBackendRenderTarget_2">[2]</a></sup> <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a>
+<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a>
 
 ---
 
@@ -788,7 +718,7 @@ of <a href="undocumented#Raster_Surface">Raster Surface</a>; width, or height, o
 
 ### See Also
 
-<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a><sup><a href="#SkSurface_MakeFromBackendRenderTarget_2">[2]</a></sup> <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a>
+<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a>
 
 ---
 
