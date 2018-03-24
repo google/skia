@@ -171,7 +171,8 @@ public:
         SkASSERT(kUnknown_GrPixelConfig != config);
 
         *backend = gpu->createTestingOnlyBackendTexture(nullptr, fWidth, fHeight,
-                                                        config, true, GrMipMapped::kNo);
+                                                        SkColorTypeToGrColorType(fColorType),
+                                                        GrSRGBEncoded::kNo, true, GrMipMapped::kNo);
 
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
@@ -361,8 +362,9 @@ enum class DDLStage { kMakeImage, kDrawImage, kDetach, kDrawDDL };
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrGpu* gpu = context->contextPriv().getGpu();
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
+    GrBackendTexture backendTex =
+            gpu->createTestingOnlyBackendTexture(nullptr, kSize, kSize, GrColorType::kRGBA_8888,
+                                                 GrSRGBEncoded::kNo, false, GrMipMapped::kNo);
     if (!backendTex.isValid()) {
         return;
     }

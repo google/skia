@@ -4342,8 +4342,11 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 
 #if GR_TEST_UTILS
 GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                          GrPixelConfig config, bool /*isRT*/,
+                                                          GrColorType colorType,
+                                                          GrSRGBEncoded srgbEncoded,
+                                                          bool isRenderTarget,
                                                           GrMipMapped mipMapped) {
+    auto config = GrColorTypeToPixelConfig(colorType, srgbEncoded);
     this->handleDirtyContext();
     if (!this->caps()->isConfigTexturable(config)) {
         return GrBackendTexture();  // invalid

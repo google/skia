@@ -490,11 +490,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter, ctxInfo) {
     for (int ct = 0; ct < kLastEnum_SkColorType; ++ct) {
         static constexpr int kSize = 10;
-        SkColorType colorType = static_cast<SkColorType>(ct);
+        auto colorType = static_cast<SkColorType>(ct);
         bool can = ctxInfo.grContext()->colorTypeSupportedAsImage(colorType);
         auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, colorType, false, GrMipMapped::kNo);
+                nullptr, kSize, kSize, SkColorTypeToGrColorType(colorType), GrSRGBEncoded::kNo,
+                false, GrMipMapped::kNo);
         auto img =
                 SkImage::MakeFromTexture(ctxInfo.grContext(), backendTex, kTopLeft_GrSurfaceOrigin,
                                          colorType, kOpaque_SkAlphaType, nullptr);
@@ -807,7 +808,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     GrGpu* gpu = ctx->contextPriv().getGpu();
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-               pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
+            pixels.get(), kWidth, kHeight, GrColorType::kRGBA_8888, GrSRGBEncoded::kNo, true,
+            GrMipMapped::kNo);
 
     TextureReleaseChecker releaseChecker;
     GrSurfaceOrigin texOrigin = kBottomLeft_GrSurfaceOrigin;

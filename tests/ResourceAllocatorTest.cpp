@@ -25,7 +25,7 @@
 struct ProxyParams {
     int             fSize;
     bool            fIsRT;
-    GrPixelConfig   fConfig;
+    SkColorType     fColorType;
     SkBackingFit    fFit;
     int             fSampleCnt;
     GrSurfaceOrigin fOrigin;
@@ -33,11 +33,12 @@ struct ProxyParams {
 };
 
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const ProxyParams& p) {
+    auto colorType = SkColorTypeToGrColorType(p.fColorType);
     GrSurfaceDesc desc;
     desc.fFlags = p.fIsRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fWidth  = p.fSize;
     desc.fHeight = p.fSize;
-    desc.fConfig = p.fConfig;
+    desc.fConfig = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
     desc.fSampleCnt = p.fSampleCnt;
 
     return proxyProvider->createProxy(desc, p.fOrigin, p.fFit, SkBudgeted::kNo);
@@ -48,9 +49,9 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     GrGpu* gpu = context->contextPriv().getGpu();
 
-    *backendTex = gpu->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize,
-                                                       p.fConfig, false,
-                                                       GrMipMapped::kNo);
+    auto colorType = SkColorTypeToGrColorType(p.fColorType);
+    *backendTex = gpu->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize, colorType,
+                                                       GrSRGBEncoded::kNo, false, GrMipMapped::kNo);
 
     return proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin);
 }
@@ -131,8 +132,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     // Non-RT GrSurfaces are never recycled on some platforms.
     bool kConditionallyShare = resourceProvider->caps()->reuseScratchTextures();
 
-    const GrPixelConfig kRGBA = kRGBA_8888_GrPixelConfig;
-    const GrPixelConfig kBGRA = kBGRA_8888_GrPixelConfig;
+    const SkColorType kRGBA = kRGBA_8888_SkColorType;
+    const SkColorType kBGRA = kBGRA_8888_SkColorType;
 
     const SkBackingFit kE = SkBackingFit::kExact;
     const SkBackingFit kA = SkBackingFit::kApprox;
@@ -157,8 +158,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
                      std::move(p1), std::move(p2), test.fExpectation);
     }
 
-    int k2 = ctxInfo.grContext()->caps()->getRenderTargetSampleCount(2, kRGBA);
-    int k4 = ctxInfo.grContext()->caps()->getRenderTargetSampleCount(4, kRGBA);
+    int maxSamples = ctxInfo.grContext()->maxSurfaceSampleCountForColorType(kRGBA);
+    int k2 = SkTMin(2, maxSamples);
+    int k4 = SkTMin(4, maxSamples);
 
     //--------------------------------------------------------------------------------------------
     TestCase gNonOverlappingTests[] = {

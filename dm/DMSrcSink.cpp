@@ -1459,11 +1459,10 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
             for (int i = 0; i < imageInfo.count(); ++i) {
                 // DDL TODO: how can we tell if we need mipmapping!
                 imageInfo[i].fBackendTexture = gpu->createTestingOnlyBackendTexture(
-                                                                 imageInfo[i].fBitmap.getPixels(),
-                                                                 imageInfo[i].fBitmap.width(),
-                                                                 imageInfo[i].fBitmap.height(),
-                                                                 imageInfo[i].fBitmap.colorType(),
-                                                                 false, GrMipMapped::kNo);
+                        imageInfo[i].fBitmap.getPixels(), imageInfo[i].fBitmap.width(),
+                        imageInfo[i].fBitmap.height(),
+                        SkColorTypeToGrColorType(imageInfo[i].fBitmap.colorType()),
+                        GrSRGBEncoded::kNo, false, GrMipMapped::kNo);
                 SkAssertResult(imageInfo[i].fBackendTexture.isValid());
                 imageInfo[i].fImage = nullptr; // we don't need this anymore
             }
@@ -1840,13 +1839,19 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, fSampleCount,
                                                   &props);
             break;
-        case SkCommandLineConfigGpu::SurfType::kBackendTexture:
+        case SkCommandLineConfigGpu::SurfType::kBackendTexture: {
+            auto srgbEncoded = info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()
+                                       ? GrSRGBEncoded::kYes
+                                       : GrSRGBEncoded::kNo;
+            auto colorType = SkColorTypeToGrColorType(info.colorType());
             backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, info.width(), info.height(), info.colorType(), true, GrMipMapped::kNo);
+                    nullptr, info.width(), info.height(), colorType, srgbEncoded, true,
+                    GrMipMapped::kNo);
             surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
                                                         kTopLeft_GrSurfaceOrigin, fSampleCount,
                                                         fColorType, info.refColorSpace(), &props);
             break;
+        }
         case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
             if (1 == fSampleCount) {
                 auto srgbEncoded = info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()
