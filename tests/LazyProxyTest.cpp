@@ -405,8 +405,9 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
         desc.fHeight = kSize;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
+        GrBackendTexture backendTex =
+                gpu->createTestingOnlyBackendTexture(nullptr, kSize, kSize, GrColorType::kRGBA_8888,
+                                                     GrSRGBEncoded::kNo, false, GrMipMapped::kNo);
 
         sk_sp<GrTextureProxy> lazyProxy = proxyProvider->createLazyProxy(
                 [instantiatePtr, releasePtr, backendTex](GrResourceProvider* rp) {

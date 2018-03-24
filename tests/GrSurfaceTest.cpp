@@ -50,8 +50,9 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-        nullptr, 256, 256, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
+    GrBackendTexture backendTex =
+            gpu->createTestingOnlyBackendTexture(nullptr, 256, 256, GrColorType::kRGBA_8888,
+                                                 GrSRGBEncoded::kNo, false, GrMipMapped::kNo);
 
     sk_sp<GrSurface> texRT2 =
             resourceProvider->wrapRenderableBackendTexture(backendTex, 1, kBorrow_GrWrapOwnership);

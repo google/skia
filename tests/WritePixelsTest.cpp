@@ -460,12 +460,13 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContex
     GrGpu* gpu = context->contextPriv().getGpu();
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
+        GrBackendTexture backendTex =
+                gpu->createTestingOnlyBackendTexture(nullptr, DEV_W, DEV_H, GrColorType::kRGBA_8888,
+                                                     GrSRGBEncoded::kNo, true, GrMipMapped::kNo);
         if (!backendTex.isValid()) {
             continue;
         }
-        SkColorType colorType = kN32_SkColorType;
+        SkColorType colorType = kRGBA_8888_SkColorType;
         sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
                 context, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
         if (surface) {

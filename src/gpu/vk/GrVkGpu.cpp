@@ -1485,9 +1485,12 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
 }
 
 GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, int w, int h,
-                                                          GrPixelConfig config, bool isRenderTarget,
+                                                          GrColorType colorType,
+                                                          GrSRGBEncoded srgbEncoded,
+                                                          bool isRenderTarget,
                                                           GrMipMapped mipMapped) {
     this->handleDirtyContext();
+    auto config = GrColorTypeToPixelConfig(colorType, srgbEncoded);
     GrVkImageInfo info;
     if (!this->createTestingOnlyVkImage(config, w, h, true, isRenderTarget, mipMapped, srcData,
                                         &info)) {

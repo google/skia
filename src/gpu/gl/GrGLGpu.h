@@ -144,9 +144,9 @@ public:
                                                                 int width,
                                                                 int height) override;
 #if GR_TEST_UTILS
-    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                     GrPixelConfig config, bool isRenderTarget,
-                                                     GrMipMapped mipMapped) override;
+    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h, GrColorType,
+                                                     GrSRGBEncoded, bool isRenderTarget,
+                                                     GrMipMapped) override;
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
     void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
 

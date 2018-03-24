@@ -102,11 +102,9 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             SkASSERT(fYUVBmps[i].width() == SkToInt(fYUVBmps[i].rowBytes()));
-            yuvTextures[i] = gpu->createTestingOnlyBackendTexture(fYUVBmps[i].getPixels(),
-                                                                  fYUVBmps[i].width(),
-                                                                  fYUVBmps[i].height(),
-                                                                  kAlpha_8_GrPixelConfig,
-                                                                  false, GrMipMapped::kNo);
+            yuvTextures[i] = gpu->createTestingOnlyBackendTexture(
+                    fYUVBmps[i].getPixels(), fYUVBmps[i].width(), fYUVBmps[i].height(),
+                    GrColorType::kAlpha_8, GrSRGBEncoded::kNo, false, GrMipMapped::kNo);
         }
         context->resetContext();
     }

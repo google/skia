@@ -18,12 +18,11 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
                                                GrColorType ct, GrSRGBEncoded srgbEncoded,
                                                GrSurfaceOrigin origin, const void* data,
                                                size_t rowBytes) {
-    auto config = GrColorTypeToPixelConfig(ct, srgbEncoded);
     sk_sp<GrTextureProxy> proxy;
     if (kBottomLeft_GrSurfaceOrigin == origin) {
         // We (soon will) only support using kBottomLeft with wrapped textures.
         auto backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
-                nullptr, width, height, config, isRT, GrMipMapped::kNo);
+                nullptr, width, height, ct, srgbEncoded, isRT, GrMipMapped::kNo);
         if (!backendTex.isValid()) {
             return nullptr;
         }
@@ -43,7 +42,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
 
     } else {
         GrSurfaceDesc desc;
-        desc.fConfig = config;
+        desc.fConfig = GrColorTypeToPixelConfig(ct, srgbEncoded);
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fFlags = isRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
