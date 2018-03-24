@@ -741,7 +741,7 @@ typedef intptr_t gr_backendcontext_t;
 
 typedef struct gr_glinterface_t gr_glinterface_t;
 
-typedef void (*gr_gl_func_ptr)();
+typedef void (*gr_gl_func_ptr)(void);
 typedef gr_gl_func_ptr (*gr_gl_get_proc)(void* ctx, const char* name);
 
 typedef enum {

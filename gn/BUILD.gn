@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+exec_script("xamarin_inject_compat.py", [ rebase_path("..") ])
+
 declare_args() {
   ar = "ar"
   cc = "cc"
@@ -565,10 +567,12 @@ toolchain("msvc") {
   }
 
   tool("solink") {
-    dllname = "{{output_dir}}/{{target_output_name}}{{output_extension}}"
-    libname = "${dllname}.lib"
-    pdbname = "${dllname}.pdb"
-    rspfile = "${dllname}.rsp"
+    output_prefix = "lib"
+    dllname_no_ext = "{{output_dir}}/{{target_output_name}}"
+    dllname = "${dllname_no_ext}{{output_extension}}"
+    libname = "${dllname_no_ext}.lib"
+    pdbname = "${dllname_no_ext}.pdb"
+    rspfile = "${dllname_no_ext}.rsp"
 
     command = "$env_setup\"$bin/link.exe\" /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile$env_setup_end"
     outputs = [
@@ -694,6 +698,9 @@ toolchain("gcc_like") {
 
   tool("solink") {
     soname = "{{target_output_name}}{{output_extension}}"
+    if (is_linux && linux_soname_version != "") {
+      soname += ".$linux_soname_version"
+    }
 
     rpath = "-Wl,-soname,$soname"
     if (is_mac) {

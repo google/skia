@@ -432,9 +432,11 @@ optional("gpu") {
     libs += [ "EGL" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp" ]
+    # GPU is not linked in, but loaded at runtime
     libs += [
-      "GL",
-      "GLU",
+      # "GL",
+      # "GLU",
+      "dl",
     ]
   } else if (is_mac) {
     sources += [ "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp" ]
@@ -741,6 +743,40 @@ component("skia") {
   if (is_fuchsia) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
   }
+}
+
+config("SkiaSharp_public") {
+  include_dirs = skia_public_includes + [ "include/xamarin" ]
+  defines = [ "SKIA_C_DLL" ]
+  if (is_linux) {
+    defines += [ "SK_SAMPLES_FOR_X" ]
+  }
+  if (!skia_enable_gpu) {
+    defines += [ "SK_SUPPORT_GPU=0" ]
+  }
+}
+
+shared_library("SkiaSharp") {
+  public_configs = [ ":skia_public", ":SkiaSharp_public" ]
+  configs += skia_library_configs + [ ":SkiaSharp_public", "//gn:debug_symbols" ]
+
+  deps = [
+    ":skia",
+  ]
+
+  # clear the sources and add explicitly
+  set_sources_assignment_filter([])
+  sources = [
+    "src/xamarin/sk_managedpixelserializer.cpp",
+    "src/xamarin/sk_managedstream.cpp",
+    "src/xamarin/sk_xamarin.cpp",
+    "src/xamarin/SkiaKeeper.c",
+    "src/xamarin/SkManagedPixelSerializer.cpp",
+    "src/xamarin/SkManagedStream.cpp",
+    "src/xamarin/WinRTCompat.cpp",
+  ]
+
+  libs = []
 }
 
 # Targets guarded by skia_enable_tools may use //third_party freely.

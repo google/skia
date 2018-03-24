@@ -13,8 +13,8 @@
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 SK_C_API void sk_colorspace_unref(sk_colorspace_t* cColorSpace);
-SK_C_API sk_colorspace_t* sk_colorspace_new_srgb();
-SK_C_API sk_colorspace_t* sk_colorspace_new_srgb_linear();
+SK_C_API sk_colorspace_t* sk_colorspace_new_srgb(void);
+SK_C_API sk_colorspace_t* sk_colorspace_new_srgb_linear(void);
 SK_C_API sk_colorspace_t* sk_colorspace_new_icc(const void* input, size_t len);
 SK_C_API sk_colorspace_t* sk_colorspace_new_rgb_with_gamma(sk_colorspace_render_target_gamma_t gamma, const sk_matrix44_t* toXYZD50);
 SK_C_API sk_colorspace_t* sk_colorspace_new_rgb_with_gamma_and_gamut(sk_colorspace_render_target_gamma_t gamma, sk_colorspace_gamut_t gamut);
