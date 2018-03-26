@@ -454,3 +454,17 @@ DEF_TEST(Sk2f_Store4, r) {
     REPORTER_ASSERT(r, dst[6] == 6);
     REPORTER_ASSERT(r, dst[7] == 7);
 }
+
+DEF_TEST(SkNf_anyTrue_allTrue, r) {
+    REPORTER_ASSERT(r,  (Sk2f{1,2} < Sk2f{3,4}).anyTrue());
+    REPORTER_ASSERT(r,  (Sk2f{1,2} < Sk2f{3,4}).allTrue());
+    REPORTER_ASSERT(r,  (Sk2f{3,2} < Sk2f{1,4}).anyTrue());
+    REPORTER_ASSERT(r, !(Sk2f{3,2} < Sk2f{1,4}).allTrue());
+    REPORTER_ASSERT(r, !(Sk2f{3,4} < Sk2f{1,2}).anyTrue());
+
+    REPORTER_ASSERT(r,  (Sk4f{1,2,3,4} < Sk4f{3,4,5,6}).anyTrue());
+    REPORTER_ASSERT(r,  (Sk4f{1,2,3,4} < Sk4f{3,4,5,6}).allTrue());
+    REPORTER_ASSERT(r,  (Sk4f{1,2,3,4} < Sk4f{1,4,1,1}).anyTrue());
+    REPORTER_ASSERT(r, !(Sk4f{1,2,3,4} < Sk4f{1,4,1,1}).allTrue());
+    REPORTER_ASSERT(r, !(Sk4f{3,4,5,6} < Sk4f{1,2,3,4}).anyTrue());
+}
