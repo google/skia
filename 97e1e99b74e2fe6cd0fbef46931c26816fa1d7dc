@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c750b52_949fb205",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T20:18:37Z",
+      "side": 1,
+      "message": "What is the lifetime of func?  Not scoped to module, right?  To jit?",
+      "range": {
+        "startLine": 179,
+        "startChar": 6,
+        "endLine": 179,
+        "endChar": 16
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35e17b97_23055d90",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T20:18:37Z",
+      "side": 1,
+      "message": "// For raw functions (i.e. from a JIT).  Don\u0027t use this unless you know exactly what fn needs to be.  :)",
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e6419de_e3d40270",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T20:18:37Z",
+      "side": 1,
+      "message": "Does it now...",
+      "range": {
+        "startLine": 80,
+        "startChar": 1,
+        "endLine": 82,
+        "endChar": 5
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f4c34d4_aa3bc9e1",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T20:18:37Z",
+      "side": 1,
+      "message": "If you only use one end of the stack, I think you\u0027ll find std::vector delivers a lot more consistent behavior across platforms than std::deque.  std::deque is basically a linked list on Windows.  :/\n\n(You can use std::stack\u003cT, std::vector\u003cT\u003e\u003e, or just a std::vector\u003cT\u003e directly.)",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 14
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57c7ae48_adde7649",
+        "filename": "src/sksl/SkSLJIT.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T20:18:37Z",
+      "side": 1,
+      "message": "So did we get there with just the C API?  That definitely keeps the door open to late binding LLVM.",
+      "range": {
+        "startLine": 35,
+        "startChar": 10,
+        "endLine": 35,
+        "endChar": 16
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a842eca_d7a4dd64",
+        "filename": "src/sksl/SkSLJIT.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T20:18:37Z",
+      "side": 1,
+      "message": "Yeah.  I find it healthy to think of things like float2 as structs, so what we\u0027re really returning is a struct of vectors, where struct fields have names (and, annoyingly, numbers) and vector lanes have numbers.",
+      "range": {
+        "startLine": 209,
+        "startChar": 47,
+        "endLine": 209,
+        "endChar": 64
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f952856_f49d4249",
+        "filename": "src/sksl/ir/SkSLAppendStage.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T20:18:37Z",
+      "side": 1,
+      "message": "Do you agree that the long-term most interesting thing we\u0027re doing here is not so much building pipelines from SkSL source but building pipeline stages from source?\n\nMostly just want to make sure I\u0027ve got things straight in my head that we\u0027re adding two separate (but related) features here:\n\n   1) put together existing stages at runtime\n   2) create new stages at runtime\n\nand that we agree 2) feels almost strictly more powerful than 1).  Just thinking one day we may slice out 1) as 2) becomes more and more useful.",
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9dba1e1_17b4f8a7",
+        "filename": "tests/SkSLJITTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T20:18:37Z",
+      "side": 1,
+      "message": "Knowing how things like to execute, I\u0027m always in the habit of writing ternaries instead of if-else\u0027s.  Does it make a difference when JITtted?  One easier to reason about than the other?",
+      "range": {
+        "startLine": 77,
+        "startChar": 9,
+        "endLine": 77,
+        "endChar": 18
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
