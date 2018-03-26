@@ -112,12 +112,20 @@ public:
     }
 
     AI bool allTrue() const {
+    #if defined(__aarch64__)
+        return 0 != vminv_u32(vreinterpret_u32_f32(fVec));
+    #else
         auto v = vreinterpret_u32_f32(fVec);
         return vget_lane_u32(v,0) && vget_lane_u32(v,1);
+    #endif
     }
     AI bool anyTrue() const {
+    #if defined(__aarch64__)
+        return 0 != vmaxv_u32(vreinterpret_u32_f32(fVec));
+    #else
         auto v = vreinterpret_u32_f32(fVec);
         return vget_lane_u32(v,0) || vget_lane_u32(v,1);
+    #endif
     }
 
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
@@ -229,14 +237,22 @@ public:
     }
 
     AI bool allTrue() const {
+    #if defined(__aarch64__)
+        return 0 != vminvq_u32(vreinterpretq_u32_f32(fVec));
+    #else
         auto v = vreinterpretq_u32_f32(fVec);
         return vgetq_lane_u32(v,0) && vgetq_lane_u32(v,1)
             && vgetq_lane_u32(v,2) && vgetq_lane_u32(v,3);
+    #endif
     }
     AI bool anyTrue() const {
+    #if defined(__aarch64__)
+        return 0 != vmaxvq_u32(vreinterpretq_u32_f32(fVec));
+    #else
         auto v = vreinterpretq_u32_f32(fVec);
         return vgetq_lane_u32(v,0) || vgetq_lane_u32(v,1)
             || vgetq_lane_u32(v,2) || vgetq_lane_u32(v,3);
+    #endif
     }
 
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
