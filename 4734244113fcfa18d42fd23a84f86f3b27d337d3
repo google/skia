@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eaba0317_e51e4483",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2531,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-26T18:02:32Z",
+      "side": 1,
+      "message": "Does this mean we will have different GrTextureProxies (and eventually GrTextures) referring to the same GrBackendTexture? This is not safe in Vulkan",
+      "range": {
+        "startLine": 2530,
+        "startChar": 79,
+        "endLine": 2531,
+        "endChar": 60
+      },
+      "revId": "4734244113fcfa18d42fd23a84f86f3b27d337d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6740fd5f_b9a98147",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2563,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-26T18:02:32Z",
+      "side": 1,
+      "message": "nit remove",
+      "range": {
+        "startLine": 2563,
+        "startChar": 5,
+        "endLine": 2563,
+        "endChar": 6
+      },
+      "revId": "4734244113fcfa18d42fd23a84f86f3b27d337d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c2f6a63_2966b229",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2665,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-26T18:02:32Z",
+      "side": 1,
+      "message": "this doesn\u0027t guarantee the vulkan ones will be done. If you want you can use the testingOnly_flushGpuAndSync call on GrGpu.",
+      "range": {
+        "startLine": 2663,
+        "startChar": 20,
+        "endLine": 2665,
+        "endChar": 37
+      },
+      "revId": "4734244113fcfa18d42fd23a84f86f3b27d337d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
