@@ -14,6 +14,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrSoftwarePathRenderer.h"
 
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
@@ -74,8 +75,10 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         fChain.push_back(sk_make_sp<GrTessellatingPathRenderer>());
     }
 
-    // We always include the default path renderer (as well as SW), so we can draw any path
+    // We always include the default and SW path renderers so we can draw any path
     fChain.push_back(sk_make_sp<GrDefaultPathRenderer>());
+    fChain.push_back(sk_make_sp<GrSoftwarePathRenderer>(context->contextPriv().proxyProvider(),
+                                                        options.fAllowPathMaskCaching));
 }
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(

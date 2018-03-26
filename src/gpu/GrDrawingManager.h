@@ -21,7 +21,6 @@ class GrOnFlushCallbackObject;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOWner;
-class GrSoftwarePathRenderer;
 class GrTextureContext;
 class GrTextureOpList;
 
@@ -55,7 +54,6 @@ public:
     GrAtlasTextContext* getAtlasTextContext();
 
     GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
-                                    bool allowSW,
                                     GrPathRendererChain::DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport = nullptr);
 
@@ -128,7 +126,6 @@ private:
     std::unique_ptr<GrAtlasTextContext> fAtlasTextContext;
 
     GrPathRendererChain*              fPathRendererChain;
-    GrSoftwarePathRenderer*           fSoftwarePathRenderer;
 
     GrTokenTracker                    fTokenTracker;
     bool                              fFlushing;

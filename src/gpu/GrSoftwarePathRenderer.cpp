@@ -25,14 +25,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 GrPathRenderer::CanDrawPath
 GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // Pass on any style that applies. The caller will apply the style if a suitable renderer is
-    // not found and try again with the new GrShape.
-    if (!args.fShape->style().applies() && SkToBool(fProxyProvider) &&
-        (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone)) {
-        // This is the fallback renderer for when a path is too complicated for the GPU ones.
-        return CanDrawPath::kAsBackup;
+    if (args.fDisallowSoftwareRenderer) {
+        return CanDrawPath::kNo;
     }
-    return CanDrawPath::kNo;
+    if (args.fShape->style().applies()) {
+        // Pass on any style that applies. The caller will apply the style if a suitable renderer is
+        // not found and try again with the new GrShape.
+        return CanDrawPath::kNo;
+    }
+    if (GrAAType::kCoverage != args.fAAType && GrAAType::kNone != args.fAAType) {
+        return CanDrawPath::kNo;
+    }
+    // This is the fallback renderer for when a path is too complicated for the GPU ones.
+    return CanDrawPath::kAsBackup;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
