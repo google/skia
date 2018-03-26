@@ -24,6 +24,7 @@ DECLARE_bool(preAbandonGpuContext);
 DECLARE_bool(abandonGpuContext);
 DECLARE_bool(releaseAndAbandonGpuContext);
 DECLARE_string(skps);
+DECLARE_int32(skpViewportSize);
 DECLARE_int32(ddl);
 DECLARE_string(jpgs);
 DECLARE_string(jsons);
