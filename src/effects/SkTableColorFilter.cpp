@@ -255,6 +255,7 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
                 }
                 bitmapPixels += 256;
             }
+            bmp->setImmutable();
             fBitmap = bmp;
         }
         *table = *fBitmap;
