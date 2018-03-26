@@ -402,6 +402,7 @@ INCLUDES = [
     "include/pathops",
     "include/ports",
     "include/private",
+    "include/svg",
     "include/utils",
     "include/utils/mac",
     "src/codec",
