@@ -25,8 +25,11 @@ Connecting to Swarming Bots
 ---------------------------
 
 - Machine name like “skia-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “skia-ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
-  * To log in to a Linux bot in GCE, use `gcloud compute ssh default@<machine name>`. Choose the zone listed for the [GCE VM][gce instances link] (or specify it using the `--zone` command-line flag).
-  * To log in to a Windows bot in GCE, use [Chrome RDP Extension][chrome rdp extension] with the [IP address of the GCE VM][gce instances link]. The username is chrome-bot and the password can be found on [Valentine](https://goto.google.com/valentine) as "chrome-bot (Win GCE)".
+  * First determine the project for the bot:
+     + skia-gce-NNN, skia-ct-gce-NNN: [skia-swarming-bots](https://console.cloud.google.com/compute/instances?project=skia-swarming-bots)
+     + skia-i-gce-NNN, ct-gce-NNN, ct-xxx-builder-NNN: [google.com:skia-buildbots](https://console.cloud.google.com/compute/instances?project=google.com:skia-buildbots)
+  * To log in to a Linux bot in GCE, use `gcloud compute ssh --project <project> default@<machine name>`. Choose the zone listed on the VM's detail page (see links above). You may also specify the zone using the `--zone` command-line flag.
+  * To log in to a Windows bot in GCE, on the VM's detail page, first click the "Set Windows password" button, then click the "RDP" button. (If it hasn't been installed, you will be instructed to install the Chrome RDP Extension for GCP.)
 
 - Machine name ends with “a9”, “m3”, "m5" -> Chrome Golo/Labs
   * To log in to Golo bots, see [go/swarming-ssh](https://goto.google.com/swarming-ssh).
@@ -55,13 +58,10 @@ flashed/imaged back to a clean state, but others can not.
 If a permanent change needs to be made on the machine (such as an OS or driver update), please [file
 a bug][infra bug] and assign to jcgregorio for reassignment.
 
-[chrome rdp extension]:
-    https://chrome.google.com/webstore/detail/chrome-rdp/cbkkbcmdlboombapidmoeolnmdacpkch?hl=en-US
 [current trooper]: http://skia-tree-status.appspot.com/trooper
 [remote access]:
     https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.2nq3yd1axg0n
 [infra bug]: https://bugs.chromium.org/p/skia/issues/entry?template=Infrastructure+Bug
-[gce instances link]: https://console.cloud.google.com/project/31977622648/compute/instances
 [remotely debug android]: https://docs.google.com/document/d/1nxn7TobfaLNNfhSTiwstOnjV0jCxYUI1uwW0T_V7BYg/
 [vnc to skolo windows]:
     https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.7cqd856ft0s
