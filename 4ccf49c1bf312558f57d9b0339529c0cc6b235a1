@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ce529b9_10eaaeaf",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-26T21:18:26Z",
+      "side": 0,
+      "message": "IIRC, this extension was at some point flagged for requiring too much access and I uninstalled it. I haven\u0027t seen the same with the \"Chrome RDP for Google Cloud Platform\" extension.",
+      "range": {
+        "startLine": 29,
+        "startChar": 43,
+        "endLine": 29,
+        "endChar": 87
+      },
+      "revId": "4ccf49c1bf312558f57d9b0339529c0cc6b235a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "049ff32b_a4018fa2",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-26T21:18:26Z",
+      "side": 0,
+      "message": "I haven\u0027t been able to get this to work recently.",
+      "range": {
+        "startLine": 29,
+        "startChar": 145,
+        "endLine": 29,
+        "endChar": 278
+      },
+      "revId": "4ccf49c1bf312558f57d9b0339529c0cc6b235a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

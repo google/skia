@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9afadfbe_fd74d0e7",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-03-26T21:18:26Z",
+      "side": 1,
+      "message": "This is now necessary since most Swarming bots are in the non-default skia-swarming-bots project.",
+      "range": {
+        "startLine": 31,
+        "startChar": 61,
+        "endLine": 31,
+        "endChar": 80
+      },
+      "revId": "60a2d35be8c9aa47f1f408eed8c3f184e89c0188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
