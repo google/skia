@@ -46,10 +46,6 @@ int SkCoverageDeltaMask::ExpandWidth(int width) {
 }
 
 bool SkCoverageDeltaMask::CanHandle(const SkIRect& bounds) {
-    // Return early if either width or height is very large because width * height might overflow.
-    if (bounds.width() >= MAX_MASK_SIZE || bounds.height() >= MAX_MASK_SIZE) {
-        return false;
-    }
     // Expand width so we don't have to worry about the boundary
     return ExpandWidth(bounds.width()) * bounds.height() + PADDING * 2 < MAX_MASK_SIZE;
 }
