@@ -12,6 +12,8 @@
 #include "SkCommandLineFlags.h"
 #include "SkString.h"
 
+#define OLD_STYLE 0
+
 DECLARE_bool(cpu);
 DECLARE_bool(dryRun);
 DECLARE_bool(gpu);
@@ -24,7 +26,9 @@ DECLARE_bool(preAbandonGpuContext);
 DECLARE_bool(abandonGpuContext);
 DECLARE_bool(releaseAndAbandonGpuContext);
 DECLARE_string(skps);
+#if OLD_STYLE
 DECLARE_int32(ddl);
+#endif
 DECLARE_string(jpgs);
 DECLARE_string(jsons);
 DECLARE_string(svgs);
