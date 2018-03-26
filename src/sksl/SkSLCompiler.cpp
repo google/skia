@@ -660,8 +660,11 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     }
     switch (expr->fKind) {
         case Expression::kVariableReference_Kind: {
-            const Variable& var = ((VariableReference*) expr)->fVariable;
-            if (var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
+            const VariableReference& ref = (VariableReference&) *expr;
+            const Variable& var = ref.fVariable;
+            if (ref.refKind() != VariableReference::kWrite_RefKind &&
+                ref.refKind() != VariableReference::kPointer_RefKind &&
+                var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
                 (*undefinedVariables).find(&var) == (*undefinedVariables).end()) {
                 (*undefinedVariables).insert(&var);
                 this->error(expr->fOffset,
