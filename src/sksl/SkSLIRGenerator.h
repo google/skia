@@ -50,6 +50,7 @@
 #include "ir/SkSLType.h"
 #include "ir/SkSLTypeReference.h"
 #include "ir/SkSLVarDeclarations.h"
+#include "ir/SkSLVariableReference.h"
 
 namespace SkSL {
 
@@ -162,7 +163,7 @@ private:
 
     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
-    void markWrittenTo(const Expression& expr, bool readWrite);
+    void setRefKind(const Expression& expr, VariableReference::RefKind kind);
     void getConstantInt(const Expression& value, int64_t* out);
 
     Program::Kind fKind;

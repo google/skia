@@ -1403,7 +1403,9 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
         return nullptr;
     }
     if (Compiler::IsAssignment(expression.fOperator)) {
-        this->markWrittenTo(*left, expression.fOperator != Token::EQ);
+        this->setRefKind(*left, expression.fOperator != Token::EQ ?
+                                                             VariableReference::kReadWrite_RefKind :
+                                                             VariableReference::kWrite_RefKind);
     }
     left = this->coerce(std::move(left), *leftType);
     right = this->coerce(std::move(right), *rightType);
@@ -1534,8 +1536,10 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             return nullptr;
         }
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
-            this->markWrittenTo(*arguments[i],
-                                function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag);
+            this->setRefKind(*arguments[i],
+                             function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag ?
+                             VariableReference::kReadWrite_RefKind :
+                             VariableReference::kPointer_RefKind);
         }
     }
     if (function.fBuiltin && function.fName == "texture" &&
@@ -1786,7 +1790,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
                               "' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->markWrittenTo(*base, true);
+            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
             break;
         case Token::MINUSMINUS:
             if (!base->fType.isNumber()) {
@@ -1795,7 +1799,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
                               "' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->markWrittenTo(*base, true);
+            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
             break;
         case Token::LOGICALNOT:
             if (base->fType != *fContext.fBool_Type) {
@@ -2032,7 +2036,7 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                               "'++' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->markWrittenTo(*base, true);
+            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
             return std::unique_ptr<Expression>(new PostfixExpression(std::move(base),
                                                                      Token::PLUSPLUS));
         case ASTSuffix::kPostDecrement_Kind:
@@ -2041,7 +2045,7 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                               "'--' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->markWrittenTo(*base, true);
+            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
             return std::unique_ptr<Expression>(new PostfixExpression(std::move(base),
                                                                      Token::MINUSMINUS));
         default:
@@ -2077,7 +2081,7 @@ static bool has_duplicates(const Swizzle& swizzle) {
     return false;
 }
 
-void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
+void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind kind) {
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) expr).fVariable;
@@ -2085,27 +2089,26 @@ void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
                 fErrors.error(expr.fOffset,
                               "cannot modify immutable variable '" + var.fName + "'");
             }
-            ((VariableReference&) expr).setRefKind(readWrite ? VariableReference::kReadWrite_RefKind
-                                                             : VariableReference::kWrite_RefKind);
+            ((VariableReference&) expr).setRefKind(kind);
             break;
         }
         case Expression::kFieldAccess_Kind:
-            this->markWrittenTo(*((FieldAccess&) expr).fBase, readWrite);
+            this->setRefKind(*((FieldAccess&) expr).fBase, kind);
             break;
         case Expression::kSwizzle_Kind:
             if (has_duplicates((Swizzle&) expr)) {
                 fErrors.error(expr.fOffset,
                               "cannot write to the same swizzle field more than once");
             }
-            this->markWrittenTo(*((Swizzle&) expr).fBase, readWrite);
+            this->setRefKind(*((Swizzle&) expr).fBase, kind);
             break;
         case Expression::kIndex_Kind:
-            this->markWrittenTo(*((IndexExpression&) expr).fBase, readWrite);
+            this->setRefKind(*((IndexExpression&) expr).fBase, kind);
             break;
         case Expression::kTernary_Kind: {
             TernaryExpression& t = (TernaryExpression&) expr;
-            this->markWrittenTo(*t.fIfTrue, readWrite);
-            this->markWrittenTo(*t.fIfFalse, readWrite);
+            this->setRefKind(*t.fIfTrue, kind);
+            this->setRefKind(*t.fIfFalse, kind);
             break;
         }
         default:
