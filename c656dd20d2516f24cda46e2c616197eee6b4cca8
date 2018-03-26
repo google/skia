@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1332bb31_d27a09f7",
+        "filename": "tools/fonts/SkTestSVGTypeface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-26T20:02:46Z",
+      "side": 1,
+      "message": "Is this our only change since last time?\n\nMight want to fSvgMutex?",
+      "revId": "c656dd20d2516f24cda46e2c616197eee6b4cca8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
