@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
-#include "SkInsetConvexPolygon.h"
+#include "SkOffsetPolygon.h"
 
 static bool is_convex(const SkTDArray<SkPoint>& poly) {
     if (poly.count() < 3) {

@@ -9,7 +9,7 @@
 #include "SkColorData.h"
 #include "SkDrawShadowInfo.h"
 #include "SkGeometry.h"
-#include "SkInsetConvexPolygon.h"
+#include "SkOffsetPolygon.h"
 #include "SkPath.h"
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
