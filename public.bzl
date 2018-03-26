@@ -434,7 +434,6 @@ DM_SRCS_ALL = struct(
         "gm/*.cpp",
         "gm/*.h",
         "src/xml/*.cpp",
-        "src/xml/*.h",
         "tests/*.cpp",
         "tests/*.h",
         "tools/BigPathBench.inc",
