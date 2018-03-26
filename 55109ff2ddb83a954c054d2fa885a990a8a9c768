@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55e21950_45eb82a8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-26T20:24:33Z",
+      "side": 1,
+      "message": "SkAuto",
+      "range": {
+        "startLine": 7,
+        "startChar": 8,
+        "endLine": 7,
+        "endChar": 23
+      },
+      "revId": "55109ff2ddb83a954c054d2fa885a990a8a9c768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "449354e6_2aea77a7",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1881,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-26T20:24:33Z",
+      "side": 1,
+      "message": "Let\u0027s just use kNone here (and teh two below). This device is never doing any blending itself, so there isn\u0027t any reason to do the extra work.",
+      "range": {
+        "startLine": 1881,
+        "startChar": 34,
+        "endLine": 1881,
+        "endChar": 60
+      },
+      "revId": "55109ff2ddb83a954c054d2fa885a990a8a9c768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75938578_00940002",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2083,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-26T20:24:33Z",
+      "side": 1,
+      "message": "Just SkMatrix::I()? Doesn\u0027t seem \u0027matrix\u0027 is used anywhere else now.",
+      "range": {
+        "startLine": 2083,
+        "startChar": 25,
+        "endLine": 2083,
+        "endChar": 31
+      },
+      "revId": "55109ff2ddb83a954c054d2fa885a990a8a9c768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55383d8a_a193ce9d",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2143,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-26T20:24:33Z",
+      "side": 1,
+      "message": "Just SkMatrix::I()? Doesn\u0027t seem \u0027matrix\u0027 is used anywhere else now.",
+      "range": {
+        "startLine": 2143,
+        "startChar": 16,
+        "endLine": 2143,
+        "endChar": 22
+      },
+      "revId": "55109ff2ddb83a954c054d2fa885a990a8a9c768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
