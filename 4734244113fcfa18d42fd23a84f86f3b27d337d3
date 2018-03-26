@@ -68,6 +68,23 @@
       "revId": "4734244113fcfa18d42fd23a84f86f3b27d337d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6216c5e8_a5149200",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-26T18:06:45Z",
+      "side": 1,
+      "message": "might want to spin this off in case the rest of the CL gets reverted?",
+      "revId": "4734244113fcfa18d42fd23a84f86f3b27d337d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
