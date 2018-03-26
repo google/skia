@@ -249,8 +249,12 @@ public:
     Name name() const override;
 private:
     Path fPath;
+    int  fSize;
 };
 
+#define OLD_STYLE 0
+
+#if OLD_STYLE
 // DeferredDisplayList flavor
 class DDLSKPSrc : public Src {
 public:
@@ -262,6 +266,7 @@ public:
 private:
     Path fPath;
 };
+#endif
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)
 class SkottieSrc final : public Src {
@@ -535,6 +540,17 @@ public:
 private:
     const int                   fW, fH;
     std::unique_ptr<SkBBHFactory> fFactory;
+};
+
+class ViaDDL : public Via {
+public:
+    ViaDDL(int numDivisions, Sink* sink);
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+private:
+    class PromiseImageHelper;
+    class TileData;
+
+    const int fNumDivisions;
 };
 
 class ViaSVG : public Via {
