@@ -383,7 +383,7 @@ static void gather_uninteresting_hashes() {
 
 struct TaggedSrc : public std::unique_ptr<Src> {
     SkString tag;
-    SkString options;
+    SkString options1;
 };
 
 struct TaggedSink : public std::unique_ptr<Sink> {
@@ -408,7 +408,7 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
         TaggedSrc& s = gSrcs.push_back();
         s.reset(src.release());
         s.tag = tag;
-        s.options = options;
+        s.options1 = options;
     }
 }
 
@@ -775,7 +775,8 @@ void gather_file_srcs(const SkCommandLineFlags::StringArray& flags, const char* 
         if (sk_isdir(path)) {
             SkOSFile::Iter it(path, ext);
             for (SkString file; it.next(&file); ) {
-                push_src(ext, "", new T(SkOSPath::Join(path, file.c_str())));
+                T* tmp = new T(SkOSPath::Join(path, file.c_str()));
+                push_src(ext, "", tmp);
             }
         } else {
             push_src(ext, "", new T(path));
@@ -788,9 +789,10 @@ static bool gather_srcs() {
         push_src("gm", "", new GMSrc(r->factory()));
     }
 
-    if (FLAGS_ddl > 0) {
-        gather_file_srcs<DDLSKPSrc>(FLAGS_skps, "skp");
-    } else {
+//    if (FLAGS_ddl > 0) {
+//        gather_file_srcs<DDLSKPSrc>(FLAGS_skps, "skp");
+//    } else
+    {
         gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     }
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
@@ -957,6 +959,8 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 
+    VIA("ddl",       ViaDDL, 3,            wrapped);
+
     if (FLAGS_matrix.count() == 4) {
         SkMatrix m;
         m.reset();
@@ -1094,12 +1098,12 @@ struct Task {
             SkBitmap bitmap;
             SkDynamicMemoryWStream stream;
             start(task.sink.tag.c_str(), task.src.tag.c_str(),
-                  task.src.options.c_str(), name.c_str());
+                  task.src.options1.c_str(), name.c_str());
             Error err = task.sink->draw(*task.src, &bitmap, &stream, &log);
             if (!log.isEmpty()) {
                 info("%s %s %s %s:\n%s\n", task.sink.tag.c_str()
                                          , task.src.tag.c_str()
-                                         , task.src.options.c_str()
+                                         , task.src.options1.c_str()
                                          , name.c_str()
                                          , log.c_str());
             }
@@ -1108,12 +1112,12 @@ struct Task {
                     fail(SkStringPrintf("%s %s %s %s: %s",
                                         task.sink.tag.c_str(),
                                         task.src.tag.c_str(),
-                                        task.src.options.c_str(),
+                                        task.src.options1.c_str(),
                                         name.c_str(),
                                         err.c_str()));
                 } else {
                     done(task.sink.tag.c_str(), task.src.tag.c_str(),
-                         task.src.options.c_str(), name.c_str());
+                         task.src.options1.c_str(), name.c_str());
                     return;
                 }
             }
@@ -1152,12 +1156,12 @@ struct Task {
 
                 if (!FLAGS_readPath.isEmpty() &&
                     !gGold.contains(Gold(task.sink.tag, task.src.tag,
-                                         task.src.options, name, md5))) {
+                                         task.src.options1, name, md5))) {
                     fail(SkStringPrintf("%s not found for %s %s %s %s in %s",
                                         md5.c_str(),
                                         task.sink.tag.c_str(),
                                         task.src.tag.c_str(),
-                                        task.src.options.c_str(),
+                                        task.src.options1.c_str(),
                                         name.c_str(),
                                         FLAGS_readPath[0]));
                 }
@@ -1175,7 +1179,7 @@ struct Task {
                 }
             });
         }
-        done(task.sink.tag.c_str(), task.src.tag.c_str(), task.src.options.c_str(), name.c_str());
+        done(task.sink.tag.c_str(), task.src.tag.c_str(), task.src.options1.c_str(), name.c_str());
     }
 
     static void WriteToDisk(const Task& task,
@@ -1192,7 +1196,7 @@ struct Task {
         result.name          = task.src->name();
         result.config        = task.sink.tag;
         result.sourceType    = task.src.tag;
-        result.sourceOptions = task.src.options;
+        result.sourceOptions = task.src.options1;
         result.ext           = ext;
         result.gammaCorrect  = gammaCorrect;
         result.md5           = md5;
@@ -1223,8 +1227,8 @@ struct Task {
             sk_mkdir(path.c_str());
             path = SkOSPath::Join(path.c_str(), task.src.tag.c_str());
             sk_mkdir(path.c_str());
-            if (strcmp(task.src.options.c_str(), "") != 0) {
-              path = SkOSPath::Join(path.c_str(), task.src.options.c_str());
+            if (strcmp(task.src.options1.c_str(), "") != 0) {
+              path = SkOSPath::Join(path.c_str(), task.src.options1.c_str());
               sk_mkdir(path.c_str());
             }
             path = SkOSPath::Join(path.c_str(), task.src->name().c_str());
@@ -1407,7 +1411,7 @@ int main(int argc, char** argv) {
     for (auto&  src : gSrcs) {
         if (src->veto(sink->flags()) ||
             is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
-                           src.options.c_str(), src->name().c_str())) {
+                           src.options1.c_str(), src->name().c_str())) {
             SkAutoMutexAcquire lock(gMutex);
             gPending--;
             continue;
