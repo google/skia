@@ -251,6 +251,7 @@ private:
     Path fPath;
 };
 
+#if 0
 // DeferredDisplayList flavor
 class DDLSKPSrc : public Src {
 public:
@@ -262,6 +263,7 @@ public:
 private:
     Path fPath;
 };
+#endif
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)
 class SkottieSrc final : public Src {
@@ -535,6 +537,14 @@ public:
 private:
     const int                   fW, fH;
     std::unique_ptr<SkBBHFactory> fFactory;
+};
+
+class ViaDDL : public Via {
+public:
+    ViaDDL(int numDivisions, Sink* sink);
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+private:
+    const int fNumDivisions;
 };
 
 class ViaSVG : public Via {
