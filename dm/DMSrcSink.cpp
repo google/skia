@@ -2686,7 +2686,8 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                     return "";
                 });
 #else
-    return "";
+    (void)fNumDivisions;
+    return "ViaDDL is GPU only";
 #endif
 }
 
