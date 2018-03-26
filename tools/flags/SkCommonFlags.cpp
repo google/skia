@@ -63,6 +63,8 @@ DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 DEFINE_string(jsons, "jsons", "Directory to read (Bodymovin) jsons from.");
 #endif
 
+DEFINE_int32(skpViewportSize, 1000, "Width & height of the viewport used to crop skp rendering.");
+
 DEFINE_int32(ddl, 0, "If > 0, the # of x & y divisions used for DeferredDisplayList-based "
                      "GPU SKP rendering.");
 
