@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcd46b5d_03642331",
+        "filename": "include/private/SkPathRef.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-27T11:48:03Z",
+      "side": 1,
+      "message": "These look like good places to use SkTo, either SkToU8() or SkTo\u003cuint8_t\u003e().\n\nThese do the same as a cast in release builds, but also check that the value fits in debug builds.",
+      "range": {
+        "startLine": 498,
+        "startChar": 31,
+        "endLine": 498,
+        "endChar": 39
+      },
+      "revId": "4970b816ff3c3ff7953436a45cb399e6e221247c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "506c8588_7decfbd4",
+        "filename": "include/private/SkSafe32.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-27T11:48:03Z",
+      "side": 1,
+      "message": "Same here?  Let\u0027s use SkToS32() or SkTo\u003cint32_t\u003e() ?",
+      "range": {
+        "startLine": 12,
+        "startChar": 68,
+        "endLine": 12,
+        "endChar": 77
+      },
+      "revId": "4970b816ff3c3ff7953436a45cb399e6e221247c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
