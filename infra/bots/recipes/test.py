@@ -239,11 +239,13 @@ def dm_flags(api, bot):
 
     # DDL is a GPU-only feature
     if 'DDL1' in bot:
-      configs = [c for c in configs if c == 'gl' or c == 'gles']
-      args.extend(['--ddl', "1"])
+      # Just run gl for now but render the large skps
+      configs = ['gl']
+      args.extend(['--skpViewportSize', "2048"])
     if 'DDL3' in bot:
-      configs = [c for c in configs if c == 'gl' or c == 'gles']
-      args.extend(['--ddl', "3"])
+      # Just run ddl-gl for now but render the large skps
+      configs = ['ddl-gl']
+      args.extend(['--skpViewportSize', "2048"])
 
   tf = api.vars.builder_cfg.get('test_filter')
   if 'All' != tf:
@@ -278,14 +280,21 @@ def dm_flags(api, bot):
     args.remove('image')
     args.remove('colorImage')
 
-  # For now it only renders the skps (i.e., no tests, no gms)
-  if 'DDL1' in bot or 'DDL3' in bot:
+  if 'DDL1' in bot:
+    # The DDL1 bot just renders large skp images as a baseline for full DDL
     args.remove('tests')
     args.remove('gm')
     args.remove('image')
     args.remove('colorImage')
     args.remove('svg')
+  elif 'DDL3' in bot:
+    # The DDL3 bot renders large skps and gms in full DDL mode
+    args.remove('tests')
+    args.remove('image')
+    args.remove('colorImage')
+    args.remove('svg')
   else:
+    # Currently, only the DDL bots render skps
     args.remove('skp')
 
   # TODO: ???
@@ -549,6 +558,11 @@ def dm_flags(api, bot):
   if 'AndroidOne' in bot:
     match.append('~WritePixels')  # skia:4711
     match.append('~PremulAlphaRoundTrip_Gpu')  # skia:7501
+
+  if 'DDL3' in bot:
+    match.append('~shadermaskfilter_image') # skia:7751
+    match.append('~imagefilterscropped')    # skia:7751
+    match.append('~animated-image-blurs')   # skia:7751
 
   if 'Chromecast' in bot:
     if 'GPU' in bot:
