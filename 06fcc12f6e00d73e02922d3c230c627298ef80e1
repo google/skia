@@ -274,6 +274,24 @@
       "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5baab7a6_36b68d15",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-27T19:22:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48cfa41e_91d84bfa",
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
