@@ -1573,9 +1573,8 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     canDrawArgs.fAAType = aaType;
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
-    // Don't allow the SW renderer
     GrPathRenderer* pr = fRenderTargetContext->drawingManager()->getPathRenderer(
-            canDrawArgs, false, GrPathRendererChain::DrawType::kStencilAndColor);
+            canDrawArgs, GrPathRendererChain::DrawType::kStencilAndColor);
     if (!pr) {
         return false;
     }
@@ -1618,6 +1617,12 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "internalDrawPath", fContext);
 
+    using DrawType = GrPathRendererChain::DrawType;
+
+    if (originalShape.isEmpty() && !originalShape.inverseFilled()) {
+        return;
+    }
+
     SkIRect clipConservativeBounds;
     clip.getConservativeBounds(this->width(), this->height(), &clipConservativeBounds, nullptr);
 
@@ -1634,18 +1639,11 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &originalShape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
+    canDrawArgs.fAAType = aaType;
     canDrawArgs.fHasUserStencilSettings = false;
 
-    GrPathRenderer* pr;
-    static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
-    if (originalShape.isEmpty() && !originalShape.inverseFilled()) {
-        return;
-    }
-
-    canDrawArgs.fAAType = aaType;
-
     // Try a 1st time without applying any of the style to the geometry (and barring sw)
-    pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
+    GrPathRenderer* pr = this->drawingManager()->getPathRenderer(canDrawArgs, DrawType::kColor);
     SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
 
     if (!pr && originalShape.style().pathEffect()) {
@@ -1655,23 +1653,22 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
             return;
         }
         canDrawArgs.fShape = &tempShape;
-        pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
+        pr = this->drawingManager()->getPathRenderer(canDrawArgs, DrawType::kColor);
     }
-    if (!pr) {
-        if (canDrawArgs.fShape->style().applies()) {
-            tempShape = canDrawArgs.fShape->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec,
-                                                       styleScale);
-            if (tempShape.isEmpty()) {
-                return;
-            }
-            canDrawArgs.fShape = &tempShape;
+
+    if (!pr && canDrawArgs.fShape->style().applies()) {
+        tempShape = canDrawArgs.fShape->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec,
+                                                   styleScale);
+        if (tempShape.isEmpty()) {
+            return;
         }
-        // This time, allow SW renderer
-        pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
+        canDrawArgs.fShape = &tempShape;
+        pr = this->drawingManager()->getPathRenderer(canDrawArgs, DrawType::kColor);
     }
 
     if (!pr) {
 #ifdef SK_DEBUG
+        SkASSERT(!canDrawArgs.fShape->style().applies());
         SkDebugf("Unable to find path renderer compatible with path.\n");
 #endif
         return;
