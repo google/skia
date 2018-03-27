@@ -100,6 +100,7 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeColorSpin() const {
     SkMatrix44 spin(SkMatrix44::kUninitialized_Constructor);
     spin.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
     spin.postConcat(fToXYZD50);
+    (void)spin.getType();  // Pre-cache spin matrix type to avoid races in future getType() calls.
     return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(fGammaNamed, fGammas, spin, fProfileData));
 }
 
