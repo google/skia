@@ -16,6 +16,24 @@
       "revId": "c656dd20d2516f24cda46e2c616197eee6b4cca8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eae6d4c_c860e091",
+        "filename": "tools/fonts/SkTestSVGTypeface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-27T15:23:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1332bb31_d27a09f7",
+      "revId": "c656dd20d2516f24cda46e2c616197eee6b4cca8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
