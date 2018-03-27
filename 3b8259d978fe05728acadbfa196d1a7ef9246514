@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19a0d673_3da4d791",
+        "filename": "tools/fonts/SkTestSVGTypeface.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-27T16:06:52Z",
+      "side": 1,
+      "message": "a.k.a fGlyphCount  :)",
+      "range": {
+        "startLine": 114,
+        "startChar": 27,
+        "endLine": 114,
+        "endChar": 47
+      },
+      "revId": "3b8259d978fe05728acadbfa196d1a7ef9246514",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
