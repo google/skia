@@ -402,7 +402,6 @@ INCLUDES = [
     "include/pathops",
     "include/ports",
     "include/private",
-    "include/svg",
     "include/utils",
     "include/utils/mac",
     "src/codec",
@@ -483,7 +482,6 @@ DM_SRCS_ALL = struct(
     exclude = [
         "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
         "tests/skia_test.cpp",  # Old main.
-        "tests/SVGDeviceTest.cpp",
         "tools/gpu/atlastext/*",
         "tools/gpu/gl/angle/*",
         "tools/gpu/gl/egl/*",
