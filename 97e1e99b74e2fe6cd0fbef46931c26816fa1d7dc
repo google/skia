@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0ffc18af_4149c2e5",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-03-27T18:12:00Z",
+      "side": 1,
+      "message": "It actually is scoped to module (and therefore this code is wrong), but this was just test code I didn\u0027t mean to check in in the first place.",
+      "parentUuid": "6c750b52_949fb205",
+      "range": {
+        "startLine": 179,
+        "startChar": 6,
+        "endLine": 179,
+        "endChar": 16
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35e17b97_23055d90",
         "filename": "src/core/SkRasterPipeline.h",
         "patchSetId": 17
@@ -39,6 +63,24 @@
       "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e419d636_e36f152f",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-03-27T18:12:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35e17b97_23055d90",
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "7b26fe07_a25d9bae",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-03-27T18:12:00Z",
+      "side": 1,
+      "message": "Ok, in my defense OH MY GOD, WHAT\u0027S THAT BEHIND YOU?? SERIOUSLY, TURN AROUND AND LOOK! RIGHT NOW!\n\nSorry, what were we talking about?",
+      "parentUuid": "3e6419de_e3d40270",
+      "range": {
+        "startLine": 80,
+        "startChar": 1,
+        "endLine": 82,
+        "endChar": 5
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f4c34d4_aa3bc9e1",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 17
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "74402ae0_17db2202",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-03-27T18:12:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f4c34d4_aa3bc9e1",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 14
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "57c7ae48_adde7649",
         "filename": "src/sksl/SkSLJIT.h",
         "patchSetId": 17
@@ -108,6 +198,30 @@
       "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76c7e595_5e8e6494",
+        "filename": "src/sksl/SkSLJIT.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-03-27T18:12:00Z",
+      "side": 1,
+      "message": "We did indeed.",
+      "parentUuid": "57c7ae48_adde7649",
+      "range": {
+        "startLine": 35,
+        "startChar": 10,
+        "endLine": 35,
+        "endChar": 16
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -151,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "df032b2e_5ececa36",
+        "filename": "src/sksl/ir/SkSLAppendStage.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-03-27T18:12:00Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "5f952856_f49d4249",
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9dba1e1_17b4f8a7",
         "filename": "tests/SkSLJITTest.cpp",
         "patchSetId": 17
@@ -171,6 +303,30 @@
       "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d28618fc_a72bf0ae",
+        "filename": "tests/SkSLJITTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-03-27T18:12:00Z",
+      "side": 1,
+      "message": "Theoretically one could optimize both of them equivalently, but it\u0027s definitely easier to do this optimization for ternaries.",
+      "parentUuid": "f9dba1e1_17b4f8a7",
+      "range": {
+        "startLine": 77,
+        "startChar": 9,
+        "endLine": 77,
+        "endChar": 18
+      },
+      "revId": "97e1e99b74e2fe6cd0fbef46931c26816fa1d7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
