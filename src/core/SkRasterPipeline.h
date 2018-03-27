@@ -122,6 +122,9 @@ public:
     };
     void append(StockStage, void* = nullptr);
     void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
+    // For raw functions (i.e. from a JIT).  Don't use this unless you know exactly what fn needs to
+    // be. :)
+    void append(void* fn, void* ctx);
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
@@ -154,8 +157,9 @@ public:
 private:
     struct StageList {
         StageList* prev;
-        StockStage stage;
+        uint64_t   stage;
         void*      ctx;
+        bool       rawFunction;
     };
 
     using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, void** program);
