@@ -504,6 +504,8 @@
   "Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All",
   "Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE",
   "Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-Vulkan",
+  "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All",
+  "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All-ANGLE",
   "Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All",
   "Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-ANGLE",
   "Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan",
