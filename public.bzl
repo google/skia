@@ -267,6 +267,9 @@ BASE_SRCS_ALL = struct(
 
         # Atlas text
         "src/atlastext/*",
+
+        # Not time for skcms in Google3 yet.
+        "src/core/SkColorSpaceXform_skcms.cpp",
     ],
 )
 
