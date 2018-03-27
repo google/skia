@@ -8,20 +8,21 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkDOM.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageShader.h"
 #include "SkParse.h"
-#include "SkSVGCanvas.h"
 #include "SkShader.h"
 #include "SkStream.h"
-#include "SkXMLWriter.h"
 #include "Test.h"
 
 #include <string.h>
 
 #ifdef SK_XML
+
+#include "SkDOM.h"
+#include "SkSVGCanvas.h"
+#include "SkXMLWriter.h"
 
 namespace {
 
