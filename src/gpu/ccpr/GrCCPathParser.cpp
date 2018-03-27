@@ -500,7 +500,7 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
 
 void GrCCPathParser::drawCoverageCount(GrOpFlushState* flushState, CoverageCountBatchID batchID,
                                        const SkIRect& drawBounds) const {
-    using RenderPass = GrCCCoverageProcessor::RenderPass;
+    using PrimitiveType = GrCCCoverageProcessor::PrimitiveType;
     using WindMethod = GrCCCoverageProcessor::WindMethod;
 
     SkASSERT(fInstanceBuffer);
@@ -511,54 +511,40 @@ void GrCCPathParser::drawCoverageCount(GrOpFlushState* flushState, CoverageCount
                         SkBlendMode::kPlus);
 
     if (batchTotalCounts.fTriangles) {
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangles,
+        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kTriangles,
                              WindMethod::kCrossProduct, &PrimitiveTallies::fTriangles, drawBounds);
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangleCorners,
-                             WindMethod::kCrossProduct, &PrimitiveTallies::fTriangles,
-                             drawBounds); // Might get skipped.
     }
 
     if (batchTotalCounts.fWoundTriangles) {
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangles,
+        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kTriangles,
                              WindMethod::kInstanceData, &PrimitiveTallies::fWoundTriangles,
                              drawBounds);
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangleCorners,
-                             WindMethod::kInstanceData, &PrimitiveTallies::fWoundTriangles,
-                             drawBounds); // Might get skipped.
     }
 
     if (batchTotalCounts.fQuadratics) {
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kQuadratics,
-                             WindMethod::kCrossProduct, &PrimitiveTallies::fQuadratics, drawBounds);
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kQuadraticCorners,
+        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kQuadratics,
                              WindMethod::kCrossProduct, &PrimitiveTallies::fQuadratics, drawBounds);
     }
 
     if (batchTotalCounts.fCubics) {
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kCubics,
-                             WindMethod::kCrossProduct, &PrimitiveTallies::fCubics, drawBounds);
-        this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kCubicCorners,
+        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kCubics,
                              WindMethod::kCrossProduct, &PrimitiveTallies::fCubics, drawBounds);
     }
 }
 
-void GrCCPathParser::drawRenderPass(GrOpFlushState* flushState, const GrPipeline& pipeline,
+void GrCCPathParser::drawPrimitives(GrOpFlushState* flushState, const GrPipeline& pipeline,
                                     CoverageCountBatchID batchID,
-                                    GrCCCoverageProcessor::RenderPass renderPass,
+                                    GrCCCoverageProcessor::PrimitiveType primitiveType,
                                     GrCCCoverageProcessor::WindMethod windMethod,
                                     int PrimitiveTallies::*instanceType,
                                     const SkIRect& drawBounds) const {
     SkASSERT(pipeline.getScissorState().enabled());
 
-    if (!GrCCCoverageProcessor::DoesRenderPass(renderPass, flushState->caps())) {
-        return;
-    }
-
     // Don't call reset(), as that also resets the reserve count.
     fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());
     fDynamicStatesScratchBuffer.pop_back_n(fDynamicStatesScratchBuffer.count());
 
-    GrCCCoverageProcessor proc(flushState->resourceProvider(), renderPass, windMethod);
+    GrCCCoverageProcessor proc(flushState->resourceProvider(), primitiveType, windMethod);
 
     SkASSERT(batchID > 0);
     SkASSERT(batchID < fCoverageCountBatches.count());
@@ -600,9 +586,8 @@ void GrCCPathParser::drawRenderPass(GrOpFlushState* flushState, const GrPipeline
     SkASSERT(totalInstanceCount == batch.fTotalPrimitiveCounts.*instanceType);
 
     if (!fMeshesScratchBuffer.empty()) {
-        SkASSERT(flushState->rtCommandBuffer());
-        flushState->rtCommandBuffer()->draw(pipeline, proc, fMeshesScratchBuffer.begin(),
-                                            fDynamicStatesScratchBuffer.begin(),
-                                            fMeshesScratchBuffer.count(), SkRect::Make(drawBounds));
+        proc.draw(flushState, pipeline, fMeshesScratchBuffer.begin(),
+                  fDynamicStatesScratchBuffer.begin(), fMeshesScratchBuffer.count(),
+                  SkRect::Make(drawBounds));
     }
 }

@@ -10,6 +10,7 @@
 
 #include "GrCaps.h"
 #include "GrGeometryProcessor.h"
+#include "GrPipeline.h"
 #include "GrShaderCaps.h"
 #include "SkNx.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -18,21 +19,29 @@
 class GrGLSLFPFragmentBuilder;
 class GrGLSLVertexGeoBuilder;
 class GrMesh;
+class GrOpFlushState;
 
 /**
  * This is the geometry processor for the simple convex primitive shapes (triangles and closed,
  * convex bezier curves) from which ccpr paths are composed. The output is a single-channel alpha
  * value, positive for clockwise shapes and negative for counter-clockwise, that indicates coverage.
  *
- * The caller is responsible to execute all render passes for all applicable primitives into a
- * cleared, floating point, alpha-only render target using SkBlendMode::kPlus (see RenderPass
- * below). Once all of a path's primitives have been drawn, the render target contains a composite
- * coverage count that can then be used to draw the path (see GrCCPathProcessor).
+ * The caller is responsible to draw all primitives as produced by GrCCGeometry into a cleared,
+ * floating point, alpha-only render target using SkBlendMode::kPlus. Once all of a path's
+ * primitives have been drawn, the render target contains a composite coverage count that can then
+ * be used to draw the path (see GrCCPathProcessor).
  *
- * To draw a renderer pass, see appendMesh below.
+ * To draw primitives, use appendMesh() and draw() (defined below).
  */
 class GrCCCoverageProcessor : public GrGeometryProcessor {
 public:
+    enum class PrimitiveType {
+        kTriangles,
+        kQuadratics,
+        kCubics,
+    };
+    static const char* PrimitiveTypeName(PrimitiveType);
+
     // Defines a single primitive shape with 3 input points (i.e. Triangles and Quadratics).
     // X,Y point values are transposed.
     struct TriPointInstance {
@@ -54,50 +63,18 @@ public:
         void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
     };
 
-    // All primitive shapes (triangles and closed, convex bezier curves) may require two render
-    // passes: One to draw a rough outline of the shape, and a second pass to touch up the corners.
-    // Check DoesRenderPass() before attempting to draw a given RenderPass. Here we enumerate every
-    // possible render pass needed in order to produce a complete coverage count mask. This is an
-    // exhaustive list of all ccpr coverage shaders.
-    enum class RenderPass {
-        kTriangles,
-        kTriangleCorners,
-        kQuadratics,
-        kQuadraticCorners,
-        kCubics,
-        kCubicCorners
-    };
-    static bool RenderPassIsCubic(RenderPass);
-    static const char* RenderPassName(RenderPass);
-
-    static bool DoesRenderPass(RenderPass renderPass, const GrCaps& caps) {
-        switch (renderPass) {
-            case RenderPass::kTriangles:
-            case RenderPass::kQuadratics:
-            case RenderPass::kCubics:
-                return true;
-            case RenderPass::kTriangleCorners:
-            case RenderPass::kQuadraticCorners:
-            case RenderPass::kCubicCorners:
-                return caps.shaderCaps()->geometryShaderSupport();
-        }
-        SK_ABORT("Invalid RenderPass");
-        return false;
-    }
-
     enum class WindMethod : bool {
         kCrossProduct, // Calculate wind = +/-1 by sign of the cross product.
         kInstanceData // Instance data provides custom, signed wind values of any magnitude.
                       // (For tightly-wound tessellated triangles.)
     };
 
-    GrCCCoverageProcessor(GrResourceProvider* rp, RenderPass pass, WindMethod windMethod)
+    GrCCCoverageProcessor(GrResourceProvider* rp, PrimitiveType type, WindMethod windMethod)
             : INHERITED(kGrCCCoverageProcessor_ClassID)
-            , fRenderPass(pass)
+            , fPrimitiveType(type)
             , fWindMethod(windMethod)
             , fImpl(rp->caps()->shaderCaps()->geometryShaderSupport() ? Impl::kGeometryShader
                                                                       : Impl::kVertexShader) {
-        SkASSERT(DoesRenderPass(pass, *rp->caps()));
         if (Impl::kGeometryShader == fImpl) {
             this->initGS();
         } else {
@@ -106,7 +83,7 @@ public:
     }
 
     // GrPrimitiveProcessor overrides.
-    const char* name() const override { return RenderPassName(fRenderPass); }
+    const char* name() const override { return PrimitiveTypeName(fPrimitiveType); }
     SkString dumpInfo() const override {
         return SkStringPrintf("%s\n%s", this->name(), this->INHERITED::dumpInfo().c_str());
     }
@@ -131,6 +108,9 @@ public:
             this->appendVSMesh(instanceBuffer, instanceCount, baseInstance, out);
         }
     }
+
+    void draw(GrOpFlushState*, const GrPipeline&, const GrMesh[], const GrPipeline::DynamicState[],
+              int meshCount, const SkRect& drawBounds) const;
 
     // The Shader provides code to calculate each pixel's coverage in a RenderPass. It also
     // provides details about shape-specific geometry.
@@ -224,12 +204,29 @@ private:
     static constexpr float kAABloatRadius = 0.491111f;
 
     // Number of bezier points for curves, or 3 for triangles.
-    int numInputPoints() const { return RenderPassIsCubic(fRenderPass) ? 4 : 3; }
+    int numInputPoints() const { return PrimitiveType::kCubics == fPrimitiveType ? 4 : 3; }
 
     enum class Impl : bool {
         kGeometryShader,
         kVertexShader
     };
+
+    // Geometry shader backend draws primitives in two subpasses.
+    enum class GSSubpass : bool {
+        kHulls,
+        kCorners
+    };
+
+    GrCCCoverageProcessor(const GrCCCoverageProcessor& proc, GSSubpass subpass)
+            : INHERITED(kGrCCCoverageProcessor_ClassID)
+            , fPrimitiveType(proc.fPrimitiveType)
+            , fWindMethod(proc.fWindMethod)
+            , fImpl(Impl::kGeometryShader)
+            SkDEBUGCODE(, fDebugBloat(proc.fDebugBloat))
+            , fGSSubpass(subpass) {
+        SkASSERT(Impl::kGeometryShader == proc.fImpl);
+        this->initGS();
+    }
 
     void initGS();
     void initVS(GrResourceProvider*);
@@ -242,19 +239,32 @@ private:
     GrGLSLPrimitiveProcessor* createGSImpl(std::unique_ptr<Shader>) const;
     GrGLSLPrimitiveProcessor* createVSImpl(std::unique_ptr<Shader>) const;
 
-    const RenderPass fRenderPass;
+    const PrimitiveType fPrimitiveType;
     const WindMethod fWindMethod;
     const Impl fImpl;
     SkDEBUGCODE(float fDebugBloat = 0);
 
+    // Used by GSImpl.
+    const GSSubpass fGSSubpass = GSSubpass::kHulls;
+
     // Used by VSImpl.
-    sk_sp<const GrBuffer> fVertexBuffer;
-    sk_sp<const GrBuffer> fIndexBuffer;
-    int fNumIndicesPerInstance;
-    GrPrimitiveType fPrimitiveType;
+    sk_sp<const GrBuffer> fVSVertexBuffer;
+    sk_sp<const GrBuffer> fVSIndexBuffer;
+    int fVSNumIndicesPerInstance;
+    GrPrimitiveType fVSTriangleType;
 
     typedef GrGeometryProcessor INHERITED;
 };
+
+inline const char* GrCCCoverageProcessor::PrimitiveTypeName(PrimitiveType type) {
+    switch (type) {
+        case PrimitiveType::kTriangles: return "kTriangles";
+        case PrimitiveType::kQuadratics: return "kQuadratics";
+        case PrimitiveType::kCubics: return "kCubics";
+    }
+    SK_ABORT("Invalid PrimitiveType");
+    return "";
+}
 
 inline void GrCCCoverageProcessor::TriPointInstance::set(const SkPoint p[3], const Sk2f& trans) {
     this->set(p[0], p[1], p[2], trans);
@@ -283,34 +293,6 @@ inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint& p0, con
     Sk2f P2 = Sk2f::Load(&p2) + trans;
     Sk2f W = Sk2f(w);
     Sk2f::Store4(this, P0, P1, P2, W);
-}
-
-inline bool GrCCCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
-    switch (pass) {
-        case RenderPass::kTriangles:
-        case RenderPass::kTriangleCorners:
-        case RenderPass::kQuadratics:
-        case RenderPass::kQuadraticCorners:
-            return false;
-        case RenderPass::kCubics:
-        case RenderPass::kCubicCorners:
-            return true;
-    }
-    SK_ABORT("Invalid RenderPass");
-    return false;
-}
-
-inline const char* GrCCCoverageProcessor::RenderPassName(RenderPass pass) {
-    switch (pass) {
-        case RenderPass::kTriangles: return "kTriangles";
-        case RenderPass::kTriangleCorners: return "kTriangleCorners";
-        case RenderPass::kQuadratics: return "kQuadratics";
-        case RenderPass::kQuadraticCorners: return "kQuadraticCorners";
-        case RenderPass::kCubics: return "kCubics";
-        case RenderPass::kCubicCorners: return "kCubicCorners";
-    }
-    SK_ABORT("Invalid RenderPass");
-    return "";
 }
 
 #endif
