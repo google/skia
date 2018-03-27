@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "32094e98_b3237d66",
+        "filename": "src/gpu/GrPathRenderer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-27T16:03:53Z",
+      "side": 1,
+      "message": "The default Behavior above is to clear the entire struct to 0, and I think SW should be allowed by default?\n\nIn reality I would prefer to take out that entire field, but clip mask rendering requires it. How would you feel about first modifying the clipping code to always use the software path when creating an alpha mask? With ccpr and analytic FPs, that will be uncommon, and I think for generating a single clip mask, the software path will almost always be faster anyway.\n\nIf we take out the GPU path from clip masks, we don\u0027t need the fAllowSoftwareRenderer field anymore.\n\nAlternatively we could just allow the software renderer in the GPU clip mask path and not need this field either.",
+      "parentUuid": "e9ebf968_6a18894f",
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "461a2a4e_ebc0c671",
         "filename": "src/gpu/GrPathRendererChain.cpp",
         "patchSetId": 1
@@ -66,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "ab89dddb_76a2c727",
+        "filename": "src/gpu/GrPathRendererChain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-27T16:03:53Z",
+      "side": 1,
+      "message": "Good",
+      "parentUuid": "41273780_747d144a",
+      "range": {
+        "startLine": 80,
+        "startChar": 79,
+        "endLine": 80,
+        "endChar": 92
+      },
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e624d09d_757ada0a",
         "filename": "src/gpu/GrReducedClip.cpp",
         "patchSetId": 1
@@ -89,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "abef24f0_1d0655c0",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-27T16:03:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e624d09d_757ada0a",
+      "range": {
+        "startLine": 857,
+        "startChar": 71,
+        "endLine": 857,
+        "endChar": 89
+      },
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c834b0e7_34db20a3",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 1
@@ -106,6 +172,24 @@
     },
     {
       "key": {
+        "uuid": "77f11ab6_7e5eea64",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-27T16:03:53Z",
+      "side": 1,
+      "message": "Not really necessary because if the style applies, then the SW path renderer will opt itself out anyway.\n\nIf the style doesn\u0027t apply, the SW renderer is at the bottom of the chain and will be tried after the others already.",
+      "parentUuid": "c834b0e7_34db20a3",
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e4b4f0f5_184d6201",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 1
@@ -117,6 +201,24 @@
       "writtenOn": "2018-03-27T12:28:06Z",
       "side": 1,
       "message": "// Add a comment as to why we don\u0027t try again if the style can\u0027t be applied ?",
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28b757c5_47fd47a7",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-27T16:03:53Z",
+      "side": 1,
+      "message": "What would the comment say? This code shouldn\u0027t have to think about the software renderer anymore or even know that it exists.",
+      "parentUuid": "e4b4f0f5_184d6201",
       "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -151,6 +253,24 @@
       "writtenOn": "2018-03-27T12:28:06Z",
       "side": 1,
       "message": "swap this to be: \"if (MSAA || MixedSamples) return kNo\" ?\nmaybe w/ something like: // We shouldn\u0027t be performing SW AA when we\u0027re using HW AA ?",
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48cfa41e_91d84bfa",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-27T16:03:53Z",
+      "side": 1,
+      "message": "Agreed. Will do.",
+      "parentUuid": "9e8b054d_8b205a7e",
       "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
