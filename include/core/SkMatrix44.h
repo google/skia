@@ -158,6 +158,7 @@ public:
     SkMatrix44(const SkMatrix44& src) {
         memcpy(fMat, src.fMat, sizeof(fMat));
         fTypeMask = src.fTypeMask;
+        (void)this->getType();
     }
 
     SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
@@ -168,6 +169,7 @@ public:
         if (&src != this) {
             memcpy(fMat, src.fMat, sizeof(fMat));
             fTypeMask = src.fTypeMask;
+            (void)this->getType();
         }
         return *this;
     }
