@@ -45,6 +45,23 @@
       "revId": "4970b816ff3c3ff7953436a45cb399e6e221247c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aefe967_8416b6da",
+        "filename": "include/private/SkSafe32.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 8037
+      },
+      "writtenOn": "2018-03-27T11:53:35Z",
+      "side": 1,
+      "message": "Here it is already checked. x is in int32_t range. Do we need to check it again?",
+      "revId": "4970b816ff3c3ff7953436a45cb399e6e221247c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
