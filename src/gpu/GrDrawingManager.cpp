@@ -391,8 +391,8 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
     auto resourceProvider = fContext->contextPriv().resourceProvider();
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
-                                                        rtp,
                                                         resourceProvider,
+                                                        rtp,
                                                         fContext->contextPriv().getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
