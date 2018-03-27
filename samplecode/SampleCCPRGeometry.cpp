@@ -28,7 +28,7 @@
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
 using QuadPointInstance = GrCCCoverageProcessor::QuadPointInstance;
-using RenderPass = GrCCCoverageProcessor::RenderPass;
+using PrimitiveType = GrCCCoverageProcessor::PrimitiveType;
 
 static constexpr float kDebugBloat = 40;
 
@@ -56,7 +56,7 @@ private:
 
     void updateGpuData();
 
-    RenderPass fRenderPass = RenderPass::kTriangles;
+    PrimitiveType fPrimitiveType = PrimitiveType::kTriangles;
     SkCubicType fCubicType;
     SkMatrix fCubicKLM;
 
@@ -90,7 +90,6 @@ private:
     bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState*) override;
-    void drawRenderPass(GrOpFlushState*, RenderPass);
 
     CCPRGeometryView* fView;
 
@@ -149,9 +148,9 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
     SkPath outline;
     outline.moveTo(fPoints[0]);
-    if (RenderPass::kCubics == fRenderPass) {
+    if (PrimitiveType::kCubics == fPrimitiveType) {
         outline.cubicTo(fPoints[1], fPoints[2], fPoints[3]);
-    } else if (RenderPass::kQuadratics == fRenderPass) {
+    } else if (PrimitiveType::kQuadratics == fPrimitiveType) {
         outline.quadTo(fPoints[1], fPoints[3]);
     } else {
         outline.lineTo(fPoints[1]);
@@ -205,8 +204,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
                       SkRect::MakeIWH(this->width(), this->height()));
 
         // Add label.
-        caption.appendf("RenderPass_%s", GrCCCoverageProcessor::RenderPassName(fRenderPass));
-        if (RenderPass::kCubics == fRenderPass) {
+        caption.appendf("RenderPass_%s", GrCCCoverageProcessor::PrimitiveTypeName(fPrimitiveType));
+        if (PrimitiveType::kCubics == fPrimitiveType) {
             caption.appendf(" (%s)", SkCubicTypeName(fCubicType));
         }
     } else {
@@ -218,7 +217,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     pointsPaint.setStrokeWidth(8);
     pointsPaint.setAntiAlias(true);
 
-    if (RenderPass::kCubics == fRenderPass) {
+    if (PrimitiveType::kCubics == fPrimitiveType) {
         int w = this->width(), h = this->height();
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, fPoints, pointsPaint);
         draw_klm_line(w, h, canvas, &fCubicKLM[0], SK_ColorYELLOW);
@@ -240,7 +239,7 @@ void CCPRGeometryView::updateGpuData() {
     fTriPointInstances.reset();
     fQuadPointInstances.reset();
 
-    if (RenderPass::kCubics == fRenderPass) {
+    if (PrimitiveType::kCubics == fPrimitiveType) {
         double t[2], s[2];
         fCubicType = GrPathUtils::getCubicKLM(fPoints, &fCubicKLM, t, s);
         GrCCGeometry geometry;
@@ -264,7 +263,7 @@ void CCPRGeometryView::updateGpuData() {
                     continue;
             }
         }
-    } else if (RenderPass::kQuadratics == fRenderPass) {
+    } else if (PrimitiveType::kQuadratics == fPrimitiveType) {
         GrCCGeometry geometry;
         geometry.beginContour(fPoints[0]);
         geometry.quadraticTo(fPoints[1], fPoints[3]);
@@ -290,27 +289,18 @@ void CCPRGeometryView::updateGpuData() {
 }
 
 void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state) {
-    this->drawRenderPass(state, fView->fRenderPass);
-
-    RenderPass cornerPass = RenderPass((int)fView->fRenderPass + 1);
-    if (GrCCCoverageProcessor::DoesRenderPass(cornerPass, state->caps())) {
-        this->drawRenderPass(state, cornerPass);
-    }
-}
-
-void CCPRGeometryView::DrawCoverageCountOp::drawRenderPass(GrOpFlushState* state,
-                                                           RenderPass renderPass) {
     GrResourceProvider* rp = state->resourceProvider();
     GrContext* context = state->gpu()->getContext();
     GrGLGpu* glGpu = kOpenGL_GrBackend == context->contextPriv().getBackend()
                              ? static_cast<GrGLGpu*>(state->gpu())
                              : nullptr;
 
-    GrCCCoverageProcessor proc(rp, renderPass, GrCCCoverageProcessor::WindMethod::kCrossProduct);
+    GrCCCoverageProcessor proc(rp, fView->fPrimitiveType,
+                               GrCCCoverageProcessor::WindMethod::kCrossProduct);
     SkDEBUGCODE(proc.enableDebugBloat(kDebugBloat));
 
     SkSTArray<1, GrMesh> mesh;
-    if (GrCCCoverageProcessor::RenderPassIsCubic(renderPass)) {
+    if (PrimitiveType::kCubics == fView->fPrimitiveType) {
         sk_sp<GrBuffer> instBuff(rp->createBuffer(
                 fView->fQuadPointInstances.count() * sizeof(QuadPointInstance),
                 kVertex_GrBufferType, kDynamic_GrAccessPattern,
@@ -341,8 +331,7 @@ void CCPRGeometryView::DrawCoverageCountOp::drawRenderPass(GrOpFlushState* state
 
     if (!mesh.empty()) {
         SkASSERT(1 == mesh.count());
-        GrGpuRTCommandBuffer* cmdBuff = state->rtCommandBuffer();
-        cmdBuff->draw(pipeline, proc, mesh.begin(), nullptr, 1, this->bounds());
+        proc.draw(state, pipeline, mesh.begin(), nullptr, 1, this->bounds());
     }
 
     if (glGpu) {
@@ -375,7 +364,7 @@ private:
 
 SkView::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, unsigned) {
     for (int i = 0; i < 4; ++i) {
-        if (RenderPass::kCubics != fRenderPass && 2 == i) {
+        if (PrimitiveType::kCubics != fPrimitiveType && 2 == i) {
             continue;
         }
         if (fabs(x - fPoints[i].x()) < 20 && fabsf(y - fPoints[i].y()) < 20) {
@@ -400,7 +389,7 @@ bool CCPRGeometryView::onQuery(SkEvent* evt) {
     SkUnichar unichar;
     if (SampleCode::CharQ(*evt, &unichar)) {
         if (unichar >= '1' && unichar <= '3') {
-            fRenderPass = RenderPass((unichar - '1') * 2);
+            fPrimitiveType = PrimitiveType(unichar - '1');
             this->updateAndInval();
             return true;
         }

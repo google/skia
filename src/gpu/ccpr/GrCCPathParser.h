@@ -127,8 +127,8 @@ private:
     void parsePath(const SkPath&, const SkPoint* deviceSpacePts);
     void endContourIfNeeded(bool insideContour);
 
-    void drawRenderPass(GrOpFlushState*, const GrPipeline&, CoverageCountBatchID,
-                        GrCCCoverageProcessor::RenderPass, GrCCCoverageProcessor::WindMethod,
+    void drawPrimitives(GrOpFlushState*, const GrPipeline&, CoverageCountBatchID,
+                        GrCCCoverageProcessor::PrimitiveType, GrCCCoverageProcessor::WindMethod,
                         int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const;
 
     // Staging area for the path being parsed.
