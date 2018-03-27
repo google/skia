@@ -957,6 +957,8 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 
+    VIA("ddl",       ViaDDL, 3,            wrapped);
+
     if (FLAGS_matrix.count() == 4) {
         SkMatrix m;
         m.reset();

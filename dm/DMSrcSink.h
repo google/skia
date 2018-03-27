@@ -537,6 +537,19 @@ private:
     std::unique_ptr<SkBBHFactory> fFactory;
 };
 
+class ViaDDL : public Via {
+public:
+    ViaDDL(int numDivisions, Sink* sink);
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+private:
+#if SK_SUPPORT_GPU
+    class PromiseImageHelper;
+    class TileData;
+
+    const int fNumDivisions;
+#endif
+};
+
 class ViaSVG : public Via {
 public:
     explicit ViaSVG(Sink* sink) : Via(sink) {}
