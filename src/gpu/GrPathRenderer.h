@@ -77,14 +77,12 @@ public:
     struct CanDrawPathArgs {
         SkDEBUGCODE(CanDrawPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
-        const GrCaps*               fCaps;
-        const SkIRect*              fClipConservativeBounds;
-        const SkMatrix*             fViewMatrix;
-        const GrShape*              fShape;
-        GrAAType                    fAAType;
-
-        // These next two are only used by GrStencilAndCoverPathRenderer
-        bool                        fHasUserStencilSettings;
+        const GrCaps* fCaps;
+        const SkIRect* fClipConservativeBounds;
+        const SkMatrix* fViewMatrix;
+        const GrShape* fShape;
+        GrAAType fAAType;
+        bool fHasUserStencilSettings; // Used by GrStencilAndCoverPathRenderer.
 
 #ifdef SK_DEBUG
         void validate() const {

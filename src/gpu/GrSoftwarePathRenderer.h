@@ -19,8 +19,8 @@ class GrProxyProvider;
 class GrSoftwarePathRenderer : public GrPathRenderer {
 public:
     GrSoftwarePathRenderer(GrProxyProvider* proxyProvider, bool allowCaching)
-            : fProxyProvider(proxyProvider)
-            , fAllowCaching(allowCaching) {
+            : fProxyProvider(proxyProvider), fAllowCaching(allowCaching) {
+        SkASSERT(fProxyProvider);
     }
 
 private:
