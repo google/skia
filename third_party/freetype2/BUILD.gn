@@ -25,7 +25,7 @@ if (skia_use_system_freetype2) {
       "//third_party/libpng",
     ]
 
-    include_dirs = [ "../freetype" ]
+    include_dirs = [ "." ]
     defines = [
       "FT2_BUILD_LIBRARY",
       "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
@@ -38,12 +38,10 @@ if (skia_use_system_freetype2) {
       "../externals/freetype/src/base/ftbbox.c",
       "../externals/freetype/src/base/ftbitmap.c",
       "../externals/freetype/src/base/ftdebug.c",
-      "../externals/freetype/src/base/ftfntfmt.c",
       "../externals/freetype/src/base/ftfstype.c",
       "../externals/freetype/src/base/ftgasp.c",
       "../externals/freetype/src/base/ftglyph.c",
       "../externals/freetype/src/base/ftinit.c",
-      "../externals/freetype/src/base/ftlcdfil.c",
       "../externals/freetype/src/base/ftmm.c",
       "../externals/freetype/src/base/ftpatent.c",
       "../externals/freetype/src/base/ftstroke.c",
@@ -52,13 +50,16 @@ if (skia_use_system_freetype2) {
       "../externals/freetype/src/base/fttype1.c",
       "../externals/freetype/src/base/ftwinfnt.c",
       "../externals/freetype/src/cff/cff.c",
+      "../externals/freetype/src/cid/type1cid.c",
       "../externals/freetype/src/gzip/ftgzip.c",
+      "../externals/freetype/src/psaux/psaux.c",
       "../externals/freetype/src/pshinter/pshinter.c",
       "../externals/freetype/src/psnames/psnames.c",
       "../externals/freetype/src/raster/raster.c",
       "../externals/freetype/src/sfnt/sfnt.c",
       "../externals/freetype/src/smooth/smooth.c",
       "../externals/freetype/src/truetype/truetype.c",
+      "../externals/freetype/src/type1/type1.c",
     ]
   }
 }
