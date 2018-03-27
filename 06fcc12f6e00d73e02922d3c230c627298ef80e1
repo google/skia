@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "e9ebf968_6a18894f",
+        "filename": "src/gpu/GrPathRenderer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-27T13:11:39Z",
+      "side": 1,
+      "message": "nit: I\u0027d really prefer fAllowSoftwareRenderer",
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "461a2a4e_ebc0c671",
         "filename": "src/gpu/GrPathRendererChain.cpp",
         "patchSetId": 1
