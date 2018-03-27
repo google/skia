@@ -17,7 +17,6 @@
 #include "GrRenderTargetProxy.h"
 #include "GrResourceAllocator.h"
 #include "GrResourceProvider.h"
-#include "GrSoftwarePathRenderer.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureContext.h"
 #include "GrTextureOpList.h"
@@ -54,7 +53,6 @@ GrDrawingManager::GrDrawingManager(GrContext* context,
         , fAbandoned(false)
         , fAtlasTextContext(nullptr)
         , fPathRendererChain(nullptr)
-        , fSoftwarePathRenderer(nullptr)
         , fFlushing(false) {
 
     if (GrContextOptions::Enable::kNo == sortRenderTargets) {
@@ -85,7 +83,6 @@ void GrDrawingManager::cleanup() {
 
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
-    SkSafeSetNull(fSoftwarePathRenderer);
 
     fOnFlushCBObjects.reset();
 }
@@ -110,7 +107,6 @@ void GrDrawingManager::freeGpuResources() {
     // a path renderer may be holding onto resources
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
-    SkSafeSetNull(fSoftwarePathRenderer);
 }
 
 // MDB TODO: make use of the 'proxy' parameter.
@@ -439,7 +435,6 @@ GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {
  * can be individually allowed/disallowed via the "allowSW" boolean.
  */
 GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
-                                                  bool allowSW,
                                                   GrPathRendererChain::DrawType drawType,
                                                   GrPathRenderer::StencilSupport* stencilSupport) {
 
@@ -447,19 +442,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
         fPathRendererChain = new GrPathRendererChain(fContext, fOptionsForPathRendererChain);
     }
 
-    GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
-    if (!pr && allowSW) {
-        if (!fSoftwarePathRenderer) {
-            fSoftwarePathRenderer =
-                    new GrSoftwarePathRenderer(fContext->contextPriv().proxyProvider(),
-                                               fOptionsForPathRendererChain.fAllowPathMaskCaching);
-        }
-        if (GrPathRenderer::CanDrawPath::kNo != fSoftwarePathRenderer->canDrawPath(args)) {
-            pr = fSoftwarePathRenderer;
-        }
-    }
-
-    return pr;
+    return fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
 }
 
 GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRenderer() {
