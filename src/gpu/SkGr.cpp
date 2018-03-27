@@ -486,9 +486,8 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
                               const SkPaint& skPaint,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
-    static std::unique_ptr<GrFragmentProcessor> kNullShaderFP(nullptr);
-    static std::unique_ptr<GrFragmentProcessor>* kIgnoreShader = &kNullShaderFP;
-    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, SkMatrix::I(), kIgnoreShader,
+    std::unique_ptr<GrFragmentProcessor> nullShaderFP(nullptr);
+    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, SkMatrix::I(), &nullShaderFP,
                                    nullptr, grPaint);
 }
 
