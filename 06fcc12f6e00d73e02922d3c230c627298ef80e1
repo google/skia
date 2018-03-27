@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "461a2a4e_ebc0c671",
+        "filename": "src/gpu/GrPathRendererChain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-27T01:07:51Z",
+      "side": 1,
+      "message": "Is it safe to assert this will never be null?",
+      "range": {
+        "startLine": 80,
+        "startChar": 79,
+        "endLine": 80,
+        "endChar": 92
+      },
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e624d09d_757ada0a",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-27T01:07:51Z",
+      "side": 1,
+      "message": "DrawType::kStencil already blocks the software path renderer.",
+      "range": {
+        "startLine": 857,
+        "startChar": 71,
+        "endLine": 857,
+        "endChar": 89
+      },
+      "revId": "06fcc12f6e00d73e02922d3c230c627298ef80e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
