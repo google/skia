@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfcaef99_8dddfa36",
+        "filename": "gn/core.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-27T15:18:26Z",
+      "side": 1,
+      "message": "^",
+      "revId": "f32ee68d254b0ccd01db14e86a5ec52099d257f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
