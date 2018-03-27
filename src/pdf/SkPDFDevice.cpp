@@ -1069,13 +1069,22 @@ public:
         : fClusters(clusters)
         , fUtf8Text(utf8Text)
         , fGlyphCount(glyphCount)
-        , fTextByteLength(textByteLength) {
-        // This is a cheap heuristic for /ReversedChars which seems to
-        // work for clusters produced by HarfBuzz, which either
-        // increase from zero (LTR) or decrease to zero (RTL).
+        , fTextByteLength(textByteLength)
+    {
         // "ReversedChars" is how PDF deals with RTL text.
-        fReversedChars =
-            fUtf8Text && fClusters && fGlyphCount && fClusters[0] != 0;
+        // We set it to true only if all cluster indices are decreasing.
+        if (fUtf8Text && fClusters && fGlyphCount > 1) {
+            int clusterCount = 1;
+            for (uint32_t i = 0; i + 1 < fGlyphCount; ++i) {
+                if (fClusters[i + 1] != fClusters[i]) {
+                    if (fClusters[i + 1] > fClusters[i]) {
+                        return;
+                    }
+                    ++clusterCount;
+                }
+            }
+            fReversedChars = clusterCount > 1;
+        }
     }
     struct Cluster {
         const char* fUtf8Text;
@@ -1087,85 +1096,35 @@ public:
     // True if this looks like right-to-left text.
     bool reversedChars() const { return fReversedChars; }
     Cluster next() {
-        if ((!fUtf8Text || !fClusters) && fGlyphCount) {
-            // These glyphs have no text.  Treat as one "cluster".
-            uint32_t glyphCount = fGlyphCount;
-            fGlyphCount = 0;
-            return Cluster{nullptr, 0, 0, glyphCount};
+        if (fGlyphIndex >= fGlyphCount) {
+            return Cluster{nullptr, 0, 0, 0};
         }
-        if (fGlyphCount == 0 || fTextByteLength == 0) {
-            return Cluster{nullptr, 0, 0, 0};  // empty
+        if (!fClusters || !fUtf8Text) {
+            return Cluster{nullptr, 0, fGlyphIndex++, 1};
         }
-        SkASSERT(fUtf8Text);
-        SkASSERT(fClusters);
-        uint32_t cluster = fClusters[0];
-        if (cluster >= fTextByteLength) {
-            return Cluster{nullptr, 0, 0, 0};  // bad input.
+        uint32_t clusterGlyphIndex = fGlyphIndex;
+        uint32_t cluster = fClusters[clusterGlyphIndex];
+        do {
+            ++fGlyphIndex;
+        } while (fGlyphIndex < fGlyphCount && cluster == fClusters[fGlyphIndex]);
+        uint32_t clusterGlyphCount = fGlyphIndex - clusterGlyphIndex;
+        uint32_t clusterEnd = fTextByteLength;
+        for (unsigned i = 0; i < fGlyphCount; ++i) {
+           uint32_t c = fClusters[i];
+           if (c > cluster && c < clusterEnd) {
+               clusterEnd = c;
+           }
         }
-        uint32_t glyphsInCluster = 1;
-        while (glyphsInCluster < fGlyphCount &&
-               fClusters[glyphsInCluster] == cluster) {
-            ++glyphsInCluster;
-        }
-        SkASSERT(glyphsInCluster <= fGlyphCount);
-        uint32_t textLength = 0;
-        if (glyphsInCluster == fGlyphCount) {
-            // consumes rest of glyphs and rest of text
-            if (kInvalidCluster == fPreviousCluster) { // LTR text or single cluster
-                textLength = fTextByteLength - cluster;
-            } else { // RTL text; last cluster.
-                SkASSERT(fPreviousCluster < fTextByteLength);
-                if (fPreviousCluster <= cluster) {  // bad input.
-                    return Cluster{nullptr, 0, 0, 0};
-                }
-                textLength = fPreviousCluster - cluster;
-            }
-            fGlyphCount = 0;
-            return Cluster{fUtf8Text + cluster,
-                           textLength,
-                           fGlyphIndex,
-                           glyphsInCluster};
-        }
-        SkASSERT(glyphsInCluster < fGlyphCount);
-        uint32_t nextCluster = fClusters[glyphsInCluster];
-        if (nextCluster >= fTextByteLength) {
-            return Cluster{nullptr, 0, 0, 0};  // bad input.
-        }
-        if (nextCluster > cluster) { // LTR text
-            if (kInvalidCluster != fPreviousCluster) {
-                return Cluster{nullptr, 0, 0, 0};  // bad input.
-            }
-            textLength = nextCluster - cluster;
-        } else { // RTL text
-            SkASSERT(nextCluster < cluster);
-            if (kInvalidCluster == fPreviousCluster) { // first cluster
-                textLength = fTextByteLength - cluster;
-            } else { // later cluster
-                if (fPreviousCluster <= cluster) {
-                    return Cluster{nullptr, 0, 0, 0}; // bad input.
-                }
-                textLength = fPreviousCluster - cluster;
-            }
-            fPreviousCluster = cluster;
-        }
-        uint32_t glyphIndex = fGlyphIndex;
-        fGlyphCount -= glyphsInCluster;
-        fGlyphIndex += glyphsInCluster;
-        fClusters   += glyphsInCluster;
-        return Cluster{fUtf8Text + cluster,
-                       textLength,
-                       glyphIndex,
-                       glyphsInCluster};
+        uint32_t clusterLen = clusterEnd - cluster;
+        return Cluster{fUtf8Text + cluster, clusterLen, clusterGlyphIndex, clusterGlyphCount};
     }
 
 private:
-    static constexpr uint32_t kInvalidCluster = 0xFFFFFFFF;
     const uint32_t* fClusters;
     const char* fUtf8Text;
     uint32_t fGlyphCount;
     uint32_t fTextByteLength;
     uint32_t fGlyphIndex = 0;
-    uint32_t fPreviousCluster = kInvalidCluster;
     bool fReversedChars = false;
 };
 
