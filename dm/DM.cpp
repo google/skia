@@ -788,11 +788,7 @@ static bool gather_srcs() {
         push_src("gm", "", new GMSrc(r->factory()));
     }
 
-    if (FLAGS_ddl > 0) {
-        gather_file_srcs<DDLSKPSrc>(FLAGS_skps, "skp");
-    } else {
-        gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
-    }
+    gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
 #if !defined(SK_BUILD_FOR_GOOGLE3)
     gather_file_srcs<SkottieSrc>(FLAGS_jsons, "json");
