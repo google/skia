@@ -25,11 +25,13 @@
 #include "SkTypeface.h"
 #include "SkTypeface_remote.h"
 
-class SkTransport {
+class SkScalerContextRecDescriptor;
+
+class SkRemoteStrikeTransport {
 public:
     enum IOResult : bool {kFail = false, kSuccess = true};
 
-    virtual ~SkTransport() {}
+    virtual ~SkRemoteStrikeTransport() {}
     virtual IOResult write(const void*, size_t) = 0;
     virtual std::tuple<size_t, IOResult> read(void*, size_t) = 0;
     IOResult writeSkData(const SkData&);
@@ -90,25 +92,6 @@ private:
     } fDescriptor;
 };
 
-class SkRemoteGlyphCacheRenderer {
-public:
-    void prepareSerializeProcs(SkSerialProcs* procs);
-
-    SkScalerContext* generateScalerContext(
-            const SkScalerContextRecDescriptor& desc, SkFontID typefaceId);
-
-private:
-    sk_sp<SkData> encodeTypeface(SkTypeface* tf);
-
-    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
-
-    using DescriptorToContextMap = SkTHashMap<SkScalerContextRecDescriptor,
-            std::unique_ptr<SkScalerContext>,
-            SkScalerContextRecDescriptor::Hash>;
-
-    DescriptorToContextMap fScalerContextMap;
-};
-
 class SkStrikeCacheDifferenceSpec {
     class StrikeDifferences;
 
@@ -145,7 +128,6 @@ private:
     DescMap fDescMap{16, DescHash(), DescEq()};
 };
 
-
 class SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
 public:
     SkTextBlobCacheDiffCanvas(int width, int height,
@@ -179,35 +161,45 @@ private:
     SkStrikeCacheDifferenceSpec* const fStrikeCacheDiff;
 };
 
-
 class SkStrikeServer {
 public:
-    SkStrikeServer(SkTransport* transport);
+    SkStrikeServer(SkRemoteStrikeTransport* transport);
 
-    int serve();
-    void prepareSerializeProcs(SkSerialProcs* procs) {
-        fRendererCache.prepareSerializeProcs(procs);
-    }
+    // embedding clients call these methods
+    int serve();  // very negotiable
+    void prepareSerializeProcs(SkSerialProcs* procs);
+
+    // mostly called internally by Skia
+    SkScalerContext* generateScalerContext(
+            const SkScalerContextRecDescriptor& desc, SkFontID typefaceId);
 
 private:
-    SkTransport* const fTransport;
-    SkRemoteGlyphCacheRenderer fRendererCache;
+    using DescriptorToContextMap = SkTHashMap<SkScalerContextRecDescriptor,
+            std::unique_ptr<SkScalerContext>,
+            SkScalerContextRecDescriptor::Hash>;
+
+    sk_sp<SkData> encodeTypeface(SkTypeface* tf);
+
+    SkRemoteStrikeTransport* const fTransport;
+    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
+    DescriptorToContextMap fScalerContextMap;
 };
 
 class SkStrikeClient {
 public:
-    SkStrikeClient(SkTransport*);
+    SkStrikeClient(SkRemoteStrikeTransport*);
+
+    // embedding clients call these methods
+    void primeStrikeCache(const SkStrikeCacheDifferenceSpec&);
+    void prepareDeserializeProcs(SkDeserialProcs* procs);
+
+    // mostly called internally by Skia
     void generateFontMetrics(
         const SkTypefaceProxy&, const SkScalerContextRec&, SkPaint::FontMetrics*);
     void generateMetricsAndImage(
         const SkTypefaceProxy&, const SkScalerContextRec&, SkArenaAlloc*, SkGlyph*);
     void generatePath(
         const SkTypefaceProxy&, const SkScalerContextRec&, SkGlyphID glyph, SkPath* path);
-
-    void primeStrikeCache(const SkStrikeCacheDifferenceSpec&);
-
-    void prepareDeserializeProcs(SkDeserialProcs* procs);
-
     SkTypeface* lookupTypeface(SkFontID id);
 
 private:
@@ -216,7 +208,7 @@ private:
     // TODO: Figure out how to manage the entries for the following maps.
     SkTHashMap<SkFontID, sk_sp<SkTypefaceProxy>> fMapIdToTypeface;
 
-    SkTransport* const fTransport;
+    SkRemoteStrikeTransport* const fTransport;
 };
 
 #endif  // SkRemoteGlyphCache_DEFINED
