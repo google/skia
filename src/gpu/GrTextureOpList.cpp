@@ -51,6 +51,7 @@ void GrTextureOpList::dump() const {
 #endif
 
 void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
+    SkASSERT(fTarget.get()->priv().peekTexture());
     SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet generated their geometry
@@ -74,12 +75,18 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
         return false;
     }
 
+    SkASSERT(fTarget.get()->priv().peekTexture());
+
     std::unique_ptr<GrGpuTextureCommandBuffer> commandBuffer(
                          flushState->gpu()->createCommandBuffer(fTarget.get()->priv().peekTexture(),
                                                                 fTarget.get()->origin()));
     flushState->setCommandBuffer(commandBuffer.get());
 
     for (int i = 0; i < fRecordedOps.count(); ++i) {
+        if (!fRecordedOps[i]) {
+            continue;
+        }
+
         GrOpFlushState::OpArgs opArgs = {
             fRecordedOps[i].get(),
             nullptr,
