@@ -54,17 +54,22 @@ static const char* SKSL_FP_INCLUDE =
 #include "sksl_fp.inc"
 ;
 
+static const char* SKSL_CPU_INCLUDE =
+#include "sksl_cpu.inc"
+;
+
 namespace SkSL {
 
 Compiler::Compiler(Flags flags)
 : fFlags(flags)
+, fContext(new Context())
 , fErrorCount(0) {
     auto types = std::shared_ptr<SymbolTable>(new SymbolTable(this));
     auto symbols = std::shared_ptr<SymbolTable>(new SymbolTable(types, this));
-    fIRGenerator = new IRGenerator(&fContext, symbols, *this);
+    fIRGenerator = new IRGenerator(fContext.get(), symbols, *this);
     fTypes = types;
-    #define ADD_TYPE(t) types->addWithoutOwnership(fContext.f ## t ## _Type->fName, \
-                                                   fContext.f ## t ## _Type.get())
+    #define ADD_TYPE(t) types->addWithoutOwnership(fContext->f ## t ## _Type->fName, \
+                                                   fContext->f ## t ## _Type.get())
     ADD_TYPE(Void);
     ADD_TYPE(Float);
     ADD_TYPE(Float2);
@@ -188,15 +193,16 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
     ADD_TYPE(FragmentProcessor);
+    ADD_TYPE(SkRasterPipeline);
 
     StringFragment skCapsName("sk_Caps");
     Variable* skCaps = new Variable(-1, Modifiers(), skCapsName,
-                                    *fContext.fSkCaps_Type, Variable::kGlobal_Storage);
+                                    *fContext->fSkCaps_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
 
     StringFragment skArgsName("sk_Args");
     Variable* skArgs = new Variable(-1, Modifiers(), skArgsName,
-                                    *fContext.fSkArgs_Type, Variable::kGlobal_Storage);
+                                    *fContext->fSkArgs_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
     std::vector<std::unique_ptr<ProgramElement>> ignored;
@@ -232,19 +238,19 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
             // but since we pass foo as a whole it is flagged as an error) unless we perform a much
             // more complicated whole-program analysis. This is probably good enough.
             this->addDefinition(((Swizzle*) lvalue)->fBase.get(),
-                                (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
+                                (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             break;
         case Expression::kIndex_Kind:
             // see comments in Swizzle
             this->addDefinition(((IndexExpression*) lvalue)->fBase.get(),
-                                (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
+                                (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             break;
         case Expression::kFieldAccess_Kind:
             // see comments in Swizzle
             this->addDefinition(((FieldAccess*) lvalue)->fBase.get(),
-                                (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
+                                (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             break;
         case Expression::kTernary_Kind:
@@ -252,10 +258,10 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
             // This allows for false positives (meaning we fail to detect that a variable might not
             // have been assigned), but is preferable to false negatives.
             this->addDefinition(((TernaryExpression*) lvalue)->fIfTrue.get(),
-                                (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
+                                (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             this->addDefinition(((TernaryExpression*) lvalue)->fIfFalse.get(),
-                                (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
+                                (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             break;
         default:
@@ -278,9 +284,9 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                         this->addDefinition(b->fLeft.get(), &b->fRight, definitions);
                     } else if (Compiler::IsAssignment(b->fOperator)) {
                         this->addDefinition(
-                                       b->fLeft.get(),
-                                       (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
-                                       definitions);
+                                      b->fLeft.get(),
+                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                      definitions);
 
                     }
                     break;
@@ -289,9 +295,9 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                     const PrefixExpression* p = (PrefixExpression*) expr;
                     if (p->fOperator == Token::MINUSMINUS || p->fOperator == Token::PLUSPLUS) {
                         this->addDefinition(
-                                       p->fOperand.get(),
-                                       (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
-                                       definitions);
+                                      p->fOperand.get(),
+                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                      definitions);
                     }
                     break;
                 }
@@ -299,9 +305,9 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                     const PostfixExpression* p = (PostfixExpression*) expr;
                     if (p->fOperator == Token::MINUSMINUS || p->fOperator == Token::PLUSPLUS) {
                         this->addDefinition(
-                                       p->fOperand.get(),
-                                       (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
-                                       definitions);
+                                      p->fOperand.get(),
+                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                      definitions);
                     }
                     break;
                 }
@@ -309,9 +315,9 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                     const VariableReference* v = (VariableReference*) expr;
                     if (v->fRefKind != VariableReference::kRead_RefKind) {
                         this->addDefinition(
-                                       v,
-                                       (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
-                                       definitions);
+                                      v,
+                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                      definitions);
                     }
                 }
                 default:
@@ -343,6 +349,9 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, std::set<BlockId>* workList) {
 
     // propagate definitions to exits
     for (BlockId exitId : block.fExits) {
+        if (exitId == blockId) {
+            continue;
+        }
         BasicBlock& exit = cfg->fBlocks[exitId];
         for (const auto& pair : after) {
             std::unique_ptr<Expression>* e1 = pair.second;
@@ -359,7 +368,7 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, std::set<BlockId>* workList) {
                     workList->insert(exitId);
                     if (e1 && e2) {
                         exit.fBefore[pair.first] =
-                                       (std::unique_ptr<Expression>*) &fContext.fDefined_Expression;
+                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression;
                     } else {
                         exit.fBefore[pair.first] = nullptr;
                     }
@@ -990,7 +999,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         continue;
                     }
                     ASSERT(c->fValue->fKind == s.fValue->fKind);
-                    found = c->fValue->compareConstant(fContext, *s.fValue);
+                    found = c->fValue->compareConstant(*fContext, *s.fValue);
                     if (found) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
                         if (newBlock) {
@@ -1153,7 +1162,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
     }
 
     // check for missing return
-    if (f.fDeclaration.fReturnType != *fContext.fVoid_Type) {
+    if (f.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         if (cfg.fBlocks[cfg.fExit].fEntrances.size()) {
             this->error(f.fOffset, String("function can exit without returning a value"));
         }
@@ -1183,6 +1192,10 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             fIRGenerator->convertProgram(kind, SKSL_FP_INCLUDE, strlen(SKSL_FP_INCLUDE), *fTypes,
                                          &elements);
             break;
+        case Program::kCPU_Kind:
+            fIRGenerator->convertProgram(kind, SKSL_CPU_INCLUDE, strlen(SKSL_CPU_INCLUDE),
+                                         *fTypes, &elements);
+            break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     for (auto& element : elements) {
@@ -1203,7 +1216,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     auto result = std::unique_ptr<Program>(new Program(kind,
                                                        std::move(textPtr),
                                                        settings,
-                                                       &fContext,
+                                                       fContext,
                                                        std::move(elements),
                                                        fIRGenerator->fSymbolTable,
                                                        fIRGenerator->fInputs));
@@ -1220,7 +1233,7 @@ bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     fSource = program.fSource.get();
-    SPIRVCodeGenerator cg(&fContext, &program, this, &buffer);
+    SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {
@@ -1238,7 +1251,7 @@ bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
     }
 #else
     fSource = program.fSource.get();
-    SPIRVCodeGenerator cg(&fContext, &program, this, &out);
+    SPIRVCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     fSource = nullptr;
 #endif
@@ -1257,7 +1270,7 @@ bool Compiler::toSPIRV(const Program& program, String* out) {
 
 bool Compiler::toGLSL(const Program& program, OutputStream& out) {
     fSource = program.fSource.get();
-    GLSLCodeGenerator cg(&fContext, &program, this, &out);
+    GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     fSource = nullptr;
     this->writeErrorCount();
@@ -1274,7 +1287,7 @@ bool Compiler::toGLSL(const Program& program, String* out) {
 }
 
 bool Compiler::toMetal(const Program& program, OutputStream& out) {
-    MetalCodeGenerator cg(&fContext, &program, this, &out);
+    MetalCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     this->writeErrorCount();
     return result;
@@ -1282,7 +1295,7 @@ bool Compiler::toMetal(const Program& program, OutputStream& out) {
 
 bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
     fSource = program.fSource.get();
-    CPPCodeGenerator cg(&fContext, &program, this, name, &out);
+    CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
     bool result = cg.generateCode();
     fSource = nullptr;
     this->writeErrorCount();
@@ -1291,7 +1304,7 @@ bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
 
 bool Compiler::toH(const Program& program, String name, OutputStream& out) {
     fSource = program.fSource.get();
-    HCodeGenerator cg(&fContext, &program, this, name, &out);
+    HCodeGenerator cg(fContext.get(), &program, this, name, &out);
     bool result = cg.generateCode();
     fSource = nullptr;
     this->writeErrorCount();

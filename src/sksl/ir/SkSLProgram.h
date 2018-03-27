@@ -103,13 +103,14 @@ struct Program {
         kFragment_Kind,
         kVertex_Kind,
         kGeometry_Kind,
-        kFragmentProcessor_Kind
+        kFragmentProcessor_Kind,
+        kCPU_Kind
     };
 
     Program(Kind kind,
             std::unique_ptr<String> source,
             Settings settings,
-            Context* context,
+            std::shared_ptr<Context> context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::shared_ptr<SymbolTable> symbols,
             Inputs inputs)
@@ -124,7 +125,7 @@ struct Program {
     Kind fKind;
     std::unique_ptr<String> fSource;
     Settings fSettings;
-    Context* fContext;
+    std::shared_ptr<Context> fContext;
     // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols
     std::shared_ptr<SymbolTable> fSymbols;

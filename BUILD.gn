@@ -50,6 +50,9 @@ declare_args() {
 
   skia_skqp_enable_driver_correctness_workarounds = false
   skia_skqp_global_error_tolerance = 0
+
+  skia_llvm_path = ""
+  skia_llvm_lib = "LLVM"
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -171,6 +174,9 @@ config("skia_private") {
     "src/xml",
     "third_party/gif",
   ]
+  if (skia_llvm_path != "") {
+    include_dirs += [ "$skia_llvm_path/include" ]
+  }
 
   defines = [ "SK_GAMMA_APPLY_TO_A8" ]
   if (is_android) {
@@ -199,6 +205,12 @@ config("skia_private") {
   }
   if (!is_official_build) {
     defines += [ "GR_TEST_UTILS=1" ]
+  }
+  if (skia_llvm_path != "") {
+    defines += [ "SK_LLVM_AVAILABLE" ]
+    include_dirs += [ "$skia_llvm_path/include" ]
+    libs += [ skia_llvm_lib ]
+    lib_dirs += [ "$skia_llvm_path/lib/" ]
   }
 }
 
