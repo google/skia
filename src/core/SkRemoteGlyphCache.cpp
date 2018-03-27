@@ -227,38 +227,6 @@ private:
     size_t fEnd{0};
 };
 
-// -- SkRemoteGlyphCacheRenderer -----------------------------------------------------------------
-
-void SkRemoteGlyphCacheRenderer::prepareSerializeProcs(SkSerialProcs* procs) {
-    auto encode = [](SkTypeface* tf, void* ctx) {
-        return reinterpret_cast<SkRemoteGlyphCacheRenderer*>(ctx)->encodeTypeface(tf);
-    };
-    procs->fTypefaceProc = encode;
-    procs->fTypefaceCtx = this;
-}
-
-SkScalerContext* SkRemoteGlyphCacheRenderer::generateScalerContext(
-    const SkScalerContextRecDescriptor& desc, SkFontID typefaceId)
-{
-
-    auto scaler = fScalerContextMap.find(desc);
-    if (scaler == nullptr) {
-        auto typefaceIter = fTypefaceMap.find(typefaceId);
-        if (typefaceIter == nullptr) {
-            // TODO: handle this with some future fallback strategy.
-            SK_ABORT("unknown type face");
-            // Should never happen
-            return nullptr;
-        }
-        auto tf = typefaceIter->get();
-        // TODO: make effects really work.
-        SkScalerContextEffects effects;
-        auto mapSc = tf->createScalerContext(effects, &desc.desc(), false);
-        scaler = fScalerContextMap.set(desc, std::move(mapSc));
-    }
-    return scaler->get();
-}
-
 // -- TrackLayerDevice -----------------------------------------------------------------------------
 class TrackLayerDevice : public SkNoPixelsDevice {
 public:
@@ -536,20 +504,6 @@ struct WireTypeface {
     bool            isFixed;
 };
 
-sk_sp<SkData> SkRemoteGlyphCacheRenderer::encodeTypeface(SkTypeface* tf) {
-    WireTypeface wire = {
-            SkTypeface::UniqueID(tf),
-            tf->countGlyphs(),
-            tf->fontStyle(),
-            tf->isFixedPitch()
-    };
-    auto typeFace = fTypefaceMap.find(SkTypeface::UniqueID(tf));
-    if (typeFace == nullptr) {
-        fTypefaceMap.set(SkTypeface::UniqueID(tf), sk_ref_sp(tf));
-    }
-    // Can this be done with no copy?
-    return SkData::MakeWithCopy(&wire, sizeof(wire));
-}
 static void write_strikes_spec(const SkStrikeCacheDifferenceSpec &spec,
                                Serializer* serializer,
                                SkTransport* transport) {
@@ -632,7 +586,7 @@ template <typename PerHeader, typename PerStrike, typename PerGlyph>
 
 static void read_strikes_spec_write_strikes_data(
         Deserializer* deserializer, Serializer* serializer, SkTransport* transport,
-        SkRemoteGlyphCacheRenderer* rc)
+        SkStrikeServer* rc)
 {
     // Don't start because the op started this deserialization.
     auto header = deserializer->read<Header>();
@@ -700,7 +654,6 @@ static void update_caches_from_strikes_data(SkStrikeClient *client,
     deserializer->endRead();
 }
 
-
 // -- SkStrikeServer -------------------------------------------------------------------------------
 SkStrikeServer::SkStrikeServer(SkTransport* transport)
     : fTransport{transport} { }
@@ -717,7 +670,7 @@ int SkStrikeServer::serve() {
 
         switch (op->opCode) {
             case OpCode::kFontMetrics : {
-                auto sc = fRendererCache.generateScalerContext(op->descriptor, op->typefaceId);
+                auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
                 SkPaint::FontMetrics metrics;
                 sc->getFontMetrics(&metrics);
                 serializer->startWrite<SkPaint::FontMetrics>(metrics);
@@ -725,7 +678,7 @@ int SkStrikeServer::serve() {
                 break;
             }
             case OpCode::kGlyphPath : {
-                auto sc = fRendererCache.generateScalerContext(op->descriptor, op->typefaceId);
+                auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
                 // TODO: check for buffer overflow.
                 SkPath path;
                 sc->getPath(op->glyphId, &path);
@@ -737,7 +690,7 @@ int SkStrikeServer::serve() {
                 break;
             }
             case OpCode::kGlyphMetricsAndImage : {
-                auto sc = fRendererCache.generateScalerContext(op->descriptor, op->typefaceId);
+                auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
 
                 serializer->startWrite();
                 auto glyph = serializer->allocate<SkGlyph>();
@@ -758,7 +711,7 @@ int SkStrikeServer::serve() {
             }
             case OpCode::kPrepopulateCache : {
                 read_strikes_spec_write_strikes_data(
-                        deserializer.get(), serializer.get(), fTransport, &fRendererCache);
+                        deserializer.get(), serializer.get(), fTransport, this);
                 break;
             }
 
@@ -767,6 +720,51 @@ int SkStrikeServer::serve() {
         }
     }
     return 0;
+}
+
+void SkStrikeServer::prepareSerializeProcs(SkSerialProcs* procs) {
+    auto encode = [](SkTypeface* tf, void* ctx) {
+        return reinterpret_cast<SkStrikeServer*>(ctx)->encodeTypeface(tf);
+    };
+    procs->fTypefaceProc = encode;
+    procs->fTypefaceCtx = this;
+}
+
+SkScalerContext* SkStrikeServer::generateScalerContext(
+        const SkScalerContextRecDescriptor& desc, SkFontID typefaceId)
+{
+
+    auto scaler = fScalerContextMap.find(desc);
+    if (scaler == nullptr) {
+        auto typefaceIter = fTypefaceMap.find(typefaceId);
+        if (typefaceIter == nullptr) {
+            // TODO: handle this with some future fallback strategy.
+            SK_ABORT("unknown type face");
+            // Should never happen
+            return nullptr;
+        }
+        auto tf = typefaceIter->get();
+        // TODO: make effects really work.
+        SkScalerContextEffects effects;
+        auto mapSc = tf->createScalerContext(effects, &desc.desc(), false);
+        scaler = fScalerContextMap.set(desc, std::move(mapSc));
+    }
+    return scaler->get();
+}
+
+sk_sp<SkData> SkStrikeServer::encodeTypeface(SkTypeface* tf) {
+    WireTypeface wire = {
+            SkTypeface::UniqueID(tf),
+            tf->countGlyphs(),
+            tf->fontStyle(),
+            tf->isFixedPitch()
+    };
+    auto typeFace = fTypefaceMap.find(SkTypeface::UniqueID(tf));
+    if (typeFace == nullptr) {
+        fTypefaceMap.set(SkTypeface::UniqueID(tf), sk_ref_sp(tf));
+    }
+    // Can this be done with no copy?
+    return SkData::MakeWithCopy(&wire, sizeof(wire));
 }
 
 // -- SkStrikeClient -------------------------------------------------------------------------------

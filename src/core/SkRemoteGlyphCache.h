@@ -90,25 +90,6 @@ private:
     } fDescriptor;
 };
 
-class SkRemoteGlyphCacheRenderer {
-public:
-    void prepareSerializeProcs(SkSerialProcs* procs);
-
-    SkScalerContext* generateScalerContext(
-            const SkScalerContextRecDescriptor& desc, SkFontID typefaceId);
-
-private:
-    sk_sp<SkData> encodeTypeface(SkTypeface* tf);
-
-    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
-
-    using DescriptorToContextMap = SkTHashMap<SkScalerContextRecDescriptor,
-            std::unique_ptr<SkScalerContext>,
-            SkScalerContextRecDescriptor::Hash>;
-
-    DescriptorToContextMap fScalerContextMap;
-};
-
 class SkStrikeCacheDifferenceSpec {
     class StrikeDifferences;
 
@@ -179,19 +160,27 @@ private:
     SkStrikeCacheDifferenceSpec* const fStrikeCacheDiff;
 };
 
-
 class SkStrikeServer {
 public:
     SkStrikeServer(SkTransport* transport);
 
     int serve();
-    void prepareSerializeProcs(SkSerialProcs* procs) {
-        fRendererCache.prepareSerializeProcs(procs);
-    }
+
+    void prepareSerializeProcs(SkSerialProcs* procs);
+
+    SkScalerContext* generateScalerContext(
+            const SkScalerContextRecDescriptor& desc, SkFontID typefaceId);
 
 private:
+    using DescriptorToContextMap = SkTHashMap<SkScalerContextRecDescriptor,
+            std::unique_ptr<SkScalerContext>,
+            SkScalerContextRecDescriptor::Hash>;
+
+    sk_sp<SkData> encodeTypeface(SkTypeface* tf);
+
     SkTransport* const fTransport;
-    SkRemoteGlyphCacheRenderer fRendererCache;
+    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
+    DescriptorToContextMap fScalerContextMap;
 };
 
 class SkStrikeClient {
