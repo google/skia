@@ -723,7 +723,9 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     sk_sp<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
 
     auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), proxy->origin(),
-                                                    std::move(sema), codecImage->alphaType(),
+                                                    std::move(sema),
+                                                    as_IB(codecImage)->onImageInfo().colorType(),
+                                                    codecImage->alphaType(),
                                                     std::move(texColorSpace));
     return SkImage::MakeFromGenerator(std::move(gen));
 }
@@ -778,7 +780,8 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkP
     sk_sp<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
 
     auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), proxy->origin(),
-                                                    std::move(sema), pixmap.alphaType(),
+                                                    std::move(sema), pixmap.colorType(),
+                                                    pixmap.alphaType(),
                                                     pixmap.info().refColorSpace());
     return SkImage::MakeFromGenerator(std::move(gen));
 }

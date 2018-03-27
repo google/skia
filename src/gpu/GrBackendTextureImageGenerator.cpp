@@ -33,13 +33,8 @@ GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
 
 std::unique_ptr<SkImageGenerator>
 GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin origin,
-                                     sk_sp<GrSemaphore> semaphore,
+                                     sk_sp<GrSemaphore> semaphore, SkColorType colorType,
                                      SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
-    SkColorType colorType = kUnknown_SkColorType;
-    if (!GrPixelConfigToColorType(texture->config(), &colorType)) {
-        return nullptr;
-    }
-
     GrContext* context = texture->getContext();
 
     // Attach our texture to this context's resource cache. This ensures that deletion will happen
@@ -48,6 +43,10 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     context->contextPriv().getResourceCache()->insertCrossContextGpuResource(texture.get());
 
     GrBackendTexture backendTexture = texture->getBackendTexture();
+    if (!context->caps()->validateBackendTexture(backendTexture, colorType,
+                                                 &backendTexture.fConfig)) {
+        return nullptr;
+    }
 
     SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
                                          std::move(colorSpace));
@@ -91,6 +90,9 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     SkASSERT(context);
 
     if (context->contextPriv().getBackend() != fBackendTexture.backend()) {
+        return nullptr;
+    }
+    if (info.colorType() != this->getInfo().colorType()) {
         return nullptr;
     }
 

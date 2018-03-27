@@ -1021,6 +1021,35 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     });
 }
 
+DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
+
+    for (SkColorType ct : { kGray_8_SkColorType, kAlpha_8_SkColorType }) {
+        SkAutoPixmapStorage pixmap;
+        pixmap.alloc(SkImageInfo::Make(4, 4, ct, kPremul_SkAlphaType));
+
+        for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+            GrContextFactory testFactory(options);
+            GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
+            ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
+            GrContext* ctx = ctxInfo.grContext();
+            if (!ctx || !ctx->caps()->crossContextTextureSupport()) {
+                continue;
+            }
+
+            sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
+            REPORTER_ASSERT(reporter, image);
+
+            sk_sp<SkColorSpace> texColorSpace;
+            sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef(
+                ctx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
+            REPORTER_ASSERT(reporter, proxy);
+
+            bool expectAlpha = kAlpha_8_SkColorType == ct;
+            REPORTER_ASSERT(reporter, expectAlpha == GrPixelConfigIsAlphaOnly(proxy->config()));
+        }
+    }
+}
+
 static uint32_t GetIdForBackendObject(GrContext* ctx, GrBackendObject object) {
     if (!object) {
         return 0;
