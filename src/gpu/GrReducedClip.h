@@ -83,7 +83,6 @@ public:
      */
     bool maskRequiresAA() const { SkASSERT(!fMaskElements.isEmpty()); return fMaskRequiresAA; }
 
-    bool drawAlphaClipMask(GrRenderTargetContext*) const;
     bool drawStencilClipMask(GrContext*, GrRenderTargetContext*) const;
 
     int numAnalyticFPs() const { return fAnalyticFPs.count() + fCCPRClipPaths.count(); }
