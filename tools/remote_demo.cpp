@@ -25,8 +25,7 @@ static bool gUseGpu = true;
 static bool gPurgeFontCaches = true;
 static bool gUseProcess = true;
 
-
-class ReadWriteTransport : public SkTransport {
+class ReadWriteTransport : public SkRemoteStrikeTransport {
 public:
     ReadWriteTransport(int readFd, int writeFd) : fReadFd{readFd}, fWriteFd{writeFd} {}
     ~ReadWriteTransport() override {
@@ -56,10 +55,30 @@ private:
               fWriteFd;
 };
 
-static void prime_cache_spec(const SkIRect& bounds,
-                        const SkSurfaceProps& props,
-                        const SkPicture& pic,
-                        SkStrikeCacheDifferenceSpec* strikeDifference) {
+class Timer {
+public:
+    void start() {
+        fStart = std::chrono::high_resolution_clock::now();
+    }
+
+    void stop() {
+        auto end = std::chrono::high_resolution_clock::now();
+        fElapsedSeconds += end - fStart;
+    }
+
+    double elapsedSeconds() {
+        return fElapsedSeconds.count();
+    }
+
+private:
+    decltype(std::chrono::high_resolution_clock::now()) fStart;
+    std::chrono::duration<double>                       fElapsedSeconds{0.0};
+};
+
+static void build_prime_cache_spec(const SkIRect &bounds,
+                                   const SkSurfaceProps &props,
+                                   const SkPicture &pic,
+                                   SkStrikeCacheDifferenceSpec *strikeDifference) {
     SkMatrix deviceMatrix = SkMatrix::I();
 
     SkTextBlobCacheDiffCanvas filter(
@@ -71,7 +90,7 @@ static void prime_cache_spec(const SkIRect& bounds,
 }
 
 static void final_draw(std::string outFilename,
-                       SkTransport* transport,
+                       SkRemoteStrikeTransport* transport,
                        SkDeserialProcs* procs,
                        SkData* picData,
                        SkStrikeClient* client) {
@@ -85,56 +104,26 @@ static void final_draw(std::string outFilename,
     auto c = s->getCanvas();
     auto picUnderTest = SkPicture::MakeFromData(picData, procs);
 
-    SkMatrix deviceMatrix = SkMatrix::I();
-
-    SkStrikeCacheDifferenceSpec strikeDifference;
-    SkTextBlobCacheDiffCanvas filter(
-        r.width(), r.height(), deviceMatrix, s->props(),
-        SkScalerContextFlags::kFakeGammaAndBoostContrast,
-        &strikeDifference);
-
-    if (client != nullptr) {
-        for (int i = 0; i < 0; i++) {
-            auto start = std::chrono::high_resolution_clock::now();
-
-
-            SkStrikeCacheDifferenceSpec strikeDifference;
-
-            prime_cache_spec(r, s->props(), *picUnderTest, &strikeDifference);
-
-            client->primeStrikeCache(strikeDifference);
-
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed_seconds = end - start;
-            (void)elapsed_seconds;
-            if (i == 0) {
-                std::cout << "filter time: " << elapsed_seconds.count() * 1e6 << std::endl;
-            }
-        }
-    }
-
-    std::chrono::duration<double> total_seconds{0.0};
-    for (int i = 0; i < 1; i++) { // 20
+    Timer drawTime;
+    for (int i = 0; i < 100; i++) {
         if (gPurgeFontCaches) {
             SkGraphics::PurgeFontCache();
         }
-        auto start = std::chrono::high_resolution_clock::now();
+        drawTime.start();
         if (client != nullptr) {
             SkStrikeCacheDifferenceSpec strikeDifference;
-            prime_cache_spec(r, s->props(), *picUnderTest, &strikeDifference);
+            build_prime_cache_spec(r, s->props(), *picUnderTest, &strikeDifference);
             client->primeStrikeCache(strikeDifference);
         }
         c->drawPicture(picUnderTest);
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end-start;
-        total_seconds += elapsed_seconds;
+        drawTime.stop();
     }
 
     std::cout << "useProcess: " << gUseProcess
               << " useGPU: " << gUseGpu
               << " purgeCache: " << gPurgeFontCaches << std::endl;
     fprintf(stderr, "%s use GPU %s elapsed time %8.6f s\n", gSkpName.c_str(),
-            gUseGpu ? "true" : "false", total_seconds.count());
+            gUseGpu ? "true" : "false", drawTime.elapsedSeconds());
 
     auto i = s->makeImageSnapshot();
     auto data = i->encodeToData();
@@ -144,19 +133,21 @@ static void final_draw(std::string outFilename,
 
 static void gpu(int readFd, int writeFd) {
 
-    ReadWriteTransport rwTransport{readFd, writeFd};
+    if (gUseGpu) {
+        ReadWriteTransport rwTransport{readFd, writeFd};
 
-    auto picData = rwTransport.readSkData();
-    if (picData == nullptr) {
-        return;
+        auto picData = rwTransport.readSkData();
+        if (picData == nullptr) {
+            return;
+        }
+
+        SkStrikeClient client{&rwTransport};
+
+        SkDeserialProcs procs;
+        client.prepareDeserializeProcs(&procs);
+
+        final_draw("test.png", &rwTransport, &procs, picData.get(), &client);
     }
-
-    SkStrikeClient client{&rwTransport};
-
-    SkDeserialProcs procs;
-    client.prepareDeserializeProcs(&procs);
-
-    final_draw("test.png", &rwTransport, &procs, picData.get(), &client);
 
     printf("GPU is exiting\n");
 }
@@ -177,7 +168,7 @@ static int renderer(
         server.prepareSerializeProcs(&procs);
         stream = pic->serialize(&procs);
 
-        if (rwTransport.writeSkData(*stream) == SkTransport::kFail) {
+        if (rwTransport.writeSkData(*stream) == SkRemoteStrikeTransport::kFail) {
             return 1;
         }
 
@@ -190,7 +181,6 @@ static int renderer(
         return 0;
     }
 }
-
 
 int main(int argc, char** argv) {
     std::string skpName = argc > 1 ? std::string{argv[1]} : std::string{"skps/desk_nytimes.skp"};
