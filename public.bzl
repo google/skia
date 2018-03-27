@@ -431,8 +431,6 @@ DM_SRCS_ALL = struct(
     include = [
         "dm/*.cpp",
         "dm/*.h",
-        "experimental/svg/model/*.cpp",
-        "experimental/svg/model/*.h",
         "gm/*.c",
         "gm/*.cpp",
         "gm/*.h",
@@ -477,6 +475,8 @@ DM_SRCS_ALL = struct(
         "tools/sk_pixel_iter.h",
         "tools/sk_tool_utils.cpp",
         "tools/sk_tool_utils.h",
+        "tools/svg/model/*.cpp",
+        "tools/svg/model/*.h",
         "tools/timer/*.cpp",
         "tools/timer/*.h",
         "tools/trace/*.cpp",
@@ -519,7 +519,6 @@ def dm_srcs(os_conditions):
 DM_INCLUDES = [
     "dm",
     "gm",
-    "experimental/svg/model",
     "src/codec",
     "src/core",
     "src/effects",
@@ -537,6 +536,7 @@ DM_INCLUDES = [
     "tools/flags",
     "tools/fonts",
     "tools/gpu",
+    "tools/svg/model",
     "tools/timer",
     "tools/trace",
 ]

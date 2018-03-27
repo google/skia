@@ -13,7 +13,7 @@
 
 #ifdef SK_XML
 #include "SkDOM.h"
-#include "../experimental/svg/model/SkSVGDOM.h"
+#include "SkSVGDOM.h"
 #endif
 
 sk_sp<BisectSlide> BisectSlide::Create(const char filepath[]) {
