@@ -73,111 +73,6 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
     devBounds.roundOut(devResult);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// set up the draw state to enable the aa clipping mask.
-static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(sk_sp<GrTextureProxy> mask,
-                                                               const SkIRect& devBound) {
-    SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
-    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(std::move(mask), domainTexels,
-                                                            {devBound.fLeft, devBound.fTop});
-}
-
-// Does the path in 'element' require SW rendering? If so, return true (and,
-// optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
-// 'prOut' to the non-SW path renderer that will do the job).
-bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
-                                          const SkIRect& scissorRect,
-                                          bool hasUserStencilSettings,
-                                          const GrRenderTargetContext* renderTargetContext,
-                                          const SkMatrix& viewMatrix,
-                                          const Element* element,
-                                          GrPathRenderer** prOut,
-                                          bool needsStencil) {
-    if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
-        // rects can always be drawn directly w/o using the software path
-        // TODO: skip rrects once we're drawing them directly.
-        if (prOut) {
-            *prOut = nullptr;
-        }
-        return false;
-    } else {
-        // We shouldn't get here with an empty clip element.
-        SkASSERT(Element::DeviceSpaceType::kEmpty != element->getDeviceSpaceType());
-
-        // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
-        SkPath path;
-        element->asDeviceSpacePath(&path);
-        if (path.isInverseFillType()) {
-            path.toggleInverseFillType();
-        }
-
-        GrPathRendererChain::DrawType type =
-                needsStencil ? GrPathRendererChain::DrawType::kStencilAndColor
-                             : GrPathRendererChain::DrawType::kColor;
-
-        GrShape shape(path, GrStyle::SimpleFill());
-        GrPathRenderer::CanDrawPathArgs canDrawArgs;
-        canDrawArgs.fCaps = context->caps();
-        canDrawArgs.fClipConservativeBounds = &scissorRect;
-        canDrawArgs.fViewMatrix = &viewMatrix;
-        canDrawArgs.fShape = &shape;
-        canDrawArgs.fAAType = GrChooseAAType(GrAA(element->isAA()),
-                                             renderTargetContext->fsaaType(),
-                                             GrAllowMixedSamples::kYes,
-                                             *context->caps());
-        canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
-
-        // the 'false' parameter disallows use of the SW path renderer
-        GrPathRenderer* pr =
-            context->contextPriv().drawingManager()->getPathRenderer(canDrawArgs, false, type);
-        if (prOut) {
-            *prOut = pr;
-        }
-        return SkToBool(!pr);
-    }
-}
-
-/*
- * This method traverses the clip stack to see if the GrSoftwarePathRenderer
- * will be used on any element. If so, it returns true to indicate that the
- * entire clip should be rendered in SW and then uploaded en masse to the gpu.
- */
-bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
-                                    bool hasUserStencilSettings,
-                                    const GrRenderTargetContext* renderTargetContext,
-                                    const GrReducedClip& reducedClip) {
-    // TODO: generalize this function so that when
-    // a clip gets complex enough it can just be done in SW regardless
-    // of whether it would invoke the GrSoftwarePathRenderer.
-
-    // If we're avoiding stencils, always use SW:
-    if (context->caps()->avoidStencilBuffers())
-        return true;
-
-    // Set the matrix so that rendered clip elements are transformed to mask space from clip
-    // space.
-    SkMatrix translate;
-    translate.setTranslate(SkIntToScalar(-reducedClip.left()), SkIntToScalar(-reducedClip.top()));
-
-    for (ElementList::Iter iter(reducedClip.maskElements()); iter.get(); iter.next()) {
-        const Element* element = iter.get();
-
-        SkClipOp op = element->getOp();
-        bool invert = element->isInverseFilled();
-        bool needsStencil = invert ||
-                            kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op;
-
-        if (PathNeedsSWRenderer(context, reducedClip.scissor(), hasUserStencilSettings,
-                                renderTargetContext, translate, element, nullptr, needsStencil)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// sort out what kind of clip mask needs to be created: alpha, stencil,
-// scissor, or entirely software
 bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTargetContext,
                             bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out,
                             SkRect* bounds) const {
@@ -253,24 +148,18 @@ bool GrClipStackClip::applyClipMask(GrContext* context, GrRenderTargetContext* r
     // If the stencil buffer is multisampled we can use it to do everything.
     if ((GrFSAAType::kNone == renderTargetContext->fsaaType() && reducedClip.maskRequiresAA()) ||
         context->caps()->avoidStencilBuffers()) {
-        sk_sp<GrTextureProxy> result;
-        if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
-            // The clip geometry is complex enough that it will be more efficient to create it
-            // entirely in software
-            result = this->createSoftwareClipMask(context, reducedClip, renderTargetContext);
-        } else {
-            result = this->createAlphaClipMask(context, reducedClip);
-        }
-
-        if (result) {
-            // The mask's top left coord should be pinned to the rounded-out top left corner of
-            // the clip's device space bounds.
-            out->addCoverageFP(create_fp_for_mask(std::move(result), reducedClip.scissor()));
+        if (auto mask = this->createSoftwareClipMask(context, reducedClip, renderTargetContext)) {
+            // The mask should fill the clip's scissor.
+            SkIRect domainTexels = SkIRect::MakeWH(reducedClip.width(), reducedClip.height());
+            SkIPoint maskOffset = SkIPoint::Make(reducedClip.left(), reducedClip.top());
+            out->addCoverageFP(GrDeviceSpaceTextureDecalFragmentProcessor::Make(std::move(mask),
+                                                                                domainTexels,
+                                                                                maskOffset));
             return true;
         }
 
-        // If alpha or software clip mask creation fails, fall through to the stencil code paths,
-        // unless stencils are disallowed.
+        // If software clip mask creation fails, fall through to the stencil code paths, unless
+        // stencils are disallowed.
         if (context->caps()->avoidStencilBuffers()) {
             SkDebugf("WARNING: Clip mask requires stencil, but stencil unavailable. "
                      "Clip will be ignored.\n");
@@ -322,45 +211,6 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, uint32_t cli
         }
     }
     SkDEBUGFAIL("Gen ID was not found in stack.");
-}
-
-sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
-                                                           const GrReducedClip& reducedClip) const {
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrUniqueKey key;
-    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
-                         reducedClip.numAnalyticFPs(), &key);
-
-    sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
-                                                                key, kBottomLeft_GrSurfaceOrigin));
-    if (proxy) {
-        return proxy;
-    }
-
-    sk_sp<GrRenderTargetContext> rtc(
-        context->contextPriv().makeDeferredRenderTargetContextWithFallback(SkBackingFit::kApprox,
-                                                                           reducedClip.width(),
-                                                                           reducedClip.height(),
-                                                                           kAlpha_8_GrPixelConfig,
-                                                                           nullptr));
-    if (!rtc) {
-        return nullptr;
-    }
-
-    if (!reducedClip.drawAlphaClipMask(rtc.get())) {
-        return nullptr;
-    }
-
-    sk_sp<GrTextureProxy> result(rtc->asTextureProxyRef());
-    if (!result) {
-        return nullptr;
-    }
-
-    SkASSERT(result->origin() == kBottomLeft_GrSurfaceOrigin);
-    proxyProvider->assignUniqueKeyToProxy(key, result.get());
-    add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
-
-    return result;
 }
 
 namespace {
