@@ -251,17 +251,6 @@ private:
     Path fPath;
 };
 
-// DeferredDisplayList flavor
-class DDLSKPSrc : public Src {
-public:
-    explicit DDLSKPSrc(Path path);
-
-    Error draw(SkCanvas*) const override;
-    SkISize size() const override;
-    Name name() const override;
-private:
-    Path fPath;
-};
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)
 class SkottieSrc final : public Src {
