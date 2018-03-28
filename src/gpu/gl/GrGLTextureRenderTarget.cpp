@@ -37,9 +37,20 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
 
 void GrGLTextureRenderTarget::dumpMemoryStatistics(
     SkTraceMemoryDump* traceMemoryDump) const {
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // Delegate to the base classes
     GrGLRenderTarget::dumpMemoryStatistics(traceMemoryDump);
     GrGLTexture::dumpMemoryStatistics(traceMemoryDump);
+#else
+    SkString dumpName("skia/gpu_resources/resource_");
+    dumpName.appendU32(this->uniqueID().asUInt());
+    dumpName.append("/texture_renderbuffer");
+
+    size_t size = GrGLTexture::gpuMemorySize();
+    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
+    traceMemoryDump->dumpStringValue(dumpName.c_str(), "type", "Texture (RenderTarget)");
+    this->dumpResourceCategory(traceMemoryDump, dumpName.c_str());
+#endif
 }
 
 bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {

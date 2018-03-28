@@ -297,7 +297,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         // Allow 8 bits each in x and y of subpixel positioning.
         SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
         SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
-        GrUniqueKey::Builder builder(&maskKey, kDomain, 5 + args.fShape->unstyledKeySize());
+        GrUniqueKey::Builder builder(&maskKey, kDomain, 5 + args.fShape->unstyledKeySize(), "Path");
 #endif
         builder[0] = SkFloat2Bits(sx);
         builder[1] = SkFloat2Bits(sy);

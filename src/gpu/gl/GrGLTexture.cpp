@@ -146,6 +146,8 @@ void GrGLTexture::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const
     // hitting an override.
     size_t size = GrGLTexture::gpuMemorySize();
     traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
+    traceMemoryDump->dumpStringValue(dumpName.c_str(), "type", "Texture");
+    this->dumpResourceCategory(traceMemoryDump, dumpName.c_str());
 
     if (this->isPurgeable()) {
         traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes", size);
