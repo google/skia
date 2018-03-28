@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d7b7fc3_df8fc61f",
+        "filename": "src/gpu/GrPathRange.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-28T20:26:52Z",
+      "side": 1,
+      "message": "\"Path Range\" ?",
+      "revId": "11cd416f465daa5a47cbe9c3ef45f4d8204d8d43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41b89a42_317d1af6",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-28T20:26:52Z",
+      "side": 1,
+      "message": "Don\u0027t we need something here?",
+      "revId": "11cd416f465daa5a47cbe9c3ef45f4d8204d8d43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88364bad_7520ce41",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-28T20:26:52Z",
+      "side": 1,
+      "message": "\"SW Path Mask\" ?",
+      "revId": "11cd416f465daa5a47cbe9c3ef45f4d8204d8d43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3be0fb76_f8117ed4",
+        "filename": "src/gpu/effects/GrCircleBlurFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-28T20:26:52Z",
+      "side": 1,
+      "message": "\"1-D Circular Blur Profile\" ?",
+      "revId": "11cd416f465daa5a47cbe9c3ef45f4d8204d8d43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bbe12b8_b4607490",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-28T20:26:52Z",
+      "side": 1,
+      "message": "\"RRect Blur Mask\" ?",
+      "revId": "11cd416f465daa5a47cbe9c3ef45f4d8204d8d43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0110323e_5416073a",
+        "filename": "src/gpu/effects/GrRectBlurEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-28T20:26:52Z",
+      "side": 1,
+      "message": "\"2-D Rect Blur Profile\" ?",
+      "revId": "11cd416f465daa5a47cbe9c3ef45f4d8204d8d43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
