@@ -245,6 +245,12 @@ DEF_TEST(SkSLBinaryTypeMismatch, r) {
     test_failure(r,
                  "void main() { bool x = 1 || 2.0; }",
                  "error: 1: type mismatch: '||' cannot operate on 'int', 'float'\n1 error\n");
+    test_failure(r,
+                 "void main() { bool x = float2(0) == 0; }",
+                 "error: 1: type mismatch: '==' cannot operate on 'float2', 'int'\n1 error\n");
+    test_failure(r,
+                 "void main() { bool x = float2(0) != 0; }",
+                 "error: 1: type mismatch: '!=' cannot operate on 'float2', 'int'\n1 error\n");
 }
 
 DEF_TEST(SkSLCallNonFunction, r) {
