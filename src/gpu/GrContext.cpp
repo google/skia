@@ -523,6 +523,13 @@ void GrContext::freeGpuResources() {
     fResourceCache->purgeAllUnlocked();
 }
 
+void GrContext::purgeUnlockedResources(bool scratchResourcesOnly) {
+    ASSERT_SINGLE_OWNER
+    fResourceCache->purgeUnlockedResources(scratchResourcesOnly);
+    fResourceCache->purgeAsNeeded();
+    fTextBlobCache->purgeStaleBlobs();
+}
+
 void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     ASSERT_SINGLE_OWNER
     fResourceCache->purgeAsNeeded();

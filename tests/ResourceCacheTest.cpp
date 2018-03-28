@@ -424,6 +424,74 @@ static void make_unique_key(GrUniqueKey* key, int data, const char* tag = nullpt
     builder[0] = data;
 }
 
+static void test_purge_unlocked(skiatest::Reporter* reporter) {
+    Mock mock(10, 30000);
+    GrContext* context = mock.context();
+    GrResourceCache* cache = mock.cache();
+    GrGpu* gpu = context->contextPriv().getGpu();
+
+    // Create two resource w/ a unique key and two w/o but all of which have scratch keys.
+    TestResource* a = TestResource::CreateScratch(gpu, SkBudgeted::kYes,
+                                                  TestResource::kA_SimulatedProperty);
+    a->setSize(11);
+
+    GrUniqueKey uniqueKey;
+    make_unique_key<0>(&uniqueKey, 0);
+
+    TestResource* b = TestResource::CreateScratch(gpu, SkBudgeted::kYes,
+                                                  TestResource::kA_SimulatedProperty);
+    b->setSize(12);
+    b->resourcePriv().setUniqueKey(uniqueKey);
+
+    TestResource* c = TestResource::CreateScratch(gpu, SkBudgeted::kYes,
+                                                  TestResource::kA_SimulatedProperty);
+    c->setSize(13);
+
+    GrUniqueKey uniqueKey2;
+    make_unique_key<0>(&uniqueKey2, 1);
+
+    TestResource* d = TestResource::CreateScratch(gpu, SkBudgeted::kYes,
+                                                  TestResource::kA_SimulatedProperty);
+    d->setSize(14);
+    d->resourcePriv().setUniqueKey(uniqueKey2);
+
+
+    REPORTER_ASSERT(reporter, 4 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() + c->gpuMemorySize() +
+                              d->gpuMemorySize() == cache->getResourceBytes());
+
+    // Should be safe to purge without deleting the resources since we still have refs.
+    cache->purgeUnlockedResources(false);
+    REPORTER_ASSERT(reporter, 4 == TestResource::NumAlive());
+
+    // Unref them all. Since they all have keys they should remain in the cache.
+
+    a->unref();
+    b->unref();
+    c->unref();
+    d->unref();
+    REPORTER_ASSERT(reporter, 4 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() + c->gpuMemorySize() +
+                              d->gpuMemorySize() == cache->getResourceBytes());
+
+    // Purge only the two scratch resources
+    cache->purgeUnlockedResources(true);
+
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, b->gpuMemorySize() + d->gpuMemorySize() ==
+                              cache->getResourceBytes());
+
+    // Purge the uniquely keyed resources
+    cache->purgeUnlockedResources(false);
+
+    REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
+}
+
 static void test_budgeting(skiatest::Reporter* reporter) {
     Mock mock(10, 300);
     GrContext* context = mock.context();
@@ -1619,6 +1687,7 @@ static void test_tags(skiatest::Reporter* reporter) {
 DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     // The below tests create their own mock contexts.
     test_no_key(reporter);
+    test_purge_unlocked(reporter);
     test_budgeting(reporter);
     test_unbudgeted(reporter);
     test_unbudgeted_to_scratch(reporter);

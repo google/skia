@@ -216,6 +216,21 @@ public:
      */
     void purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources);
 
+    /**
+     * This entry point is intended for instances where an app has been backgrounded or
+     * suspended.
+     * If 'scratchResourcesOnly' is true all unlocked scratch resources will be purged but the
+     * unlocked resources with persistent data will remain. If 'scratchResourcesOnly' is false
+     * then all unlocked resources will be purged.
+     * In either case, after the unlocked resources are purged a separate pass will be made to
+     * ensure that resource usage is under budget (i.e., even if 'scratchResourcesOnly' is true
+     * some resources with persistent data may be purged to be under budget).
+     *
+     * @param scratchResourcesOnly   If true only unlocked scratch resources will be purged prior
+     *                               enforcing the budget requirements.
+     */
+    void purgeUnlockedResources(bool scratchResourcesOnly);
+
     /** Access the context capabilities */
     const GrCaps* caps() const { return fCaps.get(); }
 
