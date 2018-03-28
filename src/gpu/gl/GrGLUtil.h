@@ -47,8 +47,8 @@ enum GrGLVendor {
 };
 
 enum GrGLRenderer {
-    kTegra2_GrGLRenderer,
-    kTegra3_GrGLRenderer,
+    kTegra_PreK1_GrGLRenderer,  // Legacy Tegra architecture (pre-K1).
+    kTegra_GrGLRenderer,  // Tegra with the same architecture as NVIDIA desktop GPUs (K1+).
     kPowerVR54x_GrGLRenderer,
     kPowerVRRogue_GrGLRenderer,
     kAdreno3xx_GrGLRenderer,
@@ -161,7 +161,7 @@ GrGLVersion GrGLGetVersionFromString(const char* versionString);
 GrGLStandard GrGLGetStandardInUseFromString(const char* versionString);
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 GrGLVendor GrGLGetVendorFromString(const char* vendorString);
-GrGLRenderer GrGLGetRendererFromString(const char* rendererString);
+GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString, const char* extensionString);
 void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend*,
                                 GrGLANGLEVendor*, GrGLANGLERenderer*);
 
