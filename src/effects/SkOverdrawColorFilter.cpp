@@ -36,6 +36,7 @@ void SkOverdrawColorFilter::onAppendStages(SkRasterPipeline* p,
     p->append(SkRasterPipeline::callback, ctx);
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkOverdrawColorFilter::toString(SkString* str) const {
     str->append("SkOverdrawColorFilter (");
     for (int i = 0; i < kNumColors; i++) {
@@ -43,6 +44,7 @@ void SkOverdrawColorFilter::toString(SkString* str) const {
     }
     str->append(")");
 }
+#endif //SK_IGNORE_TO_STRING
 
 void SkOverdrawColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeByteArray(fColors, kNumColors * sizeof(SkPMColor));

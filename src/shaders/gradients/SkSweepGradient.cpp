@@ -261,6 +261,7 @@ void SkSweepGradient::toString(SkString* str) const {
 
     str->append(")");
 }
+#endif
 
 void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                            SkRasterPipeline*) const {
@@ -269,4 +270,3 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
                                              SkMatrix::MakeTrans(fTBias , 0)));
 }
 
-#endif
