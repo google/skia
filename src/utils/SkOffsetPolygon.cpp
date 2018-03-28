@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkInsetConvexPolygon.h"
+#include "SkOffsetPolygon.h"
 
 #include "SkPointPriv.h"
 #include "SkTemplates.h"
