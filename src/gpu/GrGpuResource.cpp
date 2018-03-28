@@ -78,6 +78,8 @@ void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) con
     dumpName.appendU32(this->uniqueID().asUInt());
 
     traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", this->gpuMemorySize());
+    traceMemoryDump->dumpStringValue(dumpName.c_str(), "type", this->getResourceType());
+    this->dumpResourceCategory(traceMemoryDump, dumpName.c_str());
 
     if (this->isPurgeable()) {
         traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes",
@@ -87,6 +89,15 @@ void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) con
     // Call setMemoryBacking to allow sub-classes with implementation specific backings (such as GL
     // objects) to provide additional information.
     this->setMemoryBacking(traceMemoryDump, dumpName);
+}
+
+void GrGpuResource::dumpResourceCategory(SkTraceMemoryDump* traceMemoryDump,
+                                         const char* resourceName) const {
+    const char* tag = "Scratch";
+    if (fUniqueKey.isValid()) {
+        tag = (fUniqueKey.tag() != nullptr) ? fUniqueKey.tag() : "Other";
+    }
+    traceMemoryDump->dumpStringValue(resourceName, "category", tag);
 }
 
 const GrContext* GrGpuResource::getContext() const {

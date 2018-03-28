@@ -221,6 +221,8 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
         dumpName.append("/renderbuffer");
 
         traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
+        traceMemoryDump->dumpStringValue(dumpName.c_str(), "type", "RenderTarget");
+        this->dumpResourceCategory(traceMemoryDump, dumpName.c_str());
 
         if (this->isPurgeable()) {
             traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes", size);
