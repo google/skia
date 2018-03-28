@@ -123,11 +123,6 @@ public:
 
     // Create a DDL whose characterization captures the current settings
     std::unique_ptr<SkDeferredDisplayList> createDDL(GrContext* context) const {
-        sk_sp<SkSurface> s = this->make(context);
-        if (!s) {
-            return nullptr;
-        }
-
         int maxResourceCount;
         size_t maxResourceBytes;
         context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
@@ -505,4 +500,54 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
     }
 
 }
+
+static const int kTileSize = 64;
+
+std::unique_ptr<SkDeferredDisplayList> make_ddl(GrContext* context,
+                                                std::function<void(SkCanvas*)> drawFn) {
+
+    int maxResourceCount;
+    size_t maxResourceBytes;
+    context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+    // Note that Ganesh doesn't make use of the SkImageInfo's alphaType
+    SkImageInfo ii = SkImageInfo::Make(kTileSize, kTileSize, kRGBA_8888_SkColorType,
+                                        kPremul_SkAlphaType, nullptr);
+
+    GrBackendFormat backendFormat = create_backend_format(context, kRGBA_8888_SkColorType);
+
+    SkSurfaceProps props(0x0, kUnknown_SkPixelGeometry);
+
+    SkSurfaceCharacterization c = context->threadSafeProxy()->createCharacterization(
+                                                    maxResourceBytes, ii, backendFormat, 1,
+                                                    kTopLeft_GrSurfaceOrigin, props, true);
+    SkAssertResult(c.isValid());
+
+    SkDeferredDisplayListRecorder r(c);
+    SkCanvas* canvas = r.getCanvas();
+    if (!canvas) {
+        return nullptr;
+    }
+
+    drawFn(canvas);
+    return r.detach();
+}
+
+// Test that chaining together DDLs via SkImages works.
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLSnapImageTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkColor color = SK_ColorRED;
+    std::unique_ptr<SkDeferredDisplayList> ddl = make_ddl(
+                                    context,
+                                    [color] (SkCanvas* canvas) {
+                                        SkPaint p;
+                                        p.setColor(color);
+
+                                        canvas->drawRect(SkRect::MakeWH(kTileSize, kTileSize), p);
+                                    });
+
+    sk_sp<SkImage> img = ddl->futureImage();
+}
+
 #endif

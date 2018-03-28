@@ -11,7 +11,10 @@
 #include "SkSurface.h"
 
 SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
+                                             sk_sp<SkImage> image,
                                              sk_sp<LazyProxyData> lazyProxyData)
         : fCharacterization(characterization)
+        , fImage(std::move(image))
         , fLazyProxyData(std::move(lazyProxyData)) {
 }
+
