@@ -28,63 +28,57 @@
 #include "ops/GrStencilAndCoverPathRenderer.h"
 #include "ops/GrTessellatingPathRenderer.h"
 
-GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options) {
+GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options)
+        // AA hairline path renderer is very specialized - no other renderer can do this job well.
+        : fAAHairLinePathRenderer(sk_make_sp<GrAAHairLinePathRenderer>())
+        // We always create the default and SW path renderers so we can draw any path.
+        , fDefaultPathRenderer(sk_make_sp<GrDefaultPathRenderer>())
+        , fSoftwarePathRenderer(
+                sk_make_sp<GrSoftwarePathRenderer>(context->contextPriv().proxyProvider(),
+                                                   options.fAllowPathMaskCaching)) {
     const GrCaps& caps = *context->caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
-        fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
+        fDashLinePathRenderer = sk_make_sp<GrDashLinePathRenderer>();
     }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
-        sk_sp<GrPathRenderer> pr(
-           GrStencilAndCoverPathRenderer::Create(context->contextPriv().resourceProvider(), caps));
-        if (pr) {
-            fChain.push_back(std::move(pr));
-        }
-    }
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    if (options.fGpuPathRenderers & GpuPathRenderers::kMSAA) {
-        if (caps.sampleShadingSupport()) {
-            fChain.push_back(sk_make_sp<GrMSAAPathRenderer>());
-        }
-    }
-#endif
-
-    // AA hairline path renderer is very specialized - no other renderer can do this job well
-    fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
-
     if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
-        bool drawCachablePaths = !options.fAllowPathMaskCaching;
-        if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(*context->caps(),
-                                                                          drawCachablePaths)) {
-            fCoverageCountingPathRenderer = ccpr.get();
-            context->contextPriv().addOnFlushCallbackObject(fCoverageCountingPathRenderer);
-            fChain.push_back(std::move(ccpr));
+        bool clipCachablePaths = !options.fAllowPathMaskCaching;
+        fCoverageCountingPathRenderer =
+                GrCoverageCountingPathRenderer::CreateIfSupported(*context->caps(),
+                                                                  clipCachablePaths);
+        if (fCoverageCountingPathRenderer) {
+            context->contextPriv().addOnFlushCallbackObject(fCoverageCountingPathRenderer.get());
         }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
-        fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
+        fAAConvexPathRenderer = sk_make_sp<GrAAConvexPathRenderer>();
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAALinearizing) {
-        fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
+        fAALinearizingConvexPathRenderer = sk_make_sp<GrAALinearizingConvexPathRenderer>();
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
-        auto spr = sk_make_sp<GrSmallPathRenderer>();
-        context->contextPriv().addOnFlushCallbackObject(spr.get());
-        fChain.push_back(std::move(spr));
+        fSmallPathRenderer = sk_make_sp<GrSmallPathRenderer>();
+        context->contextPriv().addOnFlushCallbackObject(fSmallPathRenderer.get());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellating) {
-        fChain.push_back(sk_make_sp<GrTessellatingPathRenderer>());
+        fTessellatingPathRenderer = sk_make_sp<GrTessellatingPathRenderer>();
     }
-
-    // We always include the default and SW path renderers so we can draw any path
-    fChain.push_back(sk_make_sp<GrDefaultPathRenderer>());
-    fChain.push_back(sk_make_sp<GrSoftwarePathRenderer>(context->contextPriv().proxyProvider(),
-                                                        options.fAllowPathMaskCaching));
+    if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
+        fStencilAndCoverPathRenderer.reset(
+                GrStencilAndCoverPathRenderer::Create(context->contextPriv().resourceProvider(),
+                                                      caps));
+    }
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    if ((options.fGpuPathRenderers & GpuPathRenderers::kMSAA) && caps.sampleShadingSupport()) {
+        fMSAAPathRenderer = sk_make_sp<GrMSAAPathRenderer>();
+    }
+#endif
 }
 
-GrPathRenderer* GrPathRendererChain::getPathRenderer(
-        const GrPathRenderer::CanDrawPathArgs& args,
-        DrawType drawType,
-        GrPathRenderer::StencilSupport* stencilSupport) {
+GrPathRendererChain::~GrPathRendererChain() {}
+
+GrPathRenderer* GrPathRendererChain::getPathRenderer(const CanDrawPathArgs& args, DrawType drawType,
+                                                     StencilSupport* outStencilSupport)
+{
     GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
                      GrPathRenderer::kStencilOnly_StencilSupport);
     GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <
@@ -104,29 +98,38 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
         }
     }
 
-    GrPathRenderer* bestPathRenderer = nullptr;
-    for (const sk_sp<GrPathRenderer>& pr : fChain) {
-        GrPathRenderer::StencilSupport support = GrPathRenderer::kNoSupport_StencilSupport;
-        if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
-            support = pr->getStencilSupport(*args.fShape);
-            if (support < minStencilSupport) {
-                continue;
-            }
-        }
-        GrPathRenderer::CanDrawPath canDrawPath = pr->canDrawPath(args);
-        if (GrPathRenderer::CanDrawPath::kNo == canDrawPath) {
-            continue;
-        }
-        if (GrPathRenderer::CanDrawPath::kAsBackup == canDrawPath && bestPathRenderer) {
-            continue;
-        }
-        if (stencilSupport) {
-            *stencilSupport = support;
-        }
-        bestPathRenderer = pr.get();
-        if (GrPathRenderer::CanDrawPath::kYes == canDrawPath) {
-            break;
-        }
+#define TRY(PR) \
+    if (PR && PR->canDrawPath(minStencilSupport, args, outStencilSupport)) \
+        return PR.get()
+
+    if (args.fShape->style().isDashed()) {
+        TRY(fDashLinePathRenderer);
     }
-    return bestPathRenderer;
+    if (GrAAType::kCoverage == args.fAAType) {
+        TRY(fAAHairLinePathRenderer);
+        TRY(fAAConvexPathRenderer);
+        TRY(fAALinearizingConvexPathRenderer);
+        TRY(fSmallPathRenderer);
+        TRY(fTessellatingPathRenderer);
+        if (fCoverageCountingPathRenderer &&
+            fSoftwarePathRenderer->willDrawCached(minStencilSupport, args, outStencilSupport)) {
+            return fSoftwarePathRenderer.get();
+        }
+        TRY(fCoverageCountingPathRenderer);
+    } else {
+        TRY(fStencilAndCoverPathRenderer);
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        TRY(fMSAAPathRenderer);
+#endif
+        TRY(fTessellatingPathRenderer);
+        TRY(fDefaultPathRenderer);
+    }
+    if (!args.fShape->style().applies()) {
+        TRY(fSoftwarePathRenderer);
+        SkDebugf("WARNING: No path renderer found to draw the path.\n");
+    }
+
+#undef TRY
+
+    return nullptr;
 }

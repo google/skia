@@ -116,7 +116,7 @@ public:
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const override;
+    bool onCanDrawPath(const CanDrawPathArgs& args) const override;
     bool onDrawPath(const DrawPathArgs&) final;
 
     // These are keyed by SkPath generation ID, and store which device-space paths are accessed and
@@ -196,8 +196,8 @@ public:
     void postFlush(GrDeferredUploadToken, const uint32_t* opListIDs, int numOpListIDs) override;
 
 private:
-    GrCoverageCountingPathRenderer(bool drawCachablePaths)
-            : fDrawCachablePaths(drawCachablePaths) {}
+    GrCoverageCountingPathRenderer(bool clipCachablePaths)
+            : fClipCachablePaths(clipCachablePaths) {}
 
     GrCCAtlas* placeParsedPathInAtlas(GrOnFlushResourceProvider*, const SkIRect& accessRect,
                                       const SkIRect& pathIBounds, int16_t* atlasOffsetX,
@@ -226,7 +226,7 @@ private:
     bool fPerFlushResourcesAreValid;
     SkDEBUGCODE(bool fFlushing = false);
 
-    const bool fDrawCachablePaths;
+    const bool fClipCachablePaths;
 };
 
 #endif

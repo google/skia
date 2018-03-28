@@ -23,6 +23,18 @@ public:
         SkASSERT(fProxyProvider);
     }
 
+    bool willDrawCached(StencilSupport minStencilSupport, const CanDrawPathArgs& args,
+                        StencilSupport* outStencilSupport) {
+        if (!this->canDrawPath(minStencilSupport, args, outStencilSupport)) {
+            return false;
+        }
+        bool inverseFilled;
+        SkIRect unclippedDevShapeBounds, boundsForMask;
+        return this->shouldUseCache(*args.fCaps, *args.fClipConservativeBounds, *args.fViewMatrix,
+                                    *args.fShape, args.fAAType, &inverseFilled,
+                                    &unclippedDevShapeBounds, &boundsForMask);
+    }
+
 private:
     static void DrawNonAARect(GrRenderTargetContext* renderTargetContext,
                               GrPaint&& paint,
@@ -51,11 +63,15 @@ private:
                                           const SkIPoint& textureOriginInDeviceSpace,
                                           const SkIRect& deviceSpaceRectToDraw);
 
+    bool shouldUseCache(const GrCaps&, const SkIRect& clipConservativeBounds, const SkMatrix&,
+                        const GrShape&, GrAAType, bool* inverseFilled,
+                        SkIRect* unclippedDevShapeBounds, SkIRect* boundsForMask) const;
+
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
 
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
+    bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
 

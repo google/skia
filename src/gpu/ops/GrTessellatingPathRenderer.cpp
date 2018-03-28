@@ -136,8 +136,7 @@ private:
 GrTessellatingPathRenderer::GrTessellatingPathRenderer() {
 }
 
-GrPathRenderer::CanDrawPath
-GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This path renderer can draw fill styles, and can do screenspace antialiasing via a
     // one-pixel coverage ramp. It can do convex and concave paths, but we'll leave the convex
     // ones to simpler algorithms. We pass on paths that have styles, though they may come back
@@ -146,18 +145,21 @@ GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // renderer comes from caching the tessellated geometry. In the AA case, we do not cache, so we
     // accept paths without keys.
     if (!args.fShape->style().isSimpleFill() || args.fShape->knownToBeConvex()) {
-        return CanDrawPath::kNo;
+        return false;
     }
     if (GrAAType::kCoverage == args.fAAType) {
         SkPath path;
         args.fShape->asPath(&path);
         if (path.countVerbs() > GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
-            return CanDrawPath::kNo;
+            return false;
         }
     } else if (!args.fShape->hasUnstyledKey()) {
-        return CanDrawPath::kNo;
+        return false;
     }
-    return CanDrawPath::kYes;
+    if (GrAAType::kMixedSamples == args.fAAType) {
+        return false;
+    }
+    return true;
 }
 
 namespace {

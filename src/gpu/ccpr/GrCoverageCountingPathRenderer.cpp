@@ -52,45 +52,21 @@ sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSu
     return sk_sp<GrCoverageCountingPathRenderer>(ccpr);
 }
 
-GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
-        const CanDrawPathArgs& args) const {
-    if (args.fShape->hasUnstyledKey() && !fDrawCachablePaths) {
-        return CanDrawPath::kNo;
-    }
-
-    if (!args.fShape->style().isSimpleFill() || args.fShape->inverseFilled() ||
-        args.fViewMatrix->hasPerspective() || GrAAType::kCoverage != args.fAAType) {
-        return CanDrawPath::kNo;
+bool GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    if (GrAAType::kCoverage != args.fAAType ||
+        !args.fShape->style().isSimpleFill() ||
+        args.fViewMatrix->hasPerspective() ||
+        args.fShape->inverseFilled()) {
+        return false;
     }
 
     SkPath path;
     args.fShape->asPath(&path);
     if (SkPathPriv::ConicWeightCnt(path)) {
-        return CanDrawPath::kNo;
+        return false;
     }
 
-    SkRect devBounds;
-    SkIRect devIBounds;
-    args.fViewMatrix->mapRect(&devBounds, path.getBounds());
-    devBounds.roundOut(&devIBounds);
-    if (!devIBounds.intersect(*args.fClipConservativeBounds)) {
-        // Path is completely clipped away. Our code will eventually notice this before doing any
-        // real work.
-        return CanDrawPath::kYes;
-    }
-
-    if (devIBounds.height() * devIBounds.width() > 256 * 256) {
-        // Large paths can blow up the atlas fast. And they are not ideal for a two-pass rendering
-        // algorithm. Give the simpler direct renderers a chance before we commit to drawing it.
-        return CanDrawPath::kAsBackup;
-    }
-
-    if (args.fShape->hasUnstyledKey() && path.countVerbs() > 50) {
-        // Complex paths do better cached in an SDF, if the renderer will accept them.
-        return CanDrawPath::kAsBackup;
-    }
-
-    return CanDrawPath::kYes;
+    return true;
 }
 
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -190,7 +166,7 @@ void CCPR::DrawPathsOp::wasRecorded(GrRenderTargetOpList* opList) {
 }
 
 bool GrCoverageCountingPathRenderer::canMakeClipProcessor(const SkPath& deviceSpacePath) const {
-    if (!fDrawCachablePaths && !deviceSpacePath.isVolatile()) {
+    if (!fClipCachablePaths && !deviceSpacePath.isVolatile()) {
         return false;
     }
 

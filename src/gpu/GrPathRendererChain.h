@@ -16,6 +16,7 @@
 
 class GrContext;
 class GrCoverageCountingPathRenderer;
+class GrSmallPathRenderer;
 
 /**
  * Keeps track of an ordered list of path renderers. When a path needs to be
@@ -30,6 +31,10 @@ public:
         GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
     };
     GrPathRendererChain(GrContext* context, const Options&);
+    ~GrPathRendererChain();
+
+    using CanDrawPathArgs = GrPathRenderer::CanDrawPathArgs;
+    using StencilSupport = GrPathRenderer::StencilSupport;
 
     /** Documents how the caller plans to use a GrPathRenderer to draw a path. It affects the PR
         returned by getPathRenderer */
@@ -39,26 +44,33 @@ public:
         kStencilAndColor,  // draw the stencil and color buffer, no AA
     };
 
+    /** Returns a direct pointer to the coverage counting path renderer, or null if it is not in the
+        chain. */
+    GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer() {
+        return fCoverageCountingPathRenderer.get();
+    }
+
     /** Returns a GrPathRenderer compatible with the request if one is available. If the caller
         is drawing the path to the stencil buffer then stencilSupport can be used to determine
         whether the path can be rendered with arbitrary stencil rules or not. See comments on
         StencilSupport in GrPathRenderer.h. */
-    GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
-                                    DrawType drawType,
-                                    GrPathRenderer::StencilSupport* stencilSupport);
-
-    /** Returns a direct pointer to the coverage counting path renderer, or null if it is not in the
-        chain. */
-    GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer() {
-        return fCoverageCountingPathRenderer;
-    }
+    GrPathRenderer* getPathRenderer(const CanDrawPathArgs&, DrawType,
+                                    StencilSupport* outStencilSupport);
 
 private:
-    enum {
-        kPreAllocCount = 8,
-    };
-    SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
-    GrCoverageCountingPathRenderer*                     fCoverageCountingPathRenderer = nullptr;
+    sk_sp<GrPathRenderer> fDashLinePathRenderer;
+    sk_sp<GrPathRenderer> fAAHairLinePathRenderer;
+    sk_sp<GrPathRenderer> fAAConvexPathRenderer;
+    sk_sp<GrPathRenderer> fAALinearizingConvexPathRenderer;
+    sk_sp<GrSmallPathRenderer> fSmallPathRenderer;
+    sk_sp<GrPathRenderer> fTessellatingPathRenderer;
+    sk_sp<GrCoverageCountingPathRenderer> fCoverageCountingPathRenderer;
+    sk_sp<GrPathRenderer> fStencilAndCoverPathRenderer;
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    sk_sp<GrPathRenderer> fMSAAPathRenderer;
+#endif
+    sk_sp<GrPathRenderer> fDefaultPathRenderer;
+    sk_sp<GrSoftwarePathRenderer> fSoftwarePathRenderer;
 };
 
 #endif

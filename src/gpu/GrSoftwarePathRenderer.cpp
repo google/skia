@@ -23,19 +23,17 @@
 #include "ops/GrRectOpFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-GrPathRenderer::CanDrawPath
-GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (GrAAType::kMSAA == args.fAAType || GrAAType::kMixedSamples == args.fAAType) {
         // SW renderer can't be used for multisampling.
-        return CanDrawPath::kNo;
+        return false;
     }
     if (args.fShape->style().applies()) {
         // Pass on any style that applies. The caller will apply the style if a suitable renderer is
         // not found and try again with the new GrShape.
-        return CanDrawPath::kNo;
+        return false;
     }
-    // This is the fallback renderer for when a path is too complicated for the GPU ones.
-    return CanDrawPath::kAsBackup;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,22 +64,17 @@ static bool get_unclipped_shape_dev_bounds(const GrShape& shape, const SkMatrix&
 
 // Gets the shape bounds, the clip bounds, and the intersection (if any). Returns false if there
 // is no intersection.
-static bool get_shape_and_clip_bounds(int width, int height,
-                                      const GrClip& clip,
+static bool get_shape_and_clip_bounds(const SkIRect& devClipBounds,
                                       const GrShape& shape,
                                       const SkMatrix& matrix,
                                       SkIRect* unclippedDevShapeBounds,
-                                      SkIRect* clippedDevShapeBounds,
-                                      SkIRect* devClipBounds) {
-    // compute bounds as intersection of rt size, clip, and path
-    clip.getConservativeBounds(width, height, devClipBounds);
-
+                                      SkIRect* clippedDevShapeBounds) {
     if (!get_unclipped_shape_dev_bounds(shape, matrix, unclippedDevShapeBounds)) {
         *unclippedDevShapeBounds = SkIRect::EmptyIRect();
         *clippedDevShapeBounds = SkIRect::EmptyIRect();
         return false;
     }
-    if (!clippedDevShapeBounds->intersect(*devClipBounds, *unclippedDevShapeBounds)) {
+    if (!clippedDevShapeBounds->intersect(devClipBounds, *unclippedDevShapeBounds)) {
         *clippedDevShapeBounds = SkIRect::EmptyIRect();
         return false;
     }
@@ -227,6 +220,43 @@ private:
 
 }
 
+bool GrSoftwarePathRenderer::shouldUseCache(const GrCaps& caps,
+                                            const SkIRect& clipConservativeBounds,
+                                            const SkMatrix& viewMatrix, const GrShape& shape,
+                                            GrAAType aaType, bool* inverseFilled,
+                                            SkIRect* unclippedDevShapeBounds,
+                                            SkIRect* boundsForMask) const {
+    // If the path is hairline, ignore inverse fill.
+    *inverseFilled = shape.inverseFilled() &&
+                     !IsStrokeHairlineOrEquivalent(shape.style(), viewMatrix, nullptr);
+
+    // Initialize boundsForMask with the shape's clipped bounds.
+    if (!get_shape_and_clip_bounds(clipConservativeBounds, shape, viewMatrix,
+                                   unclippedDevShapeBounds, boundsForMask)) {
+        *boundsForMask = SkIRect::EmptyIRect();
+        return false;
+    }
+
+    // To prevent overloading the cache with entries during animations we limit the cache of
+    // masks to cases where the matrix preserves axis alignment.
+    bool useCache = fAllowCaching && inverseFilled && viewMatrix.preservesAxisAlignment() &&
+                    shape.hasUnstyledKey() && GrAAType::kCoverage == aaType;
+    if (useCache) {
+        // Use the cache only if >50% of the path is visible.
+        int unclippedWidth = unclippedDevShapeBounds->width();
+        int unclippedHeight = unclippedDevShapeBounds->height();
+        int64_t unclippedArea = sk_64_mul(unclippedWidth, unclippedHeight);
+        int64_t clippedArea = sk_64_mul(boundsForMask->width(), boundsForMask->height());
+        if (unclippedArea > 2 * clippedArea ||
+            SkTMax(unclippedWidth, unclippedHeight) > caps.maxTextureSize()) {
+            useCache = false;
+        } else {
+            *boundsForMask = *unclippedDevShapeBounds;
+        }
+    }
+    return useCache;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -236,49 +266,23 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         return false;
     }
 
-    // We really need to know if the shape will be inverse filled or not
-    bool inverseFilled = false;
-    SkTLazy<GrShape> tmpShape;
-    SkASSERT(!args.fShape->style().applies());
-    // If the path is hairline, ignore inverse fill.
-    inverseFilled = args.fShape->inverseFilled() &&
-                    !IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr);
-
-    SkIRect unclippedDevShapeBounds, clippedDevShapeBounds, devClipBounds;
+    // If the path is hairline, we ignore inverse fill.
+    bool inverseFilled;
+    SkIRect unclippedDevShapeBounds, boundsForMask;
     // To prevent overloading the cache with entries during animations we limit the cache of masks
     // to cases where the matrix preserves axis alignment.
-    bool useCache = fAllowCaching && !inverseFilled && args.fViewMatrix->preservesAxisAlignment() &&
-                    args.fShape->hasUnstyledKey() && GrAAType::kCoverage == args.fAAType;
-
-    if (!get_shape_and_clip_bounds(args.fRenderTargetContext->width(),
-                                   args.fRenderTargetContext->height(),
-                                   *args.fClip, *args.fShape,
-                                   *args.fViewMatrix, &unclippedDevShapeBounds,
-                                   &clippedDevShapeBounds,
-                                   &devClipBounds)) {
+    const bool useCache = this->shouldUseCache(*args.fRenderTargetContext->caps(),
+                                               *args.fClipConservativeBounds, *args.fViewMatrix,
+                                               *args.fShape, args.fAAType, &inverseFilled,
+                                               &unclippedDevShapeBounds, &boundsForMask);
+    if (boundsForMask.isEmpty()) {
+        SkASSERT(!useCache);
         if (inverseFilled) {
             DrawAroundInvPath(args.fRenderTargetContext, std::move(args.fPaint),
                               *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
-                              devClipBounds, unclippedDevShapeBounds);
+                              *args.fClipConservativeBounds, unclippedDevShapeBounds);
         }
         return true;
-    }
-
-    const SkIRect* boundsForMask = &clippedDevShapeBounds;
-    if (useCache) {
-        // Use the cache only if >50% of the path is visible.
-        int unclippedWidth = unclippedDevShapeBounds.width();
-        int unclippedHeight = unclippedDevShapeBounds.height();
-        int64_t unclippedArea = sk_64_mul(unclippedWidth, unclippedHeight);
-        int64_t clippedArea = sk_64_mul(clippedDevShapeBounds.width(),
-                                        clippedDevShapeBounds.height());
-        int maxTextureSize = args.fRenderTargetContext->caps()->maxTextureSize();
-        if (unclippedArea > 2 * clippedArea || unclippedWidth > maxTextureSize ||
-            unclippedHeight > maxTextureSize) {
-            useCache = false;
-        } else {
-            boundsForMask = &unclippedDevShapeBounds;
-        }
     }
 
     GrUniqueKey maskKey;
@@ -325,14 +329,14 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkTaskGroup* taskGroup = args.fContext->contextPriv().getTaskGroup();
         if (taskGroup) {
             proxy = make_deferred_mask_texture_proxy(args.fContext, fit,
-                                                     boundsForMask->width(),
-                                                     boundsForMask->height());
+                                                     boundsForMask.width(),
+                                                     boundsForMask.height());
             if (!proxy) {
                 return false;
             }
 
             auto uploader = skstd::make_unique<GrTDeferredProxyUploader<SoftwarePathData>>(
-                    *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
+                    boundsForMask, *args.fViewMatrix, *args.fShape, aa);
             GrTDeferredProxyUploader<SoftwarePathData>* uploaderRaw = uploader.get();
 
             auto drawAndUploadMask = [uploaderRaw] {
@@ -351,7 +355,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             proxy->texPriv().setDeferredUploader(std::move(uploader));
         } else {
             GrSWMaskHelper helper;
-            if (!helper.init(*boundsForMask)) {
+            if (!helper.init(boundsForMask)) {
                 return false;
             }
             helper.drawShape(*args.fShape, *args.fViewMatrix, SkRegion::kReplace_Op, aa, 0xFF);
@@ -369,13 +373,13 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     if (inverseFilled) {
         DrawAroundInvPath(args.fRenderTargetContext, GrPaint::Clone(args.fPaint),
-                          *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix, devClipBounds,
-                          unclippedDevShapeBounds);
+                          *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
+                          *args.fClipConservativeBounds, unclippedDevShapeBounds);
     }
     DrawToTargetWithShapeMask(
             std::move(proxy), args.fRenderTargetContext, std::move(args.fPaint),
             *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
-            SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
+            SkIPoint{boundsForMask.fLeft, boundsForMask.fTop}, boundsForMask);
 
     return true;
 }

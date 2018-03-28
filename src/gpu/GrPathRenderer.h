@@ -68,12 +68,6 @@ public:
         return this->onGetStencilSupport(shape);
     }
 
-    enum class CanDrawPath {
-        kNo,
-        kAsBackup, // i.e. This renderer is better than SW fallback if no others can draw the path.
-        kYes
-    };
-
     struct CanDrawPathArgs {
         SkDEBUGCODE(CanDrawPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
@@ -99,10 +93,8 @@ public:
      * kAsBackup allows the caller to keep searching for a better path renderer. This function is
      * called when searching for the best path renderer to draw a path.
      */
-    CanDrawPath canDrawPath(const CanDrawPathArgs& args) const {
-        SkDEBUGCODE(args.validate();)
-        return this->onCanDrawPath(args);
-    }
+    bool canDrawPath(StencilSupport minStencilSupport, const CanDrawPathArgs&,
+                     StencilSupport* outStencilSupport) const;
 
     struct DrawPathArgs {
         GrContext*                   fContext;
@@ -148,7 +140,7 @@ public:
                    GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType()));
         SkASSERT(!(canArgs.fAAType == GrAAType::kMixedSamples &&
                    GrFSAAType::kMixedSamples != args.fRenderTargetContext->fsaaType()));
-        SkASSERT(CanDrawPath::kNo != this->canDrawPath(canArgs));
+        SkASSERT(this->onCanDrawPath(canArgs));
         if (!args.fUserStencilSettings->isUnused()) {
             SkPath path;
             args.fShape->asPath(&path);
@@ -242,7 +234,7 @@ private:
     /**
      * Subclass implementation of canDrawPath()
      */
-    virtual CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const = 0;
+    virtual bool onCanDrawPath(const CanDrawPathArgs& args) const = 0;
 
     /**
      * Subclass implementation of stencilPath(). Subclass must override iff it ever returns

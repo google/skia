@@ -168,26 +168,26 @@ GrSmallPathRenderer::~GrSmallPathRenderer() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+bool GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (!args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
-        return CanDrawPath::kNo;
+        return false;
     }
     // If the shape has no key then we won't get any reuse.
     if (!args.fShape->hasUnstyledKey()) {
-        return CanDrawPath::kNo;
+        return false;
     }
     // This only supports filled paths, however, the caller may apply the style to make a filled
     // path and try again.
     if (!args.fShape->style().isSimpleFill()) {
-        return CanDrawPath::kNo;
+        return false;
     }
     // This does non-inverse coverage-based antialiased fills.
     if (GrAAType::kCoverage != args.fAAType) {
-        return CanDrawPath::kNo;
+        return false;
     }
     // TODO: Support inverse fill
     if (args.fShape->inverseFilled()) {
-        return CanDrawPath::kNo;
+        return false;
     }
 
     // Only support paths with bounds within kMaxDim by kMaxDim,
@@ -195,7 +195,7 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
     // The goal is to accelerate rendering of lots of small paths that may be scaling.
     SkScalar scaleFactors[2] = { 1, 1 };
     if (!args.fViewMatrix->hasPerspective() && !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
-        return CanDrawPath::kNo;
+        return false;
     }
     SkRect bounds = args.fShape->styledBounds();
     SkScalar minDim = SkMinScalar(bounds.width(), bounds.height());
@@ -203,10 +203,10 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
     SkScalar minSize = minDim * SkScalarAbs(scaleFactors[0]);
     SkScalar maxSize = maxDim * SkScalarAbs(scaleFactors[1]);
     if (maxDim > kMaxDim || kMinSize > minSize || maxSize > kMaxSize) {
-        return CanDrawPath::kNo;
+        return false;
     }
 
-    return CanDrawPath::kYes;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
