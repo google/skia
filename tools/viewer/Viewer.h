@@ -99,6 +99,7 @@ private:
     void drawImGui();
 
     void changeZoomLevel(float delta);
+    SkMatrix computePreTouchMatrix();
     SkMatrix computeMatrix();
     SkPoint mapEvent(float x, float y);
 

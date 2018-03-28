@@ -782,7 +782,7 @@ void Viewer::setupCurrentSlide() {
         }
 
         // Prevent the user from dragging content so far outside the window they can't find it again
-        fGesture.setTransLimit(slideBounds, windowRect, fDefaultMatrix);
+        fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
 
         this->updateTitle();
         this->updateUIState();
@@ -799,18 +799,26 @@ void Viewer::setupCurrentSlide() {
 void Viewer::changeZoomLevel(float delta) {
     fZoomLevel += delta;
     fZoomLevel = SkScalarPin(fZoomLevel, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
+
+    // Update the trans limit as the zoom level changes.
+    const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+    const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
+    const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
+    fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
+}
+
+SkMatrix Viewer::computePreTouchMatrix() {
+    SkMatrix m = fDefaultMatrix;
+    SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
+                                          : SK_Scalar1 + fZoomLevel;
+    m.preScale(zoomScale, zoomScale);
+    return m;
 }
 
 SkMatrix Viewer::computeMatrix() {
-    SkMatrix m;
-
-    SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
-                                          : SK_Scalar1 + fZoomLevel;
-    m = fGesture.localM();
+    SkMatrix m = fGesture.localM();
     m.preConcat(fGesture.globalM());
-    m.preConcat(fDefaultMatrix);
-    m.preScale(zoomScale, zoomScale);
-
+    m.preConcat(this->computePreTouchMatrix());
     return m;
 }
 
