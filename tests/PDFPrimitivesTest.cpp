@@ -12,6 +12,7 @@
 #include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkClusterator.h"
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkDeflate.h"
@@ -493,4 +494,32 @@ DEF_TEST(SkPDF_Primitives_Color, reporter) {
         REPORTER_ASSERT(reporter, roundTrip == i);
     }
 }
+
+DEF_TEST(SkPDF_Clusterator, reporter) {
+    const uint32_t clusters[11] = { 3, 2, 2, 1, 0, 4, 4, 7, 6, 6, 5 };
+    const SkGlyphID glyphs[11] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    const char text[] = "abcdefgh";
+    SkPaint paint;
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    SkClusterator clusterator(glyphs, sizeof(glyphs), paint, clusters, strlen(text), text);
+    SkClusterator::Cluster expectations[] = {
+        {&text[3], 1, 0, 1},
+        {&text[2], 1, 1, 2},
+        {&text[1], 1, 3, 1},
+        {&text[0], 1, 4, 1},
+        {&text[4], 1, 5, 2},
+        {&text[7], 1, 7, 1},
+        {&text[6], 1, 8, 2},
+        {&text[5], 1, 10, 1},
+        {nullptr, 0, 0, 0},
+    };
+    for (const auto& expectation : expectations) {
+        auto c = clusterator.next();
+        REPORTER_ASSERT(reporter, c.fUtf8Text       == expectation.fUtf8Text);
+        REPORTER_ASSERT(reporter, c.fTextByteLength == expectation.fTextByteLength);
+        REPORTER_ASSERT(reporter, c.fGlyphIndex     == expectation.fGlyphIndex);
+        REPORTER_ASSERT(reporter, c.fGlyphCount     == expectation.fGlyphCount);
+    }
+}
+
 #endif
