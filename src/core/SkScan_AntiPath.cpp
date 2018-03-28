@@ -8,6 +8,7 @@
 
 #include "SkScanPriv.h"
 #include "SkPath.h"
+#include "SkPathPriv.h"
 #include "SkMatrix.h"
 #include "SkBlitter.h"
 #include "SkRegion.h"
@@ -609,6 +610,9 @@ static bool ShouldUseDAA(const SkPath& path) {
     const SkRect& bounds = path.getBounds();
     return !path.isConvex() && path.countPoints() >= SkTMax(bounds.width(), bounds.height()) / 8;
 #else
+    if (SkPathPriv::IsFracCountConcentrated(path)) {
+        return false;
+    }
     constexpr int kSampleSize = 8;
     constexpr SkScalar kComplexityThreshold = 0.25;
     constexpr SkScalar kSmallCubicThreshold = 16;
@@ -664,7 +668,7 @@ static bool ShouldUseDAA(const SkPath& path) {
 #endif
 }
 
-static bool ShouldUseAAA(const SkPath& path) {
+bool ShouldUseAAA(const SkPath& path) {
     if (gSkForceAnalyticAA) {
         return true;
     }

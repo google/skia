@@ -883,3 +883,20 @@ bool SkPathRef::isValid() const {
     }
     return true;
 }
+
+bool SkPathRef::isFracCountConcentrated() const {
+    constexpr int CONCENTRATION_MULTIPLIER = 8;
+    int maxFracCount = fFracCounter.maxFracCount();
+    if (maxFracCount == -1) {
+        maxFracCount = fFracCounter.compute(fPoints, fPointCnt);
+    } else {
+#ifdef SK_DEBUG
+        int recompute = fFracCounter.compute(fPoints, fPointCnt);
+        SkASSERT(recompute == maxFracCount);
+#endif
+    }
+    int bucketSize = SkTMin(int(this->getBounds().height() + 1), SkFracCounter::FRAC_INT_MASK + 1);
+    int averageCount = 1 + fPointCnt * 2 / bucketSize;
+    int threshold = averageCount * CONCENTRATION_MULTIPLIER / SkFracCounter::FRAC_SAMPLE_RATE;
+    return maxFracCount > threshold;
+}
