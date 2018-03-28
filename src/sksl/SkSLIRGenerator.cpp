@@ -1092,15 +1092,18 @@ static bool determine_binary_type(const Context& context,
             return right.canCoerceTo(left);
         case Token::EQEQ: // fall through
         case Token::NEQ:
-            if (left == right) {
+            if (right.canCoerceTo(left)) {
                 *outLeftType = &left;
+                *outRightType = &left;
+                *outResultType = context.fBool_Type.get();
+                return true;
+            } if (left.canCoerceTo(right)) {
+                *outLeftType = &right;
                 *outRightType = &right;
                 *outResultType = context.fBool_Type.get();
                 return true;
             }
-            isLogical = true;
-            validMatrixOrVectorOp = true;
-            break;
+            return false;
         case Token::LT:   // fall through
         case Token::GT:   // fall through
         case Token::LTEQ: // fall through
