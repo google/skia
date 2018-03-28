@@ -1421,12 +1421,6 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
             LOG("\nvertex %g: (%g,%g), alpha %d\n", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
             restartChecks = false;
             find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
-            if (rightEnclosingEdge && !rightEnclosingEdge->isRightOf(v)) {
-                split_edge(rightEnclosingEdge, v, &activeEdges, &v, c, alloc);
-                restartChecks = true;
-                continue;
-            }
-            SkASSERT(!rightEnclosingEdge || rightEnclosingEdge->isRightOf(v));
             v->fLeftEnclosingEdge = leftEnclosingEdge;
             v->fRightEnclosingEdge = rightEnclosingEdge;
             if (v->fFirstEdgeBelow) {
