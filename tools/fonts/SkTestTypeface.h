@@ -66,7 +66,6 @@ public:
     SkTestTypeface(sk_sp<SkTestFont>, const SkFontStyle& style);
     void getAdvance(SkGlyph* glyph);
     void getFontMetrics(SkPaint::FontMetrics* metrics);
-    void getMetrics(SkGlyph* glyph);
     void getPath(SkGlyphID glyph, SkPath* path);
 protected:
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,

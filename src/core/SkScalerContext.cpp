@@ -71,38 +71,20 @@ void SkScalerContext::getAdvance(SkGlyph* glyph) {
 }
 
 void SkScalerContext::getMetrics(SkGlyph* glyph) {
-    generateMetrics(glyph);
-
-    // for now we have separate cache entries for devkerning on and off
-    // in the future we might share caches, but make our measure/draw
-    // code make the distinction. Thus we zap the values if the caller
-    // has not asked for them.
-    if ((fRec.fFlags & SkScalerContext::kDevKernText_Flag) == 0) {
-        // no devkern, so zap the fields
-        glyph->fLsbDelta = glyph->fRsbDelta = 0;
-    }
-
-    // if either dimension is empty, zap the image bounds of the glyph
-    if (0 == glyph->fWidth || 0 == glyph->fHeight) {
-        glyph->fWidth   = 0;
-        glyph->fHeight  = 0;
-        glyph->fTop     = 0;
-        glyph->fLeft    = 0;
-        glyph->fMaskFormat = 0;
-        return;
-    }
-
     bool generatingImageFromPath = fGenerateImageFromPath;
-    if (fGenerateImageFromPath) {
+    if (!generatingImageFromPath) {
+        generateMetrics(glyph);
+    } else {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
-
-        if (!this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix)) {
-            generatingImageFromPath = false;
+        generatingImageFromPath = this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath,
+                                                        &fillToDevMatrix);
+        if (!generatingImageFromPath) {
+            generateMetrics(glyph);
         } else {
-            // just use devPath
-            const SkIRect ir = devPath.getBounds().roundOut();
+            generateAdvance(glyph);
 
+            const SkIRect ir = devPath.getBounds().roundOut();
             if (ir.isEmpty() || !ir.is16Bit()) {
                 goto SK_ERROR;
             }
@@ -122,6 +104,25 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
                 }
             }
         }
+    }
+
+    // for now we have separate cache entries for devkerning on and off
+    // in the future we might share caches, but make our measure/draw
+    // code make the distinction. Thus we zap the values if the caller
+    // has not asked for them.
+    if ((fRec.fFlags & SkScalerContext::kDevKernText_Flag) == 0) {
+        // no devkern, so zap the fields
+        glyph->fLsbDelta = glyph->fRsbDelta = 0;
+    }
+
+    // if either dimension is empty, zap the image bounds of the glyph
+    if (0 == glyph->fWidth || 0 == glyph->fHeight) {
+        glyph->fWidth   = 0;
+        glyph->fHeight  = 0;
+        glyph->fTop     = 0;
+        glyph->fLeft    = 0;
+        glyph->fMaskFormat = 0;
+        return;
     }
 
     if (SkMask::kARGB32_Format != glyph->fMaskFormat) {
@@ -428,7 +429,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         glyph = &tmpGlyph;
     }
 
-    if (fGenerateImageFromPath) {
+    if (!fGenerateImageFromPath) {
+        generateImage(*glyph);
+    } else {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
         SkMask      mask;
@@ -441,8 +444,6 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
             generateMask(mask, devPath, fPreBlend);
         }
-    } else {
-        generateImage(*glyph);
     }
 
     if (fMaskFilter) {
