@@ -96,10 +96,6 @@ void SkTestSVGTypeface::getFontMetrics(SkPaint::FontMetrics* metrics) const {
     *metrics = fFontMetrics;
 }
 
-void SkTestSVGTypeface::getPath(SkGlyphID glyphID, SkPath* path) const {
-    path->reset();
-}
-
 void SkTestSVGTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkPaint::kNo_Hinting);
 }
@@ -244,9 +240,9 @@ protected:
         }
     }
 
-    void generatePath(SkGlyphID glyph, SkPath* path) override {
-        this->geTestSVGTypeface()->getPath(glyph, path);
-        path->transform(fMatrix);
+    bool generatePath(SkGlyphID glyph, SkPath* path) override {
+        path->reset();
+        return false;
     }
 
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override {
