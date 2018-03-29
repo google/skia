@@ -151,6 +151,8 @@ private:
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override { return false; }
     void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandon = false) override {}
 
+    void testingOnly_flushGpuAndSync() override {}
+
     sk_sp<GrMtlCaps> fMtlCaps;
 
     id<MTLDevice> fDevice;

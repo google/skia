@@ -37,6 +37,7 @@ cc_library_shared {
         $cflags
         "-Wno-unused-parameter",
         "-Wno-unused-variable",
+        "-DSKQP_BUILD_HARDWAREBUFFER_TEST",
     ],
 
     cppflags:[

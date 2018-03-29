@@ -170,6 +170,8 @@ private:
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
     void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandon = false) override;
 
+    void testingOnly_flushGpuAndSync() override {}
+
     typedef GrGpu INHERITED;
 };
 

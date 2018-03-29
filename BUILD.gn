@@ -1794,9 +1794,8 @@ if (skia_enable_tools) {
   if (!is_win && skia_enable_gpu) {
     test_lib("skqp_lib") {
       public_include_dirs = [ "tools/skqp" ]
-      defines = [
-        "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance"
-      ]
+      defines =
+          [ "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance" ]
       if (skia_skqp_enable_driver_correctness_workarounds) {
         defines += [ "SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS" ]
       }

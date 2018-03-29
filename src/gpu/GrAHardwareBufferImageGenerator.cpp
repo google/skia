@@ -162,7 +162,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
 
     while (GL_NO_ERROR != glGetError()) {} //clear GL errors
 
-    EGLClientBuffer  clientBuffer = eglGetNativeClientBufferANDROID(fGraphicBuffer);
+    EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(fGraphicBuffer);
     EGLint attribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
                          EGL_NONE };
     EGLDisplay display = eglGetCurrentDisplay();

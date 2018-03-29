@@ -50,6 +50,7 @@ public:
 
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
+    uint32_t  queueIndex() const { return fBackendContext->fGraphicsQueueIndex; }
     VkCommandPool cmdPool() const { return fCmdPool; }
     VkPhysicalDeviceProperties physicalDeviceProperties() const {
         return fPhysDevProps;
@@ -88,6 +89,8 @@ public:
                                                      GrMipMapped) override;
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
     void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandonTexture = false) override;
+
+    void testingOnly_flushGpuAndSync() override;
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,

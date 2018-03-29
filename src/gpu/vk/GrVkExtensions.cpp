@@ -89,9 +89,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
         return false;
     }
     for (uint32_t i = 0; i < extensionCount; ++i) {
-        if (nonPatchVersion >= remove_patch_version(extensions[i].specVersion)) {
-            fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
-        }
+        fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
     }
     delete [] extensions;
     // sort so we can search
@@ -183,9 +181,7 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
         return false;
     }
     for (uint32_t i = 0; i < extensionCount; ++i) {
-        if (nonPatchVersion >= remove_patch_version(extensions[i].specVersion)) {
-            fDeviceExtensionStrings->push_back() = extensions[i].extensionName;
-        }
+        fDeviceExtensionStrings->push_back() = extensions[i].extensionName;
     }
     delete[] extensions;
     if (!fDeviceExtensionStrings->empty()) {

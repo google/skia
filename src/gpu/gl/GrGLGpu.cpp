@@ -4498,6 +4498,10 @@ void GrGLGpu::resetShaderCacheForTesting() const {
     fProgramCache->abandon();
 }
 
+void GrGLGpu::testingOnly_flushGpuAndSync() {
+    GL_CALL(Finish());
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLGpu* gpu,

@@ -1575,6 +1575,10 @@ void GrVkGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex, bool abando
     }
 }
 
+void GrVkGpu::testingOnly_flushGpuAndSync() {
+    this->submitCommandBuffer(kForce_SyncQueue);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpu::addMemoryBarrier(VkPipelineStageFlags srcStageMask,

@@ -470,6 +470,12 @@ public:
     virtual void deleteTestingOnlyBackendTexture(GrBackendTexture*,
                                                  bool abandonTexture = false) = 0;
 
+    /**
+     * Flushes all work to the gpu and forces the GPU to wait until all the gpu work has completed.
+     * This is for testing purposes only.
+     */
+    virtual void testingOnly_flushGpuAndSync() = 0;
+
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
     // the GrStencilAttachment.
