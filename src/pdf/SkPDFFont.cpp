@@ -724,6 +724,11 @@ static void add_type3_font_info(SkPDFCanon* canon,
         descriptor->insertName("FontName", metrics->fFontName);
         descriptor->insertInt("ItalicAngle", metrics->fItalicAngle);
         fontDescriptorFlags |= (int32_t)metrics->fStyle;
+        // Adobe requests CapHeight, XHeight, and StemV be added
+        // to "greatly help our workflow downstream".
+        if (metrics->fCapHeight != 0) { descriptor->insertInt("CapHeight", metrics->fCapHeight); }
+        if (metrics->fXHeight   != 0) { descriptor->insertInt("XHeight",   metrics->fXHeight);   }
+        if (metrics->fStemV     != 0) { descriptor->insertInt("StemV",     metrics->fStemV);     }
     }
     descriptor->insertInt("Flags", fontDescriptorFlags);
     font->insertObjRef("FontDescriptor", std::move(descriptor));
