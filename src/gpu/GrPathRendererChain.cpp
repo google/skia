@@ -41,7 +41,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     }
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     if (options.fGpuPathRenderers & GpuPathRenderers::kMSAA) {
-        if (caps.sampleShadingSupport()) {
+        if (caps.sampleShadingSupport() && !caps.blacklistMSAAPathRenderer()) {
             fChain.push_back(sk_make_sp<GrMSAAPathRenderer>());
         }
     }
