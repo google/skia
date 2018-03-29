@@ -137,6 +137,8 @@ VkHeapTests
 VkMakeCopyPipelineTest
 VkUploadPixelsTests
 VkWrapTests
+VulkanHardwareBuffer_CPU
+VulkanHardwareBuffer_EGL
 WrappedProxyConversionTest
 WrappedProxyTest
 WritePixelsNonTexture_Gpu
