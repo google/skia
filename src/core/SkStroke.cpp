@@ -123,7 +123,7 @@ public:
     SkPathStroker(const SkPath& src,
                   SkScalar radius, SkScalar miterLimit, SkPaint::Cap,
                   SkPaint::Join, SkScalar resScale,
-                  bool canIgnoreCenter);
+                  bool canIgnoreCenter, bool doFill);
 
     bool hasOnlyMoveTo() const { return 0 == fSegmentCount; }
     SkPoint moveToPt() const { return fFirstPt; }
@@ -147,6 +147,10 @@ public:
                fOuter.isZeroLengthSincePoint(fFirstOuterPtIndexInContour);
     }
 
+    bool isEverythingClosed() const {
+        return fIsEverythingClosed;
+    }
+
 private:
     SkScalar    fRadius;
     SkScalar    fInvMiterLimit;
@@ -161,6 +165,8 @@ private:
     int         fSegmentCount;
     bool        fPrevIsLine;
     bool        fCanIgnoreCenter;
+    bool        fDoFill;
+    bool        fIsEverythingClosed;
 
     SkStrokerPriv::CapProc  fCapper;
     SkStrokerPriv::JoinProc fJoiner;
@@ -308,10 +314,13 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
                 // now add fInner as its own contour
                 fInner.getLastPt(&pt);
                 fOuter.moveTo(pt.fX, pt.fY);
-                fOuter.reversePathTo(fInner);
+                if (!fDoFill) { // inner contour is unnecessary for "fill and stroke"
+                    fOuter.reversePathTo(fInner);
+                }
                 fOuter.close();
             }
         } else {    // add caps to start and end
+            fIsEverythingClosed = false;
             // cap the end
             fInner.getLastPt(&pt);
             fCapper(&fOuter, fPrevPt, fPrevNormal, pt,
@@ -335,10 +344,12 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
 SkPathStroker::SkPathStroker(const SkPath& src,
                              SkScalar radius, SkScalar miterLimit,
                              SkPaint::Cap cap, SkPaint::Join join, SkScalar resScale,
-                             bool canIgnoreCenter)
+                             bool canIgnoreCenter, bool doFill)
         : fRadius(radius)
         , fResScale(resScale)
-        , fCanIgnoreCenter(canIgnoreCenter) {
+        , fCanIgnoreCenter(canIgnoreCenter)
+        , fDoFill(doFill)
+        , fIsEverythingClosed(true) {
 
     /*  This is only used when join is miter_join, but we initialize it here
         so that it is always defined, to fis valgrind warnings.
@@ -1402,7 +1413,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                         src.isLastContourClosed() && src.isConvex();
 
     SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(), this->getJoin(),
-                            fResScale, ignoreCenter);
+                            fResScale, ignoreCenter, fDoFill);
     SkPath::Iter    iter(src, false);
     SkPath::Verb    lastSegment = SkPath::kMove_Verb;
 
@@ -1456,7 +1467,8 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 DONE:
     stroker.done(dst, lastSegment == SkPath::kLine_Verb);
 
-    if (fDoFill && !ignoreCenter) {
+    // src is not needed if all contours are closed
+    if (fDoFill && !ignoreCenter && !stroker.isEverythingClosed()) {
         if (SkPathPriv::CheapIsFirstDirection(src, SkPathPriv::kCCW_FirstDirection)) {
             dst->reverseAddPath(src);
         } else {
