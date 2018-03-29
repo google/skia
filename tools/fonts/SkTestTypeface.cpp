@@ -214,9 +214,10 @@ protected:
         SK_ABORT("Should have generated from path.");
     }
 
-    void generatePath(SkGlyphID glyph, SkPath* path) override {
+    bool generatePath(SkGlyphID glyph, SkPath* path) override {
         this->getTestTypeface()->getPath(glyph, path);
         path->transform(fMatrix);
+        return true;
     }
 
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override {

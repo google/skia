@@ -30,7 +30,7 @@ public:
             // I and l are rects on OS X ...
             char c = "aQCDEFGH7JKLMNOPBRZTUVWXYSAbcdefghijk1mnopqrstuvwxyz"[i];
             SkGlyphID id = cache->unicharToGlyph(c);
-            cache->getScalerContext()->getPath(SkPackedGlyphID(id), &glyphPaths[i]);
+            sk_ignore_unused_variable(cache->getScalerContext()->getPath(SkPackedGlyphID(id), &glyphPaths[i]));
         }
 
         for (int i = 0; i < kNumPaths; ++i) {
