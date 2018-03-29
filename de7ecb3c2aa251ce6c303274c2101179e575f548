@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce8c0ec9_a39bea57",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-29T17:11:44Z",
+      "side": 1,
+      "message": "That\u0027s definitely the case, not just apparent.",
+      "range": {
+        "startLine": 9,
+        "startChar": 6,
+        "endLine": 9,
+        "endChar": 12
+      },
+      "revId": "de7ecb3c2aa251ce6c303274c2101179e575f548",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
