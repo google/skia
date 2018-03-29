@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "5b33fc22_e275fd65",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-29T18:02:01Z",
+      "side": 1,
+      "message": "insert-\u003eremove",
+      "range": {
+        "startLine": 483,
+        "startChar": 61,
+        "endLine": 483,
+        "endChar": 67
+      },
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "085f826c_198fc4f5",
         "filename": "src/utils/SkOffsetPolygon.cpp",
         "patchSetId": 22
@@ -18,6 +41,29 @@
         "startChar": 4,
         "endLine": 500,
         "endChar": 13
+      },
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bb1045e_ed544403",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-29T18:02:01Z",
+      "side": 1,
+      "message": "why have a \"left\" check but a Right flag?",
+      "range": {
+        "startLine": 515,
+        "startChar": 12,
+        "endLine": 516,
+        "endChar": 53
       },
       "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
