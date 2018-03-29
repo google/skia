@@ -22,6 +22,30 @@
       "revId": "c3bc425bd4d630f4c6b69f38473fc69b77a1d5b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7efa52c6_f367b0c6",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T17:17:22Z",
+      "side": 0,
+      "message": "Well, the issue with that is that this doesn\u0027t even compile anymore. There is no fPurging, and I don\u0027t see any simple replacement.",
+      "parentUuid": "d6b839bf_d239f5b6",
+      "range": {
+        "startLine": 417,
+        "startChar": 7,
+        "endLine": 417,
+        "endChar": 15
+      },
+      "revId": "c3bc425bd4d630f4c6b69f38473fc69b77a1d5b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
