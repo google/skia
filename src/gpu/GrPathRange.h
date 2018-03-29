@@ -139,6 +139,8 @@ protected:
     virtual void onInitPath(int index, const SkPath&) const = 0;
 
 private:
+    const char* getResourceType() const override { return "Path Range"; }
+
     enum {
         kPathsPerGroup = 16 // Paths get tracked in groups of 16 for lazy loading.
     };
