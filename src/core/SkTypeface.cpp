@@ -293,6 +293,9 @@ void SkTypeface::getFamilyName(SkString* name) const {
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() const {
     std::unique_ptr<SkAdvancedTypefaceMetrics> result = this->onGetAdvancedMetrics();
+    if (result && result->fPostScriptName.isEmpty()) {
+        result->fPostScriptName = result->fFontName;
+    }
     if (result && result->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
         SkOTTableOS2::Version::V2::Type::Field fsType;
         constexpr SkFontTableTag os2Tag = SkTEndian_SwapBE32(SkOTTableOS2::TAG);
