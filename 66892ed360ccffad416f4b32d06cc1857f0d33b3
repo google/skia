@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb46caa5_b12c7b5c",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T19:20:16Z",
+      "side": 1,
+      "message": "Do we ever need to check the return value here ?",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "404874ab_0b8bc292",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T19:20:16Z",
+      "side": 1,
+      "message": "// Compute the number of points needed for a circular join when outsetting ?",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0373da12_72eab552",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T19:20:16Z",
+      "side": 1,
+      "message": "enum class w/ GR_MAKE_BITFIELD_CLASS_OPS ?",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5558d4d4_767b4d30",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T19:20:16Z",
+      "side": 1,
+      "message": "Can\u0027t we just memmove all this in one call ?",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80b6425d_64ba9c3b",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T19:20:16Z",
+      "side": 1,
+      "message": "Can we memmove here too?",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05eb64c1_e185237f",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T19:20:16Z",
+      "side": 1,
+      "message": "Can this use the memmove option?",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
