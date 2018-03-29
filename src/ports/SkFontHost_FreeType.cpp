@@ -460,7 +460,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(SkGlyphID glyphID, SkPath* path) override;
+    bool generatePath(SkGlyphID glyphID, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
     SkUnichar generateGlyphToChar(uint16_t glyph) override;
 
@@ -1232,14 +1232,14 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 }
 
 
-void SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
-    SkAutoMutexAcquire  ac(gFTMutex);
-
+bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     SkASSERT(path);
+
+    SkAutoMutexAcquire  ac(gFTMutex);
 
     if (this->setupSize()) {
         path->reset();
-        return;
+        return false;
     }
 
     uint32_t flags = fLoadGlyphFlags;
@@ -1247,16 +1247,16 @@ void SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
 
     FT_Error err = FT_Load_Glyph(fFace, glyphID, flags);
-
     if (err != 0) {
-        SK_TRACEFTR(err, "SkScalerContext_FreeType::generatePath: FT_Load_Glyph(glyph:%d "
-                     "flags:%d) failed.", glyphID, flags);
         path->reset();
-        return;
+        return false;
     }
     emboldenIfNeeded(fFace, fFace->glyph, glyphID);
 
-    generateGlyphPath(fFace, path);
+    if (!generateGlyphPath(fFace, path)) {
+        path->reset();
+        return false;
+    }
 
     // The path's origin from FreeType is always the horizontal layout origin.
     // Offset the path so that it is relative to the vertical origin if needed.
@@ -1267,6 +1267,7 @@ void SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
         FT_Vector_Transform(&vector, &fMatrix22);
         path->offset(SkFDot6ToScalar(vector.x), -SkFDot6ToScalar(vector.y));
     }
+    return true;
 }
 
 void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics) {
