@@ -10,7 +10,6 @@
 #include "gl/GrGLGpu.h"
 
 #include "GrGLPath.h"
-#include "GrGLPathRange.h"
 #include "GrGLPathRendering.h"
 
 #include "SkStream.h"
@@ -23,25 +22,6 @@
 // implementation. The call has a result value, and thus waiting for the call completion is needed.
 static const GrGLsizei kPathIDPreallocationAmount = 65536;
 
-static const GrGLenum gIndexType2GLType[] = {
-    GR_GL_UNSIGNED_BYTE,
-    GR_GL_UNSIGNED_SHORT,
-    GR_GL_UNSIGNED_INT
-};
-
-GR_STATIC_ASSERT(0 == GrPathRange::kU8_PathIndexType);
-GR_STATIC_ASSERT(1 == GrPathRange::kU16_PathIndexType);
-GR_STATIC_ASSERT(2 == GrPathRange::kU32_PathIndexType);
-GR_STATIC_ASSERT(GrPathRange::kU32_PathIndexType == GrPathRange::kLast_PathIndexType);
-
-static const GrGLenum gXformType2GLType[] = {
-    GR_GL_NONE,
-    GR_GL_TRANSLATE_X,
-    GR_GL_TRANSLATE_Y,
-    GR_GL_TRANSLATE_2D,
-    GR_GL_TRANSPOSE_AFFINE_2D
-};
-
 GR_STATIC_ASSERT(0 == GrPathRendering::kNone_PathTransformType);
 GR_STATIC_ASSERT(1 == GrPathRendering::kTranslateX_PathTransformType);
 GR_STATIC_ASSERT(2 == GrPathRendering::kTranslateY_PathTransformType);
@@ -50,13 +30,6 @@ GR_STATIC_ASSERT(4 == GrPathRendering::kAffine_PathTransformType);
 GR_STATIC_ASSERT(GrPathRendering::kAffine_PathTransformType == GrPathRendering::kLast_PathTransformType);
 
 #ifdef SK_DEBUG
-static const GrGLenum gXformType2ComponentCount[] = {
-    0,
-    1,
-    1,
-    2,
-    6
-};
 
 static void verify_floats(const float* floats, int count) {
     for (int i = 0; i < count; ++i) {
@@ -107,11 +80,6 @@ void GrGLPathRendering::resetContext() {
 
 sk_sp<GrPath> GrGLPathRendering::createPath(const SkPath& inPath, const GrStyle& style) {
     return sk_make_sp<GrGLPath>(this->gpu(), inPath, style);
-}
-
-sk_sp<GrPathRange> GrGLPathRendering::createPathRange(GrPathRange::PathGenerator* pathGenerator,
-                                                      const GrStyle& style) {
-    return sk_make_sp<GrGLPathRange>(this->gpu(), pathGenerator, style);
 }
 
 void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath* path) {
@@ -168,46 +136,6 @@ void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline,
     } else {
         GL_CALL(StencilThenCoverFillPath(glPath->pathID(), fillMode, writeMask,
                                          GR_GL_BOUNDING_BOX));
-    }
-}
-
-void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline,
-                                    const GrPrimitiveProcessor& primProc,
-                                    const GrStencilSettings& stencilPassSettings,
-                                    const GrPathRange* pathRange, const void* indices,
-                                    PathIndexType indexType, const float transformValues[],
-                                    PathTransformType transformType, int count) {
-    SkDEBUGCODE(verify_floats(transformValues, gXformType2ComponentCount[transformType] * count));
-
-    if (!this->gpu()->flushGLState(pipeline, primProc, false)) {
-        return;
-    }
-    this->flushPathStencilSettings(stencilPassSettings);
-    SkASSERT(!fHWPathStencilSettings.isTwoSided());
-
-
-    const GrGLPathRange* glPathRange = static_cast<const GrGLPathRange*>(pathRange);
-
-    GrGLenum fillMode =
-        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.front().fPassOp);
-    GrGLint writeMask = fHWPathStencilSettings.front().fWriteMask;
-
-    if (glPathRange->shouldStroke()) {
-        if (glPathRange->shouldFill()) {
-            GL_CALL(StencilFillPathInstanced(
-                            count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(),
-                            fillMode, writeMask, gXformType2GLType[transformType],
-                            transformValues));
-        }
-        GL_CALL(StencilThenCoverStrokePathInstanced(
-                            count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(),
-                            0xffff, writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                            gXformType2GLType[transformType], transformValues));
-    } else {
-        GL_CALL(StencilThenCoverFillPathInstanced(
-                            count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(),
-                            fillMode, writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                            gXformType2GLType[transformType], transformValues));
     }
 }
 
