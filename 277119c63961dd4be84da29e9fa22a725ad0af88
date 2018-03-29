@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1d527941_02c8ff61",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T18:45:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b33fc22_e275fd65",
+      "range": {
+        "startLine": 483,
+        "startChar": 61,
+        "endLine": 483,
+        "endChar": 67
+      },
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "085f826c_198fc4f5",
         "filename": "src/utils/SkOffsetPolygon.cpp",
         "patchSetId": 22
@@ -68,6 +92,30 @@
       "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "355242cd_d594e674",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T18:45:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bb1045e_ed544403",
+      "range": {
+        "startLine": 515,
+        "startChar": 12,
+        "endLine": 516,
+        "endChar": 53
+      },
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
