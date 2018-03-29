@@ -102,7 +102,7 @@ $genType fma($genType a, $genType b, $genType c);
 $genHType fma($genHType a, $genHType b, $genHType c);
 $genDType fma($genDType a, $genDType b, $genDType c);
 //$genDType fma($genDType a, $genDType b, $genDType c);
-$genType frexp($genType x, out $genIType exp);
+sk_has_side_effects $genType frexp($genType x, out $genIType exp);
 //$genDType frexp($genDType x, out $genIType exp);
 $genType ldexp($genType x, in $genIType exp);
 //$genDType ldexp($genDType x, in $genIType exp);
