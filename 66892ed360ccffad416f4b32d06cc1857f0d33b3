@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4a671ef4_ff787e51",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T19:54:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb46caa5_b12c7b5c",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "404874ab_0b8bc292",
         "filename": "src/utils/SkOffsetPolygon.cpp",
         "patchSetId": 24
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "7169e422_00a72d3c",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T19:54:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "404874ab_0b8bc292",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0373da12_72eab552",
         "filename": "src/utils/SkOffsetPolygon.cpp",
         "patchSetId": 24
@@ -47,6 +83,24 @@
       "writtenOn": "2018-03-29T19:20:16Z",
       "side": 1,
       "message": "enum class w/ GR_MAKE_BITFIELD_CLASS_OPS ?",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e744d5ad_f9e5993e",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T19:54:39Z",
+      "side": 1,
+      "message": "Does it need to be a class? This file is in src/utils, not Gr.",
+      "parentUuid": "0373da12_72eab552",
       "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "3b239e4b_c9e1481f",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T19:54:39Z",
+      "side": 1,
+      "message": "Is memmove smart enough to not stomp the previous edge as it\u0027s copying? That\u0027s why I do this in reverse. If it is, I can\u0027t see it being much faster than this.",
+      "parentUuid": "5558d4d4_767b4d30",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "80b6425d_64ba9c3b",
         "filename": "src/utils/SkOffsetPolygon.cpp",
         "patchSetId": 24
@@ -81,6 +153,24 @@
       "writtenOn": "2018-03-29T19:20:16Z",
       "side": 1,
       "message": "Can we memmove here too?",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8a6312f_41e1ab6e",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T19:54:39Z",
+      "side": 1,
+      "message": "Here we can do that.",
+      "parentUuid": "80b6425d_64ba9c3b",
       "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -101,6 +191,24 @@
       "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "052e3007_e018a379",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T19:54:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05eb64c1_e185237f",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
