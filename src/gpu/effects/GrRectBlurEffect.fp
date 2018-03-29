@@ -45,7 +45,7 @@ uniform half profileSize;
 
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 1);
+        GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
         builder[0] = profileSize;
         builder.finish();
 
