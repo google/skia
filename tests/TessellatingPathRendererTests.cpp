@@ -439,27 +439,6 @@ static SkPath create_path_29() {
     return path;
 }
 
-// A path which hangs during simplification. It produces an edge which is
-// to the left of its own endpoints, which causes an infinte loop in the
-// right-enclosing-edge splitting.
-static SkPath create_path_30() {
-    SkPath path;
-    path.moveTo(0.75001740455627441406,     23.051967620849609375);
-    path.lineTo(5.8471612930297851562,      22.731662750244140625);
-    path.lineTo(10.749670028686523438,      22.253145217895507812);
-    path.lineTo(13.115868568420410156,      22.180681228637695312);
-    path.lineTo(15.418928146362304688,      22.340015411376953125);
-    path.lineTo(  17.654022216796875,       22.82159423828125);
-    path.lineTo(19.81632232666015625,       23.715869903564453125);
-    path.lineTo(40,                         0);
-    path.lineTo(5.5635203441547955577e-15,  0);
-    path.lineTo(5.5635203441547955577e-15,  47);
-    path.lineTo(-1.4210854715202003717e-14, 21.713298797607421875);
-    path.lineTo(0.75001740455627441406,     21.694292068481445312);
-    path.lineTo(0.75001740455627441406,     23.051967620849609375);
-    return path;
-}
-
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -550,6 +529,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_27(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_28(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_29());
-    test_path(ctx, rtc.get(), create_path_30());
 }
 #endif
