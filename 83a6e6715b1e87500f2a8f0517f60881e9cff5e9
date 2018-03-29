@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92e63fc4_4428a48a",
+        "filename": "BUILD.gn",
+        "patchSetId": 12
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-29T14:28:32Z",
+      "side": 1,
+      "message": "Derek, I believe this is not needed when build inside the android framework since it can grab an updated header instead of the one in the NDK. Should we just delete this line (well we can\u0027t leave it as is for sure) and change the #if in the test to check for SK_BUILD_FOR_ANDROID_FRAMEWORK instead of SK_BIULD_FOR_ANDROID? If we do that do I need to check the ANDROID_API anymore?",
+      "range": {
+        "startLine": 86,
+        "startChar": 15,
+        "endLine": 86,
+        "endChar": 73
+      },
+      "revId": "83a6e6715b1e87500f2a8f0517f60881e9cff5e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38d51610_aa2e549e",
+        "filename": "tests/VkGrallocBufferTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-29T14:28:32Z",
+      "side": 1,
+      "message": "personally I\u0027ve found it useful to see where all the pixels are failing and what values each has when it fails, but doing so obviously means more spam of errors. Do we want to report less errors and bail after first failure, or print all of the errors as it is now",
+      "range": {
+        "startLine": 994,
+        "startChar": 16,
+        "endLine": 994,
+        "endChar": 94
+      },
+      "revId": "83a6e6715b1e87500f2a8f0517f60881e9cff5e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
