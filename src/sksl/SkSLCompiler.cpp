@@ -17,6 +17,7 @@
 #include "ir/SkSLEnum.h"
 #include "ir/SkSLExpression.h"
 #include "ir/SkSLExpressionStatement.h"
+#include "ir/SkSLFunctionCall.h"
 #include "ir/SkSLIntLiteral.h"
 #include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLNop.h"
@@ -288,6 +289,18 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                                       (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                       definitions);
 
+                    }
+                    break;
+                }
+                case Expression::kFunctionCall_Kind: {
+                    const FunctionCall& c = (const FunctionCall&) *expr;
+                    for (size_t i = 0; i < c.fFunction.fParameters.size(); ++i) {
+                        if (c.fFunction.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
+                            this->addDefinition(
+                                      c.fArguments[i].get(),
+                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                      definitions);
+                        }
                     }
                     break;
                 }
@@ -671,9 +684,11 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         case Expression::kVariableReference_Kind: {
             const VariableReference& ref = (VariableReference&) *expr;
             const Variable& var = ref.fVariable;
+            auto found = definitions.find(&var);
             if (ref.refKind() != VariableReference::kWrite_RefKind &&
                 ref.refKind() != VariableReference::kPointer_RefKind &&
-                var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
+                var.fStorage == Variable::kLocal_Storage &&
+                (found == definitions.end() || !found->second) &&
                 (*undefinedVariables).find(&var) == (*undefinedVariables).end()) {
                 (*undefinedVariables).insert(&var);
                 this->error(expr->fOffset,
