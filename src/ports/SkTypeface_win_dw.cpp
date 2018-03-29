@@ -323,8 +323,6 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
 
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
 
-    HRESULT hr = S_OK;
-
     const unsigned glyphCount = fDWriteFontFace->GetGlyphCount();
 
     DWRITE_FONT_METRICS dwfm;
@@ -336,19 +334,31 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     info->fDescent = SkToS16(dwfm.descent);
     info->fCapHeight = SkToS16(dwfm.capHeight);
 
-    // SkAdvancedTypefaceMetrics::fFontName is in theory supposed to be
-    // the PostScript name of the font. However, due to the way it is currently
-    // used, it must actually be a family name.
+    {
+        SkTScopedComPtr<IDWriteLocalizedStrings> postScriptNames;
+        BOOL exists = FALSE;
+        if (FAILED(fDWriteFont->GetInformationalStrings(
+                        DWRITE_INFORMATIONAL_STRING_POSTSCRIPT_NAME,
+                        &postScriptNames,
+                        &exists)) ||
+            !exists ||
+            FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &info->fPostScriptName)))
+        {
+            SkDEBUGF(("Unable to get postscript name for typeface %p\n", this));
+        }
+    }
+
+    // SkAdvancedTypefaceMetrics::fFontName must actually be a family name.
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-    hr = fDWriteFontFamily->GetFamilyNames(&familyNames);
+    if (FAILED(fDWriteFontFamily->GetFamilyNames(&familyNames)) ||
+        FAILED(sk_get_locale_string(familyNames.get(), nullptr, &info->fFontName)))
+    {
+        SkDEBUGF(("Unable to get family name for typeface 0x%p\n", this));
+    }
+    if (info->fPostScriptName.isEmpty()) {
+        info->fPostScriptName = info->fFontName;
+    }
 
-    UINT32 familyNameLen;
-    hr = familyNames->GetStringLength(0, &familyNameLen);
-
-    SkSMallocWCHAR familyName(familyNameLen+1);
-    hr = familyNames->GetString(0, familyName.get(), familyNameLen+1);
-
-    hr = sk_wchar_to_skstring(familyName.get(), familyNameLen, &info->fFontName);
 
     populate_glyph_to_unicode(fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
 
