@@ -91,7 +91,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 #endif
     fBufferMapThreshold = options.fBufferMapThreshold;
     fBlacklistCoverageCounting = false;
-    fBlacklistMSAAPathRenderer = false;
     fAvoidStencilBuffers = false;
 
     fPreferVRAMUseOverFlushes = true;
@@ -103,7 +102,6 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         // We always blacklist coverage counting on Vulkan currently. TODO: Either stop doing that
         // or disambiguate blacklisting from incomplete implementation.
         // SkASSERT(!fBlacklistCoverageCounting);
-        SkASSERT(!fBlacklistMSAAPathRenderer);
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAdvBlendEqBlacklist);
     }
@@ -175,7 +173,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
 
     writer->appendBool("Blacklist Coverage Counting Path Renderer [workaround]",
                        fBlacklistCoverageCounting);
-    writer->appendBool("Blacklist MSAA Path Renderer [workaround]", fBlacklistMSAAPathRenderer);
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
     writer->appendBool("Avoid stencil buffers [workaround]", fAvoidStencilBuffers);
 
