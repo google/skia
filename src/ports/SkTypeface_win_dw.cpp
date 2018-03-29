@@ -319,6 +319,15 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
     SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
 }
 
+static HRESULT to_string(IDWriteLocalizedStrings* strings, UINT32 index, SkString* dst) {
+    UINT32 len;
+    HR(strings->GetStringLength(index, &len));
+    SkSMallocWCHAR wcharBuffer(len + 1);
+    HR(strings->GetString(index, wcharBuffer.get(), len + 1));
+    HR(sk_wchar_to_skstring(wcharBuffer.get(), len, dst));
+    return S_OK;
+}
+
 std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetrics() const {
 
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
@@ -336,19 +345,22 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     info->fDescent = SkToS16(dwfm.descent);
     info->fCapHeight = SkToS16(dwfm.capHeight);
 
-    // SkAdvancedTypefaceMetrics::fFontName is in theory supposed to be
-    // the PostScript name of the font. However, due to the way it is currently
-    // used, it must actually be a family name.
+    {
+        SkTScopedComPtr<IDWriteLocalizedStrings> postScriptNames;
+        BOOL exists = FALSE;
+        if (!FAILED(fDWriteFont->GetInformationalStrings(i
+                        DWRITE_INFORMATIONAL_STRING_POSTSCRIPT_NAME,
+                        &postScriptNames,
+                        &exists)) && exists) {
+            (void)to_string(postScriptNames.get(), 0, &info->fPostScriptName);
+        }
+    }
+
+    // SkAdvancedTypefaceMetrics::fFontName must actually be a family name.
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-    hr = fDWriteFontFamily->GetFamilyNames(&familyNames);
-
-    UINT32 familyNameLen;
-    hr = familyNames->GetStringLength(0, &familyNameLen);
-
-    SkSMallocWCHAR familyName(familyNameLen+1);
-    hr = familyNames->GetString(0, familyName.get(), familyNameLen+1);
-
-    hr = sk_wchar_to_skstring(familyName.get(), familyNameLen, &info->fFontName);
+    if (!FAILED(fDWriteFontFamily->GetFamilyNames(&familyNames))) {
+        (void)to_string(familyNames.get(), 0, &info->fFontName);
+    }
 
     populate_glyph_to_unicode(fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
 
