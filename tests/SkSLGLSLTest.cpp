@@ -1945,4 +1945,21 @@ DEF_TEST(SkSLIncompleteShortIntPrecision, r) {
          SkSL::Program::kFragment_Kind);
 }
 
+DEF_TEST(SkSLFrExp, r) {
+    test(r,
+         "void main() {"
+         "    int exp;"
+         "    float foo = frexp(0.5, exp);"
+         "    sk_FragColor = float4(exp);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    int exp;\n"
+         "    float foo = frexp(0.5, exp);\n"
+         "    sk_FragColor = vec4(float(exp));\n"
+         "}\n");
+}
+
 #endif
