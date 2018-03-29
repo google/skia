@@ -73,6 +73,8 @@ public:
 
     bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
 
+    bool blacklistMSAAPathRenderer() const { return fBlacklistMSAAPathRenderer; }
+
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
 
     /**
@@ -292,6 +294,7 @@ protected:
 
     // Driver workaround
     bool fBlacklistCoverageCounting                  : 1;
+    bool fBlacklistMSAAPathRenderer                  : 1;
     bool fAvoidStencilBuffers                        : 1;
 
     // ANGLE performance workaround
