@@ -98,22 +98,16 @@ SkTestTypeface::SkTestTypeface(sk_sp<SkTestFont> testFont, const SkFontStyle& st
 }
 
 void SkTestTypeface::getAdvance(SkGlyph* glyph) {
-    // TODO(benjaminwagner): Update users to use floats.
-    glyph->fAdvanceX = SkFixedToFloat(fTestFont->fWidths[glyph->getGlyphID()]);
-    glyph->fAdvanceY = 0;
-}
-
-void SkTestTypeface::getFontMetrics(SkPaint::FontMetrics* metrics) {
-    *metrics = fTestFont->fMetrics;
-}
-
-void SkTestTypeface::getMetrics(SkGlyph* glyph) {
     SkGlyphID glyphID = glyph->getGlyphID();
     glyphID = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
 
     // TODO(benjaminwagner): Update users to use floats.
     glyph->fAdvanceX = SkFixedToFloat(fTestFont->fWidths[glyphID]);
     glyph->fAdvanceY = 0;
+}
+
+void SkTestTypeface::getFontMetrics(SkPaint::FontMetrics* metrics) {
+    *metrics = fTestFont->fMetrics;
 }
 
 void SkTestTypeface::getPath(SkGlyphID glyphID, SkPath* path) {
@@ -211,46 +205,13 @@ protected:
     }
 
     void generateMetrics(SkGlyph* glyph) override {
-        this->getTestTypeface()->getMetrics(glyph);
-
-        const SkVector advance = fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX),
-                                               SkFloatToScalar(glyph->fAdvanceY));
-        glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-        glyph->fAdvanceY = SkScalarToFloat(advance.fY);
-
-        SkPath path;
-        this->getTestTypeface()->getPath(glyph->getGlyphID(), &path);
-        path.transform(fMatrix);
-
-        SkRect storage;
-        const SkPaint paint;
-        const SkRect& newBounds = paint.doComputeFastBounds(path.getBounds(),
-                                                            &storage,
-                                                            SkPaint::kFill_Style);
-        SkIRect ibounds;
-        newBounds.roundOut(&ibounds);
-        glyph->fLeft = ibounds.fLeft;
-        glyph->fTop = ibounds.fTop;
-        glyph->fWidth = ibounds.width();
-        glyph->fHeight = ibounds.height();
+        glyph->zeroMetrics();
+        this->generateAdvance(glyph);
+        // Always generates from paths, so SkScalerContext::getMetrics will figure the bounds.
     }
 
-    void generateImage(const SkGlyph& glyph) override {
-        SkPath path;
-        this->getTestTypeface()->getPath(glyph.getGlyphID(), &path);
-
-        SkBitmap bm;
-        bm.installPixels(SkImageInfo::MakeN32Premul(glyph.fWidth, glyph.fHeight),
-                            glyph.fImage, glyph.rowBytes());
-        bm.eraseColor(0);
-
-        SkCanvas canvas(bm);
-        canvas.translate(-SkIntToScalar(glyph.fLeft),
-                            -SkIntToScalar(glyph.fTop));
-        canvas.concat(fMatrix);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        canvas.drawPath(path, paint);
+    void generateImage(const SkGlyph&) override {
+        SK_ABORT("Should have generated from path.");
     }
 
     void generatePath(SkGlyphID glyph, SkPath* path) override {
