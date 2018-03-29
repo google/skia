@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dafcb76b_1104039a",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T20:40:02Z",
+      "side": 1,
+      "message": "Don\u0027t you wan the family name here now?",
+      "range": {
+        "startLine": 540,
+        "startChar": 22,
+        "endLine": 540,
+        "endChar": 43
+      },
+      "revId": "592d49988fea212f2698e2915fdc1d21e663955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aefc83c7_b7adadab",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1500,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T20:40:02Z",
+      "side": 1,
+      "message": "Don\u0027t you wan the family name here now?",
+      "range": {
+        "startLine": 1500,
+        "startChar": 30,
+        "endLine": 1500,
+        "endChar": 51
+      },
+      "revId": "592d49988fea212f2698e2915fdc1d21e663955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b20f7b9_5671c067",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T20:40:02Z",
+      "side": 1,
+      "message": "You want sk_get_locale_string",
+      "range": {
+        "startLine": 322,
+        "startChar": 15,
+        "endLine": 322,
+        "endChar": 24
+      },
+      "revId": "592d49988fea212f2698e2915fdc1d21e663955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6238a90d_1dee5fde",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T20:40:02Z",
+      "side": 1,
+      "message": "SUCCEEDED",
+      "range": {
+        "startLine": 351,
+        "startChar": 12,
+        "endLine": 351,
+        "endChar": 19
+      },
+      "revId": "592d49988fea212f2698e2915fdc1d21e663955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57425270_5a38d7cd",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T20:40:02Z",
+      "side": 1,
+      "message": "This is hiding.",
+      "range": {
+        "startLine": 354,
+        "startChar": 34,
+        "endLine": 354,
+        "endChar": 43
+      },
+      "revId": "592d49988fea212f2698e2915fdc1d21e663955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2c5ec71_7dfc00e4",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T20:40:02Z",
+      "side": 1,
+      "message": "Use sk_get_locale_string",
+      "range": {
+        "startLine": 355,
+        "startChar": 18,
+        "endLine": 355,
+        "endChar": 27
+      },
+      "revId": "592d49988fea212f2698e2915fdc1d21e663955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfeee5aa_4aaf19ab",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T20:40:02Z",
+      "side": 1,
+      "message": "sk_get_locale_string needs to return HRESULT, I\u0027m not sure why it doesn\u0027t. Ick. In any event, it should be handled here.",
+      "range": {
+        "startLine": 355,
+        "startChar": 12,
+        "endLine": 355,
+        "endChar": 18
+      },
+      "revId": "592d49988fea212f2698e2915fdc1d21e663955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "790d5a9c_2e677a53",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T20:40:02Z",
+      "side": 1,
+      "message": "SUCCEEDED",
+      "range": {
+        "startLine": 361,
+        "startChar": 8,
+        "endLine": 361,
+        "endChar": 15
+      },
+      "revId": "592d49988fea212f2698e2915fdc1d21e663955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a701726d_4eed698e",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-03-29T20:40:02Z",
+      "side": 1,
+      "message": "Use sk_get_locale_string",
+      "range": {
+        "startLine": 362,
+        "startChar": 14,
+        "endLine": 362,
+        "endChar": 23
+      },
+      "revId": "592d49988fea212f2698e2915fdc1d21e663955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
