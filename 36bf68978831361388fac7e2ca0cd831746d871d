@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06efe973_3661db48",
+        "filename": "include/gpu/GrGpuResource.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T15:19:40Z",
+      "side": 1,
+      "message": "Probably need to dox (bc in include/gpu)",
+      "revId": "36bf68978831361388fac7e2ca0cd831746d871d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e01c101_f5112ade",
+        "filename": "src/gpu/GrGpuResource.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T15:19:40Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "36bf68978831361388fac7e2ca0cd831746d871d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "120f6e8d_db662708",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T15:19:40Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "36bf68978831361388fac7e2ca0cd831746d871d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d843005c_2fa33518",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T15:19:40Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "36bf68978831361388fac7e2ca0cd831746d871d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac442962_2d562238",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T15:19:40Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "36bf68978831361388fac7e2ca0cd831746d871d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
