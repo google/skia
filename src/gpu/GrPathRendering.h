@@ -36,8 +36,6 @@ class GrPathRendering {
 public:
     virtual ~GrPathRendering() { }
 
-    typedef GrPathRange::PathIndexType PathIndexType;
-
     enum PathTransformType {
         kNone_PathTransformType,        //!< []
         kTranslateX_PathTransformType,  //!< [kMTransX]
@@ -90,16 +88,6 @@ public:
      */
     virtual sk_sp<GrPath> createPath(const SkPath&, const GrStyle&) = 0;
 
-    /**
-     * Creates a range of gpu paths with a common style.
-     *
-     * @param PathGenerator class that generates SkPath objects for each path in the range.
-     * @param GrStyle   the common style applied to each path in the range. Styles with non-dash
-     *                  path effects are not allowed.
-     * @return a new path range.
-     */
-    virtual sk_sp<GrPathRange> createPathRange(GrPathRange::PathGenerator*, const GrStyle&) = 0;
-
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathArgs {
         StencilPathArgs(bool useHWAA,
@@ -127,16 +115,6 @@ public:
                   const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
                   const GrPath* path);
 
-    void drawPaths(const GrPipeline& pipeline,
-                   const GrPrimitiveProcessor& primProc,
-                   const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
-                   const GrPathRange* pathRange,
-                   const void* indices,
-                   PathIndexType indexType,
-                   const float transformValues[],
-                   PathTransformType transformType,
-                   int count);
-
 protected:
     GrPathRendering(GrGpu* gpu) : fGpu(gpu) { }
 
@@ -145,15 +123,6 @@ protected:
                             const GrPrimitiveProcessor&,
                             const GrStencilSettings&,
                             const GrPath*) = 0;
-    virtual void onDrawPaths(const GrPipeline&,
-                             const GrPrimitiveProcessor&,
-                             const GrStencilSettings&,
-                             const GrPathRange*,
-                             const void* indices,
-                             PathIndexType,
-                             const float transformValues[],
-                             PathTransformType,
-                             int count) = 0;
 
     GrGpu* fGpu;
 private:
