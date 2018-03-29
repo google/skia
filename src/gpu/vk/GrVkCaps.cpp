@@ -131,6 +131,10 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fNewCBOnPipelineChange = true;
     }
 
+    if (kIntel_VkVendor == properties.vendorID) {
+        fCanUseWholeSizeOnFlushMappedMemory = false;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
@@ -144,8 +148,15 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
     }
 
-    if (kIntel_VkVendor == properties.vendorID) {
-        fCanUseWholeSizeOnFlushMappedMemory = false;
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        // http://skbug.com/7758 -- the bots have a rendering issue related to the MSAA path
+        // renderer. It doesn't repro locally, and there doesn't seem to be a correlation between it
+        // and the driver version. Blacklisting across-the-board for now.
+        //
+        //     properties.driverVersion = 93622907 -> no repro
+        //     properties.driverVersion = 159578699 -> repros
+        //     properties.driverVersion = 234221270 -> no repro
+        fBlacklistMSAAPathRenderer = true;
     }
 
     ////////////////////////////////////////////////////////////////////////////
