@@ -2914,6 +2914,72 @@
         "Upload-Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan"
       ]
     },
+    "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All"
+      ]
+    },
+    "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All-ANGLE"
+      ]
+    },
+    "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All"
+      ]
+    },
+    "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All-ANGLE"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ANGLE"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-ANGLE"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-NativeFonts"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan"
+      ]
+    },
     "Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All": {
       "priority": 0.8,
       "tasks": [
@@ -3044,6 +3110,30 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-Vulkan"
+      ]
+    },
+    "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All"
+      ]
+    },
+    "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All-ANGLE"
+      ]
+    },
+    "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All"
+      ]
+    },
+    "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All-ANGLE"
       ]
     },
     "Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All": {
@@ -11056,7 +11146,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11103,7 +11193,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11150,7 +11240,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11197,7 +11287,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11244,7 +11334,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11291,7 +11381,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11807,8 +11897,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "gpu:8086:162b-21.20.16.4839",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11854,8 +11944,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "gpu:8086:162b-21.20.16.4839",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11901,8 +11991,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "gpu:8086:162b-21.20.16.4839",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11948,8 +12038,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "gpu:8086:162b-21.20.16.4839",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11995,8 +12085,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12042,8 +12132,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12089,8 +12179,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12136,8 +12226,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12183,8 +12273,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12230,8 +12320,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12278,7 +12368,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12325,7 +12415,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12372,7 +12462,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12419,7 +12509,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12466,7 +12556,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12513,7 +12603,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12560,7 +12650,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12607,7 +12697,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12654,7 +12744,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12701,7 +12791,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12748,7 +12838,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12795,7 +12885,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12842,7 +12932,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12889,7 +12979,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12936,7 +13026,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12983,7 +13073,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13031,7 +13121,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13079,7 +13169,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13127,7 +13217,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13175,7 +13265,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13223,7 +13313,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13271,7 +13361,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13318,7 +13408,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13365,7 +13455,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13412,7 +13502,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13459,7 +13549,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13506,7 +13596,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13553,7 +13643,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21459,7 +21549,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21507,7 +21597,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21555,7 +21645,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21603,7 +21693,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21651,7 +21741,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -21699,7 +21789,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22381,7 +22471,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-i7-5557U",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22428,8 +22518,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "gpu:8086:162b-21.20.16.4839",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22476,8 +22566,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "gpu:8086:162b-21.20.16.4839",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22524,8 +22614,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "gpu:8086:162b-21.20.16.4839",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22572,8 +22662,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "gpu:8086:162b-21.20.16.4839",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22620,8 +22710,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22668,8 +22758,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22716,8 +22806,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22764,8 +22854,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22812,8 +22902,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22860,8 +22950,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22908,8 +22998,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:8086:1926-21.20.16.4839",
-        "os:Windows-10-16299.248",
+        "gpu:8086:1926-23.20.16.4944",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -22921,6 +23011,538 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i7-6770HQ",
+        "gpu:8086:193b-21.20.16.4839",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i7-6770HQ",
+        "gpu:8086:193b-21.20.16.4839",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i7-6770HQ",
+        "gpu:8086:193b-21.20.16.4839",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i7-6770HQ",
+        "gpu:8086:193b-21.20.16.4839",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:5926-23.20.16.4973",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:5926-23.20.16.4973",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:5926-23.20.16.4973",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:5926-23.20.16.4973",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:5926-23.20.16.4973",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:5926-23.20.16.4973",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:5926-23.20.16.4973",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22957,7 +23579,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23005,7 +23627,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23053,7 +23675,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23101,7 +23723,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23149,7 +23771,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23197,7 +23819,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23245,7 +23867,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23293,7 +23915,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23341,7 +23963,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23389,7 +24011,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23437,7 +24059,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23485,7 +24107,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23533,7 +24155,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23581,7 +24203,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23629,7 +24251,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23677,7 +24299,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15017.4003",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23726,7 +24348,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23775,7 +24397,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23824,7 +24446,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23873,7 +24495,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23922,7 +24544,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23971,7 +24593,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -23983,6 +24605,202 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i7-6700K",
+        "gpu:8086:1912-23.20.16.4944",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i7-6700K",
+        "gpu:8086:1912-23.20.16.4944",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i7-6700K",
+        "gpu:8086:1912-23.20.16.4944",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:117"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i7-6700K",
+        "gpu:8086:1912-23.20.16.4944",
+        "os:Windows-10-16299.334",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24019,7 +24837,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -24067,7 +24885,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -24115,7 +24933,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -24163,7 +24981,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -24211,7 +25029,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -24259,7 +25077,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-16299.248",
+        "os:Windows-10-16299.334",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -32928,6 +33746,303 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All-ANGLE": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Debug-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All-ANGLE": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC6i7KYK-GPU-IntelIris580-x86_64-Release-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ANGLE": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-ANGLE": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All": {
       "dependencies": [
         "Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All"
@@ -33511,6 +34626,114 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All": {
+      "dependencies": [
+        "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All-ANGLE": {
+      "dependencies": [
+        "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Debug-All-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All": {
+      "dependencies": [
+        "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All-ANGLE": {
+      "dependencies": [
+        "Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-ShuttleC-GPU-IntelHD530-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
