@@ -216,19 +216,14 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
 
         // Due to this resource having both a texture and a renderbuffer component, dump as
         // skia/gpu_resources/resource_#/renderbuffer
-        SkString dumpName("skia/gpu_resources/resource_");
-        dumpName.appendU32(this->uniqueID().asUInt());
-        dumpName.append("/renderbuffer");
+        SkString resourceName = this->getResourceName();
+        resourceName.append("/renderbuffer");
 
-        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
-
-        if (this->isPurgeable()) {
-            traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes", size);
-        }
+        this->dumpMemoryStatisticsPriv(traceMemoryDump, resourceName, "RenderTarget", size);
 
         SkString renderbuffer_id;
         renderbuffer_id.appendU32(fMSColorRenderbufferID);
-        traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_renderbuffer",
+        traceMemoryDump->setMemoryBacking(resourceName.c_str(), "gl_renderbuffer",
                                           renderbuffer_id.c_str());
     }
 }
