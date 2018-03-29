@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9acaa7b2_b8a7c4d9",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-29T18:27:52Z",
+      "side": 1,
+      "message": "can we note that 1595* is from android 8.0 and 159* is from 8.1 so its obviously the numbering is not monotonically increasing.",
+      "range": {
+        "startLine": 157,
+        "startChar": 14,
+        "endLine": 157,
+        "endChar": 61
+      },
+      "revId": "33bf4bc6b627298dab33cd1ce92876be5f2f6b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
