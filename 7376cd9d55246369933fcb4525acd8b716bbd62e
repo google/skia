@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab22f41f_26a9bb94",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-29T17:44:50Z",
+      "side": 1,
+      "message": "Is this something we can/should be doing for all these OSS-Fuzzers?  Like, create a new source file that contains something like this, and link it with each of these little files that\u0027d define skia_fuzz_entrypoint()?\n\n    #include \"Fuzz.h\"\n\n    // / Don\u0027t print the list of LSAN suppressions on every execution.\n    __attribute__((no_sanitize(\"address\", \"memory\", \"thread\", \"undefined\")))\n    __attribute__((visibility(\"default\")))\n    __attribute__((used))\n    extern \"C\" const char *__lsan_default_options() {\n        return \"print_suppressions\u003d0\";\n    }\n\n    void skia_fuzz_entrypoint(Fuzz*);\n\n    extern \"C\" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {\n        auto fuzz \u003d Fuzz(SkData::MakeWithoutCopy(data, size));\n        skia_fuzz_entrypoint(\u0026fuzz);\n        return 0;\n    }\n\nOr can we just not do this in code at all, and set it in the environment when running?",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 1
+      },
+      "revId": "7376cd9d55246369933fcb4525acd8b716bbd62e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6966e61e_23919a89",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-29T17:44:50Z",
+      "side": 1,
+      "message": "We typically indent 4 spaces.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 2
+      },
+      "revId": "7376cd9d55246369933fcb4525acd8b716bbd62e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "503c1e19_ec5c750b",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-29T17:44:50Z",
+      "side": 1,
+      "message": "Might be nice to indent everything inside extern \"C\" {} by 4 extra spaces to make the nesting clear.",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 1
+      },
+      "revId": "7376cd9d55246369933fcb4525acd8b716bbd62e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
