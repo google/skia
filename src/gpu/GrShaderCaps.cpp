@@ -46,6 +46,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fExternalTextureSupport = false;
     fTexelFetchSupport = false;
     fVertexIDSupport = false;
+    fFPManipulationSupport = false;
     fFloatIs32Bits = true;
     fHalfIs32Bits = false;
 
@@ -118,6 +119,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("External texture support", fExternalTextureSupport);
     writer->appendBool("texelFetch support", fTexelFetchSupport);
     writer->appendBool("sk_VertexID support", fVertexIDSupport);
+    writer->appendBool("Floating point manipulation support", fFPManipulationSupport);
     writer->appendBool("float == fp32", fFloatIs32Bits);
     writer->appendBool("half == fp32", fHalfIs32Bits);
 
