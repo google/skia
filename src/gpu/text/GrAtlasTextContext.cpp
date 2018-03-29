@@ -886,7 +886,6 @@ void GrAtlasTextContext::FallbackTextHelper::drawText(GrAtlasTextBlob* blob, int
                                        skPaint.isDevKernText(), true);
         SkColor textColor = paint.filteredPremulColor();
         SkScalar textRatio = SK_Scalar1;
-        fViewMatrix.mapPoints(fFallbackPos.begin(), fFallbackPos.count());
         if (fUseScaledFallback) {
             // Set up paint and matrix to scale glyphs
             SkPaint scaledPaint(skPaint);
@@ -910,6 +909,11 @@ void GrAtlasTextContext::FallbackTextHelper::drawText(GrAtlasTextBlob* blob, int
         SkPoint* glyphPos = fFallbackPos.begin();
         while (text < stop) {
             const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);
+            fViewMatrix.mapPoints(glyphPos, 1);
+            if (!fUseScaledFallback) {
+                glyphPos->fX = SkScalarFloorToScalar(glyphPos->fX);
+                glyphPos->fY = SkScalarFloorToScalar(glyphPos->fY);
+            }
             GrAtlasTextContext::BmpAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph,
                                                glyphPos->fX, glyphPos->fY, textColor,
                                                cache.get(), textRatio);
