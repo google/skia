@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "063de852_da06ef77",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T21:13:21Z",
+      "side": 1,
+      "message": "Nope - just if you want.",
+      "parentUuid": "e744d5ad_f9e5993e",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5558d4d4_767b4d30",
         "filename": "src/utils/SkOffsetPolygon.cpp",
         "patchSetId": 24
@@ -136,6 +154,24 @@
       "side": 1,
       "message": "Is memmove smart enough to not stomp the previous edge as it\u0027s copying? That\u0027s why I do this in reverse. If it is, I can\u0027t see it being much faster than this.",
       "parentUuid": "5558d4d4_767b4d30",
+      "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdde83ed_925d1702",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T21:13:21Z",
+      "side": 1,
+      "message": "memmove is supposed to operate as if a second temp buffer were used.",
+      "parentUuid": "3b239e4b_c9e1481f",
       "revId": "66892ed360ccffad416f4b32d06cc1857f0d33b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
