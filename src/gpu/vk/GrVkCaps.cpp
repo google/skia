@@ -131,6 +131,10 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fNewCBOnPipelineChange = true;
     }
 
+    if (kIntel_VkVendor == properties.vendorID) {
+        fCanUseWholeSizeOnFlushMappedMemory = false;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
@@ -144,8 +148,12 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
     }
 
-    if (kIntel_VkVendor == properties.vendorID) {
-        fCanUseWholeSizeOnFlushMappedMemory = false;
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        SkDebugf("@@@@@> driverver=%i\n", properties.driverVersion);
+        SkDebugf("@@@@@> driverver=%i.%i\n",
+                 properties.driverVersion>>16, properties.driverVersion&0xffff);
+        fBlacklistMSAAPathRenderer = properties.driverVersion < 93622907;
+        SkDebugf("@@@@@> fBlacklistMSAAPathRenderer=%i\n", fBlacklistMSAAPathRenderer);
     }
 
     ////////////////////////////////////////////////////////////////////////////
