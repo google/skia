@@ -347,7 +347,7 @@ private:
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
  */
-class GrContextThreadSafeProxy : public SkRefCnt {
+class SK_API GrContextThreadSafeProxy : public SkRefCnt {
 public:
     bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
 
