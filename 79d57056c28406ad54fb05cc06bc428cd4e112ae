@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ea41564_ce1bcc11",
+        "filename": "src/gpu/ccpr/GrCCCubicShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-29T00:08:01Z",
+      "side": 1,
+      "message": "This version actually produces a compiler error:\n\nErrors:\nerror: 4: \u0027exp\u0027 has not been assigned\n1 error",
+      "revId": "79d57056c28406ad54fb05cc06bc428cd4e112ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
