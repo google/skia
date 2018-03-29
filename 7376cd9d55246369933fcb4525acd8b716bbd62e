@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6913d422_30884fe1",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8057
+      },
+      "writtenOn": "2018-03-29T18:13:06Z",
+      "side": 1,
+      "message": "\u003eIs this something we can/should be doing for all these OSS-Fuzzers?\nI don\u0027t think it\u0027s necessary since this fuzzer is the only one that has LsanSuppressions.cpp in its sources (not possible to see here unfortunately).\n\n\u003eOr can we just not do this in code at all, and set it in the environment when running?\nRight now it isn\u0027t possible because ClusterFuzz needs to set its own LSAN_OPTIONS which will clobber the values we set. We have plans to change this though.\n\nThis isn\u0027t strictly necessary, it\u0027s just an improvement to prevent a lot of annoying log messages.\n\nIf you are opposed to doing this in code, I can remove it and let LSAN log suppressions until we change ClusterFuzz to allow setting extra LSAN_OPTIONS.",
+      "parentUuid": "ab22f41f_26a9bb94",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 1
+      },
+      "revId": "7376cd9d55246369933fcb4525acd8b716bbd62e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6966e61e_23919a89",
         "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "6eefc1e7_cd434413",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8057
+      },
+      "writtenOn": "2018-03-29T18:13:06Z",
+      "side": 1,
+      "message": "Right, my bad. Done.",
+      "parentUuid": "6966e61e_23919a89",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 2
+      },
+      "revId": "7376cd9d55246369933fcb4525acd8b716bbd62e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1e19_ec5c750b",
         "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
         "patchSetId": 3
@@ -68,6 +116,30 @@
       "revId": "7376cd9d55246369933fcb4525acd8b716bbd62e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb5a5d74_9f3201c4",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8057
+      },
+      "writtenOn": "2018-03-29T18:13:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1e19_ec5c750b",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 1
+      },
+      "revId": "7376cd9d55246369933fcb4525acd8b716bbd62e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
