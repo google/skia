@@ -33,7 +33,7 @@ public:
                                                                 float xformedSigma) {
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 9);
+        GrUniqueKey::Builder builder(&key, kDomain, 9, "RoundRect Blur Mask");
         builder[0] = SkScalarCeilToInt(xformedSigma - 1 / 6.0f);
 
         int index = 1;

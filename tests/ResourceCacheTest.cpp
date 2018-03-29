@@ -337,6 +337,7 @@ private:
     }
 
     size_t onGpuMemorySize() const override { return fSize; }
+    const char* getResourceType() const override { return "Test"; }
 
     TestResource* fToDelete;
     size_t fSize;
@@ -1658,19 +1659,24 @@ static void test_tags(skiatest::Reporter* reporter) {
     GrResourceCache* cache = mock.cache();
     GrGpu* gpu = context->contextPriv().getGpu();
 
+    // tag strings are expected to be long lived
+    std::vector<SkString> tagStrings;
+
     SkString tagStr;
     int tagIdx = 0;
     int currTagCnt = 0;
 
     for (int i = 0; i < kNumResources; ++i, ++currTagCnt) {
+
         sk_sp<GrGpuResource> resource(new TestResource(gpu));
         GrUniqueKey key;
         if (currTagCnt == tagIdx) {
             tagIdx += 1;
             currTagCnt = 0;
             tagStr.printf("tag%d", tagIdx);
+            tagStrings.emplace_back(tagStr);
         }
-        make_unique_key<1>(&key, i, tagStr.c_str());
+        make_unique_key<1>(&key, i, tagStrings.back().c_str());
         resource->resourcePriv().setUniqueKey(key);
     }
     SkASSERT(kLastTagIdx == tagIdx);

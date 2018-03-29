@@ -51,6 +51,7 @@ protected:
 #endif
 
 private:
+    const char* getResourceType() const override { return "Path Data"; }
     typedef GrGpuResource INHERITED;
 };
 

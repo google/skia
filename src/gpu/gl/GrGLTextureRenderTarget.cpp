@@ -37,9 +37,16 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
 
 void GrGLTextureRenderTarget::dumpMemoryStatistics(
     SkTraceMemoryDump* traceMemoryDump) const {
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // Delegate to the base classes
     GrGLRenderTarget::dumpMemoryStatistics(traceMemoryDump);
     GrGLTexture::dumpMemoryStatistics(traceMemoryDump);
+#else
+    SkString resourceName = this->getResourceName();
+    resourceName.append("/texture_renderbuffer");
+    this->dumpMemoryStatisticsPriv(traceMemoryDump, resourceName, "RenderTarget",
+                                   this->gpuMemorySize());
+#endif
 }
 
 bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {

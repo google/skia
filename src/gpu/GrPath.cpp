@@ -25,7 +25,7 @@ void GrPath::ComputeKey(const GrShape& shape, GrUniqueKey* key, bool* outIsVolat
         return;
     }
     static const GrUniqueKey::Domain kGeneralPathDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kGeneralPathDomain, geoCnt + styleCnt);
+    GrUniqueKey::Builder builder(key, kGeneralPathDomain, geoCnt + styleCnt, "Path");
     shape.writeUnstyledKey(&builder[0]);
     if (styleCnt) {
         write_style_key(&builder[geoCnt], shape.style());

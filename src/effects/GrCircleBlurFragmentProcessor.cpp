@@ -203,7 +203,7 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
-    GrUniqueKey::Builder builder(&key, kDomain, 1);
+    GrUniqueKey::Builder builder(&key, kDomain, 1, "1-D Circular Blur");
     builder[0] = sigmaToCircleRRatioFixed;
     builder.finish();
 

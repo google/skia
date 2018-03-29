@@ -50,6 +50,10 @@ public:
                                   const char* units,
                                   uint64_t value) = 0;
 
+    virtual void dumpStringValue(const char* /*dumpName*/,
+                                 const char* /*valueName*/,
+                                 const char* /*value*/) { }
+
     /**
      * Sets the memory backing for an existing dump.
      * backingType and backingObjectId are used by the embedder to associate the memory dumped via

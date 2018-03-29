@@ -249,6 +249,15 @@ public:
      **/
     virtual void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
+    /**
+     * Describes the type of gpu resource that is represented by the implementing
+     * class (e.g. texture, buffer object, stencil).  This data is used for diagnostic
+     * purposes by dumpMemoryStatistics().
+     *
+     * The value returned is expected to be long lived and will not be copied by the caller.
+     */
+    virtual const char* getResourceType() const = 0;
+
     static uint32_t CreateUniqueID();
 
 protected:
@@ -280,10 +289,23 @@ protected:
     void didChangeGpuMemorySize() const;
 
     /**
-     * Allows subclasses to add additional backing information to the SkTraceMemoryDump. Called by
-     * onMemoryDump. The default implementation adds no backing information.
+     * Allows subclasses to add additional backing information to the SkTraceMemoryDump.
      **/
     virtual void setMemoryBacking(SkTraceMemoryDump*, const SkString&) const {}
+
+    /**
+     * Returns a string that uniquely identifies this resource.
+     */
+    SkString getResourceName() const;
+
+    /**
+     * A helper for subclasses that override dumpMemoryStatistics(). This method using a format
+     * consistent with the default implementation of dumpMemoryStatistics() but allows the caller
+     * to customize various inputs.
+     */
+    void dumpMemoryStatisticsPriv(SkTraceMemoryDump* traceMemoryDump, const SkString& resourceName,
+                                  const char* type, size_t size) const;
+
 
 private:
     /**

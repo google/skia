@@ -58,7 +58,7 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
     SkASSERT(imageID);
     SkASSERT(!imageBounds.isEmpty());
     static const GrUniqueKey::Domain kImageIDDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kImageIDDomain, 5);
+    GrUniqueKey::Builder builder(key, kImageIDDomain, 5, "Image");
     builder[0] = imageID;
     builder[1] = imageBounds.fLeft;
     builder[2] = imageBounds.fTop;
