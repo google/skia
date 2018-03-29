@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a9bc194_607db429",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T21:07:59Z",
+      "side": 1,
+      "message": "// Here we implement a sweep line algorithm to check that the provided points form a simple polygon. We first put all the points in a ...\n\n?",
+      "revId": "99bab9202442b71e2dc6307b7c73d0ad02846455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d1e10f3_af171a7d",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T21:07:59Z",
+      "side": 1,
+      "message": "not useful",
+      "revId": "99bab9202442b71e2dc6307b7c73d0ad02846455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75b8fd29_d9330dbd",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T21:07:59Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "99bab9202442b71e2dc6307b7c73d0ad02846455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78236260_69afffcd",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T21:07:59Z",
+      "side": 1,
+      "message": "tab over ? one line ?",
+      "revId": "99bab9202442b71e2dc6307b7c73d0ad02846455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21558e7e_6c912306",
+        "filename": "tests/OffsetSimplePolyTest.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T21:07:59Z",
+      "side": 1,
+      "message": "time warp",
+      "revId": "99bab9202442b71e2dc6307b7c73d0ad02846455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
