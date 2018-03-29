@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8829c1ca_7c184bdd",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8057
+      },
+      "writtenOn": "2018-03-29T19:03:28Z",
+      "side": 1,
+      "message": "Correct. Though I just realized these attributes aren\u0027t needed in this case, I\u0027ve completely removed them.",
+      "parentUuid": "1d9c616e_46b6c63d",
+      "range": {
+        "startLine": 18,
+        "startChar": 76,
+        "endLine": 18,
+        "endChar": 78
+      },
+      "revId": "9d5a8b18d9bd981658140ba119d1e1f7823c7874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac747e6d_294df7c3",
         "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "9d5a8b18d9bd981658140ba119d1e1f7823c7874",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd27225b_92953dad",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8057
+      },
+      "writtenOn": "2018-03-29T19:03:28Z",
+      "side": 1,
+      "message": "Agreed, done.",
+      "parentUuid": "ac747e6d_294df7c3",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 34
+      },
+      "revId": "9d5a8b18d9bd981658140ba119d1e1f7823c7874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
