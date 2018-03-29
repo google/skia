@@ -39,8 +39,8 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
 void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
 }
 
-void SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
-    fClient->generatePath(*this->typefaceProxy(), this->getRec(), glyphID, path);
+bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
+    return fClient->generatePath(*this->typefaceProxy(), this->getRec(), glyphID, path);
 }
 
 void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {

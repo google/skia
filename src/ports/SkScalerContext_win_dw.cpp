@@ -967,20 +967,20 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     }
 }
 
-void SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
+bool SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
 
     path->reset();
 
     SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
-    HRVM(SkDWriteGeometrySink::Create(path, &geometryToPath),
+    HRBM(SkDWriteGeometrySink::Create(path, &geometryToPath),
          "Could not create geometry to path converter.");
     UINT16 glyphId = SkTo<UINT16>(glyph);
     {
         SkAutoExclusive l(DWriteFactoryMutex);
         //TODO: convert to<->from DIUs? This would make a difference if hinting.
         //It may not be needed, it appears that DirectWrite only hints at em size.
-        HRVM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
+        HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
              SkScalarToFloat(fTextSizeRender),
              &glyphId,
              nullptr, //advances
@@ -993,6 +993,7 @@ void SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
     }
 
     path->transform(fSkXform);
+    return true;
 }
 
 #endif//defined(SK_BUILD_FOR_WIN)

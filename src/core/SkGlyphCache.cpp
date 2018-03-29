@@ -214,9 +214,14 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
             SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
             const_cast<SkGlyph&>(glyph).fPathData = pathData;
             pathData->fIntercept = nullptr;
-            SkPath* path = pathData->fPath = new SkPath;
-            fScalerContext->getPath(glyph.getPackedID(), path);
-            fMemoryUsed += sizeof(SkPath) + path->countPoints() * sizeof(SkPoint);
+            SkPath* path = new SkPath;
+            if (fScalerContext->getPath(glyph.getPackedID(), path)) {
+                pathData->fPath = path;
+                fMemoryUsed += sizeof(SkPath) + path->countPoints() * sizeof(SkPoint);
+            } else {
+                pathData->fPath = nullptr;
+                delete path;
+            }
         }
     }
     return glyph.fPathData ? glyph.fPathData->fPath : nullptr;

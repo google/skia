@@ -203,7 +203,7 @@ public:
         const SkTypefaceProxy&, const SkScalerContextRec&, SkPaint::FontMetrics*);
     void generateMetricsAndImage(
         const SkTypefaceProxy&, const SkScalerContextRec&, SkArenaAlloc*, SkGlyph*);
-    void generatePath(
+    bool generatePath(
         const SkTypefaceProxy&, const SkScalerContextRec&, SkGlyphID glyph, SkPath* path);
     SkTypeface* lookupTypeface(SkFontID id);
 

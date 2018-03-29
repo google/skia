@@ -26,7 +26,7 @@ protected:
     void generateAdvance(SkGlyph*) override;
     void generateMetrics(SkGlyph*) override;
     void generateImage(const SkGlyph&) override;
-    void generatePath(SkGlyphID, SkPath*) override;
+    bool generatePath(SkGlyphID, SkPath*) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
@@ -85,7 +85,7 @@ void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
     }
     if (SkMask::kARGB32_Format == format) {
         SkPath path;
-        fProxy->getPath(glyph->getPackedID(), &path);
+        sk_ignore_unused_variable(fProxy->getPath(glyph->getPackedID(), &path));
 
         SkRect storage;
         const SkPaint& paint = this->getRandomTypeface()->paint();
@@ -155,7 +155,7 @@ void SkRandomScalerContext::generateImage(const SkGlyph& glyph) {
     if (!fFakeIt) {
         if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
             SkPath path;
-            fProxy->getPath(glyph.getPackedID(), &path);
+            sk_ignore_unused_variable(fProxy->getPath(glyph.getPackedID(), &path));
 
             SkBitmap bm;
             bm.installPixels(SkImageInfo::MakeN32Premul(glyph.fWidth, glyph.fHeight),
@@ -176,8 +176,8 @@ void SkRandomScalerContext::generateImage(const SkGlyph& glyph) {
     }
 }
 
-void SkRandomScalerContext::generatePath(SkGlyphID glyph, SkPath* path) {
-    fProxy->generatePath(glyph, path);
+bool SkRandomScalerContext::generatePath(SkGlyphID glyph, SkPath* path) {
+    return fProxy->generatePath(glyph, path);
 }
 
 void SkRandomScalerContext::generateFontMetrics(SkPaint::FontMetrics* metrics) {

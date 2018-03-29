@@ -289,7 +289,7 @@ public:
     void        getAdvance(SkGlyph*);
     void        getMetrics(SkGlyph*);
     void        getImage(const SkGlyph&);
-    void        getPath(SkPackedGlyphID, SkPath*);
+    bool SK_WARN_UNUSED_RESULT getPath(SkPackedGlyphID, SkPath*);
     void        getFontMetrics(SkPaint::FontMetrics*);
 
     /** Return the size in bytes of the associated gamma lookup table
@@ -377,9 +377,9 @@ protected:
 
     /** Sets the passed path to the glyph outline.
      *  If this cannot be done the path is set to empty;
-     *  this is indistinguishable from a glyph with an empty path.
+     *  @return false if this glyph does not have any path.
      */
-    virtual void generatePath(SkGlyphID glyphId, SkPath* path) = 0;
+    virtual bool SK_WARN_UNUSED_RESULT generatePath(SkGlyphID glyphId, SkPath* path) = 0;
 
     /** Retrieves font metrics. */
     virtual void generateFontMetrics(SkPaint::FontMetrics*) = 0;

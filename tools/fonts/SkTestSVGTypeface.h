@@ -53,7 +53,6 @@ public:
     ~SkTestSVGTypeface() override;
     void getAdvance(SkGlyph* glyph) const;
     void getFontMetrics(SkPaint::FontMetrics* metrics) const;
-    void getPath(SkGlyphID glyph, SkPath* path) const;
 
     static sk_sp<SkTestSVGTypeface> Default();
     void exportTtxCbdt(SkWStream*) const;

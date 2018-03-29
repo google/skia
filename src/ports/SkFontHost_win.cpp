@@ -551,7 +551,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(SkGlyphID glyph, SkPath* path) override;
+    bool generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
@@ -1614,7 +1614,7 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
     return total_size;
 }
 
-void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
+bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
     SkASSERT(fDDC);
 
@@ -1636,7 +1636,7 @@ void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
     DWORD total_size = getGDIGlyphPath(glyph, format, &glyphbuf);
     if (0 == total_size) {
-        return;
+        return false;
     }
 
     if (fRec.getHinting() != SkPaint::kSlight_Hinting) {
@@ -1648,7 +1648,7 @@ void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
         SkAutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
         DWORD hinted_total_size = getGDIGlyphPath(glyph, format, &hintedGlyphbuf);
         if (0 == hinted_total_size) {
-            return;
+            return false;
         }
 
         if (!sk_path_from_gdi_paths(path, glyphbuf, total_size,
@@ -1658,6 +1658,7 @@ void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
             sk_path_from_gdi_path(path, glyphbuf, total_size);
         }
     }
+    return true;
 }
 
 static void logfont_for_name(const char* familyName, LOGFONT* lf) {
