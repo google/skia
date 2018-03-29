@@ -22,6 +22,30 @@
       "revId": "36b2d5b3ad0d00c04d2e30ad84dfba1b4708e381",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f62b1975_447727ce",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T19:58:23Z",
+      "side": 1,
+      "message": "We first check to see if the given polygon is simple -- otherwise there\u0027s no point in running the algorithm. Then we see if the result is simple, because it might not be and for what I\u0027m doing I need a simple result. I could probably get rid of the first case. It\u0027s a pretty expensive check, relative to the rest of the algorithm.",
+      "parentUuid": "47af71a6_c9e57ebf",
+      "range": {
+        "startLine": 727,
+        "startChar": 12,
+        "endLine": 727,
+        "endChar": 29
+      },
+      "revId": "36b2d5b3ad0d00c04d2e30ad84dfba1b4708e381",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
