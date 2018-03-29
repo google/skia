@@ -44,6 +44,7 @@
 #  endif
 
 #  include <vulkan/vulkan.h>
+//#  include "/usr/local/google/home/egdaniel/software/vulkanAndroidHeaders/vulkan.h"
 #endif // SK_VULKAN_HEADER
 
 #define SKIA_REQUIRED_VULKAN_HEADER_VERSION 17
