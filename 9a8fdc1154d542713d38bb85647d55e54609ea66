@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5728a2fe_ec0624dd",
+        "filename": "tests/VkGrallocBufferTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 1097,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2018-03-29T17:09:11Z",
+      "side": 1,
+      "message": "We would ideally test all supported formats (if an AHardwareBuffer is creatable, we should be able to import). Some (depth formats) are a bit tricker, but it would be nice to test the various 565/RGBX/RGB/10101012 formats.",
+      "range": {
+        "startLine": 1097,
+        "startChar": 21,
+        "endLine": 1097,
+        "endChar": 58
+      },
+      "revId": "9a8fdc1154d542713d38bb85647d55e54609ea66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
