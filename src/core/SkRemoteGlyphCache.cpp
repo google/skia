@@ -680,12 +680,13 @@ int SkStrikeServer::serve() {
                 auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
                 // TODO: check for buffer overflow.
                 SkPath path;
-                sc->getPath(op->glyphId, &path);
-                size_t pathSize = path.writeToMemory(nullptr);
-                serializer->startWrite<size_t>(pathSize);
-                auto pathData = serializer->allocateArray<uint8_t>(pathSize);
-                path.writeToMemory(pathData);
-                serializer->endWrite(fTransport);
+                if (sc->getPath(op->glyphId, &path)) {
+                    size_t pathSize = path.writeToMemory(nullptr);
+                    serializer->startWrite<size_t>(pathSize);
+                    auto pathData = serializer->allocateArray<uint8_t>(pathSize);
+                    path.writeToMemory(pathData);
+                    serializer->endWrite(fTransport);
+                }
                 break;
             }
             case OpCode::kGlyphMetricsAndImage : {
@@ -831,7 +832,7 @@ void SkStrikeClient::generateMetricsAndImage(
     }
 
 }
-void SkStrikeClient::generatePath(
+bool SkStrikeClient::generatePath(
         const SkTypefaceProxy& typefaceProxy,
         const SkScalerContextRec& rec,
         SkGlyphID glyphID,
@@ -847,13 +848,16 @@ void SkStrikeClient::generatePath(
         serializer.endWrite(fTransport);
     }
 
+    bool hasPath;
     {
         Deserializer deserializer;
         size_t pathSize = *deserializer.startRead<size_t>(fTransport);
+        hasPath = pathSize > 0;
         auto rawPath = deserializer.readArray<uint8_t>(pathSize);
         path->readFromMemory(rawPath.data(), rawPath.size());
         deserializer.endRead();
     }
+    return hasPath;
 }
 
 void SkStrikeClient::primeStrikeCache(const SkStrikeCacheDifferenceSpec& strikeDifferences) {
