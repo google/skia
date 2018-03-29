@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "085f826c_198fc4f5",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-03-29T15:31:26Z",
+      "side": 1,
+      "message": "The original algorithm calls for a balanced tree. Given that the average case of active edges is around 2 or 3 I\u0027m not sure that\u0027s necessary here. However, I am planning on replacing this with a linked list and pool allocator -- adding and removing edges is pretty expensive. Comments on whether that\u0027s a good idea are welcome.",
+      "range": {
+        "startLine": 500,
+        "startChar": 4,
+        "endLine": 500,
+        "endChar": 13
+      },
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
