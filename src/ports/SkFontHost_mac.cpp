@@ -1496,7 +1496,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
     {
         UniqueCFRef<CFStringRef> fontName(CTFontCopyPostScriptName(ctFont.get()));
         if (fontName.get()) {
-            CFStringToSkString(fontName.get(), &info->fFontName);
+            CFStringToSkString(fontName.get(), &info->fPostScriptName);
+            info->fFontName = info->fPostScriptName;
         }
     }
 
