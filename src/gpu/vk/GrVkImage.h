@@ -50,7 +50,8 @@ public:
                         VkImageLayout newLayout,
                         VkAccessFlags dstAccessMask,
                         VkPipelineStageFlags dstStageMask,
-                        bool byRegion);
+                        bool byRegion,
+                        bool releaseFamilyQueue = false);
 
     struct ImageDesc {
         VkImageType         fImageType;
