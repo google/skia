@@ -499,8 +499,8 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     }
 }
 
-void SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
-    this->internalGetPath(glyphID, nullptr, path, nullptr);
+bool SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
+    return this->internalGetPath(glyphID, nullptr, path, nullptr);
 }
 
 void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* fm) {
@@ -517,8 +517,7 @@ SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
 bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
                                       SkPath* devPath, SkMatrix* fillToDevMatrix) {
     SkPath  path;
-    generatePath(glyphID.code(), &path);
-    if (path.isEmpty()) {
+    if (!generatePath(glyphID.code(), &path)) {
         return false;
     }
 
@@ -787,7 +786,10 @@ protected:
         glyph->zeroMetrics();
     }
     void generateImage(const SkGlyph& glyph) override {}
-    void generatePath(SkGlyphID glyph, SkPath* path) override {}
+    bool generatePath(SkGlyphID glyph, SkPath* path) override {
+        path->reset();
+        return false;
+    }
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override {
         if (metrics) {
             sk_bzero(metrics, sizeof(*metrics));

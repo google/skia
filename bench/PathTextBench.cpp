@@ -49,7 +49,7 @@ private:
         auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(defaultPaint);
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkGlyphID id = cache->unicharToGlyph(kGlyphs[i]);
-            cache->getScalerContext()->getPath(SkPackedGlyphID(id), &fGlyphs[i]);
+            (void)cache->getScalerContext()->getPath(SkPackedGlyphID(id), &fGlyphs[i]);
             fGlyphs[i].setIsVolatile(fUncached);
         }
 
