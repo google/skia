@@ -536,7 +536,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     }
 
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
-    info->fFontName.set(FT_Get_Postscript_Name(face));
+    info->fPostScriptName.set(FT_Get_Postscript_Name(face));
+    info->fFontName = info->fPostScriptName;
 
     if (FT_HAS_MULTIPLE_MASTERS(face)) {
         info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
