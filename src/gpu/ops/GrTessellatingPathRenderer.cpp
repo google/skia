@@ -245,7 +245,7 @@ private:
         static constexpr int kClipBoundsCnt = sizeof(fDevClipBounds) / sizeof(uint32_t);
         int shapeKeyDataCnt = fShape.unstyledKeySize();
         SkASSERT(shapeKeyDataCnt >= 0);
-        GrUniqueKey::Builder builder(&key, kDomain, shapeKeyDataCnt + kClipBoundsCnt);
+        GrUniqueKey::Builder builder(&key, kDomain, shapeKeyDataCnt + kClipBoundsCnt, "Path");
         fShape.writeUnstyledKey(&builder[0]);
         // For inverse fills, the tessellation is dependent on clip bounds.
         if (inverseFill) {

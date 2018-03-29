@@ -248,6 +248,7 @@ public:
      * need to override setMemoryBacking.
      **/
     virtual void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
+    virtual const char* getResourceType() const = 0;
 
     static uint32_t CreateUniqueID();
 
@@ -280,10 +281,13 @@ protected:
     void didChangeGpuMemorySize() const;
 
     /**
-     * Allows subclasses to add additional backing information to the SkTraceMemoryDump. Called by
-     * onMemoryDump. The default implementation adds no backing information.
+     * Allows subclasses to add additional backing information to the SkTraceMemoryDump.
      **/
     virtual void setMemoryBacking(SkTraceMemoryDump*, const SkString&) const {}
+    SkString getResourceName() const;
+    void dumpMemoryStatisticsPriv(SkTraceMemoryDump* traceMemoryDump, const SkString& resourceName,
+                                  const char* type, size_t size) const;
+
 
 private:
     /**
