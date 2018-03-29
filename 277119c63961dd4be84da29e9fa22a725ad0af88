@@ -2,6 +2,108 @@
   "comments": [
     {
       "key": {
+        "uuid": "71625a70_fed71038",
+        "filename": "gm/polygonoffset.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T18:46:45Z",
+      "side": 1,
+      "message": "This comment seems off",
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94589890_0ad40a04",
+        "filename": "gm/polygonoffset.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T18:46:45Z",
+      "side": 1,
+      "message": "I haven\u0027t gotten far but - do we have a test to ensure this rejects paths w/ multiple contours?",
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e44edd79_276bff2d",
+        "filename": "gm/polygonoffset.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T18:46:45Z",
+      "side": 1,
+      "message": "tab over ?",
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5a16dd6_04b0df42",
+        "filename": "gm/polygonoffset.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T18:46:45Z",
+      "side": 1,
+      "message": "can this go in create_ngon and be shared w/ the above use too?",
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01b2926a_2b52ac8e",
+        "filename": "gm/polygonoffset.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T18:46:45Z",
+      "side": 1,
+      "message": "This only seems to be exercising line segments. Does it support curves? If not, is there a unit test to enforce that?",
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "896fdd76_3977b5ff",
+        "filename": "gm/polygonoffset.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-03-29T18:46:45Z",
+      "side": 1,
+      "message": "sk_tool_utils::color_to_565 ?",
+      "revId": "277119c63961dd4be84da29e9fa22a725ad0af88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5b33fc22_e275fd65",
         "filename": "src/utils/SkOffsetPolygon.cpp",
         "patchSetId": 22
