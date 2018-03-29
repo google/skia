@@ -335,6 +335,10 @@ public:
                                 nullptr);
     }
 
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext*,
+                                             const SkSurfaceCharacterization&,
+                                             SkBudgeted);
+
     /** Returns SkSurface without backing pixels. Drawing to SkCanvas returned from SkSurface
         has no effect. Calling makeImageSnapshot() on returned SkSurface returns nullptr.
 
