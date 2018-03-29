@@ -8,12 +8,35 @@
 #include "GrCCCubicShader.h"
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
 using Shader = GrCCCoverageProcessor::Shader;
 
 void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
                                     const char* wind, const char** /*tighterHull*/) const {
+    // Define a function that normalizes the homogeneous coordinates T=t/s in order to avoid
+    // exponent overflow.
+    SkString normalizeHomogCoordFn;
+    GrShaderVar coord("coord", kFloat2_GrSLType);
+    s->emitFunction(kFloat2_GrSLType, "normalize_homogeneous_coord", 1, &coord,
+                    s->getProgramBuilder()->shaderCaps()->fpManipulationSupport()
+                            // Exponent manipulation version: Scale the exponents so the larger
+                            // component has a magnitude in 1..2.
+                            // (Neither component should be infinity because ccpr crops big paths.)
+                            ? "int exp;"
+                              "frexp(max(abs(coord.t), abs(coord.s)), exp);"
+                              "return coord * ldexp(1, 1 - exp);"
+
+                            // Division version: Divide by the component with the larger magnitude.
+                            // (Both should not be 0 because ccpr catches degenerate cubics.)
+                            : "bool swap = abs(coord.t) > abs(coord.s);"
+                              "coord = swap ? coord.ts : coord;"
+                              "coord = float2(1, coord.t/coord.s);"
+                              "return swap ? coord.ts : coord;",
+
+                    &normalizeHomogCoordFn);
+
     // Find the cubic's power basis coefficients.
     s->codeAppendf("float2x4 C = float4x4(-1,  3, -3,  1, "
                                          " 3, -6,  3,  0, "
@@ -33,9 +56,10 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     s->codeAppend ("q = x*D2 + (D2 >= 0 ? q : -q);");
 
     s->codeAppend ("float2 l, m;");
-    s->codeAppend ("l.ts = normalize(float2(q, 2*x * D1));");
-    s->codeAppend ("m.ts = normalize(float2(2, q) * (discr >= 0 ? float2(D3, 1) "
-                                                               ": float2(D2*D2 - D3*D1, D1)));");
+    s->codeAppendf("l.ts = %s(float2(q, 2*x * D1));", normalizeHomogCoordFn.c_str());
+    s->codeAppendf("m.ts = %s(float2(2, q) * (discr >= 0 ? float2(D3, 1) "
+                                                        ": float2(D2*D2 - D3*D1, D1)));",
+                                                        normalizeHomogCoordFn.c_str());
 
     s->codeAppend ("float4 K;");
     s->codeAppend ("float4 lm = l.sstt * m.stst;");
@@ -46,7 +70,7 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     s->codeAppend ("L = float4(-1,x,-x,1) * l.sstt * (discr >= 0 ? l.ssst * l.sttt : lm);");
     s->codeAppend ("M = float4(-1,x,-x,1) * m.sstt * (discr >= 0 ? m.ssst * m.sttt : lm.xzyw);");
 
-    s->codeAppend ("short middlerow = abs(D2) > abs(D1) ? 2 : 1;");
+    s->codeAppend ("int middlerow = abs(D2) > abs(D1) ? 2 : 1;");
     s->codeAppend ("float3x3 CI = inverse(float3x3(C[0][0], C[0][middlerow], C[0][3], "
                                                   "C[1][0], C[1][middlerow], C[1][3], "
                                                   "      0,               0,       1));");
@@ -66,7 +90,7 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
 
     // Determine the amount of additional coverage to subtract out for the flat edge (P3 -> P0).
     s->declareGlobal(fEdgeDistanceEquation);
-    s->codeAppendf("short edgeidx0 = %s > 0 ? 3 : 0;", wind);
+    s->codeAppendf("int edgeidx0 = %s > 0 ? 3 : 0;", wind);
     s->codeAppendf("float2 edgept0 = %s[edgeidx0];", pts);
     s->codeAppendf("float2 edgept1 = %s[3 - edgeidx0];", pts);
     Shader::EmitEdgeDistanceEquation(s, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
