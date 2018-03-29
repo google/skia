@@ -73,20 +73,33 @@ void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) con
         return;
     }
 
-    // Dump resource as "skia/gpu_resources/resource_#".
-    SkString dumpName("skia/gpu_resources/resource_");
-    dumpName.appendU32(this->uniqueID().asUInt());
+    this->dumpMemoryStatisticsPriv(traceMemoryDump, this->getResourceName(),
+                                   this->getResourceType(), this->gpuMemorySize());
+}
 
-    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", this->gpuMemorySize());
-
-    if (this->isPurgeable()) {
-        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes",
-                                          this->gpuMemorySize());
+void GrGpuResource::dumpMemoryStatisticsPriv(SkTraceMemoryDump* traceMemoryDump,
+                                             const SkString& resourceName,
+                                             const char* type, size_t size) const {
+    const char* tag = "Scratch";
+    if (fUniqueKey.isValid()) {
+        tag = (fUniqueKey.tag() != nullptr) ? fUniqueKey.tag() : "Other";
     }
 
-    // Call setMemoryBacking to allow sub-classes with implementation specific backings (such as GL
-    // objects) to provide additional information.
-    this->setMemoryBacking(traceMemoryDump, dumpName);
+    traceMemoryDump->dumpNumericValue(resourceName.c_str(), "size", "bytes", size);
+    traceMemoryDump->dumpStringValue(resourceName.c_str(), "type", type);
+    traceMemoryDump->dumpStringValue(resourceName.c_str(), "category", tag);
+    if (this->isPurgeable()) {
+        traceMemoryDump->dumpNumericValue(resourceName.c_str(), "purgeable_size", "bytes", size);
+    }
+
+    this->setMemoryBacking(traceMemoryDump, resourceName);
+}
+
+SkString GrGpuResource::getResourceName() const {
+    // Dump resource as "skia/gpu_resources/resource_#".
+    SkString resourceName("skia/gpu_resources/resource_");
+    resourceName.appendU32(this->uniqueID().asUInt());
+    return resourceName;
 }
 
 const GrContext* GrGpuResource::getContext() const {
