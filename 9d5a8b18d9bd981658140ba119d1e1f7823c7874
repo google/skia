@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d9c616e_46b6c63d",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-29T18:29:09Z",
+      "side": 1,
+      "message": "don\u0027t think you actually need these trailing \\\u0027s",
+      "range": {
+        "startLine": 18,
+        "startChar": 76,
+        "endLine": 18,
+        "endChar": 78
+      },
+      "revId": "9d5a8b18d9bd981658140ba119d1e1f7823c7874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac747e6d_294df7c3",
+        "filename": "fuzz/oss_fuzz/FuzzNullGLCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-29T18:29:09Z",
+      "side": 1,
+      "message": "probably clearer to just write \"print_suppressions\u003d0\" here?",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 34
+      },
+      "revId": "9d5a8b18d9bd981658140ba119d1e1f7823c7874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
