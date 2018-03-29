@@ -28,7 +28,6 @@ struct GrContextOptions;
 class GrGLContext;
 class GrMesh;
 class GrPath;
-class GrPathRange;
 class GrPathRenderer;
 class GrPathRendererChain;
 class GrPathRendering;
