@@ -1450,6 +1450,7 @@ std::unique_ptr<ASTExpression> Parser::assignmentExpression() {
                                                                                 std::move(t),
                                                                                 std::move(right)));
             }
+                return result;
             default:
                 return result;
         }
