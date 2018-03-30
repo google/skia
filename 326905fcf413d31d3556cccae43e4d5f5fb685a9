@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dda06200_5fdc053b",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-30T14:45:21Z",
+      "side": 1,
+      "message": "Have you guys thought of moving to doing this sort of thing in your .gn with default_args?  Now that that facility exists, it might make more sense to see the Skia-in-Fuchsia options there in the Fuchsia .gn rather than scattered through here, and you won\u0027t have to hop back and forth between repos to make these sorts of changes.",
+      "revId": "326905fcf413d31d3556cccae43e4d5f5fb685a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
