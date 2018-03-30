@@ -711,6 +711,31 @@ Surface bottom-left corner is pinned to the origin.
 
 # ------------------------------------------------------------------------------
 
+#Method static sk_sp<SkSurface> MakeRenderTarget(GrContext* context,
+                                             const SkSurfaceCharacterization& characterization,
+                                             SkBudgeted budgeted)
+
+Returns SkSurface on GPU indicated by context that is compatible with the provided
+characterization. budgeted selects whether allocation for pixels is tracked by context.
+
+        @param context           GPU context
+        @param characterization  description of the desired SkSurface
+        @param budgeted          one of: SkBudgeted::kNo, SkBudgeted::kYes
+        @return                  SkSurface if all parameters are valid; otherwise, nullptr
+
+#Param context  GPU_Context ##
+#Param characterization  description of the desired SkSurface ##
+#Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes
+##
+
+#Return Surface if all parameters are valid; otherwise, nullptr ##
+
+#SeeAlso MakeFromBackendRenderTarget MakeFromBackendTextureAsRenderTarget
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method static sk_sp<SkSurface> MakeNull(int width, int height)
 
 #In Constructor
