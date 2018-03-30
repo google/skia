@@ -62,6 +62,7 @@ private:
 
     sk_sp<SkData> fBytes;
     size_t fNextByte;
+    friend void fuzz__MakeEncoderCorpus(Fuzz*);
 };
 
 // UBSAN reminds us that bool can only legally hold 0 or 1.
