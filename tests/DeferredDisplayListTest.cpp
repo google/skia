@@ -121,13 +121,7 @@ public:
         }
     }
 
-    // Create a DDL whose characterization captures the current settings
-    std::unique_ptr<SkDeferredDisplayList> createDDL(GrContext* context) const {
-        sk_sp<SkSurface> s = this->make(context);
-        if (!s) {
-            return nullptr;
-        }
-
+    SkSurfaceCharacterization createCharacterization(GrContext* context) const {
         int maxResourceCount;
         size_t maxResourceBytes;
         context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
@@ -142,6 +136,12 @@ public:
                                                 maxResourceBytes, ii, backendFormat, fSampleCount,
                                                 fOrigin, fSurfaceProps, fShouldCreateMipMaps);
         SkAssertResult(c.isValid());
+        return c;
+    }
+
+    // Create a DDL whose characterization captures the current settings
+    std::unique_ptr<SkDeferredDisplayList> createDDL(GrContext* context) const {
+        SkSurfaceCharacterization c = this->createCharacterization(context);
 
         SkDeferredDisplayListRecorder r(c);
         SkCanvas* canvas = r.getCanvas();
@@ -205,6 +205,7 @@ private:
     bool                fShouldCreateMipMaps;
 };
 
+////////////////////////////////////////////////////////////////////////////////
 // This tests SkSurfaceCharacterization/SkSurface compatibility
 DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -258,6 +259,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) 
         }
 
         if (SurfaceParameters::kMipMipCount == i && !context->caps()->mipMapSupport()) {
+            // If changing the mipmap setting won't result in a different surface characterization,
+            // skip this step
             continue;
         }
 
@@ -345,6 +348,33 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) 
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// This tests the SkSurface::MakeRenderTarget variant that takes an SkSurfaceCharacterization.
+// In particular, the SkSurface and the SkSurfaceCharacterization should always be compatible.
+DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLMakeRenderTargetTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    for (int i = 0; i < SurfaceParameters::kNumParams; ++i) {
+        SurfaceParameters params;
+        params.modify(i);
+
+        sk_sp<SkSurface> s = params.make(context);
+        if (!s) {
+            continue;
+        }
+
+        SkSurfaceCharacterization c = params.createCharacterization(context);
+        REPORTER_ASSERT(reporter, c.isValid());
+
+        s = SkSurface::MakeRenderTarget(context, c, SkBudgeted::kYes);
+        REPORTER_ASSERT(reporter, s);
+
+        SkSurface_Gpu* g = static_cast<SkSurface_Gpu*>(s.get());
+        REPORTER_ASSERT(reporter, g->isCompatible(c));
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 static constexpr int kSize = 8;
 
 struct TextureReleaseChecker {
@@ -411,6 +441,7 @@ static void dummy_fulfill_proc(void*, GrBackendTexture*) { SkASSERT(0); }
 static void dummy_release_proc(void*) { SkASSERT(0); }
 static void dummy_done_proc(void*) { }
 
+////////////////////////////////////////////////////////////////////////////////
 // Test out the behavior of an invalid DDLRecorder
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -450,6 +481,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
 // Ensure that flushing while DDL recording doesn't cause a crash
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -467,6 +499,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
     canvas->getGrContext()->flush();
 }
 
+////////////////////////////////////////////////////////////////////////////////
 // Check that the texture-specific flags (i.e., for external & rectangle textures) work
 // for promise images. As such, this is a GL-only test.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {

@@ -335,6 +335,18 @@ public:
                                 nullptr);
     }
 
+    /** Returns SkSurface on GPU indicated by context that is compatible with the provided
+        characterization. budgeted selects whether allocation for pixels is tracked by context.
+
+        @param context           GPU context
+        @param characterization  description of the desired SkSurface
+        @param budgeted          one of: SkBudgeted::kNo, SkBudgeted::kYes
+        @return                  SkSurface if all parameters are valid; otherwise, nullptr
+    */
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context,
+                                             const SkSurfaceCharacterization& characterization,
+                                             SkBudgeted budgeted);
+
     /** Returns SkSurface without backing pixels. Drawing to SkCanvas returned from SkSurface
         has no effect. Calling makeImageSnapshot() on returned SkSurface returns nullptr.
 
