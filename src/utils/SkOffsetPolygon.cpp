@@ -180,6 +180,11 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     if (inputPolygonSize < 3) {
         return false;
     }
+#if defined(IS_FUZZING)
+    if (inputPolygonSize > 500) {
+        return false;
+    }
+#endif
 
     int winding = get_winding(inputPolygonVerts, inputPolygonSize);
     if (0 == winding) {
