@@ -34,6 +34,24 @@
       "revId": "326905fcf413d31d3556cccae43e4d5f5fb685a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43718000_7dc7da8a",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5720
+      },
+      "writtenOn": "2018-03-30T19:17:03Z",
+      "side": 1,
+      "message": "I tried to use default_args initially but the problem is that .gn file is evaluated before BUILDCONFIG.gn and so current_os and target_os variable aren\u0027t available there.\n\nThis is needed for Flutter test shell which is used to run host-side tests in Fuchsia.",
+      "parentUuid": "5a181a7a_ead2ab82",
+      "revId": "326905fcf413d31d3556cccae43e4d5f5fb685a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
