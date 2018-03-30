@@ -33,15 +33,15 @@ static SkGlyphCache_Globals& get_globals() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-SkGlyphCache::SkGlyphCache(
-        const SkDescriptor& desc,
-        std::unique_ptr<SkScalerContext> scaler,
-        const SkPaint::FontMetrics& fontMetrics)
-    : fDesc{desc.copy()}
-    , fScalerContext{std::move(scaler)}
-    , fFontMetrics(fontMetrics)
+
+SkGlyphCache::SkGlyphCache(const SkDescriptor& desc, std::unique_ptr<SkScalerContext> ctx)
+    : fDesc(desc.copy())
+    , fScalerContext(std::move(ctx))
 {
-    SkASSERT(fScalerContext != nullptr);
+    SkASSERT(fScalerContext);
+
+    fScalerContext->getFontMetrics(&fFontMetrics);
+
     fMemoryUsed = sizeof(*this);
 }
 
@@ -512,13 +512,10 @@ std::unique_ptr<SkScalerContext> SkGlyphCache::CreateScalerContext(
 
 SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
     const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface) {
-
-    auto cache = SkGlyphCache::FindStrikeExclusive(desc);
-    if (cache == nullptr) {
-        auto scaler = CreateScalerContext(desc, effects, typeface);
-        cache = SkGlyphCache::CreateStrikeExclusive(desc, std::move(scaler));
-    }
-    return cache;
+    auto creator = [&effects, &typeface](const SkDescriptor& descriptor, bool canFail) {
+        return typeface.createScalerContext(effects, &descriptor, canFail);
+    };
+    return FindOrCreateStrikeExclusive(desc, creator);
 }
 
 SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
@@ -538,21 +535,6 @@ SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
     return FindOrCreateStrikeExclusive(*desc, effects, *tf);
 }
 
-SkExclusiveStrikePtr SkGlyphCache::CreateStrikeExclusive(
-        const SkDescriptor& desc,
-        std::unique_ptr<SkScalerContext> scaler,
-        SkPaint::FontMetrics* maybeMetrics)
-{
-    SkPaint::FontMetrics fontMetrics;
-    if (maybeMetrics != nullptr) {
-        fontMetrics = *maybeMetrics;
-    } else {
-        scaler->getFontMetrics(&fontMetrics);
-    }
-
-    return SkExclusiveStrikePtr(new SkGlyphCache(desc, std::move(scaler), fontMetrics));
-}
-
 void SkGlyphCache::ForEachStrike(std::function<void(const SkGlyphCache&)> visitor) {
     SkGlyphCache_Globals& globals = get_globals();
     SkAutoExclusive ac(globals.fLock);
@@ -563,6 +545,10 @@ void SkGlyphCache::ForEachStrike(std::function<void(const SkGlyphCache&)> visito
     for (cache = globals.internalGetHead(); cache != nullptr; cache = cache->fNext) {
         visitor(*cache);
     }
+}
+
+void SkGlyphCache::PurgeAll() {
+    get_globals().purgeAll();
 }
 
 void SkGlyphCache::Dump() {

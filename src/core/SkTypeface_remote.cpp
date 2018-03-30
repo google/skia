@@ -44,7 +44,11 @@ void SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
 }
 
 void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
-    fClient->generateFontMetrics(*this->typefaceProxy(), this->getRec(), metrics);
+    if (!fHaveFontMetrics) {
+        fClient->generateFontMetrics(*this->typefaceProxy(), this->getRec(), &fFontMetrics);
+    }
+    fHaveFontMetrics = true;
+    *metrics = fFontMetrics;
 }
 
 SkTypefaceProxy* SkScalerContextProxy::typefaceProxy() {

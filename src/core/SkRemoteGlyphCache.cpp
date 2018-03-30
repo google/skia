@@ -631,12 +631,18 @@ static void update_caches_from_strikes_data(SkStrikeClient *client,
         auto fontMetrics = deserializer->read<SkPaint::FontMetrics>();
         auto tf = client->lookupTypeface(spec->typefaceID);
 
-        // TODO: implement effects handling.
-        SkScalerContextEffects effects;
+
         auto strike = SkGlyphCache::FindStrikeExclusive(*desc);
         if (strike == nullptr) {
-            auto scaler = SkGlyphCache::CreateScalerContext(*desc, effects, *tf);
-            strike = SkGlyphCache::CreateStrikeExclusive(*desc, std::move(scaler), fontMetrics);
+            auto creator = [fontMetrics, tf](const SkDescriptor& descriptor, bool canFail) {
+                // TODO: implement effects handling.
+                SkScalerContextEffects effects;
+                auto scaler = tf->createScalerContext(effects, &descriptor, canFail);
+                auto proxyScaler = (SkScalerContextProxy*)scaler.get();
+                proxyScaler->setFontMetrics(*fontMetrics);
+                return scaler;
+            };
+            strike = SkGlyphCache::CreateStrikeExclusive(*desc, creator);
         }
         for (int j = 0; j < spec->glyphCount; j++) {
             auto glyph = deserializer->read<SkGlyph>();

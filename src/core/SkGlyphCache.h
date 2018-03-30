@@ -135,6 +135,17 @@ public:
 
     static SkExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor& desc);
 
+    template <typename ScalerContextCreator>
+    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(
+        const SkDescriptor& desc, ScalerContextCreator&& creator)
+    {
+        auto cache = FindStrikeExclusive(desc);
+        if (cache == nullptr) {
+            cache = CreateStrikeExclusive(desc, creator);
+        }
+        return cache;
+    }
+
     static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(
         const SkDescriptor& desc,
         const SkScalerContextEffects& effects,
@@ -151,10 +162,26 @@ public:
                 paint, nullptr, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
     }
 
+    static void PurgeAll();
+
+    template <typename ScalerContextCreator>
     static SkExclusiveStrikePtr CreateStrikeExclusive(
-        const SkDescriptor& desc,
-        std::unique_ptr<SkScalerContext> scaler,
-        SkPaint::FontMetrics* maybeMetrics = nullptr);
+        const SkDescriptor& desc, ScalerContextCreator creator)
+    {
+        // Check if we can create a scaler-context before creating the glyphcache.
+        // If not, we may have exhausted OS/font resources, so try purging the
+        // cache once and try again
+        // pass true the first time, to notice if the scalercontext failed,
+        // so we can try the purge.
+        auto context = creator(desc, true/* can fail */);
+        if (!context) {
+            PurgeAll();
+            context = creator(desc, false/* must succeed */);
+            SkASSERT(context);
+        }
+
+        return SkExclusiveStrikePtr(new SkGlyphCache(desc, std::move(context)));
+    }
 
     static void Dump();
 
@@ -210,8 +237,7 @@ private:
         SkPackedGlyphID fPackedGlyphID;
     };
 
-    SkGlyphCache(const SkDescriptor& desc, std::unique_ptr<SkScalerContext> scaler,
-                 const SkPaint::FontMetrics&);
+    SkGlyphCache(const SkDescriptor& desc, std::unique_ptr<SkScalerContext> scaler);
     ~SkGlyphCache();
 
     // Return the SkGlyph* associated with MakeID. The id parameter is the

@@ -27,6 +27,11 @@ public:
             const SkDescriptor* desc,
             SkStrikeClient* rsc);
 
+    void setFontMetrics(const SkPaint::FontMetrics& fontMetrics) {
+        fFontMetrics = fontMetrics;
+        fHaveFontMetrics = true;
+    }
+
 protected:
     unsigned generateGlyphCount() override;
     uint16_t generateCharToGlyph(SkUnichar) override;
@@ -45,8 +50,10 @@ private:
 
     SkTypefaceProxy* typefaceProxy();
 
-    SkArenaAlloc          fAlloc{kMinAllocAmount};
+    SkArenaAlloc  fAlloc{kMinAllocAmount};
     SkStrikeClient* const fClient;
+    bool fHaveFontMetrics{false};
+    SkPaint::FontMetrics fFontMetrics;
     typedef SkScalerContext INHERITED;
 };
 
