@@ -107,8 +107,8 @@ DEF_GM( return new WindowRectanglesGM(); )
 constexpr static int kNumWindows = 8;
 
 /**
- * Visualizes the stencil mask for a clip with several window rectangles. The purpose of this test
- * is to verify that window rectangles are being used during clip mask generation, and to
+ * Visualizes the mask (alpha or stencil) for a clip with several window rectangles. The purpose of
+ * this test is to verify that window rectangles are being used during clip mask generation, and to
  * visualize where the window rectangles are placed.
  *
  * We use window rectangles when generating the clip mask because there is no need to invest time
@@ -123,6 +123,7 @@ private:
     constexpr static int kMaskCheckerSize = 5;
     SkString onShortName() final { return SkString("windowrectangles_mask"); }
     void onCoverClipStack(const SkClipStack&, SkCanvas*) final;
+    void visualizeAlphaMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
     void visualizeStencilMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
     void stencilCheckerboard(GrRenderTargetContext*, bool flip);
     void fail(SkCanvas*);
@@ -183,14 +184,48 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
     const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), rtc->caps()->shaderCaps(),
                                     kNumWindows);
 
-     GrPaint paint;
+    GrPaint paint;
     if (GrFSAAType::kNone == rtc->fsaaType()) {
-        // Use different colors so we don't confuse masks that don't have AA with ones that should.
         paint.setColor4f(GrColor4f(0, 0.25f, 1, 1));
+        this->visualizeAlphaMask(ctx, rtc, reducedClip, std::move(paint));
     } else {
         paint.setColor4f(GrColor4f(1, 0.25f, 0.25f, 1));
+        this->visualizeStencilMask(ctx, rtc, reducedClip, std::move(paint));
     }
-    this->visualizeStencilMask(ctx, rtc, reducedClip, std::move(paint));
+}
+
+void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetContext* rtc,
+                                                const GrReducedClip& reducedClip, GrPaint&& paint) {
+    const int padRight = (kDeviceRect.right() - kCoverRect.right()) / 2;
+    const int padBottom = (kDeviceRect.bottom() - kCoverRect.bottom()) / 2;
+    sk_sp<GrRenderTargetContext> maskRTC(
+        ctx->contextPriv().makeDeferredRenderTargetContextWithFallback(
+                                                         SkBackingFit::kExact,
+                                                         kCoverRect.width() + padRight,
+                                                         kCoverRect.height() + padBottom,
+                                                         kAlpha_8_GrPixelConfig, nullptr));
+    if (!maskRTC) {
+        return;
+    }
+
+    // Draw a checker pattern into the alpha mask so we can visualize the regions left untouched by
+    // the clip mask generation.
+    this->stencilCheckerboard(maskRTC.get(), true);
+    maskRTC->clear(nullptr, GrColorPackA4(0xff), GrRenderTargetContext::CanClearFullscreen::kYes);
+    maskRTC->priv().drawAndStencilRect(make_stencil_only_clip(), &GrUserStencilSettings::kUnused,
+                                       SkRegion::kDifference_Op, false, GrAA::kNo, SkMatrix::I(),
+                                       SkRect::MakeIWH(maskRTC->width(), maskRTC->height()));
+    reducedClip.drawAlphaClipMask(maskRTC.get());
+
+    int x = kCoverRect.x() - kDeviceRect.x(),
+        y = kCoverRect.y() - kDeviceRect.y();
+
+    // Now visualize the alpha mask by drawing a rect over the area where it is defined. The regions
+    // inside window rectangles or outside the scissor should still have the initial checkerboard
+    // intact. (This verifies we didn't spend any time modifying those pixels in the mask.)
+    AlphaOnlyClip clip(maskRTC->asTextureProxyRef(), x, y);
+    rtc->drawRect(clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
+                  SkRect::Make(SkIRect::MakeXYWH(x, y, maskRTC->width(), maskRTC->height())));
 }
 
 void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTargetContext* rtc,
