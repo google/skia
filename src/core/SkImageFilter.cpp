@@ -122,6 +122,12 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
         return false;
     }
 
+#if defined(IS_FUZZING)
+    if (count > 4) {
+        return false;
+    }
+#endif
+
     this->allocInputs(count);
     for (int i = 0; i < count; i++) {
         if (buffer.readBool()) {

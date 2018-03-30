@@ -22,6 +22,9 @@ DEF_FUZZ(PathMeasure, fuzz) {
     BuildPath(fuzz, &path, SkPath::Verb::kDone_Verb);
     SkRect bounds = path.getBounds();
     SkScalar maxDim = SkTMax(bounds.width(), bounds.height());
+    if (maxDim > 10000000) {
+        return;
+    }
     SkScalar resScale = maxDim / 1000;
     SkPathMeasure measure(path, bits & 1, resScale);
     SkPoint position;
