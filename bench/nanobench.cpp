@@ -86,7 +86,7 @@ static const int kAutoTuneLoops = 0;
 #endif
 
 static const int kDefaultLoops =
-#if defined(SK_DEBUG) || __has_feature(address_sanitizer)
+#if (defined(SK_DEBUG) && !defined(__OPTIMIZE__)) || __has_feature(address_sanitizer)
     1;
 #else
     kAutoTuneLoops;
