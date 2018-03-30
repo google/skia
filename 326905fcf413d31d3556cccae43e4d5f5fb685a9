@@ -16,6 +16,24 @@
       "revId": "326905fcf413d31d3556cccae43e4d5f5fb685a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a181a7a_ead2ab82",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-30T14:52:03Z",
+      "side": 1,
+      "message": "We\u0027re actually a little curious about this... why do we need to build Skia for the host?  One would think it\u0027d be a target-only piece of code.",
+      "parentUuid": "dda06200_5fdc053b",
+      "revId": "326905fcf413d31d3556cccae43e4d5f5fb685a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
