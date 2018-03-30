@@ -73,6 +73,11 @@ public:
 
     bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
 
+    // http://skbug.com/7758 -- On Adreno Vulkan running Android O, we uncovered a driver bug after
+    // deleting GPU clip masks. This cap is just a Band-Aid to keep the bots happy until we
+    // investigate.
+    bool renderClipMasksOnGPU() const { return fRenderClipMasksOnGPU; }
+
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
 
     /**
@@ -292,6 +297,7 @@ protected:
 
     // Driver workaround
     bool fBlacklistCoverageCounting                  : 1;
+    bool fRenderClipMasksOnGPU                       : 1;
     bool fAvoidStencilBuffers                        : 1;
 
     // ANGLE performance workaround

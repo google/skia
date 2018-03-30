@@ -37,15 +37,6 @@ public:
     static const char kMaskTestTag[];
 
 private:
-    static bool PathNeedsSWRenderer(GrContext* context,
-                                    const SkIRect& scissorRect,
-                                    bool hasUserStencilSettings,
-                                    const GrRenderTargetContext*,
-                                    const SkMatrix& viewMatrix,
-                                    const SkClipStack::Element* element,
-                                    GrPathRenderer** prOut,
-                                    bool needsStencil);
-
     bool applyClipMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&,
                        bool hasUserStencilSettings, GrAppliedClip*) const;
 
@@ -56,11 +47,6 @@ private:
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
     sk_sp<GrTextureProxy> createSoftwareClipMask(GrContext*, const GrReducedClip&,
                                                  GrRenderTargetContext*) const;
-
-    static bool UseSWOnlyPath(GrContext*,
-                              bool hasUserStencilSettings,
-                              const GrRenderTargetContext*,
-                              const GrReducedClip&);
 
     const SkClipStack*  fStack;
 };

@@ -82,99 +82,6 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(sk_sp<GrTexturePr
                                                             {devBound.fLeft, devBound.fTop});
 }
 
-// Does the path in 'element' require SW rendering? If so, return true (and,
-// optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
-// 'prOut' to the non-SW path renderer that will do the job).
-bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
-                                          const SkIRect& scissorRect,
-                                          bool hasUserStencilSettings,
-                                          const GrRenderTargetContext* renderTargetContext,
-                                          const SkMatrix& viewMatrix,
-                                          const Element* element,
-                                          GrPathRenderer** prOut,
-                                          bool needsStencil) {
-    if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
-        // rects can always be drawn directly w/o using the software path
-        // TODO: skip rrects once we're drawing them directly.
-        if (prOut) {
-            *prOut = nullptr;
-        }
-        return false;
-    } else {
-        // We shouldn't get here with an empty clip element.
-        SkASSERT(Element::DeviceSpaceType::kEmpty != element->getDeviceSpaceType());
-
-        // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
-        SkPath path;
-        element->asDeviceSpacePath(&path);
-        if (path.isInverseFillType()) {
-            path.toggleInverseFillType();
-        }
-
-        GrPathRendererChain::DrawType type =
-                needsStencil ? GrPathRendererChain::DrawType::kStencilAndColor
-                             : GrPathRendererChain::DrawType::kColor;
-
-        GrShape shape(path, GrStyle::SimpleFill());
-        GrPathRenderer::CanDrawPathArgs canDrawArgs;
-        canDrawArgs.fCaps = context->caps();
-        canDrawArgs.fClipConservativeBounds = &scissorRect;
-        canDrawArgs.fViewMatrix = &viewMatrix;
-        canDrawArgs.fShape = &shape;
-        canDrawArgs.fAAType = GrChooseAAType(GrAA(element->isAA()),
-                                             renderTargetContext->fsaaType(),
-                                             GrAllowMixedSamples::kYes,
-                                             *context->caps());
-        canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
-
-        // the 'false' parameter disallows use of the SW path renderer
-        GrPathRenderer* pr =
-            context->contextPriv().drawingManager()->getPathRenderer(canDrawArgs, false, type);
-        if (prOut) {
-            *prOut = pr;
-        }
-        return SkToBool(!pr);
-    }
-}
-
-/*
- * This method traverses the clip stack to see if the GrSoftwarePathRenderer
- * will be used on any element. If so, it returns true to indicate that the
- * entire clip should be rendered in SW and then uploaded en masse to the gpu.
- */
-bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
-                                    bool hasUserStencilSettings,
-                                    const GrRenderTargetContext* renderTargetContext,
-                                    const GrReducedClip& reducedClip) {
-    // TODO: generalize this function so that when
-    // a clip gets complex enough it can just be done in SW regardless
-    // of whether it would invoke the GrSoftwarePathRenderer.
-
-    // If we're avoiding stencils, always use SW:
-    if (context->caps()->avoidStencilBuffers())
-        return true;
-
-    // Set the matrix so that rendered clip elements are transformed to mask space from clip
-    // space.
-    SkMatrix translate;
-    translate.setTranslate(SkIntToScalar(-reducedClip.left()), SkIntToScalar(-reducedClip.top()));
-
-    for (ElementList::Iter iter(reducedClip.maskElements()); iter.get(); iter.next()) {
-        const Element* element = iter.get();
-
-        SkClipOp op = element->getOp();
-        bool invert = element->isInverseFilled();
-        bool needsStencil = invert ||
-                            kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op;
-
-        if (PathNeedsSWRenderer(context, reducedClip.scissor(), hasUserStencilSettings,
-                                renderTargetContext, translate, element, nullptr, needsStencil)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
@@ -254,12 +161,12 @@ bool GrClipStackClip::applyClipMask(GrContext* context, GrRenderTargetContext* r
     if ((GrFSAAType::kNone == renderTargetContext->fsaaType() && reducedClip.maskRequiresAA()) ||
         context->caps()->avoidStencilBuffers()) {
         sk_sp<GrTextureProxy> result;
-        if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
-            // The clip geometry is complex enough that it will be more efficient to create it
-            // entirely in software
-            result = this->createSoftwareClipMask(context, reducedClip, renderTargetContext);
-        } else {
+        if (context->caps()->renderClipMasksOnGPU()) {
+            // Workaround for http://skbug.com/7758.
             result = this->createAlphaClipMask(context, reducedClip);
+        }
+        if (!result) {
+            result = this->createSoftwareClipMask(context, reducedClip, renderTargetContext);
         }
 
         if (result) {

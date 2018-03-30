@@ -131,6 +131,10 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fNewCBOnPipelineChange = true;
     }
 
+    if (kIntel_VkVendor == properties.vendorID) {
+        fCanUseWholeSizeOnFlushMappedMemory = false;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
@@ -144,8 +148,11 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
     }
 
-    if (kIntel_VkVendor == properties.vendorID) {
-        fCanUseWholeSizeOnFlushMappedMemory = false;
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        // http://skbug.com/7758 -- On Adreno Vulkan running Android O, we uncovered a driver bug after
+        // deleting GPU clip masks. This cap is just a Band-Aid to keep the bots happy until we
+        // investigate.
+        fRenderClipMasksOnGPU = true;
     }
 
     ////////////////////////////////////////////////////////////////////////////
