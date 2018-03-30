@@ -251,5 +251,6 @@ void GrGLClearErr(const GrGLInterface* gl);
 GrGLenum GrToGLStencilFunc(GrStencilTest test);
 
 GrPixelConfig GrGLSizedFormatToPixelConfig(GrGLenum sizedFormat);
+bool GrPixelConfigToGLSizedFormat(const GrCaps*, GrPixelConfig, GrGLenum* sizedFormat);
 
 #endif
