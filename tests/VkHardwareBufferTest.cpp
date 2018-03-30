@@ -917,7 +917,7 @@ sk_sp<SkImage> VulkanTestHelper::importHardwareBufferForRead(skiatest::Reporter*
 sk_sp<SkSurface> VulkanTestHelper::importHardwareBufferForWrite(skiatest::Reporter* reporter,
                                                                 AHardwareBuffer* buffer) {
     GrVkImageInfo imageInfo;
-    if (!this->importHardwareBuffer(reporter, buffer, false, &imageInfo)) {
+    if (!this->importHardwareBuffer(reporter, buffer, true, &imageInfo)) {
         return nullptr;
     }
 
@@ -1225,7 +1225,7 @@ DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan, reporter, options) {
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan, reporter, options) {
-    run_test(reporter, options, SrcType::kEGL, DstType::kVulkan);
+    run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan);
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_CPU_EGL, reporter, options) {
@@ -1237,7 +1237,7 @@ DEF_GPUTEST(VulkanHardwareBuffer_EGL_EGL, reporter, options) {
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_EGL, reporter, options) {
-    run_test(reporter, options, SrcType::kEGL, DstType::kEGL);
+    run_test(reporter, options, SrcType::kVulkan, DstType::kEGL);
 }
 
 #endif
