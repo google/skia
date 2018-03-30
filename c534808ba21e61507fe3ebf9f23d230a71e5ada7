@@ -22,6 +22,30 @@
       "revId": "c534808ba21e61507fe3ebf9f23d230a71e5ada7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33fd7475_35615f8c",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-03-30T19:22:39Z",
+      "side": 0,
+      "message": "The idea was that the Band-Aid *always* uses GPU masks.\n\nI\u0027m trying to get rid of that allowSW parameter in getPathRenderer.",
+      "parentUuid": "a5e4c861_2744ba26",
+      "range": {
+        "startLine": 85,
+        "startChar": 1,
+        "endLine": 150,
+        "endChar": 70
+      },
+      "revId": "c534808ba21e61507fe3ebf9f23d230a71e5ada7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
