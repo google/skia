@@ -38,7 +38,7 @@ class SkDrawTiler {
     // fCurr... are only used if fNeedTiling
     SkMatrix        fTileMatrix;
     SkRasterClip    fTileRC;
-    SkIPoint        fCurrOrigin, fOrigin;
+    SkIPoint        fCurrOrigin;
 
     bool            fDone, fNeedsTiling;
 
@@ -51,9 +51,9 @@ public:
         }
 
         fDone = false;
-        fNeedsTiling = fRootPixmap.width() > kMaxDim || fRootPixmap.height() > kMaxDim;
-        fOrigin.set(0, 0);
-        fCurrOrigin = fOrigin;
+        fNeedsTiling = !fRootPixmap.bounds().isEmpty() &&  // empty pixmap map fail extractSubset?
+                        (fRootPixmap.width() > kMaxDim || fRootPixmap.height() > kMaxDim);
+        fCurrOrigin.set(-kMaxDim, 0); // we'll step/increase it before using
 
         if (fNeedsTiling) {
             // fDraw.fDst is reset each time in setupTileDraw()
@@ -74,8 +74,7 @@ public:
         }
         if (fNeedsTiling) {
             do {
-                this->setupTileDraw();  // might set the clip to empty
-                this->stepOrigin();     // might set fDone to true
+                this->stepAndSetupTileDraw();  // might set the clip to empty and fDone to true
             } while (!fDone && fTileRC.isEmpty());
             // if we exit the loop and we're still empty, we're (past) done
             if (fTileRC.isEmpty()) {
@@ -93,34 +92,30 @@ public:
     int curr_y() const { return fCurrOrigin.y(); }
 
 private:
-    void setupTileDraw() {
+    void stepAndSetupTileDraw() {
         SkASSERT(!fDone);
-        SkIRect bounds = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), kMaxDim, kMaxDim);
+        SkASSERT(fNeedsTiling);
+        fCurrOrigin.fX += kMaxDim;
+        if (fCurrOrigin.fX >= fRootPixmap.width()) {    // too far
+            fCurrOrigin.fX = 0;
+            fCurrOrigin.fY += kMaxDim;
+        }
+
+        // fDone = next origin will be invalid
+        fDone = fCurrOrigin.fX + kMaxDim >= fRootPixmap.width() &&
+                fCurrOrigin.fY + kMaxDim >= fRootPixmap.height();
+
+        SkIRect bounds = SkIRect::MakeXYWH(fCurrOrigin.x(), fCurrOrigin.y(), kMaxDim, kMaxDim);
         SkASSERT(!bounds.isEmpty());
         bool success = fRootPixmap.extractSubset(&fDraw.fDst, bounds);
         SkASSERT_RELEASE(success);
         // now don't use bounds, since fDst has the clipped dimensions.
 
         fTileMatrix = fDevice->ctm();
-        fTileMatrix.postTranslate(SkIntToScalar(-fOrigin.x()), SkIntToScalar(-fOrigin.y()));
-        fDevice->fRCStack.rc().translate(-fOrigin.x(), -fOrigin.y(), &fTileRC);
+        fTileMatrix.postTranslate(SkIntToScalar(-fCurrOrigin.x()), SkIntToScalar(-fCurrOrigin.y()));
+        fDevice->fRCStack.rc().translate(-fCurrOrigin.x(), -fCurrOrigin.y(), &fTileRC);
         fTileRC.op(SkIRect::MakeWH(fDraw.fDst.width(), fDraw.fDst.height()),
                    SkRegion::kIntersect_Op);
-
-        fCurrOrigin = fOrigin;
-    }
-
-    void stepOrigin() {
-        SkASSERT(!fDone);
-        SkASSERT(fNeedsTiling);
-        fOrigin.fX += kMaxDim;
-        if (fOrigin.fX >= fRootPixmap.width()) {    // too far
-            fOrigin.fX = 0;
-            fOrigin.fY += kMaxDim;
-            if (fOrigin.fY >= fRootPixmap.height()) {
-                fDone = true;   // way too far
-            }
-        }
     }
 };
 
