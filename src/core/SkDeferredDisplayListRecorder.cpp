@@ -80,11 +80,14 @@ bool SkDeferredDisplayListRecorder::init() {
 
     auto proxyProvider = fContext->contextPriv().proxyProvider();
 
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(fCharacterization.imageInfo(),
+                                                     *fCharacterization.caps());
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = fCharacterization.width();
     desc.fHeight = fCharacterization.height();
-    desc.fConfig = fCharacterization.config();
+    desc.fConfig = config;
     desc.fSampleCnt = fCharacterization.stencilCount();
 
     sk_sp<SkDeferredDisplayList::LazyProxyData> lazyProxyData = fLazyProxyData;
