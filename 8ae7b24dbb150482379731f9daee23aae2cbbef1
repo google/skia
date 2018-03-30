@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a06f9f33_3e5b16fc",
+        "filename": "fuzz/FuzzEncoders.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-30T17:23:10Z",
+      "side": 1,
+      "message": "Document how you chose these?\n\nAlso, could be constexpr?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 27
+      },
+      "revId": "8ae7b24dbb150482379731f9daee23aae2cbbef1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16062072_c44a4456",
+        "filename": "fuzz/FuzzEncoders.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-30T17:23:10Z",
+      "side": 1,
+      "message": "nit: Skia style says this should use underscores instead of camelCase. e.g. make_pixmap\n\nAlso, should be static?",
+      "range": {
+        "startLine": 25,
+        "startChar": 9,
+        "endLine": 25,
+        "endChar": 21
+      },
+      "revId": "8ae7b24dbb150482379731f9daee23aae2cbbef1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58e1fbb1_0a9483c2",
+        "filename": "fuzz/FuzzEncoders.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-30T17:23:10Z",
+      "side": 1,
+      "message": "It looks like you always manage to free this, but why not use an SkBitmap so we don\u0027t have to worry about freeing memory we\u0027ve allocated?",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 25
+      },
+      "revId": "8ae7b24dbb150482379731f9daee23aae2cbbef1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ef0c57d_f80edcc1",
+        "filename": "fuzz/FuzzEncoders.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-30T17:23:10Z",
+      "side": 1,
+      "message": "Should we fuzz other options?",
+      "range": {
+        "startLine": 44,
+        "startChar": 21,
+        "endLine": 44,
+        "endChar": 36
+      },
+      "revId": "8ae7b24dbb150482379731f9daee23aae2cbbef1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b1365d0_41b9a047",
+        "filename": "fuzz/FuzzEncoders.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-30T17:23:10Z",
+      "side": 1,
+      "message": "Nit: I think we normally name globals gRand. Or maybe this should be \"static SkRandom rand;\" inside the DEF_FUZZ block?",
+      "range": {
+        "startLine": 83,
+        "startChar": 9,
+        "endLine": 83,
+        "endChar": 14
+      },
+      "revId": "8ae7b24dbb150482379731f9daee23aae2cbbef1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e4c5468_6ac1fd82",
+        "filename": "fuzz/oss_fuzz/FuzzJPEGEncoder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-03-30T17:23:10Z",
+      "side": 1,
+      "message": "nit: I think we normally put the * next to the type. (Not explicit in Skia\u0027s style guide, but implicit there, and I think it\u0027s explicit in Google\u0027s guide.)",
+      "range": {
+        "startLine": 12,
+        "startChar": 44,
+        "endLine": 12,
+        "endChar": 57
+      },
+      "revId": "8ae7b24dbb150482379731f9daee23aae2cbbef1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
