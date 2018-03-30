@@ -33,6 +33,7 @@
 #include "SkImageInfoPriv.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
+#include "SkSurface_Gpu.h"
 #include "SkTaskGroup.h"
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
@@ -172,6 +173,10 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
+    if (!SkSurface_Gpu::Valid(ii)) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
     // We're assuming GrFSAAType::kMixedSamples will never be specified via this code path
     GrFSAAType FSAAType = sampleCnt > 1 ? GrFSAAType::kUnifiedMSAA : GrFSAAType::kNone;
 
@@ -181,6 +186,10 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 
     GrPixelConfig config = kUnknown_GrPixelConfig;
     if (!fCaps->getConfigFromBackendFormat(backendFormat, ii.colorType(), &config)) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    if (!fCaps->getRenderTargetSampleCount(sampleCnt, config)) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
