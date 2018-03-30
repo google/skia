@@ -269,6 +269,26 @@ bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace
     }
 }
 
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context,
+                                             const SkSurfaceCharacterization& c,
+                                             SkBudgeted budgeted) {
+    if (!c.isValid()) {
+        return nullptr;
+    }
+
+    SkColorType ct;
+    if (!GrPixelConfigToColorType(c.config(), &ct)) {
+        return nullptr;
+    }
+
+    SkImageInfo ii = SkImageInfo::Make(c.width(), c.height(), ct, kPremul_SkAlphaType,
+                                       c.refColorSpace());
+
+    return MakeRenderTarget(context, budgeted, ii, c.stencilCount(), c.origin(),
+                            &c.surfaceProps(), c.isMipMapped());
+}
+
+
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
                                              GrSurfaceOrigin origin, const SkSurfaceProps* props,
