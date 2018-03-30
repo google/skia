@@ -1693,7 +1693,7 @@ if (skia_enable_tools) {
     deps = [
       ":flags",
       ":skia",
-      ":tool_utils"
+      ":tool_utils",
     ]
   }
 
@@ -1762,6 +1762,7 @@ if (skia_enable_tools) {
       "fuzz/FuzzCanvas.cpp",
       "fuzz/FuzzCommon.cpp",
       "fuzz/FuzzDrawFunctions.cpp",
+      "fuzz/FuzzEncoders.cpp",
       "fuzz/FuzzGradients.cpp",
       "fuzz/FuzzParsePath.cpp",
       "fuzz/FuzzPathMeasure.cpp",
