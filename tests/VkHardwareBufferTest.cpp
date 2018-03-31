@@ -12,6 +12,7 @@
 #ifdef SKQP_BUILD_HARDWAREBUFFER_TEST
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
+#include "GrBackendSemaphore.h"
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
@@ -44,6 +45,8 @@ class BaseTestHelper {
 public:
     virtual ~BaseTestHelper() {}
 
+    virtual bool init(skiatest::Reporter* reporter) = 0;
+
     virtual void cleanup() = 0;
     virtual void releaseImage() = 0;
 
@@ -53,11 +56,20 @@ public:
                                                           AHardwareBuffer* buffer) = 0;
 
     virtual void doClientSync() = 0;
+    virtual bool flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter, sk_sp<SkSurface>) = 0;
+    virtual bool importAndWaitOnSemaphore(skiatest::Reporter* reporter, int fdHandle,
+                                          sk_sp<SkSurface>) = 0;
+
+    virtual void makeCurrent() = 0;
 
     virtual GrContext* grContext() = 0;
 
+    int getFdHandle() { return fFdHandle; }
+
 protected:
     BaseTestHelper() {}
+
+    int fFdHandle = 0;
 };
 
 class EGLTestHelper : public BaseTestHelper {
@@ -67,6 +79,7 @@ public:
     ~EGLTestHelper() override {}
 
     void releaseImage() override {
+        this->makeCurrent();
         if (!fGLCtx) {
             return;
         }
@@ -84,7 +97,7 @@ public:
         this->releaseImage();
     }
 
-    bool init(skiatest::Reporter* reporter);
+    bool init(skiatest::Reporter* reporter) override;
 
     sk_sp<SkImage> importHardwareBufferForRead(skiatest::Reporter* reporter,
                                                AHardwareBuffer* buffer) override;
@@ -92,6 +105,11 @@ public:
                                                   AHardwareBuffer* buffer) override;
 
     void doClientSync() override;
+    bool flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter, sk_sp<SkSurface>) override;
+    bool importAndWaitOnSemaphore(skiatest::Reporter* reporter, int fdHandle,
+                                  sk_sp<SkSurface>) override;
+
+    void makeCurrent() override { fGLCtx->makeCurrent(); }
 
     GrContext* grContext() override { return fGrContext; }
 
@@ -105,6 +123,12 @@ private:
     EGLGetNativeClientBufferANDROIDProc fEGLGetNativeClientBufferANDROID;
     EGLCreateImageKHRProc fEGLCreateImageKHR;
     EGLImageTargetTexture2DOESProc fEGLImageTargetTexture2DOES;
+
+    PFNEGLCREATESYNCKHRPROC              fEGLCreateSyncKHR;
+    PFNEGLWAITSYNCKHRPROC                fEGLWaitSyncKHR;
+    PFNEGLGETSYNCATTRIBKHRPROC           fEGLGetSyncAttribKHR;
+    PFNEGLDUPNATIVEFENCEFDANDROIDPROC    fEGLDupNativeFenceFDANDROID;
+    PFNEGLDESTROYSYNCKHRPROC             fEGLDestroySyncKHR;
 
     EGLImageKHR fImage = EGL_NO_IMAGE_KHR;
     GrGLuint fTexID = 0;
@@ -156,6 +180,39 @@ bool EGLTestHelper::init(skiatest::Reporter* reporter) {
         ERRORF(reporter, "Failed to get the proc EGLImageTargetTexture2DOES");
         return false;
     }
+
+    fEGLCreateSyncKHR = (PFNEGLCREATESYNCKHRPROC) eglGetProcAddress("eglCreateSyncKHR");
+    if (!fEGLCreateSyncKHR) {
+        ERRORF(reporter, "Failed to get the proc eglCreateSyncKHR");
+        return false;
+
+    }
+    fEGLWaitSyncKHR = (PFNEGLWAITSYNCKHRPROC) eglGetProcAddress("eglWaitSyncKHR");
+    if (!fEGLWaitSyncKHR) {
+        ERRORF(reporter, "Failed to get the proc eglWaitSyncKHR");
+        return false;
+
+    }
+    fEGLGetSyncAttribKHR = (PFNEGLGETSYNCATTRIBKHRPROC) eglGetProcAddress("eglGetSyncAttribKHR");
+    if (!fEGLGetSyncAttribKHR) {
+        ERRORF(reporter, "Failed to get the proc eglGetSyncAttribKHR");
+        return false;
+
+    }
+    fEGLDupNativeFenceFDANDROID =
+        (PFNEGLDUPNATIVEFENCEFDANDROIDPROC) eglGetProcAddress("eglDupNativeFenceFDANDROID");
+    if (!fEGLDupNativeFenceFDANDROID) {
+        ERRORF(reporter, "Failed to get the proc eglDupNativeFenceFDANDROID");
+        return false;
+
+    }
+    fEGLDestroySyncKHR = (PFNEGLDESTROYSYNCKHRPROC) eglGetProcAddress("eglDestroySyncKHR");
+    if (!fEGLDestroySyncKHR) {
+        ERRORF(reporter, "Failed to get the proc eglDestroySyncKHR");
+        return false;
+
+    }
+
     return true;
 }
 
@@ -240,7 +297,7 @@ sk_sp<SkSurface> EGLTestHelper::importHardwareBufferForWrite(skiatest::Reporter*
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(fGrContext,
                                                                  backendTex,
                                                                  kTopLeft_GrSurfaceOrigin,
-                                                                 1,
+                                                                 0,
                                                                  kRGBA_8888_SkColorType,
                                                                  nullptr, nullptr);
 
@@ -250,6 +307,54 @@ sk_sp<SkSurface> EGLTestHelper::importHardwareBufferForWrite(skiatest::Reporter*
     }
 
     return surface;
+}
+
+bool EGLTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter,
+                                                      sk_sp<SkSurface> surface) {
+    EGLDisplay eglDisplay = eglGetCurrentDisplay();
+    EGLSyncKHR eglsync = fEGLCreateSyncKHR(eglDisplay, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
+    if (EGL_NO_SYNC_KHR == eglsync) {
+        ERRORF(reporter, "Failed to create EGLSync for EGL_SYNC_NATIVE_FENCE_ANDROID\n");
+        return false;
+    }
+
+    surface->flush();
+    GR_GL_CALL(fGLCtx->gl(), Flush());
+    fFdHandle = fEGLDupNativeFenceFDANDROID(eglDisplay, eglsync);
+
+    EGLint result = fEGLDestroySyncKHR(eglDisplay, eglsync);
+    if (EGL_TRUE != result) {
+        ERRORF(reporter, "Failed to delete EGLSync, error: %d\n", result);
+        return false;
+    }
+
+    return true;
+}
+
+bool EGLTestHelper::importAndWaitOnSemaphore(skiatest::Reporter* reporter, int fdHandle,
+                                             sk_sp<SkSurface> surface) {
+    EGLDisplay eglDisplay = eglGetCurrentDisplay();
+    EGLint attr[] = {
+        EGL_SYNC_NATIVE_FENCE_FD_ANDROID, fdHandle,
+        EGL_NONE
+    };
+    EGLSyncKHR eglsync = fEGLCreateSyncKHR(eglDisplay, EGL_SYNC_NATIVE_FENCE_ANDROID, attr);
+    if (EGL_NO_SYNC_KHR == eglsync) {
+        ERRORF(reporter,
+               "Failed to create EGLSync when importing EGL_SYNC_NATIVE_FENCE_FD_ANDROID\n");
+        return false;
+    }
+    EGLint result = fEGLWaitSyncKHR(eglDisplay, eglsync, 0);
+    if (EGL_TRUE != result) {
+        ERRORF(reporter, "Failed called to eglWaitSyncKHR, error: %d\n", result);
+        // Don't return false yet, try to delete the sync first
+    }
+    result = fEGLDestroySyncKHR(eglDisplay, eglsync);
+    if (EGL_TRUE != result) {
+        ERRORF(reporter, "Failed to delete EGLSync, error: %d\n", result);
+        return false;
+    }
+    return true;
 }
 
 void EGLTestHelper::doClientSync() {
@@ -335,7 +440,7 @@ public:
         fDevice = VK_NULL_HANDLE;
     }
 
-    bool init(skiatest::Reporter* reporter);
+    bool init(skiatest::Reporter* reporter) override;
 
     void doClientSync() override {
         if (!fGrContext) {
@@ -345,7 +450,9 @@ public:
         fGrContext->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
     }
 
-    bool checkOptimalHardwareBuffer(skiatest::Reporter* reporter);
+    bool flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter, sk_sp<SkSurface>) override;
+    bool importAndWaitOnSemaphore(skiatest::Reporter* reporter, int fdHandle,
+                                  sk_sp<SkSurface>) override;
 
     sk_sp<SkImage> importHardwareBufferForRead(skiatest::Reporter* reporter,
                                                AHardwareBuffer* buffer) override;
@@ -353,11 +460,18 @@ public:
     sk_sp<SkSurface> importHardwareBufferForWrite(skiatest::Reporter* reporter,
                                                   AHardwareBuffer* buffer) override;
 
+    void makeCurrent() override {}
+
     GrContext* grContext() override { return fGrContext.get(); }
 
 private:
+    bool checkOptimalHardwareBuffer(skiatest::Reporter* reporter);
+
     bool importHardwareBuffer(skiatest::Reporter* reporter, AHardwareBuffer* buffer, bool forWrite,
                               GrVkImageInfo* outImageInfo);
+
+    bool setupSemaphoreForSignaling(skiatest::Reporter* reporter, GrBackendSemaphore*);
+    bool exportSemaphore(skiatest::Reporter* reporter, const GrBackendSemaphore&);
 
     DECLARE_VK_PROC(EnumerateInstanceVersion);
     DECLARE_VK_PROC(CreateInstance);
@@ -367,6 +481,7 @@ private:
     DECLARE_VK_PROC(GetPhysicalDeviceMemoryProperties2);
     DECLARE_VK_PROC(GetPhysicalDeviceQueueFamilyProperties);
     DECLARE_VK_PROC(GetPhysicalDeviceFeatures);
+    DECLARE_VK_PROC(GetPhysicalDeviceExternalSemaphoreProperties);
     DECLARE_VK_PROC(CreateDevice);
     DECLARE_VK_PROC(GetDeviceQueue);
     DECLARE_VK_PROC(DeviceWaitIdle);
@@ -379,6 +494,10 @@ private:
     DECLARE_VK_PROC(BindImageMemory2);
     DECLARE_VK_PROC(DestroyImage);
     DECLARE_VK_PROC(FreeMemory);
+    DECLARE_VK_PROC(CreateSemaphore);
+    DECLARE_VK_PROC(GetSemaphoreFdKHR);
+    DECLARE_VK_PROC(ImportSemaphoreFdKHR);
+    DECLARE_VK_PROC(DestroySemaphore);
 
     VkInstance fInst = VK_NULL_HANDLE;
     VkPhysicalDevice fPhysDev = VK_NULL_HANDLE;
@@ -478,6 +597,7 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     ACQUIRE_INST_VK_PROC(DeviceWaitIdle);
     ACQUIRE_INST_VK_PROC(DestroyDevice);
     ACQUIRE_INST_VK_PROC(GetPhysicalDeviceImageFormatProperties2);
+    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceExternalSemaphoreProperties);
 
     uint32_t gpuCount;
     err = fVkEnumeratePhysicalDevices(fInst, &gpuCount, nullptr);
@@ -546,17 +666,25 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     }
 #endif
 
-    if (extensions.hasDeviceExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME)) {
-        deviceExtensionNames.push_back(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME);
+    if (extensions.hasDeviceExtension(
+            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME)) {
+        deviceExtensionNames.push_back(
+                VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME);
     } else {
         fVkDestroyInstance(fInst, nullptr);
         return false;
     }
 
-    if (extensions.hasDeviceExtension(
-            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME)) {
-        deviceExtensionNames.push_back(
-                VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME);
+    if (extensions.hasDeviceExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME)) {
+        deviceExtensionNames.push_back(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME);
+    } else {
+        ERRORF(reporter, "Has HWB extension, but doesn't not have YCBCR coversion extension");
+        fVkDestroyInstance(fInst, nullptr);
+        return false;
+    }
+
+    if (extensions.hasDeviceExtension(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME)) {
+        deviceExtensionNames.push_back(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME);
     } else {
         fVkDestroyInstance(fInst, nullptr);
         return false;
@@ -630,6 +758,10 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     ACQUIRE_DEVICE_VK_PROC(BindImageMemory2);
     ACQUIRE_DEVICE_VK_PROC(DestroyImage);
     ACQUIRE_DEVICE_VK_PROC(FreeMemory);
+    ACQUIRE_DEVICE_VK_PROC(CreateSemaphore);
+    ACQUIRE_DEVICE_VK_PROC(GetSemaphoreFdKHR);
+    ACQUIRE_DEVICE_VK_PROC(ImportSemaphoreFdKHR);
+    ACQUIRE_DEVICE_VK_PROC(DestroySemaphore);
 
     VkQueue queue;
     fVkGetDeviceQueue(fDevice, graphicsQueueIndex, 0, &queue);
@@ -660,7 +792,7 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     fGrContext = GrContext::MakeVulkan(fBackendContext);
     REPORTER_ASSERT(reporter, fGrContext.get());
 
-    return true;
+    return this->checkOptimalHardwareBuffer(reporter);
 }
 
 bool VulkanTestHelper::checkOptimalHardwareBuffer(skiatest::Reporter* reporter) {
@@ -914,6 +1046,137 @@ sk_sp<SkImage> VulkanTestHelper::importHardwareBufferForRead(skiatest::Reporter*
     return wrappedImage;
 }
 
+bool VulkanTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter,
+                                                      sk_sp<SkSurface> surface) {
+    GrBackendSemaphore semaphore;
+    if (!this->setupSemaphoreForSignaling(reporter, &semaphore)) {
+        return false;
+    }
+    GrSemaphoresSubmitted submitted = surface->flushAndSignalSemaphores(1, &semaphore);
+    if (GrSemaphoresSubmitted::kNo == submitted) {
+        ERRORF(reporter, "Failing call to flushAndSignalSemaphores on SkSurface");
+        return false;
+    }
+    SkASSERT(semaphore.isInitialized());
+    if (!this->exportSemaphore(reporter, semaphore)) {
+        return false;
+    }
+    return true;
+}
+
+bool VulkanTestHelper::setupSemaphoreForSignaling(skiatest::Reporter* reporter,
+                                                  GrBackendSemaphore* beSemaphore) {
+    // Query supported info
+    VkPhysicalDeviceExternalSemaphoreInfo exSemInfo;
+    exSemInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO;
+    exSemInfo.pNext = nullptr;
+    exSemInfo.handleType = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT;
+
+    VkExternalSemaphoreProperties exSemProps;
+    exSemProps.sType = VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES;
+    exSemProps.pNext = nullptr;
+
+    fVkGetPhysicalDeviceExternalSemaphoreProperties(fPhysDev, &exSemInfo, &exSemProps);
+
+    if (!SkToBool(exSemProps.exportFromImportedHandleTypes &
+                 VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT)) {
+        ERRORF(reporter, "HANDLE_TYPE_SYNC_FD not listed as exportFromImportedHandleTypes");
+        return false;
+    }
+    if (!SkToBool(exSemProps.compatibleHandleTypes &
+                  VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT)) {
+        ERRORF(reporter, "HANDLE_TYPE_SYNC_FD not listed as compatibleHandleTypes");
+        return false;
+    }
+    if (!SkToBool(exSemProps.externalSemaphoreFeatures &
+                  VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT) ||
+        !SkToBool(exSemProps.externalSemaphoreFeatures &
+                  VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT)) {
+        ERRORF(reporter, "HANDLE_TYPE_SYNC_FD doesn't support export and import feature");
+        return false;
+    }
+
+    VkExportSemaphoreCreateInfo exportInfo;
+    exportInfo.sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO;
+    exportInfo.pNext = nullptr;
+    exportInfo.handleTypes = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT;
+
+    VkSemaphoreCreateInfo semaphoreInfo;
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreInfo.pNext = &exportInfo;
+    semaphoreInfo.flags = 0;
+
+    VkSemaphore semaphore;
+    VkResult err = fVkCreateSemaphore(fDevice, &semaphoreInfo, nullptr, &semaphore);
+    if (VK_SUCCESS != err) {
+        ERRORF(reporter, "Failed to create signal semaphore, err: %d", err);
+        return false;
+    }
+    beSemaphore->initVulkan(semaphore);
+    return true;
+}
+
+bool VulkanTestHelper::exportSemaphore(skiatest::Reporter* reporter,
+                                       const GrBackendSemaphore& beSemaphore) {
+    VkSemaphore semaphore = beSemaphore.vkSemaphore();
+    if (VK_NULL_HANDLE == semaphore) {
+        ERRORF(reporter, "Invalid vulkan handle in export call");
+        return false;
+    }
+
+    VkSemaphoreGetFdInfoKHR getFdInfo;
+    getFdInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR;
+    getFdInfo.pNext = nullptr;
+    getFdInfo.semaphore = semaphore;
+    getFdInfo.handleType = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT;
+
+    VkResult err = fVkGetSemaphoreFdKHR(fDevice, &getFdInfo, &fFdHandle);
+    if (VK_SUCCESS != err) {
+        ERRORF(reporter, "Failed to export signal semaphore, err: %d", err);
+        return false;
+    }
+    fVkDestroySemaphore(fDevice, semaphore, nullptr);
+    return true;
+}
+
+bool VulkanTestHelper::importAndWaitOnSemaphore(skiatest::Reporter* reporter, int fdHandle,
+                                                sk_sp<SkSurface> surface) {
+    VkSemaphoreCreateInfo semaphoreInfo;
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreInfo.pNext = nullptr;
+    semaphoreInfo.flags = 0;
+
+    VkSemaphore semaphore;
+    VkResult err = fVkCreateSemaphore(fDevice, &semaphoreInfo, nullptr, &semaphore);
+    if (VK_SUCCESS != err) {
+        ERRORF(reporter, "Failed to create import semaphore, err: %d", err);
+        return false;
+    }
+
+    VkImportSemaphoreFdInfoKHR importInfo;
+    importInfo.sType = VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR;
+    importInfo.pNext = nullptr;
+    importInfo.semaphore = semaphore;
+    importInfo.flags = VK_SEMAPHORE_IMPORT_TEMPORARY_BIT;
+    importInfo.handleType = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT;
+    importInfo.fd = fdHandle;
+
+    err = fVkImportSemaphoreFdKHR(fDevice, &importInfo);
+    if (VK_SUCCESS != err) {
+        ERRORF(reporter, "Failed to import semaphore, err: %d", err);
+        return false;
+    }
+
+    GrBackendSemaphore beSemaphore;
+    beSemaphore.initVulkan(semaphore);
+    if (!surface->wait(1, &beSemaphore)) {
+        ERRORF(reporter, "Failed to add wait semaphore to surface");
+        fVkDestroySemaphore(fDevice, semaphore, nullptr);
+        return false;
+    }
+    return true;
+}
+
 sk_sp<SkSurface> VulkanTestHelper::importHardwareBufferForWrite(skiatest::Reporter* reporter,
                                                                 AHardwareBuffer* buffer) {
     GrVkImageInfo imageInfo;
@@ -926,7 +1189,7 @@ sk_sp<SkSurface> VulkanTestHelper::importHardwareBufferForWrite(skiatest::Report
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(fGrContext.get(),
                                                                  backendTex,
                                                                  kTopLeft_GrSurfaceOrigin,
-                                                                 1,
+                                                                 0,
                                                                  kRGBA_8888_SkColorType,
                                                                  nullptr, nullptr);
 
@@ -987,8 +1250,8 @@ static SkBitmap make_src_bitmap() {
 static bool check_read(skiatest::Reporter* reporter, const SkBitmap& srcBitmap,
                        const SkBitmap& dstBitmap) {
     bool result = true;
-    for (int y = 0; y < DEV_H; ++y) {
-        for (int x = 0; x < DEV_W; ++x) {
+    for (int y = 0; y < DEV_H && result; ++y) {
+        for (int x = 0; x < DEV_W && result; ++x) {
             const uint32_t srcPixel = *srcBitmap.getAddr32(x, y);
             const uint32_t dstPixel = *dstBitmap.getAddr32(x, y);
             if (srcPixel != dstPixel) {
@@ -1030,41 +1293,35 @@ enum class DstType {
 };
 
 void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
-              SrcType srcType, DstType dstType) {
-    VulkanTestHelper vulkanHelper;
-    EGLTestHelper eglHelper(options);
+              SrcType srcType, DstType dstType, bool shareSyncs) {
+    if (SrcType::kCPU == srcType && shareSyncs) {
+        // We don't currently test this since we don't do any syncs in this case.
+        return;
+    }
+    std::unique_ptr<BaseTestHelper> srcHelper;
+    std::unique_ptr<BaseTestHelper> dstHelper;
     AHardwareBuffer* buffer = nullptr;
-    if (SrcType::kVulkan == srcType || DstType::kVulkan == dstType) {
-        if (!vulkanHelper.init(reporter)) {
-            cleanup_resources(&vulkanHelper, &eglHelper, buffer);
-            return;
-        }
-        if (!vulkanHelper.checkOptimalHardwareBuffer(reporter)) {
-            cleanup_resources(&vulkanHelper, &eglHelper, buffer);
-            return;
-        }
-    }
-
-    if (SrcType::kEGL == srcType || DstType::kEGL == dstType) {
-        if (!eglHelper.init(reporter)) {
-            cleanup_resources(&vulkanHelper, &eglHelper, buffer);
-            return;
-        }
-    }
-
-    BaseTestHelper* srcHelper = nullptr;
-    BaseTestHelper* dstHelper = nullptr;
     if (SrcType::kVulkan == srcType) {
-        srcHelper = &vulkanHelper;
-    } else if (SrcType::kEGL ==srcType) {
-        srcHelper = &eglHelper;
+        srcHelper.reset(new VulkanTestHelper());
+    } else if (SrcType::kEGL == srcType) {
+        srcHelper.reset(new EGLTestHelper(options));
+    }
+    if (srcHelper) {
+        if (!srcHelper->init(reporter)) {
+            cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+        }
     }
 
     if (DstType::kVulkan == dstType) {
-        dstHelper = &vulkanHelper;
+        dstHelper.reset(new VulkanTestHelper());
     } else {
         SkASSERT(DstType::kEGL == dstType);
-        dstHelper = &eglHelper;
+        dstHelper.reset(new EGLTestHelper(options));
+    }
+    if (dstHelper) {
+        if (!dstHelper->init(reporter)) {
+            cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1072,10 +1329,10 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     ///////////////////////////////////////////////////////////////////////////
 
     SkBitmap srcBitmap = make_src_bitmap();
-    SkBitmap dstBitmapEGL;
-    dstBitmapEGL.allocN32Pixels(DEV_W, DEV_H);
-    SkBitmap dstBitmapVk;
-    dstBitmapVk.allocN32Pixels(DEV_W, DEV_H);
+    SkBitmap dstBitmapSurface;
+    dstBitmapSurface.allocN32Pixels(DEV_W, DEV_H);
+    SkBitmap dstBitmapFinal;
+    dstBitmapFinal.allocN32Pixels(DEV_W, DEV_H);
 
     ///////////////////////////////////////////////////////////////////////////
     // Setup AHardwareBuffer
@@ -1103,7 +1360,7 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
 
     if (int error = AHardwareBuffer_allocate(&hwbDesc, &buffer)) {
         ERRORF(reporter, "Failed to allocated hardware buffer, error: %d", error);
-        cleanup_resources(srcHelper, dstHelper, buffer);
+        cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
         return;
     }
 
@@ -1115,7 +1372,7 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
         if (AHardwareBuffer_lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr,
                                  reinterpret_cast<void**>(&bufferAddr))) {
             ERRORF(reporter, "Failed to lock hardware buffer");
-            cleanup_resources(srcHelper, dstHelper, buffer);
+            cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
             return;
         }
 
@@ -1142,42 +1399,56 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
         AHardwareBuffer_unlock(buffer, nullptr);
 
     } else {
+        srcHelper->makeCurrent();
         sk_sp<SkSurface> surface = srcHelper->importHardwareBufferForWrite(reporter, buffer);
 
         if (!surface) {
-            cleanup_resources(srcHelper, dstHelper, buffer);
+            cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
             return;
         }
 
         sk_sp<SkImage> srcBmpImage = SkImage::MakeFromBitmap(srcBitmap);
         surface->getCanvas()->drawImage(srcBmpImage, 0, 0);
 
-        bool readResult = surface->readPixels(dstBitmapEGL, 0, 0);
-        if (!readResult) {
-            ERRORF(reporter, "Read Pixels on surface failed");
-            surface.reset();
-            cleanup_resources(srcHelper, dstHelper, buffer);
-            return;
+        // If we are testing sharing of syncs, don't do a read here since it forces sychronization
+        // to occur.
+        if (!shareSyncs) {
+            bool readResult = surface->readPixels(dstBitmapSurface, 0, 0);
+            if (!readResult) {
+                ERRORF(reporter, "Read Pixels on surface failed");
+                surface.reset();
+                cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+                return;
+            }
+            REPORTER_ASSERT(reporter, check_read(reporter, srcBitmap, dstBitmapSurface));
         }
-
-        REPORTER_ASSERT(reporter, check_read(reporter, srcBitmap, dstBitmapEGL));
 
         ///////////////////////////////////////////////////////////////////////////
         // Cleanup GL/EGL and add syncs
         ///////////////////////////////////////////////////////////////////////////
 
-        surface.reset();
-        srcHelper->doClientSync();
-        srcHelper->releaseImage();
+        if (shareSyncs) {
+            if (!srcHelper->flushSurfaceAndSignalSemaphore(reporter, surface)) {
+                cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+                return;
+            }
+
+            surface.reset();
+        } else {
+            surface.reset();
+            srcHelper->doClientSync();
+            srcHelper->releaseImage();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Import the HWB into backend and draw it to a surface
     ///////////////////////////////////////////////////////////////////////////
 
+    dstHelper->makeCurrent();
     sk_sp<SkImage> wrappedImage = dstHelper->importHardwareBufferForRead(reporter, buffer);
     if (!wrappedImage) {
-        cleanup_resources(srcHelper, dstHelper, buffer);
+        cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
         return;
     }
 
@@ -1194,50 +1465,73 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     if (!dstSurf.get()) {
         ERRORF(reporter, "Failed to create destination SkSurface");
         wrappedImage.reset();
-        cleanup_resources(srcHelper, dstHelper, buffer);
+        cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
         return;
     }
 
+    if (shareSyncs) {
+        if (!dstHelper->importAndWaitOnSemaphore(reporter, srcHelper->getFdHandle(), dstSurf)) {
+            wrappedImage.reset();
+            cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+            return;
+        }
+    }
     dstSurf->getCanvas()->drawImage(wrappedImage, 0, 0);
 
-    bool readResult = dstSurf->readPixels(dstBitmapVk, 0, 0);
+    bool readResult = dstSurf->readPixels(dstBitmapFinal, 0, 0);
     if (!readResult) {
         ERRORF(reporter, "Read Pixels failed");
         wrappedImage.reset();
         dstHelper->doClientSync();
-        cleanup_resources(srcHelper, dstHelper, buffer);
+        cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
         return;
     }
 
-    REPORTER_ASSERT(reporter, check_read(reporter, srcBitmap, dstBitmapVk));
+    REPORTER_ASSERT(reporter, check_read(reporter, srcBitmap, dstBitmapFinal));
 
     wrappedImage.reset();
     dstHelper->doClientSync();
-    cleanup_resources(srcHelper, dstHelper, buffer);
+    cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_CPU_Vulkan, reporter, options) {
-    run_test(reporter, options, SrcType::kCPU, DstType::kVulkan);
+    run_test(reporter, options, SrcType::kCPU, DstType::kVulkan, false);
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan, reporter, options) {
-    run_test(reporter, options, SrcType::kEGL, DstType::kVulkan);
+    run_test(reporter, options, SrcType::kEGL, DstType::kVulkan, false);
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan, reporter, options) {
-    run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan);
+    run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan, false);
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_CPU_EGL, reporter, options) {
-    run_test(reporter, options, SrcType::kCPU, DstType::kEGL);
+    run_test(reporter, options, SrcType::kCPU, DstType::kEGL, false);
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_EGL_EGL, reporter, options) {
-    run_test(reporter, options, SrcType::kEGL, DstType::kEGL);
+    run_test(reporter, options, SrcType::kEGL, DstType::kEGL, false);
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_EGL, reporter, options) {
-    run_test(reporter, options, SrcType::kVulkan, DstType::kEGL);
+    run_test(reporter, options, SrcType::kVulkan, DstType::kEGL, false);
+}
+
+DEF_GPUTEST(VulkanHardwareBuffer_EGL_EGL_Syncs, reporter, options) {
+    run_test(reporter, options, SrcType::kEGL, DstType::kEGL, true);
+}
+
+DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_EGL_Syncs, reporter, options) {
+    run_test(reporter, options, SrcType::kVulkan, DstType::kEGL, true);
+}
+
+DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan_Syncs, reporter, options) {
+    run_test(reporter, options, SrcType::kEGL, DstType::kVulkan, true);
+}
+
+DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan_Syncs, reporter, options) {
+    run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan, true);
 }
 
 #endif
