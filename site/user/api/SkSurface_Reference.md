@@ -420,7 +420,7 @@ fonts; may be nullptr</td>
 
 ### See Also
 
-<a href="undocumented#GrBackendTexture">GrBackendTexture</a> <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
+<a href="undocumented#GrBackendTexture">GrBackendTexture</a> <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_4">[4]</a></sup>
 
 ---
 
@@ -495,7 +495,7 @@ fonts; may be nullptr</td>
 
 ### See Also
 
-<a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
+<a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_4">[4]</a></sup>
 
 ---
 
@@ -558,7 +558,7 @@ fonts; may be nullptr</td>
 
 ### See Also
 
-<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
+<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_4">[4]</a></sup>
 
 ---
 
@@ -722,6 +722,43 @@ of <a href="undocumented#Raster_Surface">Raster Surface</a>; width, or height, o
 
 ---
 
+<a name="SkSurface_MakeRenderTarget_4"></a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context,
+                                         const SkSurfaceCharacterization& characterization,
+                                         SkBudgeted budgeted)
+</pre>
+
+Returns <a href="#SkSurface">SkSurface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_4_context">context</a> that is compatible with the provided
+<a href="#SkSurface_MakeRenderTarget_4_characterization">characterization</a>. <a href="#SkSurface_MakeRenderTarget_4_budgeted">budgeted</a> selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_4_context">context</a>.
+
+@param <a href="#SkSurface_MakeRenderTarget_4_context">context</a>           GPU <a href="#SkSurface_MakeRenderTarget_4_context">context</a>
+@param <a href="#SkSurface_MakeRenderTarget_4_characterization">characterization</a>  description of the desired <a href="#SkSurface">SkSurface</a>
+@param <a href="#SkSurface_MakeRenderTarget_4_budgeted">budgeted</a>          one of: <a href="undocumented#SkBudgeted_kNo">SkBudgeted::kNo</a>, <a href="undocumented#SkBudgeted_kYes">SkBudgeted::kYes</a>
+@return                  <a href="#SkSurface">SkSurface</a> if all parameters are valid; otherwise, nullptr
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkSurface_MakeRenderTarget_4_context"> <code><strong>context </strong></code> </a></td> <td>
+<a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_4_characterization"> <code><strong>characterization </strong></code> </a></td> <td>
+description of the desired <a href="#SkSurface">SkSurface</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_4_budgeted"> <code><strong>budgeted </strong></code> </a></td> <td>
+one of: <a href="undocumented#SkBudgeted_kNo">SkBudgeted::kNo</a>, <a href="undocumented#SkBudgeted_kYes">SkBudgeted::kYes</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+<a href="#Surface">Surface</a> if all parameters are valid; otherwise, nullptr
+
+### See Also
+
+<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a>
+
+---
+
 <a name="SkSurface_MakeNull"></a>
 ## MakeNull
 
@@ -760,7 +797,7 @@ surf->makeImageSnapshot() == nullptr
 
 ### See Also
 
-<a href="#SkSurface_MakeRaster">MakeRaster</a><sup><a href="#SkSurface_MakeRaster_2">[2]</a></sup> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
+<a href="#SkSurface_MakeRaster">MakeRaster</a><sup><a href="#SkSurface_MakeRaster_2">[2]</a></sup> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_4">[4]</a></sup>
 
 ---
 
