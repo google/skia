@@ -46,6 +46,52 @@
       "revId": "c534808ba21e61507fe3ebf9f23d230a71e5ada7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3680177_50fc39a0",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-31T23:25:28Z",
+      "side": 0,
+      "message": "was this just short circuiting our normal search for path renderers? Like if a path requires SW will we still end up there without this call? Is there going to be a perf hit for not having this in now?",
+      "range": {
+        "startLine": 88,
+        "startChar": 16,
+        "endLine": 88,
+        "endChar": 41
+      },
+      "revId": "c534808ba21e61507fe3ebf9f23d230a71e5ada7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b006d91_9e02b4da",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-03-31T23:25:28Z",
+      "side": 0,
+      "message": "not having this anymore seems like its going to be a perf hit if we are now intermixing software and gpu. Shouldn\u0027t we keep this call?",
+      "range": {
+        "startLine": 145,
+        "startChar": 22,
+        "endLine": 145,
+        "endChar": 36
+      },
+      "revId": "c534808ba21e61507fe3ebf9f23d230a71e5ada7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
