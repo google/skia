@@ -478,8 +478,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 
+#ifdef OS_TIZEN
+    fReuseScratchTextures = true;
+#else
     // Disable scratch texture reuse on Mali and Adreno devices
     fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor();
+#endif
 
 #if 0
     fReuseScratchBuffers = kARM_GrGLVendor != ctxInfo.vendor() &&

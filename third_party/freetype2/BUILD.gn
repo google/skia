@@ -12,9 +12,16 @@ declare_args() {
 import("../third_party.gni")
 
 if (skia_use_system_freetype2) {
-  system("freetype2") {
-    include_dirs = [ "/usr/include/freetype2" ]
-    libs = [ "freetype" ]
+  if (is_tizen) {
+    system("freetype2") {
+      cflags = [ "-I=/usr/include/freetype2" ]
+      libs = [ "freetype" ]
+    }
+  } else {
+    system("freetype2") {
+      include_dirs = [ "/usr/include/freetype2" ]
+      libs = [ "freetype" ]
+    }
   }
 } else {
   third_party("freetype2") {

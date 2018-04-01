@@ -20,6 +20,10 @@ declare_args() {
       cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
       cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
     }
+  } else if (is_tizen) {
+    ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar"
+    cc = "$ncli/tools/llvm-4.0.0/bin/clang"
+    cxx = "$ncli/tools/llvm-4.0.0/bin/clang++"
   }
 
   msvc = 2017
@@ -54,7 +58,8 @@ if (host_os == "win") {
   stamp = "touch"
 }
 
-is_clang = is_android || is_ios || is_mac || (cc == "clang" && cxx == "clang++")
+is_clang = is_android || is_ios || is_mac || is_tizen || (cc == "clang" && cxx == "clang++")
+
 if (!is_clang && !is_win) {
   is_clang = exec_script("is_clang.py",
                          [
@@ -211,6 +216,30 @@ config("default") {
     }
 
     libs += [ "gnustl_static" ]
+  }
+
+  if (is_tizen) {
+    asmflags += [
+      "--target=$ncli_target",
+      "-B$ncli/tools/$ncli_gccdir/$ncli_target/bin",
+    ]
+    cflags += [
+      "--sysroot=$ncli/platforms/$ncli_platform",
+      "--target=$ncli_target",
+      "-B$ncli/tools/$ncli_gccdir/$ncli_target/bin",
+    ]
+    cflags_cc += [
+      "-isystem$ncli/tools/$ncli_gccdir/$ncli_target/include/c++/6.2.1",
+      "-isystem$ncli/tools/$ncli_gccdir/$ncli_target/include/c++/6.2.1/$ncli_target",
+    ]
+    ldflags += [
+      "--sysroot=$ncli/platforms/$ncli_platform",
+      "--target=$ncli_target",
+      "-B$ncli/tools/$ncli_gccdir/$ncli_target/bin",
+    ]
+    lib_dirs = [
+      "$ncli/platforms/$ncli_platform/usr/lib",
+    ]
   }
 
   if (is_ios) {
