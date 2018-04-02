@@ -126,8 +126,12 @@ bool GrContext::initCommon(const GrContextOptions& options) {
     }
 #endif
 
+    bool explicitlyAllocatingResources = fResourceProvider
+                                            ? fResourceProvider->explicitlyAllocateGPUResources()
+                                            : false;
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, atlasTextContextOptions,
-                                               &fSingleOwner, options.fSortRenderTargets));
+                                               &fSingleOwner, explicitlyAllocatingResources,
+                                               options.fSortRenderTargets));
 
     fGlyphCache = new GrGlyphCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
 
