@@ -54,8 +54,9 @@ public:
      *  pre-concated with the current matrix.
      */
     void    drawPath(const SkPath& path, const SkPaint& paint,
-                     const SkMatrix* prePathMatrix = nullptr, bool pathIsMutable = false) const {
-        this->drawPath(path, paint, prePathMatrix, pathIsMutable, false);
+                     const SkMatrix* prePathMatrix = nullptr, bool pathIsMutable = false,
+                     bool noDAA = false) const {
+        this->drawPath(path, paint, prePathMatrix, pathIsMutable, noDAA, false);
     }
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
@@ -127,11 +128,11 @@ private:
     void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
-                     bool pathIsMutable, bool drawCoverage,
+                     bool pathIsMutable, bool noDAA, bool drawCoverage,
                      SkBlitter* customBlitter = nullptr, SkInitOnceData* iData = nullptr) const;
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
-    void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
+    void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool noDAA, bool drawCoverage,
                      SkBlitter* customBlitter, bool doFill, SkInitOnceData* iData = nullptr) const;
     /**
      *  Return the current clip bounds, in local coordinates, with slop to account

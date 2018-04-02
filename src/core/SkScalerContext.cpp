@@ -356,7 +356,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     draw.fDst   = dst;
     draw.fRC    = &clip;
     draw.fMatrix = &matrix;
-    draw.drawPath(path, paint);
+    draw.drawPath(path, paint, nullptr, false, true);
 
     switch (mask.fFormat) {
         case SkMask::kBW_Format:
