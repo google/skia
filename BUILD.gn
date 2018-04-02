@@ -37,7 +37,7 @@ declare_args() {
   skia_enable_effects = true
   skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false
-  skia_enable_gpu = is_fuchsia || target_os != "fuchsia"
+  skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
@@ -1693,7 +1693,7 @@ if (skia_enable_tools) {
     deps = [
       ":flags",
       ":skia",
-      ":tool_utils",
+      ":tool_utils"
     ]
   }
 
