@@ -948,7 +948,7 @@ SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
     return 1;
 }
 
-void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
+void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool noDAA, bool drawCoverage,
                          SkBlitter* customBlitter, bool doFill, SkInitOnceData* iData) const {
     SkBlitter* blitter = nullptr;
     SkAutoBlitterChoose blitterStorage;
@@ -979,7 +979,11 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
     void (*proc)(const SkPath&, const SkRasterClip&, SkBlitter*);
     if (doFill) {
         if (paint.isAntiAlias()) {
-            proc = SkScan::AntiFillPath;
+            if (noDAA) {
+                proc = SkScan::AntiFillPathNoDAA;
+            } else {
+                proc = SkScan::AntiFillPath;
+            }
         } else {
             proc = SkScan::FillPath;
         }
@@ -1046,9 +1050,8 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
 }
 
 void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
-                      const SkMatrix* prePathMatrix, bool pathIsMutable,
-                      bool drawCoverage, SkBlitter* customBlitter,
-                      SkInitOnceData* iData) const {
+                      const SkMatrix* prePathMatrix, bool pathIsMutable, bool noDAA,
+                      bool drawCoverage, SkBlitter* customBlitter, SkInitOnceData* iData) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
@@ -1131,7 +1134,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     // transform the path into device space
     pathPtr->transform(*matrix, devPathPtr);
 
-    this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill, iData);
+    this->drawDevPath(*devPathPtr, *paint, noDAA, drawCoverage, customBlitter, doFill, iData);
 }
 
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) const {
