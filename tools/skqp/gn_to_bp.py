@@ -31,6 +31,7 @@ cc_library_shared {
     name: "libskqp_app",
     sdk_version: "26",
     stl: "libc++_static",
+    compile_multilib: "both",
     tags: ["tests", "optional"],
 
     cflags: [
