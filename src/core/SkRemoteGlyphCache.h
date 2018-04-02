@@ -97,7 +97,7 @@ class SkStrikeCacheDifferenceSpec {
 
 public:
     StrikeDifferences& findStrikeDifferences(const SkDescriptor& desc, SkFontID typefaceID);
-    int size() const { return fDescMap.size(); }
+    int strikeCount() const { return fDescriptorToDifferencesMap.size(); }
     template <typename PerStrike, typename PerGlyph>
     void iterateDifferences(PerStrike perStrike, PerGlyph perGlyph) const;
 
@@ -125,7 +125,7 @@ private:
     };
 
     using DescMap = std::unordered_map<const SkDescriptor*, StrikeDifferences, DescHash, DescEq>;
-    DescMap fDescMap{16, DescHash(), DescEq()};
+    DescMap fDescriptorToDifferencesMap{16, DescHash(), DescEq()};
 };
 
 class SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
@@ -164,6 +164,7 @@ private:
 class SkStrikeServer {
 public:
     SkStrikeServer(SkRemoteStrikeTransport* transport);
+    ~SkStrikeServer();
 
     // embedding clients call these methods
     int serve();  // very negotiable
@@ -180,6 +181,7 @@ private:
 
     sk_sp<SkData> encodeTypeface(SkTypeface* tf);
 
+    int fOpCount = 0;
     SkRemoteStrikeTransport* const fTransport;
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
     DescriptorToContextMap fScalerContextMap;
