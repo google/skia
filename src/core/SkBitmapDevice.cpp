@@ -38,7 +38,7 @@ class SkDrawTiler {
     // fCurr... are only used if fNeedTiling
     SkMatrix        fTileMatrix;
     SkRasterClip    fTileRC;
-    SkIPoint        fCurrOrigin, fOrigin;
+    SkIPoint        fOrigin;
 
     bool            fDone, fNeedsTiling;
 
@@ -51,18 +51,19 @@ public:
         }
 
         fDone = false;
-        fNeedsTiling = fRootPixmap.width() > kMaxDim || fRootPixmap.height() > kMaxDim;
-        fOrigin.set(0, 0);
-        fCurrOrigin = fOrigin;
+        fNeedsTiling = !fRootPixmap.bounds().isEmpty() &&  // empty pixmap map fail extractSubset?
+                        (fRootPixmap.width() > kMaxDim || fRootPixmap.height() > kMaxDim);
 
         if (fNeedsTiling) {
             // fDraw.fDst is reset each time in setupTileDraw()
             fDraw.fMatrix = &fTileMatrix;
             fDraw.fRC = &fTileRC;
+            fOrigin.set(-kMaxDim, 0); // we'll step/increase it before using it
         } else {
             fDraw.fDst = fRootPixmap;
             fDraw.fMatrix = &dev->ctm();
             fDraw.fRC = &dev->fRCStack.rc();
+            fOrigin.set(0, 0);
         }
     }
 
@@ -74,8 +75,7 @@ public:
         }
         if (fNeedsTiling) {
             do {
-                this->setupTileDraw();  // might set the clip to empty
-                this->stepOrigin();     // might set fDone to true
+                this->stepAndSetupTileDraw();  // might set the clip to empty and fDone to true
             } while (!fDone && fTileRC.isEmpty());
             // if we exit the loop and we're still empty, we're (past) done
             if (fTileRC.isEmpty()) {
@@ -89,12 +89,25 @@ public:
         return &fDraw;
     }
 
-    int curr_x() const { return fCurrOrigin.x(); }
-    int curr_y() const { return fCurrOrigin.y(); }
+    int curr_x() const { return fOrigin.x(); }
+    int curr_y() const { return fOrigin.y(); }
 
 private:
-    void setupTileDraw() {
+    void stepAndSetupTileDraw() {
         SkASSERT(!fDone);
+        SkASSERT(fNeedsTiling);
+
+        // We do fRootPixmap.width() - kMaxDim instead of fOrigin.fX + kMaxDim to avoid overflow.
+        if (fOrigin.fX >= fRootPixmap.width() - kMaxDim) {    // too far
+            fOrigin.fX = 0;
+            fOrigin.fY += kMaxDim;
+        } else {
+            fOrigin.fX += kMaxDim;
+        }
+        // fDone = next origin will be invalid.
+        fDone = fOrigin.fX >= fRootPixmap.width() - kMaxDim &&
+                fOrigin.fY >= fRootPixmap.height() - kMaxDim;
+
         SkIRect bounds = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), kMaxDim, kMaxDim);
         SkASSERT(!bounds.isEmpty());
         bool success = fRootPixmap.extractSubset(&fDraw.fDst, bounds);
@@ -106,21 +119,6 @@ private:
         fDevice->fRCStack.rc().translate(-fOrigin.x(), -fOrigin.y(), &fTileRC);
         fTileRC.op(SkIRect::MakeWH(fDraw.fDst.width(), fDraw.fDst.height()),
                    SkRegion::kIntersect_Op);
-
-        fCurrOrigin = fOrigin;
-    }
-
-    void stepOrigin() {
-        SkASSERT(!fDone);
-        SkASSERT(fNeedsTiling);
-        fOrigin.fX += kMaxDim;
-        if (fOrigin.fX >= fRootPixmap.width()) {    // too far
-            fOrigin.fX = 0;
-            fOrigin.fY += kMaxDim;
-            if (fOrigin.fY >= fRootPixmap.height()) {
-                fDone = true;   // way too far
-            }
-        }
     }
 };
 
