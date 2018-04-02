@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "571f0dd1_b75eda40",
+        "filename": "src/pdf/SkClusterator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-02T16:44:10Z",
+      "side": 1,
+      "message": "nit: this can just be Cluster",
+      "range": {
+        "startLine": 34,
+        "startChar": 30,
+        "endLine": 34,
+        "endChar": 45
+      },
+      "revId": "2bba3255f41931f353286bfe9dfa6f85c0b952a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
