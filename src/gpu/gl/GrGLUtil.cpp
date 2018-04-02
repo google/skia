@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include <stdio.h>
 
 #include "GrGLUtil.h"
 #include "GrTypesPriv.h"
+#include "gl/GrGLCaps.h"
+
 #include "SkMatrix.h"
-#include <stdio.h>
 
 void GrGLClearErr(const GrGLInterface* gl) {
     while (GR_GL_NO_ERROR != gl->fFunctions.fGetError()) {}
@@ -496,6 +498,12 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test) {
     SkASSERT(test < (GrStencilTest)kGrStencilTestCount);
 
     return gTable[(int)test];
+}
+
+bool GrPixelConfigToGLSizedFormat(const GrCaps* caps, GrPixelConfig config, GrGLenum* format) {
+    const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(caps);
+    *format = glCaps->configSizedInternalFormat(config);
+    return true;
 }
 
 GrPixelConfig GrGLSizedFormatToPixelConfig(GrGLenum sizedFormat) {

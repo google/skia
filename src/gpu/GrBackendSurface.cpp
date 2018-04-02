@@ -255,3 +255,31 @@ const GrMockRenderTargetInfo* GrBackendRenderTarget::getMockRenderTargetInfo() c
     }
     return nullptr;
 }
+
+GrBackendFormat GrBackendRenderTarget::format() const {
+    switch (this->backend()) {
+        case kMetal_GrBackend:
+            return GrBackendFormat();
+        case kOpenGL_GrBackend: {
+            const GrGLFramebufferInfo* glInfo = this->getGLFramebufferInfo();
+            SkASSERT(glInfo);
+            // TODO: this isn't correct for Rectangle textures wrapped as a rendertarget
+            return GrBackendFormat::MakeGL(glInfo->fFormat, GR_GL_TEXTURE_2D);
+        }
+#ifdef SK_VULKAN
+        case kVulkan_GrBackend: {
+            const GrVkImageInfo* vkInfo = this->getVkImageInfo();
+            SkASSERT(vkInfo);
+            return GrBackendFormat::MakeVk(vkInfo->fFormat);
+        }
+#endif
+        case kMock_GrBackend: {
+            const GrMockRenderTargetInfo* mockInfo = this->getMockRenderTargetInfo();
+            SkASSERT(mockInfo);
+            return GrBackendFormat::MakeMock(mockInfo->fConfig);
+        }
+        default:
+            return GrBackendFormat();
+    }
+}
+
