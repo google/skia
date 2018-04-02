@@ -532,7 +532,7 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     if (fVkEnumerateInstanceVersion) {
         err = fVkEnumerateInstanceVersion(&instanceVersion);
         if (err) {
-            ERRORF(reporter, "failed ot enumerate instance version. Err: %d\n", err);
+            ERRORF(reporter, "failed to enumerate instance version. Err: %d\n", err);
             return false;
         }
     }
@@ -1309,6 +1309,7 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     if (srcHelper) {
         if (!srcHelper->init(reporter)) {
             cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+            return;
         }
     }
 
@@ -1321,6 +1322,7 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     if (dstHelper) {
         if (!dstHelper->init(reporter)) {
             cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+            return;
         }
     }
 
