@@ -185,7 +185,7 @@ void SkBaseShadowTessellator::handleQuad(const SkPoint pts[3]) {
     }
     // TODO: Pull PathUtils out of Ganesh?
     int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
-    fPointBuffer.setCount(maxCount);
+    fPointBuffer.setReserve(maxCount);
     SkPoint* target = fPointBuffer.begin();
     int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
                                                      kQuadTolerance, &target, maxCount);
@@ -210,7 +210,7 @@ void SkBaseShadowTessellator::handleCubic(const SkMatrix& m, SkPoint pts[4]) {
 #if SK_SUPPORT_GPU
     // TODO: Pull PathUtils out of Ganesh?
     int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
-    fPointBuffer.setCount(maxCount);
+    fPointBuffer.setReserve(maxCount);
     SkPoint* target = fPointBuffer.begin();
     int count = GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
                                                  kCubicTolerance, &target, maxCount);
