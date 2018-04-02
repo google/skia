@@ -36,16 +36,11 @@
    #define SK_DISABLE_RENDER_TARGET_SORTING
 #endif
 
-#ifdef SK_DISABLE_RENDER_TARGET_SORTING
-static const bool kDefaultSortRenderTargets = false;
-#else
-static const bool kDefaultSortRenderTargets = true;
-#endif
-
 GrDrawingManager::GrDrawingManager(GrContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
                                    const GrAtlasTextContext::Options& optionsForAtlasTextContext,
                                    GrSingleOwner* singleOwner,
+                                   bool explicitlyAllocating,
                                    GrContextOptions::Enable sortRenderTargets)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
@@ -62,7 +57,8 @@ GrDrawingManager::GrDrawingManager(GrContext* context,
     } else if (GrContextOptions::Enable::kYes == sortRenderTargets) {
         fSortRenderTargets = true;
     } else {
-        fSortRenderTargets = kDefaultSortRenderTargets;
+        // By default we always enable sorting when we're explicitly allocating GPU resources
+        fSortRenderTargets = explicitlyAllocating;
     }
 }
 

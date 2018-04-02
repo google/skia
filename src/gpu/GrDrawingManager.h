@@ -85,7 +85,7 @@ public:
 private:
     GrDrawingManager(GrContext*, const GrPathRendererChain::Options&,
                      const GrAtlasTextContext::Options&, GrSingleOwner*,
-                     GrContextOptions::Enable sortRenderTargets);
+                     bool explicitlyAllocating, GrContextOptions::Enable sortRenderTargets);
 
     void abandon();
     void cleanup();
