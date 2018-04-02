@@ -18,6 +18,9 @@ declare_args() {
   }
   linux_soname_version = ""
   sanitize = ""
+
+  ncli = ""
+  ncli_version = "4.0"
 }
 declare_args() {
   is_debug = !is_official_build
@@ -41,10 +44,11 @@ is_fuchsia = current_os == "fuchsia"
 is_ios = current_os == "ios" || current_os == "tvos" || current_os == "watchos"
 is_tvos = current_os == "tvos"
 is_watchos = current_os == "watchos"
-is_linux = current_os == "linux"
+is_linux = current_os == "linux" || current_os == "tizen"
 is_mac = current_os == "mac"
 is_win = current_os == "win" || current_os == "winrt"
 is_winrt = current_os == "winrt"
+is_tizen = current_os == "tizen"
 
 if (target_cpu == "") {
   target_cpu = host_cpu
@@ -111,6 +115,22 @@ if (is_android) {
     ndk_stdlib = "x86"
     ndk_gccdir = ndk_stdlib
     ndk_gdbserver = "prebuilt/android-x86/gdbserver/gdbserver"
+  }
+}
+
+if (is_tizen) {
+  ncli_target = ""
+  ncli_platform = ""
+  ncli_gccdir = ""
+
+  if (target_cpu == "arm") {
+    ncli_target = "arm-tizen-linux-gnueabi"
+    ncli_platform = "tizen-${ncli_version}/mobile/rootstraps/mobile-${ncli_version}-device.core"
+    ncli_gccdir = "arm-linux-gnueabi-gcc-6.2"
+  } else if (target_cpu == "x86") {
+    ncli_target = "i586-tizen-linux-gnueabi"
+    ncli_platform = "tizen-${ncli_version}/mobile/rootstraps/mobile-${ncli_version}-emulator.core"
+    ncli_gccdir = "i586-linux-gnueabi-gcc-6.2"
   }
 }
 

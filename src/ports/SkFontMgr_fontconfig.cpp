@@ -692,7 +692,12 @@ protected:
         FcResult result;
         // Set an arbitrary limit on the number of pattern object values to consider.
         // TODO: re-write this to avoid N*M
+#ifdef OS_TIZEN
+        // Tizen fonts have a lot of names...
+        static const int maxId = 256;
+#else
         static const int maxId = 16;
+#endif
         for (int patternId = 0; patternId < maxId; ++patternId) {
             result = FcPatternGetString(pattern, object, patternId, &patternString);
             if (FcResultNoId == result) {
