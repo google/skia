@@ -629,6 +629,7 @@ static void add_type3_font_info(SkPDFCanon* canon,
     }
     int unitsPerEm;
     auto cache = SkPDFFont::MakeVectorCache(typeface, &unitsPerEm);
+    SkASSERT(cache);
     SkScalar emSize = (SkScalar)unitsPerEm;
     font->insertName("Subtype", "Type3");
     // Flip about the x-axis and scale by 1/emSize.
@@ -727,8 +728,11 @@ static void add_type3_font_info(SkPDFCanon* canon,
         // Adobe requests CapHeight, XHeight, and StemV be added
         // to "greatly help our workflow downstream".
         if (metrics->fCapHeight != 0) { descriptor->insertInt("CapHeight", metrics->fCapHeight); }
-        if (metrics->fXHeight   != 0) { descriptor->insertInt("XHeight",   metrics->fXHeight);   }
         if (metrics->fStemV     != 0) { descriptor->insertInt("StemV",     metrics->fStemV);     }
+        SkScalar xHeight = cache->getFontMetrics().fXHeight;
+        if (xHeight != 0) {
+            descriptor->insertScalar("XHeight", xHeight);
+        }
     }
     descriptor->insertInt("Flags", fontDescriptorFlags);
     font->insertObjRef("FontDescriptor", std::move(descriptor));
