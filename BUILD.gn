@@ -1549,24 +1549,6 @@ if (skia_enable_tools) {
     }
   }
 
-  test_app("ok") {
-    sources = [
-      "dm/DMFontMgr.cpp",
-      "tools/ok.cpp",
-      "tools/ok_dsts.cpp",
-      "tools/ok_engines.cpp",
-      "tools/ok_srcs.cpp",
-      "tools/ok_test.cpp",
-      "tools/ok_vias.cpp",
-    ]
-    deps = [
-      ":bench",
-      ":gm",
-      ":skia",
-      ":tests",
-      ":tool_utils",
-    ]
-  }
   test_app("nanobench") {
     sources = [
       "bench/nanobench.cpp",
