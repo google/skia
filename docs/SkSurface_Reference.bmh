@@ -412,6 +412,8 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                 SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps)
+#In Constructor
+#Line # creates Surface from GPU render target ##
 
 Wraps a GPU-backed buffer into Surface. Caller must ensure backendRenderTarget
 is valid for the lifetime of returned Surface.
@@ -718,17 +720,15 @@ Surface bottom-left corner is pinned to the origin.
 Returns SkSurface on GPU indicated by context that is compatible with the provided
 characterization. budgeted selects whether allocation for pixels is tracked by context.
 
-        @param context           GPU context
-        @param characterization  description of the desired SkSurface
-        @param budgeted          one of: SkBudgeted::kNo, SkBudgeted::kYes
-        @return                  SkSurface if all parameters are valid; otherwise, nullptr
-
 #Param context  GPU_Context ##
 #Param characterization  description of the desired SkSurface ##
 #Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes
 ##
 
 #Return Surface if all parameters are valid; otherwise, nullptr ##
+
+#NoExample
+##
 
 #SeeAlso MakeFromBackendRenderTarget MakeFromBackendTextureAsRenderTarget
 

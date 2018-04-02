@@ -35,6 +35,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 
 | name | description |
 | --- | --- |
+| <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU render target |
 | <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> | creates <a href="#Surface">Surface</a> from GPU texture |
 | <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU back-end render target |
 | <a href="#SkSurface_MakeNull">MakeNull</a> | creates <a href="#Surface">Surface</a> without backing pixels |
@@ -66,6 +67,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 
 | name | description |
 | --- | --- |
+| <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU render target |
 | <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> | creates <a href="#Surface">Surface</a> from GPU texture |
 | <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU back-end render target |
 | <a href="#SkSurface_MakeNull">MakeNull</a> | creates <a href="#Surface">Surface</a> without backing pixels |
@@ -732,11 +734,6 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context,
 
 Returns <a href="#SkSurface">SkSurface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_4_context">context</a> that is compatible with the provided
 <a href="#SkSurface_MakeRenderTarget_4_characterization">characterization</a>. <a href="#SkSurface_MakeRenderTarget_4_budgeted">budgeted</a> selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_4_context">context</a>.
-
-@param <a href="#SkSurface_MakeRenderTarget_4_context">context</a>           GPU <a href="#SkSurface_MakeRenderTarget_4_context">context</a>
-@param <a href="#SkSurface_MakeRenderTarget_4_characterization">characterization</a>  description of the desired <a href="#SkSurface">SkSurface</a>
-@param <a href="#SkSurface_MakeRenderTarget_4_budgeted">budgeted</a>          one of: <a href="undocumented#SkBudgeted_kNo">SkBudgeted::kNo</a>, <a href="undocumented#SkBudgeted_kYes">SkBudgeted::kYes</a>
-@return                  <a href="#SkSurface">SkSurface</a> if all parameters are valid; otherwise, nullptr
 
 ### Parameters
 
