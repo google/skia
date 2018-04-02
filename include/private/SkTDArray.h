@@ -71,11 +71,14 @@ public:
         return this->insert(this->count(), n, src);
     }
     T* insert(int ix, int n = 1, const T* src = nullptr) {
+        auto where = fVec.begin() + SkToSizeT(ix);
         if (src) {
-            return &*fVec.insert(fVec.begin() + SkToSizeT(ix), src, src+SkToSizeT(n));
+            fVec.insert(where, src, src+SkToSizeT(n));
+        } else {
+            T v;
+            fVec.insert(where, SkToSizeT(n), v);
         }
-        T v;
-        return &*fVec.insert(fVec.begin() + SkToSizeT(ix), SkToSizeT(n), v);
+        return &*where;
     }
 
     void remove(int ix, int n = 1) {
