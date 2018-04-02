@@ -127,7 +127,7 @@ public:
         *eOut = between(s1->fT, end2->fT, e1->fT) ? end2
                 : between(s2->fT, end1->fT, e2->fT) ? end1 : nullptr;
         if (*sOut == *eOut) {
-            SkASSERT(start1->fT >= end2->fT || start2->fT >= end1->fT);
+            SkOPOBJASSERT(s1, start1->fT >= end2->fT || start2->fT >= end1->fT);
             return false;
         }
         SkASSERT(!*sOut || *sOut != *eOut);
