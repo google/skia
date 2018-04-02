@@ -72,12 +72,10 @@ public:
     }
     T* insert(int ix, int n = 1, const T* src = nullptr) {
         if (src) {
-            fVec.insert(fVec.begin() + SkToSizeT(ix), src, src+SkToSizeT(n));
-        } else {
-            T v;
-            fVec.insert(fVec.begin() + SkToSizeT(ix), SkToSizeT(n), v);
+            return &*fVec.insert(fVec.begin() + SkToSizeT(ix), src, src+SkToSizeT(n));
         }
-        return &this->getAt(ix);
+        T v;
+        return &*fVec.insert(fVec.begin() + SkToSizeT(ix), SkToSizeT(n), v);
     }
 
     void remove(int ix, int n = 1) {
