@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20246951_e5457713",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-04-02T19:49:29Z",
+      "side": 1,
+      "message": "What are possible fWidth and fHeight in fRootPixmap.fInfo that makes this necessary?",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "fb94747bf90c57d31b1d66115d7bfe17fc2bbfe9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "644be368_d4e5bce3",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-04-02T19:49:29Z",
+      "side": 1,
+      "message": "maybe move comment up above line 99 since this pattern is also used there",
+      "revId": "fb94747bf90c57d31b1d66115d7bfe17fc2bbfe9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
