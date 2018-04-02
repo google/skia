@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0c0e434b_efaa6691",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-04-02T19:57:34Z",
+      "side": 1,
+      "message": "I tried to make a pixmap with either 0 height or 0 width as they would make extractSubset fail. But I didn\u0027t succeed in making such a pixmap. I also didn\u0027t manage to make a pixmap with a very large width or height that would trigger the overflow behavior. So this CL is completely a speculative fix as Cereal couldn\u0027t give us a reproducible test.",
+      "parentUuid": "20246951_e5457713",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "fb94747bf90c57d31b1d66115d7bfe17fc2bbfe9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "644be368_d4e5bce3",
         "filename": "src/core/SkBitmapDevice.cpp",
         "patchSetId": 7
@@ -39,6 +63,24 @@
       "revId": "fb94747bf90c57d31b1d66115d7bfe17fc2bbfe9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff7905ee_93a68d9c",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-04-02T19:57:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "644be368_d4e5bce3",
+      "revId": "fb94747bf90c57d31b1d66115d7bfe17fc2bbfe9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
