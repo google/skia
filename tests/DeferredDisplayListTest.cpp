@@ -28,36 +28,227 @@
 #include "vk/GrVkDefines.h"
 #endif
 
-static GrBackendFormat create_backend_format(GrContext* context, SkColorType colorType) {
+// Try to create a backend format from the provided colorType and config. Return an invalid
+// backend format if the combination is infeasible.
+static GrBackendFormat create_backend_format(GrContext* context,
+                                             SkColorType ct,
+                                             GrPixelConfig config) {
     const GrCaps* caps = context->caps();
 
     switch (context->contextPriv().getBackend()) {
-    case kOpenGL_GrBackend:
-        if (kRGBA_8888_SkColorType == colorType) {
-            GrGLenum format = caps->srgbSupport() ? GR_GL_SRGB8_ALPHA8 : GR_GL_RGBA8;
-            return GrBackendFormat::MakeGL(format, GR_GL_TEXTURE_2D);
-        } else if (kRGBA_F16_SkColorType == colorType) {
-            return GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D);
+    case kOpenGL_GrBackend: {
+        GrGLStandard standard;
+
+        switch (ct) {
+            case kUnknown_SkColorType:
+                return GrBackendFormat();
+            case kAlpha_8_SkColorType:
+                if (kAlpha_8_as_Alpha_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_ALPHA8, GR_GL_TEXTURE_2D);
+                } else if (kAlpha_8_as_Red_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_R8, GR_GL_TEXTURE_2D);
+                }
+                break;
+            case kRGB_565_SkColorType:
+                if (kRGB_565_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_RGB565, GR_GL_TEXTURE_2D);
+                }
+                break;
+            case kARGB_4444_SkColorType:
+                if (kRGBA_4444_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_RGBA4, GR_GL_TEXTURE_2D);
+                }
+                break;
+            case kRGBA_8888_SkColorType:
+                if (kRGBA_8888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D);
+                } else if (kSRGBA_8888_GrPixelConfig == config) {
+                    if (caps->srgbSupport()) {
+                        return GrBackendFormat::MakeGL(GR_GL_SRGB8_ALPHA8, GR_GL_TEXTURE_2D);
+                    }
+                }
+                break;
+            case kRGB_888x_SkColorType:
+                if (kRGB_888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_RGB8, GR_GL_TEXTURE_2D);
+                }
+                break;
+            case kBGRA_8888_SkColorType:
+                if (kBGRA_8888_GrPixelConfig == config) {
+                    if (kGL_GrGLStandard == standard) {
+                        return GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D);
+                    } else if (kGLES_GrGLStandard == standard) {
+                        return GrBackendFormat::MakeGL(GR_GL_BGRA8, GR_GL_TEXTURE_2D);
+                    }
+                } else if (kSBGRA_8888_GrPixelConfig == config) {
+                    if (caps->srgbSupport()) {
+                        return GrBackendFormat::MakeGL(GR_GL_SRGB8_ALPHA8, GR_GL_TEXTURE_2D);
+                    }
+                }
+#if 0
+                if (GR_GL_RGBA8 == format) {
+                    if (kGL_GrGLStandard == standard) {
+                        *config = kBGRA_8888_GrPixelConfig;
+                    }
+                } else if (GR_GL_BGRA8 == format) {
+                    if (kGLES_GrGLStandard == standard) {
+                        *config = kBGRA_8888_GrPixelConfig;
+                    }
+                } else if (GR_GL_SRGB8_ALPHA8 == format) {
+                    *config = kSBGRA_8888_GrPixelConfig;
+                }
+#endif
+                break;
+            case kRGBA_1010102_SkColorType:
+                if (kRGBA_1010102_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_RGB10_A2, GR_GL_TEXTURE_2D);
+                }
+                break;
+            case kRGB_101010x_SkColorType:
+                return GrBackendFormat();
+            case kGray_8_SkColorType:
+                if (kGray_8_as_Lum_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_LUMINANCE8, GR_GL_TEXTURE_2D);
+                } else if (kGray_8_as_Red_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_R8, GR_GL_TEXTURE_2D);
+                }
+                break;
+            case kRGBA_F16_SkColorType:
+                if (kRGBA_half_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D);
+                }
+                break;
         }
-        break;
+    }
+    break;
 #ifdef SK_VULKAN
     case kVulkan_GrBackend:
-        if (kRGBA_8888_SkColorType == colorType) {
-            VkFormat format =  caps->srgbSupport() ? VK_FORMAT_R8G8B8A8_SRGB
-                                                   : VK_FORMAT_R8G8B8A8_UNORM;
-            return GrBackendFormat::MakeVk(format);
-        } else if (kRGBA_F16_SkColorType == colorType) {
-            return GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT);
+        switch (ct) {
+            case kUnknown_SkColorType:
+                return GrBackendFormat();
+            case kAlpha_8_SkColorType:
+                // TODO: what about kAlpha_8_GrPixelConfig and kAlpha_8_as_Alpha_GrPixelConfig
+                if (kAlpha_8_as_Red_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeVk(VK_FORMAT_R8_UNORM);
+                }
+                break;
+            case kRGB_565_SkColorType:
+                if (kRGB_565_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeVk(VK_FORMAT_R5G6B5_UNORM_PACK16);
+                }
+                break;
+            case kARGB_4444_SkColorType:
+                if (kRGBA_4444_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeVk(VK_FORMAT_B4G4R4A4_UNORM_PACK16);
+                }
+                break;
+            case kRGBA_8888_SkColorType:
+                if (kRGBA_8888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
+                } else if (kSRGBA_8888_GrPixelConfig == config) {
+                    if (caps->srgbSupport()) {
+                        return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_SRGB);
+                    }
+                }
+                break;
+            case kRGB_888x_SkColorType:
+                if (kRGB_888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM);
+                }
+                break;
+            case kBGRA_8888_SkColorType:
+                if (kBGRA_8888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeVk(VK_FORMAT_B8G8R8A8_UNORM);
+                } else if (kSBGRA_8888_GrPixelConfig == config) {
+                    if (caps->srgbSupport()) {
+                        return GrBackendFormat::MakeVk(VK_FORMAT_B8G8R8A8_SRGB);
+                    }
+                }
+                break;
+            case kRGBA_1010102_SkColorType:
+                if (kRGBA_1010102_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32);
+                }
+                break;
+            case kRGB_101010x_SkColorType:
+                return GrBackendFormat();
+            case kGray_8_SkColorType:
+                // TODO: what about kAlpha_8_GrPixelConfig and kGray_8_as_Lum_GrPixelConfig?
+                if (kGray_8_as_Red_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeVk(VK_FORMAT_R8_UNORM);
+                }
+                break;
+            case kRGBA_F16_SkColorType:
+                if (kRGBA_half_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT);
+                }
+                break;
         }
         break;
 #endif
     case kMock_GrBackend:
-        if (kRGBA_8888_SkColorType == colorType) {
-            GrPixelConfig config = caps->srgbSupport() ? kSRGBA_8888_GrPixelConfig
-                                                       : kRGBA_8888_GrPixelConfig;
-            return GrBackendFormat::MakeMock(config);
-        } else if (kRGBA_F16_SkColorType == colorType) {
-            return GrBackendFormat::MakeMock(kRGBA_half_GrPixelConfig);
+        switch (ct) {
+            case kUnknown_SkColorType:
+                return GrBackendFormat();
+            case kAlpha_8_SkColorType:
+                if (kAlpha_8_GrPixelConfig == config ||
+                    kAlpha_8_as_Alpha_GrPixelConfig == config ||
+                    kAlpha_8_as_Red_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMock(config);
+                }
+                break;
+            case kRGB_565_SkColorType:
+                if (kRGB_565_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMock(config);
+                }
+                break;
+            case kARGB_4444_SkColorType:
+                if (kRGBA_4444_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMock(config);
+                }
+                break;
+            case kRGBA_8888_SkColorType:
+                if (kRGBA_8888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeMock(config);
+                } else if (kSRGBA_8888_GrPixelConfig == config) {
+                    if (caps->srgbSupport()) {
+                        return GrBackendFormat::MakeMock(config);
+                    }
+                }
+                break;
+            case kRGB_888x_SkColorType:
+                if (kRGB_888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeMock(config);
+                }
+                break;
+            case kBGRA_8888_SkColorType:
+                if (kBGRA_8888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeMock(config);
+                } else if (kSBGRA_8888_GrPixelConfig == config) {
+                    if (caps->srgbSupport()) {
+                        return GrBackendFormat::MakeMock(config);
+                    }
+                }
+                break;
+            case kRGBA_1010102_SkColorType:
+                if (kRGBA_1010102_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMock(config);
+                }
+                break;
+            case kRGB_101010x_SkColorType:
+                return GrBackendFormat();
+            case kGray_8_SkColorType:
+                if (kGray_8_GrPixelConfig == config ||
+                    kGray_8_as_Lum_GrPixelConfig == config ||
+                    kGray_8_as_Red_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMock(config);
+                }
+                break;
+            case kRGBA_F16_SkColorType:
+                if (kRGBA_half_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMock(config);
+                }
+                break;
         }
         break;
     default:
@@ -538,6 +729,64 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
             REPORTER_ASSERT(reporter, backingProxy->texPriv().isClampOnly());
         }
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Exhaustively test colorType and pixelConfig compatibility.
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
+    SkTArray<sk_sp<SkSurface_Gpu>> surfaces;
+    SkTArray<SkSurfaceCharacterization> characterizations;
+
+    const SkColorType colorTypes[] = {
+        kAlpha_8_SkColorType,
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kRGBA_8888_SkColorType,
+        kRGB_888x_SkColorType,
+        kBGRA_8888_SkColorType,
+        kRGBA_1010102_SkColorType,
+        kRGB_101010x_SkColorType,
+        kGray_8_SkColorType,
+        kRGBA_F16_SkColorType
+    };
+
+    const GrPixelConfig configs[] = {
+        kAlpha_8_GrPixelConfig,
+        kGray_8_GrPixelConfig,
+        kRGB_565_GrPixelConfig,
+        kRGBA_4444_GrPixelConfig,
+        kRGBA_8888_GrPixelConfig,
+        kRGB_888_GrPixelConfig,
+        kBGRA_8888_GrPixelConfig,
+        kSRGBA_8888_GrPixelConfig,
+        kSBGRA_8888_GrPixelConfig,
+        kRGBA_1010102_GrPixelConfig,
+        kRGBA_float_GrPixelConfig,
+        kRG_float_GrPixelConfig,
+        kAlpha_half_GrPixelConfig,
+        kRGBA_half_GrPixelConfig,
+        kAlpha_8_as_Alpha_GrPixelConfig,
+        kAlpha_8_as_Red_GrPixelConfig,
+        kAlpha_half_as_Red_GrPixelConfig,
+        kGray_8_as_Lum_GrPixelConfig,
+        kGray_8_as_Red_GrPixelConfig
+    };
+
+    for (SkColorType ct : colorTypes) {
+        for (GrPixelConfig config : configs) {
+            SurfaceParameters params;
+            params.
+        }
+    }
+
+    for (int i = 0; i < surfaces.count(); ++i) {
+        for (int j = 0; j < characterizations.count(); ++j) {
+            surfaces[i]->isCompatible(characterizations[j]);
+        }
+    }
+
 
 }
+
 #endif

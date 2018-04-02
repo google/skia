@@ -203,11 +203,11 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
     }
 
     return SkSurfaceCharacterization(sk_ref_sp<GrContextThreadSafeProxy>(this),
-                                     cacheMaxResourceBytes,
-                                     origin, ii.width(), ii.height(), config, FSAAType, sampleCnt,
+                                     cacheMaxResourceBytes, ii,
+                                     origin, config, FSAAType, sampleCnt,
                                      SkSurfaceCharacterization::Textureable(true),
                                      SkSurfaceCharacterization::MipMapped(isMipMapped),
-                                     ii.refColorSpace(), surfaceProps);
+                                     surfaceProps);
 }
 
 void GrContext::abandonContext() {
