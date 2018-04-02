@@ -46,7 +46,14 @@ toolchain("msvc") {
     env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
   }
 
+  cl_m32_flag = ""
   if (clang_win != "") {
+    if (target_cpu == "x86") {
+      # cl.exe knows implicitly by the choice of executable that it's targeting
+      # x86, but clang-cl.exe needs to be told when targeting non-host
+      # platforms. (All our builders are x86-64, so x86 is always non-host.)
+      cl_m32_flag = "-m32"
+    }
     cl = "$clang_win/bin/clang-cl.exe"
   } else {
     cl = "$bin/cl.exe"
@@ -75,7 +82,8 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}"
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}}"
     description = "compile {{source}}"
   }
 
@@ -90,7 +98,8 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}}"
     description = "compile {{source}}"
   }
 
