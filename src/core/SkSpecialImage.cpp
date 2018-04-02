@@ -512,7 +512,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrContext* context,
                                                           sk_sp<SkColorSpace> colorSpace,
                                                           const SkSurfaceProps* props,
                                                           SkAlphaType at) {
-    SkASSERT(rect_fits(subset, proxy->width(), proxy->height()));
+    if (!context || context->contextPriv().abandoned() || !proxy) {
+        return nullptr;
+    }
+    SkASSERT_RELEASE(rect_fits(subset, proxy->width(), proxy->height()));
     return sk_make_sp<SkSpecialImage_Gpu>(context, subset, uniqueID, std::move(proxy), at,
                                           std::move(colorSpace), props);
 }
