@@ -250,17 +250,16 @@ void SkStrikeCacheDifferenceSpec::StrikeDifferences::operator()(uint16_t glyphID
     fGlyphIDs->add(packedGlyphID);
 }
 
-
 SkStrikeCacheDifferenceSpec::StrikeDifferences&
 SkStrikeCacheDifferenceSpec::findStrikeDifferences(const SkDescriptor& desc,
                                                    SkFontID typefaceID) {
-    auto mapIter = fDescMap.find(&desc);
-    if (mapIter == fDescMap.end()) {
+    auto mapIter = fDescriptorToDifferencesMap.find(&desc);
+    if (mapIter == fDescriptorToDifferencesMap.end()) {
         auto newDesc = desc.copy();
         auto newDescPtr = newDesc.get();
         StrikeDifferences strikeDiffs{typefaceID, std::move(newDesc)};
 
-        mapIter = fDescMap.emplace_hint(mapIter, newDescPtr, std::move(strikeDiffs));
+        mapIter = fDescriptorToDifferencesMap.emplace_hint(mapIter, newDescPtr, std::move(strikeDiffs));
     }
 
     return mapIter->second;
@@ -268,7 +267,7 @@ SkStrikeCacheDifferenceSpec::findStrikeDifferences(const SkDescriptor& desc,
 
 template <typename PerStrike, typename PerGlyph>
 void SkStrikeCacheDifferenceSpec::iterateDifferences(PerStrike perStrike, PerGlyph perGlyph) const {
-    for (auto& i : fDescMap) {
+    for (auto& i : fDescriptorToDifferencesMap) {
         auto strikeDiff = &i.second;
         perStrike(strikeDiff->fTypefaceID,
                   *strikeDiff->fDesc,
@@ -450,6 +449,11 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     }
 }
 
+// Op code semantics:
+// * FontMetrics - (SkFontID, SkDescriptor) -> SkPaint::FontMetrics
+// * GlyphPath - (SkFontID, SkDescriptor, SkPackedGlyphID) -> SkPath
+// * GlyphMetricsAndImage - (SkFontID, SkDescriptor, SkPackedGlyphID) -> (SkGlyph, <image bits>)
+// * PrepopulateCache - StrikeCacheDifferenceSpec -> StrikeCacheDifferenceData
 
 enum class OpCode : int32_t {
     kFontMetrics          = 0,
@@ -467,17 +471,7 @@ public:
     const OpCode opCode;
     const SkFontID typefaceId;
     const SkScalerContextRecDescriptor descriptor;
-    union {
-        // op 0
-        SkPaint::FontMetrics fontMetrics;
-        // op 1, 2, and 4
-        SkGlyph glyph;
-        // op 3
-        struct {
-            SkGlyphID glyphId;
-            size_t pathSize;
-        };
-    };
+    SkPackedGlyphID glyphID;
 };
 
 struct Header {
@@ -509,7 +503,7 @@ static void write_strikes_spec(const SkStrikeCacheDifferenceSpec &spec,
                                SkRemoteStrikeTransport* transport) {
     serializer->startEmplace<Op>(OpCode::kPrepopulateCache, SkFontID{0}, SkScalerContextRec{});
 
-    serializer->emplace<Header>(spec.size());
+    serializer->emplace<Header>(spec.strikeCount());
 
     auto perStrike = [serializer](SkFontID typefaceID, const SkDescriptor& desc, int glyphCount) {
         serializer->emplace<StrikeSpec>(typefaceID, desc.getLength(), glyphCount);
@@ -524,65 +518,6 @@ static void write_strikes_spec(const SkStrikeCacheDifferenceSpec &spec,
 
     serializer->endWrite(transport);
 }
-
-#if 0
-template <typename PerHeader, typename PerStrike, typename PerGlyph>
-    static void ReadSpecFromTransport(AllInOneTransport* transport,
-                                      PerHeader perHeader,
-                                      PerStrike perStrike,
-                                      PerGlyph perGlyph) {
-        auto header = transport->read<SkTextBlobCacheDiffCanvas::Header>();
-        perHeader(header);
-        for (int i = 0; i < header->strikeCount; i++) {
-            auto strike = transport->read<SkTextBlobCacheDiffCanvas::StrikeSpec>();
-            auto desc = transport->readDescriptor();
-            //desc->assertChecksum();
-            perStrike(strike, desc);
-            auto glyphIDs = transport->readArray<SkPackedGlyphID>(strike->glyphCount);
-            for (auto glyphID : glyphIDs) {
-                perGlyph(glyphID);
-            }
-        }
-    }
-
-        static void WriteDataToTransport(
-            AllInOneTransport* in, AllInOneTransport* out, SkRemoteGlyphCacheRenderer* rc) {
-        auto perHeader = [out](Header* header) {
-            out->write<Header>(*header);
-        };
-
-        struct {
-            SkScalerContext* scaler{nullptr};
-        } strikeData;
-
-        auto perStrike = [out, &strikeData, rc](StrikeSpec* spec, SkDescriptor* desc) {
-            out->write<StrikeSpec>(*spec);
-            out->writeDescriptor(*desc);
-            SkScalerContextRecDescriptor recDesc{*desc};
-            strikeData.scaler = rc->generateScalerContext(recDesc, spec->typefaceID);
-            SkPaint::FontMetrics fontMetrics;
-            strikeData.scaler->getFontMetrics(&fontMetrics);
-            out->write<SkPaint::FontMetrics>(fontMetrics);
-        };
-
-        auto perGlyph = [out, &strikeData](SkPackedGlyphID glyphID) {
-            SkGlyph glyph;
-            glyph.initWithGlyphID(glyphID);
-            strikeData.scaler->getMetrics(&glyph);
-            auto imageSize = glyph.computeImageSize();
-            glyph.fImage = nullptr;
-            glyph.fPathData = nullptr;
-            out->write<SkGlyph>(glyph);
-
-            if (imageSize > 0) {
-                glyph.fImage = out->allocateArray<uint8_t>(imageSize);
-                strikeData.scaler->getImage(glyph);
-            }
-        };
-
-        ReadSpecFromTransport(in, perHeader, perStrike, perGlyph);
-    }
-#endif
 
 static void read_strikes_spec_write_strikes_data(
         Deserializer* deserializer, Serializer* serializer, SkRemoteStrikeTransport* transport,
@@ -658,6 +593,10 @@ static void update_caches_from_strikes_data(SkStrikeClient *client,
 SkStrikeServer::SkStrikeServer(SkRemoteStrikeTransport* transport)
     : fTransport{transport} { }
 
+SkStrikeServer::~SkStrikeServer() {
+    printf("Strike server - ops: %d\n", fOpCount);
+}
+
 int SkStrikeServer::serve() {
 
     auto serializer = skstd::make_unique<Serializer>();
@@ -666,6 +605,8 @@ int SkStrikeServer::serve() {
     while (true) {
         Op* op = deserializer->startRead<Op>(fTransport);
         if (op == nullptr) { break; }
+
+        fOpCount += 1;
 
         switch (op->opCode) {
             case OpCode::kFontMetrics : {
@@ -680,7 +621,7 @@ int SkStrikeServer::serve() {
                 auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
                 // TODO: check for buffer overflow.
                 SkPath path;
-                sc->getPath(op->glyphId, &path);
+                sc->getPath(op->glyphID, &path);
                 size_t pathSize = path.writeToMemory(nullptr);
                 serializer->startWrite<size_t>(pathSize);
                 auto pathData = serializer->allocateArray<uint8_t>(pathSize);
@@ -694,7 +635,7 @@ int SkStrikeServer::serve() {
                 serializer->startWrite();
                 auto glyph = serializer->allocate<SkGlyph>();
                 // TODO: check for buffer overflow.
-                glyph->initWithGlyphID(op->glyph.getPackedID());
+                glyph->initWithGlyphID(op->glyphID);
                 sc->getMetrics(glyph);
                 auto imageSize = glyph->computeImageSize();
                 glyph->fPathData = nullptr;
@@ -808,7 +749,7 @@ void SkStrikeClient::generateMetricsAndImage(
         Serializer serializer;
         Op *op = serializer.startEmplace<Op>(
             OpCode::kGlyphMetricsAndImage, typefaceProxy.remoteTypefaceID(), rec);
-        op->glyph = *glyph;
+        op->glyphID = glyph->getPackedID();
         serializer.endWrite(fTransport);
     }
 
@@ -824,8 +765,6 @@ void SkStrikeClient::generateMetricsAndImage(
             SkASSERT(imageSize == image.size());
             glyph->allocImage(alloc);
             memcpy(glyph->fImage, image.data(), imageSize);
-        } else {
-            glyph->fImage = nullptr;
         }
         deserializer.endRead();
     }
@@ -836,14 +775,11 @@ void SkStrikeClient::generatePath(
         const SkScalerContextRec& rec,
         SkGlyphID glyphID,
         SkPath* path) {
-    // Send generatePath
-    SkScalerContextRecDescriptor rd{rec};
-
     {
         Serializer serializer;
         Op *op = serializer.startEmplace<Op>(
             OpCode::kGlyphPath, typefaceProxy.remoteTypefaceID(), rec);
-        op->glyphId = glyphID;
+        op->glyphID = glyphID;
         serializer.endWrite(fTransport);
     }
 
