@@ -31,6 +31,17 @@ extern std::atomic<bool> gSkForceAnalyticAA;
 
 class AdditiveBlitter;
 
+struct AntiFillArgs {
+    bool            fForceRLE;
+    bool            fNoDAA;
+    SkDAARecord*    fDAARecord;
+
+    AntiFillArgs() : fForceRLE(false), fNoDAA(false), fDAARecord(nullptr) {}
+    AntiFillArgs(SkDAARecord* r) : fForceRLE(false), fNoDAA(false), fDAARecord(r) {}
+    AntiFillArgs& forceRLE(bool value) { fForceRLE = value; return *this; }
+    AntiFillArgs& noDAA(bool value) { fNoDAA = value; return *this; }
+};
+
 class SkScan {
 public:
     /*
@@ -53,7 +64,7 @@ public:
     static void AntiFillRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiFillXRect(const SkXRect&, const SkRasterClip&, SkBlitter*);
     static void FillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
-    static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*, SkDAARecord*);
+    static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*, AntiFillArgs);
     static void FrameRect(const SkRect&, const SkPoint& strokeSize,
                           const SkRasterClip&, SkBlitter*);
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
@@ -75,8 +86,13 @@ public:
 
     // We have this instead of a default nullptr parameter because of function pointer match.
     static void AntiFillPath(const SkPath& path, const SkRasterClip& rc, SkBlitter* blitter) {
-        AntiFillPath(path, rc, blitter, nullptr);
+        AntiFillPath(path, rc, blitter, {});
     }
+
+    static void AntiFillPathNoDAA(const SkPath& path, const SkRasterClip& rc, SkBlitter* blitter) {
+        AntiFillPath(path, rc, blitter, AntiFillArgs().noDAA(true));
+    }
+
 private:
     friend class SkAAClip;
     friend class SkRegion;
@@ -86,8 +102,7 @@ private:
     static void FillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void AntiFillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void AntiFillXRect(const SkXRect&, const SkRegion*, SkBlitter*);
-    static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*,
-                             bool forceRLE = false, SkDAARecord* daaRecord = nullptr);
+    static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*, AntiFillArgs = {});
     static void FillTriangle(const SkPoint pts[], const SkRegion*, SkBlitter*);
 
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,

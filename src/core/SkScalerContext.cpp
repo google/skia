@@ -303,7 +303,7 @@ static void packA8ToA1(const SkMask& mask, const uint8_t* src, size_t srcRB) {
 }
 
 static void generateMask(const SkMask& mask, const SkPath& path,
-                         const SkMaskGamma::PreBlend& maskPreBlend) {
+                         const SkMaskGamma::PreBlend& maskPreBlend, bool noDAA) {
     SkPaint paint;
 
     int srcW = mask.fBounds.width();
@@ -356,7 +356,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     draw.fDst   = dst;
     draw.fRC    = &clip;
     draw.fMatrix = &matrix;
-    draw.drawPath(path, paint);
+    draw.drawPath(path, paint, nullptr, false, noDAA);
 
     switch (mask.fFormat) {
         case SkMask::kBW_Format:
@@ -439,7 +439,8 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
-            generateMask(mask, devPath, fPreBlend);
+            // DAA would have over coverage issues with small stroke_and_fill (crbug.com/821353)
+            generateMask(mask, devPath, fPreBlend, fRec.fFrameWidth <= 1);
         }
     } else {
         generateImage(*glyph);

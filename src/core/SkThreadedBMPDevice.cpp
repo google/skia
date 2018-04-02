@@ -164,7 +164,8 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
     } else {
         fQueue.push(drawBounds, [=](SkArenaAlloc* alloc, DrawElement* elem) {
             SkInitOnceData data = {alloc, elem};
-            elem->getDraw().drawPath(path, paint, prePathMatrix, false, false, nullptr, &data);
+            elem->getDraw().drawPath(path, paint, prePathMatrix, false, false, false, nullptr,
+                                     &data);
         });
     }
 }
