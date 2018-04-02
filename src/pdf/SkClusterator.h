@@ -31,6 +31,13 @@ public:
         uint32_t fGlyphIndex;
         uint32_t fGlyphCount;
         explicit operator bool() const { return fGlyphCount != 0; }
+        bool operator==(const SkClusterator::Cluster& o) {
+            return fUtf8Text       == o.fUtf8Text
+                && fTextByteLength == o.fTextByteLength
+                && fGlyphIndex     == o.fGlyphIndex
+                && fGlyphCount     == o.fGlyphCount;
+        }
+
     };
     Cluster next();
 
