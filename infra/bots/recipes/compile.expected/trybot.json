@@ -108,10 +108,6 @@
       "[CUSTOM_C:\\_B_WORK]/skia/infra/bots/assets/clang_win/VERSION",
       "/path/to/tmp/"
     ],
-    "env": {
-      "CC": "/usr/bin/clang",
-      "CXX": "/usr/bin/clang++"
-    },
     "infra_step": true,
     "name": "Get clang_win VERSION"
   },
@@ -124,9 +120,7 @@
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release_x64",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
     },
@@ -143,9 +137,7 @@
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release_x64",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
     },
@@ -162,9 +154,7 @@
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release_x64",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
     },

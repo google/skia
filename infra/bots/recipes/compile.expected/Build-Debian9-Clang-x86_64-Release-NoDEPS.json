@@ -75,10 +75,6 @@
       "[START_DIR]/skia/infra/bots/assets/clang_linux/VERSION",
       "/path/to/tmp/"
     ],
-    "env": {
-      "CC": "/usr/bin/clang",
-      "CXX": "/usr/bin/clang++"
-    },
     "infra_step": true,
     "name": "Get clang_linux VERSION"
   },
@@ -91,9 +87,7 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS"
     },
@@ -110,9 +104,7 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS"
     },
@@ -129,9 +121,7 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS"
     },
