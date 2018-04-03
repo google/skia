@@ -8,6 +8,7 @@
 #include "SkGeometry.h"
 #include "SkMatrix.h"
 #include "SkNx.h"
+#include "SkPathOpsConic.h"
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
 
@@ -1074,7 +1075,13 @@ void SkConic::chopAt(SkScalar t1, SkScalar t2, SkConic* dst) const {
 }
 
 SkPoint SkConic::evalAt(SkScalar t) const {
-    return to_point(SkConicCoeff(*this).eval(t));
+    SkPoint result = to_point(SkConicCoeff(*this).eval(t));
+    if (!result.isFinite() && SkScalarIsFinite(fW) && SkScalarIsFinite(t) &&
+            SkPointPriv::AreFinite(fPts, 3)) {
+        SkDConic dConic;
+        result = dConic.set(fPts, fW).ptAtT(t).asSkPoint();
+    }
+    return result;
 }
 
 SkVector SkConic::evalTangentAt(SkScalar t) const {
