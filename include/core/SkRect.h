@@ -176,7 +176,7 @@ struct SK_API SkIRect {
     SkISize size() const { return SkISize::Make(this->width(), this->height()); }
 
     /** Returns average of left edge and right edge. Result does not change if SkIRect
-        is sorted. Result may be incorrect if SkIRect is far from the origin.
+        is sorted.
 
         Result is rounded down.
 
@@ -185,7 +185,7 @@ struct SK_API SkIRect {
     int32_t centerX() const { return SkToS32(((int64_t)fRight + fLeft) >> 1); }
 
     /** Returns average of top edge and bottom edge. Result does not change if SkIRect
-        is sorted. Result may be incorrect if SkIRect is far from the origin.
+        is sorted.
 
         Result is rounded down.
 

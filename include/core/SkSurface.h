@@ -173,11 +173,12 @@ public:
         @param backendTexture  texture residing on GPU
         @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                               kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+        @param colorType       one of:
+                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param colorSpace      range of colors
+        @param colorSpace      range of colors; may be nullptr
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
         @return                SkSurface if all parameters are valid; otherwise, nullptr
@@ -189,8 +190,8 @@ public:
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps);
 
-    /** Wraps a GPU-backed buffer into SkSurface. Caller must ensure render target is
-        valid for the lifetime of returned SkSurface.
+    /** Wraps a GPU-backed buffer into SkSurface. Caller must ensure backendRenderTarget
+        is valid for the lifetime of returned SkSurface.
 
         SkSurface is returned if all parameters are valid. backendRenderTarget is valid if
         its pixel configuration agrees with colorSpace and context; for instance, if
@@ -204,9 +205,10 @@ public:
         @param context              GPU context
         @param backendRenderTarget  GPU intermediate memory buffer
         @param origin               one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType            one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                                    kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                                    kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+        @param colorType            one of:
+                                    kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+                                    kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+                                    kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                     kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace           range of colors
         @param surfaceProps         LCD striping orientation and setting for device independent
@@ -220,11 +222,18 @@ public:
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps);
 
-    /** Used to wrap a GPU-backed texture as a SkSurface. Skia will treat the texture as
-        a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
-        the associated render target objects (but not the provided texture). Skia will not assume
-        ownership of the texture and the client must ensure the texture is valid for the lifetime
-        of the SkSurface.
+    /** Wraps a GPU-backed texture into SkSurface. Caller must ensure backendTexture is
+        valid for the lifetime of returned SkSurface. If sampleCnt greater than zero,
+        creates an intermediate MSAA SkSurface which is used for drawing backendTexture.
+
+        SkSurface is returned if all parameters are valid. backendTexture is valid if
+        its pixel configuration agrees with colorSpace and context; for instance, if
+        backendTexture has an sRGB configuration, then context must support sRGB,
+        and colorSpace must be present. Further, backendTexture width and height must
+        not exceed context capabilities.
+
+        Returned SkSurface is available only for drawing into, and cannot generate an
+        SkImage.
 
         If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 
@@ -232,11 +241,12 @@ public:
         @param backendTexture  texture residing on GPU
         @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                               kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+        @param colorType       one of:
+                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param colorSpace      range of colors
+        @param colorSpace      range of colors; may be nullptr
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
         @return                SkSurface if all parameters are valid; otherwise, nullptr

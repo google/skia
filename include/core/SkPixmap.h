@@ -149,27 +149,29 @@ public:
     */
     int height() const { return fInfo.height(); }
 
-    /** Returns SkColorType, one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-        kRGB_565_SkColorType, kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-        kRGB_888x_SkColorType, kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType,
-        kRGB_101010x_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType.
+    /** Returns SkColorType, one of:
+        kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+        kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+        kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+        kGray_8_SkColorType, kRGBA_F16_SkColorType.
 
         @return  SkColorType in SkImageInfo
     */
     SkColorType colorType() const { return fInfo.colorType(); }
 
-    /** Returns SkAlphaType, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-        kPremul_SkAlphaType, kUnpremul_SkAlphaType.
+    /** Returns SkAlphaType, one of:
+        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+        kUnpremul_SkAlphaType.
 
         @return  SkAlphaType in SkImageInfo
     */
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
 
-    /** Returns SkColorSpace associated with SkImageInfo. The
+    /** Returns SkColorSpace, the range of colors, associated with SkImageInfo. The
         reference count of SkColorSpace is unchanged. The returned SkColorSpace is
         immutable.
 
-        @return  SkColorSpace, the range of colors, in SkImageInfo
+        @return  SkColorSpace in SkImageInfo, or nullptr
     */
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
 
