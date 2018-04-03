@@ -168,7 +168,7 @@ sk_sp<SkImage> SkSpecialImage::asImage(const SkIRect* subset) const {
     return as_SIB(this)->onAsImage(subset);
 }
 
-
+#if defined(SK_DEBUG) || SK_SUPPORT_GPU
 static bool rect_fits(const SkIRect& rect, int width, int height) {
     if (0 == width && 0 == height) {
         SkASSERT(0 == rect.fLeft && 0 == rect.fRight && 0 == rect.fTop && 0 == rect.fBottom);
@@ -180,6 +180,7 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
            rect.fTop >= 0 && rect.fTop < height && rect.fTop < rect.fBottom &&
            rect.fBottom >= 0 && rect.fBottom <= height;
 }
+#endif
 
 sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
                                                     sk_sp<SkImage> image,
