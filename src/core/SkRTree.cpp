@@ -47,6 +47,7 @@ void SkRTree::insert(const SkRect boundsArray[], int N) {
         } else {
             fNodes.setReserve(CountNodes(fCount, fAspectRatio));
             fRoot = this->bulkLoad(&branches);
+            SkASSERT(fNodes.count() == fNodes.reserved());
         }
     }
 }
@@ -63,7 +64,7 @@ SkRTree::Node* SkRTree::allocateNodeAtLevel(uint16_t level) {
 // This function parallels bulkLoad, but just counts how many nodes bulkLoad would allocate.
 int SkRTree::CountNodes(int branches, SkScalar aspectRatio) {
     if (branches == 1) {
-        return 1;
+        return 0;
     }
     int numBranches = branches / kMaxChildren;
     int remainder   = branches % kMaxChildren;
@@ -141,7 +142,7 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
                     remainder -= kMaxChildren - kMinChildren;
                 }
             }
-            Node* n = allocateNodeAtLevel(level);
+            Node* n = this->allocateNodeAtLevel(level);
             n->fNumChildren = 1;
             n->fChildren[0] = (*branches)[currentBranch];
             Branch b;
