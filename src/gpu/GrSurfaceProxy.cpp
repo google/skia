@@ -402,6 +402,8 @@ void GrSurfaceProxyPriv::exactify() {
 }
 
 bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvider) {
+    SkDebugf("doLazyInstantiation %x %x\n", resourceProvider, fProxy);
+
     SkASSERT(GrSurfaceProxy::LazyState::kNot != fProxy->lazyInstantiationState());
 
     sk_sp<GrSurface> surface = fProxy->fLazyInstantiateCallback(resourceProvider);
