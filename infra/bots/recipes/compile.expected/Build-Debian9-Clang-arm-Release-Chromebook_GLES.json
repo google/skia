@@ -104,10 +104,6 @@
       "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/clang_linux/VERSION",
       "/path/to/tmp/"
     ],
-    "env": {
-      "CC": "/usr/bin/clang",
-      "CXX": "/usr/bin/clang++"
-    },
     "infra_step": true,
     "name": "Get clang_linux VERSION"
   },
@@ -120,9 +116,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_GLES"
@@ -140,9 +134,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_GLES"
@@ -162,9 +154,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_GLES"
