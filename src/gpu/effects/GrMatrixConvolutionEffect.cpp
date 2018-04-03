@@ -215,8 +215,19 @@ bool GrMatrixConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) cons
 static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
                                        SkScalar sigmaX, SkScalar sigmaY) {
     SkASSERT(width * height <= MAX_KERNEL_SIZE);
-    const float sigmaXDenom = 1.0f / (2.0f * SkScalarToFloat(SkScalarSquare(sigmaX)));
-    const float sigmaYDenom = 1.0f / (2.0f * SkScalarToFloat(SkScalarSquare(sigmaY)));
+    const float twoSigmaSqrdX = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaX));
+    const float twoSigmaSqrdY = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaY));
+
+    if (SkScalarNearlyZero(twoSigmaSqrdX, SK_ScalarNearlyZero) ||
+        SkScalarNearlyZero(twoSigmaSqrdY, SK_ScalarNearlyZero)) {
+        for (int i = 0; i < width * height; ++i) {
+            kernel[i] = 0.0f;
+        }
+        return;
+    }
+
+    const float sigmaXDenom = 1.0f / twoSigmaSqrdX;
+    const float sigmaYDenom = 1.0f / twoSigmaSqrdY;
     const int xRadius = width / 2;
     const int yRadius = height / 2;
 
