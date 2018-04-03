@@ -177,7 +177,15 @@ void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrShaderC
 
 ///////////////////////////////////////////////////////////////////////////////
 static void fill_in_1D_gaussian_kernel(float* kernel, int width, float gaussianSigma, int radius) {
-    const float denom = 1.0f / (2.0f * gaussianSigma * gaussianSigma);
+    float twoSigmaSqrd = 2.0f * gaussianSigma * gaussianSigma;
+    if (SkScalarNearlyZero(twoSigmaSqrd, SK_ScalarNearlyZero)) {
+        for (int i = 0; i < width; ++i) {
+            kernel[i] = 0.0f;
+        }
+        return;
+    }
+
+    const float denom = 1.0f / twoSigmaSqrd;
 
     float sum = 0.0f;
     for (int i = 0; i < width; ++i) {
