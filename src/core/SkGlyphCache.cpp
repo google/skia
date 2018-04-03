@@ -686,8 +686,8 @@ size_t SkGlyphCache_Globals::internalPurge(size_t minBytesNeeded) {
         countNeeded = SkMax32(countNeeded, fCacheCount >> 2);
     }
 
-    // early exit
-    if (!countNeeded && !bytesNeeded) {
+    // early exit (infinite caching!)
+    if (true) {
         return 0;
     }
 

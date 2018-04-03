@@ -10,10 +10,12 @@
 #include <iterator>
 #include <memory>
 #include <tuple>
+#include <string>
 
 #include "SkDevice.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkTypeface_remote.h"
+#include "SkTraceEvent.h"
 
 static const size_t kPageSize = 4096;
 
@@ -45,62 +47,10 @@ private:
     size_t   fSize;
 };
 
-// -- SkRemoteStrikeTransport ----------------------------------------------------------------------------------
-
-SkRemoteStrikeTransport::IOResult SkRemoteStrikeTransport::writeSkData(const SkData& data) {
-    size_t size = data.size();
-
-    if (this->write(&size, sizeof(size)) == kFail) {
-        return kFail;
-    }
-
-    if (this->write(data.data(), size) == kFail) {
-        return kFail;
-    }
-
-    return kSuccess;
-}
-sk_sp<SkData> SkRemoteStrikeTransport::readSkData() {
-    size_t size;
-    if(std::get<1>(this->read(&size, sizeof(size))) == kFail) {
-        return nullptr;
-    }
-
-    auto data = std::unique_ptr<uint8_t[]>{new uint8_t[size]};
-    size_t totalRead = 0;
-    while (totalRead < size) {
-        size_t sizeRead;
-        IOResult result;
-        std::tie(sizeRead, result) = this->read(&data[totalRead], size - totalRead);
-        if (result == kFail || sizeRead == 0) {
-            return nullptr;
-        }
-        totalRead += sizeRead;
-    }
-
-    return SkData::MakeWithCopy(data.get(), size);
-}
-
 // -- Serializer ----------------------------------------------------------------------------------
 
 class Serializer {
 public:
-    void startWrite() {
-        fCursor = 0;
-    }
-
-    template <typename T>
-    void startWrite(const T& data) {
-        this->startWrite();
-        this->write<T>(data);
-    }
-
-    template <typename T, typename... Args>
-    T* startEmplace(Args&&... args) {
-        this->startWrite();
-        return this->emplace<T>(std::forward<Args>(args)...);
-    }
-
     template <typename T, typename... Args>
     T* emplace(Args&&... args) {
         T* result = new (&fBuffer[fCursor]) T{std::forward<Args>(args)...};
@@ -135,14 +85,17 @@ public:
         return result;
     }
 
-    SkRemoteStrikeTransport::IOResult endWrite(SkRemoteStrikeTransport* transport) {
-        return transport->write(fBuffer.get(), fCursor);
+    const void* buffer() const { return fBuffer.get(); }
+    size_t size() const { return fCursor; }
+
+    sk_sp<SkData> endWrite() {
+        return SkData::MakeWithCopy(fBuffer.get(), fCursor);
     }
 
 private:
     static constexpr size_t kBufferSize = kPageSize * 2000;
     std::unique_ptr<uint8_t[]> fBuffer{new uint8_t[kBufferSize]};
-    size_t fCursor{0};
+    size_t fCursor = 0;
     //size_t fEnd{0};
 };
 
@@ -150,22 +103,12 @@ private:
 
 class Deserializer {
 public:
-    void startRead(SkRemoteStrikeTransport* transport) {
-        fCursor = 0;
-        fEnd = 0;
-        fTransport = transport;
-    }
-
-    template <typename T>
-    T* startRead(SkRemoteStrikeTransport* transport) {
-        this->startRead(transport);
-        return this->read<T>();
-    }
+  Deserializer(sk_sp<SkData> data) : data_(std::move(data)) {}
 
     template <typename T>
     T* read() {
         T* result = (T*)this->ensureAtLeast(sizeof(T));
-        fCursor += sizeof(T);
+        bytes_read_ += sizeof(T);
         return result;
     }
 
@@ -173,7 +116,7 @@ public:
         SkDescriptor* result = (SkDescriptor*)this->ensureAtLeast(sizeof(SkDescriptor));
         size_t size = result->getLength();
         this->ensureAtLeast(size);
-        fCursor += size;
+        bytes_read_ += size;
         return result;
     }
 
@@ -182,49 +125,20 @@ public:
         size_t size = count * sizeof(T);
         const T* base = (const T*)this->ensureAtLeast(size);
         ArraySlice<T> result = ArraySlice<T>{base, (uint32_t)count};
-        fCursor += size;
+        bytes_read_ += size;
         return result;
     }
 
-    size_t endRead() {
-        fTransport = nullptr;
-        return size();
-    }
-
-    size_t size() {return fCursor;}
+    bool empty() const { return bytes_read_ == data_->size(); }
 
 private:
-    void* ensureAtLeast(size_t size) {
-        if (size > fEnd - fCursor) {
-            if (readAtLeast(size) == SkRemoteStrikeTransport::kFail) {
-                return nullptr;
-            }
-        }
-        return &fBuffer[fCursor];
+    const char* ensureAtLeast(size_t size) {
+      //CHECK_LE(bytes_read_ + size, data_->size()) << "Not enough data";
+      return static_cast<const char*>(data_->data()) + bytes_read_;
     }
 
-    SkRemoteStrikeTransport::IOResult readAtLeast(size_t size) {
-        size_t readSoFar = 0;
-        size_t bufferLeft = kBufferSize - fCursor;
-        size_t needed = size - (fEnd - fCursor);
-        while (readSoFar < needed) {
-            SkRemoteStrikeTransport::IOResult result;
-            size_t readSize;
-            std::tie(readSize, result) =
-                    fTransport->read(&fBuffer[fEnd+readSoFar], bufferLeft - readSoFar);
-            if (result == SkRemoteStrikeTransport::kFail || readSize == 0) {return SkRemoteStrikeTransport::kFail;}
-            readSoFar += readSize;
-        }
-        fEnd += readSoFar;
-        return SkRemoteStrikeTransport::kSuccess;
-    }
-
-    SkRemoteStrikeTransport* fTransport;
-
-    static constexpr size_t kBufferSize = kPageSize * 2000;
-    std::unique_ptr<uint8_t[]> fBuffer{new uint8_t[kBufferSize]};
-    size_t fCursor{0};
-    size_t fEnd{0};
+    sk_sp<SkData> data_;
+    size_t bytes_read_ = 0u;
 };
 
 // -- TrackLayerDevice -----------------------------------------------------------------------------
@@ -300,6 +214,7 @@ SkCanvas::SaveLayerStrategy SkTextBlobCacheDiffCanvas::getSaveLayerStrategy(
 
 void SkTextBlobCacheDiffCanvas::onDrawTextBlob(
         const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) {
+
     SkPoint position{x, y};
 
     SkPaint runPaint{paint};
@@ -341,20 +256,24 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
 {
 
     if (runPaint.getTextEncoding() != SkPaint::TextEncoding::kGlyphID_TextEncoding) {
+        TRACE_EVENT0("skia", "kGlyphID_TextEncoding");
         return;
     }
 
     // All other alignment modes need the glyph advances. Use the slow drawing mode.
     if (runPaint.getTextAlign() != SkPaint::kLeft_Align) {
+        TRACE_EVENT0("skia", "kLeft_Align");
         return;
     }
 
     using PosFn = SkPoint(*)(int index, const SkScalar* pos);
     PosFn posFn;
     switch (it.positioning()) {
-        case SkTextBlob::kDefault_Positioning:
+        case SkTextBlob::kDefault_Positioning: {
             // Default positioning needs advances. Can't do that.
+            TRACE_EVENT0("skia", "kDefault_Positioning");
             return;
+        }
 
         case SkTextBlob::kHorizontal_Positioning:
             posFn = [](int index, const SkScalar* pos) {
@@ -377,6 +296,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     SkMatrix blobMatrix{fDeviceMatrix};
     blobMatrix.preConcat(this->getTotalMatrix());
     if (blobMatrix.hasPerspective()) {
+        TRACE_EVENT0("skia", "hasPerspective");
         return;
     }
     blobMatrix.preTranslate(position.x(), position.y());
@@ -421,11 +341,12 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     SkScalerContext::MakeRecAndEffects(runPaint, &fSurfaceProps, &runMatrix,
                                        fScalerContextFlags, &rec, &effects);
 
+    TRACE_EVENT1("skia", "RecForDesc", "rec",
+                 TRACE_STR_COPY(rec.dump().c_str()));
     auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
     auto typefaceID = SkTypefaceProxy::DownCast(runPaint.getTypeface())->remoteTypefaceID();
     auto& addGlyph = fStrikeCacheDiff->findStrikeDifferences(*desc, typefaceID);
-
     auto cache = SkGlyphCache::FindStrikeExclusive(*desc);
     bool isSubpixel = SkToBool(rec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
     SkAxisAlignment axisAlignment = SkAxisAlignment::kNone_SkAxisAlignment;
@@ -504,10 +425,10 @@ struct WireTypeface {
     bool            isFixed;
 };
 
-static void write_strikes_spec(const SkStrikeCacheDifferenceSpec &spec,
+static sk_sp<SkData> write_strikes_spec(const SkStrikeCacheDifferenceSpec &spec,
                                Serializer* serializer,
                                SkRemoteStrikeTransport* transport) {
-    serializer->startEmplace<Op>(OpCode::kPrepopulateCache, SkFontID{0}, SkScalerContextRec{});
+    serializer->emplace<Op>(OpCode::kPrepopulateCache, SkFontID{0}, SkScalerContextRec{});
 
     serializer->emplace<Header>(spec.size());
 
@@ -522,7 +443,7 @@ static void write_strikes_spec(const SkStrikeCacheDifferenceSpec &spec,
 
     spec.iterateDifferences(perStrike, perGlyph);
 
-    serializer->endWrite(transport);
+    return transport->requestFontData(serializer->buffer(), serializer->size());
 }
 
 #if 0
@@ -585,12 +506,12 @@ template <typename PerHeader, typename PerStrike, typename PerGlyph>
 #endif
 
 static void read_strikes_spec_write_strikes_data(
-        Deserializer* deserializer, Serializer* serializer, SkRemoteStrikeTransport* transport,
+        Deserializer* deserializer, Serializer* serializer,
         SkStrikeServer* rc)
 {
     // Don't start because the op started this deserialization.
     auto header = deserializer->read<Header>();
-    serializer->startWrite<Header>(*header);
+    serializer->write<Header>(*header);
     for (int i = 0; i < header->strikeCount; i++) {
         auto spec = deserializer->read<StrikeSpec>();
         auto desc = deserializer->readDescriptor();
@@ -616,14 +537,10 @@ static void read_strikes_spec_write_strikes_data(
             }
         }
     }
-    deserializer->endRead();
-    serializer->endWrite(transport);
 }
 
 static void update_caches_from_strikes_data(SkStrikeClient *client,
-                                            Deserializer *deserializer,
-                                            SkRemoteStrikeTransport *transport) {
-    deserializer->startRead(transport);
+                                            Deserializer *deserializer) {
     auto header = deserializer->read<Header>();
     for (int i = 0; i < header->strikeCount; i++) {
         auto spec = deserializer->read<StrikeSpec>();
@@ -651,20 +568,18 @@ static void update_caches_from_strikes_data(SkStrikeClient *client,
             memcpy(allocatedGlyph->fImage, image.data(), image.size());
         }
     }
-    deserializer->endRead();
 }
 
 // -- SkStrikeServer -------------------------------------------------------------------------------
-SkStrikeServer::SkStrikeServer(SkRemoteStrikeTransport* transport)
-    : fTransport{transport} { }
+SkStrikeServer::SkStrikeServer() { }
 
-int SkStrikeServer::serve() {
+sk_sp<SkData> SkStrikeServer::serve(const void* data, size_t size) {
 
     auto serializer = skstd::make_unique<Serializer>();
-    auto deserializer = skstd::make_unique<Deserializer>();;
+    auto deserializer = skstd::make_unique<Deserializer>(SkData::MakeWithoutCopy(data, size));
 
-    while (true) {
-        Op* op = deserializer->startRead<Op>(fTransport);
+    while (!deserializer->empty()) {
+      Op* op = deserializer->read<Op>();
         if (op == nullptr) { break; }
 
         switch (op->opCode) {
@@ -672,8 +587,7 @@ int SkStrikeServer::serve() {
                 auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
                 SkPaint::FontMetrics metrics;
                 sc->getFontMetrics(&metrics);
-                serializer->startWrite<SkPaint::FontMetrics>(metrics);
-                serializer->endWrite(fTransport);
+                serializer->write<SkPaint::FontMetrics>(metrics);
                 break;
             }
             case OpCode::kGlyphPath : {
@@ -682,16 +596,14 @@ int SkStrikeServer::serve() {
                 SkPath path;
                 sc->getPath(op->glyphId, &path);
                 size_t pathSize = path.writeToMemory(nullptr);
-                serializer->startWrite<size_t>(pathSize);
+                serializer->write<size_t>(pathSize);
                 auto pathData = serializer->allocateArray<uint8_t>(pathSize);
                 path.writeToMemory(pathData);
-                serializer->endWrite(fTransport);
                 break;
             }
             case OpCode::kGlyphMetricsAndImage : {
                 auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
 
-                serializer->startWrite();
                 auto glyph = serializer->allocate<SkGlyph>();
                 // TODO: check for buffer overflow.
                 glyph->initWithGlyphID(op->glyph.getPackedID());
@@ -705,20 +617,20 @@ int SkStrikeServer::serve() {
                     sc->getImage(*glyph);
                 }
 
-                serializer->endWrite(fTransport);
                 break;
             }
             case OpCode::kPrepopulateCache : {
                 read_strikes_spec_write_strikes_data(
-                        deserializer.get(), serializer.get(), fTransport, this);
+                        deserializer.get(), serializer.get(), this);
                 break;
             }
 
             default:
-                SK_ABORT("Bad op");
+              break;
+              //CHECK(false) << "Found bad op!!!!!";
         }
     }
-    return 0;
+    return serializer->endWrite();
 }
 
 void SkStrikeServer::prepareSerializeProcs(SkSerialProcs* procs) {
@@ -768,32 +680,27 @@ sk_sp<SkData> SkStrikeServer::encodeTypeface(SkTypeface* tf) {
 
 // -- SkStrikeClient -------------------------------------------------------------------------------
 
-static Op* start_op_write(
-    OpCode opCode, const SkTypefaceProxy& tf, const SkScalerContextRec& rec, Serializer* serializer)
-{
-    return serializer->startEmplace<Op>(opCode, tf.remoteTypefaceID(), rec);
-}
-
 SkStrikeClient::SkStrikeClient(SkRemoteStrikeTransport* transport) : fTransport{transport} { }
 
 void SkStrikeClient::generateFontMetrics(
         const SkTypefaceProxy& typefaceProxy,
         const SkScalerContextRec& rec,
         SkPaint::FontMetrics* metrics) {
+    TRACE_EVENT1("skia", "generateFontMetrics", "rec",
+                 TRACE_STR_COPY(rec.dump().c_str()));
+
+    sk_sp<SkData> data;
     // Send generateFontMetrics
     {
         Serializer serializer;
-        serializer.startEmplace<Op>(OpCode::kFontMetrics, typefaceProxy.remoteTypefaceID(), rec);
-        start_op_write(OpCode::kFontMetrics, typefaceProxy, rec, &serializer);
-        serializer.endWrite(fTransport);
+        serializer.emplace<Op>(OpCode::kFontMetrics, typefaceProxy.remoteTypefaceID(), rec);
+        data = fTransport->requestFontData(serializer.buffer(), serializer.size());
     }
 
     // Receive generateFontMetrics
     {
-        Deserializer deserializer;
-        deserializer.startRead(fTransport);
+        Deserializer deserializer(std::move(data));
         *metrics = *deserializer.read<SkPaint::FontMetrics>();
-        deserializer.endRead();
     }
 }
 
@@ -802,20 +709,23 @@ void SkStrikeClient::generateMetricsAndImage(
         const SkScalerContextRec& rec,
         SkArenaAlloc* alloc,
         SkGlyph* glyph) {
+    TRACE_EVENT1("skia", "generateMetricsAndImage", "rec",
+                 TRACE_STR_COPY(rec.dump().c_str()));
     SkScalerContextRecDescriptor rd{rec};
 
+    sk_sp<SkData> data;
     {
         Serializer serializer;
-        Op *op = serializer.startEmplace<Op>(
+        Op *op = serializer.emplace<Op>(
             OpCode::kGlyphMetricsAndImage, typefaceProxy.remoteTypefaceID(), rec);
         op->glyph = *glyph;
-        serializer.endWrite(fTransport);
+        data = fTransport->requestFontData(serializer.buffer(), serializer.size());
     }
 
     // Receive generateMetricsAndImage
     {
-        Deserializer deserializer;
-        *glyph = *deserializer.startRead<SkGlyph>(fTransport);
+        Deserializer deserializer(std::move(data));
+        *glyph = *deserializer.read<SkGlyph>();
         auto imageSize = glyph->computeImageSize();
         glyph->fPathData = nullptr;
         glyph->fImage = nullptr;
@@ -827,7 +737,6 @@ void SkStrikeClient::generateMetricsAndImage(
         } else {
             glyph->fImage = nullptr;
         }
-        deserializer.endRead();
     }
 
 }
@@ -836,34 +745,38 @@ void SkStrikeClient::generatePath(
         const SkScalerContextRec& rec,
         SkGlyphID glyphID,
         SkPath* path) {
+    TRACE_EVENT1("skia", "generatePath", "rec",
+                 TRACE_STR_COPY(rec.dump().c_str()));
+
     // Send generatePath
     SkScalerContextRecDescriptor rd{rec};
 
+    sk_sp<SkData> data;
     {
         Serializer serializer;
-        Op *op = serializer.startEmplace<Op>(
+        Op *op = serializer.emplace<Op>(
             OpCode::kGlyphPath, typefaceProxy.remoteTypefaceID(), rec);
         op->glyphId = glyphID;
-        serializer.endWrite(fTransport);
+        data = fTransport->requestFontData(serializer.buffer(), serializer.size());
     }
 
     {
-        Deserializer deserializer;
-        size_t pathSize = *deserializer.startRead<size_t>(fTransport);
+        Deserializer deserializer(std::move(data));
+        size_t pathSize = *deserializer.read<size_t>();
         auto rawPath = deserializer.readArray<uint8_t>(pathSize);
         path->readFromMemory(rawPath.data(), rawPath.size());
-        deserializer.endRead();
     }
 }
 
 void SkStrikeClient::primeStrikeCache(const SkStrikeCacheDifferenceSpec& strikeDifferences) {
+  sk_sp<SkData> data;
     {
-        auto serializer = skstd::make_unique<Serializer>();
-        write_strikes_spec(strikeDifferences, serializer.get(), fTransport);
+        Serializer serializer;
+        data = write_strikes_spec(strikeDifferences, &serializer, fTransport);
     }
     {
-        auto deserializer = skstd::make_unique<Deserializer>();;
-        update_caches_from_strikes_data(this, deserializer.get(), fTransport);
+        Deserializer deserializer(std::move(data));
+        update_caches_from_strikes_data(this, &deserializer);
     }
 }
 

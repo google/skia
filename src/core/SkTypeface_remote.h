@@ -114,7 +114,7 @@ protected:
         // filter.
     }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override {
-        SK_ABORT("Should never be called.");
+
     }
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
         SK_ABORT("Should never be called.");
