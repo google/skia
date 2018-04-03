@@ -460,6 +460,18 @@ static SkPath create_path_30() {
     return path;
 }
 
+// A path with vertices which become infinite on AA stroking. Should not crash or assert.
+static SkPath create_path_31() {
+    SkPath path;
+    path.moveTo(2.0257809259190991347e+36,  -1244080640);
+    path.conicTo(2.0257809259190991347e+36, -1244080640,
+                 2.0257809259190991347e+36, 0.10976474732160568237, 0.70710676908493041992);
+    path.lineTo(-10036566016, -1954718402215936);
+    path.conicTo(-1.1375507718551896064e+20, -1954721086570496,
+                 10036566016, -1954721086570496, 0.70710676908493041992);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -551,5 +563,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_28(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_29());
     test_path(ctx, rtc.get(), create_path_30());
+    test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
 }
 #endif
