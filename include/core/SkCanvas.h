@@ -1895,7 +1895,8 @@ public:
                   const SkPaint& paint);
 
     /** Draw null terminated string, with origin at (x, y), using clip, SkMatrix, and
-        SkPaint paint.
+        SkPaint paint. Note that this per-glyph xform does not affect the shader (if present)
+        on the paint, just the glyph's geometry.
 
         string meaning depends on SkPaint::TextEncoding; by default, strings are encoded
         as UTF-8. Other values of SkPaint::TextEncoding are unlikely to produce the desired
@@ -2055,8 +2056,7 @@ public:
         using clip, SkMatrix, and SkPaint paint.
 
         SkRSXform array specifies a separate square scale, rotation, and translation for
-        each glyph. Note that this per-glyph xform does not affect the shader (if present)
-        on the paint, just the glyph's geometry.
+        each glyph.
 
         Optional SkRect cullRect is a conservative bounds of text, taking into account
         SkRSXform and paint. If cullRect is outside of clip, canvas can skip drawing.
@@ -2762,7 +2762,7 @@ private:
 };
 
 /** \class SkAutoCanvasRestore
-    Stack helper class calls SkCanvas::restoreToCount() when SkAutoCanvasRestore
+    Stack helper class calls SkCanvas::restoreToCount when SkAutoCanvasRestore
     goes out of scope. Use this to guarantee that the canvas is restored to a known
     state.
 */
