@@ -417,6 +417,12 @@
         "Build-Mac-Clang-x86_64-Debug"
       ]
     },
+    "Build-Mac-Clang-x86_64-Debug-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-ASAN"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
       "priority": 0.8,
       "tasks": [
@@ -1191,6 +1197,12 @@
       "priority": 0.8,
       "tasks": [
         "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All"
+      ]
+    },
+    "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN"
       ]
     },
     "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All": {
@@ -2484,6 +2496,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All"
+      ]
+    },
+    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN"
       ]
     },
     "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-NativeFonts": {
@@ -5214,6 +5232,29 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-x86_64-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-x86_64-Debug-ASAN": {
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.13.3",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-x86_64-Debug-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -9717,6 +9758,53 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:118"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-ASAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "os:Mac-10.13.3",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19412,6 +19500,54 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:118"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-ASAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "os:Mac-10.13.3",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
