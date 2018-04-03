@@ -34,6 +34,24 @@
       "revId": "c0528e2418e09765807f1db510733c573232f7e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a45215c_0b2d657b",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-03T12:56:10Z",
+      "side": 0,
+      "message": "I already landed: https://skia-review.googlesource.com/c/skia/+/118100",
+      "parentUuid": "8a28c6a9_d049a075",
+      "revId": "c0528e2418e09765807f1db510733c573232f7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
