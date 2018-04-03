@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6666fce_138dc92c",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1821,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-03T16:01:41Z",
+      "side": 1,
+      "message": "So, delete this?",
+      "range": {
+        "startLine": 1816,
+        "startChar": 0,
+        "endLine": 1821,
+        "endChar": 1
+      },
+      "revId": "555787319d05d0f63488aefaadf507ba74cdf1d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
