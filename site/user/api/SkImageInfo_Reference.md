@@ -144,6 +144,12 @@ in the same order.
 static inline bool SkAlphaTypeIsOpaque(SkAlphaType at)
 </pre>
 
+Returns true if <a href="#Alpha_Type">Alpha Type</a> equals <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>. <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a> is a
+hint that the <a href="#Color_Type">Color Type</a> is opaque, or that all <a href="undocumented#Alpha">Color Alpha</a> values are set to
+their 1.0 equivalent. If <a href="#Alpha_Type">Alpha Type</a> is <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, and <a href="#Color_Type">Color Type</a> is not
+opaque, then the result of drawing any pixel with a <a href="undocumented#Alpha">Color Alpha</a> value less than
+1.0 is undefined.
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkAlphaTypeIsOpaque_at"> <code><strong>at </strong></code> </a></td> <td>

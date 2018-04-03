@@ -1931,11 +1931,19 @@ public:
     };
 
     struct Preprocessor {
-        Preprocessor()
-            : fStart(nullptr)
-            , fEnd(nullptr)
-            , fWord(false) {
+        Preprocessor() {
+            reset();
         }
+
+        void reset() {
+            fDefinition = nullptr;
+            fStart = nullptr;
+            fEnd = nullptr;
+            fWord = false;
+        }
+
+        const Definition* fDefinition;
+        const Definition* fBracket;
         const char* fStart;
         const char* fEnd;
         bool fWord;
