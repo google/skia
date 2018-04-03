@@ -106,16 +106,10 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
                          shaderCaps->fbFetchExtensionString());
 
         // Some versions of this extension string require declaring custom color output on ES 3.0+
-        const char* fbFetchColorName = shaderCaps->fbFetchColorName();
-        if (shaderCaps->fbFetchNeedsCustomOutput()) {
-            this->enableCustomOutput();
-            fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
-            fbFetchColorName = DeclaredColorOutputName();
-            // Set the dstColor to an intermediate variable so we don't override it with the output
-            this->codeAppendf("half4 %s = %s;", kDstColorName, fbFetchColorName);
-        } else {
-            return fbFetchColorName;
-        }
+        this->enableCustomOutput();
+        fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
+        // Set the dstColor to an intermediate variable so we don't override it with the output
+        this->codeAppendf("half4 %s = %s;", kDstColorName, DeclaredColorOutputName());
     }
     return kDstColorName;
 }
@@ -168,6 +162,11 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
 
 const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
     return fHasCustomColorOutput ? DeclaredColorOutputName() : "sk_FragColor";
+}
+
+bool GrGLSLFragmentShaderBuilder::primaryColorOutputIsInOut() const {
+    return fHasCustomColorOutput &&
+           fOutputs[fCustomColorOutputIndex].getTypeModifier() == GrShaderVar::kInOut_TypeModifier;
 }
 
 void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {
