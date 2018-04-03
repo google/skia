@@ -205,6 +205,40 @@ private:
     bool                fShouldCreateMipMaps;
 };
 
+// Test out operator== && operator!=
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    for (int i = 0; i < SurfaceParameters::kNumParams; ++i) {
+        SurfaceParameters params1;
+        params1.modify(i);
+
+        SkSurfaceCharacterization char1 = params1.createCharacterization(context);
+        SkASSERT(char1.isValid());
+
+        for (int j = 0; j < SurfaceParameters::kNumParams; ++j) {
+            SurfaceParameters params2;
+            params2.modify(j);
+
+            SkSurfaceCharacterization char2 = params2.createCharacterization(context);
+            SkASSERT(char2.isValid());
+
+            if (i == j) {
+                REPORTER_ASSERT(reporter, char1 == char2);
+            } else {
+                REPORTER_ASSERT(reporter, char1 != char2);
+            }
+
+        }
+    }
+
+    {
+        SkSurfaceCharacterization inval1, inval2;
+
+        REPORTER_ASSERT(reporter, inval1 != inval2);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // This tests SkSurfaceCharacterization/SkSurface compatibility
 DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
