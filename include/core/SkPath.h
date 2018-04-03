@@ -1052,8 +1052,6 @@ public:
         and half oval height. Oval begins at (oval.fRight, oval.centerY()) and continues
         clockwise if dir is kCW_Direction, counterclockwise if dir is kCCW_Direction.
 
-        This form is identical to addOval(oval, dir, 1).
-
         @param oval  bounds of ellipse added
         @param dir   SkPath::Direction to wind ellipse
     */
@@ -1278,15 +1276,15 @@ public:
     bool getLastPt(SkPoint* lastPt) const;
 
     /** Set last point to (x, y). If SkPoint array is empty, append kMove_Verb to
-        verb array and (x, y) to SkPoint array.
+        verb array and append (x, y) to SkPoint array.
 
         @param x  set x-coordinate of last point
         @param y  set y-coordinate of last point
     */
     void setLastPt(SkScalar x, SkScalar y);
 
-    /** Set the last point on the path. If no points have been added, moveTo(p)
-        is automatically called.
+    /** Set the last point on the path. If SkPoint array is empty, append kMove_Verb to
+        verb array and append p to SkPoint array.
 
         @param p  set value of last point
     */
