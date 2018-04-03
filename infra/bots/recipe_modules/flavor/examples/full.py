@@ -64,6 +64,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-universal-devrel-Android_SKQP',
   'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
+  'Build-Debian9-Clang-x86_64-Debug-SK_CPU_LIMIT_SSE41',
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
   'Build-Debian9-Clang-x86_64-Release-NoDEPS',

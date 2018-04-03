@@ -83,6 +83,10 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     if len(extra_tokens) == 1 and extra_tokens[0].startswith('SK'):
       extra_cflags.append('-D' + extra_tokens[0])
+      # If we're limiting Skia at all, drop skcms to portable code.
+      if 'SK_CPU_LIMIT' in extra_tokens[0]:
+        extra_cflags.append('-DSKCMS_PORTABLE')
+
 
     if 'MSAN' in extra_tokens:
       extra_ldflags.append('-L' + clang_linux + '/msan')
