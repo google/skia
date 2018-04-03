@@ -15,8 +15,6 @@
 #include "SkFindAndPlaceGlyph.h"
 #include "SkTypeface_remote.h"
 
-static const size_t kPageSize = 4096;
-
 template <typename T>
 class ArraySlice final : public std::tuple<const T*, size_t> {
 public:
@@ -45,21 +43,43 @@ private:
     size_t   fSize;
 };
 
-// -- SkRemoteStrikeTransport ----------------------------------------------------------------------------------
+// -- SkRemoteStrikeTransport ----------------------------------------------------------------------
+
+static SkRemoteStrikeTransport::IOResult write_data(
+    size_t size, const uint8_t* data, SkRemoteStrikeTransport* t) {
+
+    if (t->write(&size, sizeof(size)) == SkRemoteStrikeTransport::kFail) {
+        return SkRemoteStrikeTransport::kFail;
+    }
+
+    if (t->write(data, size) == SkRemoteStrikeTransport::kFail) {
+        return SkRemoteStrikeTransport::kFail;
+    }
+
+    return SkRemoteStrikeTransport::kSuccess;
+}
+
+static SkRemoteStrikeTransport::IOResult read_data(
+    size_t size, uint8_t* data, SkRemoteStrikeTransport* t) {
+
+    size_t totalRead = 0;
+    while (totalRead < size) {
+        size_t sizeRead;
+        SkRemoteStrikeTransport::IOResult result;
+        std::tie(sizeRead, result) = t->read(&data[totalRead], size - totalRead);
+        if (result == SkRemoteStrikeTransport::kFail || sizeRead == 0) {
+            return SkRemoteStrikeTransport::kFail;
+        }
+        totalRead += sizeRead;
+    }
+
+    return SkRemoteStrikeTransport::kSuccess;
+}
 
 SkRemoteStrikeTransport::IOResult SkRemoteStrikeTransport::writeSkData(const SkData& data) {
-    size_t size = data.size();
-
-    if (this->write(&size, sizeof(size)) == kFail) {
-        return kFail;
-    }
-
-    if (this->write(data.data(), size) == kFail) {
-        return kFail;
-    }
-
-    return kSuccess;
+    return write_data(data.size(), (uint8_t*)data.data(), this);
 }
+
 sk_sp<SkData> SkRemoteStrikeTransport::readSkData() {
     size_t size;
     if(std::get<1>(this->read(&size, sizeof(size))) == kFail) {
@@ -67,164 +87,112 @@ sk_sp<SkData> SkRemoteStrikeTransport::readSkData() {
     }
 
     auto data = std::unique_ptr<uint8_t[]>{new uint8_t[size]};
-    size_t totalRead = 0;
-    while (totalRead < size) {
-        size_t sizeRead;
-        IOResult result;
-        std::tie(sizeRead, result) = this->read(&data[totalRead], size - totalRead);
-        if (result == kFail || sizeRead == 0) {
-            return nullptr;
-        }
-        totalRead += sizeRead;
+    if (read_data(size, data.get(), this) == kFail) {
+        return nullptr;
     }
 
     return SkData::MakeWithCopy(data.get(), size);
 }
 
+SkRemoteStrikeTransport::IOResult SkRemoteStrikeTransport::writeVector(
+    const std::vector<uint8_t>& vector) {
+    return write_data(vector.size(), vector.data(), this);
+}
+
+SkRemoteStrikeTransport::IOResult SkRemoteStrikeTransport::readVector(
+    std::vector<uint8_t>* vector) {
+    size_t vectorSize = 0;
+    size_t readSize = 0;
+    SkRemoteStrikeTransport::IOResult result;
+    std::tie(readSize, result) = this->read(&vectorSize, sizeof(vectorSize));
+    if(result == kFail || readSize == 0) {
+        return kFail;
+    }
+
+    vector->resize(vectorSize);
+
+    return read_data(vectorSize, vector->data(), this);
+}
+
 // -- Serializer ----------------------------------------------------------------------------------
 
+static size_t pad(size_t size, size_t alignment) {
+    return (size + (alignment - 1)) & ~(alignment - 1);
+}
+
+// N.B. pointers are only valid until the next call.
 class Serializer {
 public:
-    void startWrite() {
-        fCursor = 0;
-    }
+    Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} { }
 
     template <typename T>
-    void startWrite(const T& data) {
-        this->startWrite();
-        this->write<T>(data);
+    T* push_back(const T& data) {
+        auto result = allocate(sizeof(T), alignof(T));
+        return new (result) T(data);
     }
 
     template <typename T, typename... Args>
-    T* startEmplace(Args&&... args) {
-        this->startWrite();
-        return this->emplace<T>(std::forward<Args>(args)...);
-    }
-
-    template <typename T, typename... Args>
-    T* emplace(Args&&... args) {
-        T* result = new (&fBuffer[fCursor]) T{std::forward<Args>(args)...};
-        fCursor += sizeof(T);
-        return result;
-    }
-
-    template <typename T>
-    void write(const T& data) {
-        // TODO: guard against bad T.
-        memcpy(&fBuffer[fCursor], &data, sizeof(data));
-        fCursor += sizeof(data);
-    }
-
-    template <typename T>
-    T* allocate() {
-        // TODO: guard against bad T.
-        T* result = (T*)&fBuffer[fCursor];
-        fCursor += sizeof(T);
-        return result;
+    T* emplace_back(Args&& ... args) {
+        auto result = allocate(sizeof(T), alignof(T));
+        return new (result) T{std::forward<Args>(args)...};
     }
 
     void writeDescriptor(const SkDescriptor& desc) {
-        memcpy(&fBuffer[fCursor], &desc, desc.getLength());
-        fCursor += desc.getLength();
+        auto result = allocate(desc.getLength(), alignof(SkDescriptor));
+        memcpy(result, &desc, desc.getLength());
     }
 
     template <typename T>
     T* allocateArray(int count) {
-        T* result = (T*)&fBuffer[fCursor];
-        fCursor += count * sizeof(T);
-        return result;
-    }
-
-    SkRemoteStrikeTransport::IOResult endWrite(SkRemoteStrikeTransport* transport) {
-        return transport->write(fBuffer.get(), fCursor);
+        auto result = allocate(sizeof(T) * count, alignof(T));
+        return new (result) T[count];
     }
 
 private:
-    static constexpr size_t kBufferSize = kPageSize * 2000;
-    std::unique_ptr<uint8_t[]> fBuffer{new uint8_t[kBufferSize]};
-    size_t fCursor{0};
-    //size_t fEnd{0};
+    void* allocate(size_t size, size_t alignment) {
+        size_t aligned = pad(fBuffer->size(), alignment);
+        fBuffer->resize(aligned + size);
+        return &(*fBuffer)[aligned];
+    }
+
+    std::vector<uint8_t>* fBuffer;
 };
 
 // -- Deserializer -------------------------------------------------------------------------------
 
 class Deserializer {
 public:
-    void startRead(SkRemoteStrikeTransport* transport) {
-        fCursor = 0;
-        fEnd = 0;
-        fTransport = transport;
-    }
-
-    template <typename T>
-    T* startRead(SkRemoteStrikeTransport* transport) {
-        this->startRead(transport);
-        return this->read<T>();
-    }
+    Deserializer(const std::vector<uint8_t>& buffer) : fBuffer{buffer} { }
 
     template <typename T>
     T* read() {
-        T* result = (T*)this->ensureAtLeast(sizeof(T));
-        fCursor += sizeof(T);
-        return result;
+        size_t padded = pad(fCursor, alignof(T));
+        fCursor = padded + sizeof(T);
+        return (T*)&fBuffer[padded];
     }
 
     SkDescriptor* readDescriptor() {
-        SkDescriptor* result = (SkDescriptor*)this->ensureAtLeast(sizeof(SkDescriptor));
-        size_t size = result->getLength();
-        this->ensureAtLeast(size);
-        fCursor += size;
+        size_t padded = pad(fCursor, alignof(SkDescriptor));
+        SkDescriptor* result = (SkDescriptor*)&fBuffer[padded];
+        fCursor = padded + result->getLength();
         return result;
     }
 
     template <typename T>
     ArraySlice<T> readArray(int count) {
+        size_t padded = pad(fCursor, alignof(T));
         size_t size = count * sizeof(T);
-        const T* base = (const T*)this->ensureAtLeast(size);
+        const T* base = (const T*)&fBuffer[padded];
         ArraySlice<T> result = ArraySlice<T>{base, (uint32_t)count};
-        fCursor += size;
+        fCursor = padded + size;
         return result;
-    }
-
-    size_t endRead() {
-        fTransport = nullptr;
-        return size();
     }
 
     size_t size() {return fCursor;}
 
 private:
-    void* ensureAtLeast(size_t size) {
-        if (size > fEnd - fCursor) {
-            if (readAtLeast(size) == SkRemoteStrikeTransport::kFail) {
-                return nullptr;
-            }
-        }
-        return &fBuffer[fCursor];
-    }
-
-    SkRemoteStrikeTransport::IOResult readAtLeast(size_t size) {
-        size_t readSoFar = 0;
-        size_t bufferLeft = kBufferSize - fCursor;
-        size_t needed = size - (fEnd - fCursor);
-        while (readSoFar < needed) {
-            SkRemoteStrikeTransport::IOResult result;
-            size_t readSize;
-            std::tie(readSize, result) =
-                    fTransport->read(&fBuffer[fEnd+readSoFar], bufferLeft - readSoFar);
-            if (result == SkRemoteStrikeTransport::kFail || readSize == 0) {return SkRemoteStrikeTransport::kFail;}
-            readSoFar += readSize;
-        }
-        fEnd += readSoFar;
-        return SkRemoteStrikeTransport::kSuccess;
-    }
-
-    SkRemoteStrikeTransport* fTransport;
-
-    static constexpr size_t kBufferSize = kPageSize * 2000;
-    std::unique_ptr<uint8_t[]> fBuffer{new uint8_t[kBufferSize]};
-    size_t fCursor{0};
-    size_t fEnd{0};
+    const std::vector<uint8_t>& fBuffer;
+    size_t                      fCursor{0};
 };
 
 // -- TrackLayerDevice -----------------------------------------------------------------------------
@@ -259,7 +227,8 @@ SkStrikeCacheDifferenceSpec::findStrikeDifferences(const SkDescriptor& desc,
         auto newDescPtr = newDesc.get();
         StrikeDifferences strikeDiffs{typefaceID, std::move(newDesc)};
 
-        mapIter = fDescriptorToDifferencesMap.emplace_hint(mapIter, newDescPtr, std::move(strikeDiffs));
+        mapIter = fDescriptorToDifferencesMap.emplace_hint(
+            mapIter, newDescPtr, std::move(strikeDiffs));
     }
 
     return mapIter->second;
@@ -462,22 +431,12 @@ enum class OpCode : int32_t {
     kPrepopulateCache     = 3,
 };
 
-class Op {
-public:
-    Op(OpCode opCode, SkFontID typefaceId, const SkScalerContextRec& rec)
-            : opCode{opCode}
-            , typefaceId{typefaceId}
-            , descriptor{rec} { }
-    const OpCode opCode;
-    const SkFontID typefaceId;
-    const SkScalerContextRecDescriptor descriptor;
-    SkPackedGlyphID glyphID;
+struct StrikeDiffHeader {
+    StrikeDiffHeader() {}
+    StrikeDiffHeader(int strikeCount_) : strikeCount{strikeCount_} {}
+    int strikeCount;
 };
 
-struct Header {
-    Header(int strikeCount_) : strikeCount{strikeCount_} {}
-    const int strikeCount;
-};
 struct StrikeSpec {
     StrikeSpec(SkFontID typefaceID_, uint32_t descLength_, int glyphCount_)
             : typefaceID{typefaceID_}
@@ -491,54 +450,85 @@ struct StrikeSpec {
 };
 
 struct WireTypeface {
-    // std::thread::id thread_id;  // TODO:need to figure a good solution
     SkFontID        typefaceID;
     int             glyphCount;
     SkFontStyle     style;
     bool            isFixed;
 };
 
-static void write_strikes_spec(const SkStrikeCacheDifferenceSpec &spec,
-                               Serializer* serializer,
-                               SkRemoteStrikeTransport* transport) {
-    serializer->startEmplace<Op>(OpCode::kPrepopulateCache, SkFontID{0}, SkScalerContextRec{});
+class Op {
+public:
+    Op(OpCode opCode, SkFontID typefaceId, const SkScalerContextRec& rec)
+        : opCode{opCode}
+        , typefaceId{typefaceId}
+        , descriptor{rec} { }
+    const OpCode opCode;
+    const SkFontID typefaceId;
+    const SkScalerContextRecDescriptor descriptor;
+    union {
+        // kGlyphPath and kGlyphMetricsAndImage
+        SkPackedGlyphID glyphID;
+        // kPrepopulateCache
+        StrikeDiffHeader strikeSpecHeader;
+    };
+};
 
-    serializer->emplace<Header>(spec.strikeCount());
+class Result {
+    union {
+        SkPaint::FontMetrics fontMetrics;
+        SkGlyph glyph;
+        StrikeDiffHeader strikeDiffHeader;
+    };
+};
+
+size_t SkStrikeCacheDifferenceSpec::sizeBytes() const {
+    size_t sum = sizeof(Op) + sizeof(StrikeDiffHeader);
+    for (auto& pair : fDescriptorToDifferencesMap) {
+        const auto& strike = pair.second;
+        sum += sizeof(StrikeSpec)
+               + strike.fDesc->getLength()
+               + strike.fGlyphIDs->count() * sizeof(SkPackedGlyphID);
+    }
+    return sum;
+}
+
+static void write_strikes_spec(const SkStrikeCacheDifferenceSpec &spec,
+                               Serializer* serializer) {
+    serializer->emplace_back<Op>(OpCode::kPrepopulateCache, SkFontID{0}, SkScalerContextRec{});
+
+    serializer->emplace_back<StrikeDiffHeader>(spec.strikeCount());
 
     auto perStrike = [serializer](SkFontID typefaceID, const SkDescriptor& desc, int glyphCount) {
-        serializer->emplace<StrikeSpec>(typefaceID, desc.getLength(), glyphCount);
+        serializer->emplace_back<StrikeSpec>(typefaceID, desc.getLength(), glyphCount);
         serializer->writeDescriptor(desc);
     };
 
     auto perGlyph = [serializer](SkPackedGlyphID glyphID) {
-        serializer->write<SkPackedGlyphID>(glyphID);
+        serializer->push_back<SkPackedGlyphID>(glyphID);
     };
 
     spec.iterateDifferences(perStrike, perGlyph);
-
-    serializer->endWrite(transport);
 }
 
 static void read_strikes_spec_write_strikes_data(
-        Deserializer* deserializer, Serializer* serializer, SkRemoteStrikeTransport* transport,
-        SkStrikeServer* rc)
+        Deserializer* deserializer, Serializer* serializer, SkStrikeServer* server)
 {
     // Don't start because the op started this deserialization.
-    auto header = deserializer->read<Header>();
-    serializer->startWrite<Header>(*header);
+    auto header = deserializer->read<StrikeDiffHeader>();
+    serializer->push_back<StrikeDiffHeader>(*header);
     for (int i = 0; i < header->strikeCount; i++) {
         auto spec = deserializer->read<StrikeSpec>();
         auto desc = deserializer->readDescriptor();
-        serializer->write<StrikeSpec>(*spec);
+        serializer->push_back<StrikeSpec>(*spec);
         serializer->writeDescriptor(*desc);
         SkScalerContextRecDescriptor recDesc{*desc};
-        auto scaler = rc->generateScalerContext(recDesc, spec->typefaceID);
+        auto scaler = server->generateScalerContext(recDesc, spec->typefaceID);
         SkPaint::FontMetrics fontMetrics;
         scaler->getFontMetrics(&fontMetrics);
-        serializer->write<SkPaint::FontMetrics>(fontMetrics);
+        serializer->push_back<SkPaint::FontMetrics>(fontMetrics);
         auto glyphIDs = deserializer->readArray<SkPackedGlyphID>(spec->glyphCount);
         for (auto glyphID : glyphIDs) {
-            auto glyph = serializer->allocate<SkGlyph>();
+            auto glyph = serializer->emplace_back<SkGlyph>();
             glyph->initWithGlyphID(glyphID);
             scaler->getMetrics(glyph);
             auto imageSize = glyph->computeImageSize();
@@ -546,20 +536,18 @@ static void read_strikes_spec_write_strikes_data(
             glyph->fImage = nullptr;
 
             if (imageSize > 0) {
-                glyph->fImage = serializer->allocateArray<uint8_t>(imageSize);
-                scaler->getImage(*glyph);
+                // Since the allocateArray can move glyph, make one that stays in one place.
+                SkGlyph stationaryGlyph = *glyph;
+                stationaryGlyph.fImage = serializer->allocateArray<uint8_t>(imageSize);
+                scaler->getImage(stationaryGlyph);
             }
         }
     }
-    deserializer->endRead();
-    serializer->endWrite(transport);
 }
 
 static void update_caches_from_strikes_data(SkStrikeClient *client,
-                                            Deserializer *deserializer,
-                                            SkRemoteStrikeTransport *transport) {
-    deserializer->startRead(transport);
-    auto header = deserializer->read<Header>();
+                                            Deserializer *deserializer) {
+    auto header = deserializer->read<StrikeDiffHeader>();
     for (int i = 0; i < header->strikeCount; i++) {
         auto spec = deserializer->read<StrikeSpec>();
         auto desc = deserializer->readDescriptor();
@@ -586,7 +574,6 @@ static void update_caches_from_strikes_data(SkStrikeClient *client,
             memcpy(allocatedGlyph->fImage, image.data(), image.size());
         }
     }
-    deserializer->endRead();
 }
 
 // -- SkStrikeServer -------------------------------------------------------------------------------
@@ -599,22 +586,30 @@ SkStrikeServer::~SkStrikeServer() {
 
 int SkStrikeServer::serve() {
 
-    auto serializer = skstd::make_unique<Serializer>();
-    auto deserializer = skstd::make_unique<Deserializer>();;
+    std::vector<uint8_t> inBuffer;
+    std::vector<uint8_t> outBuffer;
 
     while (true) {
-        Op* op = deserializer->startRead<Op>(fTransport);
-        if (op == nullptr) { break; }
+        inBuffer.clear();
+        auto result = fTransport->readVector(&inBuffer);
+        if (result == SkRemoteStrikeTransport::kFail) {
+            break;
+        }
+
+        Deserializer deserializer{inBuffer};
+        Op* op = deserializer.read<Op>();
 
         fOpCount += 1;
+
+        outBuffer.clear();
+        Serializer serializer{&outBuffer};
 
         switch (op->opCode) {
             case OpCode::kFontMetrics : {
                 auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
                 SkPaint::FontMetrics metrics;
                 sc->getFontMetrics(&metrics);
-                serializer->startWrite<SkPaint::FontMetrics>(metrics);
-                serializer->endWrite(fTransport);
+                serializer.push_back<SkPaint::FontMetrics>(metrics);
                 break;
             }
             case OpCode::kGlyphPath : {
@@ -623,41 +618,41 @@ int SkStrikeServer::serve() {
                 SkPath path;
                 sc->getPath(op->glyphID, &path);
                 size_t pathSize = path.writeToMemory(nullptr);
-                serializer->startWrite<size_t>(pathSize);
-                auto pathData = serializer->allocateArray<uint8_t>(pathSize);
+                serializer.push_back<size_t>(pathSize);
+                auto pathData = serializer.allocateArray<uint8_t>(pathSize);
                 path.writeToMemory(pathData);
-                serializer->endWrite(fTransport);
                 break;
             }
             case OpCode::kGlyphMetricsAndImage : {
-                auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
+                auto scaler = this->generateScalerContext(op->descriptor, op->typefaceId);
 
-                serializer->startWrite();
-                auto glyph = serializer->allocate<SkGlyph>();
+                auto glyph = serializer.emplace_back<SkGlyph>();
                 // TODO: check for buffer overflow.
                 glyph->initWithGlyphID(op->glyphID);
-                sc->getMetrics(glyph);
+                scaler->getMetrics(glyph);
                 auto imageSize = glyph->computeImageSize();
                 glyph->fPathData = nullptr;
                 glyph->fImage = nullptr;
 
                 if (imageSize > 0) {
-                    glyph->fImage = serializer->allocateArray<uint8_t>(imageSize);
-                    sc->getImage(*glyph);
+                    // Since the allocateArray can move glyph, make one that stays in one place.
+                    SkGlyph stationaryGlyph = *glyph;
+                    stationaryGlyph.fImage = serializer.allocateArray<uint8_t>(imageSize);
+                    scaler->getImage(stationaryGlyph);
                 }
-
-                serializer->endWrite(fTransport);
                 break;
             }
             case OpCode::kPrepopulateCache : {
                 read_strikes_spec_write_strikes_data(
-                        deserializer.get(), serializer.get(), fTransport, this);
+                        &deserializer, &serializer, this);
                 break;
             }
 
             default:
                 SK_ABORT("Bad op");
         }
+
+        fTransport->writeVector(outBuffer);
     }
     return 0;
 }
@@ -709,13 +704,8 @@ sk_sp<SkData> SkStrikeServer::encodeTypeface(SkTypeface* tf) {
 
 // -- SkStrikeClient -------------------------------------------------------------------------------
 
-static Op* start_op_write(
-    OpCode opCode, const SkTypefaceProxy& tf, const SkScalerContextRec& rec, Serializer* serializer)
-{
-    return serializer->startEmplace<Op>(opCode, tf.remoteTypefaceID(), rec);
-}
-
-SkStrikeClient::SkStrikeClient(SkRemoteStrikeTransport* transport) : fTransport{transport} { }
+SkStrikeClient::SkStrikeClient(SkRemoteStrikeTransport* transport)
+    : fTransport{transport} { }
 
 void SkStrikeClient::generateFontMetrics(
         const SkTypefaceProxy& typefaceProxy,
@@ -723,18 +713,18 @@ void SkStrikeClient::generateFontMetrics(
         SkPaint::FontMetrics* metrics) {
     // Send generateFontMetrics
     {
-        Serializer serializer;
-        serializer.startEmplace<Op>(OpCode::kFontMetrics, typefaceProxy.remoteTypefaceID(), rec);
-        start_op_write(OpCode::kFontMetrics, typefaceProxy, rec, &serializer);
-        serializer.endWrite(fTransport);
+        fBuffer.clear();
+        Serializer serializer{&fBuffer};
+        serializer.emplace_back<Op>(OpCode::kFontMetrics, typefaceProxy.remoteTypefaceID(), rec);
+        fTransport->writeVector(fBuffer);
     }
 
     // Receive generateFontMetrics
     {
-        Deserializer deserializer;
-        deserializer.startRead(fTransport);
+        fBuffer.clear();
+        fTransport->readVector(&fBuffer);
+        Deserializer deserializer(fBuffer);
         *metrics = *deserializer.read<SkPaint::FontMetrics>();
-        deserializer.endRead();
     }
 }
 
@@ -743,30 +733,30 @@ void SkStrikeClient::generateMetricsAndImage(
         const SkScalerContextRec& rec,
         SkArenaAlloc* alloc,
         SkGlyph* glyph) {
-    SkScalerContextRecDescriptor rd{rec};
-
     {
-        Serializer serializer;
-        Op *op = serializer.startEmplace<Op>(
+        fBuffer.clear();
+        Serializer serializer(&fBuffer);
+        Op *op = serializer.emplace_back<Op>(
             OpCode::kGlyphMetricsAndImage, typefaceProxy.remoteTypefaceID(), rec);
         op->glyphID = glyph->getPackedID();
-        serializer.endWrite(fTransport);
+        fTransport->writeVector(fBuffer);
     }
 
     // Receive generateMetricsAndImage
     {
-        Deserializer deserializer;
-        *glyph = *deserializer.startRead<SkGlyph>(fTransport);
+        fBuffer.clear();
+        fTransport->readVector(&fBuffer);
+        Deserializer deserializer(fBuffer);
+        *glyph = *deserializer.read<SkGlyph>();
         auto imageSize = glyph->computeImageSize();
         glyph->fPathData = nullptr;
-        glyph->fImage = nullptr;
+        glyph->fImage    = nullptr;
         if (imageSize > 0) {
             auto image = deserializer.readArray<uint8_t>(imageSize);
             SkASSERT(imageSize == image.size());
             glyph->allocImage(alloc);
             memcpy(glyph->fImage, image.data(), imageSize);
         }
-        deserializer.endRead();
     }
 
 }
@@ -776,30 +766,37 @@ void SkStrikeClient::generatePath(
         SkGlyphID glyphID,
         SkPath* path) {
     {
-        Serializer serializer;
-        Op *op = serializer.startEmplace<Op>(
+        fBuffer.clear();
+        Serializer serializer{&fBuffer};
+        Op *op = serializer.emplace_back<Op>(
             OpCode::kGlyphPath, typefaceProxy.remoteTypefaceID(), rec);
         op->glyphID = glyphID;
-        serializer.endWrite(fTransport);
+        fTransport->writeVector(fBuffer);
     }
 
     {
-        Deserializer deserializer;
-        size_t pathSize = *deserializer.startRead<size_t>(fTransport);
+        fBuffer.clear();
+        fTransport->readVector(&fBuffer);
+        Deserializer deserializer{fBuffer};
+        size_t pathSize = *deserializer.read<size_t>();
         auto rawPath = deserializer.readArray<uint8_t>(pathSize);
         path->readFromMemory(rawPath.data(), rawPath.size());
-        deserializer.endRead();
     }
 }
 
 void SkStrikeClient::primeStrikeCache(const SkStrikeCacheDifferenceSpec& strikeDifferences) {
     {
-        auto serializer = skstd::make_unique<Serializer>();
-        write_strikes_spec(strikeDifferences, serializer.get(), fTransport);
+        fBuffer.clear();
+        fBuffer.reserve(strikeDifferences.sizeBytes());
+        Serializer serializer{&fBuffer};
+        write_strikes_spec(strikeDifferences, &serializer);
+        fTransport->writeVector(fBuffer);
     }
     {
-        auto deserializer = skstd::make_unique<Deserializer>();;
-        update_caches_from_strikes_data(this, deserializer.get(), fTransport);
+        fBuffer.clear();
+        fTransport->readVector(&fBuffer);
+        Deserializer deserializer{fBuffer};
+        update_caches_from_strikes_data(this, &deserializer);
     }
 }
 
