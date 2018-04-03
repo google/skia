@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35ba9b11_82fc9d78",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-04-03T11:53:09Z",
+      "side": 0,
+      "message": "This breaks my local Release+MSAN build and breaks some Release GCC builds (e.g. Build-Debian9-GCC-x86_64-Release-NoGPU)",
+      "revId": "c0528e2418e09765807f1db510733c573232f7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
