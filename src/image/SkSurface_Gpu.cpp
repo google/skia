@@ -163,7 +163,7 @@ bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSema
     return fDevice->wait(numSemaphores, waitSemaphores);
 }
 
-bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
+bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
@@ -174,21 +174,28 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
     bool mipmapped = rtc->asTextureProxy() ? GrMipMapped::kYes == rtc->asTextureProxy()->mipMapped()
                                            : false;
 
-    data->set(ctx->threadSafeProxy(), maxResourceBytes,
-              rtc->origin(), rtc->width(), rtc->height(),
-              rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
-              SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
-              SkSurfaceCharacterization::MipMapped(mipmapped),
-              rtc->colorSpaceInfo().refColorSpace(), this->props());
+    // TODO: the addition of colorType to the surfaceContext should remove this calculation
+    SkColorType ct;
+    if (!GrPixelConfigToColorType(rtc->colorSpaceInfo().config(), &ct)) {
+        return false;
+    }
+
+    SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
+                                       rtc->colorSpaceInfo().refColorSpace());
+
+    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(),
+                          rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
+                          SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
+                          SkSurfaceCharacterization::MipMapped(mipmapped), this->props());
 
     return true;
 }
 
-bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
+bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
-    if (!data.isValid()) {
+    if (!characterization.isValid()) {
         return false;
     }
 
@@ -199,7 +206,7 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     size_t maxResourceBytes;
     ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
 
-    if (data.isTextureable()) {
+    if (characterization.isTextureable()) {
         if (!rtc->asTextureProxy()) {
             // If the characterization was textureable we require the replay dest to also be
             // textureable. If the characterized surface wasn't textureable we allow the replay
@@ -207,20 +214,32 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
             return false;
         }
 
-        if (data.isMipMapped() && GrMipMapped::kNo == rtc->asTextureProxy()->mipMapped()) {
+        if (characterization.isMipMapped() &&
+            GrMipMapped::kNo == rtc->asTextureProxy()->mipMapped()) {
             // Fail if the DDL's surface was mipmapped but the replay surface is not.
             // Allow drawing to proceed if the DDL was not mipmapped but the replay surface is.
             return false;
         }
     }
 
-    return data.contextInfo() && data.contextInfo()->matches(ctx) &&
-           data.cacheMaxResourceBytes() <= maxResourceBytes &&
-           data.origin() == rtc->origin() && data.width() == rtc->width() &&
-           data.height() == rtc->height() && data.config() == rtc->colorSpaceInfo().config() &&
-           data.fsaaType() == rtc->fsaaType() && data.stencilCount() == rtc->numStencilSamples() &&
-           SkColorSpace::Equals(data.colorSpace(), rtc->colorSpaceInfo().colorSpace()) &&
-           data.surfaceProps() == rtc->surfaceProps();
+    // TODO: the addition of colorType to the surfaceContext should remove this calculation
+    SkColorType rtcColorType;
+    if (!GrPixelConfigToColorType(rtc->colorSpaceInfo().config(), &rtcColorType)) {
+        return false;
+    }
+
+    return characterization.contextInfo() && characterization.contextInfo()->matches(ctx) &&
+           characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
+           characterization.origin() == rtc->origin() &&
+           characterization.config() == rtc->colorSpaceInfo().config() &&
+           characterization.width() == rtc->width() &&
+           characterization.height() == rtc->height() &&
+           characterization.colorType() == rtcColorType &&
+           characterization.fsaaType() == rtc->fsaaType() &&
+           characterization.stencilCount() == rtc->numStencilSamples() &&
+           SkColorSpace::Equals(characterization.colorSpace(),
+                                rtc->colorSpaceInfo().colorSpace()) &&
+           characterization.surfaceProps() == rtc->surfaceProps();
 }
 
 bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
@@ -250,19 +269,19 @@ bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
     }
 }
 
-bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace* colorSpace) {
+bool SkSurface_Gpu::Valid(const GrCaps* caps, GrPixelConfig config, SkColorSpace* colorSpace) {
     switch (config) {
         case kRGBA_half_GrPixelConfig:
             return (!colorSpace) || colorSpace->gammaIsLinear();
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-            return context->caps()->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB();
+            return caps->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB();
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
             // We may get here with either a linear-gamma color space or with a sRGB-gamma color
             // space when we lack GPU sRGB support.
             return !colorSpace ||
-                   (colorSpace->gammaCloseToSRGB() && !context->caps()->srgbSupport()) ||
+                   (colorSpace->gammaCloseToSRGB() && !caps->srgbSupport()) ||
                    colorSpace->gammaIsLinear();
         default:
             return !colorSpace;
@@ -272,20 +291,49 @@ bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context,
                                              const SkSurfaceCharacterization& c,
                                              SkBudgeted budgeted) {
-    if (!c.isValid()) {
+    if (!context || !c.isValid()) {
         return nullptr;
     }
 
-    SkColorType ct;
-    if (!GrPixelConfigToColorType(c.config(), &ct)) {
+    if (!SkSurface_Gpu::Valid(context->caps(), c.config(), c.colorSpace())) {
         return nullptr;
     }
 
-    SkImageInfo ii = SkImageInfo::Make(c.width(), c.height(), ct, kPremul_SkAlphaType,
-                                       c.refColorSpace());
+    // In order to ensure compatibility we have to match the backend format (i.e. the GrPixelConfig
+    // of the characterization)
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fWidth = c.width();
+    desc.fHeight = c.height();
+    desc.fConfig = c.config();
+    desc.fSampleCnt = c.stencilCount();
 
-    return MakeRenderTarget(context, budgeted, ii, c.stencilCount(), c.origin(),
-                            &c.surfaceProps(), c.isMipMapped());
+    sk_sp<GrSurfaceContext> sc(
+            context->contextPriv().makeDeferredSurfaceContext(desc, c.origin(),
+                                                              GrMipMapped(c.isMipMapped()),
+                                                              SkBackingFit::kExact, budgeted,
+                                                              c.refColorSpace(),
+                                                              &c.surfaceProps()));
+    if (!sc || !sc->asRenderTargetContext()) {
+        return nullptr;
+    }
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, sk_ref_sp(sc->asRenderTargetContext()),
+                                                c.width(), c.height(),
+                                                SkGpuDevice::kClear_InitContents));
+    if (!device) {
+        return nullptr;
+    }
+
+    sk_sp<SkSurface> s = sk_make_sp<SkSurface_Gpu>(std::move(device));
+#ifdef SK_DEBUG
+    if (s) {
+        SkSurface_Gpu* gpuSurface = static_cast<SkSurface_Gpu*>(s.get());
+        SkASSERT(gpuSurface->isCompatible(c));
+    }
+#endif
+
+    return s;
 }
 
 
@@ -377,7 +425,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     if (!context) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context, texCopy.config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(context->caps(), texCopy.config(), colorSpace.get())) {
         return nullptr;
     }
     sampleCnt = SkTMax(1, sampleCnt);
@@ -440,7 +488,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig, colorType, colorSpace)) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context, rtCopy.config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(context->caps(), rtCopy.config(), colorSpace.get())) {
         return nullptr;
     }
 
@@ -475,7 +523,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     if (!context) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context, tex.config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(context->caps(), tex.config(), colorSpace.get())) {
         return nullptr;
     }
     sampleCnt = SkTMax(1, sampleCnt);

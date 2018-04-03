@@ -215,6 +215,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         while (alloc.assign(&startIndex, &stopIndex, flushState.uninstantiateProxyTracker(),
                             &error)) {
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
+                SkDebugf("Assignment failed!!\n");
                 for (int i = startIndex; i < stopIndex; ++i) {
                     fOpLists[i]->purgeOpsWithUninstantiatedProxies();
                 }
@@ -476,7 +477,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext->caps(), sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
@@ -499,7 +500,7 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext->caps(), sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }

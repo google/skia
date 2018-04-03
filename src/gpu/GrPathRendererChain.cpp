@@ -10,7 +10,6 @@
 
 #include "GrCaps.h"
 #include "GrShaderCaps.h"
-#include "gl/GrGLCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
