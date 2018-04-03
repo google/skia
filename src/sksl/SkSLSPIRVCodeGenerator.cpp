@@ -2445,6 +2445,7 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
     }
     if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN &&
         layout.fBuiltin != SK_IN_BUILTIN && layout.fBuiltin != SK_OUT_BUILTIN) {
+        SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationBuiltIn, layout.fBuiltin,
                                fDecorationBuffer);
     }
