@@ -1813,19 +1813,21 @@ DEF_FUZZ(NativeGLCanvas, fuzz) {
     fuzz_ganesh(fuzz, context);
 }
 
+// This target is deprecated, NullGLContext is not well maintained.
+// Please use MockGPUCanvas instead.
 DEF_FUZZ(NullGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType));
 }
 
 // This target is deprecated, DebugGLContext is not well maintained.
-// Please use MockGLCanvas instead.
+// Please use MockGPUCanvas instead.
 DEF_FUZZ(DebugGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kDebugGL_ContextType));
 }
 
-DEF_FUZZ(MockGLCanvas, fuzz) {
+DEF_FUZZ(MockGPUCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kMock_ContextType));
 }
