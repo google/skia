@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6be6f992_93521d8f",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-03T19:56:35Z",
+      "side": 1,
+      "message": "lets wrap this in GR_TEST_UTILS so it is not exposed",
+      "range": {
+        "startLine": 419,
+        "startChar": 10,
+        "endLine": 419,
+        "endChar": 23
+      },
+      "revId": "38d0ba8a6cd5f3ccef6a576f9731d8e5ecbf4f10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4bedf44_1b437953",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-03T19:56:35Z",
+      "side": 1,
+      "message": "what\u0027s the plan here if we decide to add more GrPixelConfigs or SkColorTypes? Should we use the kLast enum values to loop through each thing?",
+      "range": {
+        "startLine": 817,
+        "startChar": 4,
+        "endLine": 837,
+        "endChar": 6
+      },
+      "revId": "38d0ba8a6cd5f3ccef6a576f9731d8e5ecbf4f10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
