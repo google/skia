@@ -439,8 +439,7 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
                         (int) (preprocessor.fEnd - preprocessor.fStart), preprocessor.fStart);
                 this->lfcr();
                 fIndent = saveIndent;
-                preprocessor.fStart = nullptr;
-                preprocessor.fEnd = nullptr;
+                preprocessor.reset();
             }
             if (token && State::kItemValue == state) {
                 fStart = token->fContentStart;
@@ -547,6 +546,7 @@ bool IncludeWriter::enumPreprocessor(Definition* token, MemberPass pass,
             return true;  // ignore old inline comments
         }
         if (Bracket::kPound == token->fBracket) {  // preprocessor wraps member
+            preprocessor->fDefinition = token;
             preprocessor->fStart = token->fContentStart;
             if (KeyWord::kIf == token->fKeyWord || KeyWord::kIfdef == token->fKeyWord) {
                 iterStack.emplace_back(token->fTokens.begin(), token->fTokens.end());
@@ -566,6 +566,15 @@ bool IncludeWriter::enumPreprocessor(Definition* token, MemberPass pass,
                 SkASSERT(0); // incomplete
             }
             return true;
+        }
+        if (preprocessor->fDefinition) {
+            if (Bracket::kParen == token->fBracket) {
+                preprocessor->fEnd = token->fContentEnd;
+                SkASSERT(')' == *preprocessor->fEnd);
+                ++preprocessor->fEnd;
+                return true;
+            }
+            SkASSERT(0);  // incomplete
         }
         return true;
     }
@@ -674,7 +683,11 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
     fMethodDef = &child;
     fContinuation = nullptr;
     fDeferComment = nullptr;
-    if (0 == fIndent || fIndentNext) {
+    const Definition* csParent = method->csParent();
+    if (!csParent) {
+        SkDebugf("");
+    }
+    if (csParent && (0 == fIndent || fIndentNext)) {
         fIndent += 4;
         fIndentNext = false;
     }
