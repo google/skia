@@ -62,6 +62,8 @@ protected:
 #endif
 
     bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override {
+        // FIXME: folding LM->CTM at this stage is not correct when other/nested local matrices
+        //        are present.
         return as_SB(fProxyShader)->isRasterPipelineOnly(SkMatrix::Concat(ctm,
                                                                           this->getLocalMatrix()));
     }
