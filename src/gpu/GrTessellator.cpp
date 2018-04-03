@@ -2015,6 +2015,10 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
                     }
                     innerPoint1 = innerPoint2 = innerPoint;
                 }
+                if (!innerPoint1.isFinite() || !innerPoint2.isFinite() ||
+                    !outerPoint1.isFinite() || !outerPoint2.isFinite()) {
+                    continue;
+                }
                 LOG("inner (%g, %g), (%g, %g), ",
                     innerPoint1.fX, innerPoint1.fY, innerPoint2.fX, innerPoint2.fY);
                 LOG("outer (%g, %g), (%g, %g)\n",
