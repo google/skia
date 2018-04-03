@@ -126,21 +126,14 @@ public:
 
         void emitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
                           SkString* code, const char* position, const char* coverage,
-                          const char* attenuatedCoverage) {
+                          const char* wind, const char* attenuatedCoverage) {
             SkASSERT(GrGLSLVarying::Scope::kVertToGeo != scope);
-            this->onEmitVaryings(varyingHandler, scope, code, position, coverage,
+            this->onEmitVaryings(varyingHandler, scope, code, position, coverage, wind,
                                  attenuatedCoverage);
         }
 
         void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
                               const char* skOutputColor, const char* skOutputCoverage) const;
-
-        // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
-        // border of a conservative raster edge and 0 on the inside. 'leftPt' and 'rightPt' must be
-        // ordered clockwise.
-        static void EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder*, const char* leftPt,
-                                             const char* rightPt,
-                                             const char* outputDistanceEquation);
 
         // Calculates an edge's coverage at a conservative raster vertex. The edge is defined by two
         // clockwise-ordered points, 'leftPt' and 'rightPt'. 'rasterVertexDir' is a pair of +/-1
@@ -167,6 +160,10 @@ public:
                                                   const char* rightDir,
                                                   const char* outputAttenuation);
 
+        static void CalcProjectionOnInsetEdge(GrGLSLVertexGeoBuilder*, const char* pts, int p0idx,
+                                              int p1idx, const char* wind, const char* position,
+                                              const char* output);
+
         virtual ~Shader() {}
 
     protected:
@@ -176,7 +173,7 @@ public:
         // NOTE: the coverage values are signed appropriately for wind.
         //       'coverage' will only be +1 or -1 on curves.
         virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                                    const char* position, const char* coverage,
+                                    const char* position, const char* coverage, const char* wind,
                                     const char* attenuatedCoverage) = 0;
 
         // Emits the fragment code that calculates a pixel's signed coverage value.

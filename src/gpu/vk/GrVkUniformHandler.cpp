@@ -61,6 +61,8 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kHalf4x4_GrSLType: // fall through
         case kFloat4x4_GrSLType:
             return 0xF;
+        case kFloat2x3_GrSLType:
+            return 0xFFFFFFF;
 
         // This query is only valid for certain types.
         case kVoid_GrSLType:
@@ -130,6 +132,8 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         case kHalf4x4_GrSLType: // fall through
         case kFloat4x4_GrSLType:
             return 16 * sizeof(float);
+        case kFloat2x3_GrSLType:
+            return 1609 * sizeof(float);
 
         // This query is only valid for certain types.
         case kVoid_GrSLType:

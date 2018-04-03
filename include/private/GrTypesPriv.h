@@ -311,6 +311,7 @@ enum GrSLType {
     kFloat2x2_GrSLType,
     kFloat3x3_GrSLType,
     kFloat4x4_GrSLType,
+    kFloat2x3_GrSLType,
     kHalf_GrSLType,
     kHalf2_GrSLType,
     kHalf3_GrSLType,
@@ -381,6 +382,7 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
         case kFloat2x2_GrSLType:
         case kFloat3x3_GrSLType:
         case kFloat4x4_GrSLType:
+        case kFloat2x3_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -455,6 +457,7 @@ static inline int GrSLTypeVecLength(GrSLType type) {
         case kFloat2x2_GrSLType:
         case kFloat3x3_GrSLType:
         case kFloat4x4_GrSLType:
+        case kFloat2x3_GrSLType:
         case kHalf2x2_GrSLType:
         case kHalf3x3_GrSLType:
         case kHalf4x4_GrSLType:
@@ -486,6 +489,7 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kFloat2x2_GrSLType:
         case kFloat3x3_GrSLType:
         case kFloat4x4_GrSLType:
+        case kFloat2x3_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -533,6 +537,7 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kFloat2x2_GrSLType:
         case kFloat3x3_GrSLType:
         case kFloat4x4_GrSLType:
+        case kFloat2x3_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -590,6 +595,7 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kFloat2x2_GrSLType:
         case kFloat3x3_GrSLType:
         case kFloat4x4_GrSLType:
+        case kFloat2x3_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -622,6 +628,7 @@ static inline bool GrSLTypeTemporarilyAcceptsPrecision(GrSLType type) {
         case kFloat2x2_GrSLType:
         case kFloat3x3_GrSLType:
         case kFloat4x4_GrSLType:
+        case kFloat2x3_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:

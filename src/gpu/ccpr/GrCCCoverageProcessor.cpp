@@ -27,19 +27,6 @@ void GrCCCoverageProcessor::Shader::emitFragmentCode(const GrCCCoverageProcessor
     f->codeAppendf("%s = half4(1);", skOutputCoverage);
 }
 
-void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder* s,
-                                                             const char* leftPt,
-                                                             const char* rightPt,
-                                                             const char* outputDistanceEquation) {
-    s->codeAppendf("float2 n = float2(%s.y - %s.y, %s.x - %s.x);",
-                   rightPt, leftPt, leftPt, rightPt);
-    s->codeAppend ("float nwidth = (abs(n.x) + abs(n.y)) * (bloat * 2);");
-    // When nwidth=0, wind must also be 0 (and coverage * wind = 0). So it doesn't matter what we
-    // come up with here as long as it isn't NaN or Inf.
-    s->codeAppend ("n /= (0 != nwidth) ? nwidth : 1;");
-    s->codeAppendf("%s = float3(-n, dot(n, %s) - .5);", outputDistanceEquation, leftPt);
-}
-
 void GrCCCoverageProcessor::Shader::CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGeoBuilder* s,
                                                                   const char* leftPt,
                                                                   const char* rightPt,
@@ -127,6 +114,28 @@ void GrCCCoverageProcessor::Shader::CalcCornerCoverageAttenuation(GrGLSLVertexGe
     //    (i.e. outputAttenuation = 1)
     s->codeAppendf("%s = max(obtuseness, axis_alignedness * ninety_degreesness);",
                    outputAttenuation);
+}
+
+void GrCCCoverageProcessor::Shader::CalcProjectionOnInsetEdge(GrGLSLVertexGeoBuilder* s,
+                                                              const char* pts, int p0idx, int p1idx,
+                                                              const char* wind,
+                                                              const char* position,
+                                                              const char* output) {
+    s->codeAppendf("float2 inset = sign(float2(%s[%i].y - %s[%i].y, "
+                                              "%s[%i].x - %s[%i].x)) * (bloat * %s);",
+                                              pts, p1idx, pts, p0idx, pts, p0idx, pts, p1idx, wind);
+    s->codeAppendf("float2x2 inside_edge = float2x2(%s[%i] + inset, %s[%i] + inset);",
+                   pts, p0idx, pts, p1idx);
+    s->codeAppend ("float2 v = inside_edge[1] - inside_edge[0];");
+    s->codeAppend ("float2 K = v * inside_edge;");
+    if (position) {
+        s->codeAppend ("float t = (dot(v, vertex) - K[0]) / (K[1] - K[0]);");
+        s->codeAppendf("%s = v*t + inside_edge[0];", output);
+    } else {
+        s->codeAppend ("float2 A = v / (K[1] - K[0]);");
+        s->codeAppendf("%s = float2x3(A.x*v, inside_edge[0].x - A.x*K[0], "
+                                     "A.y*v, inside_edge[0].y - A.y*K[0]);", output);
+    }
 }
 
 void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,

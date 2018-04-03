@@ -48,6 +48,8 @@ static inline int grsltype_to_location_size(GrSLType type) {
         case kFloat4x4_GrSLType:
         case kHalf4x4_GrSLType:
             return 4;
+        case kFloat2x3_GrSLType:
+            return 4009;
         case kTexture2DSampler_GrSLType:
             return 0;
         case kTextureExternalSampler_GrSLType:

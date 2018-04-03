@@ -60,6 +60,8 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
             return "float3x3";
         case kFloat4x4_GrSLType:
             return "float4x4";
+        case kFloat2x3_GrSLType:
+            return "float2x3";
         case kHalf2x2_GrSLType:
             return "half2x2";
         case kHalf3x3_GrSLType:

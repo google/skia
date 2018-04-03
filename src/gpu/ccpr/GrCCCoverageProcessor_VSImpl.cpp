@@ -34,9 +34,11 @@ static constexpr int kAttribIdx_VertexData = 2;
 
 // Vertex data tells the shader how to offset vertices for conservative raster, as well as how to
 // calculate coverage values for corners and edges.
-static constexpr int kVertexData_LeftNeighborIdShift = 10;
-static constexpr int kVertexData_RightNeighborIdShift = 8;
-static constexpr int kVertexData_BloatIdxShift = 6;
+static constexpr int kVertexData_LeftNeighborIdShift = 12;
+static constexpr int kVertexData_RightNeighborIdShift = 10;
+static constexpr int kVertexData_BloatIdxShift = 8;
+static constexpr int kVertexData_kFlatCurveBit = 1 << 7;
+static constexpr int kVertexData_NegateWindBit = 1 << 6;
 static constexpr int kVertexData_InvertNegativeCoverageBit = 1 << 5;
 static constexpr int kVertexData_IsCornerBit = 1 << 4;
 static constexpr int kVertexData_IsEdgeBit = 1 << 3;
@@ -56,18 +58,15 @@ static constexpr int32_t hull_vertex_data(int32_t cornerID, int32_t bloatIdx, in
                             kVertexData_IsHullBit);
 }
 
-static constexpr int32_t edge_vertex_data(int32_t edgeID, int32_t endptIdx, int32_t bloatIdx,
-                                          int n) {
-    return pack_vertex_data(0 == endptIdx ? (edgeID + 1) % n : edgeID,
-                            0 == endptIdx ? (edgeID + 1) % n : edgeID,
-                            bloatIdx, 0 == endptIdx ? edgeID : (edgeID + 1) % n,
-                            kVertexData_IsEdgeBit |
-                            (!endptIdx ? kVertexData_InvertNegativeCoverageBit : 0));
+static constexpr int32_t edge_vertex_data(int32_t leftID, int rightID, int32_t bloatIdx,
+                                          int32_t extraData = 0) {
+    return pack_vertex_data(leftID, leftID, bloatIdx, rightID, kVertexData_IsEdgeBit | extraData);
 }
 
 static constexpr int32_t corner_vertex_data(int32_t leftID, int32_t cornerID, int32_t rightID,
-                                            int32_t bloatIdx) {
-    return pack_vertex_data(leftID, rightID, bloatIdx, cornerID, kVertexData_IsCornerBit);
+                                            int32_t bloatIdx, int32_t extraData = 0) {
+    return pack_vertex_data(leftID, rightID, bloatIdx, cornerID,
+                            kVertexData_IsCornerBit | extraData);
 }
 
 static constexpr int32_t kTriangleVertices[] = {
@@ -81,26 +80,26 @@ static constexpr int32_t kTriangleVertices[] = {
     hull_vertex_data(2, 1, 3),
     hull_vertex_data(2, 2, 3),
 
-    edge_vertex_data(0, 0, 0, 3),
-    edge_vertex_data(0, 0, 1, 3),
-    edge_vertex_data(0, 0, 2, 3),
-    edge_vertex_data(0, 1, 0, 3),
-    edge_vertex_data(0, 1, 1, 3),
-    edge_vertex_data(0, 1, 2, 3),
+    edge_vertex_data(0, 1, 0),
+    edge_vertex_data(0, 1, 1),
+    edge_vertex_data(0, 1, 2),
+    edge_vertex_data(1, 0, 0, kVertexData_InvertNegativeCoverageBit),
+    edge_vertex_data(1, 0, 1, kVertexData_InvertNegativeCoverageBit),
+    edge_vertex_data(1, 0, 2, kVertexData_InvertNegativeCoverageBit),
 
-    edge_vertex_data(1, 0, 0, 3),
-    edge_vertex_data(1, 0, 1, 3),
-    edge_vertex_data(1, 0, 2, 3),
-    edge_vertex_data(1, 1, 0, 3),
-    edge_vertex_data(1, 1, 1, 3),
-    edge_vertex_data(1, 1, 2, 3),
+    edge_vertex_data(1, 2, 0),
+    edge_vertex_data(1, 2, 1),
+    edge_vertex_data(1, 2, 2),
+    edge_vertex_data(2, 1, 0, kVertexData_InvertNegativeCoverageBit),
+    edge_vertex_data(2, 1, 1, kVertexData_InvertNegativeCoverageBit),
+    edge_vertex_data(2, 1, 2, kVertexData_InvertNegativeCoverageBit),
 
-    edge_vertex_data(2, 0, 0, 3),
-    edge_vertex_data(2, 0, 1, 3),
-    edge_vertex_data(2, 0, 2, 3),
-    edge_vertex_data(2, 1, 0, 3),
-    edge_vertex_data(2, 1, 1, 3),
-    edge_vertex_data(2, 1, 2, 3),
+    edge_vertex_data(2, 0, 0),
+    edge_vertex_data(2, 0, 1),
+    edge_vertex_data(2, 0, 2),
+    edge_vertex_data(0, 2, 0, kVertexData_InvertNegativeCoverageBit),
+    edge_vertex_data(0, 2, 1, kVertexData_InvertNegativeCoverageBit),
+    edge_vertex_data(0, 2, 2, kVertexData_InvertNegativeCoverageBit),
 
     corner_vertex_data(2, 0, 1, 0),
     corner_vertex_data(2, 0, 1, 1),
@@ -193,15 +192,29 @@ static constexpr int32_t kCurveVertices[] = {
     hull_vertex_data(3, 1, 4),
     hull_vertex_data(3, 2, 4),
 
-    corner_vertex_data(3, 0, 1, 0),
-    corner_vertex_data(3, 0, 1, 1),
-    corner_vertex_data(3, 0, 1, 2),
-    corner_vertex_data(3, 0, 1, 3),
+    edge_vertex_data(0, 3, 0, kVertexData_NegateWindBit),
+    edge_vertex_data(0, 3, 1, kVertexData_NegateWindBit),
+    edge_vertex_data(0, 3, 2, kVertexData_NegateWindBit),
+    edge_vertex_data(3, 0, 0, kVertexData_NegateWindBit),
+    edge_vertex_data(3, 0, 1, kVertexData_NegateWindBit),
+    edge_vertex_data(3, 0, 2, kVertexData_NegateWindBit),
 
-    corner_vertex_data(2, 3, 0, 0),
-    corner_vertex_data(2, 3, 0, 1),
-    corner_vertex_data(2, 3, 0, 2),
-    corner_vertex_data(2, 3, 0, 3),
+    edge_vertex_data(0, 3, 0, kVertexData_kFlatCurveBit | kVertexData_InvertNegativeCoverageBit),
+    edge_vertex_data(0, 3, 1, kVertexData_kFlatCurveBit | kVertexData_InvertNegativeCoverageBit),
+    edge_vertex_data(0, 3, 2, kVertexData_kFlatCurveBit | kVertexData_InvertNegativeCoverageBit),
+    edge_vertex_data(3, 0, 0, kVertexData_kFlatCurveBit),
+    edge_vertex_data(3, 0, 1, kVertexData_kFlatCurveBit),
+    edge_vertex_data(3, 0, 2, kVertexData_kFlatCurveBit),
+
+    corner_vertex_data(3, 0, 1, 0, kVertexData_kFlatCurveBit | kVertexData_NegateWindBit),
+    corner_vertex_data(3, 0, 1, 1, kVertexData_kFlatCurveBit | kVertexData_NegateWindBit),
+    corner_vertex_data(3, 0, 1, 2, kVertexData_kFlatCurveBit | kVertexData_NegateWindBit),
+    corner_vertex_data(3, 0, 1, 3, kVertexData_kFlatCurveBit | kVertexData_NegateWindBit),
+
+    corner_vertex_data(2, 3, 0, 0, kVertexData_kFlatCurveBit | kVertexData_NegateWindBit),
+    corner_vertex_data(2, 3, 0, 1, kVertexData_kFlatCurveBit | kVertexData_NegateWindBit),
+    corner_vertex_data(2, 3, 0, 2, kVertexData_kFlatCurveBit | kVertexData_NegateWindBit),
+    corner_vertex_data(2, 3, 0, 3, kVertexData_kFlatCurveBit | kVertexData_NegateWindBit),
 };
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gCurveVertexBufferKey);
@@ -228,13 +241,25 @@ static constexpr uint16_t kCurveIndicesAsTris[] =  {
     5, 11,  9,
     9, 11, 10,
 
-    // First corner.
+    // Erase edge.
     13, 12, 14,
-    12, 15, 14,
+    12, 17, 14,
+    14, 17, 15,
+    17, 16, 15,
+
+    // Redo edge.
+    19, 18, 20,
+    18, 23, 20,
+    20, 23, 21,
+    23, 22, 21,
+
+    // First corner.
+    25, 24, 26,
+    24, 27, 26,
 
     // Final corner.
-    17, 16, 18,
-    16, 19, 18,
+    29, 28, 30,
+    28, 31, 30,
 };
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gCurveIndexBufferKey);
@@ -256,6 +281,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     const GrCCCoverageProcessor& proc = args.fGP.cast<GrCCCoverageProcessor>();
     GrGLSLVertexBuilder* v = args.fVertBuilder;
     int numInputPoints = proc.numInputPoints();
+    const char* vertexData = proc.getAttrib(kAttribIdx_VertexData).fName;
 
     const char* swizzle = (4 == numInputPoints) ? "xyzw" : "xyz";
     v->codeAppendf("float%ix2 pts = transpose(float2x%i(%s.%s, %s.%s));",
@@ -290,12 +316,12 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
 
     // Reverse all indices if the wind is counter-clockwise: [0, 1, 2] -> [2, 1, 0].
     v->codeAppendf("int clockwise_indices = wind > 0 ? %s : 0x%x - %s;",
-                   proc.getAttrib(kAttribIdx_VertexData).fName,
+                   vertexData,
                    ((fNumSides - 1) << kVertexData_LeftNeighborIdShift) |
                    ((fNumSides - 1) << kVertexData_RightNeighborIdShift) |
                    (((1 << kVertexData_RightNeighborIdShift) - 1) ^ 3) |
                    (fNumSides - 1),
-                   proc.getAttrib(kAttribIdx_VertexData).fName);
+                   vertexData);
 
     // Here we generate conservative raster geometry for the input polygon. It is the convex
     // hull of N pixel-size boxes, one centered on each the input points. Each corner has three
@@ -327,8 +353,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     v->codeAppend ("float2 rightdir = right - corner;");
     v->codeAppend ("rightdir = (float2(0) != rightdir) ? normalize(rightdir) : float2(1, 0);");
 
-    v->codeAppendf("if (0 != (%s & %i)) {", // Are we a corner?
-                   proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_IsCornerBit);
+    v->codeAppendf("if (0 != (%s & %i)) {", vertexData, kVertexData_IsCornerBit);
 
                        // In corner boxes, all 4 coverage values will not map linearly.
                        // Therefore it is important to align the box so its diagonal shared
@@ -347,8 +372,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     // continue rotating 90 degrees clockwise until we reach the desired raster vertex for this
     // invocation. Corners with less than 3 corresponding raster vertices will result in
     // redundant vertices and degenerate triangles.
-    v->codeAppendf("int bloatidx = (%s >> %i) & 3;",
-                   proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_BloatIdxShift);
+    v->codeAppendf("int bloatidx = (%s >> %i) & 3;", vertexData, kVertexData_BloatIdxShift);
     v->codeAppend ("switch (bloatidx) {");
     v->codeAppend (    "case 3:");
                             // Only corners will have bloatidx=3, and corners always rotate.
@@ -381,32 +405,46 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     Shader::CalcCornerCoverageAttenuation(v, "leftdir", "rightdir", "attenuation");
     v->codeAppend ("}");
 
-    // Hulls have a coverage of +1 all around.
-    v->codeAppend ("half coverage = +1;");
-
+    const char* shaderPos = "vertex", *shaderWind = "wind";
     if (3 == fNumSides) {
-        v->codeAppendf("if (0 != (%s & %i)) {", // Are we an edge?
-                       proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_IsEdgeBit);
+        // Hulls have a coverage of +1 all around.
+        v->codeAppend ("half coverage = +1;");
+
+        v->codeAppendf("if (0 != (%s & %i)) {", vertexData, kVertexData_IsEdgeBit);
         v->codeAppend (    "coverage = left_coverage;");
         v->codeAppend ("}");
+    } else {
+        // Curves have a coverage of 0 all around.
+        v->codeAppend ("half coverage = 0;");
 
-        v->codeAppendf("if (0 != (%s & %i)) {", // Invert coverage?
-                       proc.getAttrib(kAttribIdx_VertexData).fName,
-                       kVertexData_InvertNegativeCoverageBit);
-        v->codeAppend (    "coverage = -1 - coverage;");
+        v->codeAppend ("float2 shaderpos = vertex;");
+        v->codeAppendf("if (0 != (%s & %i)) {", vertexData, kVertexData_kFlatCurveBit);
+        Shader::CalcProjectionOnInsetEdge(v, hullPts, 0, 3, "wind", "vertex", "shaderpos");
+        v->codeAppend (    "coverage = left_coverage;");
         v->codeAppend ("}");
+        shaderPos = "shaderpos";
+
+        v->codeAppend ("half shaderwind = wind;");
+        v->codeAppendf("if (0 != (%s & %i)) {", vertexData, kVertexData_NegateWindBit);
+        v->codeAppend (    "shaderwind = -shaderwind;");
+        v->codeAppend ("}");
+        shaderWind = "shaderwind";
     }
+
+    v->codeAppendf("if (0 != (%s & %i)) {", vertexData, kVertexData_InvertNegativeCoverageBit);
+    v->codeAppend (    "coverage = -1 - coverage;");
+    v->codeAppend ("}");
 
     // Corner boxes require attenuation.
     v->codeAppend ("half2 attenuated_coverage = half2(0, 1);");
 
-    v->codeAppendf("if (0 != (%s & %i)) {", // Are we a corner?
-                   proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_IsCornerBit);
+    v->codeAppendf("if (0 != (%s & %i)) {", vertexData, kVertexData_IsCornerBit);
                        // We use coverage=-1 to erase what the hull geometry wrote.
-    v->codeAppend (    "coverage = -1;");
     if (3 == fNumSides) {
                        // Triangle corners also have to erase what the edge geometry wrote.
-        v->codeAppend ("coverage -= left_coverage + right_coverage;");
+        v->codeAppend ("coverage = -1 - left_coverage - right_coverage;");
+    } else {
+        v->codeAppendf("coverage = (0 == (%s & 3)) ? left_coverage : right_coverage;", vertexData);
     }
                        // The x and y components of "attenuated_coverage" are multiplied
                        // together by the fragment shader. They ramp to 0 with attenuation in
@@ -425,10 +463,9 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
 
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
     SkString varyingCode;
-    v->codeAppend ("coverage *= wind;");
     v->codeAppend ("attenuated_coverage.x *= wind;");
     fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kVertToFrag, &varyingCode,
-                          gpArgs->fPositionVar.c_str(), "coverage", "attenuated_coverage");
+                          shaderPos, "coverage", shaderWind, "attenuated_coverage");
     v->codeAppend(varyingCode.c_str());
 
     varyingHandler->emitAttributes(proc);

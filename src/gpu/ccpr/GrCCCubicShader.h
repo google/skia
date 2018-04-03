@@ -26,13 +26,12 @@ class GrCCCubicShader : public GrCCCoverageProcessor::Shader {
                        const char** tighterHull) const override;
 
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                        const char* position, const char* coverage,
+                        const char* position, const char* coverage, const char* wind,
                         const char* attenuatedCoverage) override;
 
     void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
 
     const GrShaderVar fKLMMatrix{"klm_matrix", kFloat3x3_GrSLType};
-    const GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
     GrGLSLVarying fKLMD;
     GrGLSLVarying fGradMatrix;
     GrGLSLVarying fCornerCoverage;

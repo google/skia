@@ -87,28 +87,19 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     s->codeAppendf("%s *= float3x3(orientation[0] * orientation[1], 0, 0, "
                                   "0, orientation[0], 0, "
                                   "0, 0, orientation[1]);", fKLMMatrix.c_str());
-
-    // Determine the amount of additional coverage to subtract out for the flat edge (P3 -> P0).
-    s->declareGlobal(fEdgeDistanceEquation);
-    s->codeAppendf("int edgeidx0 = %s > 0 ? 3 : 0;", wind);
-    s->codeAppendf("float2 edgept0 = %s[edgeidx0];", pts);
-    s->codeAppendf("float2 edgept1 = %s[3 - edgeidx0];", pts);
-    Shader::EmitEdgeDistanceEquation(s, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
 }
 
 void GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                      GrGLSLVarying::Scope scope, SkString* code,
                                      const char* position, const char* coverage,
-                                     const char* attenuatedCoverage) {
+                                     const char* wind, const char* attenuatedCoverage) {
     fKLMD.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("klmd", &fKLMD);
     code->appendf("float3 klm = float3(%s, 1) * %s;", position, fKLMMatrix.c_str());
     // We give L & M both the same sign as wind, in order to pass this value to the fragment shader.
     // (Cubics are pre-chopped such that L & M do not change sign within any individual segment.)
-    code->appendf("%s.xyz = klm * float3(1, %s, %s);",
-                  OutName(fKLMD), coverage, coverage); // coverage == wind on curves.
-    code->appendf("%s.w = dot(float3(%s, 1), %s);", // Flat edge opposite the curve.
-                  OutName(fKLMD), position, fEdgeDistanceEquation.c_str());
+    code->appendf("%s.xyz = klm * float3(1, %s, %s);", OutName(fKLMD), wind, wind);
+    code->appendf("%s.w = %s;", OutName(fKLMD), coverage);
 
     fGradMatrix.reset(kFloat2x2_GrSLType, scope);
     varyingHandler->addVarying("grad_matrix", &fGradMatrix);
@@ -127,13 +118,13 @@ void GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
 
 void GrCCCubicShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
                                          const char* outputCoverage) const {
-    f->codeAppendf("float k = %s.x, l = %s.y, m = %s.z;", fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn());
+    f->codeAppendf("float k = %s.x, l = %s.y, m = %s.z, d = %s.w;",
+                   fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn());
     f->codeAppend ("float f = k*k*k - l*m;");
     f->codeAppendf("float2 grad = %s * float2(k, 1);", fGradMatrix.fsIn());
     f->codeAppend ("float fwidth = abs(grad.x) + abs(grad.y);");
-    f->codeAppendf("%s = clamp(0.5 - f/fwidth, 0, 1);", outputCoverage);
+    f->codeAppendf("%s = min(max(0.5 - f/fwidth, 0) - d, 1);", outputCoverage);
 
-    f->codeAppendf("half d = min(%s.w, 0);", fKLMD.fsIn()); // Flat edge opposite the curve.
     // Wind is the sign of both L and/or M. Take the sign of whichever has the larger magnitude.
     // (In reality, either would be fine because we chop cubics with more than a half pixel of
     // padding around the L & M lines, so neither should approach zero.)

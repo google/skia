@@ -26,7 +26,7 @@ protected:
                        const char** tighterHull) const override;
 
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                        const char* position, const char* coverage,
+                        const char* position, const char* coverage, const char* wind,
                         const char* attenuatedCoverage) override;
 
     void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;

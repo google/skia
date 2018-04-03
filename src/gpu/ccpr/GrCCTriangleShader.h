@@ -19,15 +19,16 @@
 class GrCCTriangleShader : public GrCCCoverageProcessor::Shader {
     void onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
                         SkString* code, const char* position, const char* coverage,
-                        const char* attenuatedCoverage) override {
+                        const char* wind, const char* attenuatedCoverage) override {
         if (!attenuatedCoverage) {
             fCoverages.reset(kHalf_GrSLType, scope);
             varyingHandler->addVarying("coverage", &fCoverages);
-            code->appendf("%s = %s;", OutName(fCoverages), coverage);
+            code->appendf("%s = %s * %s;", OutName(fCoverages), coverage, wind);
         } else {
             fCoverages.reset(kHalf3_GrSLType, scope);
             varyingHandler->addVarying("coverages", &fCoverages);
-            code->appendf("%s = half3(%s, %s);", OutName(fCoverages), attenuatedCoverage, coverage);
+            code->appendf("%s = half3(%s * %s, %s);",
+                          OutName(fCoverages), coverage, wind, attenuatedCoverage);
         }
     }
 
@@ -35,7 +36,7 @@ class GrCCTriangleShader : public GrCCCoverageProcessor::Shader {
         if (kHalf_GrSLType == fCoverages.type()) {
             f->codeAppendf("%s = %s;", outputCoverage, fCoverages.fsIn());
         } else {
-            f->codeAppendf("%s = %s.x * %s.y + %s.z;",
+            f->codeAppendf("%s = %s.z * %s.y + %s.x;",
                            outputCoverage, fCoverages.fsIn(), fCoverages.fsIn(), fCoverages.fsIn());
         }
     }

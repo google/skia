@@ -18,7 +18,7 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(gpu->glInterface(), R, X)
 
 // Print the source code for all shaders generated.
-static const bool gPrintSKSL = false;
+static const bool gPrintSKSL = true;
 static const bool gPrintGLSL = false;
 
 static void print_source_lines_with_numbers(const char* source,
@@ -95,6 +95,10 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
         case GR_GL_GEOMETRY_SHADER: programKind = SkSL::Program::kGeometry_Kind; break;
         default: SK_ABORT("unsupported shader kind");
     }
+    if (gPrintSKSL) {
+        print_shader_banner(type);
+        print_sksl_line_by_line(skslStrings, lengths, count);
+    }
     program = compiler->convertProgram(programKind, sksl, settings);
     if (!program || !compiler->toGLSL(*program, glsl)) {
         SkDebugf("SKSL compilation error\n----------------------\n");
@@ -102,10 +106,6 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
         SkDebugf("\nErrors:\n%s\n", compiler->errorText().c_str());
         SkDEBUGFAIL("SKSL compilation failed!\n");
         return nullptr;
-    }
-    if (gPrintSKSL) {
-        print_shader_banner(type);
-        print_sksl_line_by_line(skslStrings, lengths, count);
     }
     return program;
 }

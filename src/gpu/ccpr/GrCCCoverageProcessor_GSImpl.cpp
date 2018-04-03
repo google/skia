@@ -20,9 +20,6 @@ class GrCCCoverageProcessor::GSImpl : public GrGLSLGeometryProcessor {
 protected:
     GSImpl(std::unique_ptr<Shader> shader) : fShader(std::move(shader)) {}
 
-    virtual bool hasCoverage() const { return false; }
-    virtual bool hasAttenuatedCoverage() const { return false; }
-
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
                  FPCoordTransformIter&& transformIter) final {
         this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
@@ -57,8 +54,6 @@ protected:
         g->codeAppendf("float%ix2 pts = transpose(float2x%i(sk_in[0].%s, sk_in[1].%s));",
                        numInputPoints, numInputPoints, posValues, posValues);
 
-        GrShaderVar wind("wind", kHalf_GrSLType);
-        g->declareGlobal(wind);
         if (WindMethod::kCrossProduct == proc.fWindMethod) {
             g->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], "
                                                                 "pts[0] - pts[2]));");
@@ -66,36 +61,28 @@ protected:
                 g->codeAppend ("area_x2 += determinant(float2x2(pts[0] - pts[2], "
                                                                "pts[0] - pts[3]));");
             }
-            g->codeAppendf("%s = sign(area_x2);", wind.c_str());
+            g->codeAppend ("half wind = sign(area_x2);");
         } else {
             SkASSERT(WindMethod::kInstanceData == proc.fWindMethod);
             SkASSERT(3 == numInputPoints);
             SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(0).fType);
-            g->codeAppendf("%s = sk_in[0].sk_Position.w;", wind.c_str());
+            g->codeAppend ("half wind = sk_in[0].sk_Position.w;");
         }
 
         SkString emitVertexFn;
-        SkSTArray<2, GrShaderVar> emitArgs;
+        SkSTArray<4, GrShaderVar> emitArgs;
         const char* position = emitArgs.emplace_back("position", kFloat2_GrSLType).c_str();
-        const char* coverage = nullptr;
-        if (this->hasCoverage()) {
-            coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
-        }
+        const char* coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
+        const char* wind = emitArgs.emplace_back("wind", kHalf_GrSLType).c_str();
         const char* attenuatedCoverage = nullptr;
-        if (this->hasAttenuatedCoverage()) {
+        if (GSSubpass::kCorners == proc.fGSSubpass) {
             attenuatedCoverage = emitArgs.emplace_back("attenuated_coverage",
                                                        kHalf2_GrSLType).c_str();
         }
         g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
             SkString fnBody;
-            if (coverage) {
-                fnBody.appendf("%s *= %s;", coverage, wind.c_str());
-            }
-            if (attenuatedCoverage) {
-                fnBody.appendf("%s.x *= %s;", attenuatedCoverage, wind.c_str());
-            }
-            fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, &fnBody,
-                                  position, coverage ? coverage : wind.c_str(), attenuatedCoverage);
+            this->emitVaryings(varyingHandler, &fnBody, position, coverage, wind,
+                               attenuatedCoverage);
             g->emitVertex(&fnBody, position, rtAdjust);
             return fnBody;
         }().c_str(), &emitVertexFn);
@@ -108,11 +95,18 @@ protected:
 #endif
         g->defineConstant("bloat", bloat);
 
-        this->onEmitGeometryShader(proc, g, wind, emitVertexFn.c_str());
+        this->onEmitGeometryShader(proc, g, emitVertexFn.c_str());
+    }
+
+    virtual void emitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code,
+                              const char* position, const char* coverage, const char* wind,
+                              const char* attenuatedCoverage) const {
+        fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, code, position,
+                              coverage, wind, attenuatedCoverage);
     }
 
     virtual void onEmitGeometryShader(const GrCCCoverageProcessor&, GrGLSLGeometryBuilder*,
-                                      const GrShaderVar& wind, const char* emitVertexFn) const = 0;
+                                      const char* emitVertexFn) const = 0;
 
     virtual ~GSImpl() {}
 
@@ -135,22 +129,19 @@ class GrCCCoverageProcessor::GSTriangleHullImpl : public GrCCCoverageProcessor::
 public:
     GSTriangleHullImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
-    bool hasCoverage() const override { return true; }
-
     void onEmitGeometryShader(const GrCCCoverageProcessor&, GrGLSLGeometryBuilder* g,
-                              const GrShaderVar& wind, const char* emitVertexFn) const override {
-        fShader->emitSetupCode(g, "pts", wind.c_str());
+                              const char* emitVertexFn) const override {
+        fShader->emitSetupCode(g, "pts", "wind");
 
         // Visualize the input triangle as upright and equilateral, with a flat base. Paying special
         // attention to wind, we can identify the points as top, bottom-left, and bottom-right.
         //
         // NOTE: We generate the rasters in 5 independent invocations, so each invocation designates
         // the corner it will begin with as the top.
-        g->codeAppendf("int i = (%s > 0 ? sk_InvocationID : 4 - sk_InvocationID) %% 3;",
-                       wind.c_str());
+        g->codeAppend ("int i = (wind > 0 ? sk_InvocationID : 4 - sk_InvocationID) % 3;");
         g->codeAppend ("float2 top = pts[i];");
-        g->codeAppendf("float2 right = pts[(i + (%s > 0 ? 1 : 2)) %% 3];", wind.c_str());
-        g->codeAppendf("float2 left = pts[(i + (%s > 0 ? 2 : 1)) %% 3];", wind.c_str());
+        g->codeAppend ("float2 right = pts[(i + (wind > 0 ? 1 : 2)) % 3];");
+        g->codeAppend ("float2 left = pts[(i + (wind > 0 ? 2 : 1)) % 3];");
 
         // Determine which direction to outset the conservative raster from each of the three edges.
         g->codeAppend ("float2 leftbloat = sign(top - left);");
@@ -195,17 +186,17 @@ public:
         g->codeAppend ("if (all(left_right_notequal)) {");
                            // The top corner will have three conservative raster vertices. Emit the
                            // middle one first to the triangle strip.
-        g->codeAppendf(    "%s(top + float2(-leftbloat.y, +leftbloat.x), coverages[0]);",
+        g->codeAppendf(    "%s(top + float2(+rightbloat.y, -rightbloat.x), coverages[0], wind);",
                            emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (any(left_right_notequal)) {");
                            // Second conservative raster vertex for the top corner.
-        g->codeAppendf(    "%s(top + rightbloat, coverages[1]);", emitVertexFn);
+        g->codeAppendf(    "%s(top + rightbloat, coverages[1], wind);", emitVertexFn);
         g->codeAppend ("}");
 
         // Main interior body.
-        g->codeAppendf("%s(top + leftbloat, coverages[2]);", emitVertexFn);
-        g->codeAppendf("%s(right + rightbloat, coverages[1]);", emitVertexFn);
+        g->codeAppendf("%s(top + leftbloat, coverages[2], wind);", emitVertexFn);
+        g->codeAppendf("%s(right + rightbloat, coverages[1], wind);", emitVertexFn);
 
         // Here the invocations diverge slightly. We can't symmetrically divide three triangle
         // points between two invocations, so each does the following:
@@ -216,10 +207,10 @@ public:
         g->codeAppendf("bool2 right_down_notequal = notEqual(rightbloat, downbloat);");
         g->codeAppend ("if (any(right_down_notequal) || 0 == sk_InvocationID) {");
         g->codeAppendf(    "%s(0 == sk_InvocationID ? left + leftbloat : right + downbloat, "
-                              "coverages[2]);", emitVertexFn);
+                              "coverages[2], wind);", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (all(right_down_notequal) && 0 != sk_InvocationID) {");
-        g->codeAppendf(    "%s(right + float2(-rightbloat.y, +rightbloat.x), coverages[3]);",
+        g->codeAppendf(    "%s(right + float2(-rightbloat.y, +rightbloat.x), coverages[3], wind);",
                            emitVertexFn);
         g->codeAppend ("}");
 
@@ -229,69 +220,127 @@ public:
 };
 
 /**
- * Generates a conservative raster around a convex quadrilateral that encloses a cubic or quadratic.
+ * Generates conservative raster hulls around convex curves and their shared edges.
  */
 class GrCCCoverageProcessor::GSCurveHullImpl : public GrCCCoverageProcessor::GSImpl {
 public:
     GSCurveHullImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
     void onEmitGeometryShader(const GrCCCoverageProcessor&, GrGLSLGeometryBuilder* g,
-                              const GrShaderVar& wind, const char* emitVertexFn) const override {
+                              const char* emitVertexFn) const override {
+        g->declareGlobal(fShaderPosMatrix);
+        g->codeAppendf("%s = float2x3(1);", fShaderPosMatrix.c_str());
+
         const char* hullPts = "pts";
-        fShader->emitSetupCode(g, "pts", wind.c_str(), &hullPts);
+        fShader->emitSetupCode(g, "pts", "wind", &hullPts);
 
         // Visualize the input (convex) quadrilateral as a square. Paying special attention to wind,
         // we can identify the points by their corresponding corner.
         //
-        // NOTE: We split the square down the diagonal from top-right to bottom-left, and generate
-        // the hull in two independent invocations. Each invocation designates the corner it will
-        // begin with as top-left.
-        g->codeAppend ("int i = sk_InvocationID * 2;");
+        // NOTE: For the hull we split the square down the diagonal from top-right to bottom-left,
+        // and generate it in two independent invocations. All invocations, including the shared
+        // edge, designate the corner they will begin with as top-left.
+        g->codeAppendf("bool is_shared_edge = (sk_InvocationID >= 2);");
+        g->codeAppend ("int i = !is_shared_edge ? sk_InvocationID * 2 : (wind > 0 ? 3 : 0);");
         g->codeAppendf("float2 topleft = %s[i];", hullPts);
-        g->codeAppendf("float2 topright = %s[%s > 0 ? i + 1 : 3 - i];", hullPts, wind.c_str());
-        g->codeAppendf("float2 bottomleft = %s[%s > 0 ? 3 - i : i + 1];", hullPts, wind.c_str());
-        g->codeAppendf("float2 bottomright = %s[2 - i];", hullPts);
+        g->codeAppendf("float2 topright = %s[(i + (wind > 0 ? 1 : 3)) & 3];", hullPts);
+        g->codeAppendf("float2 bottomleft = %s[(i + (wind > 0 ? 3 : 1)) & 3];", hullPts);
+        g->codeAppendf("float2 bottomright = %s[(i + 2) & 3];", hullPts);
 
         // Determine how much to outset the conservative raster hull from the relevant edges.
-        g->codeAppend ("float2 leftbloat = float2(topleft.y > bottomleft.y ? +bloat : -bloat, "
-                                                 "topleft.x > bottomleft.x ? -bloat : bloat);");
-        g->codeAppend ("float2 upbloat = float2(topright.y > topleft.y ? +bloat : -bloat, "
-                                               "topright.x > topleft.x ? -bloat : +bloat);");
-        g->codeAppend ("float2 rightbloat = float2(bottomright.y > topright.y ? +bloat : -bloat, "
-                                                  "bottomright.x > topright.x ? -bloat : +bloat);");
+        g->codeAppend ("float2 leftbloat = sign(topleft - bottomleft);");
+        g->codeAppend ("leftbloat = float2(0 != leftbloat.y ? leftbloat.y : leftbloat.x, "
+                                          "0 != leftbloat.x ? -leftbloat.x : -leftbloat.y);");
+
+        g->codeAppend ("float2 upbloat = sign(topright - topleft);");
+        g->codeAppend ("upbloat = float2(0 != upbloat.y ? upbloat.y : upbloat.x, "
+                                        "0 != upbloat.x ? -upbloat.x : -upbloat.y);");
+
+        g->codeAppend ("float2 rightbloat = sign(bottomright - topright);");
+        g->codeAppend ("rightbloat = float2(0 != rightbloat.y ? rightbloat.y : rightbloat.x, "
+                                           "0 != rightbloat.x ? -rightbloat.x : -rightbloat.y);");
+
+        g->codeAppend ("half4 coverages = half4(0);");
+        g->codeAppend ("half shaderwind = wind;");
+
+        g->codeAppend ("if (is_shared_edge) {");
+        g->codeAppend (    "if (2 == sk_InvocationID) {");
+        g->codeAppend (        "shaderwind = -shaderwind;");
+        g->codeAppend (    "} else {");
+                               Shader::CalcProjectionOnInsetEdge(g, hullPts, 0, 3, "wind", nullptr,
+                                                                 fShaderPosMatrix.c_str());
+                               Shader::CalcEdgeCoverageAtBloatVertex(g, "topleft", "topright",
+                                                                     "float2(+upbloat.y, "
+                                                                            "-upbloat.x)",
+                                                                     "coverages[0]");
+        g->codeAppend (        "coverages.yzw = half3(-1, 0, -1 - coverages[0]);");
+        g->codeAppend (    "}");
+
+                           // Reassign bloats to characterize a conservative raster around just the
+                           // shared edge, rather than the entire hull.
+        g->codeAppend (    "leftbloat = rightbloat = -upbloat;");
+        g->codeAppend ("}");
+
+        // These can't be scaled until after we calculate coverage.
+        g->codeAppend ("leftbloat *= bloat;");
+        g->codeAppend ("upbloat *= bloat;");
+        g->codeAppend ("rightbloat *= bloat;");
 
         // Here we generate the conservative raster geometry. It is the convex hull of 4 pixel-size
         // boxes centered on the input points, split evenly between two invocations. This translates
         // to a polygon with either one, two, or three vertices at each input point, depending on
-        // how sharp the corner is. For more details on conservative raster, see:
+        // how sharp the corner is. The shared edge raster is the convex hull of 2 pixel-size boxes,
+        // one at each endpoint. For more details on conservative raster, see:
         // https://developer.nvidia.com/gpugems/GPUGems2/gpugems2_chapter42.html
         g->codeAppendf("bool2 left_up_notequal = notEqual(leftbloat, upbloat);");
         g->codeAppend ("if (all(left_up_notequal)) {");
                            // The top-left corner will have three conservative raster vertices.
                            // Emit the middle one first to the triangle strip.
-        g->codeAppendf(    "%s(topleft + float2(-leftbloat.y, leftbloat.x));", emitVertexFn);
+        g->codeAppendf(    "%s(topleft + float2(+upbloat.y, -upbloat.x), coverages[0], "
+                              "shaderwind);",
+                           emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (any(left_up_notequal)) {");
                            // Second conservative raster vertex for the top-left corner.
-        g->codeAppendf(    "%s(topleft + leftbloat);", emitVertexFn);
+        g->codeAppendf(    "%s(topleft + leftbloat, coverages[2], shaderwind);", emitVertexFn);
         g->codeAppend ("}");
 
-        // Main interior body of this invocation's half of the hull.
-        g->codeAppendf("%s(topleft + upbloat);", emitVertexFn);
-        g->codeAppendf("%s(bottomleft + leftbloat);", emitVertexFn);
-        g->codeAppendf("%s(topright + upbloat);", emitVertexFn);
+        g->codeAppendf("%s(topleft + upbloat, coverages[1], shaderwind);", emitVertexFn);
+
+        g->codeAppend ("if (!is_shared_edge) {");
+                           // Main interior body of this invocation's half of the hull.
+        g->codeAppendf(    "%s(bottomleft + leftbloat, 0, shaderwind);", emitVertexFn);
+        g->codeAppend ("}");
+
+        g->codeAppendf("%s(topright + (is_shared_edge ? rightbloat : upbloat), coverages[2], shaderwind);",
+                       emitVertexFn);
 
         // Remaining two conservative raster vertices for the top-right corner.
         g->codeAppendf("bool2 up_right_notequal = notEqual(upbloat, rightbloat);");
         g->codeAppend ("if (any(up_right_notequal)) {");
-        g->codeAppendf(    "%s(topright + rightbloat);", emitVertexFn);
+        g->codeAppendf(    "%s(topright + (is_shared_edge ? upbloat : rightbloat), "
+                              "coverages[1], shaderwind);", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (all(up_right_notequal)) {");
-        g->codeAppendf(    "%s(topright + float2(-upbloat.y, upbloat.x));", emitVertexFn);
+        g->codeAppendf(    "%s(topright + float2(-upbloat.y, +upbloat.x), coverages[3], "
+                              "shaderwind);",
+                           emitVertexFn);
         g->codeAppend ("}");
 
-        g->configure(InputType::kLines, OutputType::kTriangleStrip, 7, 2);
+        // 4 invocations: 2 hull invocations and 2 shared edges.
+        g->configure(InputType::kLines, OutputType::kTriangleStrip, 7, 4);
     }
+
+    void emitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code, const char* position,
+                      const char* coverage, const char* wind,
+                      const char* attenuatedCoverage) const override {
+        code->appendf("float2 shaderpos = float3(%s, 1) * %s;", position, fShaderPosMatrix.c_str());
+        fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, code, "shaderpos",
+                              coverage, wind, attenuatedCoverage);
+    }
+
+private:
+    const GrShaderVar fShaderPosMatrix{"shaderpos_matrix", kFloat2x3_GrSLType};
 };
 
 /**
@@ -300,26 +349,32 @@ public:
  */
 class GrCCCoverageProcessor::GSCornerImpl : public GrCCCoverageProcessor::GSImpl {
 public:
-    GSCornerImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
-
-    bool hasCoverage() const override { return true; }
-    bool hasAttenuatedCoverage() const override { return true; }
+    GSCornerImpl(std::unique_ptr<Shader> shader, PrimitiveType primitiveType)
+            : GSImpl(std::move(shader))
+            , fIsTriangle(PrimitiveType::kTriangles == primitiveType) {}
 
     void onEmitGeometryShader(const GrCCCoverageProcessor& proc, GrGLSLGeometryBuilder* g,
-                              const GrShaderVar& wind, const char* emitVertexFn) const override {
-        fShader->emitSetupCode(g, "pts", wind.c_str());
+                              const char* emitVertexFn) const override {
+        fShader->emitSetupCode(g, "pts", "wind");
 
-        bool isTriangle = PrimitiveType::kTriangles == proc.fPrimitiveType;
         g->codeAppendf("int corneridx = sk_InvocationID;");
-        if (!isTriangle) {
+        if (!fIsTriangle) {
             g->codeAppendf("corneridx *= %i;", proc.numInputPoints() - 1);
         }
 
+        if (!fIsTriangle) {
+            g->declareGlobal(fShaderPosMatrix);
+            g->codeAppend ("{");
+            Shader::CalcProjectionOnInsetEdge(g, "pts", 0, proc.numInputPoints() - 1, "wind",
+                                              nullptr, fShaderPosMatrix.c_str());
+            g->codeAppend ("}");
+        }
+
         g->codeAppendf("float2 corner = pts[corneridx];");
-        g->codeAppendf("float2 left = pts[(corneridx + (%s > 0 ? %i : 1)) %% %i];",
-                       wind.c_str(), proc.numInputPoints() - 1, proc.numInputPoints());
-        g->codeAppendf("float2 right = pts[(corneridx + (%s > 0 ? 1 : %i)) %% %i];",
-                       wind.c_str(), proc.numInputPoints() - 1, proc.numInputPoints());
+        g->codeAppendf("float2 left = pts[(corneridx + (wind > 0 ? %i : 1)) %% %i];",
+                       proc.numInputPoints() - 1, proc.numInputPoints());
+        g->codeAppendf("float2 right = pts[(corneridx + (wind > 0 ? 1 : %i)) %% %i];",
+                       proc.numInputPoints() - 1, proc.numInputPoints());
 
         g->codeAppend ("float2 leftdir = corner - left;");
         g->codeAppend ("leftdir = (float2(0) != leftdir) ? normalize(leftdir) : float2(1, 0);");
@@ -348,6 +403,15 @@ public:
         Shader::CalcCornerCoverageAttenuation(g, "leftdir", "rightdir", "attenuation");
         g->codeAppend ("}");
 
+        const char* shaderWind = "wind";
+        if (!fIsTriangle) {
+            g->codeAppend ("half shaderwind = -wind;");
+            shaderWind = "shaderwind";
+            g->codeAppend ("half2 curve_erase_coverages = (0 == sk_InvocationID) == (wind > 0)"
+                                   "? left_coverages"
+                                   ": half2(right_coverages[0], -1 - right_coverages[1]);");
+        }
+
         // Emit a corner box. The first coverage argument erases the values that were written
         // previously by the hull and edge geometry. The second pair are multiplied together by the
         // fragment shader. They ramp to 0 with attenuation in the direction of outbloat, and
@@ -355,29 +419,58 @@ public:
         //
         // NOTE: Since this is not a linear mapping, it is important that the box's diagonal shared
         // edge points in the direction of outbloat.
-        g->codeAppendf("%s(corner - crossbloat * bloat, %s, half2(1 + left_coverages[1], 1));",
+        g->codeAppendf("%s(corner - crossbloat * bloat, %s, %s, half2(1 + left_coverages[1], 1));",
                        emitVertexFn,
                        // Erase what the hull wrote previously.
-                       isTriangle ? "right_coverages[1] - left_coverages[1]" : "-1");
+                       fIsTriangle ? "right_coverages[1] - left_coverages[1]"
+                                   : "curve_erase_coverages[1]",
+                       shaderWind);
 
-        g->codeAppendf("%s(corner + outbloat * bloat, %s, half2(0, attenuation));",
+        g->codeAppendf("%s(corner + outbloat * bloat, %s, %s, half2(0, attenuation));",
                        emitVertexFn,
                        // Erase what the hull wrote previously.
-                       isTriangle ? "1 + left_coverages[0] + right_coverages[0]" : "-1");
+                       fIsTriangle ? "1 + left_coverages[0] + right_coverages[0]"
+                                   : "-1 - curve_erase_coverages[0]",
+                       shaderWind);
 
-        g->codeAppendf("%s(corner - outbloat * bloat, %s, "
+        g->codeAppendf("%s(corner - outbloat * bloat, %s, %s, "
                           "half2(1 + left_coverages[0] + right_coverages[0], 1));",
                        emitVertexFn,
                        // Erase what the hull wrote previously.
-                       isTriangle ? "-1 - left_coverages[0] - right_coverages[0]" : "-1");
+                       fIsTriangle ? "-1 - left_coverages[0] - right_coverages[0]"
+                                   : "curve_erase_coverages[0]",
+                       shaderWind);
 
-        g->codeAppendf("%s(corner + crossbloat * bloat, %s, half2(1 + right_coverages[1], 1));",
+        g->codeAppendf("%s(corner + crossbloat * bloat, %s, %s, half2(1 + right_coverages[1], 1));",
                        emitVertexFn,
                        // Erase what the hull wrote previously.
-                       isTriangle ? "left_coverages[1] - right_coverages[1]" : "-1");
+                       fIsTriangle ? "left_coverages[1] - right_coverages[1]"
+                                   : "-1 - curve_erase_coverages[1]",
+                       shaderWind);
 
-        g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, isTriangle ? 3 : 2);
+        g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, fIsTriangle ? 3 : 2);
     }
+
+    void emitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code, const char* position,
+                      const char* coverage, const char* wind,
+                      const char* attenuatedCoverage) const override {
+        const char* shaderPos = position;
+        if (fIsTriangle) {
+            code->appendf("%s.x *= %s;", attenuatedCoverage, wind);
+        } else {
+            code->appendf("float2 shaderpos = float3(%s, 1) * %s;",
+                          position, fShaderPosMatrix.c_str());
+            shaderPos = "shaderpos";
+
+            code->appendf("%s.x *= -%s;", attenuatedCoverage, wind);
+        }
+        fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, code, shaderPos,
+                              coverage, wind, attenuatedCoverage);
+    }
+
+private:
+    const bool fIsTriangle;
+    const GrShaderVar fShaderPosMatrix{"shaderpos_matrix", kFloat2x3_GrSLType};
 };
 
 void GrCCCoverageProcessor::initGS() {
@@ -414,5 +507,5 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGSImpl(std::unique_ptr<Sh
                    : (GSImpl*) new GSCurveHullImpl(std::move(shadr));
     }
     SkASSERT(GSSubpass::kCorners == fGSSubpass);
-    return new GSCornerImpl(std::move(shadr));
+    return new GSCornerImpl(std::move(shadr), fPrimitiveType);
 }

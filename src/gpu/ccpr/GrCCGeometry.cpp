@@ -76,6 +76,7 @@ static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2)
 // Returns whether the (convex) curve segment is monotonic with respect to [endPt - startPt].
 static inline bool is_convex_curve_monotonic(const Sk2f& startPt, const Sk2f& startTan,
                                              const Sk2f& endPt, const Sk2f& endTan) {
+    return true;
     Sk2f v = endPt - startPt;
     float dot0 = dot(startTan, v);
     float dot1 = dot(endTan, v);

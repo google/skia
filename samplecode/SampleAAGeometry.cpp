@@ -478,12 +478,10 @@ static void filter_coverage(const uint8_t* map, int len, uint8_t min, uint8_t ma
 
 static void construct_path(SkPath& path) {
     path.reset();
-    path.moveTo(442, 101.5f);
-    path.quadTo(413.5f, 691, 772, 514);
-    path.lineTo(346, 721.5f);
-    path.lineTo(154, 209);
-    path.lineTo(442, 101.5f);
-    path.close();
+path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(258, 235.6f);
+path.cubicTo(246, 241, 234, 241.6f, 234, 241.6f);
+path.close();
 }
 
 struct ButtonPaints {

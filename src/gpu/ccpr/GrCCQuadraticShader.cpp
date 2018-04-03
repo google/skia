@@ -22,11 +22,7 @@ void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* p
     s->declareGlobal(fQCoord0);
     s->codeAppendf("%s = %s[0];", fQCoord0.c_str(), pts);
 
-    s->declareGlobal(fEdgeDistanceEquation);
-    s->codeAppendf("float2 edgept0 = %s[%s > 0 ? 2 : 0];", pts, wind);
-    s->codeAppendf("float2 edgept1 = %s[%s > 0 ? 0 : 2];", pts, wind);
-    Shader::EmitEdgeDistanceEquation(s, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
-
+    // Compute a 4-point hull around the quadratic for caller to generate its geometry.
     if (tighterHull) {
         // Find the T value whose tangent is halfway between the tangents at the endpionts.
         s->codeAppendf("float2 tan0 = %s[1] - %s[0];", pts, pts);
@@ -48,7 +44,7 @@ void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* p
 void GrCCQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                          GrGLSLVarying::Scope scope, SkString* code,
                                          const char* position, const char* coverage,
-                                         const char* attenuatedCoverage) {
+                                         const char* wind, const char* attenuatedCoverage) {
     fCoord.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("coord", &fCoord);
     code->appendf("%s.xy = %s * (%s - %s);", // Quadratic coords.
@@ -59,9 +55,7 @@ void GrCCQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
     // Coverages need full precision since distance to the opposite edge can be large.
     fCoverages.reset(attenuatedCoverage ? kFloat4_GrSLType : kFloat2_GrSLType, scope);
     varyingHandler->addVarying("coverages", &fCoverages);
-    code->appendf("%s.x = dot(%s, float3(%s, 1));", // Distance to flat edge opposite the curve.
-                  OutName(fCoverages), fEdgeDistanceEquation.c_str(), position);
-    code->appendf("%s.y = %s;", OutName(fCoverages), coverage); // Wind.
+    code->appendf("%s.xy = float2(%s, %s);", OutName(fCoverages), coverage, wind);
     if (attenuatedCoverage) {
         code->appendf("%s.zw = %s;", // Attenuated corner coverage.
                       OutName(fCoverages), attenuatedCoverage);
@@ -74,9 +68,9 @@ void GrCCQuadraticShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
     f->codeAppend ("float f = x*x - y;");
     f->codeAppendf("float2 grad = %s.zw;", fCoord.fsIn());
     f->codeAppend ("float fwidth = abs(grad.x) + abs(grad.y);");
-    f->codeAppendf("%s = clamp(0.5 - f/fwidth, 0, 1);", outputCoverage);
+    f->codeAppendf("half d = %s.x;", fCoverages.fsIn());
+    f->codeAppendf("%s = min(max(0.5 - f/fwidth, 0) - d, 1);", outputCoverage);
 
-    f->codeAppendf("half d = min(%s.x, 0);", fCoverages.fsIn()); // Flat edge opposite the curve.
     f->codeAppendf("half wind = %s.y;", fCoverages.fsIn());
     f->codeAppendf("%s = (%s + d) * wind;", outputCoverage, outputCoverage);
 
