@@ -19,7 +19,7 @@ If the interface is deprecated, but still present in the interface, mark-up the
 documentation to be deprecated as well.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-# void someMethodThatIsNowDeprecated()
+#Method void someMethodThatIsNowDeprecated()
 #Deprecated
 ##
 </pre>
@@ -27,7 +27,8 @@ documentation to be deprecated as well.
 Use
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-## soon</pre>
+##Deprecated soon
+</pre>
 
 if the change is soon to be deprecated.
 
@@ -59,12 +60,14 @@ For instance, if include/core/SkSurface.h comments do not match
 docs/SkSurface_Reference.bmh, running:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ ./out/dir/bookmaker -b docs -i include/core/SkSurface.h -p</pre>
+$ ./out/dir/bookmaker -b docs -i include/core/SkSurface.h -p
+</pre>
 
 generates
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-wrote updated <a href="SkSurface_Reference#SkSurface">SkSurface</a>.h</pre>
+wrote updated <a href="SkSurface_Reference#SkSurface">SkSurface</a>.h
+</pre>
 
 The updated SkSurface.h is written to the root to avoid subsequent runs of
 <a href="#Bookmaker">Bookmaker</a> from recompiling. if SkSurface.h was not changed, it is not written,
@@ -77,12 +80,14 @@ be compiled by fiddle. If the example cannot be fixed, it can be commented out
 by changing
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#Example</pre>
+#Example
+</pre>
 
 to
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#NoExample</pre>
+#NoExample
+</pre>
 
 .
 The disabled example can contain additional markup,
@@ -95,12 +100,14 @@ Get the fiddle command line interface tool.
 By default this will appear in your home directory.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ go get go.skia.org/infra/fiddle/go/fiddlecli</pre>
+$ go get go.skia.org/infra/fiddle/go/fiddlecli
+</pre>
 
 Build <a href="#Bookmaker">Bookmaker</a>.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ ninja -C out/dir bookmaker</pre>
+$ ninja -C out/dir bookmaker
+</pre>
 
 ## <a name="Regenerate"></a> Regenerate
 
@@ -111,21 +118,23 @@ $ ./out/skia/bookmaker -a docs/status.json -e fiddle.json
 $ ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json
 $ ./out/skia/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api -c
 $ ./out/skia/bookmaker -a docs/status.json -x
-$ ./out/skia/bookmaker -a docs/status.json -p</pre>
+$ ./out/skia/bookmaker -a docs/status.json -p
+</pre>
 
 ## <a name="New_Documentation"></a> New Documentation
 
 Generate an starter <a href="#Bookmaker">Bookmaker</a> file from an existing include.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ ./out/dir/bookmaker -i include/core/SkXXX.h -t docs</pre>
+$ ./out/dir/bookmaker -i include/core/SkXXX.h -t docs
+</pre>
 
 If a method or function has an unnamed parameter, bookmaker generates an error:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-C:/puregit/include/core/<a href="SkPixmap_Reference#SkPixmap">SkPixmap</a>.h(208): error: # missing param name
+C:/puregit/include/core/<a href="SkPixmap_Reference#SkPixmap">SkPixmap</a>.h(208): error: #Method missing param name
 bool erase(const SkColor4f&, const SkIRect* subset = nullptr) const
-^
+           ^
 </pre>
 
 All parameters require names to allow markdown and doxygen documents to refer to
@@ -134,14 +143,16 @@ them. After naming all parameters, check in the include before continuing.
 A successful run generates
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-docs/SkXXX_Reference.bmh</pre>
+docs/SkXXX_Reference.bmh
+</pre>
 
 .
 
 Next, use your favorite editor to fill out
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-docs/SkXXX_Reference.bmh</pre>
+docs/SkXXX_Reference.bmh
+</pre>
 
 .
 
@@ -156,12 +167,14 @@ It's difficult to think of a meaningful example for class destructors.
 In cases like these, change the placeholder:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#Example</pre>
+#Example
+</pre>
 
 to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#NoExample</pre>
+#NoExample
+</pre>
 
 Descriptions start with an active verb. Descriptions are complete, punctuated
 sentences unless they describe parameters or return values. Parameters and
@@ -199,13 +212,15 @@ If you run <a href="#Bookmaker">Bookmaker</a> inside Visual_Studio, you can clic
 will take you to the source line in question.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ ./out/dir/bookmaker -e fiddle.json -b docs</pre>
+$ ./out/dir/bookmaker -e fiddle.json -b docs
+</pre>
 
 Once complete, run fiddlecli to generate the example hashes.
 Errors are contained by the output but aren't reported yet.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ $GOPATH/bin/fiddlecli --input fiddle.json --output fiddleout.json</pre>
+$ $GOPATH/bin/fiddlecli --input fiddle.json --output fiddleout.json
+</pre>
 
 Generate SkXXX.md from SkXXX.bmh and fiddleout.json.
 Error checking includes: undefined references, fiddle compiler errors,
@@ -213,19 +228,22 @@ missing or mismatched printf output.
 Again, you can click on any errors inside Visual_Studio.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ ./out/dir/bookmaker -r site/user/api -b docs -f fiddleout.json</pre>
+$ ./out/dir/bookmaker -r site/user/api -b docs -f fiddleout.json
+</pre>
 
 The original include may have changed since you started creating the markdown.
 Check to see if it is up to date.
 This reports if a method no longer exists or its parameters have changed.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ ./out/dir/bookmaker -x -b docs/SkXXX.bmh -i include/core/SkXXX.h</pre>
+$ ./out/dir/bookmaker -x -b docs/SkXXX.bmh -i include/core/SkXXX.h
+</pre>
 
 Generate an updated include header. Run:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ ./out/dir/bookmaker -p -b docs -i include/core/SkXXX.h</pre>
+$ ./out/dir/bookmaker -p -b docs -i include/core/SkXXX.h
+</pre>
 
 to write the updated SkXXX.h to the current directory.
 

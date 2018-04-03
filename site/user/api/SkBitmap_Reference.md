@@ -162,10 +162,10 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 # <a name="SkBitmap::Allocator"></a> Class SkBitmap::Allocator
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href="#SkBitmap_Allocator">Allocator</a> : public <a href="undocumented#SkRefCnt">SkRefCnt</a> {
-public:
-virtual bool <a href="#SkBitmap_Allocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> = 0;
-};
+    class <a href="#SkBitmap_Allocator">Allocator</a> : public <a href="undocumented#SkRefCnt">SkRefCnt</a> {
+    public:
+        virtual bool <a href="#SkBitmap_Allocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> = 0;
+    };
 </pre>
 
 Abstract subclass of <a href="#SkBitmap_HeapAllocator">HeapAllocator</a>.
@@ -201,10 +201,10 @@ true if <a href="undocumented#Pixel_Ref">Pixel Ref</a> was allocated
 # <a name="SkBitmap::HeapAllocator"></a> Class SkBitmap::HeapAllocator
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> : public <a href="#SkBitmap_Allocator">Allocator</a> {
-public:
-bool <a href="#SkBitmap_HeapAllocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> override;
-};
+    class <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> : public <a href="#SkBitmap_Allocator">Allocator</a> {
+    public:
+        bool <a href="#SkBitmap_HeapAllocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> override;
+    };
 </pre>
 
 Subclass of <a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> that returns a <a href="undocumented#Pixel_Ref">Pixel Ref</a> that allocates its pixel
@@ -1665,9 +1665,9 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> set successful
 ## <a name="SkBitmap_AllocFlags"></a> Enum SkBitmap::AllocFlags
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkBitmap_AllocFlags">AllocFlags</a> {
-<a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> = 1 << 0,
-};
+    enum <a href="#SkBitmap_AllocFlags">AllocFlags</a> {
+        <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> = 1 << 0,
+    };
 </pre>
 
 <a href="#SkBitmap_AllocFlags">AllocFlags</a> provides the option to zero pixel memory when allocated.
@@ -1729,7 +1729,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if <a href="#SkBitmap_tryAllocPixelsFlags_flags">flags</a> is zero, and calloc(), if <a href="#SkBitmap_tryAllocPixelsFlags_flags">flags</a> is
 <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>.
 
-Passing <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> is usually faster than separately calling
+<a href="#SkBitmap_tryAllocPixelsFlags_flags">flags</a> set to <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> offers equal or better performance than
+subsequently calling <a href="#SkBitmap_eraseColor">eraseColor</a> with <a href="undocumented#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a>.
 
 ### Parameters
 
@@ -1783,7 +1784,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if <a href="#SkBitmap_allocPixelsFlags_flags">flags</a> is zero, and calloc(), if <a href="#SkBitmap_allocPixelsFlags_flags">flags</a> is
 <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>.
 
-Passing <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> is usually faster than separately calling
+<a href="#SkBitmap_allocPixelsFlags_flags">flags</a> set to <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> offers equal or better performance than
+subsequently calling <a href="#SkBitmap_eraseColor">eraseColor</a> with <a href="undocumented#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a>.
 
 ### Parameters
 
