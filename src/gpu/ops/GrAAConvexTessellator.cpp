@@ -572,7 +572,7 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
                         SkPoint miter = previousRing.bisector(cur);
                         SkScalar dotProd = normal1.dot(normal2);
                         SkScalar sinHalfAngleSq = SkScalarHalf(SK_Scalar1 + dotProd);
-                        SkScalar lengthSq = outsetSq / sinHalfAngleSq;
+                        SkScalar lengthSq = sk_ieee_float_divide(outsetSq, sinHalfAngleSq);
                         if (lengthSq > miterLimitSq) {
                             // just bevel it
                             this->addTri(originalIdx, perp1Idx, perp2Idx);
