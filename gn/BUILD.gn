@@ -112,6 +112,20 @@ config("default") {
       "-mfpu=neon",
       "-mthumb",
     ]
+  } else if (current_cpu == "loongson3a") {
+    asmflags += [
+      "-march=loongson3a",
+      "-EL",
+    ]
+    cflags += [
+      "-march=loongson3a",
+      "-EL",
+      "-DSKCMS_PORTABLE",
+    ]
+    ldflags += [
+      "-march=loongson3a",
+      "-EL",
+    ]
   } else if (current_cpu == "x86" && !is_win) {
     asmflags += [ "-m32" ]
     cflags += [
