@@ -889,6 +889,9 @@ private:
                               &indexCount)) {
                 continue;
             }
+            if (!fanPt.isFinite()) {
+                continue;
+            }
 
             const GrBuffer* vertexBuffer;
             int firstVertex;
