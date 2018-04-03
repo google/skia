@@ -16,6 +16,24 @@
       "revId": "c0528e2418e09765807f1db510733c573232f7e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a28c6a9_d049a075",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-03T12:55:04Z",
+      "side": 0,
+      "message": "I\u0027ll put up a change to put this behind #if SK_SUPPORT_GPU",
+      "parentUuid": "35ba9b11_82fc9d78",
+      "revId": "c0528e2418e09765807f1db510733c573232f7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
