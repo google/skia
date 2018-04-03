@@ -675,8 +675,10 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
     // All underlying ports have issues with zero text size, so use the matricies to zero.
     // If one of the scale factors is less than 1/256 then an EM filling square will
     // never affect any pixels.
+    // If there are any nonfinite numbers in the matrix, bail out and set the matrices to zero.
     if (SkScalarAbs(GA.get(SkMatrix::kMScaleX)) <= SK_ScalarNearlyZero ||
-        SkScalarAbs(GA.get(SkMatrix::kMScaleY)) <= SK_ScalarNearlyZero)
+        SkScalarAbs(GA.get(SkMatrix::kMScaleY)) <= SK_ScalarNearlyZero ||
+        !GA.isFinite())
     {
         s->fX = SK_Scalar1;
         s->fY = SK_Scalar1;
