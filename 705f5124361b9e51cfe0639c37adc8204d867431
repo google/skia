@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f3a67b8_3c08c0dd",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-04-03T17:59:00Z",
+      "side": 1,
+      "message": "Are these in fact needed? I ask, because each is trivially implemented under the hood using SkSeriaProcs, so perhaps the client can do that too. I\u0027m fine to keep this change if that does not seem reasonable.",
+      "range": {
+        "startLine": 73,
+        "startChar": 11,
+        "endLine": 73,
+        "endChar": 20
+      },
+      "revId": "705f5124361b9e51cfe0639c37adc8204d867431",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
