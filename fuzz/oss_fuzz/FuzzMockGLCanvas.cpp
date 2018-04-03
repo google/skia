@@ -7,7 +7,7 @@
 
 #include "../Fuzz.h"
 
-void fuzz_NullGLCanvas(Fuzz* f);
+void fuzz_MockGLCanvas(Fuzz* f);
 
 extern "C" {
 
@@ -19,7 +19,7 @@ extern "C" {
 
     int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         auto fuzz = Fuzz(SkData::MakeWithoutCopy(data, size));
-        fuzz_NullGLCanvas(&fuzz);
+        fuzz_MockGLCanvas(&fuzz);
         return 0;
     }
 }  // extern "C"

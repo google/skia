@@ -1813,6 +1813,8 @@ DEF_FUZZ(NativeGLCanvas, fuzz) {
     fuzz_ganesh(fuzz, context);
 }
 
+// This target is deprecated, NullGLContext is not well maintained.
+// Please use MockGLCanvas instead.
 DEF_FUZZ(NullGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType));
