@@ -102,9 +102,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Release"
     },
@@ -121,9 +119,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Release"
     },
@@ -140,9 +136,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Release"
     },

@@ -104,10 +104,6 @@
       "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/android_ndk_linux/VERSION",
       "/path/to/tmp/"
     ],
-    "env": {
-      "CC": "/usr/bin/clang",
-      "CXX": "/usr/bin/clang++"
-    },
     "infra_step": true,
     "name": "Get android_ndk_linux VERSION"
   },
@@ -120,9 +116,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android_ASAN"
     },
@@ -139,9 +133,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android_ASAN"
     },
@@ -158,9 +150,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
-      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android_ASAN"
     },

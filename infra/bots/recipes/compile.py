@@ -26,35 +26,17 @@ def build_targets_from_builder_dict(builder_dict):
   return ['most']
 
 
-def get_extra_env_vars(vars_api):
-  env = {}
-  if vars_api.builder_cfg.get('compiler') == 'Clang':
-    env['CC'] = '/usr/bin/clang'
-    env['CXX'] = '/usr/bin/clang++'
-
-  # SKNX_NO_SIMD, SK_USE_DISCARDABLE_SCALEDIMAGECACHE, etc.
-  # TODO(benjaminwagner): Same appears in gn_flavor.py to set extra_cflags. Are
-  # both needed?
-  if (len(vars_api.extra_tokens) == 1 and
-      vars_api.extra_tokens[0].startswith('SK')):
-    env['CPPFLAGS'] = '-D' + vars_api.extra_tokens[0]
-
-  return env
-
-
 def RunSteps(api):
   bot_update=True
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
   api.core.setup(bot_update=bot_update)
 
-  env = get_extra_env_vars(api.vars)
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
 
   try:
     for target in build_targets:
-      with api.context(env=env):
-        api.flavor.compile(target)
+      api.flavor.compile(target)
     api.run.copy_build_products(
         api.flavor.out_dir,
         api.vars.swarming_out_dir.join(
