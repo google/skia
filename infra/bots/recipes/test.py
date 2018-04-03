@@ -969,6 +969,7 @@ TEST_BUILDERS = [
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All',
   'Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All',
   'Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All',
+  'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN',
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All',
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer',
   'Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts',
