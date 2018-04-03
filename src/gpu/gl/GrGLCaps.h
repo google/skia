@@ -416,6 +416,10 @@ public:
     bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
                                     GrPixelConfig*) const override;
 
+#if GR_TEST_UTILS
+    GrGLStandard standard() const { return fStandard; }
+#endif
+
 private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
