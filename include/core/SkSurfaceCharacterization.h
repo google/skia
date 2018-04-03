@@ -34,8 +34,6 @@ public:
     SkSurfaceCharacterization()
             : fCacheMaxResourceBytes(0)
             , fOrigin(kBottomLeft_GrSurfaceOrigin)
-            , fWidth(0)
-            , fHeight(0)
             , fConfig(kUnknown_GrPixelConfig)
             , fFSAAType(GrFSAAType::kNone)
             , fStencilCnt(0)
@@ -63,8 +61,9 @@ public:
 
         return SkSurfaceCharacterization(fContextInfo,
                                          fCacheMaxResourceBytes,
-                                         fOrigin, width, height, fConfig, fFSAAType, fStencilCnt,
-                                         fIsTextureable, fIsMipMapped, fColorSpace,
+                                         fImageInfo.makeWH(width, height),
+                                         fOrigin, fConfig, fFSAAType, fStencilCnt,
+                                         fIsTextureable, fIsMipMapped,
                                          fSurfaceProps);
     }
 
@@ -72,85 +71,84 @@ public:
     sk_sp<GrContextThreadSafeProxy> refContextInfo() const { return fContextInfo; }
     size_t cacheMaxResourceBytes() const { return fCacheMaxResourceBytes; }
 
-    bool isValid() const { return kUnknown_GrPixelConfig != fConfig; }
+    bool isValid() const { return kUnknown_SkColorType != fImageInfo.colorType(); }
 
+    const SkImageInfo& imageInfo() const { return fImageInfo; }
     GrSurfaceOrigin origin() const { return fOrigin; }
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
-    GrPixelConfig config() const { return fConfig; }
+    int width() const { return fImageInfo.width(); }
+    int height() const { return fImageInfo.height(); }
+    SkColorType colorType() const { return fImageInfo.colorType(); }
     GrFSAAType fsaaType() const { return fFSAAType; }
     int stencilCount() const { return fStencilCnt; }
     bool isTextureable() const { return Textureable::kYes == fIsTextureable; }
     bool isMipMapped() const { return MipMapped::kYes == fIsMipMapped; }
-    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
-    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
+    SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
+    sk_sp<SkColorSpace> refColorSpace() const { return fImageInfo.refColorSpace(); }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
 
 private:
-    friend class SkSurface_Gpu; // for 'set'
+    friend class SkSurface_Gpu; // for 'set' & 'config'
     friend class GrContextThreadSafeProxy; // for private ctor
+    friend class SkDeferredDisplayListRecorder; // for 'config'
+    friend class SkSurface; // for 'config'
+
+    GrPixelConfig config() const { return fConfig; }
 
     SkSurfaceCharacterization(sk_sp<GrContextThreadSafeProxy> contextInfo,
                               size_t cacheMaxResourceBytes,
-                              GrSurfaceOrigin origin, int width, int height,
-                              GrPixelConfig config, GrFSAAType FSAAType, int stencilCnt,
+                              const SkImageInfo& ii,
+                              GrSurfaceOrigin origin,
+                              GrPixelConfig config,
+                              GrFSAAType FSAAType, int stencilCnt,
                               Textureable isTextureable, MipMapped isMipMapped,
-                              sk_sp<SkColorSpace> colorSpace,
                               const SkSurfaceProps& surfaceProps)
             : fContextInfo(std::move(contextInfo))
             , fCacheMaxResourceBytes(cacheMaxResourceBytes)
+            , fImageInfo(ii)
             , fOrigin(origin)
-            , fWidth(width)
-            , fHeight(height)
             , fConfig(config)
             , fFSAAType(FSAAType)
             , fStencilCnt(stencilCnt)
             , fIsTextureable(isTextureable)
             , fIsMipMapped(isMipMapped)
-            , fColorSpace(std::move(colorSpace))
             , fSurfaceProps(surfaceProps) {
     }
 
     void set(sk_sp<GrContextThreadSafeProxy> contextInfo,
              size_t cacheMaxResourceBytes,
+             const SkImageInfo& ii,
              GrSurfaceOrigin origin,
-             int width, int height,
              GrPixelConfig config,
              GrFSAAType fsaaType,
              int stencilCnt,
              Textureable isTextureable,
              MipMapped isMipMapped,
-             sk_sp<SkColorSpace> colorSpace,
              const SkSurfaceProps& surfaceProps) {
         SkASSERT(MipMapped::kNo == isMipMapped || Textureable::kYes == isTextureable);
 
         fContextInfo = contextInfo;
         fCacheMaxResourceBytes = cacheMaxResourceBytes;
 
+        fImageInfo = ii;
         fOrigin = origin;
-        fWidth = width;
-        fHeight = height;
         fConfig = config;
         fFSAAType = fsaaType;
         fStencilCnt = stencilCnt;
         fIsTextureable = isTextureable;
         fIsMipMapped = isMipMapped;
-        fColorSpace = std::move(colorSpace);
         fSurfaceProps = surfaceProps;
     }
 
     sk_sp<GrContextThreadSafeProxy> fContextInfo;
     size_t                          fCacheMaxResourceBytes;
 
+    SkImageInfo                     fImageInfo;
     GrSurfaceOrigin                 fOrigin;
-    int                             fWidth;
-    int                             fHeight;
     GrPixelConfig                   fConfig;
     GrFSAAType                      fFSAAType;
     int                             fStencilCnt;
     Textureable                     fIsTextureable;
     MipMapped                       fIsMipMapped;
-    sk_sp<SkColorSpace>             fColorSpace;
     SkSurfaceProps                  fSurfaceProps;
 };
 
