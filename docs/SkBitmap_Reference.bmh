@@ -1475,8 +1475,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if flags is zero, and calloc(), if flags is
 kZeroPixels_AllocFlag.
 
-Passing kZeroPixels_AllocFlag is usually faster than separately calling
-eraseColor(SK_ColorTRANSPARENT).
+flags set to kZeroPixels_AllocFlag offers equal or better performance than
+subsequently calling eraseColor with SK_ColorTRANSPARENT.
 
 #Param info  contains width, height, Alpha_Type, Color_Type, Color_Space ##
 #Param flags  kZeroPixels_AllocFlag, or zero ##
@@ -1519,8 +1519,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if flags is zero, and calloc(), if flags is
 kZeroPixels_AllocFlag.
 
-Passing kZeroPixels_AllocFlag is usually faster than separately calling
-eraseColor(SK_ColorTRANSPARENT).
+flags set to kZeroPixels_AllocFlag offers equal or better performance than
+subsequently calling eraseColor with SK_ColorTRANSPARENT.
 
 #Param info  contains width, height, Alpha_Type, Color_Type, Color_Space ##
 #Param flags  kZeroPixels_AllocFlag, or zero ##

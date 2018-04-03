@@ -86,7 +86,7 @@ bool Catalog::parseFromFile(const char* path) {
     this->writeString("var text = {");
     this->lf(1);
     fTextOut = true;
-    TextParser::Save save(this);
+    TextParserSave save(this);
     if (!parseFiddles()) {
         return false;
     }

@@ -125,6 +125,8 @@ FT_Load_Glyph
     ##
     #Const SK_ColorWHITE 0xFFFFFFFF 
     ##
+    #Const SK_ColorTRANSPARENT 0x00000000
+    ##
     #Subtopic Alpha
         #Alias Alpha
     #Subtopic ##

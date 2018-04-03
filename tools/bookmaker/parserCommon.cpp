@@ -14,13 +14,13 @@ static void debug_out(int len, const char* data) {
     SkDebugf("%.*s", len, data);
 }
 
-bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix) {
+bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix, OneFile oneFile) {
     if (!sk_isdir(fileOrPath)) {
         if (!this->parseFromFile(fileOrPath)) {
             SkDebugf("failed to parse %s\n", fileOrPath);
             return false;
         }
-    } else {
+    } else if (OneFile::kNo == oneFile) {
         SkOSFile::Iter it(fileOrPath, suffix);
         for (SkString file; it.next(&file); ) {
             SkString p = SkOSPath::Join(fileOrPath, file.c_str());
