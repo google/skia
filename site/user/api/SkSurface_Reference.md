@@ -910,10 +910,10 @@ surface generationID: 3
 ## <a name="SkSurface_ContentChangeMode"></a> Enum SkSurface::ContentChangeMode
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkSurface_ContentChangeMode">ContentChangeMode</a> {
-<a href="#SkSurface_kDiscard_ContentChangeMode">kDiscard ContentChangeMode</a>,
-<a href="#SkSurface_kRetain_ContentChangeMode">kRetain ContentChangeMode</a>,
-};
+    enum <a href="#SkSurface_ContentChangeMode">ContentChangeMode</a> {
+        <a href="#SkSurface_kDiscard_ContentChangeMode">kDiscard ContentChangeMode</a>,
+        <a href="#SkSurface_kRetain_ContentChangeMode">kRetain ContentChangeMode</a>,
+    };
 </pre>
 
 <a href="#SkSurface_ContentChangeMode">ContentChangeMode</a> members are parameters to <a href="#SkSurface_notifyContentWillChange">notifyContentWillChange</a>.
@@ -975,18 +975,18 @@ one of: <a href="#SkSurface_kDiscard_ContentChangeMode">kDiscard ContentChangeMo
 ## <a name="SkSurface_BackendHandleAccess"></a> Enum SkSurface::BackendHandleAccess
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
-<a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>,
-<a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>,
-<a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>,
-};
+    enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
+        <a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>,
+        <a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>,
+        <a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>,
+    };
 
-static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kFlushRead_TextureHandleAccess">kFlushRead TextureHandleAccess</a> =
-<a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>;
-static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kFlushWrite_TextureHandleAccess">kFlushWrite TextureHandleAccess</a> =
-<a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>;
-static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kDiscardWrite_TextureHandleAccess">kDiscardWrite TextureHandleAccess</a> =
-<a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>;
+    static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kFlushRead_TextureHandleAccess">kFlushRead TextureHandleAccess</a> =
+            <a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>;
+    static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kFlushWrite_TextureHandleAccess">kFlushWrite TextureHandleAccess</a> =
+            <a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>;
+    static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kDiscardWrite_TextureHandleAccess">kDiscardWrite TextureHandleAccess</a> =
+            <a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>;
 </pre>
 
 ### Constants
@@ -1669,16 +1669,6 @@ array of semaphore containers</td>
 ### Return Value
 
 true if GPU is waiting on semaphores
-
-# gpu<a href="SkPaint_Reference#SkPaint">SkPaint</a> paint;
-paint.setTextSize(32);
-<a href="undocumented#GrContext">GrContext</a>* context = canvas->getGrContext();
-if (!context) {
-canvas->drawString("GPU only!", 20, 40, paint);
-return;
-}
-<a href="undocumented#GrBackendSemaphore">GrBackendSemaphore</a> semaphore;
-<a href="undocumented#sk_sp">sk sp</a><<a href="#SkSurface">SkSurface</a>> surface =
 
 ### See Also
 

@@ -240,31 +240,11 @@ public:
 class Definition;
 
 class TextParser : public NonAssignable {
-    TextParser() {}  // only for ParserCommon to call
+    TextParser() {}  // only for ParserCommon, TextParserSave
     friend class ParserCommon;
+    friend class TextParserSave;
 public:
     virtual ~TextParser() {}
-    class Save {
-    public:
-        Save(TextParser* parser) {
-            fParser = parser;
-            fLine = parser->fLine;
-            fChar = parser->fChar;
-            fLineCount = parser->fLineCount;
-        }
-
-        void restore() const {
-            fParser->fLine = fLine;
-            fParser->fChar = fChar;
-            fParser->fLineCount = fLineCount;
-        }
-
-    private:
-        TextParser* fParser;
-        const char* fLine;
-        const char* fChar;
-        int fLineCount;
-    };
 
     TextParser(const string& fileName, const char* start, const char* end, int lineCount)
         : fFileName(fileName)
@@ -416,6 +396,8 @@ public:
         }
         return true;
     }
+
+    void setForErrorReporting(const Definition* , const char* );
 
     bool skipToEndBracket(char endBracket, const char* end = nullptr) {
         if (nullptr == end) {
@@ -689,6 +671,33 @@ public:
     const char* fEnd;
     size_t fLineCount;
 };
+
+class TextParserSave {
+public:
+    TextParserSave(TextParser* parser) {
+        fParser = parser;
+        fSave.fFileName = parser->fFileName;
+        fSave.fStart = parser->fStart;
+        fSave.fLine = parser->fLine;
+        fSave.fChar = parser->fChar;
+        fSave.fEnd = parser->fEnd;
+        fSave.fLineCount = parser->fLineCount;
+    }
+
+    void restore() const {
+        fParser->fFileName = fSave.fFileName;
+        fParser->fStart = fSave.fStart;
+        fParser->fLine = fSave.fLine;
+        fParser->fChar = fSave.fChar;
+        fParser->fEnd = fSave.fEnd;
+        fParser->fLineCount = fSave.fLineCount;
+    }
+
+private:
+    TextParser* fParser;
+    TextParser fSave;
+};
+
 
 class EscapeParser : public TextParser {
 public:
@@ -1019,6 +1028,10 @@ struct TypeNames {
 
 class ParserCommon : public TextParser {
 public:
+    enum class OneFile {
+        kNo,
+        kYes,
+    };
 
     ParserCommon() : TextParser()
         , fParent(nullptr)
@@ -1078,7 +1091,7 @@ public:
         fPendingSpace = 0;
     }
 
-    bool parseFile(const char* file, const char* suffix);
+    bool parseFile(const char* file, const char* suffix, OneFile );
     bool parseStatus(const char* file, const char* suffix, StatusFilter filter);
     virtual bool parseFromFile(const char* path) = 0;
     bool parseSetup(const char* path);
@@ -1206,8 +1219,9 @@ public:
     enum class Resolvable {
         kNo,      // neither resolved nor output
         kYes,     // resolved, output
-        kOut,     // not resolved, but output
-        kLiteral, // output untouched (FIXME: is this really different from kOut?)
+        kOut,     // mostly resolved, output (FIXME: is this really different from kYes?)
+        kFormula, // resolve methods as they are used, not as they are prototyped
+        kLiteral, // output untouched
 		kClone,   // resolved, output, with references to clones as well
     };
 
@@ -1252,6 +1266,7 @@ public:
 #define R_Y Resolvable::kYes
 #define R_N Resolvable::kNo
 #define R_O Resolvable::kOut
+#define R_F Resolvable::kFormula
 #define R_C Resolvable::kClone
 
 #define E_Y Exemplary::kYes
@@ -1284,7 +1299,7 @@ public:
 , { "Experimental", nullptr,     MarkType::kExperimental, R_Y, E_N, 0 }
 , { "External",    nullptr,      MarkType::kExternal,     R_Y, E_N, M(Root) }
 , { "File",        nullptr,      MarkType::kFile,         R_N, E_N, M(Track) }
-, { "Formula",     nullptr,      MarkType::kFormula,      R_O, E_N,
+, { "Formula",     nullptr,      MarkType::kFormula,      R_F, E_N,
                                               M(Column) | M_E | M_ST | M(Member) | M(Method) | M_D }
 , { "Function",    nullptr,      MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
 , { "Height",      nullptr,      MarkType::kHeight,       R_N, E_N, M(Example) | M(NoExample) }
@@ -1301,7 +1316,7 @@ public:
 , { "",            nullptr,      MarkType::kMarkChar,     R_N, E_N, 0 }
 , { "Member",      nullptr,      MarkType::kMember,       R_Y, E_N, M_CSST }
 , { "Method",      &fMethodMap,  MarkType::kMethod,       R_Y, E_Y, M_CSST }
-, { "NoExample",   nullptr,      MarkType::kNoExample,    R_O, E_N, M_CSST | M_E | M(Method) }
+, { "NoExample",   nullptr,      MarkType::kNoExample,    R_N, E_N, M_CSST | M_E | M(Method) }
 , { "Outdent",     nullptr,      MarkType::kOutdent,      R_N, E_N, M(Code) }
 , { "Param",       nullptr,      MarkType::kParam,        R_Y, E_N, M(Method) }
 , { "PhraseDef",   nullptr,      MarkType::kPhraseDef,    R_Y, E_N, M(Subtopic) }
@@ -1338,6 +1353,8 @@ public:
 #undef R_O
 #undef R_N
 #undef R_Y
+#undef R_F
+#undef R_C
 
 #undef M_E
 #undef M_CSST
@@ -1345,6 +1362,10 @@ public:
 #undef M_CS
 #undef M_D
 #undef M
+
+#undef E_Y
+#undef E_N
+#undef E_O
 
     ~BmhParser() override {}
 
@@ -1634,6 +1655,8 @@ public:
         this->addDefinition(container);
     }
 
+    bool references(const SkString& file) const;
+
     static void RemoveFile(const char* docs, const char* includes);
     static void RemoveOneFile(const char* docs, const char* includesFileOrPath);
 
@@ -1888,6 +1911,11 @@ public:
         kChars,
     };
 
+    enum class MemberPass {
+        kCount,
+        kOut,
+    };
+
     struct IterState {
         IterState (list<Definition>::iterator tIter, list<Definition>::iterator tIterEnd)
             : fDefIter(tIter)
@@ -1900,6 +1928,17 @@ public:
     struct ParentPair {
         const Definition* fParent;
         const ParentPair* fPrev;
+    };
+
+    struct Preprocessor {
+        Preprocessor()
+            : fStart(nullptr)
+            , fEnd(nullptr)
+            , fWord(false) {
+        }
+        const char* fStart;
+        const char* fEnd;
+        bool fWord;
     };
 
     IncludeWriter() : IncludeParser() {
@@ -1924,7 +1963,10 @@ public:
     void descriptionOut(const Definition* def, SkipFirstLine , Phrase );
     void enumHeaderOut(const RootDefinition* root, const Definition& child);
     void enumMembersOut(const RootDefinition* root, Definition& child);
+    bool enumPreprocessor(Definition* token, MemberPass pass,
+        vector<IterState>& iterStack, IterState** iterState, Preprocessor* );
     void enumSizeItems(const Definition& child);
+    bool findEnumSubtopic(string undername, const Definition** ) const;
 	Definition* findMemberCommentBlock(const vector<Definition*>& bmhChildren, const string& name) const;
     int lookupMethod(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite,
@@ -2101,7 +2143,7 @@ public:
         this->reset();
     }
 
-    bool buildReferences(const char* docDir, const char* mdOutDirOrFile);
+    bool buildReferences(const IncludeParser& , const char* docDir, const char* mdOutDirOrFile);
     bool buildStatus(const char* docDir, const char* mdOutDir);
 
     static constexpr const char* kClassesAndStructs = "Class_or_Struct";
@@ -2137,7 +2179,7 @@ private:
     void childrenOut(const Definition* def, const char* contentStart);
     const Definition* csParent() const;
     const Definition* findParamType();
-    const Definition* isDefined(const TextParser& parser, const string& ref, bool report);
+    const Definition* isDefined(const TextParser& , const string& ref, BmhParser::Resolvable );
     string linkName(const Definition* ) const;
     string linkRef(const string& leadingSpaces, const Definition*, const string& ref,
 			BmhParser::Resolvable ) const;
@@ -2166,7 +2208,8 @@ private:
         fHasFiddle = false;
         fInDescription = false;
         fInList = false;
-        fRespectLeadingSpace = false;
+        fResolveAndIndent = false;
+        fLiteralAndIndent = false;
     }
 
     BmhParser::Resolvable resolvable(const Definition* definition) const {
@@ -2204,7 +2247,8 @@ private:
     bool fInDescription;   // FIXME: for now, ignore unfound camelCase in description since it may
                            // be defined in example which at present cannot be linked to
     bool fInList;
-    bool fRespectLeadingSpace;
+    bool fLiteralAndIndent;
+    bool fResolveAndIndent;
     typedef ParserCommon INHERITED;
 };
 

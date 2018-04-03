@@ -5,6 +5,7 @@
                 "SkBitmap.h",
                 "SkCanvas.h",
                 "SkImage.h",
+                "SkImageInfo.h",
                 "SkMatrix.h",
                 "SkPaint.h",
                 "SkPath.h",
@@ -22,6 +23,7 @@
             "SkPoint_Reference.bmh",
             "SkIRect_Reference.bmh",
             "SkImage_Reference.bmh",
+            "SkImageInfo_Reference.bmh",
             "SkPath_Reference.bmh",
             "SkRect_Reference.bmh",
             "SkBitmap_Reference.bmh",
@@ -36,11 +38,9 @@
     "InProgress": {
         "include": {
             "core": [
-                "SkImageInfo.h"
             ]
         },
         "docs": [
-            "SkImageInfo_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]

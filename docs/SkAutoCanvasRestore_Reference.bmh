@@ -8,7 +8,7 @@
 
 #Class SkAutoCanvasRestore
 
-Stack helper class calls SkCanvas::restoreToCount() when SkAutoCanvasRestore
+Stack helper class calls SkCanvas::restoreToCount when SkAutoCanvasRestore
 goes out of scope. Use this to guarantee that the canvas is restored to a known
 state.
 

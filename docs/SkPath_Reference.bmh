@@ -4077,8 +4077,6 @@ Oval is upright ellipse bounded by Rect oval with radii equal to half oval width
 and half oval height. Oval begins at (oval.fRight, oval.centerY()) and continues
 clockwise if dir is kCW_Direction, counterclockwise if dir is kCCW_Direction.
 
-This form is identical to addOval(oval, dir, 1).
-
 #Param oval  bounds of ellipse added ##
 #Param dir   Direction to wind ellipse ##
 
@@ -4839,7 +4837,7 @@ Last_Point can be read and written directly with getLastPt and setLastPt.
 #In Last_Point
 #Line # replaces Last_Point ##
     Set Last_Point to (x, y). If Point_Array is empty, append kMove_Verb to
-    Verb_Array and (x, y) to Point_Array.
+    Verb_Array and append (x, y) to Point_Array.
 
     #Param x  set x-coordinate of Last_Point ##
     #Param y  set y-coordinate of Last_Point ##
@@ -4860,8 +4858,8 @@ Last_Point can be read and written directly with getLastPt and setLastPt.
 
 #Method void setLastPt(const SkPoint& p) 
 
-    Set the last point on the path. If no points have been added, moveTo(p)
-    is automatically called.
+    Set the last point on the path. If Point_Array is empty, append kMove_Verb to
+    Verb_Array and append p to Point_Array.
 
     #Param p  set value of Last_Point ##
 
@@ -5129,7 +5127,7 @@ path is equal to copy
 ##
 ##
 
-#SeeAlso dump SkRect::dumpHex() SkRRect::dumpHex() writeToMemory
+#SeeAlso dump SkRect::dumpHex SkRRect::dumpHex writeToMemory
 
 ##
 

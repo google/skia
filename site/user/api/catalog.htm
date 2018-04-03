@@ -798,6 +798,13 @@
     "name": "SkIRect::height()",
         "stdout": "unsorted height: -5\\nlarge height: -5\\n"
     },
+        "SkIRect_height64": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect large = { 1, -2147483647, 2, 2147483644 };\n    SkDebugf(\"height: %d height64: %lld\\n\", large.height(), large.height64());\n}",
+    "hash": "02dd98716e54bbd8c2f0ff23b7ef98cf",
+    "file": "SkIRect_Reference",
+    "name": "SkIRect::height64",
+        "stdout": "height: -5 height64: 4294967291\\n"
+    },
         "SkIRect_inset": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = { 10, 14, 50, 73 };\n    rect.inset(5, 13);\n    SkDebugf(\"rect: %d, %d, %d, %d\\n\", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);\n}",
     "hash": "9debaded1aa8bdf5077a4de0b3015b8f",
@@ -845,6 +852,13 @@
     "hash": "edaad064b6de249b7a7c768dfa000adc",
     "file": "SkIRect_Reference",
     "name": "SkIRect::isEmpty",
+        "stdout": "rect: {20, 40, 10, 50} is empty\\nsorted: {10, 40, 20, 50} is not empty\\nrect: {20, 40, 20, 50} is empty\\nsorted: {20, 40, 20, 50} is empty\\n"
+    },
+        "SkIRect_isEmpty64": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};\n    for (auto rect : tests) {\n        SkDebugf(\"rect: {%d, %d, %d, %d} is\" \"%s empty\\n\", rect.left(), rect.top(), rect.right(),\n                rect.bottom(), rect.isEmpty64() ? \"\" : \" not\");\n        rect.sort();\n        SkDebugf(\"sorted: {%d, %d, %d, %d} is\" \"%s empty\\n\", rect.left(), rect.top(), rect.right(),\n                rect.bottom(), rect.isEmpty64() ? \"\" : \" not\");\n    }\n}",
+    "hash": "eb905faa1084ccab3ad0605df4c27ea4",
+    "file": "SkIRect_Reference",
+    "name": "SkIRect::isEmpty64",
         "stdout": "rect: {20, 40, 10, 50} is empty\\nsorted: {10, 40, 20, 50} is not empty\\nrect: {20, 40, 20, 50} is empty\\nsorted: {20, 40, 20, 50} is empty\\n"
     },
         "SkIRect_join": {
@@ -1000,6 +1014,13 @@
     "file": "SkIRect_Reference",
     "name": "SkIRect::width()",
         "stdout": "unsorted width: -5\\nlarge width: -5\\n"
+    },
+        "SkIRect_width64": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect large = { -2147483647, 1, 2147483644, 2 };\n    SkDebugf(\"width: %d width64: %lld\\n\", large.width(), large.width64());\n}",
+    "hash": "63977f97999bbd6eecfdcc7575d75492",
+    "file": "SkIRect_Reference",
+    "name": "SkIRect::width64",
+        "stdout": "width: -5 width64: 4294967291\\n"
     },
         "SkIRect_x": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect unsorted = { 15, 5, 10, 25 };\n    SkDebugf(\"unsorted.fLeft: %d unsorted.x(): %d\\n\", unsorted.fLeft, unsorted.x());\n    SkIRect sorted = unsorted.makeSorted();\n    SkDebugf(\"sorted.fLeft: %d sorted.x(): %d\\n\", sorted.fLeft, sorted.x());\n}",

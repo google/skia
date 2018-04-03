@@ -420,11 +420,9 @@ overflow in its calculation.
 
 #Return fRight minus fLeft cast to int64_t ##
 
-#Bug 7489
-# width64 is not yet visible to fiddle
-#NoExample
+#Example
 SkIRect large = { -2147483647, 1, 2147483644, 2 };
-SkDebugf("width: %d wdith64: %lld\n", large.width(), large.width64());
+SkDebugf("width: %d width64: %lld\n", large.width(), large.width64());
 #StdOut
 width: -5 width64: 4294967291
 ##
@@ -472,9 +470,7 @@ overflow in its calculation.
 
 #Return fBottom minus fTop cast to int64_t ##
 
-#Bug 7489
-# height64 not yet visible to fiddle
-#NoExample
+#Example
 SkIRect large = { 1, -2147483647, 2, 2147483644 };
 SkDebugf("height: %d height64: %lld\n", large.height(), large.height64());
 #StdOut
@@ -623,16 +619,14 @@ width64() or height64().
 
 #Return true if width64() or height64() are zero or negative ##
 
-#Bug 7489
-# isEmpty64 not yet visible to fiddle
-#NoExample
+#Example
 SkIRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
 for (auto rect : tests) {
-SkDebugf("rect: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
-rect.bottom(), isEmpty64() ? "" : " not");
-rect.sort();
-SkDebugf("sorted: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
-rect.bottom(), isEmpty64() ? "" : " not");
+    SkDebugf("rect: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
+            rect.bottom(), rect.isEmpty64() ? "" : " not");
+    rect.sort();
+    SkDebugf("sorted: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
+            rect.bottom(), rect.isEmpty64() ? "" : " not");
 }
 #StdOut
 rect: {20, 40, 10, 50} is empty

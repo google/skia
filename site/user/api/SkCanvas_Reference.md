@@ -457,9 +457,9 @@ storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
 ## <a name="SkCanvas_ColorBehavior"></a> Enum SkCanvas::ColorBehavior
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum class <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> {
-<a href="#SkCanvas_ColorBehavior_kLegacy">kLegacy</a>,
-};
+    enum class <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> {
+        <a href="#SkCanvas_ColorBehavior_kLegacy">kLegacy</a>,
+    };
 </pre>
 
 ### Constants
@@ -1710,11 +1710,11 @@ depth of saved stack
 ## <a name="SkCanvas__anonymous"></a> Enum SkCanvas::_anonymous
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum {
-<a href="#SkCanvas_kPreserveLCDText_SaveLayerFlag">kPreserveLCDText SaveLayerFlag</a> = 1 << 1,
-<a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a> = 1 << 2,
-<a href="#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag">kDontClipToLayer Legacy SaveLayerFlag</a> = kDontClipToLayer_PrivateSaveLayerFlag,
-};
+    enum {
+        <a href="#SkCanvas_kPreserveLCDText_SaveLayerFlag">kPreserveLCDText SaveLayerFlag</a> = 1 << 1,
+        <a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a> = 1 << 2,
+        <a href="#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag">kDontClipToLayer Legacy SaveLayerFlag</a> = kDontClipToLayer_PrivateSaveLayerFlag,
+    };
 </pre>
 
 <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a> provides options that may be used in any combination in <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a>,
@@ -1752,14 +1752,14 @@ scalePaint blends <a href="#Layer">Layer</a> back with transparency.
 # <a name="SkCanvas_SaveLayerRec"></a> Struct SkCanvas::SaveLayerRec
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-struct <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> {
-<a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a>*(...
+    struct <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> {
+        <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a>*(...
 
-const <a href="SkRect_Reference#SkRect">SkRect</a>*           <a href="#SkCanvas_SaveLayerRec_fBounds">fBounds</a>;
-const <a href="SkPaint_Reference#SkPaint">SkPaint</a>*          <a href="#SkCanvas_SaveLayerRec_fPaint">fPaint</a>;
-const <a href="undocumented#SkImageFilter">SkImageFilter</a>*    <a href="#SkCanvas_SaveLayerRec_fBackdrop">fBackdrop</a>;
-<a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a>          <a href="#SkCanvas_SaveLayerRec_fSaveLayerFlags">fSaveLayerFlags</a>;
-};
+        const <a href="SkRect_Reference#SkRect">SkRect</a>*           <a href="#SkCanvas_SaveLayerRec_fBounds">fBounds</a>;
+        const <a href="SkPaint_Reference#SkPaint">SkPaint</a>*          <a href="#SkCanvas_SaveLayerRec_fPaint">fPaint</a>;
+        const <a href="undocumented#SkImageFilter">SkImageFilter</a>*    <a href="#SkCanvas_SaveLayerRec_fBackdrop">fBackdrop</a>;
+        <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a>          <a href="#SkCanvas_SaveLayerRec_fSaveLayerFlags">fSaveLayerFlags</a>;
+    };
 </pre>
 
 <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> contains the state used to create the <a href="#Layer">Layer</a>.
@@ -3114,11 +3114,11 @@ graphics state used to fill <a href="#Canvas">Canvas</a></td>
 ## <a name="SkCanvas_PointMode"></a> Enum SkCanvas::PointMode
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkCanvas_PointMode">PointMode</a> {
-<a href="#SkCanvas_kPoints_PointMode">kPoints PointMode</a>,
-<a href="#SkCanvas_kLines_PointMode">kLines PointMode</a>,
-<a href="#SkCanvas_kPolygon_PointMode">kPolygon PointMode</a>,
-};
+    enum <a href="#SkCanvas_PointMode">PointMode</a> {
+        <a href="#SkCanvas_kPoints_PointMode">kPoints PointMode</a>,
+        <a href="#SkCanvas_kLines_PointMode">kLines PointMode</a>,
+        <a href="#SkCanvas_kPolygon_PointMode">kPolygon PointMode</a>,
+    };
 </pre>
 
 Selects if an array of points are drawn as discrete points, as lines, or as
@@ -3857,10 +3857,10 @@ and so on; or nullptr</td>
 ## <a name="SkCanvas_SrcRectConstraint"></a> Enum SkCanvas::SrcRectConstraint
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> {
-<a href="#SkCanvas_kStrict_SrcRectConstraint">kStrict SrcRectConstraint</a>,
-<a href="#SkCanvas_kFast_SrcRectConstraint">kFast SrcRectConstraint</a>,
-};
+    enum <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> {
+        <a href="#SkCanvas_kStrict_SrcRectConstraint">kStrict SrcRectConstraint</a>,
+        <a href="#SkCanvas_kFast_SrcRectConstraint">kFast SrcRectConstraint</a>,
+    };
 </pre>
 
 <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> controls the behavior at the edge of source <a href="SkRect_Reference#Rect">Rect</a>,
@@ -4548,17 +4548,17 @@ and below <a href="#SkCanvas_drawBitmapNine_center">center</a> to fill the remai
 # <a name="SkCanvas_Lattice"></a> Struct SkCanvas::Lattice
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-struct <a href="#SkCanvas_Lattice">Lattice</a> {
-enum <a href="#SkCanvas_Lattice_RectType">RectType</a> ...
+    struct <a href="#SkCanvas_Lattice">Lattice</a> {
+        enum <a href="#SkCanvas_Lattice_RectType">RectType</a> ...
 
-const int*      <a href="#SkCanvas_Lattice_fXDivs">fXDivs</a>;
-const int*      <a href="#SkCanvas_Lattice_fYDivs">fYDivs</a>;
-const <a href="#SkCanvas_Lattice_RectType">RectType</a>* <a href="#SkCanvas_Lattice_fRectTypes">fRectTypes</a>;
-int             <a href="#SkCanvas_Lattice_fXCount">fXCount</a>;
-int             <a href="#SkCanvas_Lattice_fYCount">fYCount</a>;
-const <a href="SkIRect_Reference#SkIRect">SkIRect</a>*  <a href="#SkCanvas_Lattice_fBounds">fBounds</a>;
-const <a href="undocumented#SkColor">SkColor</a>*  <a href="#SkCanvas_Lattice_fColors">fColors</a>;
-};
+        const int*      <a href="#SkCanvas_Lattice_fXDivs">fXDivs</a>;
+        const int*      <a href="#SkCanvas_Lattice_fYDivs">fYDivs</a>;
+        const <a href="#SkCanvas_Lattice_RectType">RectType</a>* <a href="#SkCanvas_Lattice_fRectTypes">fRectTypes</a>;
+        int             <a href="#SkCanvas_Lattice_fXCount">fXCount</a>;
+        int             <a href="#SkCanvas_Lattice_fYCount">fYCount</a>;
+        const <a href="SkIRect_Reference#SkIRect">SkIRect</a>*  <a href="#SkCanvas_Lattice_fBounds">fBounds</a>;
+        const <a href="undocumented#SkColor">SkColor</a>*  <a href="#SkCanvas_Lattice_fColors">fColors</a>;
+    };
 </pre>
 
 <a href="#SkCanvas_Lattice">Lattice</a> divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a> or <a href="SkImage_Reference#Image">Image</a> into a rectangular grid.
@@ -4572,11 +4572,11 @@ remaining space, if any.
 ## <a name="SkCanvas_Lattice_RectType"></a> Enum SkCanvas::Lattice::RectType
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkCanvas_Lattice_RectType">RectType</a> : uint8_t {
-<a href="#SkCanvas_Lattice_kDefault">kDefault</a> = 0,
-<a href="#SkCanvas_Lattice_kTransparent">kTransparent</a>,
-<a href="#SkCanvas_Lattice_kFixedColor">kFixedColor</a>,
-};
+            enum <a href="#SkCanvas_Lattice_RectType">RectType</a> : uint8_t {
+                <a href="#SkCanvas_Lattice_kDefault">kDefault</a> = 0,
+                <a href="#SkCanvas_Lattice_kTransparent">kTransparent</a>,
+                <a href="#SkCanvas_Lattice_kFixedColor">kFixedColor</a>,
+            };
 </pre>
 
 Optional setting per rectangular grid entry to make it transparent,

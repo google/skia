@@ -1363,9 +1363,6 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         markupChild->fName = markupDef->fName + "::" +
                 string(nameStart, (size_t) (enumName.fChar - nameStart));
     }
-    if (string::npos != markupChild->fName.find("SkColorType")) {
-        SkDebugf("");
-    }
     if (!this->findComments(*child, markupChild)) {
         return false;
     }
@@ -1433,7 +1430,7 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         if ('/' == parser.next()) {
             char slashStar = parser.next();
             if ('/' == slashStar || '*' == slashStar) {
-                TextParser::Save save(&parser);
+                TextParserSave save(&parser);
                 char doxCheck = parser.next();
                 if ((slashStar != doxCheck && '!' != doxCheck) || '<' != parser.next()) {
                     save.restore();
@@ -1954,7 +1951,7 @@ bool IncludeParser::parseChar() {
                     return reportError<bool>("malformed closing comment");
                 }
                 if (Bracket::kSlashStar == this->topBracket()) {
-                    TextParser::Save save(this);
+                    TextParserSave save(this);
                     this->next();  // include close in bracket
                     this->popBracket();
                     save.restore(); // put things back so nothing is skipped
@@ -2314,6 +2311,27 @@ void IncludeParser::validate() const {
         SkASSERT(fMaps[index].fMarkType == (MarkType) index);
     }
     IncludeParser::ValidateKeyWords();
+}
+
+bool IncludeParser::references(const SkString& file) const {
+    // if includes weren't passed one at a time, assume all references are valid
+    if (fIncludeMap.empty()) {
+        return true;
+    }
+    SkASSERT(file.endsWith(".bmh") );
+    string root(file.c_str(), file.size() - 4);
+    string kReference("_Reference");
+    if (string::npos != root.find(kReference)) {
+        root = root.substr(0, root.length() - kReference.length());
+    }
+    if (fIClassMap.end() != fIClassMap.find(root)) {
+        return true;
+    }
+    if (fIStructMap.end() != fIStructMap.find(root)) {
+        return true;
+    }
+    // TODO incomplete: probably need to look in other places for class-less includes like SkColor.h
+    return false;
 }
 
 void IncludeParser::RemoveFile(const char* docs, const char* includes) {

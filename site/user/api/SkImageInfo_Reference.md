@@ -30,19 +30,16 @@ but <a href="SkImage_Reference#Image">Image</a> and <a href="SkSurface_Reference
 
 ## <a name="Alpha_Type"></a> Alpha Type
 
-<a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
-<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>
-
 ## <a name="SkAlphaType"></a> Enum SkAlphaType
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkAlphaType">SkAlphaType</a> {
-<a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>,
-<a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
-<a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>,
-kLastEnum_SkAlphaType = <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>,
-};
+    enum <a href="#SkAlphaType">SkAlphaType</a> {
+        <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>,
+        <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
+        <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+        <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>,
+        kLastEnum_SkAlphaType = <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>,
+    };
 </pre>
 
 Describes how to interpret the alpha component of a pixel. A pixel may
@@ -163,37 +160,34 @@ true if <a href="#SkAlphaTypeIsOpaque_at">at</a> equals <a href="#kOpaque_SkAlph
 
 ## <a name="Color_Type"></a> Color Type
 
-<a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
-<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
-<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
-<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>
-
 ## <a name="Color_Type_Native"></a> Color Type Native
 
 ## <a name="SkColorType"></a> Enum SkColorType
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkColorType">SkColorType</a> {
-<a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>,
-<a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
-<a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>,
-<a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>,
-<a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
-<a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
-<a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>,
-<a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
-<a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>,
-<a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>,
+    enum <a href="#SkColorType">SkColorType</a> {
+        <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>,
+        <a href="#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
+        <a href="#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+        <a href="#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>,
+        <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>,
+        <a href="#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+        <a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
+        <a href="#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>,
+        <a href="#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+        <a href="#kGray_8_SkColorType">kGray_8_SkColorType</a>,
+        <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>,
 
-kLastEnum_SkColorType = <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>,
-
-#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-<a href="#kN32_SkColorType">kN32_SkColorType</a> = <a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
-#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-<a href="#kN32_SkColorType">kN32_SkColorType</a> = <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>,
-#else
-#error "</pre>
+        kLastEnum_SkColorType = <a href="#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>,
+    #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
+        <a href="#kN32_SkColorType">kN32_SkColorType</a> = <a href="#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>,
+    #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
+        <a href="#kN32_SkColorType">kN32_SkColorType</a> = <a href="#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>,
+    #else
+        #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
+    #endif
+    };
+</pre>
 
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
 gray level, <a href="undocumented#RGB">Color RGB</a>, or <a href="undocumented#ARGB">Color ARGB</a>.
@@ -207,7 +201,8 @@ processors, pixels containing 8-bit <a href="undocumented#ARGB">Color ARGB</a> c
 
 <table>
   <tr>
-    <td><a name="kUnknown_SkColorType"> <code><strong>kUnknown_SkColorType </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="kUnknown_SkColorType"> <code><strong>kUnknown_SkColorType </strong></code> </a></td><td>0</td><td><a href="#Color_Type">Color Type</a> is uninitialized; encoding format and size is unknown.
+</td>
   </tr>
   <tr>
     <td><a name="kAlpha_8_SkColorType"> <code><strong>kAlpha_8_SkColorType </strong></code> </a></td><td>1</td><td>Encodes <a href="undocumented#Alpha">Color Alpha</a> as <a href="#Color_Type_Alpha_8">Alpha 8</a> pixel in an 8-bit byte.
@@ -595,12 +590,12 @@ true if valid <a href="#Alpha_Type">Alpha Type</a> can be associated with <a hre
 ## <a name="SkYUVColorSpace"></a> Enum SkYUVColorSpace
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkYUVColorSpace">SkYUVColorSpace</a> {
-<a href="#kJPEG_SkYUVColorSpace">kJPEG_SkYUVColorSpace</a>,
-<a href="#kRec601_SkYUVColorSpace">kRec601_SkYUVColorSpace</a>,
-<a href="#kRec709_SkYUVColorSpace">kRec709_SkYUVColorSpace</a>,
-kLastEnum_SkYUVColorSpace = <a href="#kRec709_SkYUVColorSpace">kRec709_SkYUVColorSpace</a>,
-};
+    enum <a href="#SkYUVColorSpace">SkYUVColorSpace</a> {
+        <a href="#kJPEG_SkYUVColorSpace">kJPEG_SkYUVColorSpace</a>,
+        <a href="#kRec601_SkYUVColorSpace">kRec601_SkYUVColorSpace</a>,
+        <a href="#kRec709_SkYUVColorSpace">kRec709_SkYUVColorSpace</a>,
+        kLastEnum_SkYUVColorSpace = <a href="#kRec709_SkYUVColorSpace">kRec709_SkYUVColorSpace</a>,
+    };
 </pre>
 
 Describes color range of YUV pixels. The color mapping from YUV to RGB varies

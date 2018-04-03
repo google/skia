@@ -227,7 +227,6 @@ kGray_8_SkColorType, kRGBA_F16_SkColorType
 #Line # encoding for pixel color ##
 
 #Code
-###$
     enum SkColorType {
         kUnknown_SkColorType,
         kAlpha_8_SkColorType,
@@ -242,7 +241,7 @@ kGray_8_SkColorType, kRGBA_F16_SkColorType
         kRGBA_F16_SkColorType,
 
         kLastEnum_SkColorType = kRGBA_F16_SkColorType,
-
+###$
     #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
         kN32_SkColorType = kBGRA_8888_SkColorType,
     #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
@@ -250,9 +249,9 @@ kGray_8_SkColorType, kRGBA_F16_SkColorType
     #else
         #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
     #endif
-    };
 $$$#
-##
+    };
+#Code ##
 
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
 gray level, Color_RGB, or Color_ARGB. 
@@ -263,7 +262,7 @@ kBGRA_8888_SkColorType. On Big_Endian processors, pixels pack into 32-bit
 kRGBA_8888_SkColorType.
 
 #Const kUnknown_SkColorType 0
-
+    Color_Type is uninitialized; encoding format and size is unknown.
 ##
 #Const kAlpha_8_SkColorType 1
     Encodes Color_Alpha as Alpha_8 pixel in an 8-bit byte.
