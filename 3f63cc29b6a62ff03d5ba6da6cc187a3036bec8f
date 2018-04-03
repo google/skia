@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18845bd0_f526209e",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-03T15:02:40Z",
+      "side": 1,
+      "message": "put this on the next line, otherwise it\u0027s difficult to see the transition from the conditional to the code it guards.",
+      "range": {
+        "startLine": 681,
+        "startChar": 24,
+        "endLine": 681,
+        "endChar": 25
+      },
+      "revId": "3f63cc29b6a62ff03d5ba6da6cc187a3036bec8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
