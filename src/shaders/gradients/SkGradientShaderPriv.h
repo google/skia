@@ -94,7 +94,6 @@ protected:
     void initLinearBitmap(SkBitmap* bitmap, GradientBitmapType) const;
 
     bool onAppendStages(const StageRec&) const override;
-    bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override;
 
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;

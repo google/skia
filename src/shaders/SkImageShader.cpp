@@ -14,6 +14,7 @@
 #include "SkImageShader.h"
 #include "SkPM4fPriv.h"
 #include "SkReadBuffer.h"
+#include "SkTLazy.h"
 #include "SkWriteBuffer.h"
 #include "../jumper/SkJumper.h"
 
@@ -120,17 +121,19 @@ bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, Sk
     return false;
 }
 
-bool SkImageShader::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
-    SkBitmapProvider provider(fImage.get(), nullptr);
-    return IsRasterPipelineOnly(ctm, provider.info().colorType(), provider.info().alphaType(),
-                                fTileModeX, fTileModeY, this->getLocalMatrix());
-}
-
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
-    return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get(), rec.fDstColorSpace),
-                                                 rec, alloc);
+    SkTCopyOnFirstWrite<SkMatrix> lm(this->getLocalMatrix());
+    if (rec.fLocalMatrix) {
+        lm.writable()->preConcat(*rec.fLocalMatrix);
+    }
+
+    SkBitmapProvider provider(fImage.get(), rec.fDstColorSpace);
+    return IsRasterPipelineOnly(*rec.fMatrix, provider.info().colorType(), provider.info().alphaType(),
+                                fTileModeX, fTileModeY, *lm)
+        ? nullptr : SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
+                                                          provider,
+                                                          rec, alloc);
 }
 
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {

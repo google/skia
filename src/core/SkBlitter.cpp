@@ -914,10 +914,6 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     if (matrix.hasPerspective()) {
         return true;
     }
-    // ... or unless the shader is raster pipeline-only.
-    if (paint.getShader() && as_SB(paint.getShader())->isRasterPipelineOnly(matrix)) {
-        return true;
-    }
 
     // Added support only for shaders (and other constraints) for android
     if (device.colorType() == kRGB_565_SkColorType) {
@@ -1039,7 +1035,10 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         // Try to create the ShaderContext
         shaderContext = shader->makeContext(rec, alloc);
         if (!shaderContext) {
-            return alloc->make<SkNullBlitter>();
+            // Fall back to raster pipeline.
+            auto blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc);
+            SkASSERT(blitter);
+            return blitter;
         }
         SkASSERT(shaderContext);
     }
