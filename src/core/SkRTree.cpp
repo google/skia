@@ -47,6 +47,10 @@ void SkRTree::insert(const SkRect boundsArray[], int N) {
         } else {
             fNodes.setReserve(CountNodes(fCount, fAspectRatio));
             fRoot = this->bulkLoad(&branches);
+            if (fNodes.count() != fNodes.reserved()) {
+                SkDebugf("%d count, %d reserved\n", fNodes.count(), fNodes.reserved());
+                SkASSERT(fNodes.count() == fNodes.reserved());
+            }
         }
     }
 }
@@ -63,7 +67,7 @@ SkRTree::Node* SkRTree::allocateNodeAtLevel(uint16_t level) {
 // This function parallels bulkLoad, but just counts how many nodes bulkLoad would allocate.
 int SkRTree::CountNodes(int branches, SkScalar aspectRatio) {
     if (branches == 1) {
-        return 1;
+        return 0;
     }
     int numBranches = branches / kMaxChildren;
     int remainder   = branches % kMaxChildren;
@@ -80,7 +84,7 @@ int SkRTree::CountNodes(int branches, SkScalar aspectRatio) {
     int currentBranch = 0;
     int nodes = 0;
     for (int i = 0; i < numStrips; ++i) {
-        for (int j = 0; j < numTiles && currentBranch < branches; ++j) {
+        for (int j = 0; j < numTiles && currentBranch < branches; j++) {
             int incrementBy = kMaxChildren;
             if (remainder != 0) {
                 if (remainder <= kMaxChildren - kMinChildren) {
@@ -93,7 +97,7 @@ int SkRTree::CountNodes(int branches, SkScalar aspectRatio) {
             }
             nodes++;
             currentBranch++;
-            for (int k = 1; k < incrementBy && currentBranch < branches; ++k) {
+            for (int k = 1; k < incrementBy && currentBranch < branches; k++) {
                 currentBranch++;
             }
         }
@@ -111,10 +115,9 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
     // difference in playback speed.
     int numBranches = branches->count() / kMaxChildren;
     int remainder   = branches->count() % kMaxChildren;
-    int newBranches = 0;
 
     if (remainder > 0) {
-        ++numBranches;
+        numBranches++;
         // If the remainder isn't enough to fill a node, we'll add fewer nodes to other branches.
         if (remainder >= kMinChildren) {
             remainder = 0;
@@ -127,9 +130,10 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
     int numTiles  = SkScalarCeilToInt(SkIntToScalar(numBranches) / SkIntToScalar(numStrips));
     int currentBranch = 0;
 
+    int newBranches = 0;
     for (int i = 0; i < numStrips; ++i) {
         // Might be worth sorting by X here too.
-        for (int j = 0; j < numTiles && currentBranch < branches->count(); ++j) {
+        for (int j = 0; j < numTiles && currentBranch < branches->count(); j++) {
             int incrementBy = kMaxChildren;
             if (remainder != 0) {
                 // if need be, omit some nodes to make up for remainder
@@ -141,21 +145,21 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
                     remainder -= kMaxChildren - kMinChildren;
                 }
             }
-            Node* n = allocateNodeAtLevel(level);
+            Node* n = this->allocateNodeAtLevel(level);
             n->fNumChildren = 1;
             n->fChildren[0] = (*branches)[currentBranch];
             Branch b;
             b.fBounds = (*branches)[currentBranch].fBounds;
             b.fSubtree = n;
-            ++currentBranch;
-            for (int k = 1; k < incrementBy && currentBranch < branches->count(); ++k) {
+            currentBranch++;
+            for (int k = 1; k < incrementBy && currentBranch < branches->count(); k++) {
                 b.fBounds.join((*branches)[currentBranch].fBounds);
                 n->fChildren[k] = (*branches)[currentBranch];
-                ++n->fNumChildren;
-                ++currentBranch;
+                n->fNumChildren++;
+                currentBranch++;
             }
             (*branches)[newBranches] = b;
-            ++newBranches;
+            newBranches++;
         }
     }
     branches->setCount(newBranches);
