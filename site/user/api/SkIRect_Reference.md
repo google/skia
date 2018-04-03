@@ -605,13 +605,17 @@ overflow in its calculation.
 
 <a href="#SkIRect_fRight">fRight</a> minus <a href="#SkIRect_fLeft">fLeft</a> cast to int64_t
 
-<a href="#SkIRect">SkIRect</a> large = { -2147483647, 1, 2147483644, 2 };
+### Example
+
+<div><fiddle-embed name="63977f97999bbd6eecfdcc7575d75492">
 
 #### Example Output
 
 ~~~~
 width: -5 width64: 4294967291
 ~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
@@ -667,13 +671,17 @@ overflow in its calculation.
 
 <a href="#SkIRect_fBottom">fBottom</a> minus <a href="#SkIRect_fTop">fTop</a> cast to int64_t
 
-<a href="#SkIRect">SkIRect</a> large = { 1, -2147483647, 2, 2147483644 };
+### Example
+
+<div><fiddle-embed name="02dd98716e54bbd8c2f0ff23b7ef98cf">
 
 #### Example Output
 
 ~~~~
 height: -5 height64: 4294967291
 ~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
@@ -835,8 +843,9 @@ to or greater than <a href="#SkIRect_fBottom">fBottom</a>. Call <a href="#SkIRec
 
 true if <a href="#SkIRect_width64">width64</a> or <a href="#SkIRect_height64">height64</a> are zero or negative
 
-<a href="#SkIRect">SkIRect</a> tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
-for (auto rect : tests) {
+### Example
+
+<div><fiddle-embed name="eb905faa1084ccab3ad0605df4c27ea4">
 
 #### Example Output
 
@@ -846,6 +855,8 @@ sorted: {10, 40, 20, 50} is not empty
 rect: {20, 40, 20, 50} is empty
 sorted: {20, 40, 20, 50} is empty
 ~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 

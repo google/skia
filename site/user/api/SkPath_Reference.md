@@ -253,15 +253,15 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 ## <a name="SkPath_Verb"></a> Enum SkPath::Verb
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#Verb">Verb</a> {
-<a href="#SkPath_kMove_Verb">kMove Verb</a>,
-<a href="#SkPath_kLine_Verb">kLine Verb</a>,
-<a href="#SkPath_kQuad_Verb">kQuad Verb</a>,
-<a href="#SkPath_kConic_Verb">kConic Verb</a>,
-<a href="#SkPath_kCubic_Verb">kCubic Verb</a>,
-<a href="#SkPath_kClose_Verb">kClose Verb</a>,
-<a href="#SkPath_kDone_Verb">kDone Verb</a>,
-};
+    enum <a href="#Verb">Verb</a> {
+        <a href="#SkPath_kMove_Verb">kMove Verb</a>,
+        <a href="#SkPath_kLine_Verb">kLine Verb</a>,
+        <a href="#SkPath_kQuad_Verb">kQuad Verb</a>,
+        <a href="#SkPath_kConic_Verb">kConic Verb</a>,
+        <a href="#SkPath_kCubic_Verb">kCubic Verb</a>,
+        <a href="#SkPath_kClose_Verb">kClose Verb</a>,
+        <a href="#SkPath_kDone_Verb">kDone Verb</a>,
+    };
 </pre>
 
 <a href="#Verb">Verb</a> instructs <a href="#Path">Path</a> how to interpret one or more <a href="SkPoint_Reference#Point">Point</a> and optional <a href="#Conic_Weight">Conic Weight</a>;
@@ -343,10 +343,10 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 ## <a name="SkPath_Direction"></a> Enum SkPath::Direction
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#Direction">Direction</a> {
-<a href="#SkPath_kCW_Direction">kCW Direction</a>,
-<a href="#SkPath_kCCW_Direction">kCCW Direction</a>,
-};
+    enum <a href="#Direction">Direction</a> {
+        <a href="#SkPath_kCW_Direction">kCW Direction</a>,
+        <a href="#SkPath_kCCW_Direction">kCCW Direction</a>,
+    };
 </pre>
 
 <a href="#Direction">Direction</a> describes whether <a href="#Contour">Contour</a> is clockwise or counterclockwise.
@@ -749,12 +749,12 @@ soonOnly valid for Android framework.
 ## <a name="SkPath_FillType"></a> Enum SkPath::FillType
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPath_FillType">FillType</a> {
-<a href="#SkPath_kWinding_FillType">kWinding FillType</a>,
-<a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>,
-<a href="#SkPath_kInverseWinding_FillType">kInverseWinding FillType</a>,
-<a href="#SkPath_kInverseEvenOdd_FillType">kInverseEvenOdd FillType</a>,
-};
+    enum <a href="#SkPath_FillType">FillType</a> {
+        <a href="#SkPath_kWinding_FillType">kWinding FillType</a>,
+        <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>,
+        <a href="#SkPath_kInverseWinding_FillType">kInverseWinding FillType</a>,
+        <a href="#SkPath_kInverseEvenOdd_FillType">kInverseEvenOdd FillType</a>,
+    };
 </pre>
 
 <a href="#Fill_Type">Fill Type</a> selects the rule used to fill <a href="#Path">Path</a>. <a href="#Path">Path</a> set to <a href="#SkPath_kWinding_FillType">kWinding FillType</a>
@@ -931,11 +931,11 @@ unmodified by the original <a href="#SkPath_FillType">FillType</a>.
 ## <a name="SkPath_Convexity"></a> Enum SkPath::Convexity
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#Convexity">Convexity</a> : uint8_t {
-<a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>,
-<a href="#SkPath_kConvex_Convexity">kConvex Convexity</a>,
-<a href="#SkPath_kConcave_Convexity">kConcave Convexity</a>,
-};
+    enum <a href="#Convexity">Convexity</a> : uint8_t {
+        <a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>,
+        <a href="#SkPath_kConvex_Convexity">kConvex Convexity</a>,
+        <a href="#SkPath_kConcave_Convexity">kConcave Convexity</a>,
+    };
 </pre>
 
 <a href="#Path">Path</a> is convex if it contains one <a href="#Contour">Contour</a> and <a href="#Contour">Contour</a> loops no more than
@@ -2959,10 +2959,10 @@ line (156,20),(200,20)
 ## <a name="SkPath_ArcSize"></a> Enum SkPath::ArcSize
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPath_ArcSize">ArcSize</a> {
-<a href="#SkPath_kSmall_ArcSize">kSmall ArcSize</a>,
-<a href="#SkPath_kLarge_ArcSize">kLarge ArcSize</a>,
-};
+    enum <a href="#SkPath_ArcSize">ArcSize</a> {
+        <a href="#SkPath_kSmall_ArcSize">kSmall ArcSize</a>,
+        <a href="#SkPath_kLarge_ArcSize">kLarge ArcSize</a>,
+    };
 </pre>
 
 Four <a href="undocumented#Oval">Oval</a> parts with radii (rx, ry) start at last <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> and ends at (x, y).
@@ -3553,8 +3553,6 @@ Add <a href="undocumented#Oval">Oval</a> to path, appending <a href="#SkPath_kMo
 and half <a href="#SkPath_addOval_oval">oval</a> height. <a href="undocumented#Oval">Oval</a> begins at (<a href="#SkPath_addOval_oval">oval</a>.fRight, <a href="#SkPath_addOval_oval">oval</a>.centerY()) and continues
 clockwise if <a href="#SkPath_addOval_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, counterclockwise if <a href="#SkPath_addOval_dir">dir</a> is <a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
 
-This form is identical to
-
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_addOval_oval"> <code><strong>oval </strong></code> </a></td> <td>
@@ -3907,10 +3905,10 @@ true to add <a href="undocumented#Line">Line</a> connecting <a href="#Contour">C
 ## <a name="SkPath_AddPathMode"></a> Enum SkPath::AddPathMode
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPath_AddPathMode">AddPathMode</a> {
-<a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>,
-<a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>,
-};
+    enum <a href="#SkPath_AddPathMode">AddPathMode</a> {
+        <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>,
+        <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>,
+    };
 </pre>
 
 <a href="#SkPath_AddPathMode">AddPathMode</a> chooses how <a href="#SkPath_addPath">addPath</a> appends. Adding one <a href="#Path">Path</a> to another can extend
@@ -4252,7 +4250,7 @@ void setLastPt(SkScalar x, SkScalar y)
 </pre>
 
 Set <a href="#Last_Point">Last Point</a> to (<a href="#SkPath_setLastPt_x">x</a>, <a href="#SkPath_setLastPt_y">y</a>). If <a href="#Point_Array">Point Array</a> is empty, append <a href="#SkPath_kMove_Verb">kMove Verb</a> to
-<a href="#Verb_Array">Verb Array</a> and (<a href="#SkPath_setLastPt_x">x</a>, <a href="#SkPath_setLastPt_y">y</a>) to <a href="#Point_Array">Point Array</a>.
+<a href="#Verb_Array">Verb Array</a> and append (<a href="#SkPath_setLastPt_x">x</a>, <a href="#SkPath_setLastPt_y">y</a>) to <a href="#Point_Array">Point Array</a>.
 
 ### Parameters
 
@@ -4279,7 +4277,8 @@ set <a href="#SkPath_setLastPt_y">y</a>-coordinate of <a href="#Last_Point">Last
 void setLastPt(const SkPoint& p)
 </pre>
 
-Set the last point on the path. If no points have been added,
+Set the last point on the path. If <a href="#Point_Array">Point Array</a> is empty, append <a href="#SkPath_kMove_Verb">kMove Verb</a> to
+<a href="#Verb_Array">Verb Array</a> and append <a href="#SkPath_setLastPt_2_p">p</a> to <a href="#Point_Array">Point Array</a>.
 
 ### Parameters
 
@@ -4301,12 +4300,12 @@ set value of <a href="#Last_Point">Last Point</a></td>
 ## <a name="SkPath_SegmentMask"></a> Enum SkPath::SegmentMask
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPath_SegmentMask">SegmentMask</a> {
-<a href="#SkPath_kLine_SegmentMask">kLine SegmentMask</a> = 1 << 0,
-<a href="#SkPath_kQuad_SegmentMask">kQuad SegmentMask</a> = 1 << 1,
-<a href="#SkPath_kConic_SegmentMask">kConic SegmentMask</a> = 1 << 2,
-<a href="#SkPath_kCubic_SegmentMask">kCubic SegmentMask</a> = 1 << 3,
-};
+    enum <a href="#SkPath_SegmentMask">SegmentMask</a> {
+        <a href="#SkPath_kLine_SegmentMask">kLine SegmentMask</a> = 1 << 0,
+        <a href="#SkPath_kQuad_SegmentMask">kQuad SegmentMask</a> = 1 << 1,
+        <a href="#SkPath_kConic_SegmentMask">kConic SegmentMask</a> = 1 << 2,
+        <a href="#SkPath_kCubic_SegmentMask">kCubic SegmentMask</a> = 1 << 3,
+    };
 </pre>
 
 <a href="#SkPath_SegmentMask">SegmentMask</a> constants correspond to each drawing <a href="#SkPath_Verb">Verb</a> type in <a href="#Path">Path</a>; for
@@ -4547,7 +4546,7 @@ path is equal to copy
 
 ### See Also
 
-<a href="#SkPath_dump">dump</a><sup><a href="#SkPath_dump_2">[2]</a></sup>
+<a href="#SkPath_dump">dump</a><sup><a href="#SkPath_dump_2">[2]</a></sup> <a href="SkRect_Reference#SkRect_dumpHex">SkRect::dumpHex</a> <a href="undocumented#SkRRect_dumpHex">SkRRect::dumpHex</a> <a href="#SkPath_writeToMemory">writeToMemory</a>
 
 ---
 
@@ -4766,13 +4765,13 @@ degenerate data.
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href="#SkPath_Iter_Iter">Iter</a> {
 public:
-<a href="#SkPath_Iter_Iter">Iter()</a>;
-<a href="#SkPath_Iter_Iter_2">Iter(const SkPath& path, bool forceClose)</a>;
-void <a href="#SkPath_Iter_setPath">setPath(const SkPath& path, bool forceClose)</a>;
-<a href="#SkPath_Verb">Verb</a> <a href="#SkPath_Iter_next">next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)</a>;
-<a href="undocumented#SkScalar">SkScalar</a> <a href="#SkPath_Iter_conicWeight">conicWeight</a> const;
-bool <a href="#SkPath_Iter_isCloseLine">isCloseLine</a> const;
-bool <a href="#SkPath_Iter_isClosedContour">isClosedContour</a> const;
+    <a href="#SkPath_Iter_Iter">Iter()</a>;
+    <a href="#SkPath_Iter_Iter_2">Iter(const SkPath& path, bool forceClose)</a>;
+    void <a href="#SkPath_Iter_setPath">setPath(const SkPath& path, bool forceClose)</a>;
+    <a href="#SkPath_Verb">Verb</a> <a href="#SkPath_Iter_next">next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)</a>;
+    <a href="undocumented#SkScalar">SkScalar</a> <a href="#SkPath_Iter_conicWeight">conicWeight</a> const;
+    bool <a href="#SkPath_Iter_isCloseLine">isCloseLine</a> const;
+    bool <a href="#SkPath_Iter_isClosedContour">isClosedContour</a> const;
 };
 </pre>
 
@@ -5114,15 +5113,15 @@ Iterates through <a href="#Verb_Array">Verb Array</a>, and associated <a href="#
 <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Conic Weight</a> are returned unaltered.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href="#SkPath_RawIter_RawIter">RawIter</a> {
-public:
-<a href="#SkPath_RawIter_RawIter">RawIter()</a>;
-<a href="#SkPath_RawIter_RawIter_2">RawIter(const SkPath& path)</a>;
-void <a href="#SkPath_RawIter_setPath">setPath(const SkPath& path)</a>;
-<a href="#SkPath_Verb">Verb</a> <a href="#SkPath_RawIter_next">next(SkPoint pts[4])</a>;
-<a href="#SkPath_Verb">Verb</a> <a href="#SkPath_RawIter_peek">peek</a> const;
-<a href="undocumented#SkScalar">SkScalar</a> <a href="#SkPath_RawIter_conicWeight">conicWeight</a> const;
-}
+    class <a href="#SkPath_RawIter_RawIter">RawIter</a> {
+    public:
+        <a href="#SkPath_RawIter_RawIter">RawIter()</a>;
+        <a href="#SkPath_RawIter_RawIter_2">RawIter(const SkPath& path)</a>;
+        void <a href="#SkPath_RawIter_setPath">setPath(const SkPath& path)</a>;
+        <a href="#SkPath_Verb">Verb</a> <a href="#SkPath_RawIter_next">next(SkPoint pts[4])</a>;
+        <a href="#SkPath_Verb">Verb</a> <a href="#SkPath_RawIter_peek">peek</a> const;
+        <a href="undocumented#SkScalar">SkScalar</a> <a href="#SkPath_RawIter_conicWeight">conicWeight</a> const;
+    }
 </pre>
 
 <a name="SkPath_RawIter_RawIter"></a>

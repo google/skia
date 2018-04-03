@@ -621,12 +621,12 @@ paint1.getHash() == paint2.getHash()
 ## <a name="SkPaint_Hinting"></a> Enum SkPaint::Hinting
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#Hinting">Hinting</a> {
-<a href="#SkPaint_kNo_Hinting">kNo Hinting</a>            = 0,
-<a href="#SkPaint_kSlight_Hinting">kSlight Hinting</a>        = 1,
-<a href="#SkPaint_kNormal_Hinting">kNormal Hinting</a>        = 2,
-<a href="#SkPaint_kFull_Hinting">kFull Hinting</a>          = 3,
-};
+    enum <a href="#Hinting">Hinting</a> {
+        <a href="#SkPaint_kNo_Hinting">kNo Hinting</a>            = 0,
+        <a href="#SkPaint_kSlight_Hinting">kSlight Hinting</a>        = 1,
+        <a href="#SkPaint_kNormal_Hinting">kNormal Hinting</a>        = 2,
+        <a href="#SkPaint_kFull_Hinting">kFull Hinting</a>          = 3,
+    };
 </pre>
 
 <a href="#Hinting">Hinting</a> adjusts the glyph outlines so that the shape provides a uniform
@@ -749,21 +749,21 @@ paint1 == paint2
 ## <a name="SkPaint_Flags"></a> Enum SkPaint::Flags
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#Flags">Flags</a> {
-<a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a>       = 0x01,
-<a href="#SkPaint_kDither_Flag">kDither Flag</a>          = 0x04,
-<a href="#SkPaint_kFakeBoldText_Flag">kFakeBoldText Flag</a>    = 0x20,
-<a href="#SkPaint_kLinearText_Flag">kLinearText Flag</a>      = 0x40,
-<a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a>    = 0x80,
-<a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a>     = 0x100,
-<a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a>   = 0x200,
-<a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a> = 0x400,
-<a href="#SkPaint_kAutoHinting_Flag">kAutoHinting Flag</a>     = 0x800,
-<a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a>    = 0x1000,
-<a href="#SkPaint_kGenA8FromLCD_Flag">kGenA8FromLCD Flag</a>    = 0x2000,
+    enum <a href="#Flags">Flags</a> {
+        <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a>       = 0x01,
+        <a href="#SkPaint_kDither_Flag">kDither Flag</a>          = 0x04,
+        <a href="#SkPaint_kFakeBoldText_Flag">kFakeBoldText Flag</a>    = 0x20,
+        <a href="#SkPaint_kLinearText_Flag">kLinearText Flag</a>      = 0x40,
+        <a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a>    = 0x80,
+        <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a>     = 0x100,
+        <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a>   = 0x200,
+        <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a> = 0x400,
+        <a href="#SkPaint_kAutoHinting_Flag">kAutoHinting Flag</a>     = 0x800,
+        <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a>    = 0x1000,
+        <a href="#SkPaint_kGenA8FromLCD_Flag">kGenA8FromLCD Flag</a>    = 0x2000,
 
-<a href="#SkPaint_kAllFlags">kAllFlags</a> = 0xFFFF,
-};
+        <a href="#SkPaint_kAllFlags">kAllFlags</a> = 0xFFFF,
+    };
 
 </pre>
 
@@ -821,10 +821,10 @@ multiple settings at once.
 soonOnly valid for Android framework.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
-<a href="#SkPaint_kUnderlineText_ReserveFlag">kUnderlineText ReserveFlag</a>   = 0x08,
-<a href="#SkPaint_kStrikeThruText_ReserveFlag">kStrikeThruText ReserveFlag</a>  = 0x10,
-};
+    enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
+        <a href="#SkPaint_kUnderlineText_ReserveFlag">kUnderlineText ReserveFlag</a>   = 0x08,
+        <a href="#SkPaint_kStrikeThruText_ReserveFlag">kStrikeThruText ReserveFlag</a>  = 0x10,
+    };
 </pre>
 
 ### Constants
@@ -1010,7 +1010,7 @@ Dithering is always enabled for linear gradients drawing into
 <a href="#Dither">Dither</a> can be enabled by default by setting <a href="undocumented#SkPaintDefaults_Flags">SkPaintDefaults Flags</a> to <a href="#SkPaint_kDither_Flag">kDither Flag</a>
 at compile time.
 
-Some platform implementations may ignore dithering. Setto ignore <a href="#Dither">Dither</a> on <a href="undocumented#GPU_Surface">GPU Surface</a>.
+Some platform implementations may ignore dithering. SetSK_IGNORE_GPU_DITHERto ignore <a href="#Dither">Dither</a> on <a href="undocumented#GPU_Surface">GPU Surface</a>.
 
 ### Example
 
@@ -2074,11 +2074,11 @@ while stroking.
 ## <a name="SkPaint_Style"></a> Enum SkPaint::Style
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPaint_Style">Style</a> {
-<a href="#SkPaint_kFill_Style">kFill Style</a>,
-<a href="#SkPaint_kStroke_Style">kStroke Style</a>,
-<a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a>,
-};
+    enum <a href="#SkPaint_Style">Style</a> {
+        <a href="#SkPaint_kFill_Style">kFill Style</a>,
+        <a href="#SkPaint_kStroke_Style">kStroke Style</a>,
+        <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a>,
+    };
 </pre>
 
 Set <a href="#SkPaint_Style">Style</a> to fill, stroke, or both fill and stroke geometry.
@@ -2122,9 +2122,9 @@ and the set <a href="SkPath_Reference#Fill_Type">Path Fill Type</a> is ignored.
 ## <a name="SkPaint__anonymous"></a> Enum SkPaint::_anonymous
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum {
-<a href="#SkPaint_kStyleCount">kStyleCount</a> = <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a> + 1,
-};
+    enum {
+        <a href="#SkPaint_kStyleCount">kStyleCount</a> = <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a> + 1,
+    };
 </pre>
 
 ### Constants
@@ -2393,16 +2393,16 @@ default miter limit == 8
 ## <a name="SkPaint_Cap"></a> Enum SkPaint::Cap
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPaint_Cap">Cap</a> {
-<a href="#SkPaint_kButt_Cap">kButt Cap</a>,
-<a href="#SkPaint_kRound_Cap">kRound Cap</a>,
-<a href="#SkPaint_kSquare_Cap">kSquare Cap</a>,
+    enum <a href="#SkPaint_Cap">Cap</a> {
+        <a href="#SkPaint_kButt_Cap">kButt Cap</a>,
+        <a href="#SkPaint_kRound_Cap">kRound Cap</a>,
+        <a href="#SkPaint_kSquare_Cap">kSquare Cap</a>,
 
-<a href="#SkPaint_kLast_Cap">kLast Cap</a> = <a href="#SkPaint_kSquare_Cap">kSquare Cap</a>,
-<a href="#SkPaint_kDefault_Cap">kDefault Cap</a> = <a href="#SkPaint_kButt_Cap">kButt Cap</a>,
-};
+        <a href="#SkPaint_kLast_Cap">kLast Cap</a> = <a href="#SkPaint_kSquare_Cap">kSquare Cap</a>,
+        <a href="#SkPaint_kDefault_Cap">kDefault Cap</a> = <a href="#SkPaint_kButt_Cap">kButt Cap</a>,
+    };
 
-static constexpr int <a href="#SkPaint_kCapCount">kCapCount</a> = <a href="#SkPaint_kLast_Cap">kLast Cap</a> + 1;
+    static constexpr int <a href="#SkPaint_kCapCount">kCapCount</a> = <a href="#SkPaint_kLast_Cap">kLast Cap</a> + 1;
 </pre>
 
 <a href="#Stroke_Cap">Stroke Cap</a> draws at the beginning and end of an open <a href="SkPath_Reference#Contour">Path Contour</a>.
@@ -2544,16 +2544,16 @@ the following curve, the pair of curves meet at <a href="#Stroke_Join">Stroke Jo
 ## <a name="SkPaint_Join"></a> Enum SkPaint::Join
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPaint_Join">Join</a> {
-<a href="#SkPaint_kMiter_Join">kMiter Join</a>,
-<a href="#SkPaint_kRound_Join">kRound Join</a>,
-<a href="#SkPaint_kBevel_Join">kBevel Join</a>,
+    enum <a href="#SkPaint_Join">Join</a> {
+        <a href="#SkPaint_kMiter_Join">kMiter Join</a>,
+        <a href="#SkPaint_kRound_Join">kRound Join</a>,
+        <a href="#SkPaint_kBevel_Join">kBevel Join</a>,
 
-<a href="#SkPaint_kLast_Join">kLast Join</a> = <a href="#SkPaint_kBevel_Join">kBevel Join</a>,
-<a href="#SkPaint_kDefault_Join">kDefault Join</a> = <a href="#SkPaint_kMiter_Join">kMiter Join</a>,
-};
+        <a href="#SkPaint_kLast_Join">kLast Join</a> = <a href="#SkPaint_kBevel_Join">kBevel Join</a>,
+        <a href="#SkPaint_kDefault_Join">kDefault Join</a> = <a href="#SkPaint_kMiter_Join">kMiter Join</a>,
+    };
 
-static constexpr int <a href="#SkPaint_kJoinCount">kJoinCount</a> = <a href="#SkPaint_kLast_Join">kLast Join</a> + 1;
+    static constexpr int <a href="#SkPaint_kJoinCount">kJoinCount</a> = <a href="#SkPaint_kLast_Join">kLast Join</a> + 1;
 </pre>
 
 <a href="#SkPaint_Join">Join</a> specifies how corners are drawn when a shape is stroked. <a href="#SkPaint_Join">Join</a>
@@ -3581,11 +3581,11 @@ void setLooper(sk_sp&lt;SkDrawLooper&gt; drawLooper)
 ## <a name="SkPaint_Align"></a> Enum SkPaint::Align
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPaint_Align">Align</a> {
-<a href="#SkPaint_kLeft_Align">kLeft Align</a>,
-<a href="#SkPaint_kCenter_Align">kCenter Align</a>,
-<a href="#SkPaint_kRight_Align">kRight Align</a>,
-};
+    enum <a href="#SkPaint_Align">Align</a> {
+        <a href="#SkPaint_kLeft_Align">kLeft Align</a>,
+        <a href="#SkPaint_kCenter_Align">kCenter Align</a>,
+        <a href="#SkPaint_kRight_Align">kRight Align</a>,
+    };
 </pre>
 
 <a href="#SkPaint_Align">Align</a> adjusts the text relative to the text position.
@@ -3628,9 +3628,9 @@ and by its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kV
 ## <a name="SkPaint__anonymous_2"></a> Enum SkPaint::_anonymous_2
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum {
-<a href="#SkPaint_kAlignCount">kAlignCount</a> = 3,
-};
+    enum {
+        <a href="#SkPaint_kAlignCount">kAlignCount</a> = 3,
+    };
 </pre>
 
 ### Constants
@@ -3874,12 +3874,12 @@ additional shear in x-axis relative to y-axis</td>
 ## <a name="SkPaint_TextEncoding"></a> Enum SkPaint::TextEncoding
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPaint_TextEncoding">TextEncoding</a> {
-<a href="#SkPaint_kUTF8_TextEncoding">kUTF8 TextEncoding</a>,
-<a href="#SkPaint_kUTF16_TextEncoding">kUTF16 TextEncoding</a>,
-<a href="#SkPaint_kUTF32_TextEncoding">kUTF32 TextEncoding</a>,
-<a href="#SkPaint_kGlyphID_TextEncoding">kGlyphID TextEncoding</a>,
-};
+    enum <a href="#SkPaint_TextEncoding">TextEncoding</a> {
+        <a href="#SkPaint_kUTF8_TextEncoding">kUTF8 TextEncoding</a>,
+        <a href="#SkPaint_kUTF16_TextEncoding">kUTF16 TextEncoding</a>,
+        <a href="#SkPaint_kUTF32_TextEncoding">kUTF32 TextEncoding</a>,
+        <a href="#SkPaint_kGlyphID_TextEncoding">kGlyphID TextEncoding</a>,
+    };
 </pre>
 
 <a href="#SkPaint_TextEncoding">TextEncoding</a> determines whether text specifies character codes and their encoded
@@ -4013,36 +4013,36 @@ Y-axis values above the baseline are negative, and below the baseline are positi
 # <a name="SkPaint_FontMetrics"></a> Struct SkPaint::FontMetrics
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-struct <a href="#SkPaint_FontMetrics">FontMetrics</a> {
-enum <a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> {
-<a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> = 1 << 0,
-<a href="#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag">kUnderlinePositionIsValid Flag</a> = 1 << 1,
-<a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> = 1 << 2,
-<a href="#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag">kStrikeoutPositionIsValid Flag</a> = 1 << 3,
-};
+    struct <a href="#SkPaint_FontMetrics">FontMetrics</a> {
+        enum <a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> {
+            <a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> = 1 << 0,
+            <a href="#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag">kUnderlinePositionIsValid Flag</a> = 1 << 1,
+            <a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> = 1 << 2,
+            <a href="#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag">kStrikeoutPositionIsValid Flag</a> = 1 << 3,
+        };
 
-uint32_t    <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fTop">fTop</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fAscent">fAscent</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fDescent">fDescent</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fBottom">fBottom</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fLeading">fLeading</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fAvgCharWidth">fAvgCharWidth</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fMaxCharWidth">fMaxCharWidth</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fXMin">fXMin</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fXMax">fXMax</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fXHeight">fXHeight</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fCapHeight">fCapHeight</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a>;
-<a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fStrikeoutPosition">fStrikeoutPosition</a>;
+        uint32_t    <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fTop">fTop</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fAscent">fAscent</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fDescent">fDescent</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fBottom">fBottom</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fLeading">fLeading</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fAvgCharWidth">fAvgCharWidth</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fMaxCharWidth">fMaxCharWidth</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fXMin">fXMin</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fXMax">fXMax</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fXHeight">fXHeight</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fCapHeight">fCapHeight</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a>;
+        <a href="undocumented#SkScalar">SkScalar</a>    <a href="#SkPaint_FontMetrics_fStrikeoutPosition">fStrikeoutPosition</a>;
 
-bool <a href="#SkPaint_FontMetrics_hasUnderlineThickness">hasUnderlineThickness(SkScalar* thickness)</a> const;
-bool <a href="#SkPaint_FontMetrics_hasUnderlinePosition">hasUnderlinePosition(SkScalar* position)</a> const;
-bool <a href="#SkPaint_FontMetrics_hasStrikeoutThickness">hasStrikeoutThickness(SkScalar* thickness)</a> const;
-bool <a href="#SkPaint_FontMetrics_hasStrikeoutPosition">hasStrikeoutPosition(SkScalar* position)</a> const;
-};
+        bool <a href="#SkPaint_FontMetrics_hasUnderlineThickness">hasUnderlineThickness(SkScalar* thickness)</a> const;
+        bool <a href="#SkPaint_FontMetrics_hasUnderlinePosition">hasUnderlinePosition(SkScalar* position)</a> const;
+        bool <a href="#SkPaint_FontMetrics_hasStrikeoutThickness">hasStrikeoutThickness(SkScalar* thickness)</a> const;
+        bool <a href="#SkPaint_FontMetrics_hasStrikeoutPosition">hasStrikeoutPosition(SkScalar* position)</a> const;
+    };
 </pre>
 
 <a href="#SkPaint_FontMetrics">FontMetrics</a> is filled out by <a href="#SkPaint_getFontMetrics">getFontMetrics</a>. <a href="#SkPaint_FontMetrics">FontMetrics</a> contents reflect the values
@@ -4062,12 +4062,12 @@ are valid, since their value may be zero.
 ## <a name="SkPaint_FontMetrics_FontMetricsFlags"></a> Enum SkPaint::FontMetrics::FontMetricsFlags
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> {
-<a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> = 1 << 0,
-<a href="#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag">kUnderlinePositionIsValid Flag</a> = 1 << 1,
-<a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> = 1 << 2,
-<a href="#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag">kStrikeoutPositionIsValid Flag</a> = 1 << 3,
-};
+        enum <a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> {
+            <a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> = 1 << 0,
+            <a href="#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag">kUnderlinePositionIsValid Flag</a> = 1 << 1,
+            <a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> = 1 << 2,
+            <a href="#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag">kStrikeoutPositionIsValid Flag</a> = 1 << 3,
+        };
 </pre>
 
 <a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> are set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> when underline and strikeout metrics are valid;
