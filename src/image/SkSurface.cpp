@@ -216,6 +216,14 @@ bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess 
     return asSB(this)->onGetRenderTargetHandle(obj, access);
 }
 
+GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
+    return asSB(this)->onGetBackendTexture(access);
+}
+
+GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess access) {
+    return asSB(this)->onGetBackendRenderTarget(access);
+}
+
 void SkSurface::prepareForExternalIO() {
     this->flush();
 }

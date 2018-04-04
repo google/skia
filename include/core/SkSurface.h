@@ -458,6 +458,30 @@ public:
     bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess);
 
+    /** Returns the GPU back-end reference of the texture used by SkSurface, or an invalid
+        object if SkSurface is not backed by a GPU texture.
+
+        The returned GrBackendTexture is only valid until the next draw into SkSurface,
+        or when SkSurface is deleted.
+
+        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
+                                    kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
+        @return                     GPU texture reference; invalid on failure
+    */
+    GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
+
+    /** Returns the GPU back-end reference of the render target used by SkSurface, or an invalid
+        object if SkSurface is not backed by a GPU render target.
+
+        The returned render target handle is only valid until the next draw into SkSurface,
+        or when SkSurface is deleted.
+
+        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
+                                    kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
+        @return                     GPU render target reference; invalid on failure
+    */
+    GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
+
     /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
         SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface
         is deleted.
