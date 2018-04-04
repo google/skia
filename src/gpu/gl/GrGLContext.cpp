@@ -25,10 +25,6 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
     GR_GL_CALL_RET(interface.get(), rendererUByte, GetString(GR_GL_RENDERER));
     const char* renderer = reinterpret_cast<const char*>(rendererUByte);
 
-    const GrGLubyte* extensionsUByte;
-    GR_GL_CALL_RET(interface.get(), extensionsUByte, GetString(GR_GL_EXTENSIONS));
-    const char* extensions = reinterpret_cast<const char*>(extensionsUByte);
-
     ConstructorArgs args;
     args.fGLVersion = GrGLGetVersionFromString(ver);
     if (GR_GL_INVALID_VER == args.fGLVersion) {
@@ -41,7 +37,7 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
 
     args.fVendor = GrGLGetVendor(interface.get());
 
-    args.fRenderer = GrGLGetRendererFromStrings(renderer, extensions);
+    args.fRenderer = GrGLGetRendererFromStrings(renderer, interface->fExtensions);
 
     GrGLGetANGLEInfoFromString(renderer, &args.fANGLEBackend, &args.fANGLEVendor,
                                &args.fANGLERenderer);

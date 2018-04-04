@@ -292,15 +292,15 @@ static bool is_renderer_angle(const char* rendererString) {
     return 0 == strncmp(rendererString, kHeader, kHeaderLength);
 }
 
-GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString, const char* extensionString) {
+GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
+                                        const GrGLExtensions& extensions) {
     if (rendererString) {
         static const char kTegraStr[] = "NVIDIA Tegra";
         if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
             // Tegra strings are not very descriptive. We distinguish between the modern and legacy
             // architectures by the presence of NV_path_rendering.
-            return (extensionString && strstr(extensionString, "GL_NV_path_rendering"))
-                           ? kTegra_GrGLRenderer
-                           : kTegra_PreK1_GrGLRenderer;
+            return extensions.has("GL_NV_path_rendering") ? kTegra_GrGLRenderer
+                                                          : kTegra_PreK1_GrGLRenderer;
         }
         int lastDigit;
         int n = sscanf(rendererString, "PowerVR SGX 54%d", &lastDigit);
@@ -476,10 +476,7 @@ GrGLRenderer GrGLGetRenderer(const GrGLInterface* gl) {
     const GrGLubyte* rendererString;
     GR_GL_CALL_RET(gl, rendererString, GetString(GR_GL_RENDERER));
 
-    const GrGLubyte* extensionString;
-    GR_GL_CALL_RET(gl, extensionString, GetString(GR_GL_EXTENSIONS));
-
-    return GrGLGetRendererFromStrings((const char*) rendererString, (const char*) extensionString);
+    return GrGLGetRendererFromStrings((const char*)rendererString, gl->fExtensions);
 }
 
 GrGLenum GrToGLStencilFunc(GrStencilTest test) {
