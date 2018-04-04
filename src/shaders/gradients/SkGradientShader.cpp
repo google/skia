@@ -419,13 +419,6 @@ bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque && (this->getTileMode() != SkShader::kDecal_TileMode);
 }
 
-bool SkGradientShaderBase::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
-    if (this->getTileMode() == SkShader::kDecal_TileMode) {
-        return true;
-    }
-    return this->INHERITED::onIsRasterPipelineOnly(ctm);
-}
-
 static unsigned rounded_divide(unsigned numer, unsigned denom) {
     return (numer + (denom >> 1)) / denom;
 }

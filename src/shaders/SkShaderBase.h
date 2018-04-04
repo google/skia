@@ -173,12 +173,6 @@ public:
         return this->onMakeColorSpace(xformer);
     }
 
-    bool isRasterPipelineOnly(const SkMatrix& ctm) const {
-        // We always use RP when perspective is present.
-        return ctm.hasPerspective() || fLocalMatrix.hasPerspective()
-                                    || this->onIsRasterPipelineOnly(ctm);
-    }
-
     struct StageRec {
         SkRasterPipeline*   fPipeline;
         SkArenaAlloc*       fAlloc;
@@ -240,8 +234,6 @@ protected:
 
     // Default impl creates shadercontext and calls that (not very efficient)
     virtual bool onAppendStages(const StageRec&) const;
-
-    virtual bool onIsRasterPipelineOnly(const SkMatrix& ctm) const { return false; }
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.

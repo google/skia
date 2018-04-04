@@ -61,11 +61,6 @@ protected:
     }
 #endif
 
-    bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override {
-        return as_SB(fProxyShader)->isRasterPipelineOnly(SkMatrix::Concat(ctm,
-                                                                          this->getLocalMatrix()));
-    }
-
 private:
     sk_sp<SkShader> fProxyShader;
 

@@ -74,8 +74,6 @@ protected:
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
 
-    bool onIsRasterPipelineOnly(const SkMatrix&) const override { return true; }
-
 private:
     SkTwoPointConicalGradient(const SkPoint& c0, SkScalar r0,
                               const SkPoint& c1, SkScalar r1,
