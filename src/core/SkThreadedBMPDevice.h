@@ -159,6 +159,13 @@ private:
 
     SkIRect transformDrawBounds(const SkRect& drawBounds) const;
 
+    template<typename T>
+    T* cloneArray(const T* array, int count) {
+       T* clone = fAlloc.makeArrayDefault<T>(count);
+       memcpy(clone, array, sizeof(T) * count);
+       return clone;
+    }
+
     const int fTileCnt;
     const int fThreadCnt;
     SkTArray<SkIRect> fTileBounds;
