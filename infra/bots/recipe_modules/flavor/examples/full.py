@@ -70,6 +70,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-NoDEPS',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
   'Build-Debian9-EMCC-wasm-Release',
+  'Build-Debian9-GCC-loongson3a-Release',
   'Build-Debian9-GCC-x86_64-Debug-EmbededResouces',
   'Build-Debian9-GCC-x86_64-Release-ANGLE',
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
