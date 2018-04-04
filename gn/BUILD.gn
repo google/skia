@@ -221,20 +221,20 @@ config("default") {
         fyi_sanitizers = "float-divide-by-zero"
       }
 
-      if (!is_mac && !is_win) {
+      if (!is_mac) {
         sanitizers += ",function"  # Not supported on Mac or Win.
       }
-      if (!is_win) {
+      #if (!is_win) {
         sanitizers += ",vptr"  # Not supported on Win.
-      }
+      #}
       if (!is_debug && !is_win) {
         # No-op with somewhat annoying warning at -O0.
         # Seems to be broken on Win.
         sanitizers += ",object-size"
       }
-      if (sanitize == "ASAN") {
+      #if (sanitize == "ASAN") {
         sanitizers += ",address"
-      }
+      #}
       if (is_android) {
         # Android only easily supports address for now
         # UBSAN runs into linking errors
