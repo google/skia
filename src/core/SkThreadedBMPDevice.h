@@ -10,6 +10,7 @@
 
 #include "SkBitmapDevice.h"
 #include "SkDraw.h"
+#include "SkRectPriv.h"
 #include "SkTaskGroup2D.h"
 
 class SkThreadedBMPDevice : public SkBitmapDevice {
@@ -112,6 +113,9 @@ private:
         SkDraw getDraw() const { return fDS.getDraw(); }
         void setDrawFn(DrawFn&& fn) { fDrawFn = std::move(fn); }
 
+        // Some draw operation (e.g., drawDevice) has special draw bounds to be set
+        void setDrawBounds(const SkIRect& bounds) { fDrawBounds = bounds; }
+
     private:
         std::atomic<bool>   fInitialized;
         std::atomic<bool>   fNeedInit;
@@ -135,13 +139,17 @@ private:
         // Push a draw command into the queue. If Fn is DrawFn, we're pushing an element without
         // the need of initialization. If Fn is InitFn, we're pushing an element with init-once
         // and the InitFn will generate the DrawFn during initialization.
-        template<typename Fn>
+        template<bool useCTM = true, typename Fn>
         SK_ALWAYS_INLINE void push(const SkRect& rawDrawBounds, Fn&& fn) {
             if (fSize == MAX_QUEUE_SIZE) {
                 this->reset();
             }
             SkASSERT(fSize < MAX_QUEUE_SIZE);
             new (&fElements[fSize++]) DrawElement(fDevice, std::move(fn), rawDrawBounds);
+            if (!useCTM) {
+                fElements[fSize - 1].setDrawBounds(
+                        fDevice->transformDrawBounds<false>(rawDrawBounds));
+            }
             fTasks->addColumn();
         }
 
@@ -157,7 +165,21 @@ private:
         int                                 fSize;
     };
 
-    SkIRect transformDrawBounds(const SkRect& drawBounds) const;
+    template<bool useCTM = true>
+    SkIRect transformDrawBounds(const SkRect& drawBounds) const {
+        if (drawBounds == SkRectPriv::MakeLargest()) {
+            return SkRectPriv::MakeILarge();
+        }
+        SkRect transformedBounds;
+        if (useCTM) {
+            this->ctm().mapRect(&transformedBounds, drawBounds);
+        } else {
+            transformedBounds = drawBounds;
+        }
+        return transformedBounds.roundOut();
+    }
+
+
 
     template<typename T>
     T* cloneArray(const T* array, int count) {
