@@ -19,18 +19,19 @@ class SkMatrix;
 
 typedef uint32_t GrGLVersion;
 typedef uint32_t GrGLSLVersion;
-typedef uint32_t GrGLDriverVersion;
+typedef uint64_t GrGLDriverVersion;
 
-#define GR_GL_VER(major, minor) ((static_cast<int>(major) << 16) | \
-                                 static_cast<int>(minor))
-#define GR_GLSL_VER(major, minor) ((static_cast<int>(major) << 16) | \
-                                   static_cast<int>(minor))
-#define GR_GL_DRIVER_VER(major, minor) ((static_cast<int>(major) << 16) | \
-                                        static_cast<int>(minor))
+#define GR_GL_VER(major, minor) ((static_cast<uint32_t>(major) << 16) | \
+                                 static_cast<uint32_t>(minor))
+#define GR_GLSL_VER(major, minor) ((static_cast<uint32_t>(major) << 16) | \
+                                    static_cast<uint32_t>(minor))
+#define GR_GL_DRIVER_VER(major, minor, point) ((static_cast<uint64_t>(major) << 32) | \
+                                               (static_cast<uint64_t>(minor) << 16) | \
+                                                static_cast<uint64_t>(point))
 
 #define GR_GL_INVALID_VER GR_GL_VER(0, 0)
 #define GR_GLSL_INVALID_VER GR_GLSL_VER(0, 0)
-#define GR_GL_DRIVER_UNKNOWN_VER GR_GL_DRIVER_VER(0, 0)
+#define GR_GL_DRIVER_UNKNOWN_VER GR_GL_DRIVER_VER(0, 0, 0)
 
 /**
  * The Vendor and Renderer enum values are lazily updated as required.

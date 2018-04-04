@@ -99,7 +99,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
                        const char* versionString,
                        GrGLDriver* outDriver,
                        GrGLDriverVersion* outVersion) {
-    int major, minor, rev, driverMajor, driverMinor;
+    int major, minor, rev, driverMajor, driverMinor, driverPoint;
 
     *outDriver = kUnknown_GrGLDriver;
     *outVersion = GR_GL_DRIVER_UNKNOWN_VER;
@@ -128,7 +128,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
                            &major, &minor, &rev, &driverMajor, &driverMinor);
             // Some older NVIDIA drivers don't report the driver version.
             if (5 == n) {
-                *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+                *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
             return;
         }
@@ -140,7 +140,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         }
         if (4 == n) {
             *outDriver = kMesa_GrGLDriver;
-            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             return;
         }
     }
@@ -151,7 +151,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
                            &major, &minor, &driverMajor, &driverMinor);
             // Some older NVIDIA drivers don't report the driver version.
             if (4 == n) {
-                *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+                *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
             return;
         }
@@ -160,7 +160,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
                        &major, &minor, &driverMajor, &driverMinor);
         if (4 == n) {
             *outDriver = kMesa_GrGLDriver;
-            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             return;
         }
         if (0 == strncmp("ANGLE", rendererString, 5)) {
@@ -168,7 +168,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
             n = sscanf(versionString, "OpenGL ES %d.%d (ANGLE %d.%d", &major, &minor, &driverMajor,
                                                                       &driverMinor);
             if (4 == n) {
-                *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+                *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
             return;
         }
@@ -177,6 +177,14 @@ void GrGLGetDriverInfo(GrGLStandard standard,
     if (kIntel_GrGLVendor == vendor) {
         // We presume we're on the Intel driver since it hasn't identified itself as Mesa.
         *outDriver = kIntel_GrGLDriver;
+
+        //This is how the macOS version strings are structured. This might be different on different
+        // OSes.
+        int n = sscanf(versionString, "%d.%d INTEL-%d.%d.%d", &major, &minor, &driverMajor,
+                       &driverMinor, &driverPoint);
+        if (5 == n) {
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, driverPoint);
+        }
     }
 
     if (kQualcomm_GrGLVendor == vendor) {
@@ -184,7 +192,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         int n = sscanf(versionString, "OpenGL ES %d.%d V@%d.%d", &major, &minor, &driverMajor,
                        &driverMinor);
         if (4 == n) {
-            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
         }
         return;
     }
