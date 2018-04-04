@@ -458,6 +458,21 @@ public:
     bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess);
 
+    /**
+     *  Retrieves the backend texture used by this surface, it returns an invalid backend
+     *  texture if the surface is not backed by a GPU texture.
+     *
+     *  The returned backend texture is only valid until the next draw-call into the surface,
+     *  or the surface is deleted.
+     */
+    GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
+
+    /**
+     *  Retrieves the backend render target behind this surface. If the surface is not GPU-backed
+     *  it will return an invalid backend render target.
+     */
+    GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
+
     /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
         SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface
         is deleted.
