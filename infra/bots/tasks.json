@@ -4783,7 +4783,7 @@
         {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dimensions": [
@@ -4813,7 +4813,7 @@
         {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dimensions": [
@@ -4843,7 +4843,7 @@
         {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dimensions": [
@@ -4873,7 +4873,7 @@
         {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dimensions": [
