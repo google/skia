@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b04d86ac_dd9e2143",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-04T19:16:26Z",
+      "side": 1,
+      "message": "From an off-line discussion we\u0027re going to hold off on this as it would involve firing up the copy on write mechanism.",
+      "parentUuid": "ac522fc8_e59e03cf",
+      "range": {
+        "startLine": 565,
+        "startChar": 39,
+        "endLine": 565,
+        "endChar": 67
+      },
+      "revId": "50cd80faa582772b4d7b1ef69029e886c4cc2957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c30f72e8_6fbf9416",
         "filename": "include/gpu/GrBackendSurface.h",
         "patchSetId": 7
@@ -39,6 +63,24 @@
       "revId": "50cd80faa582772b4d7b1ef69029e886c4cc2957",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8e9f41b_d0081617",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-04T19:16:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c30f72e8_6fbf9416",
+      "revId": "50cd80faa582772b4d7b1ef69029e886c4cc2957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
