@@ -13,6 +13,9 @@
 #include "SkSurface.h"
 #include "SkSurfacePriv.h"
 
+class GrBackendTexture;
+class GrBackendRenderTarget;
+
 class SkSurface_Base : public SkSurface {
 public:
     SkSurface_Base(int width, int height, const SkSurfaceProps*);
@@ -26,6 +29,9 @@ public:
     virtual bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) {
         return false;
     }
+
+    virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);
+    virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess);
 
     /**
      *  Allocate a canvas that will draw into this surface. We will cache this
