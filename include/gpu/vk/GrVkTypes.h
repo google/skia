@@ -53,6 +53,12 @@ struct GrVkAlloc {
     enum Flag {
         kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
     };
+
+    bool operator==(const GrVkAlloc& that) const {
+        return fMemory == that.fMemory && fOffset == that.fOffset && fSize == that.fSize &&
+               fFlags == that.fFlags && fUsesSystemHeap == that.fUsesSystemHeap;
+    }
+
 private:
     friend class GrVkHeap; // For access to usesSystemHeap
     bool fUsesSystemHeap;
@@ -73,6 +79,12 @@ struct GrVkImageInfo {
     // while we're still holding onto the wrapped texture. They will first need to get a handle
     // to our internal GrVkImageInfo by calling getTextureHandle on a GrVkTexture.
     void updateImageLayout(VkImageLayout layout) { fImageLayout = layout; }
+
+    bool operator==(const GrVkImageInfo& that) const {
+        return fImage == that.fImage && fAlloc == that.fAlloc &&
+               fImageTiling == that.fImageTiling && fImageLayout == that.fImageLayout &&
+               fFormat == that.fFormat && fLevelCount == that.fLevelCount;
+    }
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkImageInfo*));
