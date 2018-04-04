@@ -551,11 +551,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
         sk_sp<SkImage> image(surface->makeImageSnapshot());
 
         REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
-        GrBackendObject textureHandle = image->getTextureHandle(false);
-        REPORTER_ASSERT(reporter, 0 != textureHandle);
+        GrBackendTexture backendTex = image->getBackendTexture(false);
+        REPORTER_ASSERT(reporter, backendTex.isValid());
         surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
         REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
-        REPORTER_ASSERT(reporter, textureHandle == image->getTextureHandle(false));
+        GrBackendTexture backendTex2 = image->getBackendTexture(false);
+        REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(backendTex, backendTex2));
     }
 }
 #endif
