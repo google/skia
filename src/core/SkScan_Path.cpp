@@ -145,7 +145,7 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
                         goto NEXT_X;
                     }
                 } else if (currE->fCurveCount > 0) {
-                    if (((SkQuadraticEdge*)currE)->updateQuadratic()) {
+                    if (((SK_QUAD_EDGE_TYPE*)currE)->updateQuadratic()) {
                         newX = currE->fX;
                         goto NEXT_X;
                     }
@@ -197,7 +197,7 @@ static bool update_edge(SkEdge* edge, int last_y) {
                 return true;
             }
         } else if (edge->fCurveCount > 0) {
-            if (((SkQuadraticEdge*)edge)->updateQuadratic()) {
+            if (((SK_QUAD_EDGE_TYPE*)edge)->updateQuadratic()) {
                 SkASSERT(edge->fFirstY == last_y + 1);
                 return true;
             }
