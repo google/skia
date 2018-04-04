@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac522fc8_e59e03cf",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-04T18:37:15Z",
+      "side": 1,
+      "message": "SkSurface uses a BackendHandleAccess that let\u0027s the client specify the type of access they want to perform on the 3D object. Should we do that here?",
+      "range": {
+        "startLine": 565,
+        "startChar": 39,
+        "endLine": 565,
+        "endChar": 67
+      },
+      "revId": "50cd80faa582772b4d7b1ef69029e886c4cc2957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c30f72e8_6fbf9416",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-04T18:37:15Z",
+      "side": 1,
+      "message": "Now that we have the GR_TEST_UTILS macro, putting things into GrTest.h/cpp seems less important. You could have something like\n\n#if GR_TEST_UTILS\nstatic bool TestingOnly_Equals(...)\n#endif",
+      "revId": "50cd80faa582772b4d7b1ef69029e886c4cc2957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
