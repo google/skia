@@ -20,7 +20,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-loongson3a-Release/Release",
-      "--args=cc=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-gcc-6\" cxx=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-g++-6\" extra_ldflags=[\"-L[START_DIR]/mips64el_toolchain_linux/mips64el-linux-gnuabi64/lib\"] is_debug=false skia_enable_gpu=false skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"loongson3a\""
+      "--args=cc=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-gcc-7\" cxx=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-g++-7\" extra_ldflags=[\"-L[START_DIR]/mips64el_toolchain_linux/mips64el-linux-gnuabi64/lib\"] is_debug=false skia_enable_gpu=false skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"loongson3a\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
