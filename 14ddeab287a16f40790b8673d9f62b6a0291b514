@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b62ccad4_3d2505f0",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2442,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-04T20:52:54Z",
+      "side": 1,
+      "message": "I think it is meant to match the way NVIDIA driver numbers are usually presented. The minor portion is always two digits. e.g. 337.00 might be followed by 337.05 and then 337.21.",
+      "parentUuid": "faa7cf5f_c8939506",
+      "revId": "14ddeab287a16f40790b8673d9f62b6a0291b514",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2a1b7a5d_56450b86",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 3
