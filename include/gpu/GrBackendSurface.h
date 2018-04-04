@@ -16,6 +16,24 @@
 #include "vk/GrVkTypes.h"
 #endif
 
+#if !SK_SUPPORT_GPU
+
+// SkSurface and SkImage rely on a minimal version of these always being available
+class SK_API GrBackendTexture {
+public:
+    GrBackendTexture() {}
+
+    bool isValid() const { return false; }
+};
+
+class SK_API GrBackendRenderTarget {
+public:
+    GrBackendRenderTarget() {}
+
+    bool isValid() const { return false; }
+};
+#else
+
 class SK_API GrBackendFormat {
 public:
     // Creates an invalid backend format.
@@ -265,6 +283,8 @@ private:
         GrMockRenderTargetInfo fMockInfo;
     };
 };
+
+#endif
 
 #endif
 
