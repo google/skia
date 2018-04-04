@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa01fc88_9da60c1e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2472,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-04-04T17:51:17Z",
+      "side": 1,
+      "message": "Should I make these conditions more explicit? The only way for this to happen right now is to have glslGeneration !\u003d k110, and not have the essl3 extension... We could also restrict this to Adreno + Mali?",
+      "revId": "a0877f90ef2227b503a6230e5176814a180f4153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
