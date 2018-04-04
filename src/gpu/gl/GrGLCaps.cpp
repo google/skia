@@ -2279,12 +2279,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #endif
         fBlacklistCoverageCounting = !gsSupport;
     }
-    // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
-    // Galaxy S7.
-    // TODO: Once this is fixed we can update the check here to look at a driver version number too.
-    if (kAdreno5xx_GrGLRenderer == ctxInfo.renderer()) {
-        shaderCaps->fFBFetchSupport = false;
-    }
 
     // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
     shaderCaps->fDropsTileOnZeroDivide = kQualcomm_GrGLVendor == ctxInfo.vendor();
