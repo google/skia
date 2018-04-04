@@ -67,6 +67,12 @@ public:
     sk_sp<SkData> serialize(SkTypefaceCatalogerProc, void* ctx) const;
 
     /**
+     *  Similar to serialize above, but writes directly into |memory|. Returns bytes written or 0u
+     *  if serialization failed due to insufficient size.
+     */
+    size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const;
+
+    /**
      *  Re-create a text blob previously serialized. Since the serialized form records the uniqueIDs
      *  of its typefaces, deserialization requires that the caller provide the corresponding
      *  SkTypefaces for those IDs.

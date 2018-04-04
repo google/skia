@@ -8,6 +8,7 @@
 #include "Resources.h"
 #include "SkAnnotationKeys.h"
 #include "SkCanvas.h"
+#include "SkDashPathEffect.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
 #include "SkImage.h"
@@ -21,6 +22,7 @@
 #include "SkShaderBase.h"
 #include "SkTableColorFilter.h"
 #include "SkTemplates.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 #include "SkXfermodeImageFilter.h"
@@ -665,4 +667,46 @@ DEF_TEST(WriteBuffer_storage, reporter) {
     writer.writeInt(0);
     REPORTER_ASSERT(reporter, !writer.usingInitialStorage());   // this is the change
     REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize);
+}
+
+DEF_TEST(WriteBuffer_external_memory_textblob, reporter) {
+    SkPaint font;
+    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    font.setTypeface(SkTypeface::MakeDefault());
+
+    SkTextBlobBuilder builder;
+    int glyph_count = 5;
+    const auto& run = builder.allocRun(font, glyph_count, 1.2f, 2.3f);
+    // allocRun() allocates only the glyph buffer.
+    std::fill(run.glyphs, run.glyphs + glyph_count, 0);
+    auto blob = builder.make();
+    SkSerialProcs procs;
+    SkAutoTMalloc<uint8_t> storage;
+    size_t blob_size = 0u;
+    size_t storage_size = 0u;
+
+    blob_size = SkAlign4(blob->serialize(procs)->size());
+    REPORTER_ASSERT(reporter, blob_size > 4u);
+    storage_size = blob_size - 4;
+    storage.realloc(storage_size);
+    REPORTER_ASSERT(reporter, blob->serialize(procs, storage.get(), storage_size) == 0u);
+    storage_size = blob_size;
+    storage.realloc(storage_size);
+    REPORTER_ASSERT(reporter, blob->serialize(procs, storage.get(), storage_size) != 0u);
+}
+
+DEF_TEST(WriteBuffer_external_memory_flattenable, reporter) {
+    SkScalar intervals[] = {1.f, 1.f};
+    auto path_effect = SkDashPathEffect::Make(intervals, 2, 0);
+    size_t path_size = SkAlign4(path_effect->serialize()->size());
+    REPORTER_ASSERT(reporter, path_size > 4u);
+    SkAutoTMalloc<uint8_t> storage;
+
+    size_t storage_size = path_size - 4;
+    storage.realloc(storage_size);
+    REPORTER_ASSERT(reporter, path_effect->serialize(storage.get(), storage_size) == 0u);
+
+    storage_size = path_size;
+    storage.realloc(storage_size);
+    REPORTER_ASSERT(reporter, path_effect->serialize(storage.get(), storage_size) != 0u);
 }
