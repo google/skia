@@ -37,6 +37,8 @@ public:
 
     bool updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo& newInfo);
 
+    bool setLayout(int) override { return true; }
+
 protected:
     void onAbandon() override {
         GrVkRenderTarget::onAbandon();
