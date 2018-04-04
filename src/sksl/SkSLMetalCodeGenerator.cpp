@@ -451,6 +451,8 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
     this->writeLine(") {");
 
+    ASSERT(!fProgram.fSettings.fFragColorIsInOut);
+
     if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
