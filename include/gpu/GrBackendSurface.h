@@ -145,7 +145,10 @@ public:
      */
     GrBackendFormat format() const;
 
+#if GR_TEST_UTILS
     GrPixelConfig testingOnly_getPixelConfig() const;
+    static bool TestingOnly_Equals(const GrBackendTexture& , const GrBackendTexture&);
+#endif
 
 private:
     // Friending for access to the GrPixelConfig
@@ -158,6 +161,7 @@ private:
     friend class GrGLGpu;
     friend class GrVkGpu;
     friend class PromiseImageHelper;
+
     GrPixelConfig config() const { return fConfig; }
 
     int fWidth;         //<! width in pixels

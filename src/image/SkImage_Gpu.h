@@ -51,6 +51,9 @@ public:
     }
     GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
                                        GrSurfaceOrigin* origin) const override;
+    GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
+                                         GrSurfaceOrigin* origin) const override;
+
     GrTexture* onGetTexture() const override;
 
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
