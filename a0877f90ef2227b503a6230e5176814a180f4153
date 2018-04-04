@@ -16,6 +16,24 @@
       "revId": "a0877f90ef2227b503a6230e5176814a180f4153",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc4459ad_99235a11",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2472,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-04T17:56:41Z",
+      "side": 1,
+      "message": "I think I would do all of those things.",
+      "parentUuid": "fa01fc88_9da60c1e",
+      "revId": "a0877f90ef2227b503a6230e5176814a180f4153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
