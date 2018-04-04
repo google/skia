@@ -30,10 +30,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    static bool IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType, SkAlphaType,
-                                     SkShader::TileMode tx, SkShader::TileMode ty,
-                                     const SkMatrix& localM);
-
 private:
     SkImageShader(sk_sp<SkImage>,
                   SkShader::TileMode tx,
@@ -47,8 +43,6 @@ private:
     bool onIsABitmap(SkBitmap*, SkMatrix*, SkShader::TileMode*) const override;
 #endif
     SkImage* onIsAImage(SkMatrix*, SkShader::TileMode*) const override;
-
-    bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override;
 
     bool onAppendStages(const StageRec&) const override;
 
