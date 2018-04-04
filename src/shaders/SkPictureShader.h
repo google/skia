@@ -41,7 +41,6 @@ protected:
     bool onAppendStages(const StageRec&) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
-    bool onIsRasterPipelineOnly(const SkMatrix&) const override;
 
 private:
     SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*,

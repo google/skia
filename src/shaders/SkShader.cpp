@@ -91,9 +91,15 @@ bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
 }
 
 SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
-    return this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)
-        ? this->onMakeContext(rec, alloc)
-        : nullptr;
+    // We always fall back to raster pipeline when perspective is present.
+    if (rec.fMatrix->hasPerspective() ||
+        fLocalMatrix.hasPerspective() ||
+        (rec.fLocalMatrix && rec.fLocalMatrix->hasPerspective()) ||
+        !this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)) {
+        return nullptr;
+    }
+
+    return this->onMakeContext(rec, alloc);
 }
 
 SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& rec,
@@ -114,11 +120,10 @@ SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& 
 SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec)
     : fShader(shader), fCTM(*rec.fMatrix)
 {
-    // We should never use a context for RP-only shaders.
-    SkASSERT(!shader.isRasterPipelineOnly(*rec.fMatrix));
-    // ... or for perspective.
+    // We should never use a context with perspective.
     SkASSERT(!rec.fMatrix->hasPerspective());
     SkASSERT(!rec.fLocalMatrix || !rec.fLocalMatrix->hasPerspective());
+    SkASSERT(!shader.getLocalMatrix().hasPerspective());
 
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.
