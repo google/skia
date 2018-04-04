@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "faa7cf5f_c8939506",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2442,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-04T20:50:18Z",
+      "side": 1,
+      "message": "00 ?",
+      "revId": "14ddeab287a16f40790b8673d9f62b6a0291b514",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a1b7a5d_56450b86",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2450,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-04T20:50:18Z",
+      "side": 1,
+      "message": "00 ?",
+      "revId": "14ddeab287a16f40790b8673d9f62b6a0291b514",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
