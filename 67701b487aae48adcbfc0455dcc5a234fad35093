@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe53e33b_578db79d",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-04T14:01:02Z",
+      "side": 1,
+      "message": "This shouldn\u0027t be needed.",
+      "range": {
+        "startLine": 972,
+        "startChar": 0,
+        "endLine": 972,
+        "endChar": 60
+      },
+      "revId": "67701b487aae48adcbfc0455dcc5a234fad35093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
