@@ -24,4 +24,8 @@ namespace GrTest {
                                           GrPixelConfig, GrMipMapped, GrBackendObject);
 };
 
+struct GrBackendTexture_TestAccess {
+    static bool Equal(const GrBackendTexture& t0, const GrBackendTexture& t1);
+};
+
 #endif

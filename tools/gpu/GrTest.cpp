@@ -80,6 +80,39 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
 
 }  // namespace GrTest
 
+bool GrBackendTexture_TestAccess::Equal(const GrBackendTexture& t0, const GrBackendTexture& t1) {
+    if (!t0.isValid() || !t1.isValid()) {
+        return false; // two invalid backend textures are not considered equal
+    }
+
+    if (t0.fWidth != t1.fWidth ||
+        t0.fHeight != t1.fHeight ||
+        t0.fConfig != t1.fConfig ||
+        t0.fMipMapped != t1.fMipMapped ||
+        t0.fBackend != t1.fBackend) {
+        return false;
+    }
+
+    switch (t0.fBackend) {
+    case kOpenGL_GrBackend:
+        return t0.fGLInfo == t1.fGLInfo;
+    case kMock_GrBackend:
+        return t0.fMockInfo == t1.fMockInfo;
+    case kVulkan_GrBackend:
+#ifdef SK_VULKAN
+        return t0.fVkInfo == t1.fVkInfo;
+#else
+        // fall through
+#endif
+    case kMetal_GrBackend: // fall through
+    default:
+        return false;
+    }
+
+    SkASSERT(0);
+    return false;
+}
+
 bool GrSurfaceProxy::isWrapped_ForTesting() const {
     return SkToBool(fTarget);
 }
