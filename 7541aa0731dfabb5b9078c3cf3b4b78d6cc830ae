@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "c269026b_c89696d2",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-04T17:14:22Z",
+      "side": 1,
+      "message": "an",
+      "range": {
+        "startLine": 574,
+        "startChar": 29,
+        "endLine": 574,
+        "endChar": 32
+      },
+      "revId": "7541aa0731dfabb5b9078c3cf3b4b78d6cc830ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1df7cfad_704f6b40",
         "filename": "include/core/SkImage.h",
         "patchSetId": 1
@@ -31,6 +54,24 @@
       "side": 1,
       "message": "So sadly if we want to expose the backend objects to clients (which we do), vulkan allows you to change the state of those objects. We can\u0027t stop clients from doing that so we need a way for them to notify us of this when they do. This is similar to in GL where we allow clients to reset our understating of the global state of the GLContext but Vulkan has per object state instead of global.",
       "parentUuid": "1df7cfad_704f6b40",
+      "revId": "7541aa0731dfabb5b9078c3cf3b4b78d6cc830ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18c90e87_0ee8ad4b",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-04T17:14:22Z",
+      "side": 1,
+      "message": "I think this is definitely the easiest approach, but I wonder how an API that was more like:\n\n// Checks out the backing texture of the SkImage. While checked out skia will not use the Image/Texture.\nGrBackendTexture getBackenTexture(...);\n\n// returns control of the BackendTexture to skia. In vulkan, if the layout was changed on the VkImage make sure that has been updated in the GrBackendTexture object. Internally we will verify that the backed object in GrBackendTexture matches what we think is the backend object for this image.\nvoid returnBackendTexture(const GrBackendTexture\u0026 tex);",
+      "parentUuid": "0fcd634d_490eafbd",
       "revId": "7541aa0731dfabb5b9078c3cf3b4b78d6cc830ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
