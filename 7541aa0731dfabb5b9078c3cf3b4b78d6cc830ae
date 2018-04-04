@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1df7cfad_704f6b40",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-04T17:01:22Z",
+      "side": 1,
+      "message": "Aren\u0027t SkImages supposed to be immutable?\n\nCould this be a factory option instead?",
+      "revId": "7541aa0731dfabb5b9078c3cf3b4b78d6cc830ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
