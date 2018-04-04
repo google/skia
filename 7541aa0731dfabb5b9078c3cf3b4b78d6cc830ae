@@ -16,6 +16,24 @@
       "revId": "7541aa0731dfabb5b9078c3cf3b4b78d6cc830ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fcd634d_490eafbd",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-04T17:08:31Z",
+      "side": 1,
+      "message": "So sadly if we want to expose the backend objects to clients (which we do), vulkan allows you to change the state of those objects. We can\u0027t stop clients from doing that so we need a way for them to notify us of this when they do. This is similar to in GL where we allow clients to reset our understating of the global state of the GLContext but Vulkan has per object state instead of global.",
+      "parentUuid": "1df7cfad_704f6b40",
+      "revId": "7541aa0731dfabb5b9078c3cf3b4b78d6cc830ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
