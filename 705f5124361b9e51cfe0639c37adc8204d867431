@@ -22,6 +22,30 @@
       "revId": "705f5124361b9e51cfe0639c37adc8204d867431",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "165f72fa_126a539c",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-04T00:52:17Z",
+      "side": 1,
+      "message": "You\u0027re right. Its unnecessary to provide this when the client can use SkSerialProcs directly. Removed.",
+      "parentUuid": "9f3a67b8_3c08c0dd",
+      "range": {
+        "startLine": 73,
+        "startChar": 11,
+        "endLine": 73,
+        "endChar": 20
+      },
+      "revId": "705f5124361b9e51cfe0639c37adc8204d867431",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
