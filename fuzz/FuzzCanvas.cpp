@@ -1849,3 +1849,12 @@ DEF_FUZZ(_DumpCanvas, fuzz) {
     Json::Value json = debugCanvas.toJSON(dataManager, debugCanvas.getSize(), nullCanvas.get());
     Json::StyledStreamWriter("  ").write(std::cout, json);
 }
+
+DEF_FUZZ(RegionOp, fuzz) {
+    SkRegion regionA, regionB, regionC;
+    fuzz_region(fuzz, &regionA, 2000);
+    fuzz_region(fuzz, &regionB, 2000);
+    SkRegion::Op op;
+    fuzz_enum_range(fuzz, &op, (SkRegion::Op)0, SkRegion::kLastOp);
+    regionC.op(regionA, regionB, op);
+}
