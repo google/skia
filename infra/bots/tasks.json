@@ -294,6 +294,30 @@
         "Build-Debian9-GCC-arm-Release-Chromecast"
       ]
     },
+    "Build-Debian9-GCC-loongson3a-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-GCC-loongson3a-Debug"
+      ]
+    },
+    "Build-Debian9-GCC-loongson3a-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-GCC-loongson3a-Release"
+      ]
+    },
+    "Build-Debian9-GCC-mips64el-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-GCC-mips64el-Debug"
+      ]
+    },
+    "Build-Debian9-GCC-mips64el-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-GCC-mips64el-Release"
+      ]
+    },
     "Build-Debian9-GCC-x86-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -4762,6 +4786,126 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-GCC-arm-Release-Chromecast",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-GCC-loongson3a-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/mips64el_toolchain_linux",
+          "path": "mips64el_toolchain_linux",
+          "version": "version:4"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-GCC-loongson3a-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-GCC-loongson3a-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/mips64el_toolchain_linux",
+          "path": "mips64el_toolchain_linux",
+          "version": "version:4"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-GCC-loongson3a-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-GCC-mips64el-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/mips64el_toolchain_linux",
+          "path": "mips64el_toolchain_linux",
+          "version": "version:4"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-GCC-mips64el-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-GCC-mips64el-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/mips64el_toolchain_linux",
+          "path": "mips64el_toolchain_linux",
+          "version": "version:4"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-GCC-mips64el-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
