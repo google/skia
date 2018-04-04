@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12bdb229_2966e9e5",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-04-04T18:56:39Z",
+      "side": 1,
+      "message": "since the array value already exists, can\u0027t it avoid the check?",
+      "range": {
+        "startLine": 737,
+        "startChar": 34,
+        "endLine": 737,
+        "endChar": 43
+      },
+      "revId": "73f57c05923b1494a1188615083805c0bac61e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95efbd01_520e9a6b",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-04-04T18:56:39Z",
+      "side": 1,
+      "message": "if we\u0027re going to add more than one value, a single check would be better",
+      "range": {
+        "startLine": 738,
+        "startChar": 17,
+        "endLine": 738,
+        "endChar": 26
+      },
+      "revId": "73f57c05923b1494a1188615083805c0bac61e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc2cf70d_9b04150f",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-04-04T18:56:39Z",
+      "side": 1,
+      "message": "more reading existing values",
+      "revId": "73f57c05923b1494a1188615083805c0bac61e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84d8037d_5a5e24cc",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-04-04T18:56:39Z",
+      "side": 1,
+      "message": "more reading existing values",
+      "range": {
+        "startLine": 803,
+        "startChar": 27,
+        "endLine": 803,
+        "endChar": 33
+      },
+      "revId": "73f57c05923b1494a1188615083805c0bac61e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27b2e463_b4d3ee9d",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-04-04T18:56:39Z",
+      "side": 1,
+      "message": "curious that this doesn\u0027t match the original logic",
+      "range": {
+        "startLine": 812,
+        "startChar": 27,
+        "endLine": 812,
+        "endChar": 36
+      },
+      "revId": "73f57c05923b1494a1188615083805c0bac61e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
