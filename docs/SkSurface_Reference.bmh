@@ -1089,6 +1089,55 @@ In OpenGL this returns the frame buffer object ID.
 
 # ------------------------------------------------------------------------------
 
+#Method GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess)
+#In Property
+#Line # returns the GPU reference to texture ##
+Returns the GPU back-end reference of the texture used by SkSurface, or an invalid
+object if SkSurface is not backed by a GPU texture.
+
+The returned GrBackendTexture is only valid until the next draw into SkSurface,
+or when SkSurface is deleted.
+
+#Param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
+        kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
+##
+
+#Return GPU texture reference; invalid on failure ##
+
+#NoExample
+##
+
+#SeeAlso GrBackendTexture BackendHandleAccess getBackendRenderTarget
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess)
+#In Property
+#Line # returns the GPU reference to render target ##
+
+Returns the GPU back-end reference of the render target used by SkSurface, or an invalid
+object if SkSurface is not backed by a GPU render target.
+
+The returned render target handle is only valid until the next draw into SkSurface,
+or when SkSurface is deleted.
+
+#Param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
+        kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
+##
+
+#Return GPU render target reference; invalid on failure ##
+
+#NoExample
+##
+
+#SeeAlso GrBackendRenderTarget BackendHandleAccess getBackendTexture
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method SkCanvas* getCanvas()
 #In Property
 #Line # returns Canvas that draws into Surface ##
