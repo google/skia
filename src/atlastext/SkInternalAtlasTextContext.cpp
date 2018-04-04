@@ -79,8 +79,8 @@ void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyph
         auto* vertex = reinterpret_cast<SkAtlasTextRenderer::SDFVertex*>(vertexData) + i;
         // GrAtlasTextContext encodes a texture index into the lower bit of each texture coord.
         // This isn't expected by SkAtlasTextRenderer subclasses.
-        vertex->fTextureCoord.fX /= 2;
-        vertex->fTextureCoord.fY /= 2;
+        vertex->fTextureCoordX /= 2;
+        vertex->fTextureCoordY /= 2;
         matrix.mapHomogeneousPoints(&vertex->fPosition, &vertex->fPosition, 1);
     }
     fDraws.append(&fArena,

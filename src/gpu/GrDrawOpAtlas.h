@@ -8,7 +8,7 @@
 #ifndef GrDrawOpAtlas_DEFINED
 #define GrDrawOpAtlas_DEFINED
 
-#include "SkPoint.h"
+#include "SkIPoint16.h"
 #include "SkTDArray.h"
 #include "SkTInternalLList.h"
 
