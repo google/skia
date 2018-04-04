@@ -201,6 +201,7 @@ gm_sources = [
   "$_gm/linepaths.cpp",
   "$_gm/localmatriximagefilter.cpp",
   "$_gm/localmatriximageshader.cpp",
+  "$_gm/localmatrixshader.cpp",
   "$_gm/lumafilter.cpp",
   "$_gm/makecolorspace.cpp",
   "$_gm/makeRasterImage.cpp",
