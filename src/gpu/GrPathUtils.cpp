@@ -31,7 +31,14 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
             stretch = SkMaxScalar(stretch, mat.mapRadius(SK_Scalar1));
         }
     }
-    SkScalar srcTol = devTol / stretch;
+    SkScalar srcTol = 0;
+    if (stretch <= 0) {
+        // We have degenerate bounds or some degenerate matrix. Thus we set the tolerance to be the
+        // max of the path pathBounds width and height.
+        srcTol = SkTMax(pathBounds.width(), pathBounds.height());
+    } else {
+        srcTol = devTol / stretch;
+    }
     if (srcTol < gMinCurveTol) {
         srcTol = gMinCurveTol;
     }
