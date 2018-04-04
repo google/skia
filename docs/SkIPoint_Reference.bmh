@@ -61,7 +61,7 @@ pt1 == pt2
 ##
 ##
 
-#SeeAlso set() SkPoint::iset() SkPoint::Make SkIPoint16::Make
+#SeeAlso set() SkPoint::iset() SkPoint::Make
 
 #Method ##
 
@@ -87,7 +87,7 @@ pt1.fX == pt1.x()
 ##
 ##
 
-#SeeAlso y() SkPoint::x() SkIPoint16::x()
+#SeeAlso y() SkPoint::x()
 
 #Method ##
 
@@ -108,7 +108,7 @@ pt1.fY == pt1.y()
 ##
 ##
 
-#SeeAlso x() SkPoint::y() SkIPoint16::y()
+#SeeAlso x() SkPoint::y()
 
 #Method ##
 
@@ -157,7 +157,7 @@ pt1 == pt2
 ##
 ##
 
-#SeeAlso Make SkIPoint16::set
+#SeeAlso Make
 
 #Method ##
 
