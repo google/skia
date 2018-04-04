@@ -1,0 +1,72 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/mips64el_toolchain_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get mips64el_toolchain_linux VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-loongson3a-Release"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "[CUSTOM_/_B_WORK]/skia/bin/gn",
+      "gen",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-loongson3a-Release/Release",
+      "--args=cc=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-gcc-7\" cxx=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-g++-7\" extra_cflags=[\"-Wno-format-truncation\", \"-Wno-uninitialized\", \"-DDUMMY_mips64el_toolchain_linux_version=42\", \"-Wno-strict-overflow\"] extra_ldflags=[\"-L[START_DIR]/mips64el_toolchain_linux/mips64el-linux-gnuabi64/lib\"] is_debug=false skia_enable_gpu=false skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"loongson3a\""
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "LD_LIBRARY_PATH": "[START_DIR]/mips64el_toolchain_linux/lib/x86_64-linux-gnu/",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-loongson3a-Release"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-k",
+      "0",
+      "-C",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-loongson3a-Release/Release"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "LD_LIBRARY_PATH": "[START_DIR]/mips64el_toolchain_linux/lib/x86_64-linux-gnu/",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-loongson3a-Release"
+    },
+    "name": "ninja"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

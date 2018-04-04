@@ -112,6 +112,17 @@ config("default") {
       "-mfpu=neon",
       "-mthumb",
     ]
+  } else if (current_cpu == "loongson3a") {
+    asmflags += [ "-march=loongson3a" ]
+    cflags += [
+      "-march=loongson3a",
+
+      # Causes an internal compiler error.
+      "-DSKCMS_PORTABLE",
+    ]
+  } else if (current_cpu == "mips64el") {
+    asmflags += [ "-march=mips64" ]
+    cflags += [ "-march=mips64" ]
   } else if (current_cpu == "x86" && !is_win) {
     asmflags += [ "-m32" ]
     cflags += [

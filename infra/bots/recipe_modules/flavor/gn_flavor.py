@@ -41,6 +41,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     cc, cxx = None, None
     extra_cflags = []
     extra_ldflags = []
+    args = {}
+    env = {}
 
     if compiler == 'Clang' and self.m.vars.is_linux:
       cc  = clang_linux + '/bin/clang'
@@ -56,7 +58,31 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
     elif compiler == 'GCC':
-      cc, cxx = 'gcc', 'g++'
+      if target_arch in ['mips64el', 'loongson3a']:
+        mips64el_toolchain_linux = str(self.m.vars.slave_dir.join(
+            'mips64el_toolchain_linux'))
+        cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-7'
+        cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-7'
+        env['LD_LIBRARY_PATH'] = (
+            mips64el_toolchain_linux + '/lib/x86_64-linux-gnu/')
+        extra_ldflags.append('-L' + mips64el_toolchain_linux +
+                             '/mips64el-linux-gnuabi64/lib')
+        extra_cflags.extend([
+            '-Wno-format-truncation',
+            '-Wno-uninitialized',
+            ('-DDUMMY_mips64el_toolchain_linux_version=%s' %
+             self.m.run.asset_version('mips64el_toolchain_linux'))
+        ])
+        if configuration == 'Release':
+          # This warning is only triggered when fuzz_canvas is inlined.
+          extra_cflags.append('-Wno-strict-overflow')
+        args.update({
+          'skia_use_system_freetype2': 'false',
+          'skia_use_fontconfig':       'false',
+          'skia_enable_gpu':           'false',
+        })
+      else:
+        cc, cxx = 'gcc', 'g++'
     elif compiler == 'EMCC':
       cc   = emscripten_sdk + '/emscripten/incoming/emcc'
       cxx  = emscripten_sdk + '/emscripten/incoming/em++'
@@ -90,9 +116,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     if 'MSAN' in extra_tokens:
       extra_ldflags.append('-L' + clang_linux + '/msan')
-
-    args = {}
-    env = {}
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
