@@ -14,6 +14,7 @@
 #include "GrTextureProxyPriv.h"
 
 #include "SkCanvas.h"
+#include "SkColorSpacePriv.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Gpu.h"
@@ -295,12 +296,17 @@ public:
             fOrigin = kBottomLeft_GrSurfaceOrigin;
             break;
         case 3:
+            // The color type and config need to be changed together.
+            // The original SRGB color space no longer makes sense for F16
             fColorType = kRGBA_F16_SkColorType;
             fConfig = kRGBA_half_GrPixelConfig;
             fColorSpace = SkColorSpace::MakeSRGBLinear();
             break;
         case 4:
-            fColorSpace = SkColorSpace::MakeSRGBLinear();
+            // This just needs to be a colorSpace different from that returned by MakeSRGB()
+            // but still be considered SRGB. In this case we just change the gamut.
+            fColorSpace = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                SkColorSpace::kAdobeRGB_Gamut);
             break;
         case kSampleCount:
             fSampleCount = 4;
@@ -406,6 +412,52 @@ private:
     SkSurfaceProps      fSurfaceProps;
     bool                fShouldCreateMipMaps;
 };
+
+// Test out operator== && operator!=
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    for (int i = 0; i < SurfaceParameters::kNumParams; ++i) {
+        SurfaceParameters params1(context->caps());
+        params1.modify(i);
+
+        SkSurfaceCharacterization char1 = params1.createCharacterization(context);
+        if (!char1.isValid()) {
+            continue;  // can happen on some platforms (ChromeOS)
+        }
+
+        for (int j = 0; j < SurfaceParameters::kNumParams; ++j) {
+            SurfaceParameters params2(context->caps());
+            params2.modify(j);
+
+            SkSurfaceCharacterization char2 = params2.createCharacterization(context);
+            if (!char2.isValid()) {
+                continue;  // can happen on some platforms (ChromeOS)
+            }
+
+            if (i == j) {
+                REPORTER_ASSERT(reporter, char1 == char2);
+            } else {
+                REPORTER_ASSERT(reporter, char1 != char2);
+            }
+
+        }
+    }
+
+    {
+        SurfaceParameters params(context->caps());
+
+        SkSurfaceCharacterization valid = params.createCharacterization(context);
+        SkASSERT(valid.isValid());
+
+        SkSurfaceCharacterization inval1, inval2;
+        SkASSERT(!inval1.isValid() && !inval2.isValid());
+
+        REPORTER_ASSERT(reporter, inval1 != inval2);
+        REPORTER_ASSERT(reporter, valid != inval1);
+        REPORTER_ASSERT(reporter, inval1 != valid);
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // This tests SkSurfaceCharacterization/SkSurface compatibility
