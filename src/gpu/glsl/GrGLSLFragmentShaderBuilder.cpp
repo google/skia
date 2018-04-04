@@ -170,6 +170,11 @@ const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
     return fHasCustomColorOutput ? DeclaredColorOutputName() : "sk_FragColor";
 }
 
+bool GrGLSLFragmentShaderBuilder::primaryColorOutputIsInOut() const {
+    return fHasCustomColorOutput &&
+           fOutputs[fCustomColorOutputIndex].getTypeModifier() == GrShaderVar::kInOut_TypeModifier;
+}
+
 void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {
     va_list argp;
     va_start(argp, fmt);
