@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43cef2b1_ba69e293",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1941,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-04T23:58:02Z",
+      "side": 0,
+      "message": "Do we get the same effect from\n\n   canvas-\u003edrawPicture(deserialized);\n   canvas-\u003eflush();\n   return check_against_reference(bitmap, src, fSink.get());\n\n?",
+      "revId": "bf74a460814a7912ed3d2e1af000afd2c45cd318",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
