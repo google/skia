@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01f0d620_b2b604b7",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-04T17:15:43Z",
+      "side": 1,
+      "message": "// We\u0027re going to tweak the paint in two ways:\n//  1) tweaks to `rpPaint` affect both raster pipeline and legacy pipeline\n//  2) (later) tweaks to `paint` affect only legacy pipeline\n\nSkPaint origPait;\n...\nSkPaint bothPaint(origPaint);\n...\nSkPaint legacyOnlyPaint(bothPaint);\n...\n\n?",
+      "revId": "ff36ddf696a993302cd9f7d05c19da079b297628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
