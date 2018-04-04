@@ -152,6 +152,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     SkSL::Program::Settings settings;
     settings.fCaps = this->gpu()->glCaps().shaderCaps();
     settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFragColorIsInOut = this->fragColorIsInOut();
+
     SkSL::Program::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
     bool cached = nullptr != fCached.get();
