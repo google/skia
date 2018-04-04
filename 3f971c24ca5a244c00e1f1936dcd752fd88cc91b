@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "33b2e5ca_6e81ae2e",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 15
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-04T17:42:45Z",
+      "side": 1,
+      "message": "Both loongson3a and mips64 are:\n#define __FLOAT_WORD_ORDER__ __ORDER_LITTLE_ENDIAN__\n#define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__",
+      "parentUuid": "7b4079a4_58ae5ec1",
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "32dacc8e_4ec8281e",
         "filename": "gn/BUILD.gn",
         "patchSetId": 15
@@ -114,6 +132,30 @@
     },
     {
       "key": {
+        "uuid": "4efe89a9_18c7542f",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 15
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-04T17:42:45Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "36da071f_4694c16f",
+      "range": {
+        "startLine": 123,
+        "startChar": 6,
+        "endLine": 123,
+        "endChar": 25
+      },
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c633e0d8_361f45ae",
         "filename": "gn/BUILD.gn",
         "patchSetId": 15
@@ -134,6 +176,30 @@
       "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ae470fd_14aa0fbb",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 15
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-04T17:42:45Z",
+      "side": 1,
+      "message": "Removed. I assume we don\u0027t need it if linking succeeds without it?",
+      "parentUuid": "c633e0d8_361f45ae",
+      "range": {
+        "startLine": 126,
+        "startChar": 7,
+        "endLine": 126,
+        "endChar": 25
+      },
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -160,6 +226,30 @@
     },
     {
       "key": {
+        "uuid": "0f541733_dc684f32",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 15
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-04T17:42:45Z",
+      "side": 1,
+      "message": "I\u0027ll try that in a followup CL.",
+      "parentUuid": "d1dba7f3_87739a66",
+      "range": {
+        "startLine": 551,
+        "startChar": 17,
+        "endLine": 551,
+        "endChar": 42
+      },
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "964c0425_05515a4a",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 15
@@ -171,6 +261,30 @@
       "writtenOn": "2018-04-04T14:15:24Z",
       "side": 1,
       "message": "Let\u0027s add mips64el bots too?  Always nice to have the bots running if we can, and might help differentially diagnose loongson3a issues.",
+      "range": {
+        "startLine": 61,
+        "startChar": 8,
+        "endLine": 61,
+        "endChar": 35
+      },
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c50c6e6_04fb5524",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-04T17:42:45Z",
+      "side": 1,
+      "message": "Added Debug. Build-Debian9-GCC-mips64el-Release encounters another ICE: https://chromium-swarm.appspot.com/task?id\u003d3caa893cb165bc10\n\n[1542/2200] compile ../../../tests/SkNxTest.cpp\nFAILED: obj/tests/tests.SkNxTest.o \n/mnt/pd0/s/w/ir/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-g++-6 -MMD -MF obj/tests/tests.SkNxTest.o.d -DNDEBUG -DSK_GAMMA_APPLY_TO_A8 -DSK_ENABLE_DISCRETE_GPU -DGR_TEST_UTILS\u003d1 -DSK_HAS_HEIF_LIBRARY -DSK_HAS_JPEG_LIBRARY -DSK_SUPPORT_PDF -DSK_PDF_USE_SFNTLY -DSK_HAS_PNG_LIBRARY -DSK_CODEC_DECODES_RAW -DSK_USE_SKCMS -DSK_HAS_WEBP_LIBRARY -DSK_XML -DSK_SAMPLES_FOR_X -DSK_SUPPORT_GPU\u003d0 -I../../../tests -I../../../include/private -I../../../src/c -I../../../src/codec -I../../../src/core -I../../../src/effects -I../../../src/fonts -I../../../src/image -I../../../src/images -I../../../src/lazy -I../../../src/opts -I../../../src/pathops -I../../../src/pdf -I../../../src/ports -I../../../src/sfnt -I../../../src/shaders -I../../../src/shaders/gradients -I../../../src/sksl -I../../../src/utils -I../../../src/utils/win -I../../../src/xml -I../../../third_party/gif -I../../../experimental/sksg -I../../../experimental/sksg/effects -I../../../experimental/sksg/geometry -I../../../experimental/sksg/paint -I../../../experimental/svg/model -I../../../tools/flags -I../../../include/android -I../../../include/c -I../../../include/codec -I../../../include/config -I../../../include/core -I../../../include/effects -I../../../include/encode -I../../../include/gpu -I../../../include/gpu/gl -I../../../include/atlastext -I../../../include/pathops -I../../../include/ports -I../../../include/svg -I../../../include/utils -I../../../include/utils/mac -I../../../tools -I../../../tools/debugger -I../../../tools/fonts -I../../../tools/timer -I../../../tools/trace -I../../../third_party/externals/jsoncpp/include -I../../../third_party/libpng -I../../../third_party/externals/libpng -I../../../third_party/externals/zlib -fstrict-aliasing -fPIC -Werror -march\u003dmips64 -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-implicit-fallthrough -Wno-unused-parameter -fdata-sections -ffunction-sections -O2 -g -std\u003dc++11 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type -c ../../../tests/SkNxTest.cpp -o obj/tests/tests.SkNxTest.o\n../../../tests/SkNxTest.cpp: In function ‘void test_Ni(skiatest::Reporter*) [with int N \u003d 8; T \u003d short unsigned int]’:\n../../../tests/SkNxTest.cpp:119:1: error: insn does not satisfy its constraints:\n }\n ^\n(insn 1810 1029 1798 2 (parallel [\n            (set (reg:SI 31 $31 [413])\n                (mult:SI (reg:SI 2 $2 [orig:280 _112 ] [280])\n                    (reg:SI 2 $2 [orig:280 _112 ] [280])))\n            (clobber (scratch:SI))\n        ]) ../../../src/core/SkNx.h:221 36 {mulsi3_mul3}\n     (nil))\n../../../tests/SkNxTest.cpp:119:1: internal compiler error: in extract_constrain_insn, at recog.c:2190\nPlease submit a full bug report,\nwith preprocessed source if appropriate.\nSee \u003cfile:///usr/share/doc/gcc-6/README.Bugs\u003e for instructions.",
+      "parentUuid": "964c0425_05515a4a",
       "range": {
         "startLine": 61,
         "startChar": 8,
