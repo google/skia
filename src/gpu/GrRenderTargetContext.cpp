@@ -1795,6 +1795,7 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
                                           &disallowSubrect)) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fConfig = rtProxy->config();
+        origin = rtProxy->origin();
     }
 
     if (!disallowSubrect) {
