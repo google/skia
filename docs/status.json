@@ -18,7 +18,6 @@
         "docs": [
             "SkAutoCanvasRestore_Reference.bmh",
             "SkCanvas_Reference.bmh",
-            "SkIPoint16_Reference.bmh",
             "SkPaint_Reference.bmh",
             "SkPoint_Reference.bmh",
             "SkIRect_Reference.bmh",
