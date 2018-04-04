@@ -215,7 +215,7 @@ config("default") {
     fyi_sanitizers = fyi_sanitize
     if (sanitize == "ASAN" || sanitize == "UBSAN") {
       # ASAN implicitly runs all UBSAN checks also.
-      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
+      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,address"
 
       if (fyi_sanitize == "" && !is_android) {
         fyi_sanitizers = "float-divide-by-zero"
