@@ -1326,7 +1326,7 @@ drawImage(textureImage, "backEndTexture");
 Retrieves the back-end API handle of texture. If flushPendingGrContextIO is true,
 complete deferred I/O operations.
 
-If origin in not nullptr, copies location of content drawn into Image.
+If origin is not nullptr, copies location of content drawn into Image.
 
 #Param flushPendingGrContextIO  flag to flush outstanding requests ##
 #Param origin  storage for one of: kTopLeft_GrSurfaceOrigin,
@@ -1382,6 +1382,32 @@ for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
                                 kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,
                                 nullptr));
     drawImage(textureImage, "backEndTexture");
+##
+
+#SeeAlso MakeFromTexture isTextureBacked
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
+                                           GrSurfaceOrigin* origin = nullptr) const
+#In Property
+#Line # returns GPU reference to Image as texture ##
+
+Retrieves the backend texture. If there is none an invalid object will be returned.
+If flushPendingGrContextIO is true, complete deferred I/O operations.
+
+If origin in not nullptr, copies location of content drawn into Image.
+
+#Param flushPendingGrContextIO  flag to flush outstanding requests ##
+#Param origin  storage for one of: kTopLeft_GrSurfaceOrigin,
+               kBottomLeft_GrSurfaceOrigin; or nullptr
+##
+
+#Return back-end API texture handle. Invalid on failure. ##
+
+#NoExample
 ##
 
 #SeeAlso MakeFromTexture isTextureBacked
