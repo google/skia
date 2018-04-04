@@ -409,6 +409,7 @@ private:
     friend class GrDirectContext; // To construct this object
     friend class GrContextPriv;   // for access to 'fOptions' in MakeDDL
     friend class GrDDLContext;    // to implement the GrDDLContext ctor (access to all members)
+    friend class SkSurfaceCharacterization; // for access to 'fContextUniqueID' for operator==
 
     typedef SkRefCnt INHERITED;
 };
