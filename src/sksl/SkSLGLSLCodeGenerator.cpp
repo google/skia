@@ -1264,7 +1264,11 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
                     this->writeLine();
                 } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
                            fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
-                    this->write("out ");
+                    if (fProgram.fSettings.fFragColorIsInOut) {
+                        this->write("inout ");
+                    } else {
+                        this->write("out ");
+                    }
                     if (usesPrecisionModifiers()) {
                         this->write("mediump ");
                     }
