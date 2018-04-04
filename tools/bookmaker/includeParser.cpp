@@ -161,6 +161,10 @@ bool IncludeParser::checkForWord() {
     switch (keyWord) {
         // these do not link to other # directives
         case KeyWord::kDefine:
+            if (!fInBrace) {
+                SkASSERT(!fInDefine);
+                fInDefine = true;
+            }
         case KeyWord::kInclude:
         case KeyWord::kError:
         break;
@@ -1919,6 +1923,9 @@ bool IncludeParser::parseChar() {
             if (fInString) {
                 return reportError<bool>("malformed string");
             }
+            if (fLineCount == 36) {
+                SkDebugf("");
+            }
             if (!this->checkForWord()) {
                 return false;
             }
@@ -1927,8 +1934,16 @@ bool IncludeParser::parseChar() {
                 if (KeyWord::kNone == keyWord) {
                     return this->reportError<bool>("unhandled preprocessor directive");
                 }
+                if (fInDefine) {
+                    SkASSERT(KeyWord::kDefine == keyWord);
+                    fInDefine = false;
+                }
                 if (KeyWord::kInclude == keyWord || KeyWord::kDefine == keyWord || KeyWord::kError == keyWord) {
                     this->popBracket();
+                }
+                if (fInBrace) {
+                    SkASSERT(KeyWord::kDefine == fInBrace->fKeyWord);
+                    fInBrace = false;
                 }
             } else if (Bracket::kSlashSlash == this->topBracket()) {
                 this->popBracket();
@@ -1986,15 +2001,18 @@ bool IncludeParser::parseChar() {
                 this->pushBracket(Bracket::kString);
             }
             break;
-        case ':':
         case '(':
-        case '[':
-        case '{': {
-            if (fIncludeWord && '(' == test && fChar - fIncludeWord >= 10 &&
+            if (fIncludeWord && fChar - fIncludeWord >= 10 &&
                     !strncmp("SkDEBUGCODE", fIncludeWord, 10)) {
                 this->pushBracket(Bracket::kDebugCode);
                 break;
             }
+            if (fInDefine) {
+                SkDebugf("");
+            }
+        case ':':
+        case '[':
+        case '{': {
             if (fInCharCommentString) {
                 break;
             }
@@ -2104,9 +2122,15 @@ bool IncludeParser::parseChar() {
             this->pushBracket(Bracket::kPound);
             break;
         }
+        case ' ':
+            if (fInDefine && !fInBrace && Bracket::kPound == this->topBracket()) {
+                SkASSERT(KeyWord::kDefine == fParent->fKeyWord);
+                fInBrace = fParent;
+                // delimiting brackets are space ... unescaped-linefeed
+ //               this->pushBracket(Bracket::kLinefeed);
+            }
         case '&':
         case ',':
-        case ' ':
         case '+':
         case '=':
         case '-':

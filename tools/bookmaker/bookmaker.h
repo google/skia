@@ -164,6 +164,8 @@ enum class Bracket {
     kPound,
     kColon,
     kDebugCode,  // parens get special treatment so SkDEBUGCODE( isn't treated as method
+    kLinefeed,   // #define creates functions and const values delimited by leading space and 
+                 // unescaped linefeed
 };
 
 enum class Punctuation {  // catch-all for misc symbols tracked in C
@@ -1671,6 +1673,7 @@ public:
         fInChar = false;
         fInCharCommentString = false;
         fInComment = false;
+        fInDefine = false;
         fInEnum = false;
         fInFunction = false;
         fInString = false;
@@ -1863,6 +1866,7 @@ protected:
     bool fInChar;
     bool fInCharCommentString;
     bool fInComment;
+    bool fInDefine;
     bool fInEnum;
     bool fInFunction;
     bool fInString;
@@ -1931,11 +1935,18 @@ public:
     };
 
     struct Preprocessor {
-        Preprocessor()
-            : fStart(nullptr)
-            , fEnd(nullptr)
-            , fWord(false) {
+        Preprocessor() {
+            reset();
         }
+
+        void reset() {
+            fDefinition = nullptr;
+            fStart = nullptr;
+            fEnd = nullptr;
+            fWord = false;
+        }
+
+        const Definition* fDefinition;
         const char* fStart;
         const char* fEnd;
         bool fWord;

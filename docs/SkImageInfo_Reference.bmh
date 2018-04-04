@@ -196,6 +196,12 @@ in the same order.
 #In Property
 #Line # returns if Alpha_Type equals kOpaque_SkAlphaType ##
 
+Returns true if Alpha_Type equals kOpaque_SkAlphaType. kOpaque_SkAlphaType is a
+hint that the Color_Type is opaque, or that all Color_Alpha values are set to
+their 1.0 equivalent. If Alpha_Type is kOpaque_SkAlphaType, and Color_Type is not
+opaque, then the result of drawing any pixel with a Color_Alpha value less than
+1.0 is undefined.
+
 #Param at one of: #list_of_alpha_types#
 ##
 #Return true if at equals kOpaque_SkAlphaType ##
