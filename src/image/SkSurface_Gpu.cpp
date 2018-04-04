@@ -72,6 +72,27 @@ bool SkSurface_Gpu::onGetRenderTargetHandle(GrBackendObject* obj, BackendHandleA
     return true;
 }
 
+GrBackendTexture SkSurface_Gpu::onGetBackendTexture(BackendHandleAccess access) {
+    GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    if (!rt) {
+        return GrBackendTexture(); // invalid
+    }
+    GrTexture* texture = rt->asTexture();
+    if (texture) {
+        return texture->getBackendTexture();
+    }
+    return GrBackendTexture(); // invalid
+}
+
+GrBackendRenderTarget SkSurface_Gpu::onGetBackendRenderTarget(BackendHandleAccess access) {
+    GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    if (!rt) {
+        return GrBackendRenderTarget(); // invalid
+    }
+
+    return rt->getBackendRenderTarget();
+}
+
 SkCanvas* SkSurface_Gpu::onNewCanvas() {
     SkCanvas::InitFlags flags = SkCanvas::kDefault_InitFlags;
     flags = static_cast<SkCanvas::InitFlags>(flags | SkCanvas::kConservativeRasterClip_InitFlag);
