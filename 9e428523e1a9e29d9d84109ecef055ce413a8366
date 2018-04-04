@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "623f7201_f5cd1011",
+        "filename": "bench/PathTextBench.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-04T19:04:27Z",
+      "side": 1,
+      "message": "line wrap",
+      "range": {
+        "startLine": 52,
+        "startChar": 12,
+        "endLine": 52,
+        "endChar": 37
+      },
+      "revId": "9e428523e1a9e29d9d84109ecef055ce413a8366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f76880e0_9b5c38d6",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-04T19:04:27Z",
+      "side": 1,
+      "message": "if (hasPath) {\n auto rawPath \u003d ...\n path-\u003ereadFromMemory...\n}",
+      "range": {
+        "startLine": 785,
+        "startChar": 36,
+        "endLine": 785,
+        "endChar": 45
+      },
+      "revId": "9e428523e1a9e29d9d84109ecef055ce413a8366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
