@@ -47,6 +47,10 @@ public:
 
     SkSurfaceCharacterization(const SkSurfaceCharacterization&) = default;
     SkSurfaceCharacterization& operator=(const SkSurfaceCharacterization& other) = default;
+    bool operator==(const SkSurfaceCharacterization& other) const;
+    bool operator!=(const SkSurfaceCharacterization& other) const {
+        return !(*this == other);
+    }
 
     SkSurfaceCharacterization createResized(int width, int height) const {
         const GrCaps* caps = fContextInfo->caps();
@@ -160,6 +164,11 @@ public:
 
     SkSurfaceCharacterization createResized(int width, int height) const {
         return *this;
+    }
+
+    bool operator==(const SkSurfaceCharacterization& other) const { return false; }
+    bool operator!=(const SkSurfaceCharacterization& other) const {
+        return !(*this == other);
     }
 
     size_t cacheMaxResourceBytes() const { return 0; }

@@ -302,6 +302,7 @@ skia_core_sources = [
   "$_src/core/SkStrokeRec.cpp",
   "$_src/core/SkStrokerPriv.cpp",
   "$_src/core/SkStrokerPriv.h",
+  "$_src/core/SkSurfaceCharacterization.cpp",
   "$_src/core/SkSurfacePriv.h",
   "$_src/core/SkSwizzle.cpp",
   "$_src/core/SkSRGB.cpp",
