@@ -24,6 +24,36 @@
 
 SkDEBUGCODE(int32_t gRgnAllocCounter;)
 
+namespace {
+class InfiniteVector {
+public:
+    using ValueType = SkRegion::RunType;
+    using VecType = SkSTArray<256, ValueType, true>;
+    InfiniteVector() : fArray(nullptr), fOffset(0) {}
+    InfiniteVector(VecType* ptr, int offset) : fArray(ptr), fOffset(offset) { SkASSERT(ptr); }
+    InfiniteVector(const InfiniteVector&) = default;
+    InfiniteVector& operator=(const InfiniteVector&) = default;
+
+    InfiniteVector operator++(int) { return InfiniteVector(fArray, fOffset++); }
+    InfiniteVector operator+(int i) const { return InfiniteVector{fArray, fOffset + i}; }
+    InfiniteVector operator+(size_t s) const { return *this + SkToInt(s); }
+    size_t operator-(const InfiniteVector& o) const { return SkToSizeT(fOffset - o.fOffset); }
+    ValueType& operator[](int i) {
+        SkASSERT(fArray);
+        int offset = fOffset + i;
+        if (offset >= fArray->count()) {
+            fArray->push_back_n(offset - fArray->count() + 1);
+        }
+        return (*fArray)[offset];
+    }
+    ValueType& operator*() { return (*this)[0]; }
+    const ValueType* get() { return &(*this)[0]; }
+
+private:
+    VecType* fArray;
+    int fOffset;
+};
+}  // namespace
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*  Pass in the beginning with the intervals.
@@ -707,10 +737,10 @@ struct spanRec {
     }
 };
 
-static SkRegion::RunType* operate_on_span(const SkRegion::RunType a_runs[],
-                                          const SkRegion::RunType b_runs[],
-                                          SkRegion::RunType dst[],
-                                          int min, int max) {
+static InfiniteVector operate_on_span(const SkRegion::RunType a_runs[],
+                                      const SkRegion::RunType b_runs[],
+                                      InfiniteVector dst,
+                                      int min, int max) {
     spanRec rec;
     bool    firstInterval = true;
 
@@ -756,7 +786,7 @@ static const struct {
 
 class RgnOper {
 public:
-    RgnOper(int top, SkRegion::RunType dst[], SkRegion::Op op) {
+    RgnOper(int top, InfiniteVector dst, SkRegion::Op op) {
         // need to ensure that the op enum lines up with our minmax array
         SkASSERT(SkRegion::kDifference_Op == 0);
         SkASSERT(SkRegion::kIntersect_Op == 1);
@@ -776,15 +806,15 @@ public:
     void addSpan(int bottom, const SkRegion::RunType a_runs[],
                  const SkRegion::RunType b_runs[]) {
         // skip X values and slots for the next Y+intervalCount
-        SkRegion::RunType*  start = fPrevDst + fPrevLen + 2;
+        InfiniteVector start = fPrevDst + fPrevLen + 2;
         // start points to beginning of dst interval
-        SkRegion::RunType*  stop = operate_on_span(a_runs, b_runs, start, fMin, fMax);
-        size_t              len = stop - start;
+        InfiniteVector stop = operate_on_span(a_runs, b_runs, start, fMin, fMax);
+        size_t len = stop - start;
         SkASSERT(len >= 1 && (len & 1) == 1);
         SkASSERT(SkRegion::kRunTypeSentinel == stop[-1]);
 
         if (fPrevLen == len &&
-            (1 == len || !memcmp(fPrevDst, start,
+            (1 == len || !memcmp(fPrevDst.get(), start.get(),
                                  (len - 1) * sizeof(SkRegion::RunType)))) {
             // update Y value
             fPrevDst[-2] = (SkRegion::RunType)(bottom);
@@ -811,10 +841,10 @@ public:
     uint8_t fMin, fMax;
 
 private:
-    SkRegion::RunType*  fStartDst;
-    SkRegion::RunType*  fPrevDst;
-    size_t              fPrevLen;
-    SkRegion::RunType   fTop;
+    InfiniteVector    fStartDst;
+    InfiniteVector    fPrevDst;
+    size_t            fPrevLen;
+    SkRegion::RunType fTop;
 };
 
 // want a unique value to signal that we exited due to quickExit
@@ -822,7 +852,7 @@ private:
 
 static int operate(const SkRegion::RunType a_runs[],
                    const SkRegion::RunType b_runs[],
-                   SkRegion::RunType dst[],
+                   InfiniteVector dst,
                    SkRegion::Op op,
                    bool quickExit) {
     const SkRegion::RunType gEmptyScanline[] = {
@@ -947,26 +977,6 @@ static int count_to_intervals(int count) {
 }
 #endif
 
-/*  Given a number of intervals, what is the worst case representation of that
-    many intervals?
-
-    Worst case (from a storage perspective), is a vertical stack of single
-    intervals:  TOP + N * (BOTTOM INTERVALCOUNT LEFT RIGHT SENTINEL) + SENTINEL
- */
-static int intervals_to_count(int intervals) {
-    return 1 + intervals * 5 + 1;
-}
-
-/*  Given the intervalCounts of RunTypes in two regions, return the worst-case number
-    of RunTypes need to store the result after a region-op.
- */
-static int compute_worst_case_count(int a_intervals, int b_intervals) {
-    // Our heuristic worst case is ai * (bi + 1) + bi * (ai + 1)
-    int intervals = 2 * a_intervals * b_intervals + a_intervals + b_intervals;
-    // convert back to number of RunType values
-    return intervals_to_count(intervals);
-}
-
 static bool setEmptyCheck(SkRegion* result) {
     return result ? result->setEmpty() : false;
 }
@@ -1069,20 +1079,14 @@ bool SkRegion::Oper(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op,
     const RunType* a_runs = rgna->getRuns(tmpA, &a_intervals);
     const RunType* b_runs = rgnb->getRuns(tmpB, &b_intervals);
 
-    int dstCount = compute_worst_case_count(a_intervals, b_intervals);
-    SkAutoSTMalloc<256, RunType> array(dstCount);
+    SkSTArray<256, SkRegion::RunType, true> array;
 
-#ifdef SK_DEBUG
-//  Sometimes helpful to seed everything with a known value when debugging
-//  sk_memset32((uint32_t*)array.get(), 0x7FFFFFFF, dstCount);
-#endif
-
-    int count = operate(a_runs, b_runs, array.get(), op, nullptr == result);
-    SkASSERT(count <= dstCount);
+    int count = operate(a_runs, b_runs, InfiniteVector{&array, 0}, op, nullptr == result);
+    SkASSERT(count <= array.count());
 
     if (result) {
         SkASSERT(count >= 0);
-        return result->setRuns(array.get(), count);
+        return result->setRuns(array.begin(), count);
     } else {
         return (QUICK_EXIT_TRUE_COUNT == count) || !isRunCountEmpty(count);
     }
