@@ -22,6 +22,30 @@
       "revId": "aaec58ffe92a6110a7aae5e9a74ea6a6a4b09fa1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02f33c98_4b08db68",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-04T12:56:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91419f89_5b7824b1",
+      "range": {
+        "startLine": 36,
+        "startChar": 19,
+        "endLine": 36,
+        "endChar": 31
+      },
+      "revId": "aaec58ffe92a6110a7aae5e9a74ea6a6a4b09fa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
