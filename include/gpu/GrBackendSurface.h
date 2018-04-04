@@ -16,6 +16,24 @@
 #include "vk/GrVkTypes.h"
 #endif
 
+#if !SK_SUPPORT_GPU
+
+// SkSurface and SkImage rely on a minimal version of these always being available
+class SK_API GrBackendTexture {
+public:
+    GrBackendTexture() {}
+
+    bool isValid() const { return false; }
+};
+
+class SK_API GrBackendRenderTarget {
+public:
+    GrBackendRenderTarget() {}
+
+    bool isValid() const { return false; }
+};
+#else
+
 class SK_API GrBackendFormat {
 public:
     // Creates an invalid backend format.
@@ -239,7 +257,11 @@ public:
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
+
+#if GR_TEST_UTILS
     GrPixelConfig testingOnly_getPixelConfig() const;
+    static bool TestingOnly_Equals(const GrBackendRenderTarget&, const GrBackendRenderTarget&);
+#endif
 
 private:
     // Friending for access to the GrPixelConfig
@@ -269,6 +291,8 @@ private:
         GrMockRenderTargetInfo fMockInfo;
     };
 };
+
+#endif
 
 #endif
 
