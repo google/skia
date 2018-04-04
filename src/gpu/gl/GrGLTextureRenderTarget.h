@@ -39,6 +39,7 @@ public:
                                                       const GrGLTexture::IDDesc& texIDDesc,
                                                       const GrGLRenderTarget::IDDesc& rtIDDesc,
                                                       GrMipMapsStatus);
+
 protected:
     void onAbandon() override {
         GrGLRenderTarget::onAbandon();
