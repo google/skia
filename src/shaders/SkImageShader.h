@@ -48,8 +48,6 @@ private:
 #endif
     SkImage* onIsAImage(SkMatrix*, SkShader::TileMode*) const override;
 
-    bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override;
-
     bool onAppendStages(const StageRec&) const override;
 
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
