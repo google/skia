@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b4079a4_58ae5ec1",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 15
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-04T14:15:24Z",
+      "side": 1,
+      "message": "Let\u0027s make sure these -EL are not the default?  Try something like this?\n\n   gcc -march\u003dloongson3a -dM -E - \u003c/dev/null | grep ENDIAN\n\n?  We should either see __LITTLE_ENDIAN__ or __BIG_ENDIAN__ defined, I think, and we won\u0027t need to do -EL if __LITTLE_ENDIAN__ is already defined.",
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32dacc8e_4ec8281e",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 15
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-04T14:15:24Z",
+      "side": 1,
+      "message": "Does skcms not compile without this?",
+      "range": {
+        "startLine": 123,
+        "startChar": 6,
+        "endLine": 123,
+        "endChar": 25
+      },
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c633e0d8_361f45ae",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 15
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-04T14:15:24Z",
+      "side": 1,
+      "message": "It\u0027s somewhat unusual---but not unheard of---to have to pass -march in ldflags.  Double check we need it?",
+      "range": {
+        "startLine": 126,
+        "startChar": 7,
+        "endLine": 126,
+        "endChar": 25
+      },
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1dba7f3_87739a66",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 15
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-04T14:15:24Z",
+      "side": 1,
+      "message": "FWIW, Clang can probably do mips64el just fine too, swapping out the compiler but still using the rest of the toolchain you created.  (clang -target mips64el-linux ...)\n\nNot sure about -march\u003dloongson3a, but suspect no.",
+      "range": {
+        "startLine": 551,
+        "startChar": 17,
+        "endLine": 551,
+        "endChar": 42
+      },
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "964c0425_05515a4a",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-04T14:15:24Z",
+      "side": 1,
+      "message": "Let\u0027s add mips64el bots too?  Always nice to have the bots running if we can, and might help differentially diagnose loongson3a issues.",
+      "range": {
+        "startLine": 61,
+        "startChar": 8,
+        "endLine": 61,
+        "endChar": 35
+      },
+      "revId": "3f971c24ca5a244c00e1f1936dcd752fd88cc91b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
