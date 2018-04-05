@@ -2338,7 +2338,7 @@ int main(int argc, char** const argv) {
         }
         if (FLAGS_tokens) {
             includeParser.fDebugOut = FLAGS_stdout;
-            if (includeParser.dumpTokens(FLAGS_bmh[0])) {
+            if (includeParser.dumpTokens()) {
                 bmhParser.fWroteOut = true;
             }
             done = true;

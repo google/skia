@@ -1582,10 +1582,10 @@ public:
     void dumpClassTokens(IClassDefinition& classDef);
     void dumpComment(const Definition& );
     void dumpEnum(const Definition& , const string& name);
-    void dumpMethod(const Definition& );
+    void dumpMethod(const Definition& , string className);
     void dumpMember(const Definition& );
-    bool dumpTokens(const string& directory);
-    bool dumpTokens(const string& directory, const string& skClassName);
+    bool dumpTokens();
+    bool dumpTokens(const string& skClassName);
     bool findComments(const Definition& includeDef, Definition* markupDef);
 
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
@@ -1615,7 +1615,10 @@ public:
     }
 
     static KeyWord FindKey(const char* start, const char* end);
-    bool internalName(const Definition& ) const;
+    bool isClone(const Definition& token);
+    bool isConstructor(const Definition& token, string className);
+    bool isInternalName(const Definition& token);
+    bool isOperator(const Definition& token);
     bool parseChar();
     bool parseComment(const string& filename, const char* start, const char* end, int lineCount,
             Definition* markupDef);
@@ -1671,6 +1674,7 @@ public:
         fInChar = false;
         fInCharCommentString = false;
         fInComment = false;
+        fInDefine = false;
         fInEnum = false;
         fInFunction = false;
         fInString = false;
@@ -1863,6 +1867,7 @@ protected:
     bool fInChar;
     bool fInCharCommentString;
     bool fInComment;
+    bool fInDefine;
     bool fInEnum;
     bool fInFunction;
     bool fInString;
@@ -1943,7 +1948,6 @@ public:
         }
 
         const Definition* fDefinition;
-        const Definition* fBracket;
         const char* fStart;
         const char* fEnd;
         bool fWord;
