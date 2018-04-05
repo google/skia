@@ -12,20 +12,36 @@
 #include "SkMakeUnique.h"
 #include "ccpr/GrCCCubicShader.h"
 #include "ccpr/GrCCQuadraticShader.h"
-#include "ccpr/GrCCTriangleShader.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-void GrCCCoverageProcessor::Shader::emitFragmentCode(const GrCCCoverageProcessor& proc,
-                                                     GrGLSLFPFragmentBuilder* f,
-                                                     const char* skOutputColor,
-                                                     const char* skOutputCoverage) const {
-    f->codeAppendf("half coverage = 0;");
-    this->onEmitFragmentCode(f, "coverage");
-    f->codeAppendf("%s.a = coverage;", skOutputColor);
-    f->codeAppendf("%s = half4(1);", skOutputCoverage);
-}
+class GrCCCoverageProcessor::TriangleShader : public GrCCCoverageProcessor::Shader {
+    void onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
+                        SkString* code, const char* position, const char* coverage,
+                        const char* cornerCoverage) override {
+        if (!cornerCoverage) {
+            fCoverages.reset(kHalf_GrSLType, scope);
+            varyingHandler->addVarying("coverage", &fCoverages);
+            code->appendf("%s = %s;", OutName(fCoverages), coverage);
+        } else {
+            fCoverages.reset(kHalf3_GrSLType, scope);
+            varyingHandler->addVarying("coverages", &fCoverages);
+            code->appendf("%s = half3(%s, %s);", OutName(fCoverages), coverage, cornerCoverage);
+        }
+    }
+
+    void onEmitFragmentCode(GrGLSLFPFragmentBuilder* f, const char* outputCoverage) const override {
+        if (kHalf_GrSLType == fCoverages.type()) {
+            f->codeAppendf("%s = %s;", outputCoverage, fCoverages.fsIn());
+        } else {
+            f->codeAppendf("%s = %s.z * %s.y + %s.x;",
+                           outputCoverage, fCoverages.fsIn(), fCoverages.fsIn(), fCoverages.fsIn());
+        }
+    }
+
+    GrGLSLVarying fCoverages;
+};
 
 void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder* s,
                                                              const char* leftPt,
@@ -92,10 +108,9 @@ void GrCCCoverageProcessor::Shader::CalcEdgeCoveragesAtBloatVertices(GrGLSLVerte
     s->codeAppendf("}");
 }
 
-void GrCCCoverageProcessor::Shader::CalcCornerCoverageAttenuation(GrGLSLVertexGeoBuilder* s,
-                                                                  const char* leftDir,
-                                                                  const char* rightDir,
-                                                                  const char* outputAttenuation) {
+void GrCCCoverageProcessor::Shader::CalcCornerAttenuation(GrGLSLVertexGeoBuilder* s,
+                                                          const char* leftDir, const char* rightDir,
+                                                          const char* outputAttenuation) {
     // obtuseness = cos(corner_angle)  if corner_angle > 90 degrees
     //                              0  if corner_angle <= 90 degrees
     s->codeAppendf("half obtuseness = max(dot(%s, %s), 0);", leftDir, rightDir);
@@ -153,7 +168,7 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
     std::unique_ptr<Shader> shader;
     switch (fPrimitiveType) {
         case PrimitiveType::kTriangles:
-            shader = skstd::make_unique<GrCCTriangleShader>();
+            shader = skstd::make_unique<TriangleShader>();
             break;
         case PrimitiveType::kQuadratics:
             shader = skstd::make_unique<GrCCQuadraticShader>();
@@ -164,6 +179,16 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
     }
     return Impl::kGeometryShader == fImpl ? this->createGSImpl(std::move(shader))
                                           : this->createVSImpl(std::move(shader));
+}
+
+void GrCCCoverageProcessor::Shader::emitFragmentCode(const GrCCCoverageProcessor& proc,
+                                                     GrGLSLFPFragmentBuilder* f,
+                                                     const char* skOutputColor,
+                                                     const char* skOutputCoverage) const {
+    f->codeAppendf("half coverage = 0;");
+    this->onEmitFragmentCode(f, "coverage");
+    f->codeAppendf("%s.a = coverage;", skOutputColor);
+    f->codeAppendf("%s = half4(1);", skOutputCoverage);
 }
 
 void GrCCCoverageProcessor::draw(GrOpFlushState* flushState, const GrPipeline& pipeline,
