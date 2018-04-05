@@ -27,12 +27,13 @@ def RunSteps(api):
     extra_arg = '--svgs %s --skps %s' % (api.flavor.device_dirs.svg_dir,
                                          api.flavor.device_dirs.skp_dir)
 
-    # measuring multi-picture-draw in our multi-threaded CPU test is inaccurate
-    if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+    if api.vars.is_gpu:
+      config = "gl"
+    else:
+      # measuring multi-picture-draw in our multi-threaded CPU test is
+      # inaccurate
       extra_arg += ' --mpd false'
       config = "8888"
-    else:
-      config = "gl"
 
     command = [
         'python',

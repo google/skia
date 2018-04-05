@@ -175,6 +175,12 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name
 
   @property
+  def is_gpu(self):
+    if 'SwiftShader' in self.extra_tokens:
+      return True
+    return self.builder_cfg.get('cpu_or_gpu') == 'GPU'
+
+  @property
   def upload_dm_results(self):
     # TODO(borenet): Move this into the swarm_test recipe.
     skip_upload_bots = [

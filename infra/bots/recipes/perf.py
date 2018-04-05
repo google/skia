@@ -30,7 +30,7 @@ DEPS = [
 def nanobench_flags(api, bot):
   args = ['--pre_log']
 
-  if 'GPU' in bot:
+  if api.vars.is_gpu:
     args.append('--images')
     args.extend(['--gpuStatsDump', 'true'])
 
@@ -40,18 +40,7 @@ def nanobench_flags(api, bot):
     args.extend(['--skps', 'ignore_skps'])
 
   configs = []
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
-    args.append('--nogpu')
-    configs.extend(['8888', 'nonrendering'])
-
-    if '-arm-' not in bot:
-      # For Android CPU tests, these take too long and cause the task to time
-      # out.
-      configs += [ 'f16', 'srgb' ]
-    if '-GCE-' in bot:
-      configs += [ '565' ]
-
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+  if api.vars.is_gpu:
     args.append('--nocpu')
 
     gl_prefix = 'gl'
@@ -113,6 +102,18 @@ def nanobench_flags(api, bot):
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
       configs = ['gles']
+
+  else:  # not is_gpu
+    args.append('--nogpu')
+    configs.extend(['8888', 'nonrendering'])
+
+    if '-arm-' not in bot:
+      # For Android CPU tests, these take too long and cause the task to time
+      # out.
+      configs += [ 'f16', 'srgb' ]
+    if '-GCE-' in bot:
+      configs += [ '565' ]
+
 
   args.append('--config')
   args.extend(configs)
@@ -192,7 +193,7 @@ def nanobench_flags(api, bot):
     match.append('~top25desk_ebay.skp_1.1_mpd')
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~blendmode_') # skia:6691
-  if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
+  if ('ASAN' in bot or 'UBSAN' in bot) and not api.vars.is_gpu:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
 
@@ -266,10 +267,10 @@ def perf_steps(api):
   if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
     # Due to limited disk space, run a watered down perf run on Chromecast.
     args = [target]
-    if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
-      args.extend(['--nogpu', '--config', '8888'])
-    elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+    if api.vars.is_gpu:
       args.extend(['--nocpu', '--config', 'gles'])
+    else:
+      args.extend(['--nogpu', '--config', '8888'])
     args.extend([
       '-i', api.flavor.device_dirs.resource_dir,
       '--images', api.flavor.device_path_join(
