@@ -289,9 +289,6 @@ bool SkBlurMaskFilterImpl::asABlur(BlurRec* rec) const {
     if (rec) {
         rec->fSigma = fSigma;
         rec->fStyle = fBlurStyle;
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
-        rec->fQuality = kHigh_SkBlurQuality;
-#endif
     }
     return true;
 }

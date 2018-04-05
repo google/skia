@@ -155,9 +155,6 @@ public:
     struct BlurRec {
         SkScalar        fSigma;
         SkBlurStyle     fStyle;
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
-        SkBlurQuality   fQuality;
-#endif
     };
     /**
      *  If this filter can be represented by a BlurRec, return true and (if not null) fill in the

@@ -18,35 +18,6 @@ class SkRRect;
 
 class SK_API SkBlurMaskFilter {
 public:
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
-    enum BlurFlags {
-        kNone_BlurFlag              = 0x00,
-        /** The blur layer's radius is not affected by transforms */
-        kIgnoreTransform_BlurFlag   = 0x01,
-        /** Use a smother, higher qulity blur algorithm */
-        kHighQuality_BlurFlag       = 0x02,
-        /** mask for all blur flags */
-        kAll_BlurFlag               = 0x03
-    };
-
-    /** Create a blur maskfilter.
-     *  @param style     The SkBlurStyle to use
-     *  @param sigma     Standard deviation of the Gaussian blur to apply. Must be > 0.
-     *  @param occluder  The rect for which no pixels need be drawn (b.c. it will be overdrawn
-     *                   with some opaque object. This is just a hint which backends are free to
-     *                   ignore.
-     *  @param flags     Flags to use - defaults to none
-     *  @return The new blur maskfilter
-     */
-    static sk_sp<SkMaskFilter> Make(SkBlurStyle style, SkScalar sigma,
-                                    const SkRect& occluder, uint32_t flags = kNone_BlurFlag);
-
-    static sk_sp<SkMaskFilter> Make(SkBlurStyle style, SkScalar sigma,
-                                    uint32_t flags = kNone_BlurFlag) {
-        return Make(style, sigma, SkRect::MakeEmpty(), flags);
-    }
-#endif
-
 #ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
     /** Create an emboss maskfilter
         @param blurSigma    standard deviation of the Gaussian blur to apply
@@ -58,11 +29,6 @@ public:
     */
     static sk_sp<SkMaskFilter> MakeEmboss(SkScalar blurSigma, const SkScalar direction[3],
                                           SkScalar ambient, SkScalar specular);
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
-private:
-    SkBlurMaskFilter(); // can't be instantiated
 #endif
 };
 

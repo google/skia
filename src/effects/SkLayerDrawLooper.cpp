@@ -204,9 +204,6 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
         bsRec->fOffset = fRecs->fInfo.fOffset;
         bsRec->fColor = fRecs->fPaint.getColor();
         bsRec->fStyle = maskBlur.fStyle;
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
-        bsRec->fQuality = maskBlur.fQuality;
-#endif
     }
     return true;
 }

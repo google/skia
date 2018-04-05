@@ -383,9 +383,6 @@ static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma, Sk
             REPORTER_ASSERT(reporter, rec.fOffset.y() == dy);
             REPORTER_ASSERT(reporter, rec.fColor == color);
             REPORTER_ASSERT(reporter, rec.fStyle == style);
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
-            REPORTER_ASSERT(reporter, rec.fQuality == kHigh_SkBlurQuality);
-#endif
         }
     }
 }
@@ -401,9 +398,6 @@ static void test_looper(skiatest::Reporter* reporter, sk_sp<SkDrawLooper> lp, Sk
     if (success) {
         REPORTER_ASSERT(reporter, rec.fSigma == sigma);
         REPORTER_ASSERT(reporter, rec.fStyle == style);
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
-        REPORTER_ASSERT(reporter, rec.fQuality == kHigh_SkBlurQuality);
-#endif
     }
 }
 
@@ -478,9 +472,6 @@ DEF_TEST(BlurAsABlur, reporter) {
                         REPORTER_ASSERT(reporter, success);
                         REPORTER_ASSERT(reporter, rec.fSigma == sigma);
                         REPORTER_ASSERT(reporter, rec.fStyle == style);
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
-                        REPORTER_ASSERT(reporter, rec.fQuality == kHigh_SkBlurQuality);
-#endif
                     } else {
                         REPORTER_ASSERT(reporter, !success);
                     }
