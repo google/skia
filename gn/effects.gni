@@ -17,7 +17,6 @@ skia_effects_sources = [
   "$_src/effects/Sk2DPathEffect.cpp",
   "$_src/effects/SkAlphaThresholdFilter.cpp",
   "$_src/effects/SkArithmeticImageFilter.cpp",
-  "$_src/effects/SkBlurMaskFilter.cpp",
   "$_src/effects/SkColorFilterImageFilter.cpp",
   "$_src/effects/SkColorMatrix.cpp",
   "$_src/effects/SkColorMatrixFilter.cpp",
