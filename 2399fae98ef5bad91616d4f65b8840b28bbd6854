@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "537b28a0_41268d1e",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2375,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-05T14:20:49Z",
+      "side": 1,
+      "message": "Error err \u003d draw_to_canvas(...), here and below?",
+      "revId": "2399fae98ef5bad91616d4f65b8840b28bbd6854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
