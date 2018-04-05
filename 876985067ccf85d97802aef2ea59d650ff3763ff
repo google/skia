@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29d9fb0b_21c5bdcf",
+        "filename": "docs/SkSurface_Reference.bmh",
+        "patchSetId": 13
+      },
+      "lineNbr": 1096,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-04-05T12:52:44Z",
+      "side": 1,
+      "message": "add: Call GrBackendTexture::isValid to determine if the result\nis valid.",
+      "range": {
+        "startLine": 1096,
+        "startChar": 23,
+        "endLine": 1096,
+        "endChar": 27
+      },
+      "revId": "876985067ccf85d97802aef2ea59d650ff3763ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "855f1355_83f252f1",
+        "filename": "docs/SkSurface_Reference.bmh",
+        "patchSetId": 13
+      },
+      "lineNbr": 1099,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-04-05T12:52:44Z",
+      "side": 1,
+      "message": "I\u0027m going to guess that GrBackendTexture::isValid isn\u0027t going to tell us that the result is no longer valid. :(  Maybe \"is only valid\" here could be replaced with other words to distinguish between the two validities?",
+      "revId": "876985067ccf85d97802aef2ea59d650ff3763ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1fc9474_373aaba1",
+        "filename": "docs/SkSurface_Reference.bmh",
+        "patchSetId": 13
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-04-05T12:52:44Z",
+      "side": 1,
+      "message": "If you want to get fancy, I can show you how to replace this with a common definition so that it stays up to date if the enum is edited. Search for #PhraseDef in docs for examples.",
+      "revId": "876985067ccf85d97802aef2ea59d650ff3763ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
