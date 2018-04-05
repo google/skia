@@ -42,6 +42,8 @@ protected:
     void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                     const SkPaint&) override;
 
+    sk_sp<SkSpecialImage> snapSpecial() override;
+
     void flush() override;
 
 private:
