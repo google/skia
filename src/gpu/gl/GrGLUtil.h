@@ -162,7 +162,7 @@ GrGLVersion GrGLGetVersionFromString(const char* versionString);
 GrGLStandard GrGLGetStandardInUseFromString(const char* versionString);
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 GrGLVendor GrGLGetVendorFromString(const char* vendorString);
-GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString, const GrGLExtensions&);
+GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString, const char* extensionString);
 void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend*,
                                 GrGLANGLEVendor*, GrGLANGLERenderer*);
 
