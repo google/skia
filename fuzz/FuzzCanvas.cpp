@@ -1282,6 +1282,9 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 SkRect r;
                 fuzz->next(&r);
+                if (!r.isFinite()) {
+                    break;
+                }
                 canvas->drawRect(r, paint);
                 break;
             }
@@ -1296,6 +1299,9 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 SkRect r;
                 fuzz->next(&r);
+                if (!r.isFinite()) {
+                    break;
+                }
                 canvas->drawOval(r, paint);
                 break;
             }
