@@ -33,6 +33,8 @@ public:
      */
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
+    SkEncodedInfo::Color encodedJpegColor() const { return this->getEncodedInfo().color(); }
+
 protected:
 
     /*
