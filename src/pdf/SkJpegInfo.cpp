@@ -8,6 +8,36 @@
 #include "SkData.h"
 #include "SkJpegInfo.h"
 
+#if SK_HAS_JPEG_LIBRARY
+
+#include "SkJpegCodec.h"
+
+bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
+    SkASSERT(info);
+    SkEncodedInfo::Color colorType;
+    SkEncodedOrigin orientation;
+    if (!skdata || !SkJpegCodec::IsJpeg(skdata->data(), skdata->size(),
+                                        &info->fSize, &colorType, &orientation)) {
+        return false;
+    }
+    if (kTopLeft_SkEncodedOrigin != orientation) {
+        return false;
+    }
+    switch (colorType) {
+        case SkEncodedInfo::kGray_Color:
+            info->fType = SkJFIFInfo::kGrayscale;
+            return true;
+        case SkEncodedInfo::kYUV_Color:
+            info->fType = SkJFIFInfo::kYCbCr;
+            return true;
+        default:
+            return false;
+    }
+    return false;
+}
+
+#else
+
 namespace {
 class JpegSegment {
 public:
@@ -117,3 +147,4 @@ bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
     }
     return true;
 }
+#endif  // SK_HAS_JPEG_LIBRARY
