@@ -1444,8 +1444,11 @@ back-end API texture handle, or nullptr
 GrBackendTexture getBackendTexture(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const
 </pre>
 
-Retrieves the backend texture. If there is none an invalid object will be returned.
-If <a href="#SkImage_getBackendTexture_flushPendingGrContextIO">flushPendingGrContextIO</a> is true, complete deferred I/O operations.
+Retrieves the backend texture. If <a href="#Image">Image</a> has no backend texture, an invalid
+object is returned. Call <a href="undocumented#GrBackendTexture_isValid">GrBackendTexture::isValid</a> to determine if the result
+is valid.
+
+If <a href="#SkImage_getBackendTexture_flushPendingGrContextIO">flushPendingGrContextIO</a> is true, completes deferred I/O operations.
 
 If <a href="#SkImage_getBackendTexture_origin">origin</a> in not nullptr, copies location of content drawn into <a href="#Image">Image</a>.
 
@@ -1460,6 +1463,12 @@ storage for one of: <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrS
 </table>
 
 ### Return Value
+
+back-end API texture handle; invalid on failure
+
+### Example
+
+<div><fiddle-embed name="d093aad721261f421c4bef4a296aab48" gpu="true"></fiddle-embed></div>
 
 ### See Also
 

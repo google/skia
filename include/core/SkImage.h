@@ -544,16 +544,19 @@ public:
                                      GrSurfaceOrigin* origin = nullptr) const;
 
 #if GR_TEST_UTILS
-    /** Retrieves the backend texture. If there is none an invalid object will be returned.
-        If flushPendingGrContextIO is true, complete deferred I/O operations.
+    /** Retrieves the backend texture. If SkImage has no backend texture, an invalid
+        object is returned. Call GrBackendTexture::isValid to determine if the result
+        is valid.
 
-        If origin is not nullptr, copies location of content drawn into SkImage.
+        If flushPendingGrContextIO is true, completes deferred I/O operations.
+
+        If origin in not nullptr, copies location of content drawn into SkImage.
 
         @param flushPendingGrContextIO  flag to flush outstanding requests
         @param origin                   storage for one of: kTopLeft_GrSurfaceOrigin,
                                         kBottomLeft_GrSurfaceOrigin; or nullptr
-        @return                         back-end API texture handle. Invalid on failure.
-     */
+        @return                         back-end API texture handle; invalid on failure
+    */
     GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
                                        GrSurfaceOrigin* origin = nullptr) const;
 #endif
