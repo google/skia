@@ -15,6 +15,7 @@
 #include "SkottieSlide.h"
 #include "SKPSlide.h"
 #include "SlideDir.h"
+#include "SvgSlide.h"
 
 #include "GrContext.h"
 #include "SkCanvas.h"
@@ -575,6 +576,21 @@ void Viewer::initSlides() {
         if (!dirSlides.empty()) {
             fSlides.push_back(sk_make_sp<SlideDir>(SkStringPrintf("skottie-dir[%s]", json.c_str()),
                                                    std::move(dirSlides)));
+        }
+    }
+
+    // SVGs
+    for (const auto& svg : FLAGS_svgs) {
+        SkOSFile::Iter it(svg.c_str(), ".svg");
+
+        SkString svgName;
+        while (it.next(&svgName)) {
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, svgName.c_str())) {
+                continue;
+            }
+            auto slide = sk_make_sp<SvgSlide>(svgName, SkOSPath::Join(svg.c_str(),
+                                                                      svgName.c_str()));
+            fSlides.push_back(std::move(slide));
         }
     }
 }

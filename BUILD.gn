@@ -1693,7 +1693,7 @@ if (skia_enable_tools) {
     deps = [
       ":flags",
       ":skia",
-      ":tool_utils"
+      ":tool_utils",
     ]
   }
 
@@ -2014,6 +2014,7 @@ if (skia_enable_tools) {
         "tools/viewer/SkottieSlide.cpp",
         "tools/viewer/SlideDir.cpp",
         "tools/viewer/StatsLayer.cpp",
+        "tools/viewer/SvgSlide.cpp",
         "tools/viewer/Viewer.cpp",
       ]
       libs = []
@@ -2022,6 +2023,7 @@ if (skia_enable_tools) {
       deps = [
         ":experimental_skottie",
         ":experimental_sksg",
+        ":experimental_svg_model",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
