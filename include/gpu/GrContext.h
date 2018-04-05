@@ -207,6 +207,16 @@ public:
     const GrCaps* caps() const { return fCaps.get(); }
 
     /**
+     * Gets the maximum supported texture size.
+     */
+    int maxTextureSize() const;
+
+    /**
+     * Gets the maximum supported render target size.
+     */
+    int maxRenderTargetSize() const;
+
+    /**
      * Can a SkImage be created with the given color type.
      */
     bool colorTypeSupportedAsImage(SkColorType) const;
