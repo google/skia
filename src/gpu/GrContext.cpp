@@ -308,6 +308,10 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
+
+int GrContext::maxRenderTargetSize() const { return this->caps()->maxRenderTargetSize(); }
+
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
     GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *this->caps());
     return this->caps()->isConfigTexturable(config);
