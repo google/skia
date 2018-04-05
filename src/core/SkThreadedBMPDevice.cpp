@@ -9,6 +9,7 @@
 
 #include "SkPath.h"
 #include "SkRectPriv.h"
+#include "SkSpecialImage.h"
 #include "SkTaskGroup.h"
 #include "SkVertices.h"
 
@@ -234,4 +235,9 @@ void SkThreadedBMPDevice::drawDevice(SkBaseDevice* device, int x, int y, const S
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
         TileDraw(ds, tileBounds).drawSprite(*bitmap, x, y, paint);
     });
+}
+
+sk_sp<SkSpecialImage> SkThreadedBMPDevice::snapSpecial() {
+    this->flush();
+    return this->makeSpecial(fBitmap);
 }
