@@ -29,11 +29,9 @@ public:
         return nullptr;
     }
 
-#ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
         str->append("TestLooper:");
     }
-#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(TestLooper)
 

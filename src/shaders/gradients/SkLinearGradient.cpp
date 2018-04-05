@@ -214,7 +214,6 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
 
 #endif
 
-#ifndef SK_IGNORE_TO_STRING
 void SkLinearGradient::toString(SkString* str) const {
     str->append("SkLinearGradient (");
 
@@ -225,4 +224,4 @@ void SkLinearGradient::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif
+

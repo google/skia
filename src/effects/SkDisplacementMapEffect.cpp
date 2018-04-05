@@ -399,7 +399,6 @@ SkIRect SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatr
     return src;
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkDisplacementMapEffect::toString(SkString* str) const {
     str->appendf("SkDisplacementMapEffect: (");
     str->appendf("scale: %f ", fScale);
@@ -413,7 +412,6 @@ void SkDisplacementMapEffect::toString(SkString* str) const {
     }
     str->appendf("))");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

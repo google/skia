@@ -37,7 +37,7 @@ public:
                               sk_sp<SkImageFilter> inputs[2], const CropRect* cropRect)
             : INHERITED(inputs, 2, cropRect), fK{k1, k2, k3, k4}, fEnforcePMColor(enforcePMColor) {}
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(ArithmeticImageFilterImpl)
 
 protected:
@@ -427,7 +427,6 @@ const {
     return this->refMe();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void ArithmeticImageFilterImpl::toString(SkString* str) const {
     str->appendf("SkArithmeticImageFilter: (");
     str->appendf("K[]: (%f %f %f %f)", fK[0], fK[1], fK[2], fK[3]);
@@ -443,7 +442,6 @@ void ArithmeticImageFilterImpl::toString(SkString* str) const {
     }
     str->append(")");
 }
-#endif
 
 sk_sp<SkImageFilter> SkArithmeticImageFilter::Make(float k1, float k2, float k3, float k4,
                                                    bool enforcePMColor,

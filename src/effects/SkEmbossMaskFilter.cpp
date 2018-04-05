@@ -137,7 +137,6 @@ void SkEmbossMaskFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fBlurSigma);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkEmbossMaskFilter::toString(SkString* str) const {
     str->append("SkEmbossMaskFilter: (");
 
@@ -156,4 +155,3 @@ void SkEmbossMaskFilter::toString(SkString* str) const {
     str->appendScalar(fBlurSigma);
     str->append(")");
 }
-#endif

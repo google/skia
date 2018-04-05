@@ -628,7 +628,6 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
     }
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkGradientShaderBase::toString(SkString* str) const {
 
     str->appendf("%d colors: ", fColorCount);
@@ -660,7 +659,6 @@ void SkGradientShaderBase::toString(SkString* str) const {
 
     this->INHERITED::toString(str);
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

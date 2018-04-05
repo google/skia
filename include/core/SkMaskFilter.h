@@ -52,7 +52,7 @@ public:
 
     sk_sp<SkMaskFilter> makeWithLocalMatrix(const SkMatrix&) const;
 
-    SK_TO_STRING_PUREVIRT()
+    virtual void toString(SkString* str) const = 0;
     SK_DEFINE_FLATTENABLE_TYPE(SkMaskFilter)
 
 private:

@@ -85,7 +85,7 @@ protected:
 
     SkGradientShaderBase(SkReadBuffer& );
     void flatten(SkWriteBuffer&) const override;
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
 
     void commonAsAGradient(GradientInfo*) const;
 

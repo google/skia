@@ -57,7 +57,7 @@ public:
         return sk_sp<SkImageFilter>(new MatrixTestImageFilter(reporter, expectedMatrix));
     }
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
 
 protected:
@@ -101,7 +101,7 @@ public:
         return nullptr;
     }
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
 
 private:
@@ -113,12 +113,10 @@ sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
     return sk_sp<SkFlattenable>(new FailImageFilter());
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void FailImageFilter::toString(SkString* str) const {
     str->appendf("FailImageFilter: (");
     str->append(")");
 }
-#endif
 
 void draw_gradient_circle(SkCanvas* canvas, int width, int height) {
     SkScalar x = SkIntToScalar(width / 2);
@@ -296,9 +294,7 @@ public:
             : SkImageFilter(nullptr, 0, nullptr), fBounds(bounds) {}
 
 private:
-#ifndef SK_IGNORE_TO_STRING
     void toString(SkString*) const override {}
-#endif
     Factory getFactory() const override { return nullptr; }
 
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* src, const Context&,
@@ -320,12 +316,10 @@ sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
     return nullptr;
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void MatrixTestImageFilter::toString(SkString* str) const {
     str->appendf("MatrixTestImageFilter: (");
     str->append(")");
 }
-#endif
 
 static sk_sp<SkImage> make_small_image() {
     auto surface(SkSurface::MakeRasterN32Premul(kBitmapSize, kBitmapSize));
@@ -1858,9 +1852,8 @@ DEF_TEST(ImageFilterColorSpaceDAG, reporter) {
     public:
         TestFilter() : INHERITED(nullptr, 0, nullptr) {}
 
-#ifndef SK_IGNORE_TO_STRING
         void toString(SkString*) const override {}
-#endif
+
         Factory getFactory() const override { return nullptr; }
 
         size_t cloneCount() const { return fCloneCount; }

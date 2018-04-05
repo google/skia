@@ -41,7 +41,7 @@ public:
 
     SkRect computeFastBounds(const SkRect&) const override;
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilterImpl)
 
 protected:
@@ -702,7 +702,6 @@ SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMa
     return src.makeOutset(SkScalarCeilToInt(sigma.x() * 3), SkScalarCeilToInt(sigma.y() * 3));
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkBlurImageFilterImpl::toString(SkString* str) const {
     str->appendf("SkBlurImageFilterImpl: (");
     str->appendf("sigma: (%f, %f) tileMode: %d input (", fSigma.fWidth, fSigma.fHeight,
@@ -714,4 +713,3 @@ void SkBlurImageFilterImpl::toString(SkString* str) const {
 
     str->append("))");
 }
-#endif

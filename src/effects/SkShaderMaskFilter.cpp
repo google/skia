@@ -27,7 +27,7 @@ public:
 
     bool asABlur(BlurRec*) const override { return false; }
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkShaderMF)
 
 protected:
@@ -47,11 +47,9 @@ private:
     typedef SkMaskFilter INHERITED;
 };
 
-#ifndef SK_IGNORE_TO_STRING
 void SkShaderMF::toString(SkString* str) const {
     str->set("SkShaderMF:");
 }
-#endif
 
 sk_sp<SkFlattenable> SkShaderMF::CreateProc(SkReadBuffer& buffer) {
     return SkShaderMaskFilter::Make(buffer.readShader());
