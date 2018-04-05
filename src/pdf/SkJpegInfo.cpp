@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
 #include "SkJpegInfo.h"
+
+#ifndef SK_HAS_JPEG_LIBRARY
 
 namespace {
 class JpegSegment {
 public:
-    JpegSegment(const SkData* skdata)
-        : fData(static_cast<const char*>(skdata->data()))
-        , fSize(skdata->size())
+    JpegSegment(const void* data, size_t size)
+        : fData(static_cast<const char*>(data))
+        , fSize(size)
         , fOffset(0)
         , fLength(0) {}
     bool read() {
@@ -75,10 +76,13 @@ private:
 };
 }  // namespace
 
-bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
+bool SkGetJpegInfo(const void* data, size_t len,
+                   SkISize* size,
+                   SkEncodedInfo::Color* colorType,
+                   SkEncodedOrigin* orientation) {
     static const uint16_t kSOI = 0xFFD8;
     static const uint16_t kAPP0 = 0xFFE0;
-    JpegSegment segment(skdata);
+    JpegSegment segment(data, len);
     if (!segment.read() || segment.marker() != kSOI) {
         return false;  // not a JPEG
     }
@@ -106,14 +110,17 @@ bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
     if (numberOfComponents != 1 && numberOfComponents != 3) {
         return false;  // Invalid JFIF
     }
-    if (info) {
-        info->fSize.set(JpegSegment::GetBigendianUint16(&segment.data()[3]),
-                        JpegSegment::GetBigendianUint16(&segment.data()[1]));
-        if (numberOfComponents == 3) {
-            info->fType = SkJFIFInfo::kYCbCr;
-        } else {
-            info->fType = SkJFIFInfo::kGrayscale;
-        }
+    if (size) {
+        *size = {JpegSegment::GetBigendianUint16(&segment.data()[3]),
+                 JpegSegment::GetBigendianUint16(&segment.data()[1])};
+    }
+    if (colorType) {
+        *colorType = numberOfComponents == 3 ? SkEncodedInfo::kYUV_Color
+                                             : SkEncodedInfo::kGray_Color;
+    }
+    if (orientation) {
+        *orientation = kTopLeft_SkEncodedOrigin;
     }
     return true;
 }
+#endif  // SK_HAS_JPEG_LIBRARY
