@@ -1780,8 +1780,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SK_SFNT_ULONG get_font_type_tag(const SkTypeface_Mac* typeface) {
-    CTFontRef ctFont = typeface->fFontRef.get();
+static SK_SFNT_ULONG get_font_type_tag(CTFontRef ctFont) {
     UniqueCFRef<CFNumberRef> fontFormatRef(
             static_cast<CFNumberRef>(CTFontCopyAttribute(ctFont, kCTFontFormatAttribute)));
     if (!fontFormatRef) {
@@ -1806,18 +1805,12 @@ static SK_SFNT_ULONG get_font_type_tag(const SkTypeface_Mac* typeface) {
             return SkSFNTHeader::fontType_MacTrueType::TAG;
         case kCTFontFormatUnrecognized:
         default:
-            //CT seems to be unreliable in being able to obtain the type,
-            //even if all we want is the first four bytes of the font resource.
-            //Just the presence of the FontForge 'FFTM' table seems to throw it off.
-            return SkSFNTHeader::fontType_WindowsTrueType::TAG;
+            return 0;
     }
 }
 
 SkStreamAsset* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
-    SK_SFNT_ULONG fontType = get_font_type_tag(this);
-    if (0 == fontType) {
-        return nullptr;
-    }
+    SK_SFNT_ULONG fontType = get_font_type_tag(fFontRef.get());
 
     // get table tags
     int numTables = this->countTables();
@@ -1825,28 +1818,51 @@ SkStreamAsset* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
     tableTags.setCount(numTables);
     this->getTableTags(tableTags.begin());
 
-    // see if there are any required 'typ1' tables (see Adobe Technical Note #5180)
-    bool couldBeTyp1 = false;
-    constexpr SkFontTableTag TYPE1Tag = SkSetFourByteTag('T', 'Y', 'P', '1');
-    constexpr SkFontTableTag CIDTag = SkSetFourByteTag('C', 'I', 'D', ' ');
+    // CT seems to be unreliable in being able to obtain the type,
+    // even if all we want is the first four bytes of the font resource.
+    // Just the presence of the FontForge 'FFTM' table seems to throw it off.
+    if (fontType == 0) {
+        fontType = SkSFNTHeader::fontType_WindowsTrueType::TAG;
+
+        // see https://skbug.com/7630#c7
+        bool couldBeCFF = false;
+        constexpr SkFontTableTag CFFTag = SkSetFourByteTag('C', 'F', 'F', ' ');
+        constexpr SkFontTableTag CFF2Tag = SkSetFourByteTag('C', 'F', 'F', '2');
+        for (int tableIndex = 0; tableIndex < numTables; ++tableIndex) {
+            if (CFFTag == tableTags[tableIndex] || CFF2Tag == tableTags[tableIndex]) {
+                couldBeCFF = true;
+            }
+        }
+        if (couldBeCFF) {
+            fontType = SkSFNTHeader::fontType_OpenTypeCFF::TAG;
+        }
+    }
+
+    // Sometimes CoreGraphics incorrectly thinks a font is kCTFontFormatPostScript.
+    // It is exceedingly unlikely that this is the case, so double check
+    // (see https://crbug.com/809763 ).
+    if (fontType == SkSFNTHeader::fontType_PostScript::TAG) {
+        // see if there are any required 'typ1' tables (see Adobe Technical Note #5180)
+        bool couldBeTyp1 = false;
+        constexpr SkFontTableTag TYPE1Tag = SkSetFourByteTag('T', 'Y', 'P', '1');
+        constexpr SkFontTableTag CIDTag = SkSetFourByteTag('C', 'I', 'D', ' ');
+        for (int tableIndex = 0; tableIndex < numTables; ++tableIndex) {
+            if (TYPE1Tag == tableTags[tableIndex] || CIDTag == tableTags[tableIndex]) {
+                couldBeTyp1 = true;
+            }
+        }
+        if (!couldBeTyp1) {
+            fontType = SkSFNTHeader::fontType_OpenTypeCFF::TAG;
+        }
+    }
+
     // get the table sizes and accumulate the total size of the font
     SkTDArray<size_t> tableSizes;
     size_t totalSize = sizeof(SkSFNTHeader) + sizeof(SkSFNTHeader::TableDirectoryEntry) * numTables;
     for (int tableIndex = 0; tableIndex < numTables; ++tableIndex) {
-        if (TYPE1Tag == tableTags[tableIndex] || CIDTag == tableTags[tableIndex]) {
-            couldBeTyp1 = true;
-        }
-
         size_t tableSize = this->getTableSize(tableTags[tableIndex]);
         totalSize += (tableSize + 3) & ~3;
         *tableSizes.append() = tableSize;
-    }
-
-    // sometimes CoreGraphics incorrectly thinks a font is kCTFontFormatPostScript
-    // it is exceedingly unlikely that this is the case, so double check
-    // see https://crbug.com/809763
-    if (fontType == SkSFNTHeader::fontType_PostScript::TAG && !couldBeTyp1) {
-        fontType = SkSFNTHeader::fontType_OpenTypeCFF::TAG;
     }
 
     // reserve memory for stream, and zero it (tables must be zero padded)
