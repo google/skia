@@ -6,10 +6,11 @@
  */
 
 #include "SkCodec.h"
-#include "SkJpegCodec.h"
-#include "SkJpegDecoderMgr.h"
 #include "SkCodecPriv.h"
 #include "SkColorData.h"
+#include "SkJpegCodec.h"
+#include "SkJpegDecoderMgr.h"
+#include "SkJpegInfo.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
@@ -967,4 +968,37 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void
     }
 
     return kSuccess;
+}
+
+// This function is declared in SkJpegInfo.h, used by SkPDF.
+bool SkGetJpegInfo(const void* data, size_t len,
+                   SkISize* size,
+                   SkEncodedInfo::Color* colorType,
+                   SkEncodedOrigin* orientation) {
+    SkASSERT(size);
+    SkASSERT(colorType);
+    SkASSERT(orientation);
+    if (!SkJpegCodec::IsJpeg(data, len)) {
+        return false;
+    }
+
+    SkMemoryStream stream(data, len);
+    JpegDecoderMgr decoderMgr(&stream);
+    // libjpeg errors will be caught and reported here
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(decoderMgr.errorMgr());
+    if (setjmp(jmp)) {
+        return false;
+    }
+    decoderMgr.init();
+    jpeg_save_markers(decoderMgr.dinfo(), kExifMarker, 0xFFFF);
+    jpeg_save_markers(decoderMgr.dinfo(), kICCMarker, 0xFFFF);
+    if (JPEG_HEADER_OK != jpeg_read_header(decoderMgr.dinfo(), true)) {
+        return false;
+    }
+    if (!decoderMgr.getEncodedColor(colorType)) {
+        return false;
+    }
+    *orientation = get_exif_orientation(decoderMgr.dinfo());
+    *size = {SkToS32(decoderMgr.dinfo()->image_width), SkToS32(decoderMgr.dinfo()->image_height)};
+    return true;
 }
