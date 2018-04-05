@@ -26,7 +26,7 @@ class SkColorSpace;
     those objects (the Recorder and the DisplayList) will take a ref on the
     GrContextThreadSafeProxy and SkColorSpace objects.
 */
-class SkSurfaceCharacterization {
+class SK_API SkSurfaceCharacterization {
 public:
     enum class Textureable : bool { kNo = false, kYes = true };
     enum class MipMapped : bool { kNo = false, kYes = true };
@@ -158,7 +158,7 @@ private:
 
 #else// !SK_SUPPORT_GPU
 
-class SkSurfaceCharacterization {
+class SK_API SkSurfaceCharacterization {
 public:
     SkSurfaceCharacterization() : fSurfaceProps(0, kUnknown_SkPixelGeometry) { }
 
