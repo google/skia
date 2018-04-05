@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94256f16_50c81e60",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2018-04-05T21:56:12Z",
+      "side": 1,
+      "message": "It might be better to return an SkData. This gives us the flexibility to wrap any memory (directly pass in the shared memory), instead of having to copy it to a vector.\n\nAlso nit: could you add a comment please. :)",
+      "range": {
+        "startLine": 29,
+        "startChar": 45,
+        "endLine": 29,
+        "endChar": 64
+      },
+      "revId": "8d2374c06539ac0a8baeb39c9949a5eec7609d14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
