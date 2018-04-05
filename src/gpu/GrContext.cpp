@@ -40,6 +40,9 @@
 #ifdef SK_METAL
 #include "mtl/GrMtlTrampoline.h"
 #endif
+#ifdef SK_NXT
+#include "nxt/GrNXTGpu.h"
+#endif
 #ifdef SK_VULKAN
 #include "vk/GrVkGpu.h"
 #endif
@@ -309,6 +312,27 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
     if (!context->fGpu) {
         return nullptr;
     }
+    if (!context->init(options)) {
+        return nullptr;
+    }
+    return context;
+}
+#endif
+
+#ifdef SK_NXT
+sk_sp<GrContext> GrContext::MakeNXT(sk_sp<const GrNXTBackendContext> backendContext) {
+    GrContextOptions defaultOptions;
+    return MakeNXT(backendContext, defaultOptions);
+}
+
+sk_sp<GrContext> GrContext::MakeNXT(sk_sp<const GrNXTBackendContext> backendContext, const GrContextOptions& options) {
+    sk_sp<GrContext> context(new GrDirectContext(kNXT_GrBackend));
+
+    context->fGpu = GrNXTGpu::Make(backendContext, options, context.get());
+    if (!context->fGpu) {
+        return nullptr;
+    }
+    context->fCaps = context->fGpu->refCaps();
     if (!context->init(options)) {
         return nullptr;
     }
@@ -1485,14 +1509,16 @@ SkString GrContext::dump() const {
 
     static const char* kBackendStr[] = {
         "Metal",
+        "NXT",
         "OpenGL",
         "Vulkan",
         "Mock",
     };
     GR_STATIC_ASSERT(0 == kMetal_GrBackend);
-    GR_STATIC_ASSERT(1 == kOpenGL_GrBackend);
-    GR_STATIC_ASSERT(2 == kVulkan_GrBackend);
-    GR_STATIC_ASSERT(3 == kMock_GrBackend);
+    GR_STATIC_ASSERT(1 == kNXT_GrBackend);
+    GR_STATIC_ASSERT(2 == kOpenGL_GrBackend);
+    GR_STATIC_ASSERT(3 == kVulkan_GrBackend);
+    GR_STATIC_ASSERT(4 == kMock_GrBackend);
     writer.appendString("backend", kBackendStr[fBackend]);
 
     writer.appendName("caps");

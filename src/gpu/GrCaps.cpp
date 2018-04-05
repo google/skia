@@ -40,6 +40,8 @@ static const char* pixel_config_name(GrPixelConfig config) {
 
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;
+    fTriangleFanSupport = true;
+    fUseDrawForClear = false;
     fNPOTTextureTileSupport = false;
     fSRGBSupport = false;
     fSRGBWriteControl = false;

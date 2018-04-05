@@ -61,7 +61,7 @@ void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
     const sk_sp<GrTextureProxy>* proxies = fRestrictedAtlasManager->getProxies(
                                                             this->maskFormat(), &numProxies);
     for (unsigned int i = 0; i < numProxies; ++i) {
-        if (proxies[i]) {
+        if (proxies && proxies[i]) {
             func(proxies[i].get());
         }
     }
@@ -245,7 +245,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     unsigned int atlasPageCount;
     const sk_sp<GrTextureProxy>* proxies = fullAtlasManager->getProxies(maskFormat,
                                                                         &atlasPageCount);
-    if (!proxies[0]) {
+    if (!proxies || !proxies[0]) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
     }
