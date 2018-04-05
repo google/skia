@@ -8,7 +8,7 @@
 #include "SkThreadedBMPDevice.h"
 
 #include "SkPath.h"
-#include "SkRectPriv.h"
+#include "SkSpecialImage.h"
 #include "SkTaskGroup.h"
 #include "SkVertices.h"
 
@@ -78,15 +78,6 @@ SkThreadedBMPDevice::DrawState::DrawState(SkThreadedBMPDevice* dev) {
     }
     fMatrix = dev->ctm();
     fRC = dev->fRCStack.rc();
-}
-
-SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
-    if (drawBounds == SkRectPriv::MakeLargest()) {
-        return SkRectPriv::MakeILarge();
-    }
-    SkRect transformedBounds;
-    this->ctm().mapRect(&transformedBounds, drawBounds);
-    return transformedBounds.roundOut();
 }
 
 SkDraw SkThreadedBMPDevice::DrawState::getDraw() const {
@@ -189,7 +180,8 @@ void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& mat
 
 void SkThreadedBMPDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
     SkRect drawBounds = SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height());
-    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+    fQueue.push<false>(drawBounds, [=](SkArenaAlloc*, const DrawState& ds,
+                                       const SkIRect& tileBounds){
         TileDraw(ds, tileBounds).drawSprite(bitmap, x, y, paint);
     });
 }
@@ -231,7 +223,13 @@ void SkThreadedBMPDevice::drawDevice(SkBaseDevice* device, int x, int y, const S
     SkRect drawBounds = SkRect::MakeXYWH(x, y, device->width(), device->height());
     // copy the bitmap because it may deleted after this call
     SkBitmap* bitmap = fAlloc.make<SkBitmap>(static_cast<SkBitmapDevice*>(device)->fBitmap);
-    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+    fQueue.push<false>(drawBounds, [=](SkArenaAlloc*, const DrawState& ds,
+                                       const SkIRect& tileBounds){
         TileDraw(ds, tileBounds).drawSprite(*bitmap, x, y, paint);
     });
+}
+
+sk_sp<SkSpecialImage> SkThreadedBMPDevice::snapSpecial() {
+    this->flush();
+    return this->makeSpecial(fBitmap);
 }
