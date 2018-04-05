@@ -93,7 +93,7 @@ pt1 == pt2
 
 ### See Also
 
-<a href="#SkIPoint_set">set</a> <a href="SkPoint_Reference#SkPoint_iset">SkPoint::iset()</a><sup><a href="SkPoint_Reference#SkPoint_iset_2">[2]</a></sup> <a href="SkPoint_Reference#SkPoint_Make">SkPoint::Make</a> <a href="SkIPoint16_Reference#SkIPoint16_Make">SkIPoint16::Make</a>
+<a href="#SkIPoint_set">set</a> <a href="SkPoint_Reference#SkPoint_iset">SkPoint::iset()</a><sup><a href="SkPoint_Reference#SkPoint_iset_2">[2]</a></sup> <a href="SkPoint_Reference#SkPoint_Make">SkPoint::Make</a>
 
 ---
 
@@ -132,7 +132,7 @@ pt1.fX == pt1.x()
 
 ### See Also
 
-<a href="#SkIPoint_y">y</a> <a href="SkPoint_Reference#SkPoint_x">SkPoint::x()</a> <a href="SkIPoint16_Reference#SkIPoint16_x">SkIPoint16::x()</a>
+<a href="#SkIPoint_y">y</a> <a href="SkPoint_Reference#SkPoint_x">SkPoint::x()</a>
 
 ---
 
@@ -163,7 +163,7 @@ pt1.fY == pt1.y()
 
 ### See Also
 
-<a href="#SkIPoint_x">x</a> <a href="SkPoint_Reference#SkPoint_y">SkPoint::y()</a> <a href="SkIPoint16_Reference#SkIPoint16_y">SkIPoint16::y()</a>
+<a href="#SkIPoint_x">x</a> <a href="SkPoint_Reference#SkPoint_y">SkPoint::y()</a>
 
 ---
 
@@ -236,7 +236,7 @@ pt1 == pt2
 
 ### See Also
 
-<a href="#SkIPoint_Make">Make</a> <a href="SkIPoint16_Reference#SkIPoint16_set">SkIPoint16::set</a>
+<a href="#SkIPoint_Make">Make</a>
 
 ---
 
