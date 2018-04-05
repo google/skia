@@ -409,7 +409,7 @@ public:
     }
 
     SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeMF)
 
 protected:
@@ -474,11 +474,9 @@ sk_sp<SkFlattenable> SkComposeMF::CreateProc(SkReadBuffer& buffer) {
     return SkMaskFilter::MakeCompose(std::move(outer), std::move(inner));
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkComposeMF::toString(SkString* str) const {
     str->set("SkComposeMF:");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -504,7 +502,7 @@ public:
 
     SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCombineMF)
 
 protected:
@@ -631,11 +629,9 @@ sk_sp<SkFlattenable> SkCombineMF::CreateProc(SkReadBuffer& buffer) {
     return SkMaskFilter::MakeCombine(std::move(dst), std::move(src), mode);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkCombineMF::toString(SkString* str) const {
     str->set("SkCombineMF:");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -660,11 +656,9 @@ public:
 
     SkMask::Format getFormat() const override { return as_MFB(fFilter)->getFormat(); }
 
-#ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
         str->set("SkLocalMatrixMF:");
     }
-#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixMF)
 

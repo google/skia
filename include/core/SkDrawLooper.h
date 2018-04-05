@@ -99,7 +99,7 @@ public:
      */
     virtual bool asABlurShadow(BlurShadowRec*) const;
 
-    SK_TO_STRING_PUREVIRT()
+    virtual void toString(SkString* str) const = 0;
     SK_DEFINE_FLATTENABLE_TYPE(SkDrawLooper)
 
 protected:

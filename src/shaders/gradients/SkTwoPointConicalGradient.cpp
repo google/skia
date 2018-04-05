@@ -191,7 +191,6 @@ sk_sp<SkShader> SkTwoPointConicalGradient::onMakeColorSpace(SkColorSpaceXformer*
 }
 
 
-#ifndef SK_IGNORE_TO_STRING
 void SkTwoPointConicalGradient::toString(SkString* str) const {
     str->append("SkTwoPointConicalGradient: (");
 
@@ -215,7 +214,6 @@ void SkTwoPointConicalGradient::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif
 
 void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                                      SkRasterPipeline* postPipeline) const {

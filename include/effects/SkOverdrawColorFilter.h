@@ -32,7 +32,7 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
     Factory getFactory() const override { return CreateProc; }

@@ -27,7 +27,6 @@
 #include "SkGr.h"
 #endif
 
-#ifndef SK_IGNORE_TO_STRING
 void SkImageFilter::CropRect::toString(SkString* str) const {
     if (!fFlags) {
         return;
@@ -56,7 +55,6 @@ void SkImageFilter::CropRect::toString(SkString* str) const {
     }
     str->appendf(") ");
 }
-#endif
 
 void SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds,
                                       const SkMatrix& ctm,

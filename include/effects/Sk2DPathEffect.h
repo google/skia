@@ -39,7 +39,7 @@ protected:
     explicit Sk2DPathEffect(const SkMatrix& mat);
     void flatten(SkWriteBuffer&) const override;
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
 
 private:
     SkMatrix    fMatrix, fInverse;
@@ -62,7 +62,7 @@ public:
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const override;
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLine2DPathEffect)
 
 protected:
@@ -88,7 +88,7 @@ public:
         return sk_sp<SkPathEffect>(new SkPath2DPathEffect(matrix, path));
     }
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPath2DPathEffect)
 
 protected:

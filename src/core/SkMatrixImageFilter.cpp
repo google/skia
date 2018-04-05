@@ -134,7 +134,6 @@ SkIRect SkMatrixImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatr
     return floatBounds.roundOut();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkMatrixImageFilter::toString(SkString* str) const {
     str->appendf("SkMatrixImageFilter: (");
 
@@ -156,4 +155,3 @@ void SkMatrixImageFilter::toString(SkString* str) const {
 
     str->appendf(")");
 }
-#endif

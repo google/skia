@@ -247,7 +247,6 @@ sk_sp<SkShader> SkSweepGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) 
                                        fGradFlags, &this->getLocalMatrix());
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkSweepGradient::toString(SkString* str) const {
     str->append("SkSweepGradient: (");
 
@@ -261,7 +260,6 @@ void SkSweepGradient::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif
 
 void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                            SkRasterPipeline*) const {

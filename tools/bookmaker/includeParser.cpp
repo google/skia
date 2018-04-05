@@ -833,7 +833,7 @@ void IncludeParser::dumpMethod(const Definition& token) {
     if ("SK_TO_STRING_NONVIRT" == token.fName) {
         this->writeString("void toString(SkString* str) const;");
         this->lf(2);
-        this->writeEndTag("DefinedBy", "SK_TO_STRING_NONVIRT()");
+        this->writeEndTag("DefinedBy", "void toString(SkString* str) const;");
         this->lf(2);
         this->writeTag("Private");
         this->lf(1);

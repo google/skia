@@ -798,7 +798,6 @@ public:
         typedef Context INHERITED;
     };
 
-#ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
         str->append("Sk3DShader: (");
 
@@ -811,7 +810,6 @@ public:
 
         str->append(")");
     }
-#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
 

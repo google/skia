@@ -3442,15 +3442,9 @@ SK_DEBUG is defined at compile time.
 #Method void toString(SkString* str) const;
 #In Utility
 #Line # converts Bitmap to machine readable form ##
-#DefinedBy SK_TO_STRING_NONVIRT() ##
-
-#Private
-macro expands to: void toString(SkString* str) const;
-##
 
 Creates string representation of Bitmap. The representation is read by
-internal debugging tools. The interface and implementation may be
-suppressed by defining SK_IGNORE_TO_STRING.
+internal debugging tools.
 
 #Param str  storage for string representation ##
 

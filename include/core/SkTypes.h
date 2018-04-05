@@ -94,20 +94,9 @@ SK_API extern void sk_abort_no_print(void);
     #define SkAssertResult(cond)         if (cond) {} do {} while(false)
 #endif
 
-#ifdef SK_IGNORE_TO_STRING
-    #define SK_TO_STRING_NONVIRT()
-    #define SK_TO_STRING_VIRT()
-    #define SK_TO_STRING_PUREVIRT()
-    #define SK_TO_STRING_OVERRIDE()
-#else
-    class SkString;
-    // the 'toString' helper functions convert Sk* objects to human-readable
-    // form in developer mode
-    #define SK_TO_STRING_NONVIRT() void toString(SkString* str) const;
-    #define SK_TO_STRING_VIRT() virtual void toString(SkString* str) const;
-    #define SK_TO_STRING_PUREVIRT() virtual void toString(SkString* str) const = 0;
-    #define SK_TO_STRING_OVERRIDE() void toString(SkString* str) const override;
-#endif
+// some clients (e.g. third_party/WebKit/Source/platform/fonts/FontCustomPlatformData.h)
+// depend on SkString forward declaration below. Remove this once dependencies are fixed.
+class SkString;
 
 /*
  *  Usage:  SK_MACRO_CONCAT(a, b)   to construct the symbol ab

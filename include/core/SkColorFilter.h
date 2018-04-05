@@ -21,6 +21,7 @@ class SkBitmap;
 class SkColorSpace;
 class SkColorSpaceXformer;
 class SkRasterPipeline;
+class SkString;
 
 /**
  *  ColorFilters are optional objects in the drawing pipeline. When present in
@@ -137,7 +138,7 @@ public:
         return this->filterColor(0) != 0;
     }
 
-    SK_TO_STRING_PUREVIRT()
+    virtual void toString(SkString* str) const = 0;
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
     SK_DEFINE_FLATTENABLE_TYPE(SkColorFilter)

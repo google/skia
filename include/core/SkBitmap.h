@@ -1246,14 +1246,12 @@ public:
         bool allocPixelRef(SkBitmap* bitmap) override;
     };
 
-    /** macro expands to: void toString(SkString* str) const;
-        Creates string representation of SkBitmap. The representation is read by
-        internal debugging tools. The interface and implementation may be
-        suppressed by defining SK_IGNORE_TO_STRING.
+    /** Creates string representation of SkBitmap. The representation is read by
+        internal debugging tools.
 
         @param str  storage for string representation
     */
-    SK_TO_STRING_NONVIRT()
+    void toString(SkString* str) const;
 
 private:
     enum Flags {

@@ -34,7 +34,7 @@ public:
     SkXfermodeImageFilter_Base(SkBlendMode mode, sk_sp<SkImageFilter> inputs[2],
                                const CropRect* cropRect);
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkXfermodeImageFilter_Base)
 
 protected:
@@ -246,7 +246,6 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
     canvas->drawPaint(paint);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkXfermodeImageFilter_Base::toString(SkString* str) const {
     str->appendf("SkXfermodeImageFilter: (");
     str->appendf("blendmode: (%d)", (int)fMode);
@@ -262,7 +261,6 @@ void SkXfermodeImageFilter_Base::toString(SkString* str) const {
     }
     str->append(")");
 }
-#endif
 
 #if SK_SUPPORT_GPU
 

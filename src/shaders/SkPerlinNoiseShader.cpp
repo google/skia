@@ -362,7 +362,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPerlinNoiseShaderImpl)
 
 protected:
@@ -1479,7 +1479,6 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
 
 #endif
 
-#ifndef SK_IGNORE_TO_STRING
 void SkPerlinNoiseShaderImpl::toString(SkString* str) const {
     str->append("SkPerlinNoiseShaderImpl: (");
 
@@ -1510,7 +1509,6 @@ void SkPerlinNoiseShaderImpl::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

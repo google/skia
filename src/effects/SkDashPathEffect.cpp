@@ -374,7 +374,6 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
     return nullptr;
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkDashImpl::toString(SkString* str) const {
     str->appendf("SkDashPathEffect: (");
     str->appendf("count: %d phase %.2f intervals: (", fCount, fPhase);
@@ -386,7 +385,6 @@ void SkDashImpl::toString(SkString* str) const {
     }
     str->appendf("))");
 }
-#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

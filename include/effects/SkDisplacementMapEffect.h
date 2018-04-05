@@ -40,7 +40,7 @@ public:
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,

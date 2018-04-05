@@ -31,7 +31,7 @@ public:
                                SkScalar outerThreshold, sk_sp<SkImageFilter> input,
                                const CropRect* cropRect = nullptr);
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkAlphaThresholdFilterImpl)
     friend void SkAlphaThresholdFilter::InitializeFlattenables();
 
@@ -282,10 +282,9 @@ const {
     return this->refMe();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkAlphaThresholdFilterImpl::toString(SkString* str) const {
     str->appendf("SkAlphaThresholdImageFilter: (");
     str->appendf("inner: %f outer: %f", fInnerThreshold, fOuterThreshold);
     str->append(")");
 }
-#endif
+

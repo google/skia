@@ -279,7 +279,6 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     return builder.detach();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkLayerDrawLooper::toString(SkString* str) const {
     str->appendf("SkLayerDrawLooper (%d): ", fCount);
 
@@ -335,7 +334,6 @@ void SkLayerDrawLooper::toString(SkString* str) const {
         rec = rec->fNext;
     }
 }
-#endif
 
 SkLayerDrawLooper::Builder::Builder()
         : fRecs(nullptr),

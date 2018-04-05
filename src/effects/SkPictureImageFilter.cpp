@@ -131,7 +131,6 @@ sk_sp<SkImageFilter> SkPictureImageFilter::onMakeColorSpace(SkColorSpaceXformer*
     return sk_sp<SkImageFilter>(new SkPictureImageFilter(fPicture, fCropRect, std::move(dstCS)));
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkPictureImageFilter::toString(SkString* str) const {
     str->appendf("SkPictureImageFilter: (");
     str->appendf("crop: (%f,%f,%f,%f) ",
@@ -143,4 +142,3 @@ void SkPictureImageFilter::toString(SkString* str) const {
     }
     str->append(")");
 }
-#endif

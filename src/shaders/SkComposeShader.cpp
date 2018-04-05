@@ -142,7 +142,6 @@ std::unique_ptr<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(
 }
 #endif
 
-#ifndef SK_IGNORE_TO_STRING
 void SkComposeShader::toString(SkString* str) const {
     str->append("SkComposeShader: (");
 
@@ -157,4 +156,3 @@ void SkComposeShader::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif

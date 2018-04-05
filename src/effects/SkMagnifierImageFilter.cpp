@@ -201,7 +201,6 @@ sk_sp<SkImageFilter> SkMagnifierImageFilter::onMakeColorSpace(SkColorSpaceXforme
     return this->refMe();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkMagnifierImageFilter::toString(SkString* str) const {
     str->appendf("SkMagnifierImageFilter: (");
     str->appendf("src: (%f,%f,%f,%f) ",
@@ -209,4 +208,3 @@ void SkMagnifierImageFilter::toString(SkString* str) const {
     str->appendf("inset: %f", fInset);
     str->append(")");
 }
-#endif
