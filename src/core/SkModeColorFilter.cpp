@@ -31,14 +31,12 @@ SkModeColorFilter::SkModeColorFilter(SkColor color, SkBlendMode mode) {
     fPMColor = SkPreMultiplyColor(fColor);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkModeColorFilter::toString(SkString* str) const {
     str->append("SkModeColorFilter: color: 0x");
     str->appendHex(fColor);
     str->append(" mode: ");
     str->append(SkBlendMode_Name(fMode));
 }
-#endif
 
 bool SkModeColorFilter::asColorMode(SkColor* color, SkBlendMode* mode) const {
     if (color) {

@@ -197,14 +197,12 @@ sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, 
     return SkPictureShader::Make(std::move(src), tmx, tmy, localMatrix, tile);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkShaderBase::toString(SkString* str) const {
     if (!fLocalMatrix.isIdentity()) {
         str->append(" ");
         fLocalMatrix.toString(str);
     }
 }
-#endif
 
 bool SkShaderBase::appendStages(const StageRec& rec) const {
     return this->onAppendStages(rec);
@@ -250,7 +248,6 @@ sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
     return SkShader::MakeEmptyShader();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 #include "SkEmptyShader.h"
 
 void SkEmptyShader::toString(SkString* str) const {
@@ -260,4 +257,3 @@ void SkEmptyShader::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif
