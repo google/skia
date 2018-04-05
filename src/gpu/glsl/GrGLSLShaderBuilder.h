@@ -250,6 +250,7 @@ protected:
     int fCodeIndex;
     bool fFinalized;
 
+    friend class GrCCCoverageProcessor; // to access code().
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
     friend class GrGLSLVaryingHandler; // to access noperspective interpolation feature.

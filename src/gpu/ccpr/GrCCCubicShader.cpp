@@ -99,16 +99,16 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
 void GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                      GrGLSLVarying::Scope scope, SkString* code,
                                      const char* position, const char* coverage,
-                                     const char* attenuatedCoverage) {
-    fKLMD.reset(kFloat4_GrSLType, scope);
-    varyingHandler->addVarying("klmd", &fKLMD);
+                                     const char* cornerCoverage) {
+    fKLM_fEdge.reset(kFloat4_GrSLType, scope);
+    varyingHandler->addVarying("klm_and_edge", &fKLM_fEdge);
     code->appendf("float3 klm = float3(%s, 1) * %s;", position, fKLMMatrix.c_str());
     // We give L & M both the same sign as wind, in order to pass this value to the fragment shader.
     // (Cubics are pre-chopped such that L & M do not change sign within any individual segment.)
     code->appendf("%s.xyz = klm * float3(1, %s, %s);",
-                  OutName(fKLMD), coverage, coverage); // coverage == wind on curves.
+                  OutName(fKLM_fEdge), coverage, coverage); // coverage == wind on curves.
     code->appendf("%s.w = dot(float3(%s, 1), %s);", // Flat edge opposite the curve.
-                  OutName(fKLMD), position, fEdgeDistanceEquation.c_str());
+                  OutName(fKLM_fEdge), position, fEdgeDistanceEquation.c_str());
 
     fGradMatrix.reset(kFloat2x2_GrSLType, scope);
     varyingHandler->addVarying("grad_matrix", &fGradMatrix);
@@ -117,32 +117,42 @@ void GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
     code->appendf("%s[1] = -2*bloat * (klm[1] * %s[2].xy + klm[2] * %s[1].xy);",
                     OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
 
-    if (attenuatedCoverage) {
+    if (cornerCoverage) {
+        code->appendf("half hull_coverage; {");
+        this->calcHullCoverage(code, OutName(fKLM_fEdge), OutName(fGradMatrix), "hull_coverage");
+        code->appendf("}");
         fCornerCoverage.reset(kHalf2_GrSLType, scope);
         varyingHandler->addVarying("corner_coverage", &fCornerCoverage);
-        code->appendf("%s = %s;", // Attenuated corner coverage.
-                      OutName(fCornerCoverage), attenuatedCoverage);
+        code->appendf("%s = half2(hull_coverage, 1) * %s;",
+                      OutName(fCornerCoverage), cornerCoverage);
     }
 }
 
 void GrCCCubicShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
                                          const char* outputCoverage) const {
-    f->codeAppendf("float k = %s.x, l = %s.y, m = %s.z;", fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn());
-    f->codeAppend ("float f = k*k*k - l*m;");
-    f->codeAppendf("float2 grad = %s * float2(k, 1);", fGradMatrix.fsIn());
-    f->codeAppend ("float fwidth = abs(grad.x) + abs(grad.y);");
-    f->codeAppendf("%s = clamp(0.5 - f/fwidth, 0, 1);", outputCoverage);
+    this->calcHullCoverage(&AccessCodeString(f), fKLM_fEdge.fsIn(), fGradMatrix.fsIn(),
+                           outputCoverage);
 
-    f->codeAppendf("half d = min(%s.w, 0);", fKLMD.fsIn()); // Flat edge opposite the curve.
     // Wind is the sign of both L and/or M. Take the sign of whichever has the larger magnitude.
     // (In reality, either would be fine because we chop cubics with more than a half pixel of
     // padding around the L & M lines, so neither should approach zero.)
     f->codeAppend ("half wind = sign(l + m);");
-    f->codeAppendf("%s = (%s + d) * wind;", outputCoverage, outputCoverage);
+    f->codeAppendf("%s *= wind;", outputCoverage);
 
     if (fCornerCoverage.fsIn()) {
         f->codeAppendf("%s = %s.x * %s.y + %s;", // Attenuated corner coverage.
                        outputCoverage, fCornerCoverage.fsIn(), fCornerCoverage.fsIn(),
                        outputCoverage);
     }
+}
+
+void GrCCCubicShader::calcHullCoverage(SkString* code, const char* klmAndEdge,
+                                       const char* gradMatrix, const char* outputCoverage) const {
+    code->appendf("float k = %s.x, l = %s.y, m = %s.z;", klmAndEdge, klmAndEdge, klmAndEdge);
+    code->append ("float f = k*k*k - l*m;");
+    code->appendf("float2 grad = %s * float2(k, 1);", gradMatrix);
+    code->append ("float fwidth = abs(grad.x) + abs(grad.y);");
+    code->appendf("%s = min(0.5 - f/fwidth, 1);", outputCoverage); // Curve coverage.
+    code->appendf("half d = min(%s.w, 0);", klmAndEdge); // Flat edge opposite the curve.
+    code->appendf("%s = max(%s + d, 0);", outputCoverage, outputCoverage); // Total hull coverage.
 }
