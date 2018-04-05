@@ -8,6 +8,37 @@
 #include "SkData.h"
 #include "SkJpegInfo.h"
 
+#if SK_HAS_JPEG_LIBRARY
+
+#include "SkJpegCodec.h"
+
+bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
+    SkASSERT(info);
+    if (!skdata || !SkJpegCodec::IsJpeg(skdata->data(), skdata->size())) {
+        return false;
+    }
+    SkCodec::Result result;
+    std::unique_ptr<SkStream> strm(new SkMemoryStream(skdata->data(), skdata->size()));
+    auto codec = SkJpegCodec::MakeFromStream(std::move(strm), &result);
+    if (!codec || SkCodec::kSuccess != result || kTopLeft_SkEncodedOrigin != codec->getOrigin()) {
+        return false;
+    }
+    switch (((SkJpegCodec*)codec.get())->gencodedJpegColor()) {
+        case SkEncodedInfo::kGray_Color:
+            info->fType = SkJpegInfo::kGrayscale;
+            break;
+        case SkEncodedInfo::kYUV_Color;
+            info->fType = SkJpegInfo::fYCbCr;
+            break;
+        default:
+            return false;
+    }
+    info->fSize = codec->getInfo().dimensions();
+    return true;
+}
+
+#else
+
 namespace {
 class JpegSegment {
 public:
@@ -117,3 +148,4 @@ bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
     }
     return true;
 }
+#endif  // SK_HAS_JPEG_LIBRARY
