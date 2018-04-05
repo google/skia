@@ -105,9 +105,11 @@ public:
     // Related to below FIXME, gsampler*s don't currently expand to cover integer case.
     , fISampler2D_Type(new Type("isampler2D", SpvDim2D, false, false, false, true))
 
+    , fSampler_Type(new Type("sampler", Type::kSeparateSampler_Kind))
     // FIXME express these as "gimage2D" that expand to image2D, iimage2D, and uimage2D.
     , fImage2D_Type(new Type("image2D", SpvDim2D, false, false, false, true))
     , fIImage2D_Type(new Type("iimage2D", SpvDim2D, false, false, false, true))
+    , fTexture2D_Type(new Type("texture2D", Type::kTexture_Kind))
 
     // FIXME express these as "gsubpassInput" that expand to subpassInput, isubpassInput,
     // and usubpassInput.
@@ -285,9 +287,11 @@ public:
     const std::unique_ptr<Type> fSamplerCubeArrayShadow_Type;
 
     const std::unique_ptr<Type> fISampler2D_Type;
+    const std::unique_ptr<Type> fSampler_Type;
 
     const std::unique_ptr<Type> fImage2D_Type;
     const std::unique_ptr<Type> fIImage2D_Type;
+    const std::unique_ptr<Type> fTexture2D_Type;
 
     const std::unique_ptr<Type> fSubpassInput_Type;
     const std::unique_ptr<Type> fSubpassInputMS_Type;

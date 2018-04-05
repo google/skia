@@ -188,6 +188,8 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
     ADD_TYPE(FragmentProcessor);
+    ADD_TYPE(Sampler);
+    ADD_TYPE(Texture2D);
 
     StringFragment skCapsName("sk_Caps");
     Variable* skCaps = new Variable(-1, Modifiers(), skCapsName,

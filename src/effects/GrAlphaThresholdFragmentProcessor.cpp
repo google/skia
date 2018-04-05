@@ -50,7 +50,7 @@ public:
                 "(color.w < %s) {\n    half scale = float(%s) / max(0.001, float(color.w));\n    "
                 "color.xyz *= scale;\n    color.w = %s;\n}\n%s = color;\n",
                 args.fInputColor ? args.fInputColor : "half4(1)",
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 args.fUniformHandler->getUniformCStr(fOuterThresholdVar),

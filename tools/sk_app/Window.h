@@ -45,6 +45,9 @@ public:
 #if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
         kANGLE_BackendType,
 #endif
+#ifdef SK_NXT
+        kNXT_BackendType,
+#endif
 #ifdef SK_VULKAN
         kVulkan_BackendType,
 #endif
