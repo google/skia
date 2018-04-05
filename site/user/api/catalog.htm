@@ -574,34 +574,6 @@
     "name": "SkCanvas::restoreToCount",
         "stdout": "depth = 1\\ndepth = 3\\ndepth = 1\\n"
     },
-        "SkIPoint16_Make": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint16 pt1 = {45, 66};\n    SkIPoint16 pt2 = SkIPoint16::Make(45, 66);\n    SkDebugf(\"pt1.fX %c= pt2.fX\\n\", pt1.fX == pt2.fX ? '=' : '!');\n    SkDebugf(\"pt1.fY %c= pt2.fY\\n\", pt1.fY == pt2.fY ? '=' : '!');\n}",
-    "hash": "d815ca04fbf22b5acec6f85b6351f362",
-    "file": "SkIPoint16_Reference",
-    "name": "SkIPoint16::Make",
-        "stdout": "pt1.fX == pt2.fX\\npt1.fY == pt2.fY\\n"
-    },
-        "SkIPoint16_set": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint16 pt1, pt2 = { SK_MinS16, SK_MaxS16 };\n    pt1.set(SK_MinS16, SK_MaxS16);\n    SkDebugf(\"pt1.fX %c= pt2.fX\\n\", pt1.fX == pt2.fX ? '=' : '!');\n    SkDebugf(\"pt1.fY %c= pt2.fY\\n\", pt1.fY == pt2.fY ? '=' : '!');\n}",
-    "hash": "abff78d3f2d97b1284ccb13d0c56b6c8",
-    "file": "SkIPoint16_Reference",
-    "name": "SkIPoint16::set()",
-        "stdout": "pt1.fX == pt2.fX\\npt1.fY == pt2.fY\\n"
-    },
-        "SkIPoint16_x": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint16 pt1 = {45, 66};\n    SkDebugf(\"pt1.fX %c= pt1.x()\\n\", pt1.fX == pt1.x() ? '=' : '!');\n}",
-    "hash": "f7fd3b3674f042869de3582ab793dbf7",
-    "file": "SkIPoint16_Reference",
-    "name": "SkIPoint16::x()",
-        "stdout": "pt1.fX == pt1.x()\\n"
-    },
-        "SkIPoint16_y": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint16 pt1 = {45, 66};\n    SkDebugf(\"pt1.fY %c= pt1.y()\\n\", pt1.fY == pt1.y() ? '=' : '!');\n}",
-    "hash": "3662cedaf1e9924a401f794902da3b1f",
-    "file": "SkIPoint16_Reference",
-    "name": "SkIPoint16::y()",
-        "stdout": "pt1.fY == pt1.y()\\n"
-    },
         "SkIPoint_Make": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIPoint pt1 = {45, 66};\n    SkIPoint pt2 = SkIPoint::Make(45, 66);\n    SkDebugf(\"pt1 %c= pt2\\n\", pt1 == pt2 ? '=' : '!');\n}",
     "hash": "e5cf5159525bd3140f288a95fe641fae",
@@ -5250,6 +5222,14 @@
     "hash": "30cee813f6aa476b0a9c8a24283e53a3",
     "file": "SkImage_Reference",
     "name": "SkImage::encodeToData_2"
+},
+    "SkImage_getBackendTexture": {
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* grContext = canvas->getGrContext();\n    if (!grContext) {\n        canvas->drawString(\"GPU only!\", 20, 40, SkPaint());\n        return;\n    }\n    sk_sp<SkImage> imageFromBackend = SkImage::MakeFromAdoptedTexture(grContext, backEndTexture,\n            kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);\n    GrBackendTexture textureFromImage = imageFromBackend->getBackendTexture(false);\n    if (!textureFromImage.isValid()) {\n        return;\n    }\n    sk_sp<SkImage> imageFromTexture = SkImage::MakeFromAdoptedTexture(grContext, textureFromImage,\n            kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);\n    canvas->drawImage(imageFromTexture, 0, 0);\n    canvas->drawImage(imageFromBackend, 128, 128);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "d093aad721261f421c4bef4a296aab48",
+    "file": "SkImage_Reference",
+    "name": "SkImage::getBackendTexture"
 },
     "SkImage_getTextureHandle": {
     "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkString str;\n    int y = -10;\n    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,\n                backEndTexture, origin, kN32_SkColorType, kPremul_SkAlphaType, nullptr));\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);\n        str.printf(\"readBackHandle: 0x%lx\", readBackHandle);\n        canvas->drawString(str, 5, y += 30, paint);\n        canvas->drawImage(srcImage, 80, y += 10);\n        str.printf(\"origin: k%s_GrSurfaceOrigin\", readBackOrigin ? \"BottomLeft\" : \"TopLeft\");\n        canvas->drawString(str, 5, y += srcImage->height() + 10, paint);\n    }\n}",

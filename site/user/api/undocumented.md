@@ -910,6 +910,15 @@ Topic
 
 # <a name="GrBackendTexture"></a> Class GrBackendTexture
 
+<a name="GrBackendTexture_isValid"></a>
+## isValid
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool isValid() const
+</pre>
+
+---
+
 # <a name="Transfer_Mode"></a> Transfer Mode
 
 # <a name="Typeface"></a> Typeface
