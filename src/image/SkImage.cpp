@@ -29,6 +29,7 @@
 #include "GrContext.h"
 #include "SkImage_Gpu.h"
 #endif
+#include "GrBackendSurface.h"
 
 SkImage::SkImage(int width, int height, uint32_t uniqueID)
     : fWidth(width)
@@ -216,6 +217,11 @@ SkImage_Base::~SkImage_Base() {
     if (fAddedToCache.load()) {
         SkNotifyBitmapGenIDIsStale(this->uniqueID());
     }
+}
+
+GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
+                                                   GrSurfaceOrigin* origin) const {
+    return GrBackendTexture(); // invalid
 }
 
 bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint chint) const {

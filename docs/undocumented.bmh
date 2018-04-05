@@ -713,6 +713,13 @@ FT_Load_Glyph
 ##
 ##
 
+#Topic RenderTarget
+#Class GrBackendRenderTarget
+    #Method bool isValid() const
+    ##
+##
+##
+
 #Topic Transfer_Mode
 ##
 

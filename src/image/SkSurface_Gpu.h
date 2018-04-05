@@ -25,6 +25,10 @@ public:
 
     GrBackendObject onGetTextureHandle(BackendHandleAccess) override;
     bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) override;
+
+    GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
+    GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;
+
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot() override;

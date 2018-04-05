@@ -20,6 +20,7 @@ class SkPaint;
 class SkSurfaceCharacterization;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
+class GrBackendTexture;
 class GrContext;
 class GrRenderTarget;
 
@@ -457,6 +458,35 @@ public:
     */
     bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess);
+
+#if GR_TEST_UTILS
+    /** Retrieves the backend texture. If Surface has no backend texture, an invalid
+        object is returned. Call GrBackendTexture::isValid to determine if the result
+        is valid.
+
+        The returned GrBackendTexture should be discarded if the Surface is drawn to or deleted.
+
+        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
+                                             kFlushWrite_BackendHandleAccess,
+                                             kDiscardWrite_BackendHandleAccess
+        @return                     GPU texture reference; invalid on failure
+    */
+    GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
+
+    /** Retrieves the backend render target. If Surface has no backend render target, an invalid
+        object is returned. Call GrBackendRenderTarget::isValid to determine if the result
+        is valid.
+
+        The returned GrBackendRenderTarget should be discarded if the Surface is drawn to
+        or deleted.
+
+        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
+                                             kFlushWrite_BackendHandleAccess,
+                                             kDiscardWrite_BackendHandleAccess
+        @return                     GPU render target reference; invalid on failure
+    */
+    GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
+#endif
 
     /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
         SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface

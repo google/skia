@@ -290,3 +290,40 @@ const GrMockRenderTargetInfo* GrBackendRenderTarget::getMockRenderTargetInfo() c
     }
     return nullptr;
 }
+
+#if GR_TEST_UTILS
+bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
+                                               const GrBackendRenderTarget& r1) {
+    if (!r0.isValid() || !r1.isValid()) {
+        return false; // two invalid backend rendertargets are not considered equal
+    }
+
+    if (r0.fWidth != r1.fWidth ||
+        r0.fHeight != r1.fHeight ||
+        r0.fSampleCnt != r1.fSampleCnt ||
+        r0.fStencilBits != r1.fStencilBits ||
+        r0.fConfig != r1.fConfig ||
+        r0.fBackend != r1.fBackend) {
+        return false;
+    }
+
+    switch (r0.fBackend) {
+    case kOpenGL_GrBackend:
+        return r0.fGLInfo == r1.fGLInfo;
+    case kMock_GrBackend:
+        return r0.fMockInfo == r1.fMockInfo;
+    case kVulkan_GrBackend:
+#ifdef SK_VULKAN
+        return r0.fVkInfo == r1.fVkInfo;
+#else
+        // fall through
+#endif
+    case kMetal_GrBackend: // fall through
+    default:
+        return false;
+    }
+
+    SkASSERT(0);
+    return false;
+}
+#endif
