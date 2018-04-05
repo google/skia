@@ -16,6 +16,24 @@
       "revId": "bf74a460814a7912ed3d2e1af000afd2c45cd318",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5ef5d49_0620bffb",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1941,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-05T13:57:58Z",
+      "side": 0,
+      "message": "I don\u0027t think so. The issue isn\u0027t that it isn\u0027t flushed, the issue is that the GPUSink hasn\u0027t put anything into the bitmap yet. The canvas here isn\u0027t backed by that bitmap, it\u0027s backed by some buffer on the gpu. The GPUSink reads the pixels back into this bitmap after this lamda is called.",
+      "parentUuid": "43cef2b1_ba69e293",
+      "revId": "bf74a460814a7912ed3d2e1af000afd2c45cd318",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
