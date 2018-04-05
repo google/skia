@@ -126,10 +126,9 @@ public:
 
         void emitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
                           SkString* code, const char* position, const char* coverage,
-                          const char* attenuatedCoverage) {
+                          const char* cornerCoverage) {
             SkASSERT(GrGLSLVarying::Scope::kVertToGeo != scope);
-            this->onEmitVaryings(varyingHandler, scope, code, position, coverage,
-                                 attenuatedCoverage);
+            this->onEmitVaryings(varyingHandler, scope, code, position, coverage, cornerCoverage);
         }
 
         void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
@@ -163,9 +162,8 @@ public:
         // regular (linearly-interpolated) coverage. This function calculates the attenuation value
         // to use in the single, outermost vertex. The remaining three vertices of the corner box
         // all use an attenuation value of 1.
-        static void CalcCornerCoverageAttenuation(GrGLSLVertexGeoBuilder*, const char* leftDir,
-                                                  const char* rightDir,
-                                                  const char* outputAttenuation);
+        static void CalcCornerAttenuation(GrGLSLVertexGeoBuilder*, const char* leftDir,
+                                          const char* rightDir, const char* outputAttenuation);
 
         virtual ~Shader() {}
 
@@ -177,7 +175,7 @@ public:
         //       'coverage' will only be +1 or -1 on curves.
         virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                                     const char* position, const char* coverage,
-                                    const char* attenuatedCoverage) = 0;
+                                    const char* cornerCoverage) = 0;
 
         // Emits the fragment code that calculates a pixel's signed coverage value.
         virtual void onEmitFragmentCode(GrGLSLFPFragmentBuilder*,
@@ -190,15 +188,19 @@ public:
             SkASSERT(Scope::kVertToGeo != varying.scope());
             return Scope::kGeoToFrag == varying.scope() ? varying.gsOut() : varying.vsOut();
         }
+
+        // Our friendship with GrGLSLShaderBuilder does not propogate to subclasses.
+        inline static SkString& AccessCodeString(GrGLSLShaderBuilder* s) { return s->code(); }
     };
 
+private:
     class GSImpl;
     class GSTriangleHullImpl;
     class GSCurveHullImpl;
     class GSCornerImpl;
     class VSImpl;
+    class TriangleShader;
 
-private:
     // Slightly undershoot a bloat radius of 0.5 so vertices that fall on integer boundaries don't
     // accidentally bleed into neighbor pixels.
     static constexpr float kAABloatRadius = 0.491111f;

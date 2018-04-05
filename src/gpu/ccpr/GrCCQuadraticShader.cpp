@@ -48,40 +48,51 @@ void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* p
 void GrCCQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                          GrGLSLVarying::Scope scope, SkString* code,
                                          const char* position, const char* coverage,
-                                         const char* attenuatedCoverage) {
-    fCoord.reset(kFloat4_GrSLType, scope);
-    varyingHandler->addVarying("coord", &fCoord);
+                                         const char* cornerCoverage) {
+    fCoord_Grad.reset(kFloat4_GrSLType, scope);
+    varyingHandler->addVarying("coord_grad", &fCoord_Grad);
     code->appendf("%s.xy = %s * (%s - %s);", // Quadratic coords.
-                  OutName(fCoord), fQCoordMatrix.c_str(), position, fQCoord0.c_str());
+                  OutName(fCoord_Grad), fQCoordMatrix.c_str(), position, fQCoord0.c_str());
     code->appendf("%s.zw = 2*bloat * float2(2 * %s.x, -1) * %s;", // Gradient.
-                  OutName(fCoord), OutName(fCoord), fQCoordMatrix.c_str());
+                  OutName(fCoord_Grad), OutName(fCoord_Grad), fQCoordMatrix.c_str());
 
     // Coverages need full precision since distance to the opposite edge can be large.
-    fCoverages.reset(attenuatedCoverage ? kFloat4_GrSLType : kFloat2_GrSLType, scope);
-    varyingHandler->addVarying("coverages", &fCoverages);
-    code->appendf("%s.x = dot(%s, float3(%s, 1));", // Distance to flat edge opposite the curve.
-                  OutName(fCoverages), fEdgeDistanceEquation.c_str(), position);
-    code->appendf("%s.y = %s;", OutName(fCoverages), coverage); // Wind.
-    if (attenuatedCoverage) {
-        code->appendf("%s.zw = %s;", // Attenuated corner coverage.
-                      OutName(fCoverages), attenuatedCoverage);
+    fEdge_Wind_Corner.reset(cornerCoverage ? kFloat4_GrSLType : kFloat2_GrSLType, scope);
+    varyingHandler->addVarying("edge_wind_corner", &fEdge_Wind_Corner);
+    code->appendf("float edge = dot(%s, float3(%s, 1));", // Distance to flat opposite edge.
+                  fEdgeDistanceEquation.c_str(), position);
+    code->appendf("%s.xy = float2(edge, %s);",
+                  OutName(fEdge_Wind_Corner), coverage); // coverage == wind.
+
+    if (cornerCoverage) {
+        code->appendf("half hull_coverage;");
+        this->calcHullCoverage(code, OutName(fCoord_Grad), "edge", "hull_coverage");
+        code->appendf("%s.zw = half2(hull_coverage, 1) * %s;",
+                      OutName(fEdge_Wind_Corner), cornerCoverage);
     }
 }
 
 void GrCCQuadraticShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
                                              const char* outputCoverage) const {
-    f->codeAppendf("float x = %s.x, y = %s.y;", fCoord.fsIn(), fCoord.fsIn());
-    f->codeAppend ("float f = x*x - y;");
-    f->codeAppendf("float2 grad = %s.zw;", fCoord.fsIn());
-    f->codeAppend ("float fwidth = abs(grad.x) + abs(grad.y);");
-    f->codeAppendf("%s = clamp(0.5 - f/fwidth, 0, 1);", outputCoverage);
+    this->calcHullCoverage(&AccessCodeString(f), fCoord_Grad.fsIn(),
+                           SkStringPrintf("%s.x", fEdge_Wind_Corner.fsIn()).c_str(),
+                           outputCoverage);
+    f->codeAppendf("%s *= %s.y;", outputCoverage, fEdge_Wind_Corner.fsIn()); // Wind.
 
-    f->codeAppendf("half d = min(%s.x, 0);", fCoverages.fsIn()); // Flat edge opposite the curve.
-    f->codeAppendf("half wind = %s.y;", fCoverages.fsIn());
-    f->codeAppendf("%s = (%s + d) * wind;", outputCoverage, outputCoverage);
-
-    if (kFloat4_GrSLType == fCoverages.type()) {
-        f->codeAppendf("%s = %s.z * %s.w + %s;", // Attenuated corner coverage.
-                       outputCoverage, fCoverages.fsIn(), fCoverages.fsIn(), outputCoverage);
+    if (kFloat4_GrSLType == fEdge_Wind_Corner.type()) {
+        f->codeAppendf("%s = %s.z * %s.w + %s;",// Attenuated corner coverage.
+                       outputCoverage, fEdge_Wind_Corner.fsIn(), fEdge_Wind_Corner.fsIn(),
+                       outputCoverage);
     }
+}
+
+void GrCCQuadraticShader::calcHullCoverage(SkString* code, const char* coordAndGrad,
+                                           const char* edge, const char* outputCoverage) const {
+    code->appendf("float x = %s.x, y = %s.y;", coordAndGrad, coordAndGrad);
+    code->appendf("float2 grad = %s.zw;", coordAndGrad);
+    code->append ("float f = x*x - y;");
+    code->append ("float fwidth = abs(grad.x) + abs(grad.y);");
+    code->appendf("%s = min(0.5 - f/fwidth, 1);", outputCoverage); // Curve coverage.
+    code->appendf("half d = min(%s, 0);", edge); // Flat edge opposite the curve.
+    code->appendf("%s = max(%s + d, 0);", outputCoverage, outputCoverage); // Combine.
 }
