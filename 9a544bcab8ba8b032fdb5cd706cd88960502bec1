@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2805be39_ce59f202",
+        "filename": "src/core/SkAdvancedTypefaceMetrics.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-05T14:44:40Z",
+      "side": 0,
+      "message": "fAscent and fDescent are also on the FontMetrics, though I\u0027m not sure what you\u0027re using them for, so I\u0027m not sure if the ones on FontMetrics are always exactly equivalent to what you want. (There are at least four different values one might want, and specs are generally bad about saying which they want.)",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 70
+      },
+      "revId": "9a544bcab8ba8b032fdb5cd706cd88960502bec1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbb600eb_8a667fd0",
+        "filename": "src/core/SkAdvancedTypefaceMetrics.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-05T14:44:40Z",
+      "side": 0,
+      "message": "I think you can do the same thing with fCapHeight, it\u0027s on the FontMetrics.",
+      "range": {
+        "startLine": 70,
+        "startChar": 12,
+        "endLine": 70,
+        "endChar": 22
+      },
+      "revId": "9a544bcab8ba8b032fdb5cd706cd88960502bec1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
