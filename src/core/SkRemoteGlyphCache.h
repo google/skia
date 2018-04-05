@@ -19,26 +19,15 @@
 #include "SkGlyphCache.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
+#include "SkRefCnt.h"
 #include "SkSerialProcs.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
 #include "SkTypeface_remote.h"
 
-class SkScalerContextRecDescriptor;
-
-class SkRemoteStrikeTransport {
-public:
-    enum IOResult : bool {kFail = false, kSuccess = true};
-
-    virtual ~SkRemoteStrikeTransport() {}
-    virtual IOResult write(const void*, size_t) = 0;
-    virtual std::tuple<size_t, IOResult> read(void*, size_t) = 0;
-    IOResult writeSkData(const SkData&);
-    sk_sp<SkData> readSkData();
-    IOResult writeVector(const std::vector<uint8_t>&);
-    IOResult readVector(std::vector<uint8_t>*);
-};
+// The client uses a SkStrikeCacheClientRPC to send and receive data.
+using SkStrikeCacheClientRPC = std::function<sk_sp<SkData>(const SkData&)>;
 
 class SkScalerContextRecDescriptor {
 public:
@@ -94,7 +83,7 @@ private:
     } fDescriptor;
 };
 
-class SkStrikeCacheDifferenceSpec {
+class SK_API SkStrikeCacheDifferenceSpec {
     class StrikeDifferences;
 
 public:
@@ -108,6 +97,7 @@ private:
     class StrikeDifferences {
     public:
         StrikeDifferences(SkFontID typefaceID, std::unique_ptr<SkDescriptor> desc);
+        //StrikeDifferences(StrikeDifferences&&) = default;
         void operator()(uint16_t glyphID, SkIPoint pos);
         SkFontID fTypefaceID;
         std::unique_ptr<SkDescriptor> fDesc;
@@ -131,7 +121,7 @@ private:
     DescMap fDescriptorToDifferencesMap{16, DescHash(), DescEq()};
 };
 
-class SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
+class SK_API SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
 public:
     SkTextBlobCacheDiffCanvas(int width, int height,
                               const SkMatrix& deviceMatrix,
@@ -164,13 +154,14 @@ private:
     SkStrikeCacheDifferenceSpec* const fStrikeCacheDiff;
 };
 
-class SkStrikeServer {
+class SK_API SkStrikeServer {
 public:
-    SkStrikeServer(SkRemoteStrikeTransport* transport);
+    SkStrikeServer();
     ~SkStrikeServer();
 
     // embedding clients call these methods
-    int serve();  // very negotiable
+    void serve(const SkData&, std::vector<uint8_t>*);
+
     void prepareSerializeProcs(SkSerialProcs* procs);
 
     // mostly called internally by Skia
@@ -185,14 +176,13 @@ private:
     sk_sp<SkData> encodeTypeface(SkTypeface* tf);
 
     int fOpCount = 0;
-    SkRemoteStrikeTransport* const fTransport;
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
     DescriptorToContextMap fScalerContextMap;
 };
 
-class SkStrikeClient {
+class SK_API SkStrikeClient {
 public:
-    SkStrikeClient(SkRemoteStrikeTransport*);
+    SkStrikeClient(SkStrikeCacheClientRPC);
 
     // embedding clients call these methods
     void primeStrikeCache(const SkStrikeCacheDifferenceSpec&);
@@ -213,7 +203,7 @@ private:
     // TODO: Figure out how to manage the entries for the following maps.
     SkTHashMap<SkFontID, sk_sp<SkTypefaceProxy>> fMapIdToTypeface;
 
-    SkRemoteStrikeTransport* const fTransport;
+    SkStrikeCacheClientRPC fClientRPC;
 
     std::vector<uint8_t> fBuffer;
 };
