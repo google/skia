@@ -33,6 +33,9 @@ public:
      */
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
+    static bool IsJpeg(const void* data, size_t len,
+                       SkISize*, SkEncodedInfo::Color*, SkEncodedOrigin*);
+
 protected:
 
     /*
