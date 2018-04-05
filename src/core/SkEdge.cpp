@@ -178,6 +178,147 @@ static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy, int shiftAA = 2)
     return (32 - SkCLZ(dist)) >> 1;
 }
 
+const float gPow2Floats[] = {
+    1, 2, 4, 8, 16, 32, 64, 128, 256, 512
+};
+const float gInvPow2Floats[] = {
+    (1.0f/1), (1.0f/2), (1.0f/4), (1.0f/8), (1.0f/16),
+    (1.0f/32), (1.0f/64), (1.0f/128), (1.0f/256), (1.0f/512),
+};
+
+static inline float pow2_floats(int shift) {
+    SkASSERT(shift >= 0 && shift <= MAX_COEFF_SHIFT);
+    static_assert(SK_ARRAY_COUNT(gPow2Floats) >= MAX_COEFF_SHIFT + 1, "pow2table size");
+    return gPow2Floats[shift];
+}
+static inline float invpow2_floats(int shift) {
+    SkASSERT(shift >= 0 && shift <= MAX_COEFF_SHIFT);
+    static_assert(SK_ARRAY_COUNT(gInvPow2Floats) >= MAX_COEFF_SHIFT + 1, "invpow2table size");
+    return gInvPow2Floats[shift];
+}
+
+static int gTheySmaller, gTheyBigger;
+
+bool SkQuadraticFEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], const int shift) {
+    float x0, y0, x1, y1, x2, y2;
+    float scale = pow2_floats(shift);
+
+    x0 = pts[0].fX * scale;
+    y0 = pts[0].fY * scale;
+    x1 = pts[1].fX * scale;
+    y1 = pts[1].fY * scale;
+    x2 = pts[2].fX * scale;
+    y2 = pts[2].fY * scale;
+
+    int winding = 1;
+    if (y0 > y2) {
+        SkTSwap(x0, x2);
+        SkTSwap(y0, y2);
+        winding = -1;
+    }
+    SkASSERT(y0 <= y1 && y1 <= y2);
+
+    int top = SkScalarRoundToInt(y0);
+    int bot = SkScalarRoundToInt(y2);
+    if (top == bot)
+        return 0;
+
+    // How many line segments do we need?
+    //
+    // d = error term = distance between max deviation (f(0.5)) from line a...c
+    // t = tolerance (0.25 for us)
+    // we note that d reduces by 1/4 on each subdivision
+    //
+    // d / 4^n <= t
+    // d / t <= 4^n = (2^n)^2 ... 2^n is the number of line segments
+    // sqrt(d/t) <= 2^n == segment count
+    //
+    {
+        SkASSERT(shift == 2 || shift == 0);
+        int icount;
+        {
+            SkFDot6 dx = SkScalarRoundToFDot6((x1 + x1 - x0 - x2) * 0.25f);
+            SkFDot6 dy = SkScalarRoundToFDot6((y1 + y1 - y0 - y2) * 0.25f);
+            // This is a little confusing:
+            // before this line, shift is the scale up factor for AA;
+            // after this line, shift is the fCurveShift.
+            int sh = diff_to_shift(dx, dy, shift);
+            if (sh == 0) {
+                sh = 1;
+            } else if (shift > MAX_COEFF_SHIFT) {
+                sh = MAX_COEFF_SHIFT;
+            }
+
+            icount = 1 << sh;
+        }
+
+        float dx = (x1 + x1 - x0 - x2) * 0.25f;
+        float dy = (y1 + y1 - y0 - y2) * 0.25f;
+        float count = sqrtf(dx * dx + dy * dy) * 2; // same as sqrt(d/0.25)
+        if (shift == 2) {
+            count *= 0.25f;
+        }
+        count = std::min(std::max(count, 1.0f), 32.f);
+        count = sk_float_ceil(count);
+        fCurveCount = sk_float_saturate2int(count);
+        if (icount < fCurveCount) {
+            gTheySmaller++;
+  //          SkDebugf("icount %d, ncount %d\n", icount, fCurveCount);
+        } else if (icount > fCurveCount) {
+            gTheyBigger++;
+        }
+  //      SkDebugf("they bigger %d, they smaller %d\n", gTheyBigger, gTheySmaller);
+        fDT = 1 / count;
+        if (false) {
+            fDT = invpow2_floats(fCurveCount);
+        }
+    }
+
+    fWinding    = SkToS8(winding);
+    //fCubicDShift only set for cubics
+
+    fT = 0;
+    fA = SkPoint{x0, y0} - SkPoint{x1, y1} * 2 + SkPoint{x2, y2};
+    fB = SkPoint{x1 - x0, y1 - y0} * 2;
+    fC = SkPoint{x0, y0};
+    fP = { SkScalarToFixed(x0), SkScalarToFixed(y0) };
+
+    return true;
+}
+
+#include "SkGeometry.h"
+int SkQuadraticFEdge::setQuadratic(const SkPoint pts[3], int shift) {
+    if (!setQuadraticWithoutUpdate(pts, shift)) {
+        return 0;
+    }
+    return this->updateQuadratic();
+}
+
+int SkQuadraticFEdge::updateQuadratic() {
+    int     success;
+    int     count = fCurveCount;
+    SkFixed oldx = fP.fX;
+    SkFixed oldy = fP.fY;
+    SkFixed newx, newy;
+
+    SkASSERT(count > 0);
+
+    SkQuadCoeff coeff(from_point(fA), from_point(fB), from_point(fC));
+    do {
+        fT += fDT;
+        SkPoint p = to_point(coeff.eval(fT));
+        newx = SkScalarToFixed(p.fX);
+        newy = SkScalarToFixed(p.fY);
+        success = this->updateLine(oldx, oldy, newx, newy);
+        oldx = newx;
+        oldy = newy;
+    } while (--count > 0 && !success);
+
+    fP = { newx, newy };
+    fCurveCount = SkToS8(count);
+    return success;
+}
+
 bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift) {
     SkFDot6 x0, y0, x1, y1, x2, y2;
 
