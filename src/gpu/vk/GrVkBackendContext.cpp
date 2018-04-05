@@ -55,7 +55,6 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     }
     SkASSERT(getProc);
 
-    VkPhysicalDevice physDev;
     VkDevice device;
     VkInstance inst;
     VkResult err;
@@ -152,15 +151,16 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         grVkDestroyInstance(inst, nullptr);
         return nullptr;
     }
-    // Just returning the first physical device instead of getting the whole array.
-    // TODO: find best match for our needs
-    gpuCount = 1;
-    err = grVkEnumeratePhysicalDevices(inst, &gpuCount, &physDev);
+    SkSTArray<2, VkPhysicalDevice> physDevs;
+    err = grVkEnumeratePhysicalDevices(inst, &gpuCount, physDevs.push_back_n(gpuCount));
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
         grVkDestroyInstance(inst, nullptr);
         return nullptr;
     }
+    // Just selecting the first physical device.
+    // TODO: find best match for our needs
+    const VkPhysicalDevice physDev = physDevs.front();
 
     // query to get the initial queue props size
     uint32_t queueCount;
