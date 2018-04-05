@@ -108,6 +108,30 @@
       "revId": "73f57c05923b1494a1188615083805c0bac61e78",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b3e3c82_71498d41",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-04-05T16:02:21Z",
+      "side": 1,
+      "message": "it actually is the same logic.",
+      "parentUuid": "27b2e463_b4d3ee9d",
+      "range": {
+        "startLine": 812,
+        "startChar": 27,
+        "endLine": 812,
+        "endChar": 36
+      },
+      "revId": "73f57c05923b1494a1188615083805c0bac61e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
