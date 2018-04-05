@@ -25,7 +25,7 @@ static bool gUseGpu = true;
 static bool gPurgeFontCaches = true;
 static bool gUseProcess = true;
 
-class ReadWriteTransport : public SkRemoteStrikeTransport {
+class ReadWriteTransport : public SkRemoteStrikeCacheClientTransport {
 public:
     ReadWriteTransport(int readFd, int writeFd) : fReadFd{readFd}, fWriteFd{writeFd} {}
     ~ReadWriteTransport() override {
@@ -167,7 +167,7 @@ static int renderer(
         server.prepareSerializeProcs(&procs);
         stream = pic->serialize(&procs);
 
-        if (rwTransport.writeSkData(*stream) == SkRemoteStrikeTransport::kFail) {
+        if (rwTransport.writeSkData(*stream) == SkRemoteStrikeCacheClientTransport::kFail) {
             return 1;
         }
 

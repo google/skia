@@ -27,11 +27,18 @@
 
 class SkScalerContextRecDescriptor;
 
-class SkRemoteStrikeTransport {
+static bool write_SkData(const SkData& data);
+static sk_sp<SkData> read_SkData();
+
+class SkRemoteStrikeCacheClientTransport {
 public:
     enum IOResult : bool {kFail = false, kSuccess = true};
+    // This definition of buffer is a placeholder until priorities allow more engineering on this.
+    using Buffer = std::vector<uint8_t>;
 
-    virtual ~SkRemoteStrikeTransport() {}
+    virtual Buffer clientRPC(const Buffer& buffer) = 0;
+
+    virtual ~SkRemoteStrikeCacheClientTransport() {}
     virtual IOResult write(const void*, size_t) = 0;
     virtual std::tuple<size_t, IOResult> read(void*, size_t) = 0;
     IOResult writeSkData(const SkData&);
@@ -143,7 +150,11 @@ protected:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
 
     void onDrawTextBlob(
-            const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) override;
+            const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) override {
+        SK_ABORT("Bad");
+    }
+
+
 
 private:
     void processLooper(
@@ -166,7 +177,7 @@ private:
 
 class SkStrikeServer {
 public:
-    SkStrikeServer(SkRemoteStrikeTransport* transport);
+    SkStrikeServer(SkRemoteStrikeCacheClientTransport* transport);
     ~SkStrikeServer();
 
     // embedding clients call these methods
@@ -185,14 +196,14 @@ private:
     sk_sp<SkData> encodeTypeface(SkTypeface* tf);
 
     int fOpCount = 0;
-    SkRemoteStrikeTransport* const fTransport;
+    SkRemoteStrikeCacheClientTransport* const fTransport;
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
     DescriptorToContextMap fScalerContextMap;
 };
 
 class SkStrikeClient {
 public:
-    SkStrikeClient(SkRemoteStrikeTransport*);
+    SkStrikeClient(SkRemoteStrikeCacheClientTransport*);
 
     // embedding clients call these methods
     void primeStrikeCache(const SkStrikeCacheDifferenceSpec&);
@@ -213,7 +224,7 @@ private:
     // TODO: Figure out how to manage the entries for the following maps.
     SkTHashMap<SkFontID, sk_sp<SkTypefaceProxy>> fMapIdToTypeface;
 
-    SkRemoteStrikeTransport* const fTransport;
+    SkRemoteStrikeCacheClientTransport* const fTransport;
 
     std::vector<uint8_t> fBuffer;
 };
