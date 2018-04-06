@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2daa7d3a_ce95fe42",
+        "filename": "fuzz/FuzzCommon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-04-06T14:57:33Z",
+      "side": 0,
+      "message": "Out of curiosity, why not do fuzz-\u003enext(\u0026r)?  Could you add a comment below line 35 with the reason?",
+      "range": {
+        "startLine": 36,
+        "startChar": 14,
+        "endLine": 36,
+        "endChar": 22
+      },
+      "revId": "f131b01977e00f4a524e07c439e4e4dd9c2d7134",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

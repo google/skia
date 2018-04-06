@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c98abeb6_00896972",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1859,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-04-06T14:57:33Z",
+      "side": 1,
+      "message": "Let\u0027s move this to its own file FuzzRegionOp.cpp (like FuzzPathop.cpp)",
+      "range": {
+        "startLine": 1859,
+        "startChar": 9,
+        "endLine": 1859,
+        "endChar": 17
+      },
+      "revId": "cede1f12b3a5395cf4b95537c0873972407f30cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
