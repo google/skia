@@ -262,7 +262,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
                    numInputPoints, numInputPoints, proc.getAttrib(kAttribIdx_X).fName, swizzle,
                    proc.getAttrib(kAttribIdx_Y).fName, swizzle);
 
-    if (WindMethod::kCrossProduct == proc.fWindMethod) {
+    if (PrimitiveType::kWeightedTriangles != proc.fPrimitiveType) {
         v->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], "
                                                             "pts[0] - pts[2]));");
         if (4 == numInputPoints) {
@@ -271,7 +271,6 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
         }
         v->codeAppend ("half wind = sign(area_x2);");
     } else {
-        SkASSERT(WindMethod::kInstanceData == proc.fWindMethod);
         SkASSERT(3 == numInputPoints);
         SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(kAttribIdx_X).fType);
         v->codeAppendf("half wind = %s.w;", proc.getAttrib(kAttribIdx_X).fName);
@@ -452,7 +451,8 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
     const GrCaps& caps = *rp->caps();
 
     switch (fPrimitiveType) {
-        case PrimitiveType::kTriangles: {
+        case PrimitiveType::kTriangles:
+        case PrimitiveType::kWeightedTriangles: {
             GR_DEFINE_STATIC_UNIQUE_KEY(gTriangleVertexBufferKey);
             fVSVertexBuffer = rp->findOrMakeStaticBuffer(kVertex_GrBufferType,
                                                          sizeof(kTriangleVertices),
@@ -499,9 +499,8 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         }
     }
 
-    if (PrimitiveType::kCubics == fPrimitiveType || WindMethod::kInstanceData == fWindMethod) {
-        SkASSERT(WindMethod::kCrossProduct == fWindMethod || 3 == this->numInputPoints());
-
+    if (PrimitiveType::kCubics == fPrimitiveType ||
+        PrimitiveType::kWeightedTriangles == fPrimitiveType) {
         SkASSERT(kAttribIdx_X == this->numAttribs());
         this->addInstanceAttrib("X", kFloat4_GrVertexAttribType);
 
@@ -547,6 +546,7 @@ void GrCCCoverageProcessor::appendVSMesh(GrBuffer* instanceBuffer, int instanceC
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createVSImpl(std::unique_ptr<Shader> shadr) const {
     switch (fPrimitiveType) {
         case PrimitiveType::kTriangles:
+        case PrimitiveType::kWeightedTriangles:
             return new VSImpl(std::move(shadr), 3);
         case PrimitiveType::kQuadratics:
         case PrimitiveType::kCubics:

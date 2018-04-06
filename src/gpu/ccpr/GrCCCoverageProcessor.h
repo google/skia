@@ -37,6 +37,7 @@ class GrCCCoverageProcessor : public GrGeometryProcessor {
 public:
     enum class PrimitiveType {
         kTriangles,
+        kWeightedTriangles, // Triangles (from the tessellator) whose winding magnitude > 1.
         kQuadratics,
         kCubics,
     };
@@ -60,19 +61,12 @@ public:
         float fY[4];
 
         void set(const SkPoint[4], float dx, float dy);
-        void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
+        void setW(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
     };
 
-    enum class WindMethod : bool {
-        kCrossProduct, // Calculate wind = +/-1 by sign of the cross product.
-        kInstanceData // Instance data provides custom, signed wind values of any magnitude.
-                      // (For tightly-wound tessellated triangles.)
-    };
-
-    GrCCCoverageProcessor(GrResourceProvider* rp, PrimitiveType type, WindMethod windMethod)
+    GrCCCoverageProcessor(GrResourceProvider* rp, PrimitiveType type)
             : INHERITED(kGrCCCoverageProcessor_ClassID)
             , fPrimitiveType(type)
-            , fWindMethod(windMethod)
             , fImpl(rp->caps()->shaderCaps()->geometryShaderSupport() ? Impl::kGeometryShader
                                                                       : Impl::kVertexShader) {
         if (Impl::kGeometryShader == fImpl) {
@@ -222,7 +216,6 @@ private:
     GrCCCoverageProcessor(const GrCCCoverageProcessor& proc, GSSubpass subpass)
             : INHERITED(kGrCCCoverageProcessor_ClassID)
             , fPrimitiveType(proc.fPrimitiveType)
-            , fWindMethod(proc.fWindMethod)
             , fImpl(Impl::kGeometryShader)
             SkDEBUGCODE(, fDebugBloat(proc.fDebugBloat))
             , fGSSubpass(subpass) {
@@ -242,7 +235,6 @@ private:
     GrGLSLPrimitiveProcessor* createVSImpl(std::unique_ptr<Shader>) const;
 
     const PrimitiveType fPrimitiveType;
-    const WindMethod fWindMethod;
     const Impl fImpl;
     SkDEBUGCODE(float fDebugBloat = 0);
 
@@ -261,6 +253,7 @@ private:
 inline const char* GrCCCoverageProcessor::PrimitiveTypeName(PrimitiveType type) {
     switch (type) {
         case PrimitiveType::kTriangles: return "kTriangles";
+        case PrimitiveType::kWeightedTriangles: return "kWeightedTriangles";
         case PrimitiveType::kQuadratics: return "kQuadratics";
         case PrimitiveType::kCubics: return "kCubics";
     }
@@ -287,9 +280,9 @@ inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint p[4], fl
     (Y + dy).store(&fY);
 }
 
-inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint& p0, const SkPoint& p1,
-                                                          const SkPoint& p2, const Sk2f& trans,
-                                                          float w) {
+inline void GrCCCoverageProcessor::QuadPointInstance::setW(const SkPoint& p0, const SkPoint& p1,
+                                                           const SkPoint& p2, const Sk2f& trans,
+                                                           float w) {
     Sk2f P0 = Sk2f::Load(&p0) + trans;
     Sk2f P1 = Sk2f::Load(&p1) + trans;
     Sk2f P2 = Sk2f::Load(&p2) + trans;

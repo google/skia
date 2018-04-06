@@ -58,7 +58,7 @@ protected:
 
         GrShaderVar wind("wind", kHalf_GrSLType);
         g->declareGlobal(wind);
-        if (WindMethod::kCrossProduct == proc.fWindMethod) {
+        if (PrimitiveType::kWeightedTriangles != proc.fPrimitiveType) {
             g->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], "
                                                                 "pts[0] - pts[2]));");
             if (4 == numInputPoints) {
@@ -67,7 +67,6 @@ protected:
             }
             g->codeAppendf("%s = sign(area_x2);", wind.c_str());
         } else {
-            SkASSERT(WindMethod::kInstanceData == proc.fWindMethod);
             SkASSERT(3 == numInputPoints);
             SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(0).fType);
             g->codeAppendf("%s = sk_in[0].sk_Position.w;", wind.c_str());
@@ -306,7 +305,8 @@ public:
                               const GrShaderVar& wind, const char* emitVertexFn) const override {
         fShader->emitSetupCode(g, "pts", wind.c_str());
 
-        bool isTriangle = PrimitiveType::kTriangles == proc.fPrimitiveType;
+        bool isTriangle = PrimitiveType::kTriangles == proc.fPrimitiveType ||
+                          PrimitiveType::kWeightedTriangles == proc.fPrimitiveType;
         g->codeAppendf("int corneridx = sk_InvocationID;");
         if (!isTriangle) {
             g->codeAppendf("corneridx *= %i;", proc.numInputPoints() - 1);
@@ -389,8 +389,8 @@ public:
 
 void GrCCCoverageProcessor::initGS() {
     SkASSERT(Impl::kGeometryShader == fImpl);
-    if (PrimitiveType::kCubics == fPrimitiveType || WindMethod::kInstanceData == fWindMethod) {
-        SkASSERT(WindMethod::kCrossProduct == fWindMethod || 3 == this->numInputPoints());
+    if (PrimitiveType::kCubics == fPrimitiveType ||
+        PrimitiveType::kWeightedTriangles == fPrimitiveType) {
         this->addVertexAttrib("x_or_y_values", kFloat4_GrVertexAttribType);
         SkASSERT(sizeof(QuadPointInstance) == this->getVertexStride() * 2);
         SkASSERT(offsetof(QuadPointInstance, fY) == this->getVertexStride());
@@ -416,7 +416,8 @@ void GrCCCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceC
 
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGSImpl(std::unique_ptr<Shader> shadr) const {
     if (GSSubpass::kHulls == fGSSubpass) {
-        return (PrimitiveType::kTriangles == fPrimitiveType)
+        return (PrimitiveType::kTriangles == fPrimitiveType ||
+                PrimitiveType::kWeightedTriangles == fPrimitiveType)
                    ? (GSImpl*) new GSTriangleHullImpl(std::move(shadr))
                    : (GSImpl*) new GSCurveHullImpl(std::move(shadr));
     }

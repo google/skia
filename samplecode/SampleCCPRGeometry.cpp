@@ -204,7 +204,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
                       SkRect::MakeIWH(this->width(), this->height()));
 
         // Add label.
-        caption.appendf("RenderPass_%s", GrCCCoverageProcessor::PrimitiveTypeName(fPrimitiveType));
+        caption.appendf("PrimitiveType_%s",
+                        GrCCCoverageProcessor::PrimitiveTypeName(fPrimitiveType));
         if (PrimitiveType::kCubics == fPrimitiveType) {
             caption.appendf(" (%s)", SkCubicTypeName(fCubicType));
         }
@@ -295,8 +296,7 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state) {
                              ? static_cast<GrGLGpu*>(state->gpu())
                              : nullptr;
 
-    GrCCCoverageProcessor proc(rp, fView->fPrimitiveType,
-                               GrCCCoverageProcessor::WindMethod::kCrossProduct);
+    GrCCCoverageProcessor proc(rp, fView->fPrimitiveType);
     SkDEBUGCODE(proc.enableDebugBloat(kDebugBloat));
 
     SkSTArray<1, GrMesh> mesh;
@@ -390,6 +390,9 @@ bool CCPRGeometryView::onQuery(SkEvent* evt) {
     if (SampleCode::CharQ(*evt, &unichar)) {
         if (unichar >= '1' && unichar <= '3') {
             fPrimitiveType = PrimitiveType(unichar - '1');
+            if (fPrimitiveType >= PrimitiveType::kWeightedTriangles) {
+                fPrimitiveType = (PrimitiveType) ((int)fPrimitiveType + 1);
+            }
             this->updateAndInval();
             return true;
         }
