@@ -551,6 +551,7 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkGpuCommandBuffer.h",
   "$_src/gpu/vk/GrVkImage.cpp",
   "$_src/gpu/vk/GrVkImage.h",
+  "$_src/gpu/vk/GrVkImageLayout.h",
   "$_src/gpu/vk/GrVkImageView.cpp",
   "$_src/gpu/vk/GrVkImageView.h",
   "$_src/gpu/vk/GrVkIndexBuffer.cpp",
