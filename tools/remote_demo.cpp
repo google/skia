@@ -121,7 +121,7 @@ static void final_draw(std::string outFilename,
     auto picUnderTest = SkPicture::MakeFromData(picData, procs);
 
     Timer drawTime;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1; i++) {
         if (gPurgeFontCaches) {
             SkGraphics::PurgeFontCache();
         }

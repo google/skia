@@ -10,6 +10,7 @@
 #include <iterator>
 #include <memory>
 #include <tuple>
+#include <unordered_set>
 
 #include "SkDevice.h"
 #include "SkFindAndPlaceGlyph.h"
@@ -128,7 +129,6 @@ private:
     size_t        fCursor{0};
 };
 
-
 // -- SkStrikeCacheDifferenceSpec ------------------------------------------------------------------
 
 SkStrikeDifferences::SkStrikeDifferences(
@@ -168,6 +168,17 @@ void SkStrikeCacheDifferenceSpec::iterateDifferences(PerStrike perStrike, PerGly
             perGlyph(id);
         });
     }
+}
+
+std::vector<SkScalerContextRec> SkStrikeCacheDifferenceSpec::getRecs() const {
+    std::vector<SkScalerContextRec> answer;
+    for (auto& i : fDescriptorToDifferencesMap) {
+        auto strikeDiff = &i.second;
+        SkScalerContextRec rec =
+                *(SkScalerContextRec*)strikeDiff->fDesc->findEntry(kRec_SkDescriptorTag, nullptr);
+        answer.push_back(rec);
+    }
+    return answer;
 }
 
 // -- TrackLayerDevice -----------------------------------------------------------------------------
@@ -614,11 +625,60 @@ sk_sp<SkData> SkStrikeServer::encodeTypeface(SkTypeface* tf) {
 SkStrikeClient::SkStrikeClient(SkStrikeCacheClientRPC clientRPC)
     : fClientRPC{clientRPC} { }
 
+#define CHECKDIFF(field) \
+if (original.field != diff.field) { \
+    SkDebugf(#field ": %d != %d\n", original.field, diff.field); \
+}
+
+#define FLAG_TABLE \
+    M(kFrameAndFill_Flag, 0x0001) \
+    M(kDevKernText_Flag, 0x0002) \
+    M(kEmbeddedBitmapText_Flag, 0x0004) \
+    M(kEmbolden_Flag, 0x0008) \
+    M(kSubpixelPositioning_Flag, 0x0010) \
+    M(kForceAutohinting_Flag, 0x0020) \
+    M(kVertical_Flag, 0x0040) \
+    M(kHintingBit1_Flag, 0x0080) \
+    M(kHintingBit2_Flag, 0x0100) \
+    M(kLCD_Vertical_Flag, 0x0200) \
+    M(kLCD_BGROrder_Flag, 0x0400) \
+    M(kGenA8FromLCD_Flag, 0x0800)
+
+#define M(flag, value) \
+{ \
+    uint16_t of =  originalFlags & value;\
+    uint16_t df =  diffFlags & value;\
+    if (of != df) { \
+        SkDebugf(#flag ": %x != %x\n", of, df); \
+    } \
+}
+
+static void recFlagsDifference(uint16_t originalFlags, uint16_t diffFlags) {
+    FLAG_TABLE
+}
+#undef M
+#undef FLAG_TABLE
+
+static void recDifference(const SkScalerContextRec& original, const SkScalerContextRec& diff) {
+    SkDebugf("Rec Difference\n");
+    CHECKDIFF(fFontID);
+    CHECKDIFF(fTextSize);
+    CHECKDIFF(fFrameWidth);
+    CHECKDIFF(fMiterLimit);
+    if (original.fFlags != diff.fFlags) {
+        recFlagsDifference(original.fFlags, diff.fFlags);
+    }
+}
+#undef CHECKDIFF
+
 void SkStrikeClient::generateFontMetrics(
     const SkTypefaceProxy& typefaceProxy,
     const SkScalerContextRec& rec,
     SkPaint::FontMetrics* metrics)
 {
+    auto closeRec = findCloseRect(rec);
+    SkDebugf("Close ref:\n%s", closeRec.dump().c_str());
+    recDifference(rec, closeRec);
     fBuffer.clear();
 
     Serializer serializer{&fBuffer};
@@ -683,6 +743,9 @@ bool SkStrikeClient::generatePath(
 }
 
 void SkStrikeClient::primeStrikeCache(const SkStrikeCacheDifferenceSpec& strikeDifferences) {
+    // Testing - store off the precached recs
+    fPrecachedRecs = strikeDifferences.getRecs();
+
     fBuffer.clear();
     fBuffer.reserve(strikeDifferences.sizeBytes());
 
@@ -730,4 +793,15 @@ sk_sp<SkTypeface> SkStrikeClient::decodeTypeface(const void* buf, size_t len) {
         typeFace = fMapIdToTypeface.set(wire.typefaceID, newTypeface);
     }
     return *typeFace;
+}
+
+SkScalerContextRec SkStrikeClient::findCloseRect(const SkScalerContextRec& targetRec) {
+    for (auto& rec : fPrecachedRecs) {
+        if (rec.fFontID == targetRec.fFontID &&
+            rec.fTextSize == targetRec.fTextSize &&
+            rec.fFrameWidth == targetRec.fFrameWidth) {
+            return rec;
+        }
+    }
+    return SkScalerContextRec();
 }

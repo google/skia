@@ -100,6 +100,7 @@ public:
     size_t sizeBytes() const;
     template <typename PerStrike, typename PerGlyph>
     void iterateDifferences(PerStrike perStrike, PerGlyph perGlyph) const;
+    std::vector<SkScalerContextRec> getRecs() const;
 
 private:
     struct DescHash {
@@ -196,6 +197,7 @@ public:
 
 private:
     sk_sp<SkTypeface> decodeTypeface(const void* buf, size_t len);
+    SkScalerContextRec findCloseRect(const SkScalerContextRec& targetRec);
 
     // TODO: Figure out how to manage the entries for the following maps.
     SkTHashMap<SkFontID, sk_sp<SkTypefaceProxy>> fMapIdToTypeface;
@@ -203,6 +205,9 @@ private:
     SkStrikeCacheClientRPC fClientRPC;
 
     std::vector<uint8_t> fBuffer;
+
+    // Testing
+    std::vector<SkScalerContextRec> fPrecachedRecs;
 };
 
 #endif  // SkRemoteGlyphCache_DEFINED
