@@ -146,11 +146,8 @@ void GrCCCoverageProcessor::Shader::CalcCornerAttenuation(GrGLSLVertexGeoBuilder
 
 void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
                                                 GrProcessorKeyBuilder* b) const {
-    int key = (int)fPrimitiveType << 3;
+    int key = (int)fPrimitiveType << 2;
     if (GSSubpass::kCorners == fGSSubpass) {
-        key |= 4;
-    }
-    if (WindMethod::kInstanceData == fWindMethod) {
         key |= 2;
     }
     if (Impl::kVertexShader == fImpl) {
@@ -168,6 +165,7 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
     std::unique_ptr<Shader> shader;
     switch (fPrimitiveType) {
         case PrimitiveType::kTriangles:
+        case PrimitiveType::kWeightedTriangles:
             shader = skstd::make_unique<TriangleShader>();
             break;
         case PrimitiveType::kQuadratics:
