@@ -10,6 +10,7 @@
 
 #include "SkBitmapDevice.h"
 #include "SkDraw.h"
+#include "SkRectPriv.h"
 #include "SkTaskGroup2D.h"
 
 class SkThreadedBMPDevice : public SkBitmapDevice {
@@ -71,17 +72,17 @@ private:
                                           const SkIRect& tileBounds)>;
 
         DrawElement() {}
-        DrawElement(SkThreadedBMPDevice* device, DrawFn&& drawFn, const SkRect& rawDrawBounds)
+        DrawElement(SkThreadedBMPDevice* device, DrawFn&& drawFn, const SkIRect& drawBounds)
                 : fInitialized(true)
                 , fDrawFn(std::move(drawFn))
                 , fDS(device)
-                , fDrawBounds(device->transformDrawBounds(rawDrawBounds)) {}
-        DrawElement(SkThreadedBMPDevice* device, InitFn&& initFn, const SkRect& rawDrawBounds)
+                , fDrawBounds(drawBounds) {}
+        DrawElement(SkThreadedBMPDevice* device, InitFn&& initFn, const SkIRect& drawBounds)
                 : fInitialized(false)
                 , fNeedInit(true)
                 , fInitFn(std::move(initFn))
                 , fDS(device)
-                , fDrawBounds(device->transformDrawBounds(rawDrawBounds)) {}
+                , fDrawBounds(drawBounds) {}
 
         SK_ALWAYS_INLINE bool tryInitOnce(SkArenaAlloc* alloc) {
             bool t = true;
@@ -137,13 +138,14 @@ private:
         // Push a draw command into the queue. If Fn is DrawFn, we're pushing an element without
         // the need of initialization. If Fn is InitFn, we're pushing an element with init-once
         // and the InitFn will generate the DrawFn during initialization.
-        template<typename Fn>
+        template<bool useCTM = true, typename Fn>
         SK_ALWAYS_INLINE void push(const SkRect& rawDrawBounds, Fn&& fn) {
             if (fSize == MAX_QUEUE_SIZE) {
                 this->reset();
             }
             SkASSERT(fSize < MAX_QUEUE_SIZE);
-            new (&fElements[fSize++]) DrawElement(fDevice, std::move(fn), rawDrawBounds);
+            SkIRect drawBounds = fDevice->transformDrawBounds<useCTM>(rawDrawBounds);
+            new (&fElements[fSize++]) DrawElement(fDevice, std::move(fn), drawBounds);
             fTasks->addColumn();
         }
 
@@ -159,7 +161,21 @@ private:
         int                                 fSize;
     };
 
-    SkIRect transformDrawBounds(const SkRect& drawBounds) const;
+    template<bool useCTM = true>
+    SkIRect transformDrawBounds(const SkRect& drawBounds) const {
+        if (drawBounds == SkRectPriv::MakeLargest()) {
+            return SkRectPriv::MakeILarge();
+        }
+        SkRect transformedBounds;
+        if (useCTM) {
+            this->ctm().mapRect(&transformedBounds, drawBounds);
+        } else {
+            transformedBounds = drawBounds;
+        }
+        return transformedBounds.roundOut();
+    }
+
+
 
     template<typename T>
     T* cloneArray(const T* array, int count) {
