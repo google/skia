@@ -21,21 +21,25 @@
  * (Use GrCCGeometry::quadraticTo().)
  */
 class GrCCQuadraticShader : public GrCCCoverageProcessor::Shader {
-protected:
+public:
     void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* wind,
                        const char** tighterHull) const override;
 
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                         const char* position, const char* coverage,
-                        const char* attenuatedCoverage) override;
+                        const char* cornerCoverage) override;
 
     void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
+
+private:
+    void calcHullCoverage(SkString* code, const char* coordAndGrad, const char* d,
+                          const char* outputCoverage) const;
 
     const GrShaderVar fQCoordMatrix{"qcoord_matrix", kFloat2x2_GrSLType};
     const GrShaderVar fQCoord0{"qcoord0", kFloat2_GrSLType};
     const GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
-    GrGLSLVarying fCoord;
-    GrGLSLVarying fCoverages;
+    GrGLSLVarying fCoord_fGrad;
+    GrGLSLVarying fEdge_fWind_fCorner;
 };
 
 #endif

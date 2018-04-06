@@ -369,22 +369,18 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     v->codeAppend ("float2 vertex = corner + bloatdir * bloat;");
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
 
-    v->codeAppend ("half left_coverage; {");
-    Shader::CalcEdgeCoverageAtBloatVertex(v, "left", "corner", "bloatdir", "left_coverage");
-    v->codeAppend ("}");
-
-    v->codeAppend ("half right_coverage; {");
-    Shader::CalcEdgeCoverageAtBloatVertex(v, "corner", "right", "bloatdir", "right_coverage");
-    v->codeAppend ("}");
-
-    v->codeAppend ("half attenuation; {");
-    Shader::CalcCornerCoverageAttenuation(v, "leftdir", "rightdir", "attenuation");
-    v->codeAppend ("}");
-
     // Hulls have a coverage of +1 all around.
     v->codeAppend ("half coverage = +1;");
 
     if (3 == fNumSides) {
+        v->codeAppend ("half left_coverage; {");
+        Shader::CalcEdgeCoverageAtBloatVertex(v, "left", "corner", "bloatdir", "left_coverage");
+        v->codeAppend ("}");
+
+        v->codeAppend ("half right_coverage; {");
+        Shader::CalcEdgeCoverageAtBloatVertex(v, "corner", "right", "bloatdir", "right_coverage");
+        v->codeAppend ("}");
+
         v->codeAppendf("if (0 != (%s & %i)) {", // Are we an edge?
                        proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_IsEdgeBit);
         v->codeAppend (    "coverage = left_coverage;");
@@ -397,39 +393,52 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
         v->codeAppend ("}");
     }
 
-    // Corner boxes require attenuation.
-    v->codeAppend ("half2 attenuated_coverage = half2(0, 1);");
+    // Non-corner geometry should have zero effect from corner coverage.
+    v->codeAppend ("half2 corner_coverage = half2(0);");
 
     v->codeAppendf("if (0 != (%s & %i)) {", // Are we a corner?
                    proc.getAttrib(kAttribIdx_VertexData).fName, kVertexData_IsCornerBit);
                        // We use coverage=-1 to erase what the hull geometry wrote.
+                       //
+                       // In the context of curves, this effectively means "wind = -wind" and
+                       // causes the Shader to erase what it had written previously for the hull.
+                       //
+                       // For triangles it just erases the "+1" value written by the hull geometry.
     v->codeAppend (    "coverage = -1;");
     if (3 == fNumSides) {
                        // Triangle corners also have to erase what the edge geometry wrote.
         v->codeAppend ("coverage -= left_coverage + right_coverage;");
     }
-                       // The x and y components of "attenuated_coverage" are multiplied
-                       // together by the fragment shader. They ramp to 0 with attenuation in
-                       // the diagonal that points out of the corner, and linearly from
-                       // left-edge coverage to right in the opposite diagonal.
-                       // bloatidx=0 is the outermost vertex; the one that has attenuation.
-    v->codeAppend (    "attenuated_coverage = (0 == bloatidx)"
-                               "? half2(0, attenuation) : half2(1);");
-    v->codeAppend (    "if (1 == bloatidx || 2 == bloatidx) {");
-    v->codeAppend (        "attenuated_coverage.x += right_coverage;");
+
+                       // Corner boxes require attenuated coverage.
+    v->codeAppend (    "half attenuation; {");
+    Shader::CalcCornerAttenuation(v, "leftdir", "rightdir", "attenuation");
     v->codeAppend (    "}");
-    v->codeAppend (    "if (bloatidx >= 2) {");
-    v->codeAppend (        "attenuated_coverage.x += left_coverage;");
-    v->codeAppend (    "}");
+
+                       // Attenuate corner coverage towards the outermost vertex (where bloatidx=0).
+                       // This is all that curves need: At each vertex of the corner box, the curve
+                       // Shader will calculate the curve's local coverage value, interpolate it
+                       // alongside our attenuation parameter, and multiply the two together for a
+                       // final coverage value.
+    v->codeAppend (    "corner_coverage = (0 == bloatidx) ? half2(0, attenuation) : half2(1);");
+
+    if (3 == fNumSides) {
+                       // For triangles we also provide the actual coverage values at each vertex of
+                       // the corner box.
+        v->codeAppend ("if (1 == bloatidx || 2 == bloatidx) {");
+        v->codeAppend (    "corner_coverage.x += right_coverage;");
+        v->codeAppend ("}");
+        v->codeAppend ("if (bloatidx >= 2) {");
+        v->codeAppend (    "corner_coverage.x += left_coverage;");
+        v->codeAppend ("}");
+    }
     v->codeAppend ("}");
 
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
-    SkString varyingCode;
     v->codeAppend ("coverage *= wind;");
-    v->codeAppend ("attenuated_coverage.x *= wind;");
-    fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kVertToFrag, &varyingCode,
-                          gpArgs->fPositionVar.c_str(), "coverage", "attenuated_coverage");
-    v->codeAppend(varyingCode.c_str());
+    v->codeAppend ("corner_coverage.x *= wind;");
+    fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kVertToFrag, &v->code(),
+                          gpArgs->fPositionVar.c_str(), "coverage", "corner_coverage");
 
     varyingHandler->emitAttributes(proc);
     SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
