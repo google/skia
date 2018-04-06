@@ -11,7 +11,6 @@
 #ifndef GrEllipseEffect_DEFINED
 #define GrEllipseEffect_DEFINED
 #include "SkTypes.h"
-#if SK_SUPPORT_GPU
 
 #include "GrShaderCaps.h"
 #include "GrFragmentProcessor.h"
@@ -50,5 +49,4 @@ private:
     SkPoint fRadii;
     typedef GrFragmentProcessor INHERITED;
 };
-#endif
 #endif

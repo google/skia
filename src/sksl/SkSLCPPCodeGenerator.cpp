@@ -766,8 +766,7 @@ bool CPPCodeGenerator::generateCode() {
     const char* fullName = fFullName.c_str();
     this->writef("%s\n", HCodeGenerator::GetHeader(fProgram, fErrors).c_str());
     this->writef(kFragmentProcessorHeader, fullName);
-    this->writef("#include \"%s.h\"\n"
-                 "#if SK_SUPPORT_GPU\n", fullName);
+    this->writef("#include \"%s.h\"\n", fullName);
     this->writeSection(CPP_SECTION);
     this->writef("#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
                  "#include \"glsl/GrGLSLFragmentShaderBuilder.h\"\n"
@@ -820,7 +819,7 @@ bool CPPCodeGenerator::generateCode() {
     this->writeClone();
     this->writeTest();
     this->writeSection(CPP_END_SECTION);
-    this->write("#endif\n");
+
     result &= 0 == fErrors.errorCount();
     return result;
 }
