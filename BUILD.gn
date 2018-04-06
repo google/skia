@@ -1290,7 +1290,6 @@ if (skia_enable_tools) {
       "tools/debugger/SkDebugCanvas.cpp",
       "tools/debugger/SkDrawCommand.cpp",
       "tools/debugger/SkJsonWriteBuffer.cpp",
-      "tools/debugger/SkObjectParser.cpp",
       "tools/fonts/SkRandomScalerContext.cpp",
       "tools/fonts/SkTestFontMgr.cpp",
       "tools/fonts/SkTestFontMgr.h",
@@ -1783,7 +1782,6 @@ if (skia_enable_tools) {
       "tools/debugger/SkDebugCanvas.cpp",
       "tools/debugger/SkDrawCommand.cpp",
       "tools/debugger/SkJsonWriteBuffer.cpp",
-      "tools/debugger/SkObjectParser.cpp",
       "tools/picture_utils.cpp",
     ]
     deps = [
@@ -2117,7 +2115,6 @@ if (skia_enable_tools) {
         "tools/debugger/SkDebugCanvas.cpp",
         "tools/debugger/SkDrawCommand.cpp",
         "tools/debugger/SkJsonWriteBuffer.cpp",
-        "tools/debugger/SkObjectParser.cpp",
         "tools/mdbviz/MainWindow.cpp",
         "tools/mdbviz/Model.cpp",
         "tools/mdbviz/main.cpp",

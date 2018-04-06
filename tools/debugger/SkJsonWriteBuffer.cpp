@@ -8,7 +8,6 @@
 #include "SkJsonWriteBuffer.h"
 
 #include "SkDrawCommand.h"
-#include "SkObjectParser.h"
 
 void SkJsonWriteBuffer::append(const char* type, const Json::Value& value) {
     SkString fullName = SkStringPrintf("%02d_%s", fJson.size(), type);
