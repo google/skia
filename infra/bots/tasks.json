@@ -180,6 +180,12 @@
         "Build-Debian9-Clang-x86_64-Debug-SafeStack"
       ]
     },
+    "Build-Debian9-Clang-x86_64-Debug-SwiftShader": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-x86_64-Debug-SwiftShader"
+      ]
+    },
     "Build-Debian9-Clang-x86_64-Debug-Vulkan": {
       "priority": 0.8,
       "tasks": [
@@ -262,6 +268,12 @@
       "priority": 0.8,
       "tasks": [
         "Build-Debian9-Clang-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
+      ]
+    },
+    "Build-Debian9-Clang-x86_64-Release-SwiftShader": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-x86_64-Release-SwiftShader"
       ]
     },
     "Build-Debian9-Clang-x86_64-Release-TSAN": {
@@ -2388,6 +2400,12 @@
         "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack"
       ]
     },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader"
+      ]
+    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_12-Coverage": {
       "priority": 0.8,
       "tasks": [
@@ -2434,6 +2452,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER"
+      ]
+    },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader"
       ]
     },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN": {
@@ -4196,6 +4220,41 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Debian9-Clang-x86_64-Debug-SwiftShader": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
+          "name": "skia/bots/swiftshader_linux",
+          "path": "swiftshader_linux",
+          "version": "version:0"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-x86_64-Debug-SwiftShader",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Debian9-Clang-x86_64-Debug-Vulkan": {
       "cipd_packages": [
         {
@@ -4621,6 +4680,41 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-Clang-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-Clang-x86_64-Release-SwiftShader": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
+          "name": "skia/bots/swiftshader_linux",
+          "path": "swiftshader_linux",
+          "version": "version:0"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-x86_64-Release-SwiftShader",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -18074,6 +18168,59 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:118"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/swiftshader_linux",
+          "path": "swiftshader_linux",
+          "version": "version:0"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Debug-SwiftShader",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_12-Coverage": {
       "cipd_packages": [
         {
@@ -18967,6 +19114,59 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:118"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/swiftshader_linux",
+          "path": "swiftshader_linux",
+          "version": "version:0"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Release-SwiftShader",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -31148,6 +31348,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader": {
+      "dependencies": [
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_12-Coverage": {
       "cipd_packages": [
         {
@@ -31345,6 +31572,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader": {
+      "dependencies": [
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

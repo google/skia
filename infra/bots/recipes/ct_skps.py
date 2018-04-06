@@ -200,7 +200,7 @@ def RunSteps(api):
 
   # Trigger all swarming tasks.
   dimensions={'os': 'Ubuntu-14.04'}
-  if 'GPU' in buildername:
+  if api.vars.is_gpu:
     dimensions['cpu'] = 'x86-64-E3-1230_v5'
     dimensions['gpu'] = '10de:1cb3-384.90'
     # See crbug.com/700053
