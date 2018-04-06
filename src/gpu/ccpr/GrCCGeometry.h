@@ -38,7 +38,7 @@ public:
     // These tallies track numbers of CCPR primitives that are required to draw a contour.
     struct PrimitiveTallies {
         int fTriangles; // Number of triangles in the contour's fan.
-        int fWoundTriangles; // Triangles (from the tessellator) whose winding magnitude > 1.
+        int fWeightedTriangles; // Triangles (from the tessellator) whose winding magnitude > 1.
         int fQuadratics;
         int fCubics;
 
@@ -129,7 +129,7 @@ private:
 
 inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b) {
     fTriangles += b.fTriangles;
-    fWoundTriangles += b.fWoundTriangles;
+    fWeightedTriangles += b.fWeightedTriangles;
     fQuadratics += b.fQuadratics;
     fCubics += b.fCubics;
 }
@@ -137,13 +137,13 @@ inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b
 GrCCGeometry::PrimitiveTallies
 inline GrCCGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) const {
     return {fTriangles - b.fTriangles,
-            fWoundTriangles - b.fWoundTriangles,
+            fWeightedTriangles - b.fWeightedTriangles,
             fQuadratics - b.fQuadratics,
             fCubics - b.fCubics};
 }
 
 inline bool GrCCGeometry::PrimitiveTallies::operator==(const PrimitiveTallies& b) {
-    return fTriangles == b.fTriangles && fWoundTriangles == b.fWoundTriangles &&
+    return fTriangles == b.fTriangles && fWeightedTriangles == b.fWeightedTriangles &&
            fQuadratics == b.fQuadratics && fCubics == b.fCubics;
 }
 
