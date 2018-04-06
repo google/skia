@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "653a173c_9751fde2",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-06T02:41:20Z",
+      "side": 0,
+      "message": "Below we override configs for ChromeOS, so this has no effect.",
+      "revId": "05875a3bd23520e817edb41c4c5177ab06c27058",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
