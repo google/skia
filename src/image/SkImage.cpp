@@ -169,9 +169,9 @@ GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
 }
 
 #if GR_TEST_UTILS
-GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
-                                            GrSurfaceOrigin* origin) const {
-    return as_IB(this)->onGetBackendTexture(flushPendingGrContextIO, origin);
+GrBackendTexture SkImageGetBackendTexture(const SkImage* image, bool flushPendingGrContextIO,
+                                            GrSurfaceOrigin* origin) {
+    return as_IB(image)->onGetBackendTexture(flushPendingGrContextIO, origin);
 }
 #endif
 

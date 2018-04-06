@@ -227,12 +227,14 @@ bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess 
 }
 
 #if GR_TEST_UTILS
-GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
-    return asSB(this)->onGetBackendTexture(access);
+GrBackendTexture SkSurfaceGetBackendTexture(SkSurface* surface,
+                                            SkSurface::BackendHandleAccess access) {
+    return asSB(surface)->onGetBackendTexture(access);
 }
 
-GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess access) {
-    return asSB(this)->onGetBackendRenderTarget(access);
+GrBackendRenderTarget SkSurfaceGetBackendRenderTarget(SkSurface* surface,
+                                                      SkSurface::BackendHandleAccess access) {
+    return asSB(surface)->onGetBackendRenderTarget(access);
 }
 #endif
 

@@ -83,4 +83,23 @@ void SkImage_unpinAsTexture(const SkImage*, GrContext*);
  */
 sk_sp<SkImage> SkImageMakeRasterCopyAndAssignColorSpace(const SkImage*, SkColorSpace*);
 
+#if GR_TEST_UTILS
+    /** Retrieves the backend texture. If SkImage has no backend texture, an invalid
+        object is returned. Call GrBackendTexture::isValid to determine if the result
+        is valid.
+
+        If flushPendingGrContextIO is true, completes deferred I/O operations.
+
+        If origin in not nullptr, copies location of content drawn into SkImage.
+
+        @param flushPendingGrContextIO  flag to flush outstanding requests
+        @param origin                   storage for one of: kTopLeft_GrSurfaceOrigin,
+                                        kBottomLeft_GrSurfaceOrigin; or nullptr
+        @return                         back-end API texture handle; invalid on failure
+    */
+    GrBackendTexture SkImageGetBackendTexture(const SkImage*, bool flushPendingGrContextIO,
+                                       GrSurfaceOrigin* origin = nullptr);
+#endif
+
+
 #endif
