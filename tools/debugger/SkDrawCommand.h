@@ -73,7 +73,7 @@ public:
 
     SkDrawCommand(OpType opType);
 
-    virtual ~SkDrawCommand();
+    virtual ~SkDrawCommand() {}
 
     virtual SkString toString() const;
 
@@ -89,11 +89,8 @@ public:
         fVisible = toggle;
     }
 
-    const SkTDArray<SkString*>* Info() const { return &fInfo; }
     virtual void execute(SkCanvas*) const = 0;
     virtual void vizExecute(SkCanvas*) const {}
-
-    virtual void setUserMatrix(const SkMatrix&) {}
 
     // The next "active" system is only used by save, saveLayer, and restore.
     // It is used to determine which saveLayers are currently active (at a
@@ -144,9 +141,6 @@ public:
                         UrlDataManager& urlDataManager);
     static bool flatten(const SkBitmap& bitmap, Json::Value* target,
                         UrlDataManager& urlDataManager);
-
-protected:
-    SkTDArray<SkString*> fInfo;
 
 private:
     OpType fOpType;
@@ -790,13 +784,11 @@ private:
 class SkSetMatrixCommand : public SkDrawCommand {
 public:
     SkSetMatrixCommand(const SkMatrix& matrix);
-    void setUserMatrix(const SkMatrix&) override;
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkSetMatrixCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
-    SkMatrix fUserMatrix;
     SkMatrix fMatrix;
 
     typedef SkDrawCommand INHERITED;

@@ -10,6 +10,7 @@
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
 #include "SkPaintFilterCanvas.h"
+#include "SkPicture.h"
 #include "SkRectPriv.h"
 #include "SkTextBlob.h"
 #include "SkClipOpPriv.h"
@@ -28,13 +29,9 @@
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
 public:
     DebugPaintFilterCanvas(SkCanvas* canvas,
-                           bool overdrawViz,
-                           bool overrideFilterQuality,
-                           SkFilterQuality quality)
+                           bool overdrawViz)
         : INHERITED(canvas)
-        , fOverdrawViz(overdrawViz)
-        , fOverrideFilterQuality(overrideFilterQuality)
-        , fFilterQuality(quality) {}
+        , fOverdrawViz(overdrawViz) {}
 
 protected:
     bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
@@ -43,10 +40,6 @@ protected:
                 paint->writable()->setColor(SK_ColorRED);
                 paint->writable()->setAlpha(0x08);
                 paint->writable()->setBlendMode(SkBlendMode::kSrcOver);
-            }
-
-            if (fOverrideFilterQuality) {
-                paint->writable()->setFilterQuality(fFilterQuality);
             }
         }
         return true;
@@ -61,24 +54,15 @@ protected:
 
 private:
     bool fOverdrawViz;
-    bool fOverrideFilterQuality;
-    SkFilterQuality fFilterQuality;
 
     typedef SkPaintFilterCanvas INHERITED;
 };
 
 SkDebugCanvas::SkDebugCanvas(int width, int height)
         : INHERITED(width, height)
-        , fPicture(nullptr)
-        , fFilter(false)
-        , fMegaVizMode(false)
         , fOverdrawViz(false)
-        , fOverrideFilterQuality(false)
-        , fFilterQuality(kNone_SkFilterQuality)
         , fClipVizColor(SK_ColorTRANSPARENT)
         , fDrawGpuOpBounds(false) {
-    fUserMatrix.reset();
-
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
     // operations. This can lead to problems in the debugger which expects all
     // the operations in the captured skp to appear in the debug canvas. To
@@ -112,57 +96,6 @@ void SkDebugCanvas::draw(SkCanvas* canvas) {
     }
 }
 
-void SkDebugCanvas::applyUserTransform(SkCanvas* canvas) {
-    canvas->concat(fUserMatrix);
-}
-
-int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
-    SkBitmap bitmap;
-    bitmap.allocPixels(SkImageInfo::MakeN32Premul(1, 1));
-
-    SkCanvas canvas(bitmap);
-    canvas.translate(SkIntToScalar(-x), SkIntToScalar(-y));
-    this->applyUserTransform(&canvas);
-
-    int layer = 0;
-    SkColor prev = bitmap.getColor(0,0);
-    for (int i = 0; i < index; i++) {
-        if (fCommandVector[i]->isVisible()) {
-            fCommandVector[i]->setUserMatrix(fUserMatrix);
-            fCommandVector[i]->execute(&canvas);
-        }
-        if (prev != bitmap.getColor(0,0)) {
-            layer = i;
-        }
-        prev = bitmap.getColor(0,0);
-    }
-    return layer;
-}
-
-// set up the saveLayer commands so that the active ones
-// return true in their 'active' method
-void SkDebugCanvas::markActiveCommands(int index) {
-    fActiveLayers.rewind();
-
-    for (int i = 0; i < fCommandVector.count(); ++i) {
-        fCommandVector[i]->setActive(false);
-    }
-
-    for (int i = 0; i < index; ++i) {
-        SkDrawCommand::Action result = fCommandVector[i]->action();
-        if (SkDrawCommand::kPushLayer_Action == result) {
-            fActiveLayers.push(fCommandVector[i]);
-        } else if (SkDrawCommand::kPopLayer_Action == result) {
-            fActiveLayers.pop();
-        }
-    }
-
-    for (int i = 0; i < fActiveLayers.count(); ++i) {
-        fActiveLayers[i]->setActive(true);
-    }
-
-}
-
 void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
@@ -179,14 +112,8 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     if (!windowRect.isEmpty()) {
         originalCanvas->clipRect(windowRect, kReplace_SkClipOp);
     }
-    this->applyUserTransform(originalCanvas);
 
-    DebugPaintFilterCanvas filterCanvas(originalCanvas, fOverdrawViz, fOverrideFilterQuality,
-                                        fFilterQuality);
-
-    if (fMegaVizMode) {
-        this->markActiveCommands(index);
-    }
+    DebugPaintFilterCanvas filterCanvas(originalCanvas, fOverdrawViz);
 
 #if SK_SUPPORT_GPU
     // If we have a GPU backend we can also visualize the op information
@@ -198,10 +125,6 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 #endif
 
     for (int i = 0; i <= index; i++) {
-        if (i == index && fFilter) {
-            filterCanvas.clear(0xAAFFFFFF);
-        }
-
 #if SK_SUPPORT_GPU
         // We need to flush any pending operations, or they might combine with commands below.
         // Previous operations were not registered with the audit trail when they were
@@ -215,16 +138,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 #endif
 
         if (fCommandVector[i]->isVisible()) {
-            if (fMegaVizMode && fCommandVector[i]->active()) {
-                // "active" commands execute their visualization behaviors:
-                //     All active saveLayers get replaced with saves so all draws go to the
-                //     visible canvas.
-                //     All active culls draw their cull box
-                fCommandVector[i]->vizExecute(&filterCanvas);
-            } else {
-                fCommandVector[i]->setUserMatrix(fUserMatrix);
-                fCommandVector[i]->execute(&filterCanvas);
-            }
+            fCommandVector[i]->execute(&filterCanvas);
         }
 #if SK_SUPPORT_GPU
         if (at && acb) {
@@ -334,30 +248,6 @@ SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {
     return fCommandVector[index];
 }
 
-void SkDebugCanvas::setDrawCommandAt(int index, SkDrawCommand* command) {
-    SkASSERT(index < fCommandVector.count());
-    delete fCommandVector[index];
-    fCommandVector[index] = command;
-}
-
-const SkTDArray<SkString*>* SkDebugCanvas::getCommandInfo(int index) const {
-    SkASSERT(index < fCommandVector.count());
-    return fCommandVector[index]->Info();
-}
-
-bool SkDebugCanvas::getDrawCommandVisibilityAt(int index) {
-    SkASSERT(index < fCommandVector.count());
-    return fCommandVector[index]->isVisible();
-}
-
-const SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() const {
-    return fCommandVector;
-}
-
-SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
-    return fCommandVector;
-}
-
 GrAuditTrail* SkDebugCanvas::getAuditTrail(SkCanvas* canvas) {
     GrAuditTrail* at = nullptr;
 #if SK_SUPPORT_GPU
@@ -446,11 +336,6 @@ Json::Value SkDebugCanvas::toJSONOpList(int n, SkCanvas* canvas) {
 
 void SkDebugCanvas::setOverdrawViz(bool overdrawViz) {
     fOverdrawViz = overdrawViz;
-}
-
-void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkFilterQuality quality) {
-    fOverrideFilterQuality = overrideTexFiltering;
-    fFilterQuality = quality;
 }
 
 void SkDebugCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
