@@ -167,6 +167,36 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return fThreadSafeProxy;
 }
 
+#include "SkImage_Gpu.h"
+
+sk_sp<SkImage> GrContextThreadSafeProxy::makePromiseTexture(const GrBackendFormat& backendFormat,
+                                                            int width,
+                                                            int height,
+                                                            GrMipMapped mipMapped,
+                                                            GrSurfaceOrigin origin,
+                                                            SkColorType colorType,
+                                                            SkAlphaType alphaType,
+                                                            sk_sp<SkColorSpace> colorSpace,
+                                                            TextureFulfillProc textureFulfillProc,
+                                                            TextureReleaseProc textureReleaseProc,
+                                                            PromiseDoneProc promiseDoneProc,
+                                                            TextureContext textureContext) {
+
+    return SkImage_Gpu::MakePromiseTexture(this,
+                                           backendFormat,
+                                           width,
+                                           height,
+                                           mipMapped,
+                                           origin,
+                                           colorType,
+                                           alphaType,
+                                           std::move(colorSpace),
+                                           textureFulfillProc,
+                                           textureReleaseProc,
+                                           promiseDoneProc,
+                                           textureContext);
+}
+
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      size_t cacheMaxResourceBytes,
                                      const SkImageInfo& ii, const GrBackendFormat& backendFormat,

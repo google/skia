@@ -34,7 +34,7 @@ public:
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
-    GrContext* context() const override { return fContext; }
+//    GrContext* context() const override { return fContext; }
     GrTextureProxy* peekProxy() const override {
         return fProxy.get();
     }
@@ -111,7 +111,7 @@ public:
         @param textureContext      state passed to textureFulfillProc and textureReleaseProc
         @return                    created SkImage, or nullptr
      */
-    static sk_sp<SkImage> MakePromiseTexture(GrContext* context,
+    static sk_sp<SkImage> MakePromiseTexture(GrContextThreadSafeProxy* threadSafeProxy,
                                              const GrBackendFormat& backendFormat,
                                              int width,
                                              int height,

@@ -526,11 +526,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
     // For non-ddl draws always make lazy proxy's single use.
     LazyInstantiationType lazyType = fResourceProvider ? LazyInstantiationType::kSingleUse
                                                        : LazyInstantiationType::kMultipleUse;
-    return this->createLazyProxy(std::move(callback), desc, origin, mipMapped, surfaceFlags,
-                                 fit, budgeted, lazyType);
+    return CreateLazyProxy(std::move(callback), desc, origin, mipMapped, surfaceFlags,
+                           fit, budgeted, lazyType);
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&& callback,
+sk_sp<GrTextureProxy> GrProxyProvider::CreateLazyProxy(LazyInstantiateCallback&& callback,
                                                        const GrSurfaceDesc& desc,
                                                        GrSurfaceOrigin origin,
                                                        GrMipMapped mipMapped,
@@ -544,10 +544,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
 #ifdef SK_DEBUG
     if (SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags)) {
         if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kMixedSampled)) {
-            SkASSERT(fCaps->usesMixedSamples() && desc.fSampleCnt > 1);
+//            SkASSERT(fCaps->usesMixedSamples() && desc.fSampleCnt > 1);
         }
         if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport)) {
-            SkASSERT(fCaps->maxWindowRectangles() > 0);
+//            SkASSERT(fCaps->maxWindowRectangles() > 0);
         }
     }
 #endif

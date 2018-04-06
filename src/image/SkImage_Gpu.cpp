@@ -642,7 +642,7 @@ static GrInternalSurfaceFlags get_flags_from_format(const GrBackendFormat& backe
     return GrInternalSurfaceFlags::kNone;
 }
 
-sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
+sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContextThreadSafeProxy* threadSafeProxy,
                                                const GrBackendFormat& backendFormat,
                                                int width,
                                                int height,
@@ -655,7 +655,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                                TextureReleaseProc textureReleaseProc,
                                                PromiseDoneProc promiseDoneProc,
                                                TextureContext textureContext) {
-    if (!context) {
+    if (!threadSafeProxy) {
         return nullptr;
     }
 
@@ -672,11 +672,9 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
     GrPixelConfig config = kUnknown_GrPixelConfig;
-    if (!context->caps()->getConfigFromBackendFormat(backendFormat, colorType, &config)) {
+    if (!threadSafeProxy->caps()->getConfigFromBackendFormat(backendFormat, colorType, &config)) {
         return nullptr;
     }
-
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     GrSurfaceDesc desc;
     desc.fWidth = width;
@@ -688,7 +686,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
     GrInternalSurfaceFlags formatFlags = get_flags_from_format(backendFormat);
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
+    sk_sp<GrTextureProxy> proxy = GrProxyProvider::CreateLazyProxy(
             [promiseHelper, config] (GrResourceProvider* resourceProvider) mutable {
                 if (!resourceProvider) {
                     promiseHelper.reset();
@@ -703,7 +701,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, alphaType, std::move(proxy),
+    return sk_make_sp<SkImage_Gpu>(nullptr, kNeedNewImageUniqueID, alphaType, std::move(proxy),
                                    std::move(colorSpace), SkBudgeted::kNo);
 }
 
