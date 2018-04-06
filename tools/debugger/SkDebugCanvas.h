@@ -13,7 +13,6 @@
 #include "SkDrawCommand.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
-#include "SkPicture.h"
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkVertices.h"
@@ -21,18 +20,13 @@
 
 class GrAuditTrail;
 class SkNWayCanvas;
+class SkPicture;
 
 class SkDebugCanvas : public SkCanvas {
 public:
     SkDebugCanvas(int width, int height);
 
     ~SkDebugCanvas() override;
-
-    void toggleFilter(bool toggle) { fFilter = toggle; }
-
-    void setMegaVizMode(bool megaVizMode) { fMegaVizMode = megaVizMode; }
-
-    bool getMegaVizMode() const { return fMegaVizMode; }
 
     /**
      * Enable or disable overdraw visualization
@@ -46,20 +40,9 @@ public:
      */
     void setClipVizColor(SkColor clipVizColor) { this->fClipVizColor = clipVizColor; }
 
-    SkColor getClipVizColor() const { return fClipVizColor; }
-
     void setDrawGpuOpBounds(bool drawGpuOpBounds) { fDrawGpuOpBounds = drawGpuOpBounds; }
 
     bool getDrawGpuOpBounds() const { return fDrawGpuOpBounds; }
-
-    bool getAllowSimplifyClip() const { return fAllowSimplifyClip; }
-
-    void setPicture(SkPicture *picture) { fPicture = picture; }
-
-    /**
-     * Enable or disable texure filtering override
-     */
-    void overrideTexFiltering(bool overrideTexFiltering, SkFilterQuality);
 
     /**
         Executes all draw calls to the canvas.
@@ -90,11 +73,6 @@ public:
     }
 
     /**
-        Returns the index of the last draw command to write to the pixel at (x,y)
-     */
-    int getCommandAtPoint(int x, int y, int index);
-
-    /**
         Removes the command at the specified index
         @param index  The index of the command to delete
      */
@@ -105,37 +83,6 @@ public:
         @param index  The index of the command
      */
     SkDrawCommand *getDrawCommandAt(int index);
-
-    /**
-        Sets the draw command for a given index.
-        @param index  The index to overwrite
-        @param command The new command
-     */
-    void setDrawCommandAt(int index, SkDrawCommand *command);
-
-    /**
-        Returns information about the command at the given index.
-        @param index  The index of the command
-     */
-    const SkTDArray<SkString *> *getCommandInfo(int index) const;
-
-    /**
-        Returns the visibility of the command at the given index.
-        @param index  The index of the command
-     */
-    bool getDrawCommandVisibilityAt(int index);
-
-    /**
-        Returns the vector of draw commands
-     */
-    SK_ATTR_DEPRECATED("please use getDrawCommandAt and getSize instead")
-    const SkTDArray<SkDrawCommand *> &getDrawCommands() const;
-
-    /**
-        Returns the vector of draw commands. Do not use this entry
-        point - it is going away!
-     */
-    SkTDArray<SkDrawCommand *> &getDrawCommands();
 
     /**
         Returns length of draw command vector.
@@ -149,12 +96,6 @@ public:
         the value of toggle.
      */
     void toggleCommand(int index, bool toggle);
-
-    void setUserMatrix(SkMatrix matrix) {
-        fUserMatrix = matrix;
-    }
-
-    SkString clipStackData() const { return fClipStackData; }
 
     /**
         Returns a JSON object representing up to the Nth draw, where N is less than
@@ -226,54 +167,20 @@ protected:
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 
-    void markActiveCommands(int index);
-
 private:
     SkTDArray<SkDrawCommand*> fCommandVector;
-    SkPicture* fPicture;
-    bool fFilter;
-    bool fMegaVizMode;
-    SkMatrix fUserMatrix;
     SkMatrix fMatrix;
     SkIRect fClip;
 
-    SkString fClipStackData;
-    bool fCalledAddStackData;
-    SkPath fSaveDevPath;
-
     bool fOverdrawViz;
-    bool fOverrideFilterQuality;
-    SkFilterQuality fFilterQuality;
     SkColor fClipVizColor;
     bool fDrawGpuOpBounds;
-
-    /**
-        The active saveLayer commands at a given point in the renderering.
-        Only used when "mega" visualization is enabled.
-    */
-    SkTDArray<SkDrawCommand*> fActiveLayers;
 
     /**
         Adds the command to the class' vector of commands.
         @param command  The draw command for execution
      */
     void addDrawCommand(SkDrawCommand* command);
-
-    /**
-        Applies any panning and zooming the user has specified before
-        drawing anything else into the canvas.
-     */
-    void applyUserTransform(SkCanvas* canvas);
-
-    void resetClipStackData() { fClipStackData.reset(); fCalledAddStackData = false; }
-
-    void addClipStackData(const SkPath& devPath, const SkPath& operand, SkClipOp elementOp);
-    void addPathData(const SkPath& path, const char* pathName);
-    bool lastClipStackData(const SkPath& devPath);
-    void outputConicPoints(const SkPoint* pts, SkScalar weight);
-    void outputPoints(const SkPoint* pts, int count);
-    void outputPointsCommon(const SkPoint* pts, int count);
-    void outputScalar(SkScalar num);
 
     GrAuditTrail* getAuditTrail(SkCanvas*);
 
