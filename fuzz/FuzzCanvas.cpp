@@ -76,12 +76,6 @@
 //   SkTextBlob with Unicode
 //   SkImage: more types
 
-template <typename T, typename Min, typename Max>
-inline void fuzz_enum_range(Fuzz* fuzz, T* value, Min rmin, Max rmax) {
-    using U = skstd::underlying_type_t<T>;
-    fuzz->nextRange((U*)value, (U)rmin, (U)rmax);
-}
-
 // be careful: `foo(make_fuzz_t<T>(f), make_fuzz_t<U>(f))` is undefined.
 // In fact, all make_fuzz_foo() functions have this potential problem.
 // Use sequence points!

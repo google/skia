@@ -145,6 +145,10 @@ bool SkRegion::setRect(const SkIRect& r) {
         return this->setEmpty();
     }
     this->freeRuns();
+    SkASSERT(r.left()   != SkRegion::kRunTypeSentinel);
+    SkASSERT(r.top()    != SkRegion::kRunTypeSentinel);
+    SkASSERT(r.right()  != SkRegion::kRunTypeSentinel);
+    SkASSERT(r.bottom() != SkRegion::kRunTypeSentinel);
     fBounds = r;
     fRunHead = SkRegion_gRectRunHeadPtr;
     return true;
