@@ -128,8 +128,8 @@ private:
     void endContourIfNeeded(bool insideContour);
 
     void drawPrimitives(GrOpFlushState*, const GrPipeline&, CoverageCountBatchID,
-                        GrCCCoverageProcessor::PrimitiveType, GrCCCoverageProcessor::WindMethod,
-                        int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const;
+                        GrCCCoverageProcessor::PrimitiveType, int PrimitiveTallies::*instanceType,
+                        const SkIRect& drawBounds) const;
 
     // Staging area for the path being parsed.
     SkDEBUGCODE(int fParsingPath = false);
