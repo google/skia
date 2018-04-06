@@ -22,6 +22,30 @@
       "revId": "f131b01977e00f4a524e07c439e4e4dd9c2d7134",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcc44d56_6581b0fe",
+        "filename": "fuzz/FuzzCommon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-04-06T15:20:56Z",
+      "side": 0,
+      "message": "Done\n// Avoid the sentinal value used by Region.",
+      "parentUuid": "2daa7d3a_ce95fe42",
+      "range": {
+        "startLine": 36,
+        "startChar": 14,
+        "endLine": 36,
+        "endChar": 22
+      },
+      "revId": "f131b01977e00f4a524e07c439e4e4dd9c2d7134",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
