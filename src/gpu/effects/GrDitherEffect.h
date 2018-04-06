@@ -11,7 +11,6 @@
 #ifndef GrDitherEffect_DEFINED
 #define GrDitherEffect_DEFINED
 #include "SkTypes.h"
-#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrDitherEffect : public GrFragmentProcessor {
@@ -65,5 +64,4 @@ private:
     int fRangeType;
     typedef GrFragmentProcessor INHERITED;
 };
-#endif
 #endif

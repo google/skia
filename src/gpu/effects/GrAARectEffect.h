@@ -11,7 +11,6 @@
 #ifndef GrAARectEffect_DEFINED
 #define GrAARectEffect_DEFINED
 #include "SkTypes.h"
-#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrAARectEffect : public GrFragmentProcessor {
@@ -39,5 +38,4 @@ private:
     SkRect fRect;
     typedef GrFragmentProcessor INHERITED;
 };
-#endif
 #endif

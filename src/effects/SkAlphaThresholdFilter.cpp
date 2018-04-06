@@ -16,13 +16,13 @@
 #include "SkRegion.h"
 
 #if SK_SUPPORT_GPU
-#include "GrAlphaThresholdFragmentProcessor.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 #include "effects/GrSimpleTextureEffect.h"
+#include "effects/GrAlphaThresholdFragmentProcessor.h"
 #endif
 
 class SkAlphaThresholdFilterImpl : public SkImageFilter {

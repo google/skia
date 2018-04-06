@@ -11,7 +11,6 @@
 #ifndef GrRRectBlurEffect_DEFINED
 #define GrRRectBlurEffect_DEFINED
 #include "SkTypes.h"
-#if SK_SUPPORT_GPU
 
 #include "GrClip.h"
 #include "GrContext.h"
@@ -127,5 +126,4 @@ private:
     TextureSampler fNinePatchSampler;
     typedef GrFragmentProcessor INHERITED;
 };
-#endif
 #endif

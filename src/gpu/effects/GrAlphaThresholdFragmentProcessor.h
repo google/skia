@@ -11,7 +11,6 @@
 #ifndef GrAlphaThresholdFragmentProcessor_DEFINED
 #define GrAlphaThresholdFragmentProcessor_DEFINED
 #include "SkTypes.h"
-#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
@@ -54,5 +53,4 @@ private:
     GrCoordTransform fMaskCoordTransform;
     typedef GrFragmentProcessor INHERITED;
 };
-#endif
 #endif
