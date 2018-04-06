@@ -33,7 +33,8 @@ public:
     static sk_sp<GrVkTextureRenderTarget> MakeWrappedTextureRenderTarget(GrVkGpu*,
                                                                          const GrSurfaceDesc&,
                                                                          GrWrapOwnership,
-                                                                         const GrVkImageInfo*);
+                                                                         const GrVkImageInfo&,
+                                                                         sk_sp<GrVkImageLayout>);
 
     bool updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo& newInfo);
 
@@ -53,8 +54,10 @@ private:
                             SkBudgeted budgeted,
                             const GrSurfaceDesc& desc,
                             const GrVkImageInfo& info,
+                            sk_sp<GrVkImageLayout> layout,
                             const GrVkImageView* texView,
                             const GrVkImageInfo& msaaInfo,
+                            sk_sp<GrVkImageLayout> msaaLayout,
                             const GrVkImageView* colorAttachmentView,
                             const GrVkImageView* resolveAttachmentView,
                             GrMipMapsStatus,
@@ -64,6 +67,7 @@ private:
                             SkBudgeted budgeted,
                             const GrSurfaceDesc& desc,
                             const GrVkImageInfo& info,
+                            sk_sp<GrVkImageLayout> layout,
                             const GrVkImageView* texView,
                             const GrVkImageView* colorAttachmentView,
                             GrMipMapsStatus,
@@ -72,8 +76,10 @@ private:
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrVkImageInfo& info,
+                            sk_sp<GrVkImageLayout> layout,
                             const GrVkImageView* texView,
                             const GrVkImageInfo& msaaInfo,
+                            sk_sp<GrVkImageLayout> msaaLayout,
                             const GrVkImageView* colorAttachmentView,
                             const GrVkImageView* resolveAttachmentView,
                             GrMipMapsStatus,
@@ -82,6 +88,7 @@ private:
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrVkImageInfo& info,
+                            sk_sp<GrVkImageLayout> layout,
                             const GrVkImageView* texView,
                             const GrVkImageView* colorAttachmentView,
                             GrMipMapsStatus,
@@ -90,6 +97,7 @@ private:
     static sk_sp<GrVkTextureRenderTarget> Make(GrVkGpu*,
                                                const GrSurfaceDesc&,
                                                const GrVkImageInfo&,
+                                               sk_sp<GrVkImageLayout>,
                                                GrMipMapsStatus,
                                                SkBudgeted budgeted,
                                                GrBackendObjectOwnership,

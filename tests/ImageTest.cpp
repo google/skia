@@ -1065,7 +1065,12 @@ static uint32_t GetIdForBackendTexture(GrBackendTexture texture) {
         return 0;
     }
 
-    return texture.getGLTextureInfo()->fID;
+    GrGLTextureInfo info;
+    if (!texture.getGLTextureInfo(&info)) {
+        return 0;
+    }
+
+    return info.fID;
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
