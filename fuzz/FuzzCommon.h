@@ -26,21 +26,27 @@ inline void fuzz_nice_float(Fuzz* fuzz, float* f, Args... rest) {
     fuzz_nice_float(fuzz, rest...);
 }
 
-template <>
-inline void Fuzz::next(SkRegion* region) {
+
+inline void fuzz_region(Fuzz* fuzz, SkRegion* region, int maxN) {
     uint8_t N;
-    this->nextRange(&N, 0, 10);
+    fuzz->nextRange(&N, 0, maxN);
     for (uint8_t i = 0; i < N; ++i) {
         SkIRect r;
         uint8_t op;
-        this->next(&r);
+        fuzz->nextRange(&r.fLeft,   -2147483646, 2147483646);
+        fuzz->nextRange(&r.fTop,    -2147483646, 2147483646);
+        fuzz->nextRange(&r.fRight,  -2147483646, 2147483646);
+        fuzz->nextRange(&r.fBottom, -2147483646, 2147483646);
         r.sort();
-        this->nextRange(&op, 0, (uint8_t)SkRegion::kLastOp);
+        fuzz->nextRange(&op, 0, (uint8_t)SkRegion::kLastOp);
         if (!region->op(r, (SkRegion::Op)op)) {
             return;
         }
     }
 }
+
+template <>
+inline void Fuzz::next(SkRegion* region) { fuzz_region(this, region, 10); }
 
 // allows some float values for path points
 void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps);
