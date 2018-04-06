@@ -121,6 +121,11 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['is_debug'] = 'false'
     if 'ANGLE' in extra_tokens:
       args['skia_use_angle'] = 'true'
+    if 'SwiftShader' in extra_tokens:
+      args['skia_use_egl'] = 'true'
+      extra_cflags.append('-DGR_EGL_TRY_GLES3_THEN_GLES2')
+      swiftshader_linux = str(self.m.vars.slave_dir.join('swiftshader_linux'))
+      extra_ldflags.append('-L%s' % swiftshader_linux)
     if 'CommandBuffer' in extra_tokens:
       self.m.run.run_once(self.build_command_buffer)
     if 'MSAN' in extra_tokens:
@@ -246,8 +251,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     clang_linux = str(slave_dir.join('clang_linux'))
     extra_tokens = self.m.vars.extra_tokens
 
+    if 'SwiftShader' in extra_tokens:
+      swiftshader_linux = str(self.m.vars.slave_dir.join('swiftshader_linux'))
+      ld_library_path.append(swiftshader_linux)
+
     if self.m.vars.is_linux:
-      if (self.m.vars.builder_cfg.get('cpu_or_gpu', '') == 'GPU'
+      if (self.m.vars.is_gpu
           and 'Intel' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')):
         # The vulkan in this asset name simply means that the graphics driver
         # supports Vulkan. It is also the driver used for GL code.

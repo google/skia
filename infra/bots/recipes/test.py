@@ -60,7 +60,7 @@ def dm_flags(api, bot):
     args.extend(['--threads', '4'])
 
   # Nexus7 runs out of memory due to having 4 cores and only 1G RAM.
-  if 'CPU' in bot and 'Nexus7' in bot:
+  if not api.vars.is_gpu and 'Nexus7' in bot:
     args.extend(['--threads', '2'])
 
   if 'Chromecast' in bot:
@@ -83,57 +83,22 @@ def dm_flags(api, bot):
       'Chromecast' in bot):
     args.append('--ignoreSigInt')
 
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
-    args.append('--nogpu')
-
-    # These are the canonical configs that we would ideally run on all bots. We
-    # may opt out or substitute some below for specific bots
-    configs.extend(['8888', 'srgb', 'pdf', 't8888'])
-
-    # Runs out of memory on Android bots. Everyone else seems fine.
-    if 'Android' in bot:
-      configs.remove('pdf')
-
-    if '-GCE-' in bot:
-      configs.extend(['g8'])
-      configs.extend(['565'])
-      configs.extend(['f16'])
-      configs.extend(['lite-8888'])              # Experimental display list.
-      configs.extend(['gbr-8888'])
-
-    configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
-
-    # This bot only differs from vanilla CPU bots in 8888 config.
-    if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
-      configs = ['8888', 'srgb']
-
-    if 'FSAA' in bot or 'FAAA' in bot or 'FDAA' in bot:
-      # Scan converters shouldn't really be sensitive to different color
-      # configurations.
-      configs = ['8888', 'tiles_rt-8888']
-
-    if 'NativeFonts' in bot:
-      configs = ['8888']
-
-    # Just do the basic config on Chromecast to avoid OOM.
-    if 'Chromecast' in bot:
-      configs = ['8888']
-
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+  if api.vars.is_gpu:
     args.append('--nocpu')
 
     # Add in either gles or gl configs to the canonical set based on OS
     sample_count = '8'
     gl_prefix = 'gl'
-    if 'Android' in bot or 'iOS' in bot:
+    if 'SwiftShader' in api.vars.extra_tokens:
+      sample_count = ''
+      gl_prefix = 'gles'
+    elif 'Android' in bot or 'iOS' in bot:
       sample_count = '4'
       # We want to test the OpenGL config not the GLES config on the Shield
       if 'NVIDIA_Shield' not in bot:
         gl_prefix = 'gles'
     elif 'Intel' in bot:
       sample_count = ''
-    elif 'ChromeOS' in bot:
-      gl_prefix = 'gles'
 
     if 'NativeFonts' in bot:
       configs.append(gl_prefix)
@@ -189,7 +154,8 @@ def dm_flags(api, bot):
           'IntelHD2000'   in bot or
           'AndroidOne'    in bot or
           'Nexus7'        in bot or
-          'NexusPlayer'   in bot):
+          'NexusPlayer'   in bot or
+          'SwiftShader'   in bot):
         configs.remove('glessrgb')
 
     # Test SkColorSpaceXformCanvas on a few bots
@@ -247,6 +213,43 @@ def dm_flags(api, bot):
       configs = ['ddl-gl']
       args.extend(['--skpViewportSize', "2048"])
 
+  else: # not is_gpu
+    args.append('--nogpu')
+
+    # These are the canonical configs that we would ideally run on all bots. We
+    # may opt out or substitute some below for specific bots
+    configs.extend(['8888', 'srgb', 'pdf', 't8888'])
+
+    # Runs out of memory on Android bots. Everyone else seems fine.
+    if 'Android' in bot:
+      configs.remove('pdf')
+
+    if '-GCE-' in bot:
+      configs.extend(['g8'])
+      configs.extend(['565'])
+      configs.extend(['f16'])
+      configs.extend(['lite-8888'])              # Experimental display list.
+      configs.extend(['gbr-8888'])
+
+    configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
+
+    # This bot only differs from vanilla CPU bots in 8888 config.
+    if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
+      configs = ['8888', 'srgb']
+
+    if 'FSAA' in bot or 'FAAA' in bot or 'FDAA' in bot:
+      # Scan converters shouldn't really be sensitive to different color
+      # configurations.
+      configs = ['8888', 'tiles_rt-8888']
+
+    if 'NativeFonts' in bot:
+      configs = ['8888']
+
+    # Just do the basic config on Chromecast to avoid OOM.
+    if 'Chromecast' in bot:
+      configs = ['8888']
+
+
   tf = api.vars.builder_cfg.get('test_filter')
   if 'All' != tf:
     # Expected format: shard_XX_YY
@@ -262,7 +265,7 @@ def dm_flags(api, bot):
 
   # Run tests, gms, and image decoding tests everywhere.
   args.extend('--src tests gm image colorImage svg skp'.split(' '))
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+  if api.vars.is_gpu:
     # Don't run the 'svgparse_*' svgs on GPU.
     blacklist('_ svg _ svgparse_')
   elif bot == 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN':
@@ -371,7 +374,7 @@ def dm_flags(api, bot):
     blacklist('_ image gen_platf 4bpp-pixeldata-cropped.bmp')
     blacklist('_ image gen_platf 32bpp-pixeldata-cropped.bmp')
     blacklist('_ image gen_platf 24bpp-pixeldata-cropped.bmp')
-    if 'x86_64' in bot and 'CPU' in bot:
+    if 'x86_64' in bot and not api.vars.is_gpu:
       # This GM triggers a SkSmallAllocator assert.
       blacklist('_ gm _ composeshader_bitmap')
 
@@ -463,7 +466,7 @@ def dm_flags(api, bot):
   if 'Win' in bot or 'Android' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
       blacklist(['serialize-8888', 'gm', '_', test])
-  if 'Mac' in bot and 'CPU' in bot:
+  if 'Mac' in bot and not api.vars.is_gpu:
     # skia:6992
     blacklist(['pic-8888', 'gm', '_', 'encode-platform'])
     blacklist(['serialize-8888', 'gm', '_', 'encode-platform'])
@@ -496,7 +499,7 @@ def dm_flags(api, bot):
   # skbug.com/4888
   # Blacklist RAW images (and a few large PNGs) on GPU bots
   # until we can resolve failures.
-  if 'GPU' in bot:
+  if api.vars.is_gpu:
     blacklist('_ image _ interlaced1.png')
     blacklist('_ image _ interlaced2.png')
     blacklist('_ image _ interlaced3.png')
@@ -518,11 +521,12 @@ def dm_flags(api, bot):
     blacklist(['glmsaa8',   'image', 'gen_codec_gpu', 'abnormal.wbmp'])
     blacklist(['glesmsaa4', 'image', 'gen_codec_gpu', 'abnormal.wbmp'])
 
-  if 'Nexus5' in bot and 'GPU' in bot:
+  if 'Nexus5' in bot and api.vars.is_gpu:
     # skia:5876
     blacklist(['_', 'gm', '_', 'encode-platform'])
 
-  if 'AndroidOne-GPU' in bot:  # skia:4697, skia:4704, skia:4694, skia:4705
+  if 'AndroidOne' in bot and api.vars.is_gpu:
+    # skia:4697, skia:4704, skia:4694, skia:4705
     blacklist(['_',            'gm', '_', 'bigblurs'])
     blacklist(['_',            'gm', '_', 'bleed'])
     blacklist(['_',            'gm', '_', 'bleed_alpha_bmp'])
@@ -565,7 +569,7 @@ def dm_flags(api, bot):
     match.append('~animated-image-blurs')   # skia:7751
 
   if 'Chromecast' in bot:
-    if 'GPU' in bot:
+    if api.vars.is_gpu:
       # skia:6687
       match.append('~animated-image-blurs')
       match.append('~blur_0.01')
@@ -962,6 +966,7 @@ TEST_BUILDERS = [
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',

@@ -17,7 +17,7 @@ def RunSteps(api):
     api.vars.swarming_bot_id,
     api.vars.swarming_task_id,
   ]
-  if api.vars.is_linux:
+  if api.vars.is_linux and api.vars.is_gpu:
     assert len(info) == 4  # Make pylint happy.
 
 
@@ -33,6 +33,7 @@ TEST_BUILDERS = [
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
   'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader',
   'Upload-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Coverage-All',
   'Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All',
   'Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
