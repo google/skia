@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87ef9d91_c4b543eb",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 756,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-04-06T00:06:50Z",
+      "side": 1,
+      "message": "after this, there are potentially many evaluations of\n(*array)[dst] which is really\narray-\u003efPtr[dst] and since it is written to, I don\u0027t think the compiler can short-circuit this.\nHowever, if you wrote (or added a helper to make fPtr visible)\nSkRegion::RunType* ptr \u003d array-\u003efPtr;\nptr[dst++] \u003d ...\nI think you would save an indirection per write in the loop. If I\u0027m wrong and the compiler already performs the optimization, let me know.",
+      "range": {
+        "startLine": 756,
+        "startChar": 33,
+        "endLine": 756,
+        "endChar": 53
+      },
+      "revId": "2a9eeb2cba476189e0db128dfce1bcd43e2cedba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc8e1ba1_0d09f79e",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-04-06T00:06:50Z",
+      "side": 1,
+      "message": "If (*fArray)[x] is really \nthis-\u003efArray-\u003efPtr[x] in these six reads and writes, it may be worth creating \na temporary as in the comment above",
+      "range": {
+        "startLine": 822,
+        "startChar": 49,
+        "endLine": 822,
+        "endChar": 55
+      },
+      "revId": "2a9eeb2cba476189e0db128dfce1bcd43e2cedba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
