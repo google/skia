@@ -2007,6 +2007,19 @@ ViaDDL::ViaDDL(int numDivisions, Sink* sink)
 
 // This class consolidates tracking & extraction of the original image data from the sources,
 // the upload of said data to the GPU and the fulfillment of promise images.
+//
+// The way this works is:
+//    the original skp is converted to SkData and all its image info is extracted into this
+//       class and only indices into this class are left in the SkData
+//    Prior to replaying in threads all the images stored in this class are uploaded to the
+//       gpu and PromiseImages are created for them
+//    Each thread reinflates the SkData into an SkPicture replacing all the indices w/
+//       promise images (thus the promise images are shared between all the threads) and then
+//       creates a DDL.
+//    This class is then reset - dropping all of its refs on the promise images
+//    As the DDLs are drawn serially the promise images are fulfilled by the individual DDLs that
+//       use them
+//
 class ViaDDL::PromiseImageHelper {
 public:
     class PromiseImageInfo {
@@ -2014,22 +2027,24 @@ public:
         int              fIndex;                // index in the 'fImageInfo' array
         uint32_t         fOriginalUniqueID;     // original ID for deduping
         SkBitmap         fBitmap;               // CPU-side cache of the contents
-        GrBackendTexture fBackendTexture;       // GPU-side version
+        sk_sp<SkImage>   fPromiseImage;         // the promise image
     };
 
     PromiseImageHelper() : fLocked(false) { }
 
-    // This class will hand out pointers to its PromiseImageInfo. This is just some insurance
-    // we won't be moving them around.
+    void reset() { fImageInfo.reset(); }
+
+    // This class hands out raw pointers to its PromiseImageInfos. This is just some insurance
+    // we won't be moving them around and invalidate the pointers.
     void lock() { fLocked = true; }
 
     bool isValidID(int id) const {
         return id >= 0 && id < fImageInfo.count();
     }
 
-    const PromiseImageInfo* getInfo(int id) const {
+    const PromiseImageInfo& getInfo(int id) const {
         SkASSERT(fLocked);
-        return &fImageInfo[id];
+        return fImageInfo[id];
     }
 
     // returns -1 on failure
@@ -2045,44 +2060,104 @@ public:
         return newID;
     }
 
-    void uploadAllToGPU(GrContext* context) {
+    class PromiseImageCallbackContext {
+    public:
+        int              fIndex;
+        GrContext*       fContext;
+        GrBackendTexture fBackendTexture;
+        int              fFulfillCount = 0;
+        int              fReleaseCount = 0;
+    };
+
+    void uploadToGPUAndCreatePromiseImages(GrContext* context) {
+        sk_sp<GrContextThreadSafeProxy> threadSafeProxy = context->threadSafeProxy();
         GrGpu* gpu = context->contextPriv().getGpu();
         SkASSERT(gpu);
 
         for (int i = 0; i < fImageInfo.count(); ++i) {
+            auto callbackContext = new PromiseImageCallbackContext();
+            callbackContext->fIndex = i;
+            callbackContext->fContext = context;
+
             // DDL TODO: how can we tell if we need mipmapping!
-            fImageInfo[i].fBackendTexture = gpu->createTestingOnlyBackendTexture(
+            callbackContext->fBackendTexture = gpu->createTestingOnlyBackendTexture(
                                                                 fImageInfo[i].fBitmap.getPixels(),
                                                                 fImageInfo[i].fBitmap.width(),
                                                                 fImageInfo[i].fBitmap.height(),
                                                                 fImageInfo[i].fBitmap.colorType(),
                                                                 false, GrMipMapped::kNo);
-            SkAssertResult(fImageInfo[i].fBackendTexture.isValid());
-        }
-    }
+            SkAssertResult(callbackContext->fBackendTexture.isValid());
 
-    void cleanUpVRAM(GrContext* context) {
-        GrGpu* gpu = context->contextPriv().getGpu();
-        SkASSERT(gpu);
+            GrBackendFormat backendFormat = callbackContext->fBackendTexture.format();
 
-        for (int i = 0; i < fImageInfo.count(); ++i) {
-            gpu->deleteTestingOnlyBackendTexture(fImageInfo[i].fBackendTexture);
+            fImageInfo[i].fPromiseImage = threadSafeProxy->makePromiseTexture(
+                                                 backendFormat,
+                                                 fImageInfo[i].fBitmap.width(),
+                                                 fImageInfo[i].fBitmap.height(),
+                                                 GrMipMapped::kNo,
+                                                 GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                                 fImageInfo[i].fBitmap.colorType(),
+                                                 fImageInfo[i].fBitmap.alphaType(),
+                                                 fImageInfo[i].fBitmap.refColorSpace(),
+                                                 PromiseImageFulfillProc,
+                                                 PromiseImageReleaseProc,
+                                                 PromiseImageDoneProc,
+                                                 callbackContext);
         }
     }
 
     static void PromiseImageFulfillProc(void* textureContext, GrBackendTexture* outTexture) {
-        auto imgInfo = static_cast<const PromiseImageInfo*>(textureContext);
+        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
+        ++callbackContext->fFulfillCount;
 
-        SkASSERT(imgInfo->fBackendTexture.isValid());
-        *outTexture = imgInfo->fBackendTexture;
+#if 0
+        SkDebugf("fulfill %d: %d %d -> %d %d\n", callbackContext->fIndex,
+                                                 callbackContext->fFulfillCount-1, callbackContext->fReleaseCount,
+                                                 callbackContext->fFulfillCount, callbackContext->fReleaseCount);
+#endif
+
+        SkASSERT(callbackContext->fBackendTexture.isValid());
+        *outTexture = callbackContext->fBackendTexture;
     }
 
     static void PromiseImageReleaseProc(void* textureContext) {
-        // Do nothing. We free all the backend textures at the end in cleanUpVRAM.
+        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
+        ++callbackContext->fReleaseCount;
+
+#if 0
+        SkDebugf("release %d: %d %d -> %d %d\n", callbackContext->fIndex,
+                                                 callbackContext->fFulfillCount, callbackContext->fReleaseCount-1,
+                                                 callbackContext->fFulfillCount, callbackContext->fReleaseCount);
+#endif
+
+        GrGpu* gpu = callbackContext->fContext->contextPriv().getGpu();
+
+        SkASSERT(callbackContext->fBackendTexture.isValid());
+
+        gpu->deleteTestingOnlyBackendTexture(callbackContext->fBackendTexture);
+        callbackContext->fBackendTexture = GrBackendTexture();  // make invalid
     }
 
     static void PromiseImageDoneProc(void* textureContext) {
-        // Do nothing.
+        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
+        SkASSERT(callbackContext->fFulfillCount == callbackContext->fReleaseCount);
+
+#if 0
+        SkDebugf("done %d: %d %d\n", callbackContext->fIndex, callbackContext->fFulfillCount, callbackContext->fReleaseCount);
+#endif
+
+        if (!callbackContext->fFulfillCount) {
+            // We upload the texture but never used it. Delete it here.
+            GrGpu* gpu = callbackContext->fContext->contextPriv().getGpu();
+
+            gpu->deleteTestingOnlyBackendTexture(callbackContext->fBackendTexture);
+            callbackContext->fBackendTexture = GrBackendTexture();  // make invalid
+        }
+
+        // The backing texture should've been deleted
+        SkASSERT(!callbackContext->fBackendTexture.isValid());
+
+        delete callbackContext;
     }
 
 private:
@@ -2147,19 +2222,14 @@ public:
     // In each thread we will reconvert the compressedPictureData into an SkPicture
     // replacing each image-index with a promise image.
     void preprocess(SkData* compressedPictureData, const PromiseImageHelper& helper) {
-        SkDeferredDisplayListRecorder recorder(fCharacterization);
 
-        // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
-        // Maybe set it up in the ctor?
-        SkCanvas* subCanvas = recorder.getCanvas();
-
+        // DDL TODO: now that all the promise images are created outside of the threads
+        // can we just perform the re-inflation once outside of the threads also?
         sk_sp<SkPicture> reconstitutedPicture;
 
         {
-            PromiseImageCallbackContext callbackCtx = { &helper, &recorder };
-
             SkDeserialProcs procs;
-            procs.fImageCtx = &callbackCtx;
+            procs.fImageCtx = (void*) &helper;
             procs.fImageProc = PromiseImageCreator;
 
             reconstitutedPicture = SkPicture::MakeFromData(compressedPictureData, &procs);
@@ -2167,6 +2237,12 @@ public:
                 return;
             }
         }
+
+        SkDeferredDisplayListRecorder recorder(fCharacterization);
+
+        // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
+        // Maybe set it up in the ctor?
+        SkCanvas* subCanvas = recorder.getCanvas();
 
         subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
         subCanvas->translate(-fClip.fLeft, -fClip.fTop);
@@ -2194,51 +2270,23 @@ public:
     }
 
 private:
-    // This class lets us pass the collected image information and the DDLRecorder to the
-    // promise_image_creator callback when reconstituting a deflated SKP for a particular tile
-    // (i.e., in a thread).
-    class PromiseImageCallbackContext {
-    public:
-        const PromiseImageHelper*         fHelper;
-        SkDeferredDisplayListRecorder*    fRecorder;
-    };
-
     // This generates promise images to replace the indices in the compressed picture. This
     // reconstitution is performed separately in each thread so we end of with multiple
     // promise image referring to the same GrBackendTexture.
     // DDL TODO: Having multiple promise images using the same GrBackendTexture won't work in
     // Vulkan! Move creation of the promise images to the main thread & SkImage.
     static sk_sp<SkImage> PromiseImageCreator(const void* rawData, size_t length, void* ctxIn) {
-        PromiseImageCallbackContext* ctx = static_cast<PromiseImageCallbackContext*>(ctxIn);
-        const PromiseImageHelper* helper = ctx->fHelper;
-        SkDeferredDisplayListRecorder* recorder = ctx->fRecorder;
+        const PromiseImageHelper* helper = static_cast<const PromiseImageHelper*>(ctxIn);
 
         SkASSERT(length == sizeof(int));
 
         const int* indexPtr = static_cast<const int*>(rawData);
         SkASSERT(helper->isValidID(*indexPtr));
 
-        const PromiseImageHelper::PromiseImageInfo* curImage = helper->getInfo(*indexPtr);
-        SkASSERT(curImage->fIndex == *indexPtr);
+        const PromiseImageHelper::PromiseImageInfo& curImage = helper->getInfo(*indexPtr);
+        SkASSERT(curImage.fIndex == *indexPtr);
 
-        GrBackendFormat backendFormat = curImage->fBackendTexture.format();
-
-        // DDL TODO: sort out mipmapping
-        sk_sp<SkImage> image = recorder->makePromiseTexture(
-                                                    backendFormat,
-                                                    curImage->fBitmap.width(),
-                                                    curImage->fBitmap.height(),
-                                                    GrMipMapped::kNo,
-                                                    GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                                    curImage->fBitmap.colorType(),
-                                                    curImage->fBitmap.alphaType(),
-                                                    curImage->fBitmap.refColorSpace(),
-                                                    PromiseImageHelper::PromiseImageFulfillProc,
-                                                    PromiseImageHelper::PromiseImageReleaseProc,
-                                                    PromiseImageHelper::PromiseImageDoneProc,
-                                                    (void*) curImage);
-        SkASSERT(image);
-        return image;
+        return curImage.fPromiseImage;
     }
 
     sk_sp<SkSurface>                       fSurface;
@@ -2295,7 +2343,8 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         return SkStringPrintf("DDLs are GPU only");
                     }
 
-                    helper.uploadAllToGPU(context);
+                    // This is here bc this is the first point where we have access to the context
+                    helper.uploadToGPUAndCreatePromiseImages(context);
 
                     int xTileSize = viewport.width()/fNumDivisions;
                     int yTileSize = viewport.height()/fNumDivisions;
@@ -2325,6 +2374,9 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         tileData[i].preprocess(compressedPictureData.get(), helper);
                     });
 
+                    // This drops the helper's refs on all the promise images
+                    helper.reset();
+
                     // Third, synchronously render the display lists into the dest tiles
                     // TODO: it would be cool to not wait until all the tiles are drawn to begin
                     // drawing to the GPU and composing to the final surface
@@ -2339,6 +2391,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         tileData[i].compose(canvas);
                     }
 
+#if 0
                     // All promise images need to be fulfilled before leaving this method since we
                     // are about to delete their backing GrBackendTextures
                     // DDL TODO: remove the cleanUpVRAM method and use the release & done
@@ -2348,6 +2401,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                     gpu->testingOnly_flushGpuAndSync();
 
                     helper.cleanUpVRAM(context);
+#endif
                     return "";
                 });
 }
