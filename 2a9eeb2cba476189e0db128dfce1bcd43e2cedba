@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5b970b65_bfea5db5",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 756,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-04-06T16:53:04Z",
+      "side": 1,
+      "message": "operator[]() is inline, so I the compiler can easily perform that optimization.\n\nOn the other hand, by using a pure pointer (as before), I get a 3% speed improvement.  See latest patchset.",
+      "parentUuid": "87ef9d91_c4b543eb",
+      "range": {
+        "startLine": 756,
+        "startChar": 33,
+        "endLine": 756,
+        "endChar": 53
+      },
+      "revId": "2a9eeb2cba476189e0db128dfce1bcd43e2cedba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc8e1ba1_0d09f79e",
         "filename": "src/core/SkRegion.cpp",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "2a9eeb2cba476189e0db128dfce1bcd43e2cedba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e61aff1_e3f5e590",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-04-06T16:53:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fc8e1ba1_0d09f79e",
+      "range": {
+        "startLine": 822,
+        "startChar": 49,
+        "endLine": 822,
+        "endChar": 55
+      },
+      "revId": "2a9eeb2cba476189e0db128dfce1bcd43e2cedba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
