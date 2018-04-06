@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b983edfe_4bbde08e",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-06T11:37:20Z",
+      "side": 1,
+      "message": "I\u0027m a little concerned that someone will type this elsewhere, not knowing to use vars.is_gpu instead.",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 54
+      },
+      "revId": "840fc50991300132f9f03acf318d340b058e7eda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
