@@ -11,6 +11,7 @@
 #include "GrVkResource.h"
 
 #include "GrTypesPriv.h"
+#include "GrVkTypesPriv.h"
 #include "SkTypes.h"
 
 #include "vk/GrVkDefines.h"
@@ -23,8 +24,10 @@ private:
     class Resource;
 
 public:
-    GrVkImage(const GrVkImageInfo& info, GrBackendObjectOwnership ownership)
+    GrVkImage(const GrVkImageInfo& info, sk_sp<GrVkImageLayout> layout,
+              GrBackendObjectOwnership ownership)
         : fInfo(info)
+        , fLayout(layout)
         , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
         if (fIsBorrowed) {
             fResource = new BorrowedResource(info.fImage, info.fAlloc, info.fImageTiling);
@@ -44,7 +47,18 @@ public:
     }
     bool isBorrowed() const { return fIsBorrowed; }
 
-    VkImageLayout currentLayout() const { return fInfo.fImageLayout; }
+    sk_sp<GrVkImageLayout> grVkImageLayout() const { return fLayout; }
+
+    VkImageLayout currentLayout() const {
+        // This check and set is here temporarily since clients can still change the layout using
+        // the old GrBackendObject call and we need a way to respect those changes.
+        // TODO: This check and set should all be made atomic but the plan is to remove the use of
+        // fInfo.fImageLayout so ignoring this issue for now.
+        if (fInfo.fImageLayout != fLayout->getImageLayout()) {
+            fLayout->setImageLayout(fInfo.fImageLayout);
+        }
+        return fLayout->getImageLayout();
+    }
 
     void setImageLayout(const GrVkGpu* gpu,
                         VkImageLayout newLayout,
@@ -55,7 +69,10 @@ public:
     // This simply updates our tracking of the image layout and does not actually do any gpu work.
     // This is only used for mip map generation where we are manually changing the layouts as we
     // blit each layer, and then at the end need to update our tracking.
-    void updateImageLayout(VkImageLayout newLayout) { fInfo.fImageLayout = newLayout; }
+    void updateImageLayout(VkImageLayout newLayout) {
+        fLayout->setImageLayout(newLayout);
+        fInfo.fImageLayout = newLayout;
+    }
 
     struct ImageDesc {
         VkImageType         fImageType;
@@ -96,8 +113,9 @@ protected:
 
     void setNewResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling);
 
-    GrVkImageInfo   fInfo;
-    bool            fIsBorrowed;
+    GrVkImageInfo          fInfo;
+    sk_sp<GrVkImageLayout> fLayout;
+    bool                   fIsBorrowed;
 
 private:
     class Resource : public GrVkResource {
