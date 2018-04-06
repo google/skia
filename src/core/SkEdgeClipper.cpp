@@ -264,6 +264,13 @@ static SkScalar mono_cubic_closestT(const SkScalar src[], SkScalar x) {
         t += loc < x ? step : -step;
         step *= 0.5f;
     } while (closest > 0.25f && lastT != t);
+    // extreme values may compute t so close to 0 or 1 the fraction falls away
+    // restore the fraction in these cases to avoid an assert later on
+    if (bestT <= 0) {
+        bestT = FLT_EPSILON;
+    } else if (bestT >= 1) {
+        bestT = 1 - FLT_EPSILON;
+    }
     return bestT;
 }
 
