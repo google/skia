@@ -51,8 +51,6 @@
 #include "../private/SkShadowFlags.h"
 #include "text/GrTextUtils.h"
 
-#if SK_SUPPORT_GPU
-
 #define ASSERT_SINGLE_OWNER \
 SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->contextPriv().debugSingleOwner());)
 
@@ -1752,4 +1750,3 @@ SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
     return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
 }
 
-#endif
