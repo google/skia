@@ -530,6 +530,7 @@ public:
     */
     bool isValid(GrContext* context) const;
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     /** Retrieves the back-end API handle of texture. If flushPendingGrContextIO is true,
         complete deferred I/O operations.
 
@@ -542,6 +543,7 @@ public:
     */
     GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
                                      GrSurfaceOrigin* origin = nullptr) const;
+#endif
 
 #if GR_TEST_UTILS
     /** Retrieves the backend texture. If SkImage has no backend texture, an invalid
