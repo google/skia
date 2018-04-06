@@ -127,16 +127,6 @@ private:
     size_t        fCursor{0};
 };
 
-// -- TrackLayerDevice -----------------------------------------------------------------------------
-class TrackLayerDevice : public SkNoPixelsDevice {
-public:
-    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props)
-            : SkNoPixelsDevice(bounds, props) { }
-    SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
-        const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-        return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps);
-    }
-};
 
 // -- SkStrikeCacheDifferenceSpec ------------------------------------------------------------------
 
@@ -178,6 +168,28 @@ void SkStrikeCacheDifferenceSpec::iterateDifferences(PerStrike perStrike, PerGly
         });
     }
 }
+
+// -- TrackLayerDevice -----------------------------------------------------------------------------
+class TrackLayerDevice : public SkNoPixelsDevice {
+public:
+    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props)
+            : SkNoPixelsDevice(bounds, props) { }
+    SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
+        const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
+        return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps);
+    }
+
+    bool onShouldDisableLCD(const SkPaint& paint) const override {
+        if (paint.getPathEffect() ||
+            paint.isFakeBoldText() ||
+            paint.getStyle() != SkPaint::kFill_Style ||
+            !paint.isSrcOver())
+        {
+            return true;
+        }
+        return false;
+    }
+};
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(
