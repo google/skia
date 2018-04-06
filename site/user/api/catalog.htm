@@ -5223,14 +5223,6 @@
     "file": "SkImage_Reference",
     "name": "SkImage::encodeToData_2"
 },
-    "SkImage_getBackendTexture": {
-    "code": "void draw(SkCanvas* canvas) {\n    GrContext* grContext = canvas->getGrContext();\n    if (!grContext) {\n        canvas->drawString(\"GPU only!\", 20, 40, SkPaint());\n        return;\n    }\n    sk_sp<SkImage> imageFromBackend = SkImage::MakeFromAdoptedTexture(grContext, backEndTexture,\n            kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);\n    GrBackendTexture textureFromImage = imageFromBackend->getBackendTexture(false);\n    if (!textureFromImage.isValid()) {\n        return;\n    }\n    sk_sp<SkImage> imageFromTexture = SkImage::MakeFromAdoptedTexture(grContext, textureFromImage,\n            kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);\n    canvas->drawImage(imageFromTexture, 0, 0);\n    canvas->drawImage(imageFromBackend, 128, 128);\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "d093aad721261f421c4bef4a296aab48",
-    "file": "SkImage_Reference",
-    "name": "SkImage::getBackendTexture"
-},
     "SkImage_getTextureHandle": {
     "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkString str;\n    int y = -10;\n    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,\n                backEndTexture, origin, kN32_SkColorType, kPremul_SkAlphaType, nullptr));\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);\n        str.printf(\"readBackHandle: 0x%lx\", readBackHandle);\n        canvas->drawString(str, 5, y += 30, paint);\n        canvas->drawImage(srcImage, 80, y += 10);\n        str.printf(\"origin: k%s_GrSurfaceOrigin\", readBackOrigin ? \"BottomLeft\" : \"TopLeft\");\n        canvas->drawString(str, 5, y += srcImage->height() + 10, paint);\n    }\n}",
     "width": 256,
