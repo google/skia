@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa5706c4_17df4e62",
+        "filename": "tests/PDFJpegEmbedTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-04-06T20:40:20Z",
+      "side": 1,
+      "message": "nit: Only one space needed",
+      "range": {
+        "startLine": 96,
+        "startChar": 12,
+        "endLine": 96,
+        "endChar": 14
+      },
+      "revId": "69fb6f4e4beab78d6ba631a427c500d0ffa98265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
