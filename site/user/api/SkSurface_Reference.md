@@ -49,6 +49,8 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_flush">flush</a> | resolve pending I/O |
 | <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolve pending I/O, and signal |
 | <a href="#SkSurface_generationID">generationID</a> | returns unique ID |
+| <a href="#SkSurface_getBackendRenderTarget">getBackendRenderTarget</a> | returns the GPU reference to render target |
+| <a href="#SkSurface_getBackendTexture">getBackendTexture</a> | returns the GPU reference to texture |
 | <a href="#SkSurface_getCanvas">getCanvas</a> | returns <a href="SkCanvas_Reference#Canvas">Canvas</a> that draws into <a href="#Surface">Surface</a> |
 | <a href="#SkSurface_getRenderTargetHandle">getRenderTargetHandle</a> | returns the GPU reference to render target |
 | <a href="#SkSurface_getTextureHandle">getTextureHandle</a> | returns the GPU reference to texture |
@@ -803,6 +805,8 @@ surf->makeImageSnapshot() == nullptr
 | name | description |
 | --- | --- |
 | <a href="#SkSurface_generationID">generationID</a> | returns unique ID |
+| <a href="#SkSurface_getBackendRenderTarget">getBackendRenderTarget</a> | returns the GPU reference to render target |
+| <a href="#SkSurface_getBackendTexture">getBackendTexture</a> | returns the GPU reference to texture |
 | <a href="#SkSurface_getCanvas">getCanvas</a> | returns <a href="SkCanvas_Reference#Canvas">Canvas</a> that draws into <a href="#Surface">Surface</a> |
 | <a href="#SkSurface_getRenderTargetHandle">getRenderTargetHandle</a> | returns the GPU reference to render target |
 | <a href="#SkSurface_getTextureHandle">getTextureHandle</a> | returns the GPU reference to texture |
@@ -1099,6 +1103,69 @@ true if <a href="#Surface">Surface</a> is backed by GPU texture
 ### See Also
 
 <a href="#SkSurface_getTextureHandle">getTextureHandle</a> <a href="undocumented#GrBackendObject">GrBackendObject</a> <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a>
+
+---
+
+<a name="SkSurface_getBackendTexture"></a>
+## getBackendTexture
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess)
+</pre>
+
+Retrieves the backend texture. If <a href="#Surface">Surface</a> has no backend texture, an invalid
+object is returned. Call <a href="undocumented#GrBackendTexture_isValid">GrBackendTexture::isValid</a> to determine if the result
+is valid.
+
+The returned <a href="undocumented#GrBackendTexture">GrBackendTexture</a> should be discarded if the <a href="#Surface">Surface</a> is drawn to or deleted.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkSurface_getBackendTexture_backendHandleAccess"> <code><strong>backendHandleAccess </strong></code> </a></td> <td>
+one of:  <a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>,
+<a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>, <a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+GPU texture reference; invalid on failure
+
+### See Also
+
+<a href="undocumented#GrBackendTexture">GrBackendTexture</a> <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_getBackendRenderTarget">getBackendRenderTarget</a>
+
+---
+
+<a name="SkSurface_getBackendRenderTarget"></a>
+## getBackendRenderTarget
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess)
+</pre>
+
+Retrieves the backend render target. If <a href="#Surface">Surface</a> has no backend render target, an invalid
+object is returned. Call <a href="undocumented#GrBackendRenderTarget_isValid">GrBackendRenderTarget::isValid</a> to determine if the result
+is valid.
+
+The returned <a href="undocumented#GrBackendRenderTarget">GrBackendRenderTarget</a> should be discarded if the <a href="#Surface">Surface</a> is drawn to
+or deleted.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkSurface_getBackendRenderTarget_backendHandleAccess"> <code><strong>backendHandleAccess </strong></code> </a></td> <td>
+one of:  <a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>,
+<a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>, <a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+GPU render target reference; invalid on failure
+
+### See Also
+
+<a href="undocumented#GrBackendRenderTarget">GrBackendRenderTarget</a> <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_getBackendTexture">getBackendTexture</a>
 
 ---
 
