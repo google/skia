@@ -77,12 +77,12 @@ public:
 
     bool validateBackendTexture(const GrBackendTexture& tex, SkColorType,
                                 GrPixelConfig* config) const override {
-        const GrMockTextureInfo* texInfo = tex.getMockTextureInfo();
-        if (!texInfo) {
+        GrMockTextureInfo texInfo;
+        if (!tex.getMockTextureInfo(&texInfo)) {
             return false;
         }
 
-        *config = texInfo->fConfig;
+        *config = texInfo.fConfig;
         return true;
     }
 

@@ -16,6 +16,8 @@
 #include "vk/GrVkTypes.h"
 #endif
 
+class GrVkImageLayout;
+
 #if !SK_SUPPORT_GPU
 
 // SkSurface and SkImage rely on a minimal version of these always being available
@@ -136,24 +138,33 @@ public:
                      GrMipMapped,
                      const GrMockTextureInfo& mockInfo);
 
+    GrBackendTexture(const GrBackendTexture& that);
+
+    ~GrBackendTexture();
+
+    void operator=(const GrBackendTexture& that);
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     bool hasMipMaps() const { return GrMipMapped::kYes == fMipMapped; }
     GrBackend backend() const {return fBackend; }
 
-    // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
-    // it returns nullptr.
-    const GrGLTextureInfo* getGLTextureInfo() const;
+    // If the backend API is GL, copies a snapshot of the GrGLTextureInfo struct into the passed in
+    // pointer and returns true. Otherwise returns false if the backend API is not GL.
+    bool getGLTextureInfo(GrGLTextureInfo*) const;
 
 #ifdef SK_VULKAN
-    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
-    // it returns nullptr.
-    const GrVkImageInfo* getVkImageInfo() const;
+    // If the backend API is Vulkan, copies a snapshot of the GrGLImageInfo struct into the passed
+    // in pointer and returns true. This snapshot includes will update the fImageLayout to keep it
+    // current. Otherwise returns false if the backend API is not Vulkan.
+    bool getVkImageInfo(GrVkImageInfo*) const;
+
+    void setVkImageLayout(VkImageLayout);
 #endif
 
-    // If the backend API is Mock, this returns a pointer to the GrMockTextureInfo struct. Otherwise
-    // it returns nullptr.
-    const GrMockTextureInfo* getMockTextureInfo() const;
+    // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
+    bool getMockTextureInfo(GrMockTextureInfo*) const;
 
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fIsValid; }
@@ -182,6 +193,17 @@ private:
 
     GrPixelConfig config() const { return fConfig; }
 
+#ifdef SK_VULKAN
+   // Requires friending of GrVkGpu (done above already)
+   sk_sp<GrVkImageLayout> getVkImageLayout() const;
+
+   friend class GrVkTexture;
+   GrBackendTexture(int width,
+                    int height,
+                    const GrVkImageInfo& vkInfo,
+                    sk_sp<GrVkImageLayout> layout);
+#endif
+
     bool fIsValid;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
@@ -189,10 +211,30 @@ private:
     GrMipMapped fMipMapped;
     GrBackend fBackend;
 
+#ifdef SK_VULKAN
+    struct BackendVkInfo {
+        BackendVkInfo(GrVkImageInfo info, GrVkImageLayout* layout)
+                : fImageInfo(info), fLayout(layout) {}
+#if GR_TEST_UTILS
+        bool operator==(const BackendVkInfo& that) const {
+            GrVkImageInfo cpyInfoThis = fImageInfo;
+            GrVkImageInfo cpyInfoThat = that.fImageInfo;
+            // We don't care about the fImageLayout here since we require they use the same
+            // GrVkImageLayout.
+            cpyInfoThis.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            cpyInfoThat.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            return cpyInfoThis == cpyInfoThat && fLayout == that.fLayout;
+        }
+#endif
+        GrVkImageInfo    fImageInfo;
+        GrVkImageLayout* fLayout;
+    };
+#endif
+
     union {
         GrGLTextureInfo fGLInfo;
 #ifdef SK_VULKAN
-        GrVkImageInfo   fVkInfo;
+        BackendVkInfo fVkInfo;
 #endif
         GrMockTextureInfo fMockInfo;
     };
