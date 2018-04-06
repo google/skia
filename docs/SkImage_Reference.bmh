@@ -1390,52 +1390,6 @@ for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
 
 # ------------------------------------------------------------------------------
 
-#Method GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
-                                           GrSurfaceOrigin* origin = nullptr) const
-#In Property
-#Line # returns GPU reference to Image as texture ##
-
-Retrieves the backend texture. If Image has no backend texture, an invalid
-object is returned. Call GrBackendTexture::isValid to determine if the result
-is valid.
-
-If flushPendingGrContextIO is true, completes deferred I/O operations.
-
-If origin in not nullptr, copies location of content drawn into Image.
-
-#Param flushPendingGrContextIO  flag to flush outstanding requests ##
-#Param origin  storage for one of: kTopLeft_GrSurfaceOrigin,
-               kBottomLeft_GrSurfaceOrigin; or nullptr
-##
-
-#Return back-end API texture handle; invalid on failure ##
-
-#Example
-#Image 3
-#Platform gpu
-    GrContext* grContext = canvas->getGrContext();
-    if (!grContext) {
-        canvas->drawString("GPU only!", 20, 40, SkPaint());
-        return;
-    }
-    sk_sp<SkImage> imageFromBackend = SkImage::MakeFromAdoptedTexture(grContext, backEndTexture,
-            kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
-    GrBackendTexture textureFromImage = imageFromBackend->getBackendTexture(false);
-    if (!textureFromImage.isValid()) {
-        return;
-    }
-    sk_sp<SkImage> imageFromTexture = SkImage::MakeFromAdoptedTexture(grContext, textureFromImage,
-            kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
-    canvas->drawImage(imageFromTexture, 0, 0);
-    canvas->drawImage(imageFromBackend, 128, 128);
-##
-
-#SeeAlso MakeFromTexture isTextureBacked
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
 #Enum CachingHint
 
 #Code

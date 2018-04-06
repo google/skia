@@ -8,9 +8,9 @@
 #include "Test.h"
 
 #include "SkBitmap.h"
-#include "SkImage.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
+#include "SkImagePriv.h"
 #include "SkMatrix.h"
 #include "SkSpecialImage.h"
 
@@ -227,7 +227,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     }
 
     GrSurfaceOrigin readBackOrigin;
-    GrBackendTexture readBackBackendTex = srcImage->getBackendTexture(false, &readBackOrigin);
+    GrBackendTexture readBackBackendTex = SkImageGetBackendTexture(srcImage.get(), false,
+                                                                   &readBackOrigin);
     if (!GrBackendTexture::TestingOnly_Equals(readBackBackendTex, backendTex)) {
         ERRORF(reporter, "backend mismatch\n");
     }

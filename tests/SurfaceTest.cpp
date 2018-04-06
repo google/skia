@@ -288,10 +288,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceSnapshotAlphaType_Gpu, reporter, ctxIn
 
 static void test_backend_texture_access_copy_on_write(
     skiatest::Reporter* reporter, SkSurface* surface, SkSurface::BackendHandleAccess access) {
-    GrBackendTexture tex1 = surface->getBackendTexture(access);
+    GrBackendTexture tex1 = SkSurfaceGetBackendTexture(surface, access);
     sk_sp<SkImage> snap1(surface->makeImageSnapshot());
 
-    GrBackendTexture tex2 = surface->getBackendTexture(access);
+    GrBackendTexture tex2 = SkSurfaceGetBackendTexture(surface, access);
     sk_sp<SkImage> snap2(surface->makeImageSnapshot());
 
     // If the access mode triggers CoW, then the backend objects should reflect it.
@@ -300,10 +300,10 @@ static void test_backend_texture_access_copy_on_write(
 
 static void test_backend_rendertarget_access_copy_on_write(
     skiatest::Reporter* reporter, SkSurface* surface, SkSurface::BackendHandleAccess access) {
-    GrBackendRenderTarget rt1 = surface->getBackendRenderTarget(access);
+    GrBackendRenderTarget rt1 = SkSurfaceGetBackendRenderTarget(surface, access);
     sk_sp<SkImage> snap1(surface->makeImageSnapshot());
 
-    GrBackendRenderTarget rt2 = surface->getBackendRenderTarget(access);
+    GrBackendRenderTarget rt2 = SkSurfaceGetBackendRenderTarget(surface, access);
     sk_sp<SkImage> snap2(surface->makeImageSnapshot());
 
     // If the access mode triggers CoW, then the backend objects should reflect it.
@@ -335,23 +335,23 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendSurfaceAccessCopyOnWrite_Gpu, r
 
 #if SK_SUPPORT_GPU
 
-template<typename Type, Type(SkSurface::*func)(SkSurface::BackendHandleAccess)>
+template<typename Type, Type(func)(SkSurface*, SkSurface::BackendHandleAccess)>
 static void test_backend_unique_id(skiatest::Reporter* reporter, SkSurface* surface) {
     sk_sp<SkImage> image0(surface->makeImageSnapshot());
 
-    Type obj = (surface->*func)(SkSurface::kFlushRead_BackendHandleAccess);
+    Type obj = (*func)(surface, SkSurface::kFlushRead_BackendHandleAccess);
     REPORTER_ASSERT(reporter, obj.isValid());
     sk_sp<SkImage> image1(surface->makeImageSnapshot());
     // just read access should not affect the snapshot
     REPORTER_ASSERT(reporter, image0->uniqueID() == image1->uniqueID());
 
-    obj = (surface->*func)(SkSurface::kFlushWrite_BackendHandleAccess);
+    obj = (*func)(surface, SkSurface::kFlushWrite_BackendHandleAccess);
     REPORTER_ASSERT(reporter, obj.isValid());
     sk_sp<SkImage> image2(surface->makeImageSnapshot());
     // expect a new image, since we claimed we would write
     REPORTER_ASSERT(reporter, image0->uniqueID() != image2->uniqueID());
 
-    obj = (surface->*func)(SkSurface::kDiscardWrite_BackendHandleAccess);
+    obj = (*func)(surface, SkSurface::kDiscardWrite_BackendHandleAccess);
     REPORTER_ASSERT(reporter, obj.isValid());
     sk_sp<SkImage> image3(surface->makeImageSnapshot());
     // expect a new(er) image, since we claimed we would write
@@ -364,12 +364,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessIDs_Gpu, reporter, 
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         {
             auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
-            test_backend_unique_id<GrBackendTexture, &SkSurface::getBackendTexture>(reporter,
+            test_backend_unique_id<GrBackendTexture, &SkSurfaceGetBackendTexture>(reporter,
                                                                                     surface.get());
         }
         {
             auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
-            test_backend_unique_id<GrBackendRenderTarget, &SkSurface::getBackendRenderTarget>(
+            test_backend_unique_id<GrBackendRenderTarget, &SkSurfaceGetBackendRenderTarget>(
                                                                 reporter, surface.get());
         }
     }
@@ -541,11 +541,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
         sk_sp<SkImage> image(surface->makeImageSnapshot());
 
         REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
-        GrBackendTexture backendTex = image->getBackendTexture(false);
+        GrBackendTexture backendTex = SkImageGetBackendTexture(image.get(), false);
         REPORTER_ASSERT(reporter, backendTex.isValid());
         surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
         REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
-        GrBackendTexture backendTex2 = image->getBackendTexture(false);
+        GrBackendTexture backendTex2 = SkImageGetBackendTexture(image.get(), false);
         REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(backendTex, backendTex2));
     }
 }
