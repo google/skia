@@ -41,8 +41,8 @@ const (
 	ISOLATE_WIN_TOOLCHAIN_NAME  = "Housekeeper-PerCommit-IsolateWinToolchain"
 	ISOLATE_WIN_VULKAN_SDK_NAME = "Housekeeper-PerCommit-IsolateWinVulkanSDK"
 
-	DEFAULT_OS_DEBIAN    = "Debian-9.1"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.2"
+	DEFAULT_OS_DEBIAN    = "Debian-9.4"
+	DEFAULT_OS_LINUX_GCE = DEFAULT_OS_DEBIAN
 	DEFAULT_OS_MAC       = "Mac-10.13.3"
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
