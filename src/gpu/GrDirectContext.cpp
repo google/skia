@@ -100,6 +100,15 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
     return MakeGL(std::move(interface), defaultOptions);
 }
 
+sk_sp<GrContext> GrContext::MakeGL(const GrContextOptions& options) {
+    return MakeGL(nullptr, options);
+}
+
+sk_sp<GrContext> GrContext::MakeGL() {
+    GrContextOptions defaultOptions;
+    return MakeGL(nullptr, defaultOptions);
+}
+
 sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface) {
     return MakeGL(sk_ref_sp(interface));
 }

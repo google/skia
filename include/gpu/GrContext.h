@@ -55,10 +55,14 @@ class SkTraceMemoryDump;
 class SK_API GrContext : public SkRefCnt {
 public:
     /**
-     * Creates a GrContext for a backend context.
+     * Creates a GrContext for a backend context. If no GrGLInterface is provided then the result of
+     * GrGLMakeNativeInterface() is used if it succeeds.
      */
     static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
     static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>);
+    static sk_sp<GrContext> MakeGL(const GrContextOptions&);
+    static sk_sp<GrContext> MakeGL();
+
     // Deprecated
     static sk_sp<GrContext> MakeGL(const GrGLInterface*);
     static sk_sp<GrContext> MakeGL(const GrGLInterface*, const GrContextOptions&);

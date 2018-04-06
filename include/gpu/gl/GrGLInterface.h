@@ -21,14 +21,14 @@ struct GrGLInterface;
 /**
  * Rather than depend on platform-specific GL headers and libraries, we require
  * the client to provide a struct of GL function pointers. This struct can be
- * specified per-GrContext as a parameter to GrContext::MakeGL. If NULL is
- * passed to MakeGL then a "native" GL interface is created. If the native is
- * also NULL GrContext creation will fail.
+ * specified per-GrContext as a parameter to GrContext::MakeGL. If no interface is
+ * passed to MakeGL then a default GL interface is created using GrGLMakeNativeInterface().
+ * If this returns nullptr then GrContext::MakeGL() will fail.
  *
- * The default interface is returned by GrGLMakeNativeInterface. This function's
- * implementation is platform-specific. Several have been provided
- * (for GLX, WGL, EGL, etc), along with an implementation that simply returns
- * NULL.
+ * The implementation of GrGLMakeNativeInterface is platform-specific. Several
+ * implementations have been provided (for GLX, WGL, EGL, etc), along with an
+ * implementation that simply returns nullptr. Clients should select the most
+ * appropriate one to build.
  */
 SK_API sk_sp<const GrGLInterface> GrGLMakeNativeInterface();
 // Deprecated alternative to GrGLMakeNativeInterface().
