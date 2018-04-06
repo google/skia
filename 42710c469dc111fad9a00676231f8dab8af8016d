@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4e36aa5_057eb226",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-04-06T18:44:42Z",
+      "side": 1,
+      "message": "What\u0027s smarter about it? It looks like we just let libjpeg-turbo detect whether a bytestream is a jpeg, rather than doing our own check? That seems fine, but I don\u0027t see what the goal is. Did we miss some of them with our own check?",
+      "range": {
+        "startLine": 7,
+        "startChar": 7,
+        "endLine": 7,
+        "endChar": 19
+      },
+      "revId": "42710c469dc111fad9a00676231f8dab8af8016d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "685d78d0_aec21275",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-04-06T18:44:42Z",
+      "side": 1,
+      "message": "Does this need to be a part of SkJpegCodec? It makes sense to me to put the implementation in SkJpegCodec.cpp, but the API seems separable to me.\n\nIt also seems like this could be even more specific than it is. You only want the origin and  color info so that you can reject them, too. So could this be something like:\n\n    // If |data| is a JPEG, return true and fill out |size|. Only supports TopLeft\n    // with XX color spaces\n    static bool GetJpegSize(const void* data, size_t len, SkISize* size);\n\n?\n\nWhy not use an SkData while you\u0027re at it, which you do anyway?",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 74
+      },
+      "revId": "42710c469dc111fad9a00676231f8dab8af8016d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae6f3d61_7dc9809e",
+        "filename": "tests/PDFJpegEmbedTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-04-06T18:44:42Z",
+      "side": 1,
+      "message": "Why did this change?",
+      "range": {
+        "startLine": 120,
+        "startChar": 8,
+        "endLine": 144,
+        "endChar": 19
+      },
+      "revId": "42710c469dc111fad9a00676231f8dab8af8016d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
