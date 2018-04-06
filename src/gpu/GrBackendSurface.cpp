@@ -67,7 +67,8 @@ const GrPixelConfig* GrBackendFormat::getMockFormat() const {
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo)
-        : fWidth(width)
+        : fIsValid(true)
+        , fWidth(width)
         , fHeight(height)
         , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
         , fMipMapped(GrMipMapped(vkInfo.fLevelCount > 1))
@@ -88,7 +89,8 @@ GrBackendTexture::GrBackendTexture(int width,
                                    GrPixelConfig config,
                                    GrMipMapped mipMapped,
                                    const GrGLTextureInfo& glInfo)
-        : fWidth(width)
+        : fIsValid(true)
+        , fWidth(width)
         , fHeight(height)
         , fConfig(config)
         , fMipMapped(mipMapped)
@@ -100,7 +102,8 @@ GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipMapped mipMapped,
                                    const GrGLTextureInfo& glInfo)
-        : fWidth(width)
+        : fIsValid(true)
+        , fWidth(width)
         , fHeight(height)
         , fConfig(GrGLSizedFormatToPixelConfig(glInfo.fFormat))
         , fMipMapped(mipMapped)
@@ -111,7 +114,8 @@ GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipMapped mipMapped,
                                    const GrMockTextureInfo& mockInfo)
-        : fWidth(width)
+        : fIsValid(true)
+        , fWidth(width)
         , fHeight(height)
         , fConfig(mockInfo.fConfig)
         , fMipMapped(mipMapped)
@@ -217,7 +221,8 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
                                              const GrVkImageInfo& vkInfo)
-        : fWidth(width)
+        : fIsValid(true)
+        , fWidth(width)
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(0)  // We always create stencil buffers internally for vulkan
@@ -234,7 +239,8 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int stencilBits,
                                              GrPixelConfig config,
                                              const GrGLFramebufferInfo& glInfo)
-        : fWidth(width)
+        : fIsValid(true)
+        , fWidth(width)
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
@@ -248,7 +254,8 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              int stencilBits,
                                              const GrGLFramebufferInfo& glInfo)
-        : fWidth(width)
+        : fIsValid(true)
+        , fWidth(width)
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
@@ -261,7 +268,8 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              int stencilBits,
                                              const GrMockRenderTargetInfo& mockInfo)
-        : fWidth(width)
+        : fIsValid(true)
+        , fWidth(width)
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)

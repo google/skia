@@ -100,7 +100,7 @@ private:
 class SK_API GrBackendTexture {
 public:
     // Creates an invalid backend texture.
-    GrBackendTexture() : fConfig(kUnknown_GrPixelConfig) {}
+    GrBackendTexture() : fIsValid(false) {}
 
 #if GR_TEST_UTILS
     // GrGLTextureInfo::fFormat is ignored
@@ -156,7 +156,7 @@ public:
     const GrMockTextureInfo* getMockTextureInfo() const;
 
     // Returns true if the backend texture has been initialized.
-    bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
+    bool isValid() const { return fIsValid; }
 
     /**
      * Create a GrBackendFormat object that matches this texture
@@ -182,6 +182,7 @@ private:
 
     GrPixelConfig config() const { return fConfig; }
 
+    bool fIsValid;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;
@@ -200,7 +201,7 @@ private:
 class SK_API GrBackendRenderTarget {
 public:
     // Creates an invalid backend texture.
-    GrBackendRenderTarget() : fConfig(kUnknown_GrPixelConfig) {}
+    GrBackendRenderTarget() : fIsValid(false) {}
 
 #if GR_TEST_UTILS
     // GrGLTextureInfo::fFormat is ignored
@@ -255,7 +256,7 @@ public:
     const GrMockRenderTargetInfo* getMockRenderTargetInfo() const;
 
     // Returns true if the backend texture has been initialized.
-    bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
+    bool isValid() const { return fIsValid; }
 
 
 #if GR_TEST_UTILS
@@ -274,6 +275,7 @@ private:
     friend class GrVkGpu;
     GrPixelConfig config() const { return fConfig; }
 
+    bool fIsValid;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
 
