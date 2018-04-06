@@ -73,7 +73,6 @@ GrBackendTextureImageGenerator::~GrBackendTextureImageGenerator() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
 void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* ctx) {
     RefHelper* refHelper = static_cast<RefHelper*>(ctx);
     SkASSERT(refHelper);
@@ -208,4 +207,4 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         return rtContext->asTextureProxyRef();
     }
 }
-#endif
+

@@ -39,12 +39,10 @@ protected:
     // do that safely (we might be on another thread). So assume everything is fine.
     bool onIsValid(GrContext*) const override { return true; }
 
-#if SK_SUPPORT_GPU
     TexGenType onCanGenerateTexture() const override { return TexGenType::kCheap; }
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
                                             SkTransferFunctionBehavior,
                                             bool willNeedMipMaps) override;
-#endif
 
 private:
     GrBackendTextureImageGenerator(const SkImageInfo& info, GrTexture*, GrSurfaceOrigin,
