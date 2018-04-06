@@ -3643,8 +3643,7 @@ void toString(SkString* str) const;
 </pre>
 
 Creates string representation of <a href="#Bitmap">Bitmap</a>. The representation is read by
-internal debugging tools. The interface and implementation may be
-suppressed by defining SK_IGNORE_TO_STRING.
+internal debugging tools.
 
 ### Parameters
 

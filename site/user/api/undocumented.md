@@ -795,6 +795,19 @@ static std::unique_ptr&lt;SkCanvas&gt; MakeCanvas(std::unique_ptr&lt;SkRasterHan
 
 # <a name="SkRegion"></a> Class SkRegion
 
+# <a name="RenderTarget"></a> RenderTarget
+
+# <a name="GrBackendRenderTarget"></a> Class GrBackendRenderTarget
+
+<a name="GrBackendRenderTarget_isValid"></a>
+## isValid
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool isValid() const
+</pre>
+
+---
+
 # <a name="Render_Target"></a> Render Target
 
 # <a name="GrRenderTarget"></a> Class GrRenderTarget
