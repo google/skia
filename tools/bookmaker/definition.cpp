@@ -138,7 +138,7 @@ const struct OperatorParser {
                                     {{ CONST,  OpType::kThis,   OpMod::kReference, }}},
 };
 
-OpType lookup_type(const string& typeWord, const string& name) {
+OpType lookup_type(string typeWord, string name) {
     if (typeWord == name || (typeWord == "SkIVector" && name == "SkIPoint")
                          || (typeWord == "SkVector" && name == "SkPoint")) {
         return OpType::kThis;
@@ -324,7 +324,7 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
 #undef BLANK
 #undef DEFOP
 
-bool Definition::boilerplateIfDef(Definition* parent) {
+bool Definition::boilerplateIfDef() {
     const Definition& label = fTokens.front();
     if (Type::kWord != label.fType) {
         return false;
@@ -333,32 +333,6 @@ bool Definition::boilerplateIfDef(Definition* parent) {
     return true;
 }
 
-// todo: this is matching #ifndef SkXXX_DEFINED for no particular reason
-// it doesn't do anything useful with arbitrary input, e.g. #ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
-// also doesn't know what to do with SK_REQUIRE_LOCAL_VAR()
-bool Definition::boilerplateDef(Definition* parent) {
-    if (!this->boilerplateIfDef(parent)) {
-        return false;
-    }
-    const char* s = fName.c_str();
-    const char* e = strchr(s, '_');
-    return true; // fixme: if this is trying to do something useful with define, do it here
-    if (!e) {
-        return false;
-    }
-    string prefix(s, e - s);
-    const char* inName = strstr(parent->fName.c_str(), prefix.c_str());
-    if (!inName) {
-        return false;
-    }
-    if ('/' != inName[-1] && '\\' != inName[-1]) {
-        return false;
-    }
-    if (strcmp(inName + prefix.size(), ".h")) {
-        return false;
-    }
-    return true;
-}
 
 // fixme: this will need to be more complicated to handle all of Skia
 // for now, just handle paint -- maybe fiddle will loosen naming restrictions
@@ -791,7 +765,7 @@ const Definition* Definition::hasChild(MarkType markType) const {
     return nullptr;
 }
 
-const Definition* Definition::hasParam(const string& ref) const {
+const Definition* Definition::hasParam(string ref) const {
     SkASSERT(MarkType::kMethod == fMarkType);
     for (auto iter : fChildren) {
         if (MarkType::kParam != iter->fMarkType) {
@@ -805,7 +779,7 @@ const Definition* Definition::hasParam(const string& ref) const {
     return nullptr;
 }
 
-bool Definition::hasMatch(const string& name) const {
+bool Definition::hasMatch(string name) const {
     for (auto child : fChildren) {
         if (name == child->fName) {
             return true;
@@ -827,7 +801,7 @@ bool Definition::isStructOrClass() const {
     return true;
 }
 
-bool Definition::methodHasReturn(const string& name, TextParser* methodParser) const {
+bool Definition::methodHasReturn(string name, TextParser* methodParser) const {
     if (methodParser->skipExact("static")) {
         methodParser->skipWhiteSpace();
     }
@@ -965,7 +939,7 @@ string Definition::NormalizedName(string name) {
     return normalizedName;
 }
 
-static string unpreformat(const string& orig) {
+static string unpreformat(string orig) {
     string result;
     int amp = 0;
     for (auto c : orig) {
@@ -1030,7 +1004,7 @@ static string unpreformat(const string& orig) {
     return result;
 }
 
-bool Definition::paramsMatch(const string& matchFormatted, const string& name) const {
+bool Definition::paramsMatch(string matchFormatted, string name) const {
     string match = unpreformat(matchFormatted);
     TextParser def(fFileName, fStart, fContentStart, fLineCount);
     const char* dName = def.strnstr(name.c_str(), fContentStart);
@@ -1097,7 +1071,7 @@ bool RootDefinition::dumpUnVisited() {
     return success;
 }
 
-const Definition* RootDefinition::find(const string& ref, AllowParens allowParens) const {
+const Definition* RootDefinition::find(string ref, AllowParens allowParens) const {
     const auto leafIter = fLeaves.find(ref);
     if (leafIter != fLeaves.end()) {
         return &leafIter->second;

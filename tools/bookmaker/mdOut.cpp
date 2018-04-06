@@ -16,11 +16,11 @@
     }                               \
     fprintf(fOut, __VA_ARGS__)
 
-static void add_ref(const string& leadingSpaces, const string& ref, string* result) {
+static void add_ref(string leadingSpaces, string ref, string* result) {
     *result += leadingSpaces + ref;
 }
 
-static string preformat(const string& orig) {
+static string preformat(string orig) {
     string result;
     for (auto c : orig) {
         if ('<' == c) {
@@ -34,7 +34,7 @@ static string preformat(const string& orig) {
     return result;
 }
 
-static bool all_lower(const string& ref) {
+static bool all_lower(string ref) {
 	for (auto ch : ref) {
 		if (!islower(ch)) {
 			return false;
@@ -504,7 +504,7 @@ const Definition* MdOut::findParamType() {
     return nullptr;
 }
 
-const Definition* MdOut::isDefined(const TextParser& parser, const string& ref,
+const Definition* MdOut::isDefined(const TextParser& parser, string ref,
         BmhParser::Resolvable resolvable) {
     auto rootIter = fBmhParser.fClassMap.find(ref);
     if (rootIter != fBmhParser.fClassMap.end()) {
@@ -682,8 +682,8 @@ string MdOut::linkName(const Definition* ref) const {
 
 // for now, hard-code to html links
 // def should not include SkXXX_
-string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
-        const string& ref, BmhParser::Resolvable resolvable) const {
+string MdOut::linkRef(string leadingSpaces, const Definition* def,
+        string ref, BmhParser::Resolvable resolvable) const {
     string buildup;
     string refName;
     const string* str = &def->fFiddle;
@@ -1140,7 +1140,7 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         default:
             SkDebugf("fatal error: MarkType::k%s unhandled in %s()\n",
-                    fBmhParser.fMaps[(int) def->fMarkType].fName, __func__);
+                    BmhParser::kMarkProps[(int) def->fMarkType].fName, __func__);
             SkASSERT(0); // handle everything
             break;
     }
@@ -1410,7 +1410,7 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
     }
 }
 
-void MdOut::rowOut(const char* name, const string& description) {
+void MdOut::rowOut(const char* name, string description) {
     this->lfAlways(1);
     FPRINTF("| ");
     this->resolveOut(name, name + strlen(name), BmhParser::Resolvable::kYes);
