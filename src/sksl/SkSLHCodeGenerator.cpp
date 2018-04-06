@@ -276,8 +276,7 @@ bool HCodeGenerator::generateCode() {
                  "#define %s_DEFINED\n",
                  fFullName.c_str(),
                  fFullName.c_str());
-    this->writef("#include \"SkTypes.h\"\n"
-                 "#if SK_SUPPORT_GPU\n");
+    this->writef("#include \"SkTypes.h\"\n");
     this->writeSection(HEADER_SECTION);
     this->writef("#include \"GrFragmentProcessor.h\"\n"
                  "#include \"GrCoordTransform.h\"\n");
@@ -317,8 +316,7 @@ bool HCodeGenerator::generateCode() {
     this->writef("    typedef GrFragmentProcessor INHERITED;\n"
                 "};\n");
     this->writeSection(HEADER_END_SECTION);
-    this->writef("#endif\n"
-                 "#endif\n");
+    this->writef("#endif\n");
     return 0 == fErrors.errorCount();
 }
 
