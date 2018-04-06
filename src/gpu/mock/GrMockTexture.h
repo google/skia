@@ -31,9 +31,11 @@ public:
 
     ~GrMockTexture() override {}
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     GrBackendObject getTextureHandle() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
     }
+#endif
     GrBackendTexture getBackendTexture() const override {
         return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(),
                                 fInfo);
