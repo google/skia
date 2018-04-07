@@ -876,7 +876,22 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
         return false;
     }
 
-    if (!fContext->caps()->surfaceSupportsWritePixels(dstSurface)) {
+    // TODO: Make GrSurfaceContext know its alpha type and pass src buffer's alpha type.
+    bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
+
+    // For canvas2D putImageData performance we have a special code path for unpremul RGBA_8888 srcs
+    // that are premultiplied on the GPU. This is kept as narrow as possible for now.
+    bool canvas2DFastPath = premul &&
+                            !dst->colorSpaceInfo().isGammaCorrect() &&
+                            GrColorType::kRGBA_8888 == srcColorType &&
+                            SkToBool(dst->asRenderTargetContext()) &&
+                            (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
+                             dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
+                            !(pixelOpsFlags & kDontFlush_PixelOpsFlag) &&
+                            fContext->caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
+                            fContext->validPMUPMConversionExists();
+
+    if (!fContext->caps()->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
         // We don't expect callers that are skipping flushes to require an intermediate draw.
         SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
         if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
@@ -884,7 +899,7 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
         }
 
         GrSurfaceDesc desc;
-        desc.fConfig = dstProxy->config();
+        desc.fConfig = canvas2DFastPath ? kRGBA_8888_GrPixelConfig : dstProxy->config();
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fSampleCnt = 1;
@@ -898,15 +913,25 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
         if (!tempCtx) {
             return false;
         }
+        uint32_t flags = canvas2DFastPath ? 0 : pixelOpsFlags;
         if (!this->writeSurfacePixels2(tempCtx.get(), 0, 0, width, height, srcColorType,
-                                       srcColorSpace, buffer, rowBytes, pixelOpsFlags)) {
+                                       srcColorSpace, buffer, rowBytes, flags)) {
             return false;
         }
-        return dst->copy(tempProxy.get(), SkIRect::MakeWH(width, height), {left, top});
+        if (canvas2DFastPath) {
+            GrPaint paint;
+            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+            paint.addColorFragmentProcessor(fContext->createUPMToPMEffect(
+                    GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()), true));
+            dst->asRenderTargetContext()->fillRectToRect(
+                    GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                    SkRect::MakeXYWH(left, top, width, height), SkRect::MakeWH(width, height));
+            return true;
+        } else {
+            return dst->copy(tempProxy.get(), SkIRect::MakeWH(width, height), {left, top});
+        }
     }
 
-    // TODO: Make GrSurfaceContext know its alpha type and pass src buffer's alpha type.
-    bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
     bool convert = premul;
 
     if (!valid_pixel_conversion(srcColorType, dstProxy->config(), premul)) {
@@ -981,7 +1006,7 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
 bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top, int width,
                                        int height, GrColorType dstColorType,
                                        SkColorSpace* dstColorSpace, void* buffer, size_t rowBytes,
-                                       uint32_t flags) {
+                                       uint32_t pixelOpsFlags) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_FALSE_IF_ABANDONED_PRIV
     SkASSERT(src);
@@ -989,8 +1014,8 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
     ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels2", fContext);
 
-    SkASSERT(!(flags & kDontFlush_PixelOpsFlag));
-    if (flags & kDontFlush_PixelOpsFlag) {
+    SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
+    if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
         return false;
     }
 
@@ -1009,16 +1034,30 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
     }
 
     // TODO: Make GrSurfaceContext know its alpha type and pass dst buffer's alpha type.
-    bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
-    bool convert = unpremul;
+    bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
 
     if (!valid_pixel_conversion(dstColorType, srcProxy->config(), unpremul)) {
         return false;
     }
 
-    if (!fContext->caps()->surfaceSupportsReadPixels(srcSurface)) {
+    // This is the getImageData equivalent to the canvas2D putImageData fast path. We probably don't
+    // care so much about getImageData performance. However, in order to ensure putImageData/
+    // getImageData in "legacy" mode are round-trippable we use the GPU to do the complementary
+    // unpremul step to writeSurfacePixels2's premul step (which is determined empirically in
+    // fContext->vaildaPMUPMConversionExists()).
+    bool canvas2DFastPath = unpremul &&
+                            !src->colorSpaceInfo().isGammaCorrect() &&
+                            GrColorType::kRGBA_8888 == dstColorType &&
+                            SkToBool(srcProxy->asTextureProxy()) &&
+                            (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
+                             srcProxy->config() == kBGRA_8888_GrPixelConfig) &&
+                            fContext->caps()->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
+                            fContext->validPMUPMConversionExists();
+
+    if (!fContext->caps()->surfaceSupportsReadPixels(srcSurface) || canvas2DFastPath) {
         GrSurfaceDesc desc;
-        desc.fConfig = srcProxy->config();
+        desc.fFlags = canvas2DFastPath ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+        desc.fConfig = canvas2DFastPath ? kRGBA_8888_GrPixelConfig : srcProxy->config();
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fSampleCnt = 1;
@@ -1027,17 +1066,36 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
         if (!tempProxy) {
             return false;
         }
-        auto tempCtx = this->drawingManager()->makeTextureContext(
-                tempProxy, src->colorSpaceInfo().refColorSpace());
+        sk_sp<GrSurfaceContext> tempCtx;
+        if (canvas2DFastPath) {
+            tempCtx = this->drawingManager()->makeRenderTargetContext(std::move(tempProxy), nullptr,
+                                                                      nullptr);
+        } else {
+            tempCtx = this->drawingManager()->makeTextureContext(
+                    std::move(tempProxy), src->colorSpaceInfo().refColorSpace());
+        }
         if (!tempCtx) {
             return false;
         }
-        if (!tempCtx->copy(srcProxy, {left, top, width, height}, {0, 0})) {
+        if (canvas2DFastPath) {
+            GrPaint paint;
+            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+            paint.addColorFragmentProcessor(fContext->createPMToUPMEffect(
+                    GrSimpleTextureEffect::Make(sk_ref_sp(srcProxy->asTextureProxy()),
+                                                SkMatrix::I()),
+                    true));
+            tempCtx->asRenderTargetContext()->fillRectToRect(
+                    GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                    SkRect::MakeWH(width, height), SkRect::MakeXYWH(left, top, width, height));
+        } else if (!tempCtx->copy(srcProxy, SkIRect::MakeXYWH(left, top, width, height), {0, 0})) {
             return false;
         }
+        uint32_t flags = canvas2DFastPath ? 0 : pixelOpsFlags;
         return this->readSurfacePixels2(tempCtx.get(), 0, 0, width, height, dstColorType,
                                         dstColorSpace, buffer, rowBytes, flags);
     }
+
+    bool convert = unpremul;
 
     bool flip = srcProxy->origin() == kBottomLeft_GrSurfaceOrigin;
     if (flip) {
