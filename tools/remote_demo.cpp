@@ -25,52 +25,35 @@ static bool gUseGpu = true;
 static bool gPurgeFontCaches = true;
 static bool gUseProcess = true;
 
-static bool write_SkData(int fd, const SkData& data) {
-    size_t size = data.size();
-    ssize_t bytesWritten = ::write(fd, &size, sizeof(size));
-    if (bytesWritten < 0) {
-        err(1,"Failed write %zu", size);
-        return false;
+class ReadWriteTransport : public SkRemoteStrikeTransport {
+public:
+    ReadWriteTransport(int readFd, int writeFd) : fReadFd{readFd}, fWriteFd{writeFd} {}
+    ~ReadWriteTransport() override {
+        close(fWriteFd);
+        close(fReadFd);
+    }
+    IOResult write(const void* buffer, size_t size) override {
+        ssize_t writeSize = ::write(fWriteFd, buffer, size);
+        if (writeSize < 0) {
+            err(1,"Failed write %zu", size);
+            return kFail;
+        }
+        return kSuccess;
     }
 
-    bytesWritten = ::write(fd, data.data(), data.size());
-    if (bytesWritten < 0) {
-        err(1,"Failed write %zu", size);
-        return false;
-    }
-
-    return true;
-}
-
-static sk_sp<SkData> read_SkData(int fd) {
-
-    size_t size;
-    ssize_t readSize = ::read(fd, &size, sizeof(size));
-    if (readSize <= 0) {
+    std::tuple<size_t, IOResult> read(void* buffer, size_t size) override {
+        ssize_t readSize = ::read(fReadFd, buffer, size);
         if (readSize < 0) {
-            err(1, "Failed read %zu", size);
+            err(1,"Failed read %zu", size);
+            return {size, kFail};
         }
-        return nullptr;
+        return {readSize, kSuccess};
     }
 
-    auto out = SkData::MakeUninitialized(size);
-    auto data = (uint8_t*)out->data();
-
-    size_t totalRead = 0;
-    while (totalRead < size) {
-        ssize_t sizeRead;
-        sizeRead = ::read(fd, &data[totalRead], size - totalRead);
-        if (sizeRead <= 0) {
-            if (readSize < 0) {
-                err(1, "Failed read %zu", size);
-            }
-            return nullptr;
-        }
-        totalRead += sizeRead;
-    }
-
-    return out;
-}
+private:
+    const int fReadFd,
+              fWriteFd;
+};
 
 class Timer {
 public:
@@ -150,17 +133,14 @@ static void final_draw(std::string outFilename,
 static void gpu(int readFd, int writeFd) {
 
     if (gUseGpu) {
-        auto clientRPC = [readFd, writeFd](const SkData& inBuffer) {
-            write_SkData(writeFd, inBuffer);
-            return read_SkData(readFd);
-        };
+        ReadWriteTransport rwTransport{readFd, writeFd};
 
-        auto picData = read_SkData(readFd);
+        auto picData = rwTransport.readSkData();
         if (picData == nullptr) {
             return;
         }
 
-        SkStrikeClient client{clientRPC};
+        SkStrikeClient client{&rwTransport};
 
         SkDeserialProcs procs;
         client.prepareDeserializeProcs(&procs);
@@ -168,20 +148,14 @@ static void gpu(int readFd, int writeFd) {
         final_draw("test.png", &procs, picData.get(), &client);
     }
 
-    ::close(writeFd);
-    ::close(readFd);
-
     printf("GPU is exiting\n");
 }
 
 static int renderer(
     const std::string& skpName, int readFd, int writeFd)
 {
-    SkStrikeServer server{};
-    auto closeAll = [readFd, writeFd]() {
-        ::close(writeFd);
-        ::close(readFd);
-    };
+    ReadWriteTransport rwTransport{readFd, writeFd};
+    SkStrikeServer server{&rwTransport};
 
     auto skpData = SkData::MakeFromFileName(skpName.c_str());
     std::cout << "skp stream is " << skpData->size() << " bytes long " << std::endl;
@@ -193,28 +167,16 @@ static int renderer(
         server.prepareSerializeProcs(&procs);
         stream = pic->serialize(&procs);
 
-        if (!write_SkData(writeFd, *stream)) {
-            closeAll();
+        if (rwTransport.writeSkData(*stream) == SkRemoteStrikeTransport::kFail) {
             return 1;
         }
 
-        std::vector<uint8_t> tmpBuffer;
-        while (true) {
-            auto inBuffer = read_SkData(readFd);
-            if (inBuffer == nullptr) {
-                closeAll();
-                return 0;
-            }
+        std::cout << "Waiting for scaler context ops." << std::endl;
 
-            tmpBuffer.clear();
-            server.serve(*inBuffer, &tmpBuffer);
-            auto outBuffer = SkData::MakeWithoutCopy(tmpBuffer.data(), tmpBuffer.size());
-            write_SkData(writeFd, *outBuffer);
-        }
+        return server.serve();
     } else {
         stream = skpData;
         final_draw("test-correct.png", nullptr, stream.get(), nullptr);
-        closeAll();
         return 0;
     }
 }
