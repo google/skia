@@ -739,6 +739,9 @@ def dm_flags(api, bot):
     # skia:7603
     match.append('~^GrMeshTest$')
 
+  if api.vars.internal_hardware_label == 1:
+    match.append('~skbug6653') # skia:6653
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
