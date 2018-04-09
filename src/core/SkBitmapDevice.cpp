@@ -640,15 +640,9 @@ SkImageFilterCache* SkBitmapDevice::getImageFilterCache() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmapDevice::onShouldDisableLCD(const SkPaint& paint) const {
-    if (kN32_SkColorType != fBitmap.colorType() ||
-        paint.getPathEffect() ||
-        paint.isFakeBoldText() ||
-        paint.getStyle() != SkPaint::kFill_Style ||
-        !paint.isSrcOver())
-    {
-        return true;
-    }
-    return false;
+    return paint.getPathEffect() 
+           || paint.isFakeBoldText()
+           || paint.getStyle() != SkPaint::kFill_Style;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
