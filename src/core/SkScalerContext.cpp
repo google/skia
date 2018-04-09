@@ -1042,6 +1042,10 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         rec->setContrast(0);
     }
 
+    if (paint.isFakeBoldText() || paint.getStyle() != SkPaint::kFill_Style) {
+        rec->fMaskFormat = SkMask::kA8_Format;
+    }
+
     new (effects) SkScalerContextEffects{paint};
     if (effects->fPathEffect) {
         rec->fMaskFormat = SkMask::kA8_Format;  // force antialiasing when we do the scan conversion
