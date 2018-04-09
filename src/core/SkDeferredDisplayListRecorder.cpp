@@ -170,19 +170,19 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         return nullptr;
     }
 
-    return SkImage_Gpu::MakePromiseTexture(fContext.get(),
-                                           backendFormat,
-                                           width,
-                                           height,
-                                           mipMapped,
-                                           origin,
-                                           colorType,
-                                           alphaType,
-                                           std::move(colorSpace),
-                                           textureFulfillProc,
-                                           textureReleaseProc,
-                                           promiseDoneProc,
-                                           textureContext);
+    return SkImage::MakePromiseTexture(fContext->threadSafeProxy(),
+                                       backendFormat,
+                                       width,
+                                       height,
+                                       mipMapped,
+                                       origin,
+                                       colorType,
+                                       alphaType,
+                                       std::move(colorSpace),
+                                       textureFulfillProc,
+                                       textureReleaseProc,
+                                       promiseDoneProc,
+                                       textureContext);
 }
 
 #endif

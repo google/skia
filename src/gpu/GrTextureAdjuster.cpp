@@ -20,7 +20,7 @@ GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> o
                                      SkColorSpace* cs)
     : INHERITED(original->width(), original->height(),
                 GrPixelConfigIsAlphaOnly(original->config()))
-    , fContext(context)
+    , fContext2(context)
     , fOriginal(std::move(original))
     , fAlphaType(alphaType)
     , fColorSpace(cs)
@@ -40,7 +40,7 @@ void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
 
 sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& copyParams,
                                                              bool willBeMipped) {
-    GrProxyProvider* proxyProvider = fContext->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = fContext2->contextPriv().proxyProvider();
 
     GrUniqueKey key;
     this->makeCopyKey(copyParams, &key, nullptr);
@@ -54,7 +54,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
 
-    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(proxy), copyParams, willBeMipped);
+    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext2, std::move(proxy), copyParams, willBeMipped);
     if (copy) {
         if (key.isValid()) {
             SkASSERT(copy->origin() == this->originalProxy()->origin());
@@ -70,12 +70,12 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSa
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
 
-    if (!fContext) {
+    if (!fContext2) {
         // The texture was abandoned.
         return nullptr;
     }
 
-    if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(),
+    if (!GrGpu::IsACopyNeededForTextureParams(fContext2->caps(),
                                               proxy.get(), proxy->width(), proxy->height(),
                                               params, &copyParams, scaleAdjust)) {
         return proxy;
