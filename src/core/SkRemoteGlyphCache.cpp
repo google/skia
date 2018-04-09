@@ -249,14 +249,7 @@ public:
 
     // Stolen from the SkBitmapDevice, but the SkGPUDevice is similar.
     bool onShouldDisableLCD(const SkPaint& paint) const override {
-        if (paint.getPathEffect() ||
-            paint.isFakeBoldText() ||
-            paint.getStyle() != SkPaint::kFill_Style ||
-            !paint.isSrcOver())
-        {
-            return true;
-        }
-        return false;
+        return !paint.isSrcOver();
     }
 };
 

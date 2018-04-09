@@ -959,15 +959,16 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
 
     rec->fMaskFormat = SkToU8(compute_mask_format(paint));
 
+    SkPixelGeometry pixelGeometry = surfaceProps
+                                    ? surfaceProps->pixelGeometry()
+                                    : SkSurfacePropsDefaultPixelGeometry();
+
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
         if (too_big_for_lcd(*rec, checkPost2x2)) {
             rec->fMaskFormat = SkMask::kA8_Format;
             flags |= SkScalerContext::kGenA8FromLCD_Flag;
         } else {
-            SkPixelGeometry geometry = surfaceProps
-                                       ? surfaceProps->pixelGeometry()
-                                       : SkSurfacePropsDefaultPixelGeometry();
-            switch (geometry) {
+            switch (pixelGeometry) {
                 case kUnknown_SkPixelGeometry:
                     // eeek, can't support LCD
                     rec->fMaskFormat = SkMask::kA8_Format;
@@ -1003,6 +1004,16 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         flags |= SkScalerContext::kVertical_Flag;
     }
     if (paint.getFlags() & SkPaint::kGenA8FromLCD_Flag) {
+        flags |= SkScalerContext::kGenA8FromLCD_Flag;
+    }
+
+    if (paint.isLCDRenderText() &&
+        paint.isAntiAlias() &&
+        (pixelGeometry == kUnknown_SkPixelGeometry ||
+         paint.isFakeBoldText() ||
+         paint.getStyle() != SkPaint::kFill_Style))
+    {
+        flags &= ~SkPaint::kLCDRenderText_Flag;
         flags |= SkScalerContext::kGenA8FromLCD_Flag;
     }
     rec->fFlags = SkToU16(flags);

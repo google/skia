@@ -309,7 +309,7 @@ void GrAtlasTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& p
     // GrAtlasTextBlob::makeOp only takes uint16_t values for run and subRun indices.
     // Encountering something larger than this is highly unlikely, so we'll just not draw it.
     int lastRun = SkTMin(fRunCount, (1 << 16)) - 1;
-    GrTextUtils::RunPaint runPaint(&paint, nullptr, props);
+    GrTextUtils::RunPaint runPaint(&paint, nullptr);
     for (int runIndex = 0; runIndex <= lastRun; runIndex++) {
         Run& run = fRuns[runIndex];
 
