@@ -328,7 +328,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
                                                  GrWrapOwnership ownership,
                                                  SkImage::TextureReleaseProc releaseProc,
                                                  SkImage::ReleaseContext releaseCtx) {
-    if (backendTex.width() <= 0 || backendTex.height() <= 0) {
+    if (!backendTex.isValid() || backendTex.width() <= 0 || backendTex.height() <= 0) {
         return nullptr;
     }
 
@@ -345,6 +345,9 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
 
 bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPixelConfig* config,
                               SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs) {
+    if (!tex.isValid()) {
+        return false;
+    }
     // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
     // create a fake image info here.
     SkImageInfo info = SkImageInfo::Make(1, 1, ct, at, cs);
