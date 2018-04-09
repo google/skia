@@ -1130,7 +1130,6 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const Geo& geo) 
         }
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new RRectPathEffect); }
         Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
     private:
         RRectPathEffect() {}
     };
@@ -1213,7 +1212,6 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
         }
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new AddLineTosPathEffect); }
         Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
     private:
         AddLineTosPathEffect() {}
     };
@@ -1250,7 +1248,6 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
             return sk_sp<SkPathEffect>(new MakeHairlinePathEffect);
         }
         Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
     private:
         MakeHairlinePathEffect() {}
     };
@@ -1336,7 +1333,6 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
             return sk_sp<SkPathEffect>(new EmptyPathEffect(invert));
         }
         Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
     private:
         bool fInvert;
         EmptyPathEffect(bool invert) : fInvert(invert) {}
@@ -1417,7 +1413,6 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
         }
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new FailurePathEffect); }
         Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
     private:
         FailurePathEffect() {}
     };
