@@ -53,6 +53,7 @@ void SetupAlwaysEvictAtlas(GrContext* context, int dim) {
     context->contextPriv().setTextContextAtlasSizes_ForTesting(configs);
 }
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
                                       GrPixelConfig config, GrMipMapped mipMapped,
                                       GrBackendObject handle) {
@@ -77,6 +78,7 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
             return GrBackendTexture();
     }
 }
+#endif
 
 }  // namespace GrTest
 
