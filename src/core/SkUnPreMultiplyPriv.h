@@ -32,9 +32,9 @@ void SkUnpremultiplyRow(uint32_t* dst, const uint32_t* src, int count) {
 
         if (0 != a && 255 != a) {
             SkUnPreMultiply::Scale scale = table[a];
-            r = SkUnPreMultiply::ApplyScale(scale, r);
-            g = SkUnPreMultiply::ApplyScale(scale, g);
-            b = SkUnPreMultiply::ApplyScale(scale, b);
+            r = SkUnPreMultiply::ApplyScale(scale, SkClampMax(r, a));
+            g = SkUnPreMultiply::ApplyScale(scale, SkClampMax(g, a));
+            b = SkUnPreMultiply::ApplyScale(scale, SkClampMax(b, a));
         }
 
         *dst++ = (r << 0) | (g << 8) | (b << 16) | (a << 24);
