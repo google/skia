@@ -75,6 +75,22 @@ struct GrVkImageInfo {
     VkFormat       fFormat;
     uint32_t       fLevelCount;
 
+    GrVkImageInfo()
+            : fImage(VK_NULL_HANDLE)
+            , fAlloc()
+            , fImageTiling(VK_IMAGE_TILING_OPTIMAL)
+            , fImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
+            , fFormat(VK_FORMAT_UNDEFINED)
+            , fLevelCount(0) {}
+
+    GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
+            : fImage(info.fImage)
+            , fAlloc(info.fAlloc)
+            , fImageTiling(info.fImageTiling)
+            , fImageLayout(layout)
+            , fFormat(info.fFormat)
+            , fLevelCount(info.fLevelCount) {}
+
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle
     // to our internal GrVkImageInfo by calling getTextureHandle on a GrVkTexture.
