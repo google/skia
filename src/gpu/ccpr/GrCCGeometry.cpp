@@ -57,20 +57,42 @@ static inline float dot(const Sk2f& a, const Sk2f& b) {
     return product[0] + product[1];
 }
 
-static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
-    static constexpr float kFlatnessTolerance = 4; // 1/4 of a pixel.
+static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                 float tolerance = 1/8.f) { // 1/8 of a pixel.
+    Sk2f l = p2 - p0; // Line from p0 -> p2.
 
-    // Area (times 2) of the triangle.
-    Sk2f a = (p0 - p1) * SkNx_shuffle<1,0>(p1 - p2);
-    a = (a - SkNx_shuffle<1,0>(a)).abs();
+    // lwidth = manhattan_width(l), duplicated in both lanes.
+    Sk2f lwidth = l.abs();
+    lwidth += SkNx_shuffle<1,0>(lwidth);
 
-    // Bounding box of the triangle.
-    Sk2f bbox0 = Sk2f::Min(Sk2f::Min(p0, p1), p2);
-    Sk2f bbox1 = Sk2f::Max(Sk2f::Max(p0, p1), p2);
+    // d = dot(p1 - p0, normal_to_l) = distance from p1 to l.
+    // This value will be duplicated in both lanes, but with opposite signs.
+    Sk2f d = (p1 - p0) * SkNx_shuffle<1,0>(l);
+    d -= SkNx_shuffle<1,0>(d);
 
-    // The triangle is linear if its area is within a fraction of the largest bounding box
-    // dimension, or else if its area is within a fraction of a pixel.
-    return (a * (kFlatnessTolerance/2) < Sk2f::Max(bbox1 - bbox0, 1)).anyTrue();
+    // We are collinear if a box with radius tolerance, centered on p1, touches the line l.
+    return (d.abs() < lwidth * tolerance).anyTrue();
+}
+
+static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
+                                 float tolerance = 1/8.f) { // 1/8 of a pixel.
+    Sk2f l = p3 - p0; // Line from p0 -> p3.
+
+    // lwidth = manhattan_width(l), duplicated in both lanes.
+    Sk2f lwidth = l.abs();
+    lwidth += SkNx_shuffle<1,0>(lwidth);
+
+    // Transpose p1 - p0 and p2 - p0.
+    float P12[4];
+    Sk2f::Store2(P12, p1 - p0, p2 - p0);
+    Sk2f P12x = Sk2f::Load(&P12[0]);
+    Sk2f P12y = Sk2f::Load(&P12[2]);
+
+    // d = P12 * normal_to_l = distances from p1 to l and p2 to l.
+    Sk2f d = P12x * l[1] - P12y * l[0];
+
+    // We are collinear if boxes with radius tolerance, centered on p1 and p2, both touch line l.
+    return (d.abs() < lwidth * tolerance).allTrue();
 }
 
 // Returns whether the (convex) curve segment is monotonic with respect to [endPt - startPt].
@@ -298,9 +320,7 @@ void GrCCGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkP
     fCurrFanPoint = devP3;
 
     // Don't crunch on the curve and inflate geometry if it is nearly flat (or just very small).
-    if (are_collinear(p0, p1, p2) &&
-        are_collinear(p1, p2, p3) &&
-        are_collinear(p0, (p1 + p2) * .5f, p3)) {
+    if (are_collinear(p0, p1, p2, p3)) {
         p3.store(&fPoints.push_back());
         fVerbs.push_back(Verb::kLineTo);
         return;
