@@ -19,9 +19,11 @@ namespace GrTest {
      */
     void SetupAlwaysEvictAtlas(GrContext*, int dim = GrDrawOpAtlas::kGlyphMaxDim);
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     // TODO: remove this. It is only used in the SurfaceSemaphores Test.
     GrBackendTexture CreateBackendTexture(GrBackend, int width, int height,
                                           GrPixelConfig, GrMipMapped, GrBackendObject);
+#endif
 };
 
 #endif
