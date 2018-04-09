@@ -432,3 +432,14 @@ DEF_SIMPLE_GM(rotatedcubicpath, canvas, 200, 200) {
 
 DEF_GM( return new PathFillGM; )
 DEF_GM( return new PathInverseFillGM; )
+
+DEF_SIMPLE_GM(bugoftheday, canvas, 200, 200) {
+    SkPaint p;
+    SkPath path;
+    path.moveTo(10, 10);
+    path.moveTo(75, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    canvas->drawPath(path, p);
+}
