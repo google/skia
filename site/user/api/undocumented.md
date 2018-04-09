@@ -153,15 +153,6 @@ SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 
 # <a name="SkColorFilter"></a> Class SkColorFilter
 
-<a name="SkColorFilter_toString"></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void toString(SkString* str) const
-</pre>
-
----
-
 # <a name="Color_Space"></a> Color Space
 
 # <a name="SkColorSpace"></a> Class SkColorSpace
@@ -416,15 +407,6 @@ void flush()
 
 # <a name="SkImageFilter"></a> Class SkImageFilter
 
-<a name="SkImageFilter_toString"></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void toString(SkString* str) const
-</pre>
-
----
-
 # <a name="Image_Scaling"></a> Image Scaling
 
 # <a name="Left_Side_Bearing"></a> Left Side Bearing
@@ -458,15 +440,6 @@ static sk_sp&lt;SkPixelRef&gt; MakeAllocate(const SkImageInfo&, size_t rowBytes)
 # <a name="Mask_Filter"></a> Mask Filter
 
 # <a name="SkMaskFilter"></a> Class SkMaskFilter
-
-<a name="SkMaskFilter_toString"></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void toString(SkString* str) const
-</pre>
-
----
 
 # <a name="Math"></a> Math
 
@@ -645,15 +618,6 @@ bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
 # <a name="Path_Effect"></a> Path Effect
 
 # <a name="SkPathEffect"></a> Class SkPathEffect
-
-<a name="SkPathEffect_toString"></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void toString(SkString* str) const
-</pre>
-
----
 
 # <a name="Path_Measure"></a> Path Measure
 
