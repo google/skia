@@ -11,6 +11,9 @@
 #include "SkPath.h"
 #include "SkRandom.h"
 
+#include "sk_pixel_iter.h"
+#include "SkColorPriv.h"
+
 int make_bm(SkBitmap* bm, int height) {
     constexpr int kRadius = 22;
     constexpr int kMargin = 8;
@@ -51,6 +54,21 @@ int make_bm(SkBitmap* bm, int height) {
         angle += kDAngle;
     }
     bm->setImmutable();
+
+    sk_tool_utils::PixelIter iter;
+    SkPixmap pm;
+    bm->peekPixels(&pm);
+    iter.reset(pm);
+    SkIPoint loc;
+    while (const SkPMColor* p = (const SkPMColor*)iter.next(&loc)) {
+        unsigned a = SkGetPackedA32(*p);
+        unsigned r = SkGetPackedR32(*p);
+        unsigned g = SkGetPackedG32(*p);
+        unsigned b = SkGetPackedB32(*p);
+        SkASSERT(loc.fX >= 0);
+        SkASSERT(r <= a && g <= a && b <= a);
+    }
+
     return count;
 }
 
