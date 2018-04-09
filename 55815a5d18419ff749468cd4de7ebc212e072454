@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "650982a3_3b0c947d",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-09T21:24:17Z",
+      "side": 1,
+      "message": "Am I wrong that this is not exactly what this is testing?",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 91
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9822c7ce_b09f68c8",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-09T21:24:17Z",
+      "side": 1,
+      "message": "Also are you gaining anything by doing this check in two lanes? AFAICT abs(d.x) \u003d\u003d abs(d.y) and lwidth.x \u003d\u003d lwidth.y so the two lanes are either both true or both false.",
+      "range": {
+        "startLine": 74,
+        "startChar": 42,
+        "endLine": 74,
+        "endChar": 49
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
