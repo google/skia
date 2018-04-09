@@ -63,10 +63,6 @@ public:
     static sk_sp<GrContext> MakeGL(const GrContextOptions&);
     static sk_sp<GrContext> MakeGL();
 
-    // Deprecated
-    static sk_sp<GrContext> MakeGL(const GrGLInterface*);
-    static sk_sp<GrContext> MakeGL(const GrGLInterface*, const GrContextOptions&);
-
 #ifdef SK_VULKAN
     static sk_sp<GrContext> MakeVulkan(sk_sp<const GrVkBackendContext>, const GrContextOptions&);
     static sk_sp<GrContext> MakeVulkan(sk_sp<const GrVkBackendContext>);
