@@ -4899,3 +4899,16 @@ DEF_TEST(ClipPath_nonfinite, reporter) {
     REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
 }
 
+// skbug.com/7792
+DEF_TEST(Path_isRect, reporter) {
+    SkPath path;
+    SkPoint points[] = { {10, 10}, {75, 75}, {150, 75}, {150, 150}, {75, 150} };
+    for (size_t index = 0; index < SK_ARRAY_COUNT(points); ++index) {
+        index < 2 ? path.moveTo(points[index]) : path.lineTo(points[index]);
+    }
+    SkRect rect;
+    REPORTER_ASSERT(reporter, path.isRect(&rect, nullptr, nullptr));
+    SkRect compare;
+    compare.set(&points[1], SK_ARRAY_COUNT(points) - 1);
+    REPORTER_ASSERT(reporter, rect == compare);
+}

@@ -1674,7 +1674,7 @@ private:
     SkDEBUGCODE(void validateRef() const { fPathRef->validate(); } )
 
     bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts,
-                       bool* isClosed, Direction* direction) const;
+                       bool* isClosed, Direction* direction, SkRect* rect) const;
 
     // called by stroker to see if all points (in the last contour) are equal and worthy of a cap
     bool isZeroLengthSincePoint(int startPtIndex) const;
