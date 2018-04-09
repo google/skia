@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "87073b6e_3943fb77",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-09T22:39:51Z",
+      "side": 1,
+      "message": "In the best case Sk2f::abs() and std::abs() are identical, so I\u0027d favor Sk2f::abs() for it being under our control.  It oughta be an instruction or two at most, but I could imagine std::abs() implemented in all sorts of silly ways.\n\nmaxValue() is sometimes worse.  Rule of thumb is you should never cross vector lanes if you don\u0027t have to.  Don\u0027t do any operations on them that you can\u0027t do on scalars.  (This includes allTrue() and anyTrue().)",
+      "parentUuid": "c14ebbc1_59fba041",
+      "range": {
+        "startLine": 74,
+        "startChar": 42,
+        "endLine": 74,
+        "endChar": 49
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ac69fba7_79b61224",
         "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
         "patchSetId": 2
@@ -155,6 +179,30 @@
       "writtenOn": "2018-04-09T22:22:57Z",
       "side": 1,
       "message": "Is is there a smarter way to do this 2x2 matrix-vector multiply?",
+      "range": {
+        "startLine": 86,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 39
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b597185f_9f8060bf",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-09T22:39:51Z",
+      "side": 1,
+      "message": "Looks fine to me.  Is there any part in particular that has you worried?\n\nWhat exactly is the matrix and the vector here?\n\n  | p1.x - p0.x  p1.y - p0.y |   | l.y |\n  | p2.x - p0.x  p2.y - p0.y | * | l.x |\n\n?\n\nHave you learned how to tag this up and analyze with IACA yet?  It\u0027s static analysis, but usually pretty good for this sort of thing.  https://software.intel.com/en-us/articles/intel-architecture-code-analyzer\n\nIf you like, I think you should be able to store directly into the transposed vectors:\n\n   Sk2f T[2];\n   Sk2f::Store2(T, p1-p0, p2-p0);\n   Sk2f d \u003d T[0]*l[1] - T[1]*l[0];\n\nIt\u0027s probably all the same underneath either way.",
+      "parentUuid": "ac69fba7_79b61224",
       "range": {
         "startLine": 86,
         "startChar": 4,
