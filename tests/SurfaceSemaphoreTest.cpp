@@ -61,6 +61,8 @@ void check_pixels(skiatest::Reporter* reporter, const SkBitmap& bitmap) {
     }
 }
 
+// TODO: this test needs to be updated to support the new layout setting mechanism
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 void draw_child(skiatest::Reporter* reporter,
                 const sk_gpu_test::ContextInfo& childInfo,
                 const GrBackendObject& backendImage,
@@ -214,6 +216,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
         }
     }
 }
+#endif
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
