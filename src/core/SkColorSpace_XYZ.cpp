@@ -42,7 +42,6 @@ const SkMatrix44* SkColorSpace_XYZ::onFromXYZD50() const {
         if (!fToXYZD50.invert(&fFromXYZD50)) {
             // If a client gives us a dst gamut with a transform that we can't invert, we will
             // simply give them back a transform to sRGB gamut.
-            SkDEBUGFAIL("Non-invertible XYZ matrix, defaulting to sRGB");
             SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
             srgbToxyzD50.set3x3RowMajorf(gSRGB_toXYZD50);
             srgbToxyzD50.invert(&fFromXYZD50);
