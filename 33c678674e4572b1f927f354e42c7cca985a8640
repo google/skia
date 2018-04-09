@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c74d8d8b_f5d52fc1",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-09T19:30:03Z",
+      "side": 1,
+      "message": "Do you want to restrict this to internal usage? and same for op\u003d?",
+      "range": {
+        "startLine": 142,
+        "startChar": 4,
+        "endLine": 142,
+        "endChar": 51
+      },
+      "revId": "33c678674e4572b1f927f354e42c7cca985a8640",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9322f21c_3d80ca91",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-09T19:30:03Z",
+      "side": 1,
+      "message": "This could delegate to the below constructor with new GrVkImageInfo(vkInfo.fImageLayout) passed as the last param.",
+      "range": {
+        "startLine": 68,
+        "startChar": 18,
+        "endLine": 68,
+        "endChar": 34
+      },
+      "revId": "33c678674e4572b1f927f354e42c7cca985a8640",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
