@@ -151,7 +151,6 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_setPixels">setPixels</a> | sets <a href="undocumented#Pixel_Ref">Pixel Ref</a> without an offset |
 | <a href="#SkBitmap_shiftPerPixel">shiftPerPixel</a> | returns bit shift from pixels to bytes |
 | <a href="#SkBitmap_swap">swap</a> | exchanges <a href="#Bitmap">Bitmap</a> pair |
-| <a href="#SkBitmap_toString">toString</a> | converts <a href="#Bitmap">Bitmap</a> to machine readable form |
 | <a href="#SkBitmap_tryAllocN32Pixels">tryAllocN32Pixels</a> | allocates compatible <a href="undocumented#ARGB">Color ARGB</a> pixels if possible |
 | <a href="#SkBitmap_tryAllocPixels">tryAllocPixels</a> | allocates pixels from <a href="SkImageInfo_Reference#Image_Info">Image Info</a> if possible |
 | <a href="#SkBitmap_tryAllocPixelsFlags">tryAllocPixelsFlags</a> | allocates pixels from <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with options if possible |
@@ -3616,7 +3615,6 @@ x---x-
 | <a href="#SkBitmap_getGenerationID">getGenerationID</a> | returns unique ID |
 | <a href="#SkBitmap_readyToDraw">readyToDraw</a> | returns true if address of pixels is not nullptr |
 | <a href="#SkBitmap_swap">swap</a> | exchanges <a href="#Bitmap">Bitmap</a> pair |
-| <a href="#SkBitmap_toString">toString</a> | converts <a href="#Bitmap">Bitmap</a> to machine readable form |
 | <a href="#SkBitmap_validate">validate</a> | asserts if <a href="#Bitmap">Bitmap</a> is invalid (debug only) |
 
 <a name="SkBitmap_validate"></a>
@@ -3632,41 +3630,6 @@ SK_DEBUG is defined at compile time.
 ### See Also
 
 <a href="SkImageInfo_Reference#SkImageInfo_validate">SkImageInfo::validate</a>
-
----
-
-<a name="SkBitmap_toString"></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void toString(SkString* str) const;
-</pre>
-
-Creates string representation of <a href="#Bitmap">Bitmap</a>. The representation is read by
-internal debugging tools.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkBitmap_toString_str"> <code><strong>str </strong></code> </a></td> <td>
-storage for string representation</td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="6018d98695245510839a318caabba9c9">
-
-#### Example Output
-
-~~~~
-bitmap dimensions (6, 11)
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="SkPaint_Reference#SkPaint_toString">SkPaint::toString</a>
 
 ---
 

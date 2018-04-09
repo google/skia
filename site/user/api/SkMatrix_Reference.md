@@ -115,7 +115,6 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#SkMatrix_setTranslate">setTranslate</a> | sets to translate in x and y |
 | <a href="#SkMatrix_setTranslateX">setTranslateX</a> | sets horizontal translation |
 | <a href="#SkMatrix_setTranslateY">setTranslateY</a> | sets vertical translation |
-| <a href="#SkMatrix_toString">toString</a> | converts <a href="#Matrix">Matrix</a> to machine readable form |
 
 ## <a name="Related_Function"></a> Related Function
 
@@ -4258,7 +4257,6 @@ true if <a href="#Matrix">Matrix</a> <a href="#SkMatrix_notequal_operator_a">a</
 | --- | --- |
 | <a href="#SkMatrix_dirtyMatrixTypeCache">dirtyMatrixTypeCache</a> | sets internal cache to unknown state |
 | <a href="#SkMatrix_dump">dump</a> | sends text representation using floats to standard output |
-| <a href="#SkMatrix_toString">toString</a> | converts <a href="#Matrix">Matrix</a> to machine readable form |
 
 <a name="SkMatrix_dump"></a>
 ## dump
@@ -4287,45 +4285,7 @@ matrix != nearlyEqual
 
 ### See Also
 
-<a href="#SkMatrix_toString">toString</a>
-
----
-
-<a name="SkMatrix_toString"></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void toString(SkString* str) const
-</pre>
-
-Creates string representation of <a href="#Matrix">Matrix</a>. Floating point values
-are written with limited precision; it may not be possible to reconstruct
-original <a href="#Matrix">Matrix</a> from output.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkMatrix_toString_str"> <code><strong>str </strong></code> </a></td> <td>
-storage for string representation of <a href="#Matrix">Matrix</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="1d86e43958e42b8eaaa9b16df1baa4c8">
-
-#### Example Output
-
-~~~~
-mStr  [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]
-neStr [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]
-matrix != nearlyEqual
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkMatrix_dump">dump</a>
+<a href="SkPath_Reference#SkPath_dump">SkPath::dump</a><sup><a href="SkPath_Reference#SkPath_dump_2">[2]</a></sup>
 
 ---
 
