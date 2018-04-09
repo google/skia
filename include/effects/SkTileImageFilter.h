@@ -25,7 +25,6 @@ public:
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
     SkRect computeFastBounds(const SkRect& src) const override;
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTileImageFilter)
 
 protected:

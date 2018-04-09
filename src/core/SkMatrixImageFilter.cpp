@@ -133,25 +133,3 @@ SkIRect SkMatrixImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatr
     matrix.mapRect(&floatBounds, SkRect::Make(src));
     return floatBounds.roundOut();
 }
-
-void SkMatrixImageFilter::toString(SkString* str) const {
-    str->appendf("SkMatrixImageFilter: (");
-
-    str->appendf("transform: (%f %f %f %f %f %f %f %f %f)",
-                 fTransform[SkMatrix::kMScaleX],
-                 fTransform[SkMatrix::kMSkewX],
-                 fTransform[SkMatrix::kMTransX],
-                 fTransform[SkMatrix::kMSkewY],
-                 fTransform[SkMatrix::kMScaleY],
-                 fTransform[SkMatrix::kMTransY],
-                 fTransform[SkMatrix::kMPersp0],
-                 fTransform[SkMatrix::kMPersp1],
-                 fTransform[SkMatrix::kMPersp2]);
-
-    str->append("<dt>FilterLevel:</dt><dd>");
-    static const char* gFilterLevelStrings[] = { "None", "Low", "Medium", "High" };
-    str->append(gFilterLevelStrings[fFilterQuality]);
-    str->append("</dd>");
-
-    str->appendf(")");
-}
