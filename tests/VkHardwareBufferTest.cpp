@@ -589,15 +589,12 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     ACQUIRE_VK_PROC(DestroyInstance, fInst, VK_NULL_HANDLE);
     ACQUIRE_INST_VK_PROC(EnumeratePhysicalDevices);
     ACQUIRE_INST_VK_PROC(GetPhysicalDeviceProperties);
-    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceMemoryProperties2);
     ACQUIRE_INST_VK_PROC(GetPhysicalDeviceQueueFamilyProperties);
     ACQUIRE_INST_VK_PROC(GetPhysicalDeviceFeatures);
     ACQUIRE_INST_VK_PROC(CreateDevice);
     ACQUIRE_INST_VK_PROC(GetDeviceQueue);
     ACQUIRE_INST_VK_PROC(DeviceWaitIdle);
     ACQUIRE_INST_VK_PROC(DestroyDevice);
-    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceImageFormatProperties2);
-    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceExternalSemaphoreProperties);
 
     uint32_t gpuCount;
     err = fVkEnumeratePhysicalDevices(fInst, &gpuCount, nullptr);
@@ -653,6 +650,15 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     VkPhysicalDeviceProperties physDevProperties;
     fVkGetPhysicalDeviceProperties(fPhysDev, &physDevProperties);
     int physDevVersion = physDevProperties.apiVersion;
+
+    if (physDevVersion < VK_MAKE_VERSION(1, 1, 0)) {
+        return false;
+    }
+
+    // Physical-Device-level functions added in 1.1
+    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceMemoryProperties2);
+    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceImageFormatProperties2);
+    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceExternalSemaphoreProperties);
 
     extensions.initDevice(physDevVersion, fInst, fPhysDev);
 
