@@ -1066,7 +1066,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
             if (shader && SkRGB565_Shader_Blitter::Supports(device, *legacyPaint)) {
                 blitter = alloc->make<SkRGB565_Shader_Blitter>(device, *legacyPaint, shaderContext);
             } else {
-                blitter = SkCreateRasterPipelineBlitter(device, *legacyPaint, matrix, alloc);
+                blitter = SkCreateRasterPipelineBlitter(device, *commonPaint, matrix, alloc);
             }
             break;
 
