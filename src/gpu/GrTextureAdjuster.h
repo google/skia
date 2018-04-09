@@ -48,7 +48,7 @@ protected:
     sk_sp<GrTextureProxy> originalProxyRef() const { return fOriginal; }
 
 private:
-    GrContext*            fContext;
+    GrContext*            fContext2;
     sk_sp<GrTextureProxy> fOriginal;
     SkAlphaType           fAlphaType;
     SkColorSpace*         fColorSpace;

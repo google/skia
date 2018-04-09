@@ -394,6 +394,22 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
     return nullptr;
 }
 
+sk_sp<SkImage> SkImage::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
+                                           const GrBackendFormat& backendFormat,
+                                           int width,
+                                           int height,
+                                           GrMipMapped mipMapped,
+                                           GrSurfaceOrigin origin,
+                                           SkColorType colorType,
+                                           SkAlphaType alphaType,
+                                           sk_sp<SkColorSpace> colorSpace,
+                                           TextureFulfillProc textureFulfillProc,
+                                           TextureReleaseProc textureReleaseProc,
+                                           PromiseDoneProc promiseDoneProc,
+                                           TextureContext textureContext) {
+    return nullptr;
+}
+
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, SkColorSpace* dstColorSpace) const {
     return nullptr;
 }

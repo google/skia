@@ -169,9 +169,9 @@ public:
      * It also must support being passed in a null GrResourceProvider. When this happens, the
      * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
      */
-    sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
-                                          GrSurfaceOrigin, GrMipMapped, GrInternalSurfaceFlags,
-                                          SkBackingFit, SkBudgeted, LazyInstantiationType);
+    static sk_sp<GrTextureProxy> CreateLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
+                                                 GrSurfaceOrigin, GrMipMapped, GrInternalSurfaceFlags,
+                                                 SkBackingFit, SkBudgeted, LazyInstantiationType);
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
                                           GrSurfaceOrigin, GrMipMapped, GrInternalSurfaceFlags,

@@ -158,7 +158,7 @@ public:
     */
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
 
-    typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
+    typedef void (*TextureReleaseProc)(ReleaseContext textureContext);
 
     /** Creates SkImage from GPU texture associated with context. Caller is responsible for
         managing the lifetime of GPU texture.
