@@ -67,16 +67,20 @@ namespace {
     };
 }
 
-DEF_SIMPLE_GM(stroketext, canvas, 1200, 480) {
+DEF_SIMPLE_GM(stroketext, canvas, 1200, 960) {
         if (true) { test_nulldev(canvas); }
         SkPaint paint;
         paint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&paint);
 
-        paint.setTextSize(kBelowThreshold_TextSize);
-        draw_text_set(canvas, paint);
+        for (bool fakeBold : {false, true}) {
+            paint.setFakeBoldText(fakeBold);
+            for (int size : {kBelowThreshold_TextSize, kAboveThreshold_TextSize}) {
+                paint.setTextSize(size);
+                draw_text_set(canvas, paint);
 
-        canvas->translate(600, 0);
-        paint.setTextSize(kAboveThreshold_TextSize);
-        draw_text_set(canvas, paint);
+                canvas->translate(600, 0);
+            }
+            canvas->translate(-1200, 480);
+        }
 }
