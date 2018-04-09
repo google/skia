@@ -665,16 +665,17 @@ public:
 protected:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs& args) const override{
-        GrFPArgs newArgs = args;
+//        GrFPArgs newArgs = args;
 
-        SkMatrix storage;
-        if (args.fLocalMatrix) {
-            storage.setConcat(*args.fLocalMatrix, fLM);
-            newArgs.fLocalMatrix = &storage;
-        } else {
-            newArgs.fLocalMatrix = &fLM;
-        }
-        return as_MFB(fFilter)->asFragmentProcessor(newArgs);
+//        SkMatrix storage;
+//        if (args.fLocalMatrix) {
+//            storage.setConcat(*args.fLocalMatrix, fLM);
+//            newArgs.fLocalMatrix = &storage;
+//        } else {
+//            newArgs.fLocalMatrix = &fLM;
+//        }
+        // FIXME
+        return as_MFB(fFilter)->asFragmentProcessor(args.makeWithPostLocalMatrix(fLM));
     }
 
     bool onHasFragmentProcessor() const override {
