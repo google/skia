@@ -143,7 +143,6 @@ drawing.
 | <a href="#SkImage_refColorSpace">refColorSpace</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImage_refEncodedData">refEncodedData</a> | returns <a href="#Image">Image</a> encoded in <a href="undocumented#SkData">SkData</a> if present |
 | <a href="#SkImage_scalePixels">scalePixels</a> | scales and converts one <a href="#Image">Image</a> to another |
-| <a href="#SkImage_toString">toString</a> | converts <a href="#Image">Image</a> to machine readable form |
 | <a href="#SkImage_uniqueID">uniqueID</a> | identifier for <a href="#Image">Image</a> |
 | <a href="#SkImage_width">width</a> | returns pixel column count |
 
@@ -1807,38 +1806,6 @@ encoded <a href="#Image">Image</a>, or nullptr
 |  | <a href="#SkImage_encodeToData">encodeToData(SkEncodedImageFormat encodedImageFormat, int quality)</a> const |
 |  | <a href="#SkImage_encodeToData_2">encodeToData</a> const |
 | <a href="#SkImage_refEncodedData">refEncodedData</a> | returns <a href="#Image">Image</a> encoded in <a href="undocumented#SkData">SkData</a> if present |
-| <a href="#SkImage_toString">toString</a> | converts <a href="#Image">Image</a> to machine readable form |
-
-<a name="SkImage_toString"></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-const char* toString(SkString* string) const
-</pre>
-
-Appends <a href="#Image">Image</a> description to <a href="#SkImage_toString_string">string</a>, including unique ID, width, height, and
-whether the image is opaque.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkImage_toString_string"> <code><strong>string </strong></code> </a></td> <td>
-storage for description; existing content is preserved</td>
-  </tr>
-</table>
-
-### Return Value
-
-<a href="#SkImage_toString_string">string</a> appended with <a href="#Image">Image</a> description
-
-### Example
-
-<div><fiddle-embed name="91cd1d8fa0bc1e541898d0aa78e1219a"></fiddle-embed></div>
-
-### See Also
-
-<a href="SkPaint_Reference#SkPaint_toString">SkPaint::toString</a>
-
----
 
 <a name="SkImage_makeSubset"></a>
 ## makeSubset

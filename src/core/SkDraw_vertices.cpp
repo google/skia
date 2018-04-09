@@ -77,8 +77,6 @@ public:
 
     bool isOpaque() const override { return fIsOpaque; }
 
-    void toString(SkString* str) const override;
-
     // For serialization.  This will never be called.
     Factory getFactory() const override { SK_ABORT("not reached"); return nullptr; }
 
@@ -98,14 +96,6 @@ private:
 
     typedef SkShaderBase INHERITED;
 };
-
-void SkTriColorShader::toString(SkString* str) const {
-    str->append("SkTriColorShader: (");
-
-    this->INHERITED::toString(str);
-
-    str->append(")");
-}
 
 static bool SK_WARN_UNUSED_RESULT
 update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPM4f colors[],

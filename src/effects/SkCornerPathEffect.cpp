@@ -151,9 +151,3 @@ sk_sp<SkFlattenable> SkCornerPathEffect::CreateProc(SkReadBuffer& buffer) {
 void SkCornerPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fRadius);
 }
-
-void SkCornerPathEffect::toString(SkString* str) const {
-    str->appendf("SkCornerPathEffect: (");
-    str->appendf("radius: %.2f", fRadius);
-    str->appendf(")");
-}

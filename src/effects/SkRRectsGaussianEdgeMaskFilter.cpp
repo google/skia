@@ -33,7 +33,6 @@ public:
     bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                     SkIPoint* margin) const override;
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRRectsGaussianEdgeMaskFilterImpl)
 
 protected:
@@ -522,10 +521,6 @@ SkRRectsGaussianEdgeMaskFilterImpl::onAsFragmentProcessor(const GrFPArgs& args) 
 #endif
 
 ////////////////////////////////////////////////////////////////////////////
-
-void SkRRectsGaussianEdgeMaskFilterImpl::toString(SkString* str) const {
-    str->appendf("RRectsGaussianEdgeMaskFilter: ()");
-}
 
 sk_sp<SkFlattenable> SkRRectsGaussianEdgeMaskFilterImpl::CreateProc(SkReadBuffer& buf) {
     SkRect rect1, rect2;
