@@ -1044,18 +1044,6 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
     }
 }
 
-static uint32_t GetIdForBackendObject(GrContext* ctx, GrBackendObject object) {
-    if (!object) {
-        return 0;
-    }
-
-    if (ctx->contextPriv().getBackend() != kOpenGL_GrBackend) {
-        return 0;
-    }
-
-    return reinterpret_cast<const GrGLTextureInfo*>(object)->fID;
-}
-
 static uint32_t GetIdForBackendTexture(GrBackendTexture texture) {
     if (!texture.isValid()) {
         return 0;
@@ -1109,18 +1097,22 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
             continue;
         }
 
-        uint32_t originalID = GetIdForBackendObject(context, image->getTextureHandle(true, nullptr));
-        GrBackendTexture texture;
+        GrBackendTexture origBackend = image->getBackendTexture(true);
+        SkASSERT(origBackend.isValid());
+
+        GrBackendTexture newBackend;
         SkImage::BackendTextureReleaseProc proc;
-        bool result =
-                SkImage::MakeBackendTextureFromSkImage(context, std::move(image), &texture, &proc);
+        bool result = SkImage::MakeBackendTextureFromSkImage(context, std::move(image),
+                                                             &newBackend, &proc);
         if (result != testCase.fExpectation) {
             static const char *const kFS[] = { "fail", "succeed" };
             ERRORF(reporter, "This image was expected to %s but did not.",
             kFS[testCase.fExpectation]);
         }
 
-        bool tookDirectly = result && originalID == GetIdForBackendTexture(texture);
+        SkASSERT(newBackend.isValid());
+
+        bool tookDirectly = result && GrBackendTexture::TestingOnly_Equals(origBackend, newBackend);
         if (testCase.fCanTakeDirectly != tookDirectly) {
             static const char *const kExpectedState[] = { "not expected", "expected" };
             ERRORF(reporter, "This backend texture was %s to be taken directly.",
