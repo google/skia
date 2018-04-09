@@ -93,6 +93,30 @@
       "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76ae5572_748f274c",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-09T22:16:02Z",
+      "side": 1,
+      "message": "Nah, they\u0027re basically all the same instructions on the same registers, except for a couple extra you\u0027re paying to do anyTrue().  I\u0027d definitely go scalar instead of calling that.  If you\u0027re branching, getting scalar as soon as possible is almost always better.\n\n   return d.abs()[0] \u003c lwidth[0] * tolerance;\n\n?",
+      "parentUuid": "76907317_a45442d9",
+      "range": {
+        "startLine": 74,
+        "startChar": 42,
+        "endLine": 74,
+        "endChar": 49
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
