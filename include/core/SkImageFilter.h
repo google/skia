@@ -97,7 +97,6 @@ public:
             : fRect(rect), fFlags(flags) {}
         uint32_t flags() const { return fFlags; }
         const SkRect& rect() const { return fRect; }
-        void toString(SkString* str) const;
 
         /**
          *  Apply this cropRect to the imageBounds. If a given edge of the cropRect is not
@@ -243,9 +242,10 @@ public:
      */
     static sk_sp<SkImageFilter> MakeMatrixFilter(const SkMatrix& matrix,
                                                  SkFilterQuality quality,
-                                                 sk_sp<SkImageFilter> input);
+                                                 sk_sp<SkImageFilter> input
 
-    virtual void toString(SkString* str) const = 0;
+    // Deprecated; used only by chrome
+    virtual void toString(SkString* str) const {}
     SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
