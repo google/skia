@@ -117,7 +117,6 @@ private:
 
     // Transient state used while building a contour.
     SkPoint fCurrAnchorPoint;
-    SkPoint fCurrFanPoint;
     PrimitiveTallies fCurrContourTallies;
     SkCubicType fCurrCubicType;
     SkDEBUGCODE(bool fBuildingContour = false);
