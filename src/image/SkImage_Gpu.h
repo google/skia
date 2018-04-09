@@ -23,8 +23,8 @@ class GrTexture;
 
 class SkImage_Gpu : public SkImage_Base {
 public:
-    SkImage_Gpu(GrContext*, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
-                sk_sp<SkColorSpace>, SkBudgeted);
+    SkImage_Gpu(GrContext*, sk_sp<GrContextThreadSafeProxy>, uint32_t uniqueID,
+                SkAlphaType, sk_sp<GrTextureProxy>, sk_sp<SkColorSpace>, SkBudgeted);
     ~SkImage_Gpu() override;
 
     SkImageInfo onImageInfo() const override;
@@ -34,7 +34,6 @@ public:
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
-    GrContext* context() const override { return fContext; }
     GrTextureProxy* peekProxy() const override {
         return fProxy.get();
     }
@@ -111,7 +110,7 @@ public:
         @param textureContext      state passed to textureFulfillProc and textureReleaseProc
         @return                    created SkImage, or nullptr
      */
-    static sk_sp<SkImage> MakePromiseTexture(GrContext* context,
+    static sk_sp<SkImage> MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
                                              const GrBackendFormat& backendFormat,
                                              int width,
                                              int height,
@@ -134,13 +133,13 @@ public:
     bool onIsValid(GrContext*) const override;
 
 private:
-    GrContext*             fContext;
-    sk_sp<GrTextureProxy>  fProxy;
-    const SkAlphaType      fAlphaType;
-    const SkBudgeted       fBudgeted;
-    sk_sp<SkColorSpace>    fColorSpace;
-    mutable SkAtomic<bool> fAddedRasterVersionToCache;
-
+    GrContext*                      fContext;
+    sk_sp<GrContextThreadSafeProxy> fThreadSafeProxy;
+    sk_sp<GrTextureProxy>           fProxy;
+    const SkAlphaType               fAlphaType;
+    const SkBudgeted                fBudgeted;
+    sk_sp<SkColorSpace>             fColorSpace;
+    mutable SkAtomic<bool>          fAddedRasterVersionToCache;
 
     typedef SkImage_Base INHERITED;
 };
