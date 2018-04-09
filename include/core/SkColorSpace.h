@@ -247,6 +247,9 @@ public:
      */
     const SkData* profileData() const { return this->onProfileData(); }
 
+    enum class Blending { Linear, AsEncoded };
+    virtual Blending blending() const { return Blending::Linear; }
+
 private:
     virtual const SkMatrix44* onToXYZD50() const = 0;
     virtual uint32_t onToXYZD50Hash() const = 0;

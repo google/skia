@@ -46,14 +46,13 @@ public:
         static sk_sp<TransferFn> MakeGamma(float);
     };
 
-    enum class Blending { Linear, AsEncoded };
-
     SkColorSpace_New(sk_sp<TransferFn>, SkMatrix44 toXYZD50, Blending);
 
     const SkMatrix44&   toXYZD50() const { return fToXYZD50;    }
     const SkMatrix44& fromXYZD50() const { return fFromXYZD50;  }
     const TransferFn& transferFn() const { return *fTransferFn; }
-    Blending            blending() const { return fBlending;    }
+
+    Blending blending() const override { return fBlending; }
 
     // Transfer-function-related overrides.
     sk_sp<SkColorSpace> makeLinearGamma() const override;
@@ -67,6 +66,14 @@ public:
     const SkMatrix44* onFromXYZD50() const override { return &fFromXYZD50; }
     const SkMatrix44*   onToXYZD50() const override { return   &fToXYZD50; }
     uint32_t        onToXYZD50Hash() const override { return fToXYZD50Hash; }
+
+    /**
+     *  Create the sRGB color space, with specified blending behavior.
+     *  NOTE: This factory is hidden in SkColorSpace_New to restrict access until testing and API
+     *        settles down.
+     *
+     */
+    static sk_sp<SkColorSpace> MakeSRGB(Blending);
 
 private:
     sk_sp<TransferFn> fTransferFn;

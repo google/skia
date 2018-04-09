@@ -6,6 +6,7 @@
  */
 
 #include "SkCommonFlagsConfig.h"
+#include "SkColorSpace_New.h"
 #include "SkImageInfo.h"
 #include "SkTHash.h"
 
@@ -60,12 +61,10 @@ static const struct {
     { "gles1010102",           "gpu", "api=gles,color=1010102" },
     { "glessrgb",              "gpu", "api=gles,color=srgb" },
     { "glessrgbnl",            "gpu", "api=gles,color=srgbnl" },
-    { "glsrgb",                "gpu", "api=gl,color=srgb" },
     { "glwide",                "gpu", "api=gl,color=f16_wide" },
     { "glnarrow",              "gpu", "api=gl,color=f16_narrow" },
     { "glnostencils",          "gpu", "api=gl,stencils=false" },
     { "gles4444",              "gpu", "api=gles,color=4444" },
-    { "glessrgb",              "gpu", "api=gles,color=srgb" },
     { "gleswide",              "gpu", "api=gles,color=f16_wide" },
     { "glesnarrow",            "gpu", "api=gles,color=f16_narrow" },
     { "gldft",                 "gpu", "api=gl,dit=true" },
@@ -325,10 +324,16 @@ static bool parse_option_gpu_color(const SkString& value,
     }
 
     const bool linearGamma = commands[0].equals("f16");
+    const bool asEncodedBlending = commands[0].equals("srgbnl");
     SkColorSpace::Gamut gamut = SkColorSpace::kSRGB_Gamut;
     SkColorSpace::RenderTargetGamma gamma = linearGamma ? SkColorSpace::kLinear_RenderTargetGamma
                                                         : SkColorSpace::kSRGB_RenderTargetGamma;
-    *outColorSpace = SkColorSpace::MakeRGB(gamma, gamut);
+    if (asEncodedBlending) {
+        // TODO: Make this orthogonal (not-hardcoded)
+        *outColorSpace = SkColorSpace_New::MakeSRGB(SkColorSpace_New::Blending::AsEncoded);
+    } else {
+        *outColorSpace = SkColorSpace::MakeRGB(gamma, gamut);
+    }
 
     if (commands.count() == 2) {
         if (commands[1].equals("srgb")) {
