@@ -404,6 +404,9 @@ sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(GrContext* context,
 bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPixelConfig* config,
                               int sampleCnt, SkColorType ct, sk_sp<SkColorSpace> cs,
                               bool texturable) {
+    if (!tex.isValid()) {
+        return false;
+    }
     // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
     // create a fake image info here.
     SkImageInfo info = SkImageInfo::Make(1, 1, ct, kPremul_SkAlphaType, cs);
@@ -544,7 +547,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     if (!context) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context->caps(), tex.config(), colorSpace.get())) {
+    if (!tex.isValid() || !SkSurface_Gpu::Valid(context->caps(), tex.config(), colorSpace.get())) {
         return nullptr;
     }
     sampleCnt = SkTMax(1, sampleCnt);
