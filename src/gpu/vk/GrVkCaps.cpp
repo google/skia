@@ -500,12 +500,12 @@ bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config)
 
 bool GrVkCaps::validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
                                       GrPixelConfig* config) const {
-    const GrVkImageInfo* imageInfo = tex.getVkImageInfo();
-    if (!imageInfo) {
+    GrVkImageInfo imageInfo;
+    if (!tex.getVkImageInfo(&imageInfo)) {
         return false;
     }
 
-    return validate_image_info(imageInfo->fFormat, ct, config);
+    return validate_image_info(imageInfo.fFormat, ct, config);
 }
 
 bool GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType ct,
