@@ -117,6 +117,53 @@
       "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c14ebbc1_59fba041",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-09T22:22:57Z",
+      "side": 1,
+      "message": "Thanks. So is the vector abs better than:\n\n  return std::abs(d[0]) \u003c lwidth[0] * tolerance;\n\n? What if:\n\n   return d.maxValue() \u003c lwidth[0] * tolerance;\n\n?",
+      "parentUuid": "76ae5572_748f274c",
+      "range": {
+        "startLine": 74,
+        "startChar": 42,
+        "endLine": 74,
+        "endChar": 49
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac69fba7_79b61224",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-09T22:22:57Z",
+      "side": 1,
+      "message": "Is is there a smarter way to do this 2x2 matrix-vector multiply?",
+      "range": {
+        "startLine": 86,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 39
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
