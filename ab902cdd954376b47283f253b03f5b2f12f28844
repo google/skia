@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "918bf294_38f9fc56",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-04-09T20:59:49Z",
+      "side": 1,
+      "message": "Hmmm, good point",
+      "parentUuid": "dcb6598a_fb527c31",
+      "range": {
+        "startLine": 351,
+        "startChar": 68,
+        "endLine": 351,
+        "endChar": 81
+      },
+      "revId": "ab902cdd954376b47283f253b03f5b2f12f28844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c476f0b_95080f26",
         "filename": "src/core/SkBitmapDevice.cpp",
         "patchSetId": 9
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "db6a3001_9c24f334",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-04-09T20:59:49Z",
+      "side": 1,
+      "message": "We can. We *can* replace all of the nulls with varying amounts of extra work. The net perf is that cost -vs- how cheaply that primitive notices its clipped out. drawBitmap does that pretty quickly (as compared with paths), but I\u0027ll add some logic here.",
+      "parentUuid": "7c476f0b_95080f26",
+      "range": {
+        "startLine": 375,
+        "startChar": 62,
+        "endLine": 375,
+        "endChar": 69
+      },
+      "revId": "ab902cdd954376b47283f253b03f5b2f12f28844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2192561_350a42fa",
         "filename": "src/core/SkBitmapDevice.cpp",
         "patchSetId": 9
@@ -59,6 +107,30 @@
       "writtenOn": "2018-04-09T20:34:00Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 499,
+        "startChar": 67,
+        "endLine": 499,
+        "endChar": 74
+      },
+      "revId": "ab902cdd954376b47283f253b03f5b2f12f28844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "704d791f_012cb3be",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-04-09T20:59:49Z",
+      "side": 1,
+      "message": "I may have to think harder about this one, as drawSprite does not respect the CTM, but currently my tiler always does.",
+      "parentUuid": "d2192561_350a42fa",
       "range": {
         "startLine": 499,
         "startChar": 67,
