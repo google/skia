@@ -30,7 +30,7 @@ declare_args() {
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
-  skia_use_skcms = is_skia_dev_build
+  skia_use_skcms = true
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
@@ -689,7 +689,7 @@ optional("pdf") {
     "//third_party/zlib",
   ]
   if (skia_use_libjpeg_turbo) {
-    deps += [ ":jpeg"]
+    deps += [ ":jpeg" ]
   }
   sources = skia_pdf_sources
   sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
