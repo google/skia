@@ -1,0 +1,327 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45908f73_c30f2415",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "Can this go in the above #ifdef SK_VULKAN block ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82c76de6_3d42ea34",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "includes will -\u003e will ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4489e3e4_3567eb50",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "// Maybe some words here about the plan for where all this will ultimately land ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd8b60c7_65026a16",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "SkSafeUnref ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a030ac36_8b24e717",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "If this is valid and has a Vulkan layout, don\u0027t you need to unref it ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e5aa334_c35b6f95",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "Don\u0027t you need to clean up the possible prior fLayout first ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4166699e_0b5e9466",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "Do you need a valid check here ? I.e., \"if (!this-\u003eisValid()) { return GrBackendFormat(); }\"",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05c91513_9e57ed84",
+        "filename": "src/gpu/mock/GrMockGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "add space after if ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "663f0694_3661d5dd",
+        "filename": "src/gpu/mock/GrMockGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "add space after if ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76461555_72d7357a",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "add space ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f95dfed7_ef0aef1b",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "temporarily -\u003e temporary ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a86059ad_272b28ed",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "the the -\u003e the ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "296090c9_5a29f91c",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "GrBacknedObject ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e326b11f_92cc4db7",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "std::move(layout) ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ed9535d_ad88a8c6",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "std::move(layout) ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cd6f961_6798e0ed",
+        "filename": "tests/VkBackendSurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "// Verify that setting the layout via a copy of a backendTexture is reflected in all the backendTextures ?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29f49d9d_9dbf7db6",
+        "filename": "tests/VkBackendSurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "// Verify that modifying the layout via the GrVkTexture is reflected in the GrBackendTextures and vice versa\n\n?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3108ca04_72d84608",
+        "filename": "tests/VkBackendSurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "// Verify that modifying the layout via the old textureHandle still works and is reflected in the texture and GrBackendTexture\n\n?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9a5a6d5_ea5222b1",
+        "filename": "tests/VkBackendSurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-09T13:53:00Z",
+      "side": 1,
+      "message": "Would it make things simpler if you had an \"everyone_agrees\" method that takes all the various backend objects and what they should think the answer is?",
+      "revId": "cde303739c3e9c2cbe8bbb8c09a63003f717723a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
