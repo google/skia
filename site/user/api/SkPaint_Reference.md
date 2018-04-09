@@ -235,7 +235,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_setTypeface">setTypeface</a> | sets <a href="undocumented#Typeface">Typeface</a>, font description |
 | <a href="#SkPaint_setVerticalText">setVerticalText</a> | sets or clears <a href="#Vertical_Text">Vertical Text</a> |
 | <a href="#SkPaint_textToGlyphs">textToGlyphs</a> | converts text into glyph indices |
-| <a href="#SkPaint_toString">toString</a> | converts <a href="#Paint">Paint</a> to machine readable form |
 
 ## <a name="Initializers"></a> Initializers
 
@@ -5139,40 +5138,3 @@ fast computed bounds
 | <a href="#SkPaint_glyphsToUnichars">glyphsToUnichars</a> | converts <a href="undocumented#Glyph">Glyphs</a> into text |
 | <a href="#SkPaint_nothingToDraw">nothingToDraw</a> | returns true if <a href="#Paint">Paint</a> prevents all drawing |
 | <a href="#SkPaint_textToGlyphs">textToGlyphs</a> | converts text into glyph indices |
-| <a href="#SkPaint_toString">toString</a> | converts <a href="#Paint">Paint</a> to machine readable form |
-
-<a name="SkPaint_toString"></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void toString(SkString* str) const
-</pre>
-
-Creates string representation of <a href="#Paint">Paint</a>. The representation is read by
-internal debugging tools.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkPaint_toString_str"> <code><strong>str </strong></code> </a></td> <td>
-storage for string representation of <a href="#Paint">Paint</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="5670c04b4562908169a776c48c92d104">
-
-#### Example Output
-
-~~~~
-text size = 12
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="undocumented#SkPathEffect_toString">SkPathEffect::toString</a> <a href="undocumented#SkMaskFilter_toString">SkMaskFilter::toString</a> <a href="undocumented#SkColorFilter_toString">SkColorFilter::toString</a> <a href="undocumented#SkImageFilter_toString">SkImageFilter::toString</a>
-
----
-

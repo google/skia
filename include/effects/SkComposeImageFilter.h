@@ -16,7 +16,6 @@ public:
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeImageFilter)
 
 protected:
