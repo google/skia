@@ -31,6 +31,7 @@ class SkDrawTiler {
 
     SkBitmapDevice* fDevice;
     SkPixmap        fRootPixmap;
+    SkIRect         fSrcBounds;
 
     // Used for tiling and non-tiling
     SkDraw          fDraw;
@@ -43,11 +44,23 @@ class SkDrawTiler {
     bool            fDone, fNeedsTiling;
 
 public:
-    SkDrawTiler(SkBitmapDevice* dev) : fDevice(dev) {
+    SkDrawTiler(SkBitmapDevice* dev, const SkRect* bounds) : fDevice(dev) {
         // we need fDst to be set, and if we're actually drawing, to dirty the genID
         if (!dev->accessPixels(&fRootPixmap)) {
             // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
             fRootPixmap.reset(dev->imageInfo(), nullptr, 0);
+        }
+
+        if (bounds) {
+            SkRect devBounds;
+            dev->ctm().mapRect(&devBounds, *bounds);
+            if (devBounds.intersect(SkRect::MakeIWH(fRootPixmap.width(), fRootPixmap.height()))) {
+                fSrcBounds = devBounds.roundOut();
+            } else {
+                fSrcBounds = SkIRect::MakeLTRB(-1, -1, -1, -1); // nothing to draw
+            }
+        } else {
+            fSrcBounds = SkIRect::MakeWH(fRootPixmap.width(), fRootPixmap.height());
         }
 
         fDone = false;
@@ -58,7 +71,8 @@ public:
             // fDraw.fDst is reset each time in setupTileDraw()
             fDraw.fMatrix = &fTileMatrix;
             fDraw.fRC = &fTileRC;
-            fOrigin.set(-kMaxDim, 0); // we'll step/increase it before using it
+            // we'll step/increase it before using it
+            fOrigin.set(fSrcBounds.fLeft - kMaxDim, fSrcBounds.fTop);
         } else {
             fDraw.fDst = fRootPixmap;
             fDraw.fMatrix = &dev->ctm();
@@ -98,15 +112,15 @@ private:
         SkASSERT(fNeedsTiling);
 
         // We do fRootPixmap.width() - kMaxDim instead of fOrigin.fX + kMaxDim to avoid overflow.
-        if (fOrigin.fX >= fRootPixmap.width() - kMaxDim) {    // too far
-            fOrigin.fX = 0;
+        if (fOrigin.fX >= fSrcBounds.fRight - kMaxDim) {    // too far
+            fOrigin.fX = fSrcBounds.fLeft;
             fOrigin.fY += kMaxDim;
         } else {
             fOrigin.fX += kMaxDim;
         }
         // fDone = next origin will be invalid.
-        fDone = fOrigin.fX >= fRootPixmap.width() - kMaxDim &&
-                fOrigin.fY >= fRootPixmap.height() - kMaxDim;
+        fDone = fOrigin.fX >= fSrcBounds.fRight - kMaxDim &&
+                fOrigin.fY >= fSrcBounds.fTop - kMaxDim;
 
         SkIRect bounds = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), kMaxDim, kMaxDim);
         SkASSERT(!bounds.isEmpty());
@@ -123,7 +137,7 @@ private:
 };
 
 #define LOOP_TILER(code)                                    \
-    SkDrawTiler priv_tiler(this);                           \
+    SkDrawTiler priv_tiler(this, nullptr);                  \
     while (const SkDraw* priv_draw = priv_tiler.next()) {   \
         priv_draw->code;                                    \
     }
@@ -318,7 +332,7 @@ void SkBitmapDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 void SkBitmapDevice::drawPath(const SkPath& path,
                               const SkPaint& paint, const SkMatrix* prePathMatrix,
                               bool pathIsMutable) {
-    SkDrawTiler tiler(this);
+    SkDrawTiler tiler(this, nullptr);
     if (tiler.needsTiling()) {
         pathIsMutable = false;
     }

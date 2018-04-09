@@ -15,7 +15,7 @@ namespace sk_tool_utils {
 
     class PixelIter {
     public:
-        PixelIter();
+        PixelIter() {}
         PixelIter(SkSurface* surf) {
             SkPixmap pm;
             if (!surf->peekPixels(&pm)) {
