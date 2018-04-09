@@ -6,6 +6,7 @@
  */
 
 #include "SkColorSpace_New.h"
+#include "SkColorSpacePriv.h"
 #include "SkOpts.h"
 #include "SkRasterPipeline.h"
 
@@ -127,4 +128,11 @@ bool SkColorSpace_New::onGammaIsLinear() const {
 bool SkColorSpace_New::onIsNumericalTransferFn(SkColorSpaceTransferFn* fn) const {
     *fn = fTransferFn->parameterize();
     return true;
+}
+
+sk_sp<SkColorSpace> SkColorSpace_New::MakeSRGB(Blending blending) {
+    SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
+    toXYZ.set3x3RowMajorf(gSRGB_toXYZD50);
+    (void)toXYZ.getType();
+    return sk_make_sp<SkColorSpace_New>(TransferFn::MakeSRGB(), toXYZ, blending);
 }

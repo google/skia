@@ -56,6 +56,84 @@ private:
     uint64_t fSequence;
 };
 
+struct SkColorSpaceXformSteps {
+    bool fEarlyUnpremul;
+    bool fApplySrcTransferFn;
+    bool fLateUnpremul;
+    bool fApplyGamutXform;
+    bool fApplyDstTransferFn;
+    bool fPremul;
+
+    SkColorSpaceTransferFn fSrcTransferFn;
+    SkMatrix44 fGamutXform;
+    SkColorSpaceTransferFn fDstTransferFn;
+};
+
+static bool xform_steps(const SkColorSpace* src, SkAlphaType srcAT, const SkColorSpace* dst,
+                        SkColorSpaceXformSteps* steps) {
+    SkASSERT(src && dst && steps);
+    memset(steps, 0, sizeof(*steps));
+
+    if (kPremul_SkAlphaType == srcAT) {
+        if (SkColorSpace::Blending::AsEncoded == src->blending()) {
+            steps->fEarlyUnpremul = true;
+        } else {
+            steps->fLateUnpremul = true;
+        }
+    }
+
+    if (!src->gammaIsLinear()) {
+        if (src->isNumericalTransferFn(&steps->fSrcTransferFn)) {
+            steps->fApplySrcTransferFn = true;
+        } else {
+            return false;
+        }
+    }
+
+    const SkMatrix44* toXYZD50 = src->toXYZD50();
+    const SkMatrix44* fromXYZD50 = dst->fromXYZD50();
+    if (!toXYZD50 || !fromXYZD50) {
+        // Unsupported colour spaces -- cannot specify gamut as a matrix
+        return false;
+    }
+
+    // Determine if a gamut xform is needed
+    uint32_t srcHash = src->toXYZD50Hash();
+    uint32_t dstHash = dst->toXYZD50Hash();
+    if (srcHash != dstHash) {
+        steps->fApplyGamutXform = true;
+        steps->fGamutXform.setConcat(*fromXYZD50, *toXYZD50);
+    } else {
+        SkASSERT(*toXYZD50 == *dst->toXYZD50() && "Hash collision");
+    }
+
+    if (SkColorSpace::Blending::AsEncoded == dst->blending()) {
+        steps->fApplyDstTransferFn = true;
+        if (!dst->gammaIsLinear()) {
+            if (dst->isNumericalTransferFn(&steps->fDstTransferFn)) {
+                steps->fDstTransferFn = steps->fDstTransferFn.invert();
+            } else {
+                return false;
+            }
+        }
+    }
+
+    steps->fPremul = true;
+
+    // Optimizations:
+
+    // We can eliminate the unpremul/premul pair if there are no non-linear operations between them
+    if (!steps->fApplyDstTransferFn && steps->fPremul) {
+        if (steps->fLateUnpremul) {
+            steps->fLateUnpremul = false;
+            steps->fPremul = false;
+        } else if (steps->fEarlyUnpremul && !steps->fApplySrcTransferFn) {
+            steps->fEarlyUnpremul = false;
+            steps->fPremul = false;
+        }
+    }
+}
+
 GrColorSpaceXform::GrColorSpaceXform(const SkColorSpaceTransferFn& srcTransferFn,
                                      const SkMatrix44& gamutXform, uint32_t flags)
     : fSrcTransferFn(srcTransferFn), fGamutXform(gamutXform), fFlags(flags) {}
