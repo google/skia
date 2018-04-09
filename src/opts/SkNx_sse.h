@@ -29,6 +29,11 @@ public:
 
     AI void store(void* ptr) const { _mm_storel_pi((__m64*)ptr, fVec); }
 
+    AI static void Store2(void* dst, const SkNx& a, const SkNx& b) {
+        auto vals = _mm_unpacklo_ps(a.fVec, b.fVec);
+        _mm_storeu_ps((float*)dst, vals);
+    }
+
     AI static void Store3(void* dst, const SkNx& a, const SkNx& b, const SkNx& c) {
         auto lo = _mm_setr_ps(a[0], b[0], c[0], a[1]),
              hi = _mm_setr_ps(b[1], c[1],    0,    0);
