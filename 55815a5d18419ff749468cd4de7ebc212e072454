@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0254b7dc_af80ee34",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-09T22:07:02Z",
+      "side": 1,
+      "message": "I hope it is :-)\n\nBasically, we want to see if the distance from p1 to the line is less than the distance from p1 to the far corner of the box, along that same normal vector. The far corner being p1 + sign(n) * tolerance:\n\n  dot(p1 - p0, n) \u003c dot(sign(n) * tolerance, n)\n\nWhich reduces to:\n\n  dot(p1 - p0, n) \u003c (n.x * sign(n.x) + n.y * sign(n.y)) * tolerance\n\n  dot(p1 - p0, n) \u003c (abs(n.x) + abs(n.y)) * tolerance",
+      "parentUuid": "650982a3_3b0c947d",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 91
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9822c7ce_b09f68c8",
         "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-09T21:24:17Z",
       "side": 1,
       "message": "Also are you gaining anything by doing this check in two lanes? AFAICT abs(d.x) \u003d\u003d abs(d.y) and lwidth.x \u003d\u003d lwidth.y so the two lanes are either both true or both false.",
+      "range": {
+        "startLine": 74,
+        "startChar": 42,
+        "endLine": 74,
+        "endChar": 49
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76907317_a45442d9",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-09T22:07:02Z",
+      "side": 1,
+      "message": "Hoping Mike can chime in. I\u0027m not sure if it would be better to dump to normal fp or to just stay in the vector processor since we\u0027re there already.",
+      "parentUuid": "9822c7ce_b09f68c8",
       "range": {
         "startLine": 74,
         "startChar": 42,
