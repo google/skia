@@ -539,7 +539,10 @@ addMissingClose:
         ;
     }
     // Success if 4 corners and first point equals last
-    bool result = 4 == corners && (first == last || autoClose);
+    SkScalar closeX = first.x() - last.x();
+    SkScalar closeY = first.y() - last.y();
+    // If autoClose, check if close generates diagonal
+    bool result = 4 == corners && (first == last || (autoClose && (!closeX || !closeY)));
     if (!result) {
         // check if we are just an incomplete rectangle, in which case we can
         // return true, but not claim to be closed.
@@ -547,8 +550,6 @@ addMissingClose:
         //    3 sided rectangle
         //    4 sided but the last edge is not long enough to reach the start
         //
-        SkScalar closeX = first.x() - last.x();
-        SkScalar closeY = first.y() - last.y();
         if (closeX && closeY) {
             return false;   // we're diagonal, abort (can we ever reach this?)
         }

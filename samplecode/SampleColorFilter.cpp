@@ -113,8 +113,9 @@ class ColorFilterView : public SampleView {
     enum {
         N = 64
     };
-public:
-    ColorFilterView() {
+
+protected:
+    void onOnceBeforeDraw() override {
         fBitmap = createBitmap(N);
         fShader = sk_tool_utils::create_checkerboard_shader(
                 0xFFCCCCCC, 0xFFFFFFFF, 12);
@@ -124,7 +125,6 @@ public:
         }
     }
 
-protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
