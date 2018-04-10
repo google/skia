@@ -8,20 +8,21 @@
 set -e
 #set -x
 
-tmp=$(mktemp -d)
-git clone --quiet --depth 1 https://skia.googlesource.com/skcms.git $tmp
+here=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
+skcms=$(mktemp -d)
+git clone --quiet --depth 1 https://skia.googlesource.com/skcms.git $skcms
 
-git rm --quiet    LICENSE
-git rm --quiet    skcms.h
-git rm --quiet    skcms.c
-git rm --quiet -r src
+git rm --quiet    $here/LICENSE
+git rm --quiet    $here/skcms.h
+git rm --quiet    $here/skcms.c
+git rm --quiet -r $here/src
 
-cp    $tmp/LICENSE .
-cp    $tmp/skcms.h .
-cp    $tmp/skcms.c .
-cp -r $tmp/src     .
+cp    $skcms/LICENSE $here
+cp    $skcms/skcms.h $here
+cp    $skcms/skcms.c $here
+cp -r $skcms/src     $here
 
-git add .
-git commit -m "skcms→$(git -C $tmp log -1 --pretty=format:'%h %s')"
+git add $here
+git commit -m "skcms→$(git -C $skcms log -1 --pretty=format:'%h %s')"
 
-rm -rf $tmp
+rm -rf $skcms
