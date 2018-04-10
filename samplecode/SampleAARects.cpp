@@ -38,14 +38,14 @@ class AARectView : public SampleView {
     enum {
         N = 64
     };
-public:
-    AARectView() {
+
+protected:
+    void onOnceBeforeDraw() override {
         fBitmap = createBitmap(N);
 
         fWidth = N;
     }
 
-protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
