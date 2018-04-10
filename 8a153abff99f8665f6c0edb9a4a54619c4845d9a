@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86524c8a_c247fa43",
+        "filename": "src/utils/SkOffsetPolygon.h",
+        "patchSetId": 30
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-10T13:38:05Z",
+      "side": 1,
+      "message": "Does the original polygon have to be simple?",
+      "range": {
+        "startLine": 50,
+        "startChar": 5,
+        "endLine": 50,
+        "endChar": 26
+      },
+      "revId": "8a153abff99f8665f6c0edb9a4a54619c4845d9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "152f03b1_f9bddeea",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-10T13:38:05Z",
+      "side": 1,
+      "message": "wrap fPathPolygon[0]?",
+      "range": {
+        "startLine": 868,
+        "startChar": 100,
+        "endLine": 868,
+        "endChar": 101
+      },
+      "revId": "8a153abff99f8665f6c0edb9a4a54619c4845d9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "393b0e5b_a3a5634d",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-10T13:38:05Z",
+      "side": 1,
+      "message": "It might make sense to do something like auto indices \u003d fIndices.append(6);\nindices[0] \u003d fPrevUmbraIndex;\n...\n\nto avoid checking for reallocation 6 times through here. Though, if it isn\u0027t measurable what have is easier to read.",
+      "revId": "8a153abff99f8665f6c0edb9a4a54619c4845d9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
