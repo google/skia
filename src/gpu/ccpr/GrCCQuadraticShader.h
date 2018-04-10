@@ -23,7 +23,7 @@
 class GrCCQuadraticShader : public GrCCCoverageProcessor::Shader {
 public:
     void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* wind,
-                       const char** tighterHull) const override;
+                       const char** outHull4) const override;
 
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                         const char* position, const char* coverage,
