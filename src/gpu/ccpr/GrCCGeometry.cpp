@@ -57,20 +57,57 @@ static inline float dot(const Sk2f& a, const Sk2f& b) {
     return product[0] + product[1];
 }
 
-static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
-    static constexpr float kFlatnessTolerance = 4; // 1/4 of a pixel.
+static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                 float tolerance = 1/8.f) { // 1/8 of a pixel.
+    Sk2f l = p2 - p0; // Line from p0 -> p2.
 
-    // Area (times 2) of the triangle.
-    Sk2f a = (p0 - p1) * SkNx_shuffle<1,0>(p1 - p2);
-    a = (a - SkNx_shuffle<1,0>(a)).abs();
+    // lwidth = manhattan_width(l).
+    Sk2f labs = l.abs();
+    float lwidth = labs[0] + labs[1];
 
-    // Bounding box of the triangle.
-    Sk2f bbox0 = Sk2f::Min(Sk2f::Min(p0, p1), p2);
-    Sk2f bbox1 = Sk2f::Max(Sk2f::Max(p0, p1), p2);
+    // d = |p1 - p0| dot | l.y|
+    //                   |-l.x| = distance from p1 to l.
+    Sk2f pxl = (p1 - p0) * SkNx_shuffle<1,0>(l);
+    float d = pxl[0] - pxl[1];
 
-    // The triangle is linear if its area is within a fraction of the largest bounding box
-    // dimension, or else if its area is within a fraction of a pixel.
-    return (a * (kFlatnessTolerance/2) < Sk2f::Max(bbox1 - bbox0, 1)).anyTrue();
+    // We are collinear if a box with radius "tolerance", centered on p1, touches the line l.
+    // To decide this, we check if the distance from p1 to the line is less than the distance from
+    // p1 to the far corner of this imaginary box, along that same normal vector.
+    // The far corner of the box can be found at "p1 + sign(n) * tolerance", where n is normal to l:
+    //
+    //   abs(dot(p1 - p0, n)) <= dot(sign(n) * tolerance, n)
+    //
+    // Which reduces to:
+    //
+    //   abs(d) <= (n.x * sign(n.x) + n.y * sign(n.y)) * tolerance
+    //   abs(d) <= (abs(n.x) + abs(n.y)) * tolerance
+    //
+    // Use "<=" in case l == 0.
+    return std::abs(d) <= lwidth * tolerance;
+}
+
+static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
+                                 float tolerance = 1/8.f) { // 1/8 of a pixel.
+    Sk4f P[2];                        //     |p3 - p0|
+    Sk2f::Store4(P, p3, p2, p1, p0);  // P = |p2 - p0|
+    P[0] -= P[0][3];                  //     |p1 - p0|
+    P[1] -= P[1][3];                  //     |   0   |
+
+    // Find [lx, ly] = the line from p0 to the furthest-away point from p0.
+    Sk4f Pwidth = P[0].abs() + P[1].abs();
+    int lidx = Pwidth[0] > Pwidth[1] ? 0 : 1;
+    lidx = Pwidth[lidx] > Pwidth[2] ? lidx : 2;
+    float lx = P[0][lidx], ly = P[1][lidx];
+    float lwidth = Pwidth[lidx]; // lwidth = manhattan_width(lx, ly).
+
+    // d = P * | l.y| = distances from each point to l (two will be zero).
+    //         |-l.x|
+    Sk4f d = P[0]*ly - P[1]*lx;
+
+    // We are collinear if boxes with radius "tolerance", centered on all 4 points all touch line l.
+    // (See the rationale for this formula in the above, 3-point version of this function.)
+    // Use "<=" in case l == 0.
+    return (d.abs() <= lwidth * tolerance).allTrue();
 }
 
 // Returns whether the (convex) curve segment is monotonic with respect to [endPt - startPt].
@@ -298,9 +335,7 @@ void GrCCGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkP
     fCurrFanPoint = devP3;
 
     // Don't crunch on the curve and inflate geometry if it is nearly flat (or just very small).
-    if (are_collinear(p0, p1, p2) &&
-        are_collinear(p1, p2, p3) &&
-        are_collinear(p0, (p1 + p2) * .5f, p3)) {
+    if (are_collinear(p0, p1, p2, p3)) {
         p3.store(&fPoints.push_back());
         fVerbs.push_back(Verb::kLineTo);
         return;
