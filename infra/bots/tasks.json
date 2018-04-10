@@ -8240,7 +8240,7 @@
         "Housekeeper-PerCommit-IsolateSKP"
       ],
       "dimensions": [
-        "device_os:OPR1.170623.034",
+        "device_os:OPM1.171019.026",
         "device_type:dragon",
         "os:Android",
         "pool:Skia"
@@ -8272,7 +8272,7 @@
         "Housekeeper-PerCommit-IsolateSKP"
       ],
       "dimensions": [
-        "device_os:OPR1.170623.034",
+        "device_os:OPM1.171019.026",
         "device_type:dragon",
         "os:Android",
         "pool:Skia"
@@ -8304,7 +8304,7 @@
         "Housekeeper-PerCommit-IsolateSKP"
       ],
       "dimensions": [
-        "device_os:OPR1.170623.034",
+        "device_os:OPM1.171019.026",
         "device_type:dragon",
         "os:Android",
         "pool:Skia"
