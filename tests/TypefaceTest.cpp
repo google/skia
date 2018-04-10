@@ -203,11 +203,11 @@ DEF_TEST(Typeface, reporter) {
 
 namespace {
 
-class SkEmptyTypeface : public SkTypeface {
+class EmptyTypeface : public SkTypeface {
 public:
-    static sk_sp<SkTypeface> Create() { return sk_sp<SkTypeface>(new SkEmptyTypeface()); }
+    static sk_sp<SkTypeface> Create() { return sk_sp<SkTypeface>(new EmptyTypeface()); }
 protected:
-    SkEmptyTypeface() : SkTypeface(SkFontStyle(), true) { }
+    EmptyTypeface() : SkTypeface(SkFontStyle(), true) { }
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
@@ -215,6 +215,7 @@ protected:
         return nullptr;
     }
     void onFilterRec(SkScalerContextRec*) const override { }
+    void getGlyphToUnicodeMap(SkUnichar*) const override { }
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
         return nullptr;
     }
@@ -255,12 +256,12 @@ static int count(skiatest::Reporter* reporter, const SkTypefaceCache& cache) {
 }
 
 DEF_TEST(TypefaceCache, reporter) {
-    sk_sp<SkTypeface> t1(SkEmptyTypeface::Create());
+    sk_sp<SkTypeface> t1(EmptyTypeface::Create());
     {
         SkTypefaceCache cache;
         REPORTER_ASSERT(reporter, count(reporter, cache) == 0);
         {
-            sk_sp<SkTypeface> t0(SkEmptyTypeface::Create());
+            sk_sp<SkTypeface> t0(EmptyTypeface::Create());
             cache.add(t0.get());
             REPORTER_ASSERT(reporter, count(reporter, cache) == 1);
             cache.add(t1.get());

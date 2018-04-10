@@ -186,6 +186,19 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
     return canon->fTypefaceMetrics.set(id, std::move(metrics))->get();
 }
 
+const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface* typeface,
+                                                       SkPDFCanon* canon) {
+    SkASSERT(typeface);
+    SkASSERT(canon);
+    SkFontID id = typeface->uniqueID();
+    if (std::vector<SkUnichar>* ptr = canon->fToUnicodeMap.find(id)) {
+        return *ptr;
+    }
+    std::vector<SkUnichar> buffer(typeface->countGlyphs());
+    typeface->getGlyphToUnicodeMap(buffer.data());
+    return *canon->fToUnicodeMap.set(id, std::move(buffer));
+}
+
 SkAdvancedTypefaceMetrics::FontType SkPDFFont::FontType(const SkAdvancedTypefaceMetrics& metrics) {
     if (SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag) ||
         SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag)) {
@@ -477,14 +490,15 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
     descendantFonts->appendObjRef(std::move(newCIDFont));
     this->insertObject("DescendantFonts", std::move(descendantFonts));
 
-    if (metrics.fGlyphToUnicode.count() > 0) {
-        this->insertObjRef("ToUnicode",
-                           SkPDFMakeToUnicodeCmap(metrics.fGlyphToUnicode,
-                                                  &this->glyphUsage(),
-                                                  multiByteGlyphs(),
-                                                  firstGlyphID(),
-                                                  lastGlyphID()));
-    }
+    const std::vector<SkUnichar>& glyphToUnicode =
+        SkPDFFont::GetUnicodeMap(this->typeface(), canon);
+    SkASSERT(SkToSizeT(this->typeface()->countGlyphs()) == glyphToUnicode.size());
+    this->insertObjRef("ToUnicode",
+                       SkPDFMakeToUnicodeCmap(glyphToUnicode.data(),
+                                              &this->glyphUsage(),
+                                              this->multiByteGlyphs(),
+                                              this->firstGlyphID(),
+                                              this->lastGlyphID()));
     SkDEBUGCODE(fPopulated = true);
     return;
 }
@@ -722,14 +736,15 @@ static void add_type3_font_info(SkPDFCanon* canon,
     fontBBox->appendInt(bbox.top());
     font->insertObject("FontBBox", std::move(fontBBox));
     font->insertName("CIDToGIDMap", "Identity");
-    if (metrics && metrics->fGlyphToUnicode.count() > 0) {
-        font->insertObjRef("ToUnicode",
-                           SkPDFMakeToUnicodeCmap(metrics->fGlyphToUnicode,
-                                                  &subset,
-                                                  false,
-                                                  firstGlyphID,
-                                                  lastGlyphID));
-    }
+
+    const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(typeface, canon);
+    SkASSERT(glyphToUnicode.size() == SkToSizeT(typeface->countGlyphs()));
+    font->insertObjRef("ToUnicode",
+                       SkPDFMakeToUnicodeCmap(glyphToUnicode.data(),
+                                              &subset,
+                                              false,
+                                              firstGlyphID,
+                                              lastGlyphID));
     auto descriptor = sk_make_sp<SkPDFDict>("FontDescriptor");
     int32_t fontDescriptorFlags = kPdfSymbolic;
     if (metrics) {

@@ -1052,8 +1052,8 @@ private:
 };
 }  // namespace
 
-static SkUnichar map_glyph(const SkTDArray<SkUnichar>& glyphToUnicode, SkGlyphID glyph) {
-    return SkToInt(glyph) < glyphToUnicode.count() ? glyphToUnicode[SkToInt(glyph)] : -1;
+static SkUnichar map_glyph(const std::vector<SkUnichar>& glyphToUnicode, SkGlyphID glyph) {
+    return glyph < glyphToUnicode.size() ? glyphToUnicode[SkToInt(glyph)] : -1;
 }
 
 static void update_font(SkWStream* wStream, int fontIndex, SkScalar textSize) {
@@ -1200,6 +1200,9 @@ void SkPDFDevice::internalDrawText(
     if (!metrics) {
         return;
     }
+    const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(
+        typeface, fDocument->canon());
+
     SkClusterator clusterator(sourceText, sourceByteCount, paint,
                               clusters, textByteLength, utf8Text);
     const SkGlyphID* glyphs = clusterator.glyphs();
@@ -1244,7 +1247,6 @@ void SkPDFDevice::internalDrawText(
             return;
         }
         SkDynamicMemoryWStream* out = content.stream();
-        const SkTDArray<SkUnichar>& glyphToUnicode = metrics->fGlyphToUnicode;
 
         out->writeText("BT\n");
         SK_AT_SCOPE_EXIT(out->writeText("ET\n"));
