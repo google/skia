@@ -8,7 +8,6 @@
 #pragma once
 
 #include <stdbool.h>
-#include "LinearAlgebra.h"
 
 // One Gauss-Newton step, tuning up to 4 parameters P to minimize [ t(x,ctx) - f(x,P) ]^2.
 //
@@ -22,8 +21,14 @@
 // If you have fewer than 4 parameters, set the unused P to zero, don't touch their dfdP.
 //
 // Returns true and updates P on success, or returns false on failure.
-bool skcms_gauss_newton_step(float (*     t)(float x, const void*), const void* t_ctx,
-                             float (*     f)(float x, const float P[4]),
-                             void  (*grad_f)(float x, const float P[4], float dfdP[4]),
+bool skcms_gauss_newton_step(float (*     t)(float x, const void*),
+                             const void* t_ctx,
+                             float (*     f)(float x, const void*, const float P[4]),
+                             const void* f_ctx,
+                             void  (*grad_f)(float x, const void*, const float P[4], float dfdP[4]),
+                             const void* g_ctx,
                              float P[4],
                              float x0, float x1, int N);
+
+// A target function for skcms_Curve, passed as ctx.
+float skcms_eval_curve(float x, const void* ctx);

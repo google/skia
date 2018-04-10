@@ -14,7 +14,3 @@
 float skcms_TransferFunction_eval(const skcms_TransferFunction*, float);
 
 bool skcms_TransferFunction_invert(const skcms_TransferFunction*, skcms_TransferFunction*);
-
-typedef float skcms_TableFunc(int, const void*);
-bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int n,
-                                        skcms_TransferFunction*, float* max_error);
