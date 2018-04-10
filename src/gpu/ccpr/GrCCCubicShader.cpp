@@ -14,7 +14,7 @@
 using Shader = GrCCCoverageProcessor::Shader;
 
 void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                    const char* wind, const char** /*tighterHull*/) const {
+                                    const char* wind, const char** /*outHull4*/) const {
     // Define a function that normalizes the homogeneous coordinates T=t/s in order to avoid
     // exponent overflow.
     SkString normalizeHomogCoordFn;

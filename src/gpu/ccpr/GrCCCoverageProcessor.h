@@ -113,10 +113,13 @@ public:
         // Called before generating geometry. Subclasses may set up internal member variables during
         // this time that will be needed during onEmitVaryings (e.g. transformation matrices).
         //
-        // If the optional 'tighterHull' parameter is not null and gets filled out by the subclass,
-        // the the Impl will generate geometry around those points rather than the input points.
+        // If the 'outHull4' parameter is provided, and there are not 4 input points, the subclass
+        // is required to fill it with the name of a 4-point hull around which the Impl can generate
+        // its geometry. If it is left unchanged, the Impl will use the regular input points.
         virtual void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* wind,
-                                   const char** tighterHull = nullptr) const {}
+                                   const char** outHull4 = nullptr) const {
+            SkASSERT(!outHull4);
+        }
 
         void emitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
                           SkString* code, const char* position, const char* coverage,

@@ -7,14 +7,11 @@
 
 #include "GrCCQuadraticShader.h"
 
-#include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-using Shader = GrCCCoverageProcessor::Shader;
-
 void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                        const char* wind, const char** tighterHull) const {
+                                        const char* wind, const char** outHull4) const {
     s->declareGlobal(fQCoordMatrix);
     s->codeAppendf("%s = float2x2(1, 1, .5, 0) * inverse(float2x2(%s[2] - %s[0], %s[1] - %s[0]));",
                    fQCoordMatrix.c_str(), pts, pts, pts, pts);
@@ -27,21 +24,16 @@ void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* p
     s->codeAppendf("float2 edgept1 = %s[%s > 0 ? 0 : 2];", pts, wind);
     Shader::EmitEdgeDistanceEquation(s, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
 
-    if (tighterHull) {
-        // Find the T value whose tangent is halfway between the tangents at the endpionts.
-        s->codeAppendf("float2 tan0 = %s[1] - %s[0];", pts, pts);
-        s->codeAppendf("float2 tan1 = %s[2] - %s[1];", pts, pts);
-        s->codeAppend ("float2 midnorm = normalize(tan0) - normalize(tan1);");
-        s->codeAppend ("float2 T = midnorm * float2x2(tan0 - tan1, tan0);");
-        s->codeAppend ("float t = clamp(T.t / T.s, 0, 1);"); // T.s!=0; we cull flat curves on CPU.
-
-        // Clip the bezier triangle by the tangent at our new t value. This is a simple application
-        // for De Casteljau's algorithm.
-        s->codeAppendf("float4x2 quadratic_hull = float4x2(%s[0], "
-                                                          "%s[0] + tan0 * t, "
-                                                          "%s[1] + tan1 * t, "
-                                                          "%s[2]);", pts, pts, pts, pts);
-        *tighterHull = "quadratic_hull";
+    if (outHull4) {
+        // Clip the bezier triangle by the tangent line at maximum height. Quadratics have the nice
+        // property that maximum height always occurs at T=.5. This is a simple application for
+        // De Casteljau's algorithm.
+        s->codeAppendf("float2 quadratic_hull[4] = float2[4](%s[0], "
+                                                            "(%s[0] + %s[1]) * .5, "
+                                                            "(%s[1] + %s[2]) * .5, "
+                                                            "%s[2]);",
+                                                            pts, pts, pts, pts, pts, pts);
+        *outHull4 = "quadratic_hull";
     }
 }
 
