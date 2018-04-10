@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1c7ee2e7_924f6fdd",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-10T04:07:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0254b7dc_af80ee34",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 91
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9822c7ce_b09f68c8",
         "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
         "patchSetId": 2
@@ -168,6 +192,30 @@
     },
     {
       "key": {
+        "uuid": "41124286_04c0f606",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-10T04:07:19Z",
+      "side": 1,
+      "message": "Done. Switched into scalar before the abs, so I guess we\u0027re using std::abs.",
+      "parentUuid": "87073b6e_3943fb77",
+      "range": {
+        "startLine": 74,
+        "startChar": 42,
+        "endLine": 74,
+        "endChar": 49
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac69fba7_79b61224",
         "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
         "patchSetId": 2
@@ -212,6 +260,30 @@
       "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2cd9a27_bf3eee0c",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-10T04:07:19Z",
+      "side": 1,
+      "message": "Done.\n\nTurns out the old version had a bug if p0 \u003d\u003d p3, but p0,p1,p2 are still not collinear. I redid it in a completely different way.",
+      "parentUuid": "b597185f_9f8060bf",
+      "range": {
+        "startLine": 86,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 39
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
