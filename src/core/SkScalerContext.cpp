@@ -444,6 +444,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
+            devPath.fIsBadForDAA = true;  // crbug.com/821353
             generateMask(mask, devPath, fPreBlend);
         }
     }

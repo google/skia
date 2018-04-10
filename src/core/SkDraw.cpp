@@ -1069,6 +1069,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         tmpPath = iData->fAlloc->make<SkPath>();
     }
     tmpPath->setIsVolatile(true);
+    tmpPath->fIsBadForDAA = origSrcPath.fIsBadForDAA;
 
     if (prePathMatrix) {
         if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style) {
