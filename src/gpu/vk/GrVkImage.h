@@ -11,6 +11,7 @@
 #include "GrVkResource.h"
 
 #include "GrTypesPriv.h"
+#include "GrVkImageLayout.h"
 #include "SkTypes.h"
 
 #include "vk/GrVkDefines.h"
@@ -23,9 +24,13 @@ private:
     class Resource;
 
 public:
-    GrVkImage(const GrVkImageInfo& info, GrBackendObjectOwnership ownership)
-        : fInfo(info)
-        , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
+    GrVkImage(const GrVkImageInfo& info, sk_sp<GrVkImageLayout> layout,
+              GrBackendObjectOwnership ownership)
+            : fInfo(info)
+            , fLayout(std::move(layout))
+            , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
+        SkASSERT(fLayout->getImageLayout() == fInfo.fImageLayout);
+        fTempLayoutTracker = fLayout->getImageLayout();
         if (fIsBorrowed) {
             fResource = new BorrowedResource(info.fImage, info.fAlloc, info.fImageTiling);
         } else {
@@ -44,7 +49,28 @@ public:
     }
     bool isBorrowed() const { return fIsBorrowed; }
 
-    VkImageLayout currentLayout() const { return fInfo.fImageLayout; }
+    sk_sp<GrVkImageLayout> grVkImageLayout() const { return fLayout; }
+
+    VkImageLayout currentLayout() const {
+        // This check and set is temporary since clients can still change the layout using
+        // the old GrBackendObject call and we need a way to respect those changes. This only works
+        // if the client isn't using GrBackendObjects and GrBackendTextures to update the layout
+        // at the same time. This check and set should all be made atomic but the plan is to remove
+        // the use of fInfo.fImageLayout so ignoring this issue for now.
+        // TODO: Delete all this ugliness as soon as we get rid of GrBackendObject getters.
+        if (fInfo.fImageLayout != fLayout->getImageLayout()) {
+            if (fLayout->getImageLayout() == fTempLayoutTracker) {
+                fLayout->setImageLayout(fInfo.fImageLayout);
+            } else {
+                SkASSERT(fInfo.fImageLayout == fTempLayoutTracker);
+                *const_cast<VkImageLayout*>(&fInfo.fImageLayout) = fLayout->getImageLayout();
+            }
+            *const_cast<VkImageLayout*>(&fTempLayoutTracker) = fLayout->getImageLayout();
+        }
+        SkASSERT(fInfo.fImageLayout == fTempLayoutTracker &&
+                 fLayout->getImageLayout() == fTempLayoutTracker);
+        return fLayout->getImageLayout();
+    }
 
     void setImageLayout(const GrVkGpu* gpu,
                         VkImageLayout newLayout,
@@ -55,7 +81,11 @@ public:
     // This simply updates our tracking of the image layout and does not actually do any gpu work.
     // This is only used for mip map generation where we are manually changing the layouts as we
     // blit each layer, and then at the end need to update our tracking.
-    void updateImageLayout(VkImageLayout newLayout) { fInfo.fImageLayout = newLayout; }
+    void updateImageLayout(VkImageLayout newLayout) {
+        fLayout->setImageLayout(newLayout);
+        fInfo.fImageLayout = newLayout;
+        fTempLayoutTracker = newLayout;
+    }
 
     struct ImageDesc {
         VkImageType         fImageType;
@@ -96,8 +126,14 @@ protected:
 
     void setNewResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling);
 
-    GrVkImageInfo   fInfo;
-    bool            fIsBorrowed;
+    GrVkImageInfo          fInfo;
+    sk_sp<GrVkImageLayout> fLayout;
+    // This is used while we still have GrBackendObjects around that are able to change our image
+    // layout without using the ref count method. This helps us determine which value has gotten out
+    // of sync.
+    // TODO: Delete this when get rid of a GrBackendObject getters
+    VkImageLayout          fTempLayoutTracker;
+    bool                   fIsBorrowed;
 
 private:
     class Resource : public GrVkResource {
