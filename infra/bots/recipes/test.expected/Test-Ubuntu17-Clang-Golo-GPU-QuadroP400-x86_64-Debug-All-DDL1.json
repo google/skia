@@ -234,6 +234,7 @@
       "2048",
       "--config",
       "gl",
+      "vk",
       "--src",
       "skp",
       "--blacklist",
