@@ -489,9 +489,7 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
     if (paint->getMaskFilter()) {
         paint.writable()->setMaskFilter(paint->getMaskFilter()->makeWithLocalMatrix(this->ctm()));
     }
-
-    LOOP_TILER( drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap,
-                           TILER_X(x), TILER_Y(y), *paint))
+    this->drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, *paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
