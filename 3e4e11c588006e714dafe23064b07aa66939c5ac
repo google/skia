@@ -117,6 +117,30 @@
       "revId": "3e4e11c588006e714dafe23064b07aa66939c5ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0d6fc3b_8b11f6f8",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-10T18:05:10Z",
+      "side": 1,
+      "message": "\u003e midtan \u003d (T0x + T1x, T0y + T1y) / 2\n\nI don\u0027t think that\u0027s correct.\n\n  midtheta \u003d (atan2(T0y, T0x) + atan2(T1y, T1x)) / 2\n  midtan \u003d [cos(midtheta), sin(midtheta)]\n\nI don\u0027t believe it works to just average the components.\n\nI still believe the bisector is normal to the midtangent?",
+      "parentUuid": "e7e4b6a1_7ad2a81c",
+      "range": {
+        "startLine": 348,
+        "startChar": 3,
+        "endLine": 348,
+        "endChar": 47
+      },
+      "revId": "3e4e11c588006e714dafe23064b07aa66939c5ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
