@@ -362,7 +362,7 @@ void SkLOGFONTFromTypeface(const SkTypeface* face, LOGFONT* lf) {
 // require parsing the TTF cmap table (platform 4, encoding 12) directly instead
 // of calling GetFontUnicodeRange().
 static void populate_glyph_to_unicode(HDC fontHdc, const unsigned glyphCount,
-                                      SkTDArray<SkUnichar>* glyphToUnicode) {
+                                      SkUnichar* glyphToUnicode) {
     DWORD glyphSetBufferSize = GetFontUnicodeRanges(fontHdc, nullptr);
     if (!glyphSetBufferSize) {
         return;
@@ -375,8 +375,7 @@ static void populate_glyph_to_unicode(HDC fontHdc, const unsigned glyphCount,
         return;
     }
 
-    glyphToUnicode->setCount(glyphCount);
-    memset(glyphToUnicode->begin(), 0, glyphCount * sizeof(SkUnichar));
+    sk_bzero(glyphToUnicode, glyphCount * sizeof(SkUnichar));
     for (DWORD i = 0; i < glyphSet->cRanges; ++i) {
         // There is no guarantee that within a Unicode range, the corresponding
         // glyph id in a font file are continuous. So, even if we have ranges,
@@ -1707,6 +1706,22 @@ void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = this->fSerializeAsStream;
 }
 
+void LogFontTypeface::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
+    HDC hdc = ::CreateCompatibleDC(nullptr);
+    HFONT font = CreateFontIndirect(&fLogFont);
+    HFONT savefont = (HFONT)SelectObject(hdc, font);
+    HFONT designFont = CreateFontIndirect(&lf);
+    SelectObject(hdc, designFont);
+
+    unsigned int glyphCount = calculateGlyphCount(hdc, fLogFont);
+    populate_glyph_to_unicode(hdc, glyphCount, dstArray);
+
+    SelectObject(hdc, savefont);
+    DeleteObject(designFont);
+    DeleteObject(font);
+    DeleteDC(hdc);
+}
+
 std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics() const {
     LOGFONT lf = fLogFont;
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
@@ -1756,8 +1771,6 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
             info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
         }
     }
-
-    populate_glyph_to_unicode(hdc, glyphCount, &(info->fGlyphToUnicode));
 
     if (glyphCount > 0 &&
         (otm.otmTextMetrics.tmPitchAndFamily & TMPF_TRUETYPE)) {
