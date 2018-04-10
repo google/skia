@@ -285,7 +285,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     v->defineConstant("bloat", bloat);
 
     const char* hullPts = "pts";
-    fShader->emitSetupCode(v, "pts", "wind", &hullPts);
+    fShader->emitSetupCode(v, "pts", "wind", (4 == fNumSides) ? &hullPts : nullptr);
 
     // Reverse all indices if the wind is counter-clockwise: [0, 1, 2] -> [2, 1, 0].
     v->codeAppendf("int clockwise_indices = wind > 0 ? %s : 0x%x - %s;",
