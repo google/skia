@@ -139,7 +139,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
         // The renderTargetContext coming out of SkGpuDevice should always be exact and the
         // above copy creates a kExact surfaceContext.
         SkASSERT(srcProxy->priv().isExact());
-        image = sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
+        image = sk_make_sp<SkImage_Gpu>(ctx, ctx->threadSafeProxy(), kNeedNewImageUniqueID,
                                         info.alphaType(), std::move(srcProxy),
                                         info.refColorSpace(), budgeted);
     }
