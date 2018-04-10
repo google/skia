@@ -218,11 +218,26 @@ struct EdgeData {
     OffsetSegment fInset;
     SkPoint       fIntersection;
     SkScalar      fTValue;
+    uint16_t      fStart;
+    uint16_t      fEnd;
+    uint16_t      fIndex;
     bool          fValid;
 
     void init() {
         fIntersection = fInset.fP0;
         fTValue = SK_ScalarMin;
+        fStart = 0;
+        fEnd = 0;
+        fIndex = 0;
+        fValid = true;
+    }
+
+    void init(uint16_t start, uint16_t end) {
+        fIntersection = fInset.fP0;
+        fTValue = SK_ScalarMin;
+        fStart = start;
+        fEnd = end;
+        fIndex = start;
         fValid = true;
     }
 };
@@ -571,7 +586,8 @@ static bool is_simple_polygon(const SkPoint* polygon, int polygonSize) {
 
 // TODO: assuming a constant offset here -- do we want to support variable offset?
 bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                           SkScalar offset, SkTDArray<SkPoint>* offsetPolygon) {
+                           SkScalar offset, SkTDArray<SkPoint>* offsetPolygon,
+                           SkTDArray<int>* polygonIndices) {
     if (inputPolygonSize < 3) {
         return false;
     }
@@ -625,20 +641,20 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                 EdgeData& edge = edgeData.push_back();
                 edge.fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
                 edge.fInset.fP1 = inputPolygonVerts[currIndex] + currNormal;
-                edge.init();
+                edge.init(currIndex, currIndex);
                 prevNormal = currNormal;
             }
             EdgeData& edge = edgeData.push_back();
             edge.fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
             edge.fInset.fP1 = inputPolygonVerts[currIndex] + normals[currIndex];
-            edge.init();
+            edge.init(currIndex, currIndex);
         }
 
         // Add the edge
         EdgeData& edge = edgeData.push_back();
         edge.fInset.fP0 = inputPolygonVerts[currIndex] + normals[currIndex];
         edge.fInset.fP1 = inputPolygonVerts[nextIndex] + normals[currIndex];
-        edge.init();
+        edge.init(currIndex, nextIndex);
 
         prevIndex = currIndex;
         currIndex++;
@@ -652,6 +668,10 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     while (prevIndex != currIndex) {
         if (!edgeData[prevIndex].fValid) {
             prevIndex = (prevIndex + edgeDataSize - 1) % edgeDataSize;
+            continue;
+        }
+        if (!edgeData[currIndex].fValid) {
+            currIndex = (currIndex + 1) % edgeDataSize;
             continue;
         }
 
@@ -676,6 +696,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                 // add intersection
                 edgeData[currIndex].fIntersection = intersection;
                 edgeData[currIndex].fTValue = t;
+                edgeData[currIndex].fIndex = edgeData[prevIndex].fEnd;
 
                 // go to next segment
                 prevIndex = currIndex;
@@ -714,6 +735,9 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                                                        (*offsetPolygon)[currIndex],
                                                                        kCleanupTolerance))) {
             *offsetPolygon->push() = edgeData[i].fIntersection;
+            if (polygonIndices) {
+                *polygonIndices->push() = edgeData[i].fIndex;
+            }
             currIndex++;
         }
     }
@@ -722,6 +746,9 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
         SkPointPriv::EqualsWithinTolerance((*offsetPolygon)[0], (*offsetPolygon)[currIndex],
                                            kCleanupTolerance)) {
         offsetPolygon->pop();
+        if (polygonIndices) {
+            polygonIndices->pop();
+        }
     }
 
     // compute signed area to check winding (it should be same as the original polygon)
