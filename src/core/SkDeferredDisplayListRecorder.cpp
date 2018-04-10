@@ -170,7 +170,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         return nullptr;
     }
 
-    return SkImage_Gpu::MakePromiseTexture(fContext.get(),
+    return SkImage_Gpu::MakePromiseTexture(fContext->threadSafeProxy(),
                                            backendFormat,
                                            width,
                                            height,

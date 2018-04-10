@@ -270,6 +270,8 @@ protected:
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
+        GrContext* context = canvas->getGrContext();
+
         sk_sp<SkColorSpace> texColorSpace;
         sk_sp<GrTextureProxy> proxy(as_IB(image)->asTextureProxyRef(
                 canvas->getGrContext(), GrSamplerState::ClampBilerp(),
@@ -287,9 +289,10 @@ protected:
         }
 
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
-        sk_sp<SkImage> texImage(new SkImage_Gpu(canvas->getGrContext(), image->uniqueID(),
-                                                kPremul_SkAlphaType, std::move(proxy),
-                                                std::move(texColorSpace), SkBudgeted::kNo));
+        sk_sp<SkImage> texImage(new SkImage_Gpu(context, context->threadSafeProxy(),
+                                                image->uniqueID(), kPremul_SkAlphaType,
+                                                std::move(proxy), std::move(texColorSpace),
+                                                SkBudgeted::kNo));
         canvas->drawImage(texImage.get(), x, y);
 #endif
     }

@@ -221,7 +221,8 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                               LazyInstantiationType::kUninstantiate}) {
             int testCount = 0;
             int* testCountPtr = &testCount;
-            sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
+            sk_sp<GrTextureProxy> proxy = GrProxyProvider::CreateLazyProxy(
+                    ctx->caps(),
                     [testCountPtr](GrResourceProvider* resourceProvider) {
                         if (!resourceProvider) {
                             *testCountPtr = -1;
@@ -408,7 +409,8 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                 nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
 
-        sk_sp<GrTextureProxy> lazyProxy = proxyProvider->createLazyProxy(
+        sk_sp<GrTextureProxy> lazyProxy = GrProxyProvider::CreateLazyProxy(
+                ctx->caps(),
                 [instantiatePtr, releasePtr, backendTex](GrResourceProvider* rp) {
                     if (!rp) {
                         return sk_sp<GrTexture>();
