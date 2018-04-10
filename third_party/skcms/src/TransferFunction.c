@@ -298,12 +298,21 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             }
         }
 
+        // We want to calculate the error of this approximation now.
+        // The most likely use case for this approximation is to be inverted and
+        // used as the transfer function for a destination color space, so we'll
+        // exercise that scenario here.
+        skcms_TransferFunction inv;
+        if (!skcms_TransferFunction_invert(&tf, &inv)) {
+            // If we can't invert the transfer function, it's not of much practical use anyway.
+            continue;
+        }
+
         float err = 0;
         for (int i = 0; i < N; i++) {
-            float x = i * x_scale;
-            float got  = skcms_TransferFunction_eval(&tf, x),
-                  want = skcms_eval_curve(x, curve);
-            err = fmaxf_(err, fabsf_( want - got ));
+            float x = i * x_scale,
+                  y = skcms_eval_curve(x, curve);
+            err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(&inv, y)));
         }
         if (*max_error > err) {
             *max_error = err;
