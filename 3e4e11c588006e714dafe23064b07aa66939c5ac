@@ -93,6 +93,30 @@
       "revId": "3e4e11c588006e714dafe23064b07aa66939c5ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7e4b6a1_7ad2a81c",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-10T17:20:21Z",
+      "side": 1,
+      "message": "So I guess my problem is the calling this a normal of the midtangent. I don\u0027t think that is correct. If you really want the normal of the midtagent then you need to average the tagents and then do the normal flip and negate thing. Or get the normals of the start tangents and then average those. Both of those calculations get you the same result but is different than yours.\n\nIf all you really want is the bisector of tan0 and -tan1 then just say that and don\u0027t assume that value is the normal of the midtanget (thus no dot prod equals zero). Else you need the correct normal calculation.\n\nFor math (ignoring normalization in formulas, but yeah its needed):\n\nyour n \u003d (T0x - T1x, T0y - T1y);\nmidtan \u003d (T0x + T1x, T0y + T1y) / 2;\n\nn dot midtan \u003d T0x^2 - T1x^2 + T0y^2 - T1y^2 !\u003d 0 for all values.",
+      "parentUuid": "3d6597a2_633ac5c2",
+      "range": {
+        "startLine": 348,
+        "startChar": 3,
+        "endLine": 348,
+        "endChar": 47
+      },
+      "revId": "3e4e11c588006e714dafe23064b07aa66939c5ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
