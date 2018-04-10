@@ -181,22 +181,34 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
 
             GrBackendTexture genBackendTex = genTexture->getBackendTexture();
 
-            if (const GrGLTextureInfo* genTexInfo = genBackendTex.getGLTextureInfo()) {
-                const GrGLTextureInfo* origTexInfo = backendTex.getGLTextureInfo();
-                if (willUseMips && GrMipMapped::kNo == mipMapped) {
-                    // We did a copy so the texture IDs should be different
-                    REPORTER_ASSERT(reporter, origTexInfo->fID != genTexInfo->fID);
+            if (kOpenGL_GrBackend == genBackendTex.backend()) {
+                GrGLTextureInfo genTexInfo;
+                GrGLTextureInfo origTexInfo;
+                if (genBackendTex.getGLTextureInfo(&genTexInfo) &&
+                    backendTex.getGLTextureInfo(&origTexInfo)) {
+                    if (willUseMips && GrMipMapped::kNo == mipMapped) {
+                        // We did a copy so the texture IDs should be different
+                        REPORTER_ASSERT(reporter, origTexInfo.fID != genTexInfo.fID);
+                    } else {
+                        REPORTER_ASSERT(reporter, origTexInfo.fID == genTexInfo.fID);
+                    }
                 } else {
-                    REPORTER_ASSERT(reporter, origTexInfo->fID == genTexInfo->fID);
+                    ERRORF(reporter, "Failed to get GrGLTextureInfo");
                 }
 #ifdef SK_VULKAN
-            } else if (const GrVkImageInfo* genImageInfo = genBackendTex.getVkImageInfo()) {
-                const GrVkImageInfo* origImageInfo = backendTex.getVkImageInfo();
-                if (willUseMips && GrMipMapped::kNo == mipMapped) {
-                    // We did a copy so the texture IDs should be different
-                    REPORTER_ASSERT(reporter, origImageInfo->fImage != genImageInfo->fImage);
+            } else if (kVulkan_GrBackend == genBackendTex.backend()) {
+                GrVkImageInfo genImageInfo;
+                GrVkImageInfo origImageInfo;
+                if (genBackendTex.getVkImageInfo(&genImageInfo) &&
+                    backendTex.getVkImageInfo(&origImageInfo)) {
+                    if (willUseMips && GrMipMapped::kNo == mipMapped) {
+                        // We did a copy so the texture IDs should be different
+                        REPORTER_ASSERT(reporter, origImageInfo.fImage != genImageInfo.fImage);
+                    } else {
+                        REPORTER_ASSERT(reporter, origImageInfo.fImage == genImageInfo.fImage);
+                    }
                 } else {
-                    REPORTER_ASSERT(reporter, origImageInfo->fImage == genImageInfo->fImage);
+                    ERRORF(reporter, "Failed to get GrVkImageInfo");
                 }
 #endif
             } else {

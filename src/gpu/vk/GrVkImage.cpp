@@ -61,7 +61,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
 
     gpu->addImageMemoryBarrier(srcStageMask, dstStageMask, byRegion, &imageMemoryBarrier);
 
-    fInfo.fImageLayout = newLayout;
+    this->updateImageLayout(newLayout);
 }
 
 bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo* info) {

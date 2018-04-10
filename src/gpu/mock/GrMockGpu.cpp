@@ -95,8 +95,9 @@ sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
     GrSurfaceDesc desc;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-    SkASSERT(tex.getMockTextureInfo());
-    GrMockTextureInfo info = *tex.getMockTextureInfo();
+
+    GrMockTextureInfo info;
+    SkAssertResult(tex.getMockTextureInfo(&info));
     desc.fConfig = info.fConfig;
 
     GrMipMapsStatus mipMapsStatus = tex.hasMipMaps() ? GrMipMapsStatus::kValid
@@ -113,8 +114,9 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-    SkASSERT(tex.getMockTextureInfo());
-    GrMockTextureInfo texInfo = *tex.getMockTextureInfo();
+
+    GrMockTextureInfo texInfo;
+    SkAssertResult(tex.getMockTextureInfo(&texInfo));
     desc.fConfig = texInfo.fConfig;
 
     GrMipMapsStatus mipMapsStatus =
@@ -148,8 +150,9 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-    SkASSERT(tex.getMockTextureInfo());
-    const GrMockTextureInfo texInfo = *tex.getMockTextureInfo();
+
+    GrMockTextureInfo texInfo;
+    SkAssertResult(tex.getMockTextureInfo(&texInfo));
     desc.fConfig = texInfo.fConfig;
     desc.fSampleCnt = sampleCnt;
 
@@ -189,20 +192,20 @@ GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(const void* pixels, 
 bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(kMock_GrBackend == tex.backend());
 
-    const GrMockTextureInfo* info = tex.getMockTextureInfo();
-    if (!info) {
+    GrMockTextureInfo info;
+    if (!tex.getMockTextureInfo(&info)) {
         return false;
     }
 
-    return fOutstandingTestingOnlyTextureIDs.contains(info->fID);
+    return fOutstandingTestingOnlyTextureIDs.contains(info.fID);
 }
 
 void GrMockGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(kMock_GrBackend == tex.backend());
 
-    const GrMockTextureInfo* info = tex.getMockTextureInfo();
-    if (info) {
-        fOutstandingTestingOnlyTextureIDs.remove(info->fID);
+    GrMockTextureInfo info;
+    if (tex.getMockTextureInfo(&info)) {
+        fOutstandingTestingOnlyTextureIDs.remove(info.fID);
     }
 }
 

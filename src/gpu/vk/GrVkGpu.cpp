@@ -864,16 +864,16 @@ bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
 
 static bool check_backend_texture(const GrBackendTexture& backendTex,
                                   GrPixelConfig config) {
-    const GrVkImageInfo* info = backendTex.getVkImageInfo();
-    if (!info) {
+    GrVkImageInfo info;
+    if (!backendTex.getVkImageInfo(&info)) {
         return false;
     }
 
-    if (VK_NULL_HANDLE == info->fImage || VK_NULL_HANDLE == info->fAlloc.fMemory) {
+    if (VK_NULL_HANDLE == info.fImage || VK_NULL_HANDLE == info.fAlloc.fMemory) {
         return false;
     }
 
-    SkASSERT(GrVkFormatPixelConfigPairIsValid(info->fFormat, config));
+    SkASSERT(GrVkFormatPixelConfigPairIsValid(info.fFormat, config));
     return true;
 }
 
@@ -890,7 +890,13 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = 1;
 
-    return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, backendTex.getVkImageInfo());
+    GrVkImageInfo imageInfo;
+    if (!backendTex.getVkImageInfo(&imageInfo)) {
+        return nullptr;
+    }
+    sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
+    SkASSERT(layout);
+    return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, imageInfo, std::move(layout));
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -907,8 +913,15 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
 
+    GrVkImageInfo imageInfo;
+    if (!backendTex.getVkImageInfo(&imageInfo)) {
+        return nullptr;
+    }
+    sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
+    SkASSERT(layout);
+
     return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership,
-                                                                   backendTex.getVkImageInfo());
+                                                                   imageInfo, std::move(layout));
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT){
@@ -935,7 +948,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     desc.fConfig = backendRT.config();
     desc.fSampleCnt = 1;
 
-    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
+    sk_sp<GrVkImageLayout> layout(new GrVkImageLayout(info->fImageLayout));
+
+    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, *info,
+                                                                            std::move(layout));
 
     // We don't allow the client to supply a premade stencil buffer. We always create one if needed.
     SkASSERT(!backendRT.stencilBits());
@@ -949,11 +965,11 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
                                                                   int sampleCnt) {
 
-    const GrVkImageInfo* info = tex.getVkImageInfo();
-    if (!info) {
+    GrVkImageInfo imageInfo;
+    if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    if (VK_NULL_HANDLE == info->fImage) {
+    if (VK_NULL_HANDLE == imageInfo.fImage) {
         return nullptr;
     }
 
@@ -967,7 +983,11 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
         return nullptr;
     }
 
-    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
+    sk_sp<GrVkImageLayout> layout = tex.getGrVkImageLayout();
+    SkASSERT(layout);
+
+    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, imageInfo,
+                                                                            std::move(layout));
     return tgt;
 }
 
@@ -1499,13 +1519,16 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, i
 bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(kVulkan_GrBackend == tex.fBackend);
 
-    const GrVkImageInfo* backend = tex.getVkImageInfo();
+    GrVkImageInfo backend;
+    if (!tex.getVkImageInfo(&backend)) {
+        return false;
+    }
 
-    if (backend && backend->fImage && backend->fAlloc.fMemory) {
+    if (backend.fImage && backend.fAlloc.fMemory) {
         VkMemoryRequirements req;
         memset(&req, 0, sizeof(req));
         GR_VK_CALL(this->vkInterface(), GetImageMemoryRequirements(fDevice,
-                                                                   backend->fImage,
+                                                                   backend.fImage,
                                                                    &req));
         // TODO: find a better check
         // This will probably fail with a different driver
@@ -1518,10 +1541,11 @@ bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(kVulkan_GrBackend == tex.fBackend);
 
-    if (const auto* info = tex.getVkImageInfo()) {
+    GrVkImageInfo info;
+    if (tex.getVkImageInfo(&info)) {
         // something in the command buffer may still be using this, so force submit
         this->submitCommandBuffer(kForce_SyncQueue);
-        GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(info));
+        GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(&info));
     }
 }
 
