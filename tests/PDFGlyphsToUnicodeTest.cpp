@@ -76,7 +76,7 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
 
     SkDynamicMemoryWStream buffer;
     subset.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
-    SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 0, 0xFFFF);
+    SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 0, 0xFFFF);
 
     char expectedResult[] =
 "4 beginbfchar\n\
@@ -98,7 +98,7 @@ endbfrange\n";
     // Remove characters and ranges.
     buffer.reset();
 
-    SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 8, 0x00FF);
+    SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 8, 0x00FF);
 
     char expectedResultChop1[] =
 "2 beginbfchar\n\
@@ -116,7 +116,7 @@ endbfrange\n";
     // Remove characters from range to downdrade it to one char.
     buffer.reset();
 
-    SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 0x00D, 0x00FE);
+    SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 0x00D, 0x00FE);
 
     char expectedResultChop2[] =
 "2 beginbfchar\n\
@@ -129,7 +129,7 @@ endbfchar\n";
 
     buffer.reset();
 
-    SkPDFAppendCmapSections(glyphToUnicode, nullptr, &buffer, false, 0xFC, 0x110);
+    SkPDFAppendCmapSections(&glyphToUnicode[0], nullptr, &buffer, false, 0xFC, 0x110);
 
     char expectedResultSingleBytes[] =
 "2 beginbfchar\n\
@@ -165,7 +165,7 @@ endbfrange\n";
 
     SkDynamicMemoryWStream buffer2;
     subset2.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
-    SkPDFAppendCmapSections(glyphToUnicode, &subset2, &buffer2, true, 0, 0xffff);
+    SkPDFAppendCmapSections(&glyphToUnicode[0], &subset2, &buffer2, true, 0, 0xffff);
 
     char expectedResult2[] =
 "4 beginbfchar\n\
