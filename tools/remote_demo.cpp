@@ -90,6 +90,7 @@ static void build_prime_cache_spec(const SkIRect &bounds,
 }
 
 static void final_draw(std::string outFilename,
+                       SkRemoteStrikeTransport* transport,
                        SkDeserialProcs* procs,
                        SkData* picData,
                        SkStrikeClient* client) {
@@ -145,7 +146,7 @@ static void gpu(int readFd, int writeFd) {
         SkDeserialProcs procs;
         client.prepareDeserializeProcs(&procs);
 
-        final_draw("test.png", &procs, picData.get(), &client);
+        final_draw("test.png", &rwTransport, &procs, picData.get(), &client);
     }
 
     printf("GPU is exiting\n");
@@ -176,7 +177,7 @@ static int renderer(
         return server.serve();
     } else {
         stream = skpData;
-        final_draw("test-correct.png", nullptr, stream.get(), nullptr);
+        final_draw("test-correct.png", &rwTransport, nullptr, stream.get(), nullptr);
         return 0;
     }
 }

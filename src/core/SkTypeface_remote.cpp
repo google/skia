@@ -50,3 +50,9 @@ void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 SkTypefaceProxy* SkScalerContextProxy::typefaceProxy() {
     return SkTypefaceProxy::DownCast(this->getTypeface());
 }
+
+bool SkTypefaceProxy::onPurgeGlyphCache(SkGlyphCache* cache) {
+  // TODO: Use a weak ptr for fRsc. There is no guarentee that the client
+  // will outlive the typeface.
+  return fRsc->canPurgeGlyphCache(cache);
+}
