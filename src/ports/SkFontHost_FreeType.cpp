@@ -605,18 +605,6 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
 
     bool perGlyphInfo = FT_IS_SCALABLE(face);
 
-    if (perGlyphInfo && info->fType == SkAdvancedTypefaceMetrics::kType1_Font) {
-        // Postscript fonts may contain more than 255 glyphs, so we end up
-        // using multiple font descriptions with a glyph ordering.  Record
-        // the name of each glyph.
-        info->fGlyphNames.reset(face->num_glyphs);
-        for (int gID = 0; gID < face->num_glyphs; gID++) {
-            char glyphName[128];  // PS limit for names is 127 bytes.
-            FT_Get_Glyph_Name(face, gID, glyphName, 128);
-            info->fGlyphNames[gID].set(glyphName);
-        }
-    }
-
     if (perGlyphInfo &&
         info->fType != SkAdvancedTypefaceMetrics::kType1_Font &&
         face->num_charmaps)
@@ -625,6 +613,19 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     }
 
     return info;
+}
+
+void SkTypeface_FreeType::getPostScriptGlyphNames(SkString* dstArray) const {
+    SkASSERT(dstArray);
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (face && strcmp(FT_Get_X11_Font_Format(face), "Type 1") == 0 && FT_IS_SCALABLE(face)) {
+        for (int gID = 0; gID < face->num_glyphs; gID++) {
+            char glyphName[128];  // PS limit for names is 127 bytes.
+            FT_Get_Glyph_Name(face, gID, glyphName, 128);
+            dstArray[gID] = glyphName;
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
