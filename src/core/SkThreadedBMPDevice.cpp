@@ -218,17 +218,6 @@ void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, SkBlendMode b
     });
 }
 
-void SkThreadedBMPDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
-    SkASSERT(!paint.getImageFilter());
-    SkRect drawBounds = SkRect::MakeXYWH(x, y, device->width(), device->height());
-    // copy the bitmap because it may deleted after this call
-    SkBitmap* bitmap = fAlloc.make<SkBitmap>(static_cast<SkBitmapDevice*>(device)->fBitmap);
-    fQueue.push<false>(drawBounds, [=](SkArenaAlloc*, const DrawState& ds,
-                                       const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawSprite(*bitmap, x, y, paint);
-    });
-}
-
 sk_sp<SkSpecialImage> SkThreadedBMPDevice::snapSpecial() {
     this->flush();
     return this->makeSpecial(fBitmap);
