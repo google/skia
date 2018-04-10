@@ -1543,8 +1543,6 @@ void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
 
     GrVkImageInfo info;
     if (tex.getVkImageInfo(&info)) {
-        // something in the command buffer may still be using this, so force submit
-        this->submitCommandBuffer(kForce_SyncQueue);
         GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(&info));
     }
 }
