@@ -1033,6 +1033,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
     context->flush();
 
     GrGpu* gpu = context->contextPriv().getGpu();
+    gpu->testingOnly_flushGpuAndSync();
     for (auto backendTex : backendTextures) {
         gpu->deleteTestingOnlyBackendTexture(backendTex);
     }
