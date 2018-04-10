@@ -176,6 +176,23 @@ public:
         return pun.fs[k&3];
     }
 
+    AI float min() const {
+        SkDebugf("@@@> v=[%f %f %f %f]\n", (*this)[0], (*this)[1], (*this)[2], (*this)[3]);
+        SkNx min = Min(*this, _mm_shuffle_ps(fVec, _MM_SHUFFLE(1,0,3,2)));
+        SkDebugf("@@@> min=[%f %f %f %f]\n", min[0], min[1], min[2], min[3]);
+        min = Min(min, _mm_shuffle_ps(min.fVec, _MM_SHUFFLE(3,2,1,0)));
+        SkDebugf("@@@> min=[%f %f %f %f]\n", min[0], min[1], min[2], min[3]);
+        SkDebugf("@@@> \n");
+        SkDebugf("@@@> \n");
+        return min[0];
+    }
+
+    AI float max() const {
+        SkNx max = Max(*this, _mm_shuffle_ps(fVec, _MM_SHUFFLE(1,0,3,2)));
+        max = Max(max, _mm_shuffle_ps(max.fVec, _MM_SHUFFLE(3,2,1,0)));
+        return max[0];
+    }
+
     AI bool allTrue() const { return 0xffff == _mm_movemask_epi8(_mm_castps_si128(fVec)); }
     AI bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(_mm_castps_si128(fVec)); }
 
