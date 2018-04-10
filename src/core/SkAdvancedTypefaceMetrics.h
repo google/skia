@@ -71,9 +71,6 @@ struct SkAdvancedTypefaceMetrics {
 
     SkIRect fBBox = {0, 0, 0, 0};  // The bounding box of all glyphs (in font units).
 
-    // The names of each glyph, only populated for postscript fonts.
-    SkTArray<SkString> fGlyphNames;
-
     // The mapping from glyph to Unicode; array indices are glyph ids.
     SkTDArray<SkUnichar> fGlyphToUnicode;
 };
