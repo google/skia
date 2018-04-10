@@ -83,6 +83,15 @@ struct GrVkImageInfo {
             , fFormat(VK_FORMAT_UNDEFINED)
             , fLevelCount(0) {}
 
+    GrVkImageInfo(VkImage image, GrVkAlloc alloc, VkImageTiling imageTiling, VkImageLayout layout,
+                  VkFormat format, uint32_t levelCount)
+            : fImage(image)
+            , fAlloc(alloc)
+            , fImageTiling(imageTiling)
+            , fImageLayout(layout)
+            , fFormat(format)
+            , fLevelCount(levelCount) {}
+
     GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
             : fImage(info.fImage)
             , fAlloc(info.fAlloc)
