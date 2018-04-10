@@ -85,7 +85,6 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
 
     BitmapShaderKey fKey;
     sk_sp<SkShader> fShader;
-    size_t          fBitmapBytes;
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override {
