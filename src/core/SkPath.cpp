@@ -539,7 +539,8 @@ addMissingClose:
         ;
     }
     // Success if 4 corners and first point equals last
-    bool result = 4 == corners && (first == last || autoClose);
+    bool result = 4 == corners && (first == last || (autoClose &&
+            (first.fX == last.fX || first.fY == last.fY)));
     if (!result) {
         // check if we are just an incomplete rectangle, in which case we can
         // return true, but not claim to be closed.
