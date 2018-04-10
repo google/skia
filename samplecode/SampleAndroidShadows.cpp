@@ -28,9 +28,13 @@ class ShadowsView : public SampleView {
     SkPath    fCirclePath;
     SkPath    fFunkyRRPath;
     SkPath    fCubicPath;
+    SkPath    fStarPath;
     SkPath    fSquareRRectPath;
     SkPath    fWideRectPath;
     SkPath    fWideOvalPath;
+    SkPath    fNotchPath;
+    SkPath    fTabPath;
+
     SkPoint3  fLightPos;
     SkScalar  fZDelta;
     SkScalar  fAnimTranslate;
@@ -68,10 +72,37 @@ protected:
         fCubicPath.cubicTo(100 * SK_Scalar1, 50 * SK_Scalar1,
                            20 * SK_Scalar1, 100 * SK_Scalar1,
                            0 * SK_Scalar1, 0 * SK_Scalar1);
+        fStarPath.moveTo(0.0f, -50.0f);
+        fStarPath.lineTo(14.43f, -25.0f);
+        fStarPath.lineTo(43.30f, -25.0f);
+        fStarPath.lineTo(28.86f, 0.0f);
+        fStarPath.lineTo(43.30f, 25.0f);
+        fStarPath.lineTo(14.43f, 25.0f);
+        fStarPath.lineTo(0.0f, 50.0f);
+        fStarPath.lineTo(-14.43f, 25.0f);
+        fStarPath.lineTo(-43.30f, 25.0f);
+        fStarPath.lineTo(-28.86f, 0.0f);
+        fStarPath.lineTo(-43.30f, -25.0f);
+        fStarPath.lineTo(-14.43f, -25.0f);
         fSquareRRectPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-50, -50, 100, 100),
                                                       10, 10));
         fWideRectPath.addRect(SkRect::MakeXYWH(0, 0, 630, 70));
         fWideOvalPath.addOval(SkRect::MakeXYWH(0, 0, 630, 70));
+
+        fNotchPath.moveTo(0, 80);
+        fNotchPath.arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), -90, -90, false);
+        fNotchPath.lineTo(-75, 100);
+        fNotchPath.lineTo(-75, -100);
+        fNotchPath.lineTo(75, -100);
+        fNotchPath.lineTo(75, 100);
+        fNotchPath.arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), 0, -90, false);
+
+        fTabPath.moveTo(-75, -100);
+        fTabPath.lineTo(75, -100);
+        fTabPath.lineTo(75, 100);
+        fTabPath.arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), 0, 90, false);
+        fTabPath.arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), 90, 90, false);
+        fTabPath.lineTo(-75, 100);
 
         fLightPos = SkPoint3::Make(350, 0, 600);
     }
@@ -141,8 +172,8 @@ protected:
                           const SkPaint& paint, SkScalar ambientAlpha,
                           const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
         if (fIgnoreShadowAlpha) {
-            ambientAlpha = 255;
-            spotAlpha = 255;
+            ambientAlpha = 1;
+            spotAlpha = 1;
         }
         if (!fShowAmbient) {
             ambientAlpha = 0;
@@ -220,6 +251,24 @@ protected:
         this->drawShadowedPath(canvas, fCubicPath, zPlaneParams, paint, fAnimAlpha*kAmbientAlpha,
                                lightPos, kLightWidth, fAnimAlpha*kSpotAlpha);
 
+        paint.setColor(SK_ColorWHITE);
+        canvas->translate(250, -180);
+        zPlaneParams.fZ = SkTMax(1.0f, 8 + fZDelta);
+        this->drawShadowedPath(canvas, fStarPath, zPlaneParams, paint,
+                               kAmbientAlpha, lightPos, kLightWidth, kSpotAlpha);
+
+        paint.setColor(SK_ColorWHITE);
+        canvas->translate(150, 0);
+        zPlaneParams.fZ = SkTMax(1.0f, 2 + fZDelta);
+        this->drawShadowedPath(canvas, fNotchPath, zPlaneParams, paint,
+                               kAmbientAlpha, lightPos, kLightWidth, kSpotAlpha);
+
+        paint.setColor(SK_ColorWHITE);
+        canvas->translate(200, 0);
+        zPlaneParams.fZ = SkTMax(1.0f, 16 + fZDelta);
+        this->drawShadowedPath(canvas, fTabPath, zPlaneParams, paint,
+                               kAmbientAlpha, lightPos, kLightWidth, kSpotAlpha);
+
         // circular reveal
         SkPath tmpPath;
         SkPath tmpClipPath;
@@ -227,7 +276,7 @@ protected:
         Op(fSquareRRectPath, tmpClipPath, kIntersect_SkPathOp, &tmpPath);
 
         paint.setColor(SK_ColorMAGENTA);
-        canvas->translate(-125, 60);
+        canvas->translate(-725, 240);
         zPlaneParams.fZ = SkTMax(1.0f, 32 + fZDelta);
         this->drawShadowedPath(canvas, tmpPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);

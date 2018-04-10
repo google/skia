@@ -44,10 +44,12 @@ inline bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPoly
  * @param offset  How far we wish to offset the polygon.
  *                Positive value means inset, negative value means outset.
  * @param offsetPolgon  The resulting offset polygon, if any.
+ * @param polygonIndices  The indices of the original polygon that map to the new one.
  * @return true if an offset simple polygon exists, false otherwise.
  */
 bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                           SkScalar offset, SkTDArray<SkPoint>* offsetPolygon);
+                           SkScalar offset, SkTDArray<SkPoint>* offsetPolygon,
+                           SkTDArray<int>* polygonIndices = nullptr);
 
 /**
  * Offset a segment by the given distance at each point.

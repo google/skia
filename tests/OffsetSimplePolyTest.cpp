@@ -92,7 +92,6 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     // past full inset
     result = SkOffsetSimplePolygon(&rrectPoly[0], rrectPoly.count(), 75, &offsetPoly);
     REPORTER_ASSERT(reporter, !result);
-    REPORTER_ASSERT(reporter, offsetPoly.count() == 0);
 
     // troublesome case
     SkTDArray<SkPoint> clippedRRectPoly;
