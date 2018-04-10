@@ -514,7 +514,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
     if (textureIsAlphaOnly) {
         if (const auto* shader = as_SB(paint.getShader())) {
             shaderFP = shader->asFragmentProcessor(GrFPArgs(
-                    context, &viewM, nullptr, paint.getFilterQuality(), &colorSpaceInfo));
+                    context, &viewM, paint.getFilterQuality(), &colorSpaceInfo));
             if (!shaderFP) {
                 return false;
             }

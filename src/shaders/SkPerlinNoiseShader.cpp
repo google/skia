@@ -1394,13 +1394,8 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
         const GrFPArgs& args) const {
     SkASSERT(args.fContext);
 
-    SkMatrix localMatrix = this->getLocalMatrix();
-    if (args.fLocalMatrix) {
-        localMatrix.preConcat(*args.fLocalMatrix);
-    }
-
-    SkMatrix matrix = *args.fViewMatrix;
-    matrix.preConcat(localMatrix);
+    const auto localMatrix = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
+    const auto matrix = SkMatrix::Concat(*args.fViewMatrix, *localMatrix);
 
     // Either we don't stitch tiles, either we have a valid tile size
     SkASSERT(!fStitchTiles || !fTileSize.isEmpty());
@@ -1413,8 +1408,8 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
                                                                   matrix);
 
     SkMatrix m = *args.fViewMatrix;
-    m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);
-    m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
+    m.setTranslateX(-localMatrix->getTranslateX() + SK_Scalar1);
+    m.setTranslateY(-localMatrix->getTranslateY() + SK_Scalar1);
 
     auto proxyProvider = args.fContext->contextPriv().proxyProvider();
     if (fType == kImprovedNoise_Type) {
