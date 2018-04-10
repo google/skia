@@ -528,6 +528,18 @@ static void populate_glyph_to_unicode(FT_Face& face, SkTDArray<SkUnichar>* glyph
     }
 }
 
+static SkAdvancedTypefaceMetrics::FontType get_font_type(FT_Face face) {
+    const char* fontType = FT_Get_X11_Font_Format(face);
+    static struct { const char* s; SkAdvancedTypefaceMetrics::FontType t; } values[] = {
+        { "Type 1",     SkAdvancedTypefaceMetrics::kType1_Font    },
+        { "CID Type 1", SkAdvancedTypefaceMetrics::kType1CID_Font },
+        { "CFF",        SkAdvancedTypefaceMetrics::kCFF_Font      },
+        { "TrueType",   SkAdvancedTypefaceMetrics::kTrueType_Font },
+    };
+    for(const auto& v : values) { if (strcmp(fontType, v.s) == 0) { return v.t; } }
+    return SkAdvancedTypefaceMetrics::kOther_Font;
+}
+
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMetrics() const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
@@ -549,19 +561,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
         info->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
     }
 
-    const char* fontType = FT_Get_X11_Font_Format(face);
-    if (strcmp(fontType, "Type 1") == 0) {
-        info->fType = SkAdvancedTypefaceMetrics::kType1_Font;
-    } else if (strcmp(fontType, "CID Type 1") == 0) {
-        info->fType = SkAdvancedTypefaceMetrics::kType1CID_Font;
-    } else if (strcmp(fontType, "CFF") == 0) {
-        info->fType = SkAdvancedTypefaceMetrics::kCFF_Font;
-    } else if (strcmp(fontType, "TrueType") == 0) {
-        info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
-    } else {
-        info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
-    }
-
+    info->fType = get_font_type(face);
     info->fStyle = (SkAdvancedTypefaceMetrics::StyleFlags)0;
     if (FT_IS_FIXED_WIDTH(face)) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
@@ -605,18 +605,6 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
 
     bool perGlyphInfo = FT_IS_SCALABLE(face);
 
-    if (perGlyphInfo && info->fType == SkAdvancedTypefaceMetrics::kType1_Font) {
-        // Postscript fonts may contain more than 255 glyphs, so we end up
-        // using multiple font descriptions with a glyph ordering.  Record
-        // the name of each glyph.
-        info->fGlyphNames.reset(face->num_glyphs);
-        for (int gID = 0; gID < face->num_glyphs; gID++) {
-            char glyphName[128];  // PS limit for names is 127 bytes.
-            FT_Get_Glyph_Name(face, gID, glyphName, 128);
-            info->fGlyphNames[gID].set(glyphName);
-        }
-    }
-
     if (perGlyphInfo &&
         info->fType != SkAdvancedTypefaceMetrics::kType1_Font &&
         face->num_charmaps)
@@ -625,6 +613,19 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     }
 
     return info;
+}
+
+void SkTypeface_FreeType::getPostScriptGlyphNames(SkString* dstArray) const {
+    SkASSERT(dstArray);
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (face && FT_HAS_GLYPH_NAMES(face)) {
+        for (int gID = 0; gID < face->num_glyphs; gID++) {
+            char glyphName[128];  // PS limit for names is 127 bytes.
+            FT_Get_Glyph_Name(face, gID, glyphName, 128);
+            dstArray[gID] = glyphName;
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
