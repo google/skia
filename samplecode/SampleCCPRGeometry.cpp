@@ -245,7 +245,7 @@ void CCPRGeometryView::updateGpuData() {
         fCubicType = GrPathUtils::getCubicKLM(fPoints, &fCubicKLM, t, s);
         GrCCGeometry geometry;
         geometry.beginContour(fPoints[0]);
-        geometry.cubicTo(fPoints[1], fPoints[2], fPoints[3], kDebugBloat / 2, kDebugBloat / 2);
+        geometry.cubicTo(fPoints, kDebugBloat / 2, kDebugBloat / 2);
         geometry.endContour();
         int ptsIdx = 0;
         for (GrCCGeometry::Verb verb : geometry.verbs()) {
@@ -265,9 +265,10 @@ void CCPRGeometryView::updateGpuData() {
             }
         }
     } else if (PrimitiveType::kQuadratics == fPrimitiveType) {
+        SkPoint P3[3] = {fPoints[0], fPoints[1], fPoints[3]};
         GrCCGeometry geometry;
-        geometry.beginContour(fPoints[0]);
-        geometry.quadraticTo(fPoints[1], fPoints[3]);
+        geometry.beginContour(P3[0]);
+        geometry.quadraticTo(P3);
         geometry.endContour();
         int ptsIdx = 0;
         for (GrCCGeometry::Verb verb : geometry.verbs()) {

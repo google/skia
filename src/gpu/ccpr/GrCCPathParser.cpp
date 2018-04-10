@@ -134,12 +134,11 @@ void GrCCPathParser::parsePath(const SkPath& path, const SkPoint* deviceSpacePts
                 ++ptsIdx;
                 continue;
             case SkPath::kQuad_Verb:
-                fGeometry.quadraticTo(deviceSpacePts[ptsIdx], deviceSpacePts[ptsIdx + 1]);
+                fGeometry.quadraticTo(&deviceSpacePts[ptsIdx - 1]);
                 ptsIdx += 2;
                 continue;
             case SkPath::kCubic_Verb:
-                fGeometry.cubicTo(deviceSpacePts[ptsIdx], deviceSpacePts[ptsIdx + 1],
-                                  deviceSpacePts[ptsIdx + 2]);
+                fGeometry.cubicTo(&deviceSpacePts[ptsIdx - 1]);
                 ptsIdx += 3;
                 continue;
             case SkPath::kConic_Verb:
