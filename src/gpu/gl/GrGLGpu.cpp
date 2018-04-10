@@ -593,13 +593,13 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
-    const GrGLFramebufferInfo* info = backendRT.getGLFramebufferInfo();
-    if (!info) {
+    GrGLFramebufferInfo info;
+    if (!backendRT.getGLFramebufferInfo(&info)) {
         return nullptr;
     }
 
     GrGLRenderTarget::IDDesc idDesc;
-    idDesc.fRTFBOID = info->fFBOID;
+    idDesc.fRTFBOID = info.fFBOID;
     idDesc.fMSColorRenderbufferID = 0;
     idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
@@ -4500,9 +4500,10 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
 
 void GrGLGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
     SkASSERT(kOpenGL_GrBackend == backendRT.backend());
-    if (auto info = backendRT.getGLFramebufferInfo()) {
-        if (info->fFBOID) {
-            GL_CALL(DeleteFramebuffers(1, &info->fFBOID));
+    GrGLFramebufferInfo info;
+    if (backendRT.getGLFramebufferInfo(&info)) {
+        if (info.fFBOID) {
+            GL_CALL(DeleteFramebuffers(1, &info.fFBOID));
         }
     }
 }
