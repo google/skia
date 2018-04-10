@@ -4911,4 +4911,11 @@ DEF_TEST(Path_isRect, reporter) {
     SkRect compare;
     compare.set(&points[1], SK_ARRAY_COUNT(points) - 1);
     REPORTER_ASSERT(reporter, rect == compare);
+    path.reset();
+    SkPoint points2[] = { {75, 50}, {100, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 50} };
+    for (size_t index = 0; index < SK_ARRAY_COUNT(points); ++index) {
+        index < 2 ? path.moveTo(points2[index]) : path.lineTo(points2[index]);
+    }
+    path.close();
+    REPORTER_ASSERT(reporter, !path.isRect(&rect, nullptr, nullptr));
 }
