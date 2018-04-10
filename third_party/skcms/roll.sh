@@ -22,5 +22,6 @@ cp    $tmp/skcms.c .
 cp -r $tmp/src     .
 
 git add .
+git commit -m "skcms→$(git -C $tmp log -1 --pretty=format:'%h %s')"
 
 rm -rf $tmp
