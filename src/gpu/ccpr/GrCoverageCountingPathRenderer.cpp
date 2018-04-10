@@ -65,10 +65,6 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
 
     SkPath path;
     args.fShape->asPath(&path);
-    if (SkPathPriv::ConicWeightCnt(path)) {
-        return CanDrawPath::kNo;
-    }
-
     SkRect devBounds;
     SkIRect devIBounds;
     args.fViewMatrix->mapRect(&devBounds, path.getBounds());
@@ -193,11 +189,6 @@ bool GrCoverageCountingPathRenderer::canMakeClipProcessor(const SkPath& deviceSp
     if (!fDrawCachablePaths && !deviceSpacePath.isVolatile()) {
         return false;
     }
-
-    if (SkPathPriv::ConicWeightCnt(deviceSpacePath)) {
-        return false;
-    }
-
     return true;
 }
 
