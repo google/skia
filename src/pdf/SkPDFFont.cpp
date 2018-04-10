@@ -521,6 +521,7 @@ static sk_sp<SkPDFDict> make_type1_font_descriptor(
 
 static void populate_type_1_font(SkPDFDict* font,
                                  const SkAdvancedTypefaceMetrics& info,
+                                 const std::vector<SkString>& glyphNames,
                                  SkTypeface* typeface,
                                  SkGlyphID firstGlyphID,
                                  SkGlyphID lastGlyphID) {
@@ -547,19 +548,21 @@ static void populate_type_1_font(SkPDFDict* font,
     auto encDiffs = sk_make_sp<SkPDFArray>();
     encDiffs->reserve(lastGlyphID - firstGlyphID + 3);
     encDiffs->appendInt(0);
-    const SkTArray<SkString>& glyphNames = info.fGlyphNames;
-    SkASSERT(glyphNames.count() > lastGlyphID);
-    encDiffs->appendName(glyphNames[0].c_str());
+
+    SkASSERT(glyphNames.size() > lastGlyphID);
     const SkString unknown("UNKNOWN");
+    encDiffs->appendName(glyphNames[0].isEmpty() ? unknown : glyphNames[0]);
     for (int gID = firstGlyphID; gID <= lastGlyphID; gID++) {
-        const bool valid = gID < glyphNames.count() && !glyphNames[gID].isEmpty();
-        const SkString& name = valid ? glyphNames[gID] : unknown;
-        encDiffs->appendName(name);
+        encDiffs->appendName(glyphNames[gID].isEmpty() ? unknown : glyphNames[gID]);
     }
 
     auto encoding = sk_make_sp<SkPDFDict>("Encoding");
     encoding->insertObject("Differences", std::move(encDiffs));
     font->insertObject("Encoding", std::move(encoding));
+}
+
+void SkPDFFont::GetType1GlyphNames(const SkTypeface& face, SkString* dst) {
+    face.getPostScriptGlyphNames(dst);
 }
 
 SkPDFType1Font::SkPDFType1Font(SkPDFFont::Info info,
@@ -576,8 +579,16 @@ SkPDFType1Font::SkPDFType1Font(SkPDFFont::Info info,
         canon->fFontDescriptors.set(fontID, fontDescriptor);
     }
     this->insertObjRef("FontDescriptor", std::move(fontDescriptor));
+
+    std::vector<SkString>* glyphNames = canon->fType1GlyphNames.find(fontID);
+    if (!glyphNames) {
+        std::vector<SkString> names(this->typeface()->countGlyphs());
+        SkPDFFont::GetType1GlyphNames(*this->typeface(), names.data());
+        glyphNames = canon->fType1GlyphNames.set(fontID, std::move(names));
+    }
+    SkASSERT(glyphNames);
     // TODO(halcanary): subset this (advances and names).
-    populate_type_1_font(this, metrics, this->typeface(),
+    populate_type_1_font(this, metrics, *glyphNames, this->typeface(),
                          this->firstGlyphID(), this->lastGlyphID());
 }
 
