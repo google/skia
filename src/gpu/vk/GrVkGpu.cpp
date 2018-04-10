@@ -933,11 +933,12 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    const GrVkImageInfo* info = backendRT.getVkImageInfo();
-    if (!info) {
+    GrVkImageInfo info;
+    if (!backendRT.getVkImageInfo(&info)) {
         return nullptr;
     }
-    if (VK_NULL_HANDLE == info->fImage) {
+
+    if (VK_NULL_HANDLE == info.fImage) {
         return nullptr;
     }
 
@@ -948,9 +949,9 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     desc.fConfig = backendRT.config();
     desc.fSampleCnt = 1;
 
-    sk_sp<GrVkImageLayout> layout(new GrVkImageLayout(info->fImageLayout));
+    sk_sp<GrVkImageLayout> layout = backendRT.getGrVkImageLayout();
 
-    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, *info,
+    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info,
                                                                             std::move(layout));
 
     // We don't allow the client to supply a premade stencil buffer. We always create one if needed.
@@ -1565,10 +1566,11 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
 void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {
     SkASSERT(kVulkan_GrBackend == rt.fBackend);
 
-    if (const auto* info = rt.getVkImageInfo()) {
+    GrVkImageInfo info;
+    if (rt.getVkImageInfo(&info)) {
         // something in the command buffer may still be using this, so force submit
         this->submitCommandBuffer(kForce_SyncQueue);
-        GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(info));
+        GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(&info));
     }
 }
 
