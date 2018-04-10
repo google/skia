@@ -340,8 +340,9 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
 ///////////////////////////////////////////////////////////////////////////////
 static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, sk_sp<GrTextureProxy> proxy,
                                           SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
-    return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, alphaType,
-                                   std::move(proxy), std::move(colorSpace), SkBudgeted::kYes);
+    return sk_make_sp<SkImage_Gpu>(context, context->threadSafeProxy(), kNeedNewImageUniqueID,
+                                   alphaType, std::move(proxy), std::move(colorSpace),
+                                   SkBudgeted::kYes);
 }
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
@@ -368,6 +369,8 @@ public:
     size_t getSize() const override { return fTextureProxy->gpuMemorySize(); }
 
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
+        GrContext* context = canvas->getGrContext();
+
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
@@ -377,7 +380,8 @@ public:
         // instantiates itself it is going to have to either be okay with having a larger
         // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs
         // to be tightened (if it is deferred).
-        sk_sp<SkImage> img = sk_sp<SkImage>(new SkImage_Gpu(canvas->getGrContext(),
+        sk_sp<SkImage> img = sk_sp<SkImage>(new SkImage_Gpu(context,
+                                                            context->threadSafeProxy(),
                                                             this->uniqueID(), fAlphaType,
                                                             fTextureProxy,
                                                             fColorSpace, SkBudgeted::kNo));
