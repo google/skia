@@ -8,6 +8,7 @@
 #include "../skcms.h"
 #include "LinearAlgebra.h"
 #include "PortableMath.h"
+#include <float.h>
 
 bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
     double a00 = (double)src->vals[0][0],
@@ -52,7 +53,7 @@ bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
     }
 
     double invdet = 1.0 / determinant;
-    if (!isfinitef_((float)invdet)) {
+    if (invdet > +(double)FLT_MAX || invdet < -(double)FLT_MAX || !isfinitef_((float)invdet)) {
         return false;
     }
 

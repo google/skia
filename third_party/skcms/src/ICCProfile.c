@@ -259,33 +259,6 @@ static bool read_curve(const uint8_t* buf, uint32_t size,
     return false;
 }
 
-static float table_func_16(int i, const void* ctx) {
-    return read_big_u16((const uint8_t*)ctx + 2 * i) * (1 / 65535.0f);
-}
-
-static float table_func_8(int i, const void* ctx) {
-    return ((const uint8_t*)ctx)[i] * (1 / 255.0f);
-}
-
-bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* approx,
-                            float* max_error) {
-    if (!curve || !curve->table_entries || !approx) {
-        return false;
-    }
-
-    if (curve->table_entries > (uint32_t)INT_MAX) {
-        return false;
-    }
-
-    if (curve->table_16) {
-        return skcms_TransferFunction_approximate(table_func_16, curve->table_16,
-                                                  (int)curve->table_entries, approx, max_error);
-    } else {
-        return skcms_TransferFunction_approximate(table_func_8, curve->table_8,
-                                                  (int)curve->table_entries, approx, max_error);
-    }
-}
-
 // mft1 and mft2 share a large chunk of data
 typedef struct {
     uint8_t type                 [ 4];
