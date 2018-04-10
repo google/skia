@@ -62,14 +62,17 @@ static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarit
  * a plane intersected with the initial plane, and a plane unioned with the first two). Only two
  * are useful for any given arc, but having all three in one instance allows combining different
  * types of arcs.
+ * Round caps for stroking are allowed as well. The caps are specified as two circle center points
+ * in the same space as p.xy.
  */
 
 class CircleGeometryProcessor : public GrGeometryProcessor {
 public:
     CircleGeometryProcessor(bool stroke, bool clipPlane, bool isectPlane, bool unionPlane,
-                            const SkMatrix& localMatrix)
+                            bool roundCaps, const SkMatrix& localMatrix)
             : INHERITED(kCircleGeometryProcessor_ClassID)
-            , fLocalMatrix(localMatrix) {
+            , fLocalMatrix(localMatrix)
+            , fStroke(stroke) {
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
         fInCircleEdge = &this->addVertexAttrib("inCircleEdge", kFloat4_GrVertexAttribType);
@@ -88,7 +91,14 @@ public:
         } else {
             fInUnionPlane = nullptr;
         }
-        fStroke = stroke;
+        if (roundCaps) {
+            SkASSERT(stroke);
+            SkASSERT(clipPlane);
+            fInRoundCapCenters =
+                    &this->addVertexAttrib("inRoundCapCenters", kFloat4_GrVertexAttribType);
+        } else {
+            fInRoundCapCenters = nullptr;
+        }
     }
 
     ~CircleGeometryProcessor() override {}
@@ -133,6 +143,17 @@ private:
                 fragBuilder->codeAppend("half3 unionPlane;");
                 varyingHandler->addPassThroughAttribute(cgp.fInUnionPlane, "unionPlane");
             }
+            GrGLSLVarying capRadius(kFloat_GrSLType);
+            if (cgp.fInRoundCapCenters) {
+                fragBuilder->codeAppend("float4 roundCapCenters;");
+                varyingHandler->addPassThroughAttribute(cgp.fInRoundCapCenters, "roundCapCenters");
+                varyingHandler->addVarying("capRadius", &capRadius,
+                                           GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
+                // This is the cap radius in normalized space where the outer radius is 1 and
+                // circledEdge.w is the normalized inner radius.
+                vertBuilder->codeAppendf("%s = (1.0 - %s.w) / 2.0;", capRadius.vsOut(),
+                                         cgp.fInCircleEdge->fName);
+            }
 
             // setup pass through color
             varyingHandler->addPassThroughAttribute(cgp.fInColor, args.fOutputColor);
@@ -173,6 +194,16 @@ private:
                             "unionPlane.xy) + unionPlane.z, 0.0, 1.0);");
                 }
                 fragBuilder->codeAppend("edgeAlpha *= clip;");
+                if (cgp.fInRoundCapCenters) {
+                    fragBuilder->codeAppendf(
+                            "half dcap1 = circleEdge.z * (%s - length(circleEdge.xy - "
+                            "                                         roundCapCenters.xy));"
+                            "half dcap2 = circleEdge.z * (%s - length(circleEdge.xy - "
+                            "                                         roundCapCenters.zw));"
+                            "half capAlpha = max(dcap1, 0) + max(dcap2, 0);"
+                            "edgeAlpha = min(edgeAlpha + capAlpha, 1.0);",
+                            capRadius.fsIn(), capRadius.fsIn());
+                }
             }
             fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
         }
@@ -187,6 +218,7 @@ private:
             key |= cgp.fInClipPlane ? 0x04 : 0x0;
             key |= cgp.fInIsectPlane ? 0x08 : 0x0;
             key |= cgp.fInUnionPlane ? 0x10 : 0x0;
+            key |= cgp.fInRoundCapCenters ? 0x20 : 0x0;
             b->add32(key);
         }
 
@@ -207,8 +239,8 @@ private:
     const Attribute* fInClipPlane;
     const Attribute* fInIsectPlane;
     const Attribute* fInUnionPlane;
+    const Attribute* fInRoundCapCenters;
     bool fStroke;
-
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
@@ -218,9 +250,14 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor);
 
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
-    return sk_sp<GrGeometryProcessor>(new CircleGeometryProcessor(
-            d->fRandom->nextBool(), d->fRandom->nextBool(), d->fRandom->nextBool(),
-            d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom)));
+    bool stroke = d->fRandom->nextBool();
+    bool roundCaps = stroke ? d->fRandom->nextBool() : false;
+    bool clipPlane = d->fRandom->nextBool();
+    bool isectPlane = d->fRandom->nextBool();
+    bool unionPlane = d->fRandom->nextBool();
+    const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
+    return sk_sp<GrGeometryProcessor>(new CircleGeometryProcessor(stroke, roundCaps, clipPlane,
+                                                                  isectPlane, unionPlane, matrix));
 }
 #endif
 
@@ -609,9 +646,16 @@ public:
                 case SkStrokeRec::kFill_Style:
                     // This supports all fills.
                     break;
-                case SkStrokeRec::kStroke_Style:  // fall through
+                case SkStrokeRec::kStroke_Style:
+                    // Strokes that don't use the center point are supported with butt and round
+                    // caps.
+                    if (arcParams->fUseCenter || stroke.getCap() == SkPaint::kSquare_Cap) {
+                        return nullptr;
+                    }
+                    break;
                 case SkStrokeRec::kHairline_Style:
-                    // Strokes that don't use the center point are supported with butt cap.
+                    // Hairline only supports butt cap. Round caps could be emulated by slightly
+                    // extending the angle range if we ever care to.
                     if (arcParams->fUseCenter || stroke.getCap() != SkPaint::kButt_Cap) {
                         return nullptr;
                     }
@@ -627,6 +671,8 @@ public:
             : GrMeshDrawOp(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
         const SkStrokeRec& stroke = style.strokeRec();
         SkStrokeRec::Style recStyle = stroke.getStyle();
+
+        fRoundCaps = false;
 
         viewMatrix.mapPoints(&center, 1);
         radius = viewMatrix.mapRadius(radius);
@@ -665,6 +711,7 @@ public:
         static constexpr SkScalar kUnusedIsectPlane[] = {0.f, 0.f, 1.f};
         // This makes every point fully outside the union plane.
         static constexpr SkScalar kUnusedUnionPlane[] = {0.f, 0.f, 0.f};
+        static constexpr SkPoint kUnusedRoundCaps[] = {{1e10f, 1e10f}, {1e10f, 1e10f}};
         SkRect devBounds = SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
                                             center.fX + outerRadius, center.fY + outerRadius);
         if (arcParams) {
@@ -686,14 +733,29 @@ public:
                 SkTSwap(startPoint, stopPoint);
             }
 
+            fRoundCaps = style.strokeRec().getWidth() > 0 &&
+                         style.strokeRec().getCap() == SkPaint::kRound_Cap;
+            SkPoint roundCaps[2];
+            if (fRoundCaps) {
+                // Compute the cap center points in the normalized space.
+                SkScalar midRadius = (innerRadius + outerRadius) / (2 * outerRadius);
+                roundCaps[0] = startPoint * midRadius;
+                roundCaps[1] = stopPoint * midRadius;
+            } else {
+                roundCaps[0] = kUnusedRoundCaps[0];
+                roundCaps[1] = kUnusedRoundCaps[1];
+            }
+
             // Like a fill without useCenter, butt-cap stroke can be implemented by clipping against
-            // radial lines. However, in both cases we have to be careful about the half-circle.
+            // radial lines. We treat round caps the same way, but tack coverage of circles at the
+            // center of the butts.
+            // However, in both cases we have to be careful about the half-circle.
             // case. In that case the two radial lines are equal and so that edge gets clipped
-            // twice. Since the shared edge goes through the center we fall back on the useCenter
+            // twice. Since the shared edge goes through the center we fall back on the !useCenter
             // case.
-            bool useCenter =
-                    (arcParams->fUseCenter || isStrokeOnly) &&
-                    !SkScalarNearlyEqual(SkScalarAbs(arcParams->fSweepAngleRadians), SK_ScalarPI);
+            auto absSweep = SkScalarAbs(arcParams->fSweepAngleRadians);
+            bool useCenter = (arcParams->fUseCenter || isStrokeOnly) &&
+                             !SkScalarNearlyEqual(absSweep, SK_ScalarPI);
             if (useCenter) {
                 SkVector norm0 = {startPoint.fY, -startPoint.fX};
                 SkVector norm1 = {stopPoint.fY, -stopPoint.fX};
@@ -703,7 +765,7 @@ public:
                     norm1.negate();
                 }
                 fClipPlane = true;
-                if (SkScalarAbs(arcParams->fSweepAngleRadians) > SK_ScalarPI) {
+                if (absSweep > SK_ScalarPI) {
                     fCircles.emplace_back(Circle{
                             color,
                             innerRadius,
@@ -711,6 +773,7 @@ public:
                             {norm0.fX, norm0.fY, 0.5f},
                             {kUnusedIsectPlane[0], kUnusedIsectPlane[1], kUnusedIsectPlane[2]},
                             {norm1.fX, norm1.fY, 0.5f},
+                            {roundCaps[0], roundCaps[1]},
                             devBounds,
                             stroked});
                     fClipPlaneIsect = false;
@@ -723,6 +786,7 @@ public:
                             {norm0.fX, norm0.fY, 0.5f},
                             {norm1.fX, norm1.fY, 0.5f},
                             {kUnusedUnionPlane[0], kUnusedUnionPlane[1], kUnusedUnionPlane[2]},
+                            {roundCaps[0], roundCaps[1]},
                             devBounds,
                             stroked});
                     fClipPlaneIsect = true;
@@ -746,6 +810,7 @@ public:
                                {norm.fX, norm.fY, d},
                                {kUnusedIsectPlane[0], kUnusedIsectPlane[1], kUnusedIsectPlane[2]},
                                {kUnusedUnionPlane[0], kUnusedUnionPlane[1], kUnusedUnionPlane[2]},
+                               {roundCaps[0], roundCaps[1]},
                                devBounds,
                                stroked});
                 fClipPlane = true;
@@ -760,6 +825,7 @@ public:
                            {kUnusedIsectPlane[0], kUnusedIsectPlane[1], kUnusedIsectPlane[2]},
                            {kUnusedIsectPlane[0], kUnusedIsectPlane[1], kUnusedIsectPlane[2]},
                            {kUnusedUnionPlane[0], kUnusedUnionPlane[1], kUnusedUnionPlane[2]},
+                           {kUnusedRoundCaps[0], kUnusedRoundCaps[1]},
                            devBounds,
                            stroked});
             fClipPlane = false;
@@ -816,7 +882,7 @@ private:
 
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new CircleGeometryProcessor(
-                !fAllFill, fClipPlane, fClipPlaneIsect, fClipPlaneUnion, localMatrix));
+                !fAllFill, fClipPlane, fClipPlaneIsect, fClipPlaneUnion, fRoundCaps, localMatrix));
 
         struct CircleVertex {
             SkPoint fPos;
@@ -828,11 +894,15 @@ private:
             SkScalar fHalfPlanes[3][3];
         };
 
+        int numPlanes = (int)fClipPlane + fClipPlaneIsect + fClipPlaneUnion;
+        auto vertexCapCenters = [numPlanes](CircleVertex* v) {
+            return (void*)(v->fHalfPlanes + numPlanes);
+        };
         size_t vertexStride = gp->getVertexStride();
-        SkASSERT(vertexStride ==
-                 sizeof(CircleVertex) - (fClipPlane ? 0 : 3 * sizeof(SkScalar)) -
-                         (fClipPlaneIsect ? 0 : 3 * sizeof(SkScalar)) -
-                         (fClipPlaneUnion ? 0 : 3 * sizeof(SkScalar)));
+        SkASSERT(vertexStride == sizeof(CircleVertex) - (fClipPlane ? 0 : 3 * sizeof(SkScalar)) -
+                                         (fClipPlaneIsect ? 0 : 3 * sizeof(SkScalar)) -
+                                         (fClipPlaneUnion ? 0 : 3 * sizeof(SkScalar)) +
+                                         (fRoundCaps ? 2 * sizeof(SkPoint) : 0));
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
@@ -954,6 +1024,16 @@ private:
                 memcpy(v6->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
                 memcpy(v7->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
             }
+            if (fRoundCaps) {
+                memcpy(vertexCapCenters(v0), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                memcpy(vertexCapCenters(v1), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                memcpy(vertexCapCenters(v2), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                memcpy(vertexCapCenters(v3), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                memcpy(vertexCapCenters(v4), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                memcpy(vertexCapCenters(v5), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                memcpy(vertexCapCenters(v6), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                memcpy(vertexCapCenters(v7), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+            }
 
             if (circle.fStroked) {
                 // compute the inner ring
@@ -1051,6 +1131,16 @@ private:
                     memcpy(v6->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
                     memcpy(v7->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
                 }
+                if (fRoundCaps) {
+                    memcpy(vertexCapCenters(v0), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                    memcpy(vertexCapCenters(v1), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                    memcpy(vertexCapCenters(v2), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                    memcpy(vertexCapCenters(v3), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                    memcpy(vertexCapCenters(v4), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                    memcpy(vertexCapCenters(v5), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                    memcpy(vertexCapCenters(v6), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                    memcpy(vertexCapCenters(v7), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                }
             } else {
                 // filled
                 CircleVertex* v8 = reinterpret_cast<CircleVertex*>(vertices + 8 * vertexStride);
@@ -1070,6 +1160,7 @@ private:
                 if (fClipPlaneUnion) {
                     memcpy(v8->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
                 }
+                SkASSERT(!fRoundCaps);
             }
 
             const uint16_t* primIndices = circle_type_to_indices(circle.fStroked);
@@ -1110,6 +1201,7 @@ private:
         fClipPlane |= that->fClipPlane;
         fClipPlaneIsect |= that->fClipPlaneIsect;
         fClipPlaneUnion |= that->fClipPlaneUnion;
+        fRoundCaps |= that->fRoundCaps;
 
         fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
         this->joinBounds(*that);
@@ -1126,6 +1218,7 @@ private:
         SkScalar fClipPlane[3];
         SkScalar fIsectPlane[3];
         SkScalar fUnionPlane[3];
+        SkPoint fRoundCapCenters[2];
         SkRect fDevBounds;
         bool fStroked;
     };
@@ -1139,6 +1232,7 @@ private:
     bool fClipPlane;
     bool fClipPlaneIsect;
     bool fClipPlaneUnion;
+    bool fRoundCaps;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -1921,7 +2015,7 @@ private:
 
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(
-                new CircleGeometryProcessor(!fAllFill, false, false, false, localMatrix));
+                new CircleGeometryProcessor(!fAllFill, false, false, false, false, localMatrix));
 
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(sizeof(CircleVertex) == vertexStride);
