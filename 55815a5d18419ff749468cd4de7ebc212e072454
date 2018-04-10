@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "67966885_3732dbeb",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-10T13:25:56Z",
+      "side": 1,
+      "message": "Got it, thanks! New comment is helpful.",
+      "parentUuid": "1c7ee2e7_924f6fdd",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 91
+      },
+      "revId": "55815a5d18419ff749468cd4de7ebc212e072454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9822c7ce_b09f68c8",
         "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
         "patchSetId": 2
