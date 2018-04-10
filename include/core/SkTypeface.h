@@ -313,6 +313,10 @@ protected:
 
     //  Subclasses *must* override this method to work with the PDF backend.
     virtual std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const;
+    // For type1 postscript fonts only, set the glyph names for each glyph.
+    // destination array is non-null, and points to an array of size this->countGlyphs().
+    // Backends that do not suport type1 fonts should not override.
+    virtual void getPostScriptGlyphNames(SkString*) const {}
 
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.
