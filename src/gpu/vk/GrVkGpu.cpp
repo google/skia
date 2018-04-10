@@ -1488,6 +1488,11 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, i
                                                           GrPixelConfig config, bool isRenderTarget,
                                                           GrMipMapped mipMapped) {
     this->handleDirtyContext();
+
+    if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
+        return GrBackendTexture();
+    }
+
     GrVkImageInfo info;
     if (!this->createTestingOnlyVkImage(config, w, h, true, isRenderTarget, mipMapped, srcData,
                                         &info)) {
@@ -1519,8 +1524,6 @@ void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(kVulkan_GrBackend == tex.fBackend);
 
     if (const auto* info = tex.getVkImageInfo()) {
-        // something in the command buffer may still be using this, so force submit
-        this->submitCommandBuffer(kForce_SyncQueue);
         GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(info));
     }
 }
