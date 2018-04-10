@@ -10,6 +10,7 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrOpFlushState.h"
 #include "SkMakeUnique.h"
+#include "ccpr/GrCCConicShader.h"
 #include "ccpr/GrCCCubicShader.h"
 #include "ccpr/GrCCQuadraticShader.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
@@ -173,6 +174,9 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
             break;
         case PrimitiveType::kCubics:
             shader = skstd::make_unique<GrCCCubicShader>();
+            break;
+        case PrimitiveType::kConics:
+            shader = skstd::make_unique<GrCCConicShader>();
             break;
     }
     return Impl::kGeometryShader == fImpl ? this->createGSImpl(std::move(shader))
