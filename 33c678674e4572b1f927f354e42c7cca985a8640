@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c14bca58_464dcc32",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-10T13:36:55Z",
+      "side": 1,
+      "message": "As discussed offline, from the clients perspective they no nothing about the ref countedness of the objects layout. They just expect when they call getVkImageInfo that it is a snapshot of the current state of that image object. Thus they expect layouts to update between shared GrBackendTexture objects since that layout could have been updated by us internally or them. The copying doesn\u0027t really make that more confusing. Thus leaving as is.",
+      "parentUuid": "c74d8d8b_f5d52fc1",
+      "range": {
+        "startLine": 142,
+        "startChar": 4,
+        "endLine": 142,
+        "endChar": 51
+      },
+      "revId": "33c678674e4572b1f927f354e42c7cca985a8640",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9322f21c_3d80ca91",
         "filename": "src/gpu/GrBackendSurface.cpp",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "33c678674e4572b1f927f354e42c7cca985a8640",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "597f71d2_c1162ec3",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-10T13:36:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9322f21c_3d80ca91",
+      "range": {
+        "startLine": 68,
+        "startChar": 18,
+        "endLine": 68,
+        "endChar": 34
+      },
+      "revId": "33c678674e4572b1f927f354e42c7cca985a8640",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
