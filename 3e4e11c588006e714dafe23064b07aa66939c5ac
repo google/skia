@@ -141,6 +141,30 @@
       "revId": "3e4e11c588006e714dafe23064b07aa66939c5ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbe21c27_1c6162d3",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-10T18:53:54Z",
+      "side": 1,
+      "message": "The bisector of two vectors of the same length is simply (V0 + V1)/2, this formula even works if the vectors are simply integer multiples of each other. Thus the bisector of tan0 and tan1 (which I believe to be the \"midtagent\") is (normalize(tan0) + normalize(tan1))/2. This is a different value than (normalize(tan0) + normalize(-tan1))/2. Neither of these values are normals. If you are at no point swapping the x and y values (or doing some matrix multiplication which will implicitly swap them), then you\u0027re not getting normals.",
+      "parentUuid": "f0d6fc3b_8b11f6f8",
+      "range": {
+        "startLine": 348,
+        "startChar": 3,
+        "endLine": 348,
+        "endChar": 47
+      },
+      "revId": "3e4e11c588006e714dafe23064b07aa66939c5ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
