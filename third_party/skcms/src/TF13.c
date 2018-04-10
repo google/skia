@@ -8,30 +8,7 @@
 #include "../skcms.h"
 #include "GaussNewton.h"
 #include "PortableMath.h"
-#include "TransferFunction.h"
 #include <limits.h>
-#include <string.h>
-
-static float eval_curve(float x, const void* vctx) {
-    const skcms_Curve* curve = (const skcms_Curve*)vctx;
-
-    if (curve->table_entries == 0) {
-        return skcms_TransferFunction_eval(&curve->parametric, x);
-    }
-
-    // TODO: today we should always hit an entry exactly, but if that changes, lerp?
-    int ix = (int)( x * (curve->table_entries - 1) );
-
-    if (curve->table_8) {
-        return curve->table_8[ix] * (1/255.0f);
-    } else {
-        uint16_t be;
-        memcpy(&be, curve->table_16 + 2*ix, 2);
-
-        uint16_t le = ((be << 8) | (be >> 8)) & 0xffff;
-        return le * (1/65535.0f);
-    }
-}
 
 // Evaluating skcms_TF13{A,B} at x:
 //   f(x) = Ax^3 + Bx^2 + (1-A-B)x
@@ -39,12 +16,14 @@ static float eval_curve(float x, const void* vctx) {
 //   ∂f/∂A = x^3 - x
 //   ∂f/∂B = x^2 - x
 
-static float eval_13(float x, const float P[4]) {
+static float eval_13(float x, const void* ctx, const float P[4]) {
+    (void)ctx;
     return P[0]*x*x*x
          + P[1]*x*x
          + (1 - P[0] - P[1])*x;
 }
-static void grad_13(float x, const float P[4], float dfdP[4]) {
+static void grad_13(float x, const void* ctx, const float P[4], float dfdP[4]) {
+    (void)ctx;
     (void)P;
     dfdP[0] = x*x*x - x;
     dfdP[1] = x*x   - x;
@@ -63,9 +42,11 @@ bool skcms_ApproximateCurve13(const skcms_Curve* curve, skcms_TF13* approx, floa
                                             : (int)curve->table_entries;
 
     for (int i = 0; i < 3/*TODO: Tune???*/; i++) {
-        if (!skcms_gauss_newton_step(eval_curve, curve,
-                                     eval_13, grad_13,
-                                     P, 0,1,N)) {
+        if (!skcms_gauss_newton_step(skcms_eval_curve, curve,
+                                     eval_13, NULL,
+                                     grad_13, NULL,
+                                     P,
+                                     0,1,N)) {
             return false;
         }
     }
@@ -74,7 +55,7 @@ bool skcms_ApproximateCurve13(const skcms_Curve* curve, skcms_TF13* approx, floa
     for (int i = 0; i < N; i++) {
         float x = i * (1.0f / (N-1));
 
-        float err = fabsf_( eval_curve(x, curve) - eval_13(x, P) );
+        float err = fabsf_( skcms_eval_curve(x, curve) - eval_13(x,NULL,P) );
         if (err > *max_error) {
             *max_error = err;
         }

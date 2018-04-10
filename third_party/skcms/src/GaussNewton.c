@@ -8,11 +8,16 @@
 #include "../skcms.h"
 #include "GaussNewton.h"
 #include "LinearAlgebra.h"
+#include "TransferFunction.h"
 #include <assert.h>
+#include <string.h>
 
-bool skcms_gauss_newton_step(float (*     t)(float x, const void*), const void* t_ctx,
-                             float (*     f)(float x, const float P[4]),
-                             void  (*grad_f)(float x, const float P[4], float dfdP[4]),
+bool skcms_gauss_newton_step(float (*     t)(float x, const void*),
+                             const void* t_ctx,
+                             float (*     f)(float x, const void*, const float P[4]),
+                             const void* f_ctx,
+                             void  (*grad_f)(float x, const void*, const float P[4], float dfdP[4]),
+                             const void* g_ctx,
                              float P[4],
                              float x0, float x1, int N) {
     // We'll sample x from the range [x0,x1] (both inclusive) N times with even spacing.
@@ -58,10 +63,10 @@ bool skcms_gauss_newton_step(float (*     t)(float x, const void*), const void* 
     for (int i = 0; i < N; i++) {
         float x = x0 + i*dx;
 
-        float resid = t(x,t_ctx) - f(x,P);
+        float resid = t(x,t_ctx) - f(x,f_ctx,P);
 
         float dfdP[4] = {0,0,0,0};
-        grad_f(x,P, dfdP);
+        grad_f(x,g_ctx,P, dfdP);
 
         for (int r = 0; r < 4; r++) {
             for (int c = 0; c < 4; c++) {
@@ -93,4 +98,26 @@ bool skcms_gauss_newton_step(float (*     t)(float x, const void*), const void* 
     P[2] += dP.vals[2];
     P[3] += dP.vals[3];
     return true;
+}
+
+float skcms_eval_curve(float x, const void* vctx) {
+    const skcms_Curve* curve = (const skcms_Curve*)vctx;
+
+    if (curve->table_entries == 0) {
+        return skcms_TransferFunction_eval(&curve->parametric, x);
+    }
+
+    // TODO: today we should always hit an entry exactly, but if that changes, lerp?
+    // (We add half to account for slight int -> float -> int round tripping issues.)
+    int ix = (int)( x*(curve->table_entries - 1) + 0.5f );
+
+    if (curve->table_8) {
+        return curve->table_8[ix] * (1/255.0f);
+    } else {
+        uint16_t be;
+        memcpy(&be, curve->table_16 + 2*ix, 2);
+
+        uint16_t le = ((be << 8) | (be >> 8)) & 0xffff;
+        return le * (1/65535.0f);
+    }
 }
