@@ -19,6 +19,15 @@ namespace skiagm {
 class ShapesGM : public GM {
 protected:
     ShapesGM(const char* name, bool antialias) : fName(name), fAntialias(antialias) {
+        if (!antialias) {
+            fName.append("_bw");
+        }
+    }
+
+    SkString onShortName() override final { return fName; }
+    SkISize onISize() override { return SkISize::Make(500, 500); }
+
+    void onOnceBeforeDraw() override {
         fShapes.push_back().setOval(SkRect::MakeXYWH(-5, 25, 200, 100));
         fRotations.push_back(21);
 
@@ -50,15 +59,6 @@ protected:
         fShapes.push_back().setRectRadii(SkRect::MakeXYWH(180, -30, 80, 60), radii2);
         fRotations.push_back(295);
 
-        if (!antialias) {
-            fName.append("_bw");
-        }
-    }
-
-    SkString onShortName() override final { return fName; }
-    SkISize onISize() override { return SkISize::Make(500, 500); }
-
-    void onOnceBeforeDraw() override {
         fPaint.setAntiAlias(fAntialias);
     }
 
