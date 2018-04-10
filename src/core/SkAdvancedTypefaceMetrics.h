@@ -73,9 +73,6 @@ struct SkAdvancedTypefaceMetrics {
 
     // The names of each glyph, only populated for postscript fonts.
     SkTArray<SkString> fGlyphNames;
-
-    // The mapping from glyph to Unicode; array indices are glyph ids.
-    SkTDArray<SkUnichar> fGlyphToUnicode;
 };
 
 namespace skstd {
