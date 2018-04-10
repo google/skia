@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "103d20d0_27516259",
+        "filename": "src/utils/SkOffsetPolygon.h",
+        "patchSetId": 30
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-04-10T15:28:46Z",
+      "side": 1,
+      "message": "That\u0027s the intent, yes. I suppose it might generate a simple offset from a non-simple polygon but that\u0027s not what I had in mind.",
+      "parentUuid": "86524c8a_c247fa43",
+      "range": {
+        "startLine": 50,
+        "startChar": 5,
+        "endLine": 50,
+        "endChar": 26
+      },
+      "revId": "8a153abff99f8665f6c0edb9a4a54619c4845d9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "152f03b1_f9bddeea",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 30
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8d69b367_1cee66a4",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-04-10T15:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "152f03b1_f9bddeea",
+      "range": {
+        "startLine": 868,
+        "startChar": 100,
+        "endLine": 868,
+        "endChar": 101
+      },
+      "revId": "8a153abff99f8665f6c0edb9a4a54619c4845d9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "393b0e5b_a3a5634d",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 30
@@ -62,6 +110,24 @@
       "revId": "8a153abff99f8665f6c0edb9a4a54619c4845d9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2212c7fd_3736d5be",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-04-10T15:28:46Z",
+      "side": 1,
+      "message": "I\u0027ve added new methods to add triangle and quad indices -- should be a lot cleaner and faster.",
+      "parentUuid": "393b0e5b_a3a5634d",
+      "revId": "8a153abff99f8665f6c0edb9a4a54619c4845d9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
