@@ -167,7 +167,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
         bounds.offset(-inputOffset);
 
         SkMatrix matrix(ctx.ctm());
-        matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
+        matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
 
         sk_sp<GrTextureProxy> maskProxy(this->createMaskTexture(context, matrix, bounds));
         if (!maskProxy) {
