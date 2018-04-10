@@ -459,7 +459,6 @@ public:
     bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess);
 
-#if GR_TEST_UTILS
     /** Retrieves the backend texture. If Surface has no backend texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
         is valid.
@@ -486,7 +485,6 @@ public:
         @return                     GPU render target reference; invalid on failure
     */
     GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
-#endif
 
     /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
         SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface
