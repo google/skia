@@ -184,6 +184,8 @@ private:
        return clone;
     }
 
+    SkBitmap snapBitmap(const SkBitmap& bitmap);
+
     const int fTileCnt;
     const int fThreadCnt;
     SkTArray<SkIRect> fTileBounds;
