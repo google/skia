@@ -11,22 +11,22 @@
 #include <float.h>
 
 bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
-    double a00 = (double)src->vals[0][0],
-           a01 = (double)src->vals[1][0],
-           a02 = (double)src->vals[2][0],
-           a03 = (double)src->vals[3][0],
-           a10 = (double)src->vals[0][1],
-           a11 = (double)src->vals[1][1],
-           a12 = (double)src->vals[2][1],
-           a13 = (double)src->vals[3][1],
-           a20 = (double)src->vals[0][2],
-           a21 = (double)src->vals[1][2],
-           a22 = (double)src->vals[2][2],
-           a23 = (double)src->vals[3][2],
-           a30 = (double)src->vals[0][3],
-           a31 = (double)src->vals[1][3],
-           a32 = (double)src->vals[2][3],
-           a33 = (double)src->vals[3][3];
+    double a00 = src->vals[0][0],
+           a01 = src->vals[1][0],
+           a02 = src->vals[2][0],
+           a03 = src->vals[3][0],
+           a10 = src->vals[0][1],
+           a11 = src->vals[1][1],
+           a12 = src->vals[2][1],
+           a13 = src->vals[3][1],
+           a20 = src->vals[0][2],
+           a21 = src->vals[1][2],
+           a22 = src->vals[2][2],
+           a23 = src->vals[3][2],
+           a30 = src->vals[0][3],
+           a31 = src->vals[1][3],
+           a32 = src->vals[2][3],
+           a33 = src->vals[3][3];
 
     double b00 = a00*a11 - a01*a10,
            b01 = a00*a12 - a02*a10,
@@ -53,7 +53,7 @@ bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
     }
 
     double invdet = 1.0 / determinant;
-    if (invdet > +(double)FLT_MAX || invdet < -(double)FLT_MAX || !isfinitef_((float)invdet)) {
+    if (invdet > +FLT_MAX || invdet < -FLT_MAX || !isfinitef_((float)invdet)) {
         return false;
     }
 
@@ -97,15 +97,15 @@ bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
 }
 
 bool skcms_Matrix3x3_invert(const skcms_Matrix3x3* src, skcms_Matrix3x3* dst) {
-    double a00 = (double)src->vals[0][0],
-           a01 = (double)src->vals[1][0],
-           a02 = (double)src->vals[2][0],
-           a10 = (double)src->vals[0][1],
-           a11 = (double)src->vals[1][1],
-           a12 = (double)src->vals[2][1],
-           a20 = (double)src->vals[0][2],
-           a21 = (double)src->vals[1][2],
-           a22 = (double)src->vals[2][2];
+    double a00 = src->vals[0][0],
+           a01 = src->vals[1][0],
+           a02 = src->vals[2][0],
+           a10 = src->vals[0][1],
+           a11 = src->vals[1][1],
+           a12 = src->vals[2][1],
+           a20 = src->vals[0][2],
+           a21 = src->vals[1][2],
+           a22 = src->vals[2][2];
 
     double b0 = a00*a11 - a01*a10,
            b1 = a00*a12 - a02*a10,
