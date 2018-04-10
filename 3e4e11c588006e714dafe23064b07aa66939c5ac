@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa5b4fd1_19622ac1",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-10T14:47:29Z",
+      "side": 1,
+      "message": "is tan1 here pointing in the same direction around the curve as tan0, or is it the opposite direction?",
+      "range": {
+        "startLine": 339,
+        "startChar": 54,
+        "endLine": 339,
+        "endChar": 70
+      },
+      "revId": "3e4e11c588006e714dafe23064b07aa66939c5ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fc04e27_e47dce6d",
+        "filename": "src/gpu/ccpr/GrCCGeometry.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-10T14:47:29Z",
+      "side": 1,
+      "message": "is this true? Off the top of my head without doing the math (assuming tan1 travels along curve in same direction as tan0, and assuming tan0, tan1 are normalized) I feel like midtangent would be something like MT \u003d ( MTx, MTy) \u003d (tan0 + tan1)/2. And then the normal would be (MTy, -MTx). Basically the key thing is that the X value of the normal depends only on the y value of tan0 and tan1, and visa versa for the Y value. In your formulation the X value of the normal only depends on the X value of the tans.",
+      "range": {
+        "startLine": 348,
+        "startChar": 3,
+        "endLine": 348,
+        "endChar": 47
+      },
+      "revId": "3e4e11c588006e714dafe23064b07aa66939c5ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
