@@ -1626,6 +1626,7 @@ private:
     mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;
     mutable SkAtomic<uint8_t, sk_memory_order_relaxed>   fFirstDirection;// SkPathPriv::FirstDirection
     SkBool8                                              fIsVolatile;
+    SkBool8                                              fIsBadForDAA;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.
@@ -1706,6 +1707,9 @@ private:
     friend class PathTest_Private; // unit test reversePathTo
     friend class ForceIsRRect_Private; // unit test isRRect
     friend class FuzzPath; // for legacy access to validateRef
+    friend class SkScalerContext; // for fIsBadForDAA
+    friend class SkScan; // for fIsBadForDAA
+    friend class SkDraw; // for fIsBadForDAA
 };
 
 #endif

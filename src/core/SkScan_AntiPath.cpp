@@ -597,11 +597,11 @@ static SkIRect safeRoundOut(const SkRect& src) {
     return dst;
 }
 
-static bool ShouldUseDAA(const SkPath& path) {
+bool SkScan::ShouldUseDAA(const SkPath& path) {
     if (gSkForceDeltaAA) {
         return true;
     }
-    if (!gSkUseDeltaAA) {
+    if (!gSkUseDeltaAA || path.fIsBadForDAA) {
         return false;
     }
 
@@ -664,7 +664,7 @@ static bool ShouldUseDAA(const SkPath& path) {
 #endif
 }
 
-static bool ShouldUseAAA(const SkPath& path) {
+bool SkScan::ShouldUseAAA(const SkPath& path) {
     if (gSkForceAnalyticAA) {
         return true;
     }
