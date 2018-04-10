@@ -7,6 +7,8 @@
 #ifndef SkPDFCanon_DEFINED
 #define SkPDFCanon_DEFINED
 
+#include <vector>
+
 #include "SkBitmapKey.h"
 #include "SkPDFGradientShader.h"
 #include "SkPDFGraphicState.h"
@@ -38,6 +40,7 @@ public:
     SkTHashMap<SkBitmapKey, sk_sp<SkPDFObject>> fPDFBitmapMap;
 
     SkTHashMap<uint32_t, std::unique_ptr<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
+    SkTHashMap<uint32_t, std::vector<SkUnichar>> fToUnicodeMap;
     SkTHashMap<uint32_t, sk_sp<SkPDFDict>> fFontDescriptors;
     SkTHashMap<uint64_t, sk_sp<SkPDFFont>> fFontMap;
 
