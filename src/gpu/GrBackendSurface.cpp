@@ -301,6 +301,14 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
                                              const GrVkImageInfo& vkInfo)
+        : GrBackendRenderTarget(width, height, sampleCnt, vkInfo,
+                                sk_sp<GrVkImageLayout>(new GrVkImageLayout(vkInfo.fImageLayout))) {}
+
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             const GrVkImageInfo& vkInfo,
+                                             sk_sp<GrVkImageLayout> layout)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
@@ -308,7 +316,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fStencilBits(0)  // We always create stencil buffers internally for vulkan
         , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
         , fBackend(kVulkan_GrBackend)
-        , fVkInfo(vkInfo) {}
+        , fVkInfo(vkInfo, layout.release()) {}
 #endif
 
 #if GR_TEST_UTILS
@@ -356,27 +364,95 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fConfig(mockInfo.fConfig)
         , fMockInfo(mockInfo) {}
 
+GrBackendRenderTarget::~GrBackendRenderTarget() {
+    this->cleanup();
+}
+
+void GrBackendRenderTarget::cleanup() {
 #ifdef SK_VULKAN
-const GrVkImageInfo* GrBackendRenderTarget::getVkImageInfo() const {
-    if (kVulkan_GrBackend == fBackend) {
-        return &fVkInfo;
+    if (this->isValid() && kVulkan_GrBackend == fBackend) {
+        fVkInfo.cleanup();
+    }
+#endif
+}
+
+GrBackendRenderTarget::GrBackendRenderTarget(const GrBackendRenderTarget& that) : fIsValid(false) {
+    *this = that;
+}
+
+GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTarget& that) {
+    if (!that.isValid()) {
+        this->cleanup();
+        fIsValid = false;
+        return *this;
+    }
+    fWidth = that.fWidth;
+    fHeight = that.fHeight;
+    fSampleCnt = that.fSampleCnt;
+    fStencilBits = that.fStencilBits;
+    fConfig = that.fConfig;
+    fBackend = that.fBackend;
+
+    switch (that.fBackend) {
+        case kOpenGL_GrBackend:
+            fGLInfo = that.fGLInfo;
+            break;
+#ifdef SK_VULKAN
+        case kVulkan_GrBackend:
+            fVkInfo.assign(that.fVkInfo, this->isValid());
+            break;
+#endif
+#ifdef SK_METAL
+        case kMetal_GrBackend:
+            break;
+#endif
+        case kMock_GrBackend:
+            fMockInfo = that.fMockInfo;
+            break;
+        default:
+            SK_ABORT("Unknown GrBackend");
+    }
+    fIsValid = that.fIsValid;
+    return *this;
+}
+
+#ifdef SK_VULKAN
+bool GrBackendRenderTarget::getVkImageInfo(GrVkImageInfo* outInfo) const {
+    if (this->isValid() && kVulkan_GrBackend == fBackend) {
+        *outInfo = fVkInfo.snapImageInfo();
+        return true;
+    }
+    return false;
+}
+
+void GrBackendRenderTarget::setVkImageLayout(VkImageLayout layout) {
+    if (this->isValid() && kVulkan_GrBackend == fBackend) {
+        fVkInfo.setImageLayout(layout);
+    }
+}
+
+sk_sp<GrVkImageLayout> GrBackendRenderTarget::getGrVkImageLayout() const {
+    if (this->isValid() && kVulkan_GrBackend == fBackend) {
+        return fVkInfo.getGrVkImageLayout();
     }
     return nullptr;
 }
 #endif
 
-const GrGLFramebufferInfo* GrBackendRenderTarget::getGLFramebufferInfo() const {
-    if (kOpenGL_GrBackend == fBackend) {
-        return &fGLInfo;
+bool GrBackendRenderTarget::getGLFramebufferInfo(GrGLFramebufferInfo* outInfo) const {
+    if (this->isValid() && kOpenGL_GrBackend == fBackend) {
+        *outInfo = fGLInfo;
+        return true;
     }
-    return nullptr;
+    return false;
 }
 
-const GrMockRenderTargetInfo* GrBackendRenderTarget::getMockRenderTargetInfo() const {
-    if (kMock_GrBackend == fBackend) {
-        return &fMockInfo;
+bool GrBackendRenderTarget::getMockRenderTargetInfo(GrMockRenderTargetInfo* outInfo) const {
+    if (this->isValid() && kMock_GrBackend == fBackend) {
+        *outInfo = fMockInfo;
+        return true;
     }
-    return nullptr;
+    return false;
 }
 
 #if GR_TEST_UTILS

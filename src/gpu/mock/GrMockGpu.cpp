@@ -136,8 +136,9 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendRenderTarget(const GrBackendRender
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = rt.width();
     desc.fHeight = rt.height();
-    SkASSERT(rt.getMockRenderTargetInfo());
-    const GrMockRenderTargetInfo info = *rt.getMockRenderTargetInfo();
+
+    GrMockRenderTargetInfo info;
+    SkAssertResult(rt.getMockRenderTargetInfo(&info));
     desc.fConfig = info.fConfig;
 
     return sk_sp<GrRenderTarget>(
