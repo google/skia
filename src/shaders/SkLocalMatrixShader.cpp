@@ -15,8 +15,13 @@
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
         const GrFPArgs& args) const {
+    SkMatrix tmp = this->getLocalMatrix();
+    if (args.fLocalMatrix) {
+        tmp.preConcat(*args.fLocalMatrix);
+    }
     return as_SB(fProxyShader)
-            ->asFragmentProcessor(args.makeWithPreLocalMatrix(this->getLocalMatrix()));
+            ->asFragmentProcessor(GrFPArgs(args.fContext, args.fViewMatrix, &tmp,
+                                           args.fFilterQuality, args.fDstColorSpaceInfo));
 }
 #endif
 
