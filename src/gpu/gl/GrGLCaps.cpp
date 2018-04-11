@@ -762,8 +762,8 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
             shaderCaps->fExternalTextureSupport = true;
             shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
-        } else if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
-                   ctxInfo.hasExtension("OES_EGL_image_external_essl3")) {
+        } else if (false && (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
+                   ctxInfo.hasExtension("OES_EGL_image_external_essl3"))) {
             // At least one driver has been found that has this extension without the "GL_" prefix.
             shaderCaps->fExternalTextureSupport = true;
             shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
@@ -2468,7 +2468,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
             fDiscardRenderTargetSupport = false;
             fInvalidateFBType = kNone_InvalidateFBType;
     }
-
+/*
     // Various Samsung devices (Note4, S7, ...) don't advertise the image_external_essl3 extension,
     // (only the base image_external extension), but do support it, and require that it be enabled
     // to work with ESSL3. This has been seen on both Mali and Adreno devices. skbug.com/7713
@@ -2479,6 +2479,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fExternalTextureSupport = true;
         shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
     }
+*/
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
