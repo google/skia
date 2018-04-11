@@ -239,12 +239,13 @@ def dm_flags(api, bot):
 
     # DDL is a GPU-only feature
     if 'DDL1' in bot:
-      # Just run gl for now but render the large skps
-      configs = ['gl']
+      # This bot generates gl and vk comparison images for the large skps
+      configs = [c for c in configs if c == 'gl' or c == 'vk']
       args.extend(['--skpViewportSize', "2048"])
     if 'DDL3' in bot:
-      # Just run ddl-gl for now but render the large skps
-      configs = ['ddl-gl']
+      # This bot generates the ddl-gl and ddl-vk images for the
+      # large skps and the gms
+      configs = ['ddl-' + c for c in configs if c == 'gl' or c == 'vk']
       args.extend(['--skpViewportSize', "2048"])
 
   tf = api.vars.builder_cfg.get('test_filter')
@@ -561,8 +562,10 @@ def dm_flags(api, bot):
 
   if 'DDL3' in bot:
     match.append('~shadermaskfilter_image') # skia:7751
-    match.append('~imagefilterscropped')    # skia:7751
-    match.append('~animated-image-blurs')   # skia:7751
+    match.append('~persp_shaders_bw')       # skia:7751
+    match.append('~persp_shaders_aa')       # skia:7751
+    match.append('~imagefilterscropped')    # skia:7755
+    match.append('~animated-image-blurs')   # skia:7755
 
   if 'Chromecast' in bot:
     if 'GPU' in bot:
