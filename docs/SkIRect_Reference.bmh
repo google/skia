@@ -519,65 +519,6 @@ original rect: 20, 30, 40, 50  size: 20, 20
 
 # ------------------------------------------------------------------------------
 
-#Method int32_t centerX() const
-
-#In Property
-#Line # returns midpoint in x ##
-Returns average of left edge and right edge. Result does not change if IRect
-is sorted.
-
-Result is rounded down.
-
-#Return midpoint in x ##
-
-#Example
-#Description
-Dividing by two rounds towards zero. centerX uses a bit shift and rounds down.
-##
-    SkIRect tests[] = {{20, 30, 41, 51}, {-20, -30, -41, -51}, {-10, -10, 11, 11}};
-    for (auto rect : tests) {
-        SkDebugf("left: %3d right: %3d centerX: %3d ", rect.left(), rect.right(), rect.centerX());
-        SkDebugf("div2: %3d\n", (rect.left() + rect.right()) / 2);
-    }
-#StdOut
-left:  20 right:  41 centerX:  30 div2:  30
-left: -20 right: -41 centerX: -31 div2: -30
-left: -10 right:  11 centerX:   0 div2:   0
-##
-##
-
-#SeeAlso centerY SkRect::centerX
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method int32_t centerY() const
-
-#In Property
-#Line # returns midpoint in y ##
-Returns average of top edge and bottom edge. Result does not change if IRect
-is sorted.
-
-Result is rounded down.
-
-#Return midpoint in y ##
-
-#Example
-   SkIRect rect = { 0, 0, 2, 2 };
-   rect.offset(0x40000000, 0x40000000);
-   SkDebugf("left: %d right: %d centerX: %d ", rect.left(), rect.right(), rect.centerX());
-#StdOut
-left: 1073741824 right: 1073741826 centerX: 1073741825
-##
-##
-
-#SeeAlso centerX SkRect::centerY
-
-##
-
-# ------------------------------------------------------------------------------
-
 #Method bool isEmpty() const
 
 #In Property
@@ -701,32 +642,6 @@ test != sorted
 
 # ------------------------------------------------------------------------------
 
-#Method bool is16Bit() const
-
-#In Property
-#Line # returns true if members fit in 16-bit word ##
-Returns true if all members: fLeft, fTop, fRight, and fBottom; values are
-equal to or larger than -32768 and equal to or smaller than 32767. 
-
-#Return true if members fit in 16-bit word ##
-
-#Example
-    SkIRect tests[] = {{-32768, -32768, 32767, 32767}, {-32768, -32768, 32768, 32768}};
-    for (auto rect : tests) {
-        SkDebugf("{%d, %d, %d, %d} %s in 16 bits\n", rect.fLeft, rect.fTop, rect.fRight,
-                 rect.fBottom, rect.is16Bit() ? "fits" : "does not fit");
-}
-#StdOut
-{-32768, -32768, 32767, 32767} fits in 16 bits
-{-32768, -32768, 32768, 32768} does not fit in 16 bits
-##
-##
-
-#SeeAlso SkTFitsIn
-
-##
-
-# ------------------------------------------------------------------------------
 #Subtopic Set
 #Line # replaces all values ##
 #Populate
@@ -1125,50 +1040,6 @@ The intersection is only meaningful if the resulting IRect is not empty and
 describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 
 #Populate
-
-# ------------------------------------------------------------------------------
-
-#Method bool quickReject(int l, int t, int r, int b) const
-
-#In Intersection
-#Line # returns true if rectangles do not intersect ##
-Constructs IRect (l, t, r, b) and returns true if constructed IRect does not
-intersect IRect. Does not check to see if construction or IRect is empty.
-
-Is implemented with short circuit logic so that true can be returned after
-a single compare.
-
-#Param l  x minimum of constructed IRect ##
-#Param t  y minimum of constructed IRect ##
-#Param r  x maximum of constructed IRect ##
-#Param b  y maximum of constructed IRect ##
-
-#Return true if construction and IRect have no area in common ##
-
-#Example
-#Description
-quickReject is the complement of Intersects.
-##
-   const SkIRect rect = {7, 11, 13, 17};
-   const int32_t* r = &rect.fLeft;
-   const SkIRect tests[] = { {13, 11, 15, 17}, { 7, 7, 13, 11 }, { 12, 16, 14, 18 } };
-   for (auto& test : tests) {
-     const int32_t* t = &test.fLeft;
-     SkDebugf("rect (%d, %d, %d, %d) test(%d, %d, %d, %d) quickReject %s; intersects %s\n",
-              r[0], r[1], r[2], r[3], t[0], t[1], t[2], t[3],
-              rect.quickReject(t[0], t[1], t[2], t[3]) ? "true" : "false", 
-              SkIRect::Intersects(rect, test) ? "true" : "false");
-   }
-#StdOut
-rect (7, 11, 13, 17) test(13, 11, 15, 17) quickReject true; intersects false
-rect (7, 11, 13, 17) test(7, 7, 13, 11) quickReject true; intersects false
-rect (7, 11, 13, 17) test(12, 16, 14, 18) quickReject false; intersects true
-##
-##
-
-#SeeAlso Intersects
-
-##
 
 # ------------------------------------------------------------------------------
 

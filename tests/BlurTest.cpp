@@ -29,7 +29,7 @@
 #include "SkPixmap.h"
 #include "SkPoint.h"
 #include "SkRRect.h"
-#include "SkRect.h"
+#include "SkRectPriv.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkShader.h"
@@ -192,8 +192,8 @@ static void ground_truth_2d(int width, int height,
         return;
     }
 
-    int midX = dst.fBounds.centerX();
-    int midY = dst.fBounds.centerY();
+    int midX = dst.fBounds.x() + dst.fBounds.width()/2;
+    int midY = dst.fBounds.y() + dst.fBounds.height()/2;
     uint8_t* bytes = dst.getAddr8(midX, midY);
     int i;
     for (i = 0; i < dst.fBounds.width()-(midX-dst.fBounds.fLeft); ++i) {

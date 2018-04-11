@@ -23,6 +23,7 @@
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
 #include "SkReadBuffer.h"
+#include "SkRectPriv.h"
 #include "SkStroke.h"
 #include "SkStrokeRec.h"
 #include "SkSurfacePriv.h"
@@ -85,7 +86,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             generateAdvance(glyph);
 
             const SkIRect ir = devPath.getBounds().roundOut();
-            if (ir.isEmpty() || !ir.is16Bit()) {
+            if (ir.isEmpty() || !SkRectPriv::Is16Bit(ir)) {
                 goto SK_ERROR;
             }
             glyph->fLeft    = ir.fLeft;
@@ -143,7 +144,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
 
         src.fImage = nullptr;  // only want the bounds from the filter
         if (as_MFB(fMaskFilter)->filterMask(&dst, src, matrix, nullptr)) {
-            if (dst.fBounds.isEmpty() || !dst.fBounds.is16Bit()) {
+            if (dst.fBounds.isEmpty() || !SkRectPriv::Is16Bit(dst.fBounds)) {
                 goto SK_ERROR;
             }
             SkASSERT(dst.fImage == nullptr);

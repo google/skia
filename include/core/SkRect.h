@@ -11,7 +11,6 @@
 #include "SkPoint.h"
 #include "SkSize.h"
 #include "../private/SkSafe32.h"
-#include "../private/SkTFitsIn.h"
 
 struct SkRect;
 
@@ -175,24 +174,6 @@ struct SK_API SkIRect {
     */
     SkISize size() const { return SkISize::Make(this->width(), this->height()); }
 
-    /** Returns average of left edge and right edge. Result does not change if SkIRect
-        is sorted.
-
-        Result is rounded down.
-
-        @return  midpoint in x
-    */
-    int32_t centerX() const { return SkToS32(((int64_t)fRight + fLeft) >> 1); }
-
-    /** Returns average of top edge and bottom edge. Result does not change if SkIRect
-        is sorted.
-
-        Result is rounded down.
-
-        @return  midpoint in y
-    */
-    int32_t centerY() const { return SkToS32(((int64_t)fBottom + fTop) >> 1); }
-
     /** Returns span on the x-axis. This does not check if SkIRect is sorted, so the
         result may be negative. This is safer than calling width() since width() might
         overflow in its calculation.
@@ -251,16 +232,6 @@ struct SK_API SkIRect {
     */
     friend bool operator!=(const SkIRect& a, const SkIRect& b) {
         return !(a == b);
-    }
-
-    /** Returns true if all members: fLeft, fTop, fRight, and fBottom; values are
-        equal to or larger than -32768 and equal to or smaller than 32767.
-
-        @return  true if members fit in 16-bit word
-    */
-    bool is16Bit() const {
-        return  SkTFitsIn<int16_t>(fLeft) && SkTFitsIn<int16_t>(fTop) &&
-                SkTFitsIn<int16_t>(fRight) && SkTFitsIn<int16_t>(fBottom);
     }
 
     /** Sets SkIRect to (0, 0, 0, 0).
@@ -441,22 +412,6 @@ struct SK_API SkIRect {
         @param dy  subtracted to fTop and added from fBottom
     */
     void outset(int32_t dx, int32_t dy)  { this->inset(-dx, -dy); }
-
-    /** Constructs SkIRect (l, t, r, b) and returns true if constructed SkIRect does not
-        intersect SkIRect. Does not check to see if construction or SkIRect is empty.
-
-        Is implemented with short circuit logic so that true can be returned after
-        a single compare.
-
-        @param l  x minimum of constructed SkIRect
-        @param t  y minimum of constructed SkIRect
-        @param r  x maximum of constructed SkIRect
-        @param b  y maximum of constructed SkIRect
-        @return   true if construction and SkIRect have no area in common
-    */
-    bool quickReject(int l, int t, int r, int b) const {
-        return l >= fRight || fLeft >= r || t >= fBottom || fTop >= b;
-    }
 
     /** Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
         Returns false if SkIRect is empty.

@@ -12,6 +12,7 @@
 #include "SkMakeUnique.h"
 #include "SkPath.h"
 #include "SkRandomScalerContext.h"
+#include "SkRectPriv.h"
 
 class SkDescriptor;
 
@@ -107,7 +108,7 @@ void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
         // just use devPath
         const SkIRect ir = devPath.getBounds().roundOut();
 
-        if (ir.isEmpty() || !ir.is16Bit()) {
+        if (ir.isEmpty() || !SkRectPriv::Is16Bit(ir)) {
             glyph->fLeft    = 0;
             glyph->fTop     = 0;
             glyph->fWidth   = 0;
