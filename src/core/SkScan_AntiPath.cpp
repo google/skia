@@ -8,6 +8,7 @@
 
 #include "SkScanPriv.h"
 #include "SkPath.h"
+#include "SkPathPriv.h"
 #include "SkMatrix.h"
 #include "SkBlitter.h"
 #include "SkRegion.h"
@@ -601,7 +602,7 @@ static bool ShouldUseDAA(const SkPath& path) {
     if (gSkForceDeltaAA) {
         return true;
     }
-    if (!gSkUseDeltaAA) {
+    if (!gSkUseDeltaAA || SkPathPriv::IsBadForDAA(path)) {
         return false;
     }
 
