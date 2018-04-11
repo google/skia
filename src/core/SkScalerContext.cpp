@@ -21,6 +21,7 @@
 #include "SkMatrix22.h"
 #include "SkPaintPriv.h"
 #include "SkPathEffect.h"
+#include "SkPathPriv.h"
 #include "SkRasterClip.h"
 #include "SkReadBuffer.h"
 #include "SkStroke.h"
@@ -444,6 +445,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
+            SkPathPriv::SetIsBadForDAA(devPath, true); // crbug.com/821353
             generateMask(mask, devPath, fPreBlend);
         }
     }
