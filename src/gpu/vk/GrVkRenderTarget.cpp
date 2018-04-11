@@ -352,12 +352,14 @@ void GrVkRenderTarget::onAbandon() {
 }
 
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendObject GrVkRenderTarget::getRenderTargetHandle() const {
     // If the render target is multisampled, we currently return the ImageInfo for the resolved
     // image. If we only wrap the msaa target (currently not implemented) we should return a handle
     // to that instead.
     return (GrBackendObject)&fInfo;
 }
+#endif
 
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
     return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),

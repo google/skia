@@ -428,6 +428,7 @@ public:
     static const BackendHandleAccess kDiscardWrite_TextureHandleAccess =
             kDiscardWrite_BackendHandleAccess;
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     /** Returns the GPU back-end reference of the texture used by SkSurface, or zero
         if SkSurface is not backed by a GPU texture.
 
@@ -458,6 +459,7 @@ public:
     */
     bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess);
+#endif
 
     /** Retrieves the backend texture. If Surface has no backend texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
