@@ -211,10 +211,6 @@ public:
         }
         return result;
     }
-
-    // For crbug.com/821353 and skbug.com/6886
-    static bool IsBadForDAA(const SkPath& path) { return path.fIsBadForDAA; }
-    static void SetIsBadForDAA(SkPath& path, bool isBadForDAA) { path.fIsBadForDAA = isBadForDAA; }
 };
 
 #endif
