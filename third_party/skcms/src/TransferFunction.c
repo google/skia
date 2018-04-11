@@ -116,8 +116,8 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 //
 // Our overall strategy is then:
 //    For a couple tolerances,
-//       - fit_linear():     fit c,d,f iteratively to as many points as our tolerance allows
-//       - fit_nonlinear():  fit g,a,b using Gauss-Newton given c,d,f (and by constraint, e)
+//       - skcms_fit_linear(): fit c,d,f iteratively to as many points as our tolerance allows
+//       - fit_nonlinear():    fit g,a,b using Gauss-Newton given c,d,f (and by constraint, e)
 //    Return the parameters with least maximum error.
 //
 // To run Gauss-Newton to find g,a,b, we'll also need the gradient of the non-linear piece:
@@ -161,8 +161,8 @@ static void grad_nonlinear(float x, const void* ctx, const float P[4], float dfd
             -   g*powf_(D, g-1);
 }
 
-// Returns the number of points that are approximated by the line, to within tol.
-static int fit_linear(const skcms_Curve* curve, int N, float tol, skcms_TransferFunction* tf) {
+int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, skcms_TransferFunction* tf) {
+    assert(N > 1);
     // We iteratively fit the first points to the TF's linear piece.
     // We want the cx + f line to pass through the first and last points we fit exactly.
     //
@@ -267,7 +267,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     const float kTolerances[] = { 1.5f / 65535.0f, 1.0f / 512.0f };
     for (int t = 0; t < ARRAY_COUNT(kTolerances); t++) {
         skcms_TransferFunction tf;
-        int L = fit_linear(curve, N, kTolerances[t], &tf);
+        int L = skcms_fit_linear(curve, N, kTolerances[t], &tf);
 
         if (L == N) {
             // If the entire data set was linear, move the coefficients to the nonlinear portion
