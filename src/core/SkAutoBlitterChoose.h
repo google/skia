@@ -28,10 +28,11 @@ public:
     SkBlitter*  operator->() { return fBlitter; }
     SkBlitter*  get() const { return fBlitter; }
 
-    void choose(const SkPixmap& dst, const SkMatrix& matrix,
+    SkBlitter* choose(const SkPixmap& dst, const SkMatrix& matrix,
                 const SkPaint& paint, bool drawCoverage = false) {
         SkASSERT(!fBlitter);
         fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAlloc, drawCoverage);
+        return fBlitter;
     }
 
 private:
