@@ -385,7 +385,7 @@ static constexpr const uint8_t kSpiderSymbol_ttf[] = {
 static bool supports_LCD() {
     static bool gSupportsLCD = []{
         uint32_t bitmap[16][16] = {};
-        UniqueCFRef<CGColorSpaceRef> colorspace(CGColorSpaceCreateDeviceRGB());
+        UniqueCFRef<CGColorSpaceRef> colorspace(CGColorSpaceCreateWithName(kCGColorSpaceSRGB));
         UniqueCFRef<CGContextRef> cgContext(
                 CGBitmapContextCreate(&bitmap, 16, 16, 8, 16*4, colorspace.get(), BITMAP_INFO_RGB));
 
@@ -1005,7 +1005,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         //It doesn't appear to matter what color space is specified.
         //Regular blends and antialiased text are always (s*a + d*(1-a))
         //and smoothed text is always g=2.0.
-        fRGBSpace.reset(CGColorSpaceCreateDeviceRGB());
+        fRGBSpace.reset(CGColorSpaceCreateWithName(kCGColorSpaceSRGB));
     }
 
     // default to kBW_Format
