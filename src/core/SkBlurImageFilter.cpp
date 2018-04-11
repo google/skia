@@ -634,7 +634,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     // N[Solve[{c/n == 1/2048, sigma > 0}, sigma], 16]
     static constexpr double kZeroWindowGPU = 0.2561130112451658;
     if (sigma.x() < kZeroWindowGPU && sigma.y() < kZeroWindowGPU) {
-        return copy_image_with_bounds(source, input, inputBounds, dstBounds);
+        return input->makeSubset(inputBounds);
     }
 
     GrContext* context = source->getContext();
