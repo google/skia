@@ -634,60 +634,6 @@ large height: 4294967296
 
 ##
 
-# ------------------------------------------------------------------------------
-
-#Method SkScalar    centerX() const
-
-#In Property
-#Line # returns midpoint in x ##
-Returns average of left edge and right edge. Result does not change if Rect
-is sorted. Result may overflow to infinity if Rect is far from the origin.
-
-#Return midpoint in x ##
-
-#Example
-    SkRect tests[] = {{20, 30, 41, 51}, {-20, -30, -41, -51}};
-    for (auto rect : tests) {
-        SkDebugf("left: %3g right: %3g centerX: %3g\n", rect.left(), rect.right(), rect.centerX());
-        rect.sort();
-        SkDebugf("left: %3g right: %3g centerX: %3g\n", rect.left(), rect.right(), rect.centerX());
-    }
-#StdOut
-left:  20 right:  41 centerX: 30.5
-left:  20 right:  41 centerX: 30.5
-left: -20 right: -41 centerX: -30.5
-left: -41 right: -20 centerX: -30.5
-##
-##
-
-#SeeAlso centerY SkIRect::centerX
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method SkScalar    centerY() const
-
-#In Property
-#Line # returns midpoint in y ##
-Returns average of top edge and bottom edge. Result does not change if Rect
-is sorted. Result may overflow to infinity if Rect is far from the origin.
-
-#Return midpoint in y ##
-
-#Example
-   SkRect rect = { 2e+38, 2e+38, 3e+38, 3e+38 };
-   SkDebugf("left: %g right: %g centerX: %g ", rect.left(), rect.right(), rect.centerX());
-   SkDebugf("safe mid x: %g\n", rect.left() / 2 + rect.right() / 2);
-#StdOut
-left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
-##
-##
-
-#SeeAlso centerX SkIRect::centerY
-
-##
-
 #Subtopic Property ##
 
 #Subtopic Operator
