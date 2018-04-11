@@ -20,9 +20,15 @@ def RunSteps(api):
   # Upload the nanobench resuls.
   builder_name = api.properties['buildername']
 
+  api.step('ls', cmd=['ls', api.path['start_dir']])
+  api.step('ls', cmd=['ls', api.path['start_dir'].join('perf')])
+  api.step('ls', cmd=['ls', api.path['start_dir'].join('perf', 'perfdata')])
+  api.step('ls', cmd=['ls', api.path['start_dir'].join('perf', 'perfdata', builder_name)])
+  api.step('ls', cmd=['ls', api.path['start_dir'].join('perf', 'perfdata', builder_name, 'data')])
+
   now = api.time.utcnow()
   src_path = api.path['start_dir'].join(
-      'perfdata', builder_name, 'data')
+      'perf', 'perfdata', builder_name, 'data')
   with api.context(cwd=src_path):
     results = api.file.glob_paths(
         'find results',
