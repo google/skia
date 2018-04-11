@@ -372,6 +372,8 @@ namespace {
 
 template <typename Strings>
 bool ShouldSkipImpl(const Strings& strings, const char* name) {
+    if (!strstr(name, "fancy_gradients")) return true;
+
     int count = strings.count();
     size_t testLen = strlen(name);
     bool anyExclude = count == 0;
