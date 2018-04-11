@@ -244,6 +244,24 @@ public:
         return pun.fs[k&3];
     }
 
+    AI float min() const {
+    #if defined(__aarch64__)
+        return vminvq_f32(fVec);
+    #else
+        SkNx min = Min(*this, vrev64q_f32(fVec));
+        return std::min(min[0], min[2]);
+    #endif
+    }
+
+    AI float max() const {
+    #if defined(__aarch64__)
+        return vmaxvq_f32(fVec);
+    #else
+        SkNx max = Max(*this, vrev64q_f32(fVec));
+        return std::max(max[0], max[2]);
+    #endif
+    }
+
     AI bool allTrue() const {
     #if defined(__aarch64__)
         return 0 != vminvq_u32(vreinterpretq_u32_f32(fVec));
