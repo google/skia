@@ -226,7 +226,7 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size,
         curve->parametric.e  = 0.0f;
         curve->parametric.f  = 0.0f;
         if (value_count == 0) {
-            // Empty tables are a shorthand for linear
+            // Empty tables are a shorthand for an identity curve
             curve->parametric.g = 1.0f;
         } else {
             // Single entry tables are a shorthand for simple gamma
@@ -581,15 +581,51 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
 }
 
 static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
+    bool ok = false;
     if (tag->type == make_signature('m', 'f', 't', '1')) {
-        return read_tag_mft1(tag, a2b);
+        ok = read_tag_mft1(tag, a2b);
     } else if (tag->type == make_signature('m', 'f', 't', '2')) {
-        return read_tag_mft2(tag, a2b);
+        ok = read_tag_mft2(tag, a2b);
     } else if (tag->type == make_signature('m', 'A', 'B', ' ')) {
-        return read_tag_mab(tag, a2b, pcs_is_xyz);
+        ok = read_tag_mab(tag, a2b, pcs_is_xyz);
+    }
+    if (!ok) {
+        return false;
     }
 
-    return false;
+    // Detect and canonicalize identity tables.
+    skcms_Curve* curves[] = {
+        a2b->input_channels  > 0 ? a2b->input_curves  + 0 : NULL,
+        a2b->input_channels  > 1 ? a2b->input_curves  + 1 : NULL,
+        a2b->input_channels  > 2 ? a2b->input_curves  + 2 : NULL,
+        a2b->input_channels  > 3 ? a2b->input_curves  + 3 : NULL,
+        a2b->matrix_channels > 0 ? a2b->matrix_curves + 0 : NULL,
+        a2b->matrix_channels > 1 ? a2b->matrix_curves + 1 : NULL,
+        a2b->matrix_channels > 2 ? a2b->matrix_curves + 2 : NULL,
+        a2b->output_channels > 0 ? a2b->output_curves + 0 : NULL,
+        a2b->output_channels > 1 ? a2b->output_curves + 1 : NULL,
+        a2b->output_channels > 2 ? a2b->output_curves + 2 : NULL,
+    };
+
+    for (int i = 0; i < ARRAY_COUNT(curves); i++) {
+        skcms_Curve* curve = curves[i];
+
+        if (curve && curve->table_entries && curve->table_entries <= (uint32_t)INT_MAX) {
+            int N = (int)curve->table_entries;
+
+            skcms_TransferFunction tf;
+            if (N == skcms_fit_linear(curve, N, 1.0f/(2*N), &tf)
+                && tf.c == 1.0f
+                && tf.f == 0.0f) {
+                curve->table_entries = 0;
+                curve->table_8       = NULL;
+                curve->table_16      = NULL;
+                curve->parametric    = (skcms_TransferFunction){1,1,0,0,0,0,0};
+            }
+        }
+    }
+
+    return true;
 }
 
 void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
