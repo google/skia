@@ -953,15 +953,8 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
                          SkBlitter* customBlitter, bool doFill, SkInitOnceData* iData) const {
     SkBlitter* blitter = nullptr;
     SkAutoBlitterChoose blitterStorage;
-    SkAutoBlitterChoose* blitterStoragePtr = &blitterStorage;
-    if (iData) {
-        // we're in the threaded init-once phase; the blitter has to be allocated in the thread
-        // allocator so it will remain valid later during the draw phase.
-        blitterStoragePtr = iData->fAlloc->make<SkAutoBlitterChoose>();
-    }
     if (nullptr == customBlitter) {
-        blitterStoragePtr->choose(fDst, *fMatrix, paint, drawCoverage);
-        blitter = blitterStoragePtr->get();
+        blitter = blitterStorage.choose(fDst, *fMatrix, paint, drawCoverage);
     } else {
         blitter = customBlitter;
     }
@@ -1025,20 +1018,27 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
         // remaining work to draw phase. This is a simple example of how to add init-once to
         // existing drawXXX commands: simply send in SkInitOnceData, do as much init work as
         // possible, and finally wrap the remaining work into iData->fElement->fDrawFn.
-        iData->fElement->setDrawFn([proc, devPath, blitter](SkArenaAlloc* alloc,
+        SkASSERT(customBlitter == nullptr);
+        iData->fElement->setDrawFn([proc, devPath, paint, drawCoverage](SkArenaAlloc* alloc,
                 const SkThreadedBMPDevice::DrawState& ds, const SkIRect& tileBounds) {
             SkThreadedBMPDevice::TileDraw tileDraw(ds, tileBounds);
-            proc(devPath, *tileDraw.fRC, blitter);
+            SkAutoBlitterChoose blitterStorage;
+            proc(devPath, *tileDraw.fRC, blitterStorage.choose(tileDraw.fDst, *tileDraw.fMatrix,
+                                                               paint, drawCoverage));
         });
     } else {
         // We can use DAA to do scan conversion in the init-once phase.
         SkDAARecord* record = iData->fAlloc->make<SkDAARecord>(iData->fAlloc);
         SkNullBlitter nullBlitter; // We don't want to blit anything during the init phase
         SkScan::AntiFillPath(devPath, *fRC, &nullBlitter, record);
-        iData->fElement->setDrawFn([record, devPath, blitter](SkArenaAlloc* alloc,
+        SkASSERT(customBlitter == nullptr);
+        iData->fElement->setDrawFn([record, devPath, paint, drawCoverage](SkArenaAlloc* alloc,
                     const SkThreadedBMPDevice::DrawState& ds, const SkIRect& tileBounds) {
             SkASSERT(record->fType != SkDAARecord::Type::kToBeComputed);
             SkThreadedBMPDevice::TileDraw tileDraw(ds, tileBounds);
+            SkAutoBlitterChoose blitterStorage;
+            SkBlitter* blitter = blitterStorage.choose(tileDraw.fDst, *tileDraw.fMatrix,
+                                                       paint, drawCoverage);
             SkScan::AntiFillPath(devPath, *tileDraw.fRC, blitter, record);
         });
     }
