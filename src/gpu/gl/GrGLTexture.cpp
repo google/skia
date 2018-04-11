@@ -98,9 +98,11 @@ void GrGLTexture::onAbandon() {
     INHERITED::onAbandon();
 }
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendObject GrGLTexture::getTextureHandle() const {
     return reinterpret_cast<GrBackendObject>(&fInfo);
 }
+#endif
 
 GrBackendTexture GrGLTexture::getBackendTexture() const {
     return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(), fInfo);
