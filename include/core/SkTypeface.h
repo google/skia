@@ -15,6 +15,7 @@
 #include "SkRect.h"
 #include "SkString.h"
 
+class SkGlyphCache;
 class SkDescriptor;
 class SkFontData;
 class SkFontDescriptor;
@@ -262,6 +263,11 @@ public:
     SkStreamAsset* openStream(int* ttcIndex) const;
 
     /**
+     *  If returns true, the |cache| for this typeface can and should be purged.
+     */
+    bool PurgeGlyphCache(SkGlyphCache* cache);
+
+    /**
      *  Return the font data, or nullptr on failure.
      */
     std::unique_ptr<SkFontData> makeFontData() const;
@@ -347,6 +353,8 @@ protected:
     virtual bool onComputeBounds(SkRect*) const;
 
     virtual void* onGetCTFontRef() const { return nullptr; }
+
+    virtual bool onPurgeGlyphCache(SkGlyphCache* cache) { return true; }
 
 private:
     /** Retrieve detailed typeface metrics.  Used by the PDF backend.  */
