@@ -15,6 +15,39 @@
 #include "SkFindAndPlaceGlyph.h"
 #include "SkTypeface_remote.h"
 
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <unordered_map>
+
+void BizaroTest1234() {
+
+    class B {
+    public:
+        B(std::unique_ptr<std::string>&& s_) : s{std::move(s_)} {}
+
+
+    private:
+        std::unique_ptr<std::string> s;
+    };
+
+    struct SEQ {
+        bool operator () (const std::string* a, const std::string* b) const {
+            return *a == *b;
+        }
+    };
+
+    struct HASH {
+        uint64_t operator () (const std::string* a) const {
+            return a->size();
+        }
+    };
+    std::unordered_map<const std::string*, B, HASH, SEQ> os(static_cast<size_t>(16), HASH(), SEQ());
+    std::unique_ptr<std::string> qqq{new std::string("hello")};
+    auto pqqq = qqq.get();
+    os.emplace(pqqq, std::move(qqq) );
+}
+
 template <typename T>
 class ArraySlice final : public std::tuple<const T*, size_t> {
 public:
