@@ -25,6 +25,7 @@ CQ_INCLUDE_CHROMIUM_TRYBOTS = [
         'linux_optional_gpu_tests_rel',
         'mac_chromium_compile_dbg_ng',
         'mac_optional_gpu_tests_rel',
+        'win_optional_gpu_tests_rel',
     ]),
     ('master.tryserver.blink', [
         'linux_trusty_blink_dbg',
@@ -51,7 +52,6 @@ CQ_INCLUDE_CHROMIUM_TRYBOTS = [
         'win_chromium_compile_dbg_ng',
         'win_chromium_compile_rel_ng',
         'win_chromium_dbg_ng',
-        'win_optional_gpu_tests_rel',
         'win7_chromium_rel_ng',
         'win10_chromium_x64_rel_ng',
     ]),
