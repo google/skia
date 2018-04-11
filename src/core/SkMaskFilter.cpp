@@ -635,9 +635,9 @@ void SkCombineMF::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkLocalMatrixMF : public SkMaskFilterBase {
+class SkMatrixMF : public SkMaskFilterBase {
 public:
-    SkLocalMatrixMF(sk_sp<SkMaskFilter> filter, const SkMatrix& lm)
+    SkMatrixMF(sk_sp<SkMaskFilter> filter, const SkMatrix& lm)
         : fFilter(std::move(filter))
         , fLM(lm)
     {}
@@ -657,7 +657,7 @@ public:
     SkMask::Format getFormat() const override { return as_MFB(fFilter)->getFormat(); }
 
     void toString(SkString* str) const override {
-        str->set("SkLocalMatrixMF:");
+        str->set("SkMatrixMF:");
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixMF)
@@ -665,16 +665,7 @@ public:
 protected:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs& args) const override{
-        GrFPArgs newArgs = args;
-
-        SkMatrix storage;
-        if (args.fLocalMatrix) {
-            storage.setConcat(*args.fLocalMatrix, fLM);
-            newArgs.fLocalMatrix = &storage;
-        } else {
-            newArgs.fLocalMatrix = &fLM;
-        }
-        return as_MFB(fFilter)->asFragmentProcessor(newArgs);
+        return as_MFB(fFilter)->asFragmentProcessor(GrFPArgs::WithPostLocalMatrix(args, fLM));
     }
 
     bool onHasFragmentProcessor() const override {
@@ -695,11 +686,11 @@ private:
     typedef SkMaskFilterBase INHERITED;
 };
 
-sk_sp<SkFlattenable> SkLocalMatrixMF::CreateProc(SkReadBuffer& buffer) {
-    SkMatrix lm;
-    buffer.readMatrix(&lm);
+sk_sp<SkFlattenable> SkMatrixMF::CreateProc(SkReadBuffer& buffer) {
+    SkMatrix m;
+    buffer.readMatrix(&m);
     auto filter = buffer.readMaskFilter();
-    return filter ? filter->makeWithLocalMatrix(lm) : nullptr;
+    return filter ? filter->makeWithMatrix(m) : nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -735,16 +726,16 @@ sk_sp<SkMaskFilter> SkMaskFilter::MakeCombine(sk_sp<SkMaskFilter> dst, sk_sp<SkM
     return sk_sp<SkMaskFilter>(new SkCombineMF(std::move(dst), std::move(src), mode));
 }
 
-sk_sp<SkMaskFilter> SkMaskFilter::makeWithLocalMatrix(const SkMatrix& lm) const {
+sk_sp<SkMaskFilter> SkMaskFilter::makeWithMatrix(const SkMatrix& lm) const {
     sk_sp<SkMaskFilter> me = sk_ref_sp(const_cast<SkMaskFilter*>(this));
     if (lm.isIdentity()) {
         return me;
     }
-    return sk_sp<SkMaskFilter>(new SkLocalMatrixMF(std::move(me), lm));
+    return sk_sp<SkMaskFilter>(new SkMatrixMF(std::move(me), lm));
 }
 
 void SkMaskFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLocalMatrixMF)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixMF)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeMF)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCombineMF)
     sk_register_blur_maskfilter_createproc();
