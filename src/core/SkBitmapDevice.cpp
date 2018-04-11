@@ -130,6 +130,19 @@ private:
 #define TILER_X(x)  (x) - priv_tiler.curr_x()
 #define TILER_Y(y)  (y) - priv_tiler.curr_y()
 
+// Helper to create an SkDraw from a device
+class SkBitmapDevice::BDDraw : public SkDraw {
+public:
+    BDDraw(SkBitmapDevice* dev) {
+        // we need fDst to be set, and if we're actually drawing, to dirty the genID
+        if (!dev->accessPixels(&fDst)) {
+            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
+            fDst.reset(dev->imageInfo(), nullptr, 0);
+        }
+        fMatrix = &dev->ctm();
+        fRC = &dev->fRCStack.rc();
+    }
+};
 
 class SkColorTable;
 
@@ -282,7 +295,7 @@ bool SkBitmapDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkBitmapDevice::drawPaint(const SkPaint& paint) {
-    LOOP_TILER( drawPaint(paint))
+    BDDraw(this).drawPaint(paint);
 }
 
 void SkBitmapDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
@@ -460,7 +473,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
 }
 
 void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
-    LOOP_TILER( drawSprite(bitmap, TILER_X(x), TILER_Y(y), paint))
+    BDDraw(this).drawSprite(bitmap, x, y, paint);
 }
 
 void SkBitmapDevice::drawText(const void* text, size_t len,
@@ -476,9 +489,9 @@ void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xp
 
 void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                                   const SkPaint& paint) {
-    LOOP_TILER( drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                             vertices->texCoords(), vertices->colors(), bmode,
-                             vertices->indices(), vertices->indexCount(), paint))
+    BDDraw(this).drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
+                              vertices->texCoords(), vertices->colors(), bmode,
+                              vertices->indices(), vertices->indexCount(), paint);
 }
 
 void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& origPaint) {
