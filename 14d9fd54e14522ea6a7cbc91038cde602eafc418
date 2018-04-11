@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8d87e2c_a7a9247a",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4930,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-11T18:16:09Z",
+      "side": 1,
+      "message": "??",
+      "revId": "14d9fd54e14522ea6a7cbc91038cde602eafc418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fad6e44_7899b501",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4938,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-11T18:16:09Z",
+      "side": 1,
+      "message": "??",
+      "revId": "14d9fd54e14522ea6a7cbc91038cde602eafc418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
