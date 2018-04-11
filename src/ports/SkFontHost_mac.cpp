@@ -198,8 +198,6 @@ static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define BITMAP_INFO_RGB (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
-
 /** Drawn in FontForge, reduced with fonttools ttx, converted by xxd -i,
  *  this TrueType font contains a glyph of the spider.
  *
@@ -384,10 +382,12 @@ static constexpr const uint8_t kSpiderSymbol_ttf[] = {
  */
 static bool supports_LCD() {
     static bool gSupportsLCD = []{
+        // The color space passed to CGBitmapContextCreate does not appear to apply to text,
+        // and may cause crashes in 10.10 and earlier.
         uint32_t bitmap[16][16] = {};
-        UniqueCFRef<CGColorSpaceRef> colorspace(CGColorSpaceCreateDeviceRGB());
+        constexpr CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaNoneSkipFirst;
         UniqueCFRef<CGContextRef> cgContext(
-                CGBitmapContextCreate(&bitmap, 16, 16, 8, 16*4, colorspace.get(), BITMAP_INFO_RGB));
+                CGBitmapContextCreate(&bitmap, 16, 16, 8, 16*4, nullptr, bitmapInfo));
 
         UniqueCFRef<CGDataProviderRef> data(
                 CGDataProviderCreateWithData(nullptr, kSpiderSymbol_ttf,
@@ -427,14 +427,7 @@ static bool supports_LCD() {
 
 class Offscreen {
 public:
-    Offscreen()
-        : fRGBSpace(nullptr)
-        , fCG(nullptr)
-        , fDoAA(false)
-        , fDoLCD(false)
-    {
-        fSize.set(0, 0);
-    }
+    Offscreen() : fCG(nullptr), fDoAA(false), fDoLCD(false), fSize{0,0} {}
 
     CGRGBPixel* getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
                       CGGlyph glyphID, size_t* rowBytesPtr, bool generateA8FromLCD);
@@ -444,7 +437,6 @@ private:
         kSize = 32 * 32 * sizeof(CGRGBPixel)
     };
     SkAutoSMalloc<kSize> fImageStorage;
-    UniqueCFRef<CGColorSpaceRef> fRGBSpace;
 
     // cached state
     UniqueCFRef<CGContextRef> fCG;
@@ -1001,13 +993,6 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
 CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
                              CGGlyph glyphID, size_t* rowBytesPtr,
                              bool generateA8FromLCD) {
-    if (!fRGBSpace) {
-        //It doesn't appear to matter what color space is specified.
-        //Regular blends and antialiased text are always (s*a + d*(1-a))
-        //and smoothed text is always g=2.0.
-        fRGBSpace.reset(CGColorSpaceCreateDeviceRGB());
-    }
-
     // default to kBW_Format
     bool doAA = false;
     bool doLCD = false;
@@ -1039,6 +1024,9 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
             fSize.fHeight = RoundSize(glyph.fHeight);
         }
 
+        // The color space passed to CGBitmapContextCreate does not appear to apply to text
+        // (only bitmaps?) and may cause crashes in 10.10 and earlier.
+        // Regular blends and antialiased text are always (s*a + d*(1-a)), smoothed text gamma 2.0.
         rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
         void* image = fImageStorage.reset(rowBytes * fSize.fHeight);
         const CGImageAlphaInfo alpha = (SkMask::kARGB32_Format == glyph.fMaskFormat)
@@ -1046,7 +1034,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
                                      : kCGImageAlphaNoneSkipFirst;
         const CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host | alpha;
         fCG.reset(CGBitmapContextCreate(image, fSize.fWidth, fSize.fHeight, 8,
-                                        rowBytes, fRGBSpace.get(), bitmapInfo));
+                                        rowBytes, nullptr, bitmapInfo));
 
         // Skia handles quantization and subpixel positioning,
         // so disable quantization and enabe subpixel positioning in CG.
