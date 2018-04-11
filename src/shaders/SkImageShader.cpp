@@ -213,10 +213,18 @@ static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkShader::TileMode 
 
 std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         const GrFPArgs& args) const {
-    const auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
+    SkMatrix lm = this->getLocalMatrix();
     SkMatrix lmInverse;
-    if (!lm->invert(&lmInverse)) {
+    if (!lm.invert(&lmInverse)) {
         return nullptr;
+    }
+    if (args.fLocalMatrix) {
+        SkMatrix inv;
+        if (!args.fLocalMatrix->invert(&inv)) {
+            return nullptr;
+        }
+        lmInverse.postConcat(inv);
+        lm.preConcat(*args.fLocalMatrix);
     }
 
     GrSamplerState::WrapMode wrapModes[] = {tile_mode_to_wrap_mode(fTileModeX),
@@ -228,7 +236,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // are provided by the caller.
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-            args.fFilterQuality, *args.fViewMatrix, *lm,
+            args.fFilterQuality, *args.fViewMatrix, lm,
             args.fContext->contextPriv().sharpenMipmappedTextures(), &doBicubic);
     GrSamplerState samplerState(wrapModes, textureFilterMode);
     sk_sp<SkColorSpace> texColorSpace;

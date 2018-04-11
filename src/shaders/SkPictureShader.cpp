@@ -175,20 +175,24 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
 //
 // 1) a cached image shader, which wraps a single picture tile at the given CTM/local matrix
 //
-// 2) a tile scale adjustment, to be applied downstream when dispatching createContext(),
+// 2) a "composite" local matrix, to be passed down when dispatching createContext(),
 //    appendStages() and asFragmentProcessor() in callers
 //
 // The composite local matrix includes the actual local matrix, any inherited/outer local matrix
 // and a scale component (to mape the actual tile bitmap size -> fTile size).
 //
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
-                                                 const SkMatrix& localMatrix,
+                                                 const SkMatrix* outerLocalMatrix,
                                                  SkColorSpace* dstColorSpace,
-                                                 SkVector* scaleAdjust,
+                                                 SkMatrix* compositeLocalMatrix,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
 
-    const SkMatrix m = SkMatrix::Concat(viewMatrix, localMatrix);
+    *compositeLocalMatrix = this->getLocalMatrix();
+    if (outerLocalMatrix) {
+        compositeLocalMatrix->preConcat(*outerLocalMatrix);
+    }
+    const SkMatrix m = SkMatrix::Concat(viewMatrix, *compositeLocalMatrix);
 
     // Use a rotation-invariant scale
     SkPoint scale;
@@ -270,52 +274,37 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
         fAddedToCache.store(true);
     }
 
-    scaleAdjust->set(1 / tileScale.width(), 1 / tileScale.height());
+    compositeLocalMatrix->preScale(1 / tileScale.width(), 1 / tileScale.height());
 
     return tileShader;
 }
 
 bool SkPictureShader::onAppendStages(const StageRec& rec) const {
-    auto lm = this->totalLocalMatrix(rec.fLocalM);
-    SkVector scaleAdjust;
-
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->refBitmapShader(rec.fCTM, *lm, rec.fDstCS, &scaleAdjust);
-
-    if (!bitmapShader) {
-        return false;
-    }
-
-    if (scaleAdjust != SkVector::Make(1, 1)) {
-        lm.writable()->preScale(scaleAdjust.fX, scaleAdjust.fY);
-    }
+    SkMatrix compositeLocalMatrix;
+    bitmapShader = this->refBitmapShader(rec.fCTM, rec.fLocalM, rec.fDstCS, &compositeLocalMatrix);
 
     StageRec localRec = rec;
-    localRec.fLocalM = lm->isIdentity() ? nullptr : &(*lm);
+    localRec.fLocalM = compositeLocalMatrix.isIdentity() ? nullptr : &compositeLocalMatrix;
 
-    return as_SB(bitmapShader)->appendStages(localRec);
+    return bitmapShader && as_SB(bitmapShader)->appendStages(localRec);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
 const {
-    auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
-    SkVector scaleAdjust;
+    SkMatrix compositeLocalMatrix;
     sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix,
-                                                         *lm,
+                                                         rec.fLocalMatrix,
                                                          rec.fDstColorSpace,
-                                                         &scaleAdjust);
+                                                         &compositeLocalMatrix);
     if (!bitmapShader) {
         return nullptr;
     }
 
-    if (scaleAdjust != SkVector::Make(1, 1)) {
-        lm.writable()->preScale(scaleAdjust.fX, scaleAdjust.fY);
-    }
-
     ContextRec localRec = rec;
-    localRec.fLocalMatrix = lm->isIdentity() ? nullptr : &(*lm);
+    localRec.fLocalMatrix = compositeLocalMatrix.isIdentity() ? nullptr : &compositeLocalMatrix;
 
     PictureShaderContext* ctx =
         alloc->make<PictureShaderContext>(*this, localRec, std::move(bitmapShader), alloc);
@@ -380,22 +369,20 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     if (args.fContext) {
         maxTextureSize = args.fContext->caps()->maxTextureSize();
     }
-
-    auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
-    SkVector scaleAdjust;
-    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix,*lm,
+    SkMatrix compositeLocalMatrix;
+    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, args.fLocalMatrix,
                                                        args.fDstColorSpaceInfo->colorSpace(),
-                                                       &scaleAdjust, maxTextureSize));
+                                                       &compositeLocalMatrix,
+                                                       maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
     }
 
-    if (scaleAdjust != SkVector::Make(1, 1)) {
-        lm.writable()->preScale(scaleAdjust.fX, scaleAdjust.fY);
-    }
-
-    GrFPArgs newArgs(args.fContext, args.fViewMatrix, args.fFilterQuality, args.fDstColorSpaceInfo);
-
-    return as_SB(bitmapShader)->asFragmentProcessor(newArgs.makeWithPreLocalMatrix(*lm));
+    return as_SB(bitmapShader)->asFragmentProcessor(
+        GrFPArgs(args.fContext,
+                 args.fViewMatrix,
+                 compositeLocalMatrix.isIdentity() ? nullptr : &compositeLocalMatrix,
+                 args.fFilterQuality,
+                 args.fDstColorSpaceInfo));
 }
 #endif

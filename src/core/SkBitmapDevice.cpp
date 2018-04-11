@@ -487,7 +487,7 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
     // todo: can we unify with similar adjustment in SkGpuDevice?
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
     if (paint->getMaskFilter()) {
-        paint.writable()->setMaskFilter(paint->getMaskFilter()->makeWithMatrix(this->ctm()));
+        paint.writable()->setMaskFilter(paint->getMaskFilter()->makeWithLocalMatrix(this->ctm()));
     }
     this->drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, *paint);
 }
@@ -546,7 +546,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
     }
 
     if (paint->getMaskFilter()) {
-        paint.writable()->setMaskFilter(paint->getMaskFilter()->makeWithMatrix(this->ctm()));
+        paint.writable()->setMaskFilter(paint->getMaskFilter()->makeWithLocalMatrix(this->ctm()));
     }
 
     if (!clipImage) {

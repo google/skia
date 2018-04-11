@@ -388,7 +388,18 @@ std::unique_ptr<GrFragmentProcessor> Gr2PtConicalGradientEffect::Make(
     const SkTwoPointConicalGradient& shader =
         *static_cast<const SkTwoPointConicalGradient*>(args.fShader);
 
-    SkMatrix matrix = *args.fMatrix;
+    SkMatrix matrix;
+    if (!shader.getLocalMatrix().invert(&matrix)) {
+        return nullptr;
+    }
+    if (args.fMatrix) {
+        SkMatrix inv;
+        if (!args.fMatrix->invert(&inv)) {
+            return nullptr;
+        }
+        matrix.postConcat(inv);
+    }
+
     GrGradientEffect::CreateArgs newArgs(args.fContext, args.fShader, &matrix, args.fWrapMode,
         args.fDstColorSpace);
     // Data and matrix has to be prepared before constructing TwoPointConicalEffect so its parent

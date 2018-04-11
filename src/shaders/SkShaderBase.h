@@ -12,7 +12,6 @@
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkShader.h"
-#include "SkTLazy.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFPArgs.h"
@@ -186,16 +185,9 @@ public:
     // If this returns false, then we draw nothing (do not fall back to shader context)
     bool appendStages(const StageRec&) const;
 
-    bool SK_WARN_UNUSED_RESULT computeTotalInverse(const SkMatrix& ctm,
-                                                   const SkMatrix* outerLocalMatrix,
-                                                   SkMatrix* totalInverse) const;
-
-    // Returns the total local matrix for this shader:
-    //
-    //   M = postLocalMatrix x shaderLocalMatrix x preLocalMatrix
-    //
-    SkTCopyOnFirstWrite<SkMatrix> totalLocalMatrix(const SkMatrix* preLocalMatrix,
-                                                   const SkMatrix* postLocalMatrix = nullptr) const;
+    bool computeTotalInverse(const SkMatrix& ctm,
+                             const SkMatrix* outerLocalMatrix,
+                             SkMatrix* totalInverse) const;
 
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     virtual bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode[2]) const {

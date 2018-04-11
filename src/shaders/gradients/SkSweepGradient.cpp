@@ -216,8 +216,15 @@ void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
 std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
         const GrFPArgs& args) const {
     SkMatrix matrix;
-    if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+    if (!this->getLocalMatrix().invert(&matrix)) {
         return nullptr;
+    }
+    if (args.fLocalMatrix) {
+        SkMatrix inv;
+        if (!args.fLocalMatrix->invert(&inv)) {
+            return nullptr;
+        }
+        matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
 

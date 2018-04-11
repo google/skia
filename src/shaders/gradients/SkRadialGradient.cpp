@@ -162,9 +162,18 @@ void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
 
 std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
         const GrFPArgs& args) const {
+    SkASSERT(args.fContext);
+
     SkMatrix matrix;
-    if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+    if (!this->getLocalMatrix().invert(&matrix)) {
         return nullptr;
+    }
+    if (args.fLocalMatrix) {
+        SkMatrix inv;
+        if (!args.fLocalMatrix->invert(&inv)) {
+            return nullptr;
+        }
+        matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
 
