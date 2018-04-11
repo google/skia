@@ -252,7 +252,7 @@ Constructs <a href="#Paint">Paint</a> with default values.
 | --- | ---  |
 | Anti-alias | false |
 | <a href="undocumented#Blend_Mode">Blend Mode</a> | <a href="undocumented#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a> |
-| <a href="undocumented#Color">Color</a> | <a href="undocumented#SK_ColorBLACK">SK ColorBLACK</a> |
+| <a href="undocumented#Color">Color</a> |  |
 | <a href="undocumented#Alpha">Color Alpha</a> | 255 |
 | <a href="undocumented#Color_Filter">Color Filter</a> | nullptr |
 | <a href="#Dither">Dither</a> | false |
@@ -1867,8 +1867,7 @@ SkColor getColor() const
 </pre>
 
 Retrieves <a href="undocumented#Alpha">Alpha</a> and <a href="undocumented#RGB">Color RGB</a>, <a href="undocumented#Unpremultiply">Unpremultiplied</a>, packed into 32 bits.
-Use helpers <a href="undocumented#SkColorGetA">SkColorGetA</a>, <a href="undocumented#SkColorGetR">SkColorGetR</a>, <a href="undocumented#SkColorGetG">SkColorGetG</a>, and <a href="undocumented#SkColorGetB">SkColorGetB</a> to extract
-a color component.
+Use helpers
 
 ### Return Value
 
@@ -1887,8 +1886,6 @@ Yellow is 100% red, 100% green, and 0% blue.
 </fiddle-embed></div>
 
 ### See Also
-
-<a href="undocumented#SkColor">SkColor</a>
 
 ---
 
@@ -1922,8 +1919,6 @@ green1 == green2
 </fiddle-embed></div>
 
 ### See Also
-
-<a href="undocumented#SkColor">SkColor</a> <a href="#SkPaint_setARGB">setARGB</a> <a href="undocumented#SkColorSetARGB">SkColorSetARGB</a>
 
 ---
 
@@ -2029,7 +2024,7 @@ transRed1 == transRed2
 
 ### See Also
 
-<a href="#SkPaint_setColor">setColor</a> <a href="undocumented#SkColorSetARGB">SkColorSetARGB</a>
+<a href="#SkPaint_setColor">setColor</a>
 
 ---
 

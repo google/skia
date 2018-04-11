@@ -4557,7 +4557,7 @@ and below <a href="#SkCanvas_drawBitmapNine_center">center</a> to fill the remai
         int             <a href="#SkCanvas_Lattice_fXCount">fXCount</a>;
         int             <a href="#SkCanvas_Lattice_fYCount">fYCount</a>;
         const <a href="SkIRect_Reference#SkIRect">SkIRect</a>*  <a href="#SkCanvas_Lattice_fBounds">fBounds</a>;
-        const <a href="undocumented#SkColor">SkColor</a>*  <a href="#SkCanvas_Lattice_fColors">fColors</a>;
+        const SkColor*  <a href="#SkCanvas_Lattice_fColors">fColors</a>;
     };
 </pre>
 
