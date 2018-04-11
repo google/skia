@@ -24,7 +24,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -33,7 +33,7 @@
     "cmd": [
       "[START_DIR]/skia/bin/gn",
       "gen",
-      "[START_DIR]/out/Release",
+      "[START_DIR]/build/out/Release",
       "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false sanitize=\"ASAN\" skia_enable_spirv_validation=false"
     ],
     "cwd": "[START_DIR]/skia",
@@ -41,7 +41,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "gn gen"
   },
@@ -51,14 +51,14 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/out/Release"
+      "[START_DIR]/build/out/Release"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "ninja"
   },
@@ -208,7 +208,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
-      "[START_DIR]/out/Release/nanobench",
+      "[START_DIR]/build/out/Release/nanobench",
       "--some-flag"
     ],
     "cwd": "[START_DIR]/skia",
@@ -219,7 +219,7 @@
       "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/lib",
       "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
-      "SKIA_OUT": "[START_DIR]/out",
+      "SKIA_OUT": "[START_DIR]/build/out",
       "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1"
     },
     "name": "symbolized nanobench"
