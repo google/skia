@@ -74,6 +74,11 @@ SkColorType SkImage_Gpu::onColorType() const {
 }
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace*, CachingHint chint) const {
+    if (!fContext->contextPriv().resourceProvider()) {
+        // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
+        return false;
+    }
+
     // The SkColorSpace parameter "dstColorSpace" is really just a hint about how/where the bitmap
     // will be used. The client doesn't expect that we convert to that color space, it's intended
     // for codec-backed images, to drive our decoding heuristic. In theory we *could* read directly
@@ -202,6 +207,11 @@ GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
                                                   GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
+    if (!fContext->contextPriv().resourceProvider() && !fProxy->priv().isInstantiated()) {
+        // This image was created with a DDL context and cannot be instantiated.
+        return GrBackendTexture();
+    }
+
     if (!fProxy->instantiate(fContext->contextPriv().resourceProvider())) {
         return GrBackendTexture(); // invalid
     }
@@ -226,6 +236,11 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
         return nullptr;
     }
 
+    if (!fContext->contextPriv().resourceProvider() && !fProxy->priv().isInstantiated()) {
+        // This image was created with a DDL context and cannot be instantiated.
+        return nullptr;
+    }
+
     if (!proxy->instantiate(fContext->contextPriv().resourceProvider())) {
         return nullptr;
     }
@@ -235,6 +250,11 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                int srcX, int srcY, CachingHint) const {
+    if (!fContext->contextPriv().resourceProvider()) {
+        // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
+        return false;
+    }
+
     if (!SkImageInfoValidConversion(dstInfo, this->onImageInfo())) {
         return false;
     }
