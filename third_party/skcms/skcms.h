@@ -39,17 +39,15 @@ typedef struct {
 } skcms_TransferFunction;
 
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
-typedef struct {
-    union {
-        struct {
-            uint32_t alias_of_table_entries;
-            skcms_TransferFunction parametric;
-        };
-        struct {
-            uint32_t table_entries;
-            const uint8_t* table_8;
-            const uint8_t* table_16;
-        };
+typedef union {
+    struct {
+        uint32_t alias_of_table_entries;
+        skcms_TransferFunction parametric;
+    };
+    struct {
+        uint32_t table_entries;
+        const uint8_t* table_8;
+        const uint8_t* table_16;
     };
 } skcms_Curve;
 
