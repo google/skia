@@ -109,7 +109,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "get uninteresting hashes",
@@ -182,7 +182,7 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/out/Debug/dm",
+      "[START_DIR]/build/out/Debug/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -225,7 +225,7 @@
       "--uninterestingHashesFile",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
+      "[START_DIR]/[SWARM_OUT_DIR]/dm",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",
@@ -350,7 +350,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "symbolized dm"
   },
