@@ -1020,8 +1020,6 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
     if (iData == nullptr) {
         proc(devPath, *fRC, blitter); // proceed directly if we're not in threaded init-once
     } else if (!doFill || !paint.isAntiAlias()) {
-        // TODO remove true in the if statement above so we can proceed to DAA.
-
         // We're in threaded init-once but we can't use DAA. Hence we'll stop here and hand all the
         // remaining work to draw phase. This is a simple example of how to add init-once to
         // existing drawXXX commands: simply send in SkInitOnceData, do as much init work as
