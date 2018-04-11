@@ -10,10 +10,47 @@
 #include <iterator>
 #include <memory>
 #include <tuple>
+#include <utility>
 
 #include "SkDevice.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkTypeface_remote.h"
+
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <unordered_map>
+
+void BizaroTest1234() {
+
+    class B {
+    public:
+        B(std::unique_ptr<SkDescriptor>&& s_) : s{std::move(s_)} {}
+
+
+    private:
+        std::unique_ptr<SkDescriptor> s;
+        std::unique_ptr<SkTHashSet<SkPackedGlyphID>> fGlyphIDs =
+                skstd::make_unique<SkTHashSet<SkPackedGlyphID>>();
+    };
+
+    struct SEQ {
+        bool operator () (const SkDescriptor* a, const SkDescriptor* b) const {
+            return a->getChecksum() == b->getChecksum();
+        }
+    };
+
+    struct HASH {
+        uint64_t operator () (const SkDescriptor* a) const {
+            return a->getChecksum();
+        }
+    };
+    std::unordered_map<const SkDescriptor*, B, HASH, SEQ>
+            os(static_cast<size_t>(16), HASH(), SEQ());
+    std::unique_ptr<SkDescriptor> qqq{nullptr};
+    auto pqqq = qqq.get();
+    os.emplace(std::make_pair(pqqq, std::move(qqq)));
+}
 
 template <typename T>
 class ArraySlice final : public std::tuple<const T*, size_t> {
