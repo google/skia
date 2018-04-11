@@ -543,11 +543,11 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
                         QueueSubmit(fBackendContext->fQueue, 1, &submitInfo,
                                     backbuffer->fUsageFences[0]));
 
-    GrVkImageInfo* imageInfo;
     SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();
-    surface->getRenderTargetHandle((GrBackendObject*)&imageInfo,
-                                   SkSurface::kFlushRead_BackendHandleAccess);
-    imageInfo->updateImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    GrBackendRenderTarget backendRT = surface->getBackendRenderTarget(
+                                                        SkSurface::kFlushRead_BackendHandleAccess);
+    backendRT.setVkImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
 
     return sk_ref_sp(surface);
 }
@@ -555,14 +555,16 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
 void VulkanWindowContext::swapBuffers() {
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
-    GrVkImageInfo* imageInfo;
     SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();
-    surface->getRenderTargetHandle((GrBackendObject*)&imageInfo,
-                                   SkSurface::kFlushRead_BackendHandleAccess);
-    // Check to make sure we never change the actually wrapped image
-    SkASSERT(imageInfo->fImage == fImages[backbuffer->fImageIndex]);
 
-    VkImageLayout layout = imageInfo->fImageLayout;
+    GrBackendRenderTarget backendRT = surface->getBackendRenderTarget(
+                                                        SkSurface::kFlushRead_BackendHandleAccess);
+    GrVkImageInfo imageInfo;
+    SkAssertResult(backendRT.getVkImageInfo(&imageInfo));
+    // Check to make sure we never change the actually wrapped image
+    SkASSERT(imageInfo.fImage == fImages[backbuffer->fImageIndex]);
+
+    VkImageLayout layout = imageInfo.fImageLayout;
     VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);

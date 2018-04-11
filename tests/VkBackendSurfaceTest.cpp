@@ -84,6 +84,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     backendTexImage.setVkImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL == vkTexture->currentLayout());
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     // Verify that modifying the layout via the old textureHandle sitll works in is reflected in the
     // GrVkTexture and GrBackendTexture.
     GrVkImageInfo* backendInfo = (GrVkImageInfo*)wrappedImage->getTextureHandle(false);
@@ -94,6 +95,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
                     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == vkTexture->currentLayout());
     REPORTER_ASSERT(reporter, backendTexImage.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == info.fImageLayout);
+#endif
 
     vkTexture->updateImageLayout(initLayout);
 
