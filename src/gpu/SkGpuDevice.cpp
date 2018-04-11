@@ -1092,7 +1092,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     if (tmpUnfiltered.getMaskFilter()) {
         SkMatrix ctm = this->ctm();
         ctm.postTranslate(-SkIntToScalar(left + offset.fX), -SkIntToScalar(top + offset.fY));
-        tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithLocalMatrix(ctm));
+        tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithMatrix(ctm));
     }
 
     tmpUnfiltered.setImageFilter(nullptr);

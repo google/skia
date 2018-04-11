@@ -195,15 +195,8 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
     SkASSERT(args.fContext);
 
     SkMatrix matrix;
-    if (!this->getLocalMatrix().invert(&matrix)) {
+    if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
         return nullptr;
-    }
-    if (args.fLocalMatrix) {
-        SkMatrix inv;
-        if (!args.fLocalMatrix->invert(&inv)) {
-            return nullptr;
-        }
-        matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
 
