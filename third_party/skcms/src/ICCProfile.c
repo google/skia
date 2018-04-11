@@ -14,13 +14,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-static uint32_t make_signature(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
-    return (uint32_t)(a << 24)
-         | (uint32_t)(b << 16)
-         | (uint32_t)(c <<  8)
-         | (uint32_t)(d <<  0);
-}
+// A macro so that it can be used in the initialization of skcms_sRGB_profile.
+// Think, static uint32_t make_signature(uint8_t, uint8_t, uint8_t, uint8_t).
+#define make_signature(a,b,c,d) \
+    ( (uint32_t)((a) << 24) | (uint32_t)((b) << 16) | (uint32_t)((c) << 8) | (uint32_t)((d) << 0) )
 
 static uint16_t read_big_u16(const uint8_t* ptr) {
     uint16_t be;
@@ -770,5 +767,118 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     }
 
+    return true;
+}
+
+const skcms_ICCProfile skcms_sRGB_profile = {
+    // These fields are moot when not a skcms_Parse()'d profile.
+    .buffer    = NULL,
+    .size      =    0,
+    .tag_count =    0,
+
+    // We choose to represent sRGB with its canonical transfer function,
+    // and with its canonical XYZD50 gamut matrix.
+    .data_color_space = make_signature('R', 'G', 'B', ' '),
+    .pcs              = make_signature('X', 'Y', 'Z', ' '),
+    .has_trc      = true,
+    .has_toXYZD50 = true,
+    .has_A2B      = false,
+
+    .trc = {
+        {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+        {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+        {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+    },
+
+    .toXYZD50 = {{
+        { 0.436065674f, 0.385147095f, 0.143066406f },
+        { 0.222488403f, 0.716873169f, 0.060607910f },
+        { 0.013916016f, 0.097076416f, 0.714096069f },
+    }},
+};
+
+bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICCProfile* B) {
+    // For now this is the essentially the same strategy we use in test_only.c
+    // for our skcms_Transform() smoke tests:
+    //    1) transform A to XYZD50
+    //    2) transform B to XYZD50
+    //    3) return true if they're similar enough
+    // Our current criterion in 3) is maximum 1 bit error per XYZD50 byte.
+
+    // Here are 252 of a random shuffle of all possible bytes.
+    // 252 is evenly divisible by 3 and 4.  Only 192, 10, 241, and 43 are missing.
+    static const uint8_t k252_bytes[] = {
+        8, 179, 128, 204, 253, 38, 134, 184, 68, 102, 32, 138, 99, 39, 169, 215,
+        119, 26, 3, 223, 95, 239, 52, 132, 114, 74, 81, 234, 97, 116, 244, 205, 30,
+        154, 173, 12, 51, 159, 122, 153, 61, 226, 236, 178, 229, 55, 181, 220, 191,
+        194, 160, 126, 168, 82, 131, 18, 180, 245, 163, 22, 246, 69, 235, 252, 57,
+        108, 14, 6, 152, 240, 255, 171, 242, 20, 227, 177, 238, 96, 85, 16, 211,
+        70, 200, 149, 155, 146, 127, 145, 100, 151, 109, 19, 165, 208, 195, 164,
+        137, 254, 182, 248, 64, 201, 45, 209, 5, 147, 207, 210, 113, 162, 83, 225,
+        9, 31, 15, 231, 115, 37, 58, 53, 24, 49, 197, 56, 120, 172, 48, 21, 214,
+        129, 111, 11, 50, 187, 196, 34, 60, 103, 71, 144, 47, 203, 77, 80, 232,
+        140, 222, 250, 206, 166, 247, 139, 249, 221, 72, 106, 27, 199, 117, 54,
+        219, 135, 118, 40, 79, 41, 251, 46, 93, 212, 92, 233, 148, 28, 121, 63,
+        123, 158, 105, 59, 29, 42, 143, 23, 0, 107, 176, 87, 104, 183, 156, 193,
+        189, 90, 188, 65, 190, 17, 198, 7, 186, 161, 1, 124, 78, 125, 170, 133,
+        174, 218, 67, 157, 75, 101, 89, 217, 62, 33, 141, 228, 25, 35, 91, 230, 4,
+        2, 13, 73, 86, 167, 237, 84, 243, 44, 185, 66, 130, 110, 150, 142, 216, 88,
+        112, 36, 224, 136, 202, 76, 94, 98, 175, 213
+    };
+
+    static const skcms_ICCProfile kXYZD50 = {
+        .buffer           = NULL,
+        .size             = 0,
+        .tag_count        = 0,
+
+        .data_color_space = make_signature('R', 'G', 'B', ' '),
+        .pcs              = make_signature('X', 'Y', 'Z', ' '),
+        .has_trc          = true,
+        .has_toXYZD50     = true,
+        .has_A2B          = false,
+
+        .trc = {
+            {{0, {1,1,0,0,0,0,0}}},
+            {{0, {1,1,0,0,0,0,0}}},
+            {{0, {1,1,0,0,0,0,0}}},
+        },
+
+        .toXYZD50 = {{
+            {1,0,0},
+            {0,1,0},
+            {0,0,1},
+        }},
+    };
+
+    if (A->data_color_space != B->data_color_space) {
+        return false;
+    }
+
+    // Interpret as RGB_888 if data color space is RGB or GRAY, RGBA_8888 if CMYK.
+    skcms_PixelFormat fmt = skcms_PixelFormat_RGB_888;
+    size_t npixels = 84;
+    if (A->data_color_space == make_signature('C', 'M', 'Y', 'K')) {
+        fmt = skcms_PixelFormat_RGBA_8888;
+        npixels = 63;
+    }
+
+    uint8_t dstA[252],
+            dstB[252];
+    if (!skcms_Transform(k252_bytes,                 fmt, skcms_AlphaFormat_Unpremul, A,
+                         dstA, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &kXYZD50,
+                         npixels)) {
+        return false;
+    }
+    if (!skcms_Transform(k252_bytes,                 fmt, skcms_AlphaFormat_Unpremul, B,
+                         dstB, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &kXYZD50,
+                         npixels)) {
+        return false;
+    }
+
+    for (size_t i = 0; i < 252; i++) {
+        if (abs((int)dstA[i] - (int)dstB[i]) > 1) {
+            return false;
+        }
+    }
     return true;
 }

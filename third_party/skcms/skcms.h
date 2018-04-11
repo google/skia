@@ -99,6 +99,14 @@ typedef struct {
     skcms_A2B              A2B;
 } skcms_ICCProfile;
 
+// The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.
+extern const skcms_ICCProfile skcms_sRGB_profile;
+
+// Practical equality test for two skcms_ICCProfiles.
+// The implementation is subject to change, but it will always try to answer
+// "can I substitute A for B?" and "can I skip transforming from A to B?".
+bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICCProfile* B);
+
 // Parse an ICC profile and return true if possible, otherwise return false.
 // The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
 // will be used.
