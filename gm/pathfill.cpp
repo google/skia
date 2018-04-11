@@ -433,7 +433,7 @@ DEF_SIMPLE_GM(rotatedcubicpath, canvas, 200, 200) {
 DEF_GM( return new PathFillGM; )
 DEF_GM( return new PathInverseFillGM; )
 
-DEF_SIMPLE_GM(bug7792, canvas, 800, 200) {
+DEF_SIMPLE_GM(bug7792, canvas, 600, 400) {
     // from skbug.com/7792 bug description
     SkPaint p;
     SkPath path;
