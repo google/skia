@@ -63,10 +63,12 @@ GrMtlGpu* GrMtlRenderTarget::getMtlGpu() const {
     return static_cast<GrMtlGpu*>(this->getGpu());
 }
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendObject GrMtlRenderTarget::getRenderTargetHandle() const {
     void* voidRT = (__bridge_retained void*)fRenderTexture;
     return (GrBackendObject)voidRT;
 }
+#endif
 
 void GrMtlRenderTarget::onAbandon() {
     fRenderTexture = nil;

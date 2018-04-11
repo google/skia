@@ -207,12 +207,13 @@ enum class GrMipMapped : bool {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 /**
  * Opaque type for 3D API object handles. We are moving away from this type and towards type-safe
  * GrBackend* classes (e.g. GrBackendTexture). However, not all replacement APIs are in place yet.
  */
 typedef intptr_t GrBackendObject;
+#endif
 
 /**
  * GPU SkImage and SkSurfaces can be stored such that (0, 0) in texture space may correspond to

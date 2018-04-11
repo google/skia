@@ -63,13 +63,8 @@ void check_pixels(skiatest::Reporter* reporter, const SkBitmap& bitmap) {
 
 void draw_child(skiatest::Reporter* reporter,
                 const sk_gpu_test::ContextInfo& childInfo,
-                const GrBackendObject& backendImage,
+                const GrBackendTexture& backendTexture,
                 const GrBackendSemaphore& semaphore) {
-    GrBackendTexture backendTexture = GrTest::CreateBackendTexture(childInfo.backend(),
-                                                                   MAIN_W, MAIN_H,
-                                                                   kRGBA_8888_GrPixelConfig,
-                                                                   GrMipMapped::kNo,
-                                                                   backendImage);
 
     childInfo.testContext()->makeCurrent();
 
@@ -156,21 +151,22 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     }
 
     sk_sp<SkImage> mainImage = mainSurface->makeImageSnapshot();
-    GrBackendObject backendImage = mainImage->getTextureHandle(false);
+    GrBackendTexture backendTexture = mainImage->getBackendTexture(false);
 
-    draw_child(reporter, childInfo1, backendImage, semaphores[0]);
+    draw_child(reporter, childInfo1, backendTexture, semaphores[0]);
 
 #ifdef SK_VULKAN
     if (kVulkan_GrBackend == mainInfo.backend()) {
         // In Vulkan we need to make sure we are sending the correct VkImageLayout in with the
         // backendImage. After the first child draw the layout gets changed to SHADER_READ, so
         // we just manually set that here.
-        GrVkImageInfo* vkInfo = (GrVkImageInfo*)backendImage;
-        vkInfo->updateImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        GrVkImageInfo vkInfo;
+        SkAssertResult(backendTexture.getVkImageInfo(&vkInfo));
+        vkInfo.updateImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     }
 #endif
 
-    draw_child(reporter, childInfo2, backendImage, semaphores[1]);
+    draw_child(reporter, childInfo2, backendTexture, semaphores[1]);
 }
 
 DEF_GPUTEST(SurfaceSemaphores, reporter, options) {

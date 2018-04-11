@@ -18,10 +18,6 @@ namespace GrTest {
      * constantly be evicting entries
      */
     void SetupAlwaysEvictAtlas(GrContext*, int dim = GrDrawOpAtlas::kGlyphMaxDim);
-
-    // TODO: remove this. It is only used in the SurfaceSemaphores Test.
-    GrBackendTexture CreateBackendTexture(GrBackend, int width, int height,
-                                          GrPixelConfig, GrMipMapped, GrBackendObject);
 };
 
 #endif

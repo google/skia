@@ -19,6 +19,7 @@ public:
     SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*);
     virtual ~SkSurface_Base();
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     virtual GrBackendObject onGetTextureHandle(BackendHandleAccess) {
         return 0;
     }
@@ -26,6 +27,7 @@ public:
     virtual bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) {
         return false;
     }
+#endif
 
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);
     virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess);

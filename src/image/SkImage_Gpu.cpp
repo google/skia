@@ -165,6 +165,7 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
@@ -202,6 +203,7 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
     }
     return 0;
 }
+#endif
 
 GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
                                                   GrSurfaceOrigin* origin) const {
