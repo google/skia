@@ -29,6 +29,12 @@ public:
 
     AI void store(void* ptr) const { _mm_storel_pi((__m64*)ptr, fVec); }
 
+    AI static void Load2(const void* ptr, SkNx* x, SkNx* y) {
+        const float* m = (const float*)ptr;
+        *x = SkNx{m[0], m[2]};
+        *y = SkNx{m[1], m[3]};
+    }
+
     AI static void Store2(void* dst, const SkNx& a, const SkNx& b) {
         auto vals = _mm_unpacklo_ps(a.fVec, b.fVec);
         _mm_storeu_ps((float*)dst, vals);
