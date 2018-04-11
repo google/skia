@@ -2314,9 +2314,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDrawArraysBaseVertexIsBroken = true;
     }
 
+    // Blacklisting CCPR on ANGLE while we investigate http://skbug.com/7805.
+    if (kANGLE_GrGLRenderer == ctxInfo.renderer()) {
+        fBlacklistCoverageCounting = false;
+    }
+
     // The ccpr vertex-shader implementation does not work on this platform. Only allow CCPR with
     // GS.
-
     if (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
         GrGLANGLERenderer::kSkylake == ctxInfo.angleRenderer()) {
         bool gsSupport = fShaderCaps->geometryShaderSupport();
