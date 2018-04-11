@@ -22,7 +22,6 @@
 #include "SkMatrixUtils.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
-#include "SkPathPriv.h"
 #include "SkRasterClip.h"
 #include "SkRectPriv.h"
 #include "SkRRect.h"
@@ -1070,7 +1069,6 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         tmpPath = iData->fAlloc->make<SkPath>();
     }
     tmpPath->setIsVolatile(true);
-    SkPathPriv::SetIsBadForDAA(*tmpPath, SkPathPriv::IsBadForDAA(origSrcPath));
 
     if (prePathMatrix) {
         if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style) {
