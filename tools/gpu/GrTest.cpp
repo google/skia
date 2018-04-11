@@ -53,31 +53,6 @@ void SetupAlwaysEvictAtlas(GrContext* context, int dim) {
     context->contextPriv().setTextContextAtlasSizes_ForTesting(configs);
 }
 
-GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
-                                      GrPixelConfig config, GrMipMapped mipMapped,
-                                      GrBackendObject handle) {
-    switch (backend) {
-#ifdef SK_VULKAN
-        case kVulkan_GrBackend: {
-            GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
-            SkASSERT((GrMipMapped::kYes == mipMapped) == (vkInfo->fLevelCount > 1));
-            return GrBackendTexture(width, height, *vkInfo);
-        }
-#endif
-        case kOpenGL_GrBackend: {
-            GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
-            SkASSERT(glInfo->fFormat);
-            return GrBackendTexture(width, height, mipMapped, *glInfo);
-        }
-        case kMock_GrBackend: {
-            GrMockTextureInfo* mockInfo = (GrMockTextureInfo*)(handle);
-            return GrBackendTexture(width, height, mipMapped, *mockInfo);
-        }
-        default:
-            return GrBackendTexture();
-    }
-}
-
 }  // namespace GrTest
 
 bool GrSurfaceProxy::isWrapped_ForTesting() const {
