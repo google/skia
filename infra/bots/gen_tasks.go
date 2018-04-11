@@ -234,10 +234,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"Nexus5":          {"hammerhead", "M4B30Z_3437181"},
 				"Nexus5x":         {"bullhead", "OPR6.170623.023"},
 				"Nexus7":          {"grouper", "LMY47V_1836172"}, // 2012 Nexus 7
-				"NexusPlayer":     {"fugu", "OPR6.170623.021"},
+				"NexusPlayer":     {"fugu", "OPR2.170623.027"},
 				"Pixel":           {"sailfish", "OPM1.171019.016"},
 				"Pixel2XL":        {"taimen", "OPM1.171019.021"},
-				"PixelC":          {"dragon", "OPR1.170623.034"},
+				"PixelC":          {"dragon", "OPM1.171019.026"},
 			}[parts["model"]]
 			if !ok {
 				glog.Fatalf("Entry %q not found in Android mapping.", parts["model"])
