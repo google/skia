@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "932a1501_371d549c",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-11T20:10:38Z",
+      "side": 1,
+      "message": "Is this bit needed / don\u0027t we apply the paint bounder (again?) just below?",
+      "range": {
+        "startLine": 406,
+        "startChar": 0,
+        "endLine": 410,
+        "endChar": 9
+      },
+      "revId": "def91106a93ba701b63ad61ebee2fc5d0df12e7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
