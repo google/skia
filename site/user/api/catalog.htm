@@ -700,20 +700,6 @@
     "name": "SkIRect::bottom()",
         "stdout": "unsorted.fBottom: 5 unsorted.bottom(): 5\\nsorted.fBottom: 25 sorted.bottom(): 25\\n"
     },
-        "SkIRect_centerX": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect tests[] = {{20, 30, 41, 51}, {-20, -30, -41, -51}, {-10, -10, 11, 11}};\n    for (auto rect : tests) {\n        SkDebugf(\"left: %3d right: %3d centerX: %3d \", rect.left(), rect.right(), rect.centerX());\n        SkDebugf(\"div2: %3d\\n\", (rect.left() + rect.right()) / 2);\n    }\n}",
-    "hash": "549b840a9ceaaf7cb4e604f9f3d7108d",
-    "file": "SkIRect_Reference",
-    "name": "SkIRect::centerX",
-        "stdout": "left:  20 right:  41 centerX:  30 div2:  30\\nleft: -20 right: -41 centerX: -31 div2: -30\\nleft: -10 right:  11 centerX:   0 div2:   0\\n"
-    },
-        "SkIRect_centerY": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = { 0, 0, 2, 2 };\n    rect.offset(0x40000000, 0x40000000);\n    SkDebugf(\"left: %d right: %d centerX: %d \", rect.left(), rect.right(), rect.centerX());\n}",
-    "hash": "6449f7156330efbb3f344c0b787330a5",
-    "file": "SkIRect_Reference",
-    "name": "SkIRect::centerY",
-        "stdout": "left: 1073741824 right: 1073741826 centerX: 1073741825"
-    },
         "SkIRect_contains": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = { 30, 50, 40, 60 };\n    SkIPoint pts[] = { { 30, 50}, { 40, 50}, { 30, 60} };\n    for (auto pt : pts) {\n        SkDebugf(\"rect: (%d, %d, %d, %d) %s (%d, %d)\\n\",\n                 rect.left(), rect.top(), rect.right(), rect.bottom(),\n                 rect.contains(pt.x(), pt.y()) ? \"contains\" : \"does not contain\", pt.x(), pt.y());\n    }\n}",
     "hash": "a7958a4e0668f5cf805a8e78eb57f51d",
@@ -812,13 +798,6 @@
     "name": "SkIRect::intersect_3",
         "stdout": "intersection: 30, 60, 50, 80\\n"
     },
-        "SkIRect_is16Bit": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect tests[] = {{-32768, -32768, 32767, 32767}, {-32768, -32768, 32768, 32768}};\n    for (auto rect : tests) {\n        SkDebugf(\"{%d, %d, %d, %d} %s in 16 bits\\n\", rect.fLeft, rect.fTop, rect.fRight,\n                 rect.fBottom, rect.is16Bit() ? \"fits\" : \"does not fit\");\n}\n}",
-    "hash": "103e8d463e68e87e0f8f9454a7d3441c",
-    "file": "SkIRect_Reference",
-    "name": "SkIRect::is16Bit",
-        "stdout": "{-32768, -32768, 32767, 32767} fits in 16 bits\\n{-32768, -32768, 32768, 32768} does not fit in 16 bits\\n"
-    },
         "SkIRect_isEmpty": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};\n    for (auto rect : tests) {\n        SkDebugf(\"rect: {%d, %d, %d, %d} is\" \"%s empty\\n\", rect.left(), rect.top(), rect.right(),\n                 rect.bottom(), rect.isEmpty() ? \"\" : \" not\");\n        rect.sort();\n        SkDebugf(\"sorted: {%d, %d, %d, %d} is\" \"%s empty\\n\", rect.left(), rect.top(), rect.right(),\n                 rect.bottom(), rect.isEmpty() ? \"\" : \" not\");\n    }\n}",
     "hash": "edaad064b6de249b7a7c768dfa000adc",
@@ -916,13 +895,6 @@
     "file": "SkIRect_Reference",
     "name": "SkIRect::outset()",
         "stdout": "rect: 5, 1, 55, 86\\n"
-    },
-        "SkIRect_quickReject": {
-    "code": "void draw(SkCanvas* canvas) {\n    const SkIRect rect = {7, 11, 13, 17};\n    const int32_t* r = &rect.fLeft;\n    const SkIRect tests[] = { {13, 11, 15, 17}, { 7, 7, 13, 11 }, { 12, 16, 14, 18 } };\n    for (auto& test : tests) {\n      const int32_t* t = &test.fLeft;\n      SkDebugf(\"rect (%d, %d, %d, %d) test(%d, %d, %d, %d) quickReject %s; intersects %s\\n\",\n               r[0], r[1], r[2], r[3], t[0], t[1], t[2], t[3],\n               rect.quickReject(t[0], t[1], t[2], t[3]) ? \"true\" : \"false\", \n               SkIRect::Intersects(rect, test) ? \"true\" : \"false\");\n    }\n}",
-    "hash": "f07146508efc516559d73853e6dadc78",
-    "file": "SkIRect_Reference",
-    "name": "SkIRect::quickReject",
-        "stdout": "rect (7, 11, 13, 17) test(13, 11, 15, 17) quickReject true; intersects false\\nrect (7, 11, 13, 17) test(7, 7, 13, 11) quickReject true; intersects false\\nrect (7, 11, 13, 17) test(12, 16, 14, 18) quickReject false; intersects true\\n"
     },
         "SkIRect_right": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect unsorted = { 15, 25, 10, 5 };\n    SkDebugf(\"unsorted.fRight: %d unsorted.right(): %d\\n\", unsorted.fRight, unsorted.right());\n    SkIRect sorted = unsorted.makeSorted();\n    SkDebugf(\"sorted.fRight: %d sorted.right(): %d\\n\", sorted.fRight, sorted.right());\n}",

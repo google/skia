@@ -46,8 +46,6 @@ its top, it is considered empty.
 | <a href="#SkIRect_MakeWH">MakeWH</a> | constructs from int input returning (0, 0, width, height) |
 | <a href="#SkIRect_MakeXYWH">MakeXYWH</a> | constructs from int input returning (x, y, width, height) |
 | <a href="#SkIRect_bottom">bottom</a> | returns larger bounds in y, if sorted |
-| <a href="#SkIRect_centerX">centerX</a> | returns midpoint in x |
-| <a href="#SkIRect_centerY">centerY</a> | returns midpoint in y |
 | <a href="#SkIRect_contains">contains</a> | returns true if <a href="SkIPoint_Reference#IPoint">IPoint</a> (x, y) is equal or inside |
 | <a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a> | returns true if contains unsorted <a href="#IRect">IRect</a> |
 | <a href="#SkIRect_height">height</a> | returns span in y |
@@ -55,7 +53,6 @@ its top, it is considered empty.
 | <a href="#SkIRect_inset">inset</a> | moves the sides symmetrically about the center |
 | <a href="#SkIRect_intersect">intersect</a> | sets to shared area; returns true if not empty |
 | <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> | sets to shared area; returns true if not empty skips empty check |
-| <a href="#SkIRect_is16Bit">is16Bit</a> | returns true if members fit in 16-bit word |
 | <a href="#SkIRect_isEmpty">isEmpty</a> | returns true if width or height are zero or negative or they exceed int32_t |
 | <a href="#SkIRect_isEmpty64">isEmpty64</a> | returns true if width or height are zero or negative |
 | <a href="#SkIRect_join">join</a> | sets to union of bounds |
@@ -67,7 +64,6 @@ its top, it is considered empty.
 | <a href="#SkIRect_offset">offset</a> | translates sides without changing width and height |
 | <a href="#SkIRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
 | <a href="#SkIRect_outset">outset</a> | moves the sides symmetrically about the center |
-| <a href="#SkIRect_quickReject">quickReject</a> | returns true if rectangles do not intersect |
 | <a href="#SkIRect_right">right</a> | returns larger bounds in x, if sorted |
 | <a href="#SkIRect_set">set</a> | sets to (left, top, right, bottom) |
 | <a href="#SkIRect_setEmpty">setEmpty</a> | sets to (0, 0, 0, 0) |
@@ -343,11 +339,8 @@ rect: -10, 35, 5, 60  isEmpty: false
 | name | description |
 | --- | --- |
 | <a href="#SkIRect_bottom">bottom</a> | returns larger bounds in y, if sorted |
-| <a href="#SkIRect_centerX">centerX</a> | returns midpoint in x |
-| <a href="#SkIRect_centerY">centerY</a> | returns midpoint in y |
 | <a href="#SkIRect_height">height</a> | returns span in y |
 | <a href="#SkIRect_height64">height64</a> | returns span in y as int64_t |
-| <a href="#SkIRect_is16Bit">is16Bit</a> | returns true if members fit in 16-bit word |
 | <a href="#SkIRect_isEmpty">isEmpty</a> | returns true if width or height are zero or negative or they exceed int32_t |
 | <a href="#SkIRect_isEmpty64">isEmpty64</a> | returns true if width or height are zero or negative |
 | <a href="#SkIRect_left">left</a> | returns smaller bounds in x, if sorted |
@@ -723,77 +716,6 @@ outset rect: 20, 30, 80, 90  size: 60, 60
 
 ---
 
-<a name="SkIRect_centerX"></a>
-## centerX
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int32_t centerX() const
-</pre>
-
-Returns average of left edge and right edge. Result does not change if <a href="#IRect">IRect</a>
-is sorted.
-
-Result is rounded down.
-
-### Return Value
-
-midpoint in x
-
-### Example
-
-<div><fiddle-embed name="549b840a9ceaaf7cb4e604f9f3d7108d"><div>Dividing by two rounds towards zero. <a href="#SkIRect_centerX">centerX</a> uses a bit shift and rounds down.
-</div>
-
-#### Example Output
-
-~~~~
-left:  20 right:  41 centerX:  30 div2:  30
-left: -20 right: -41 centerX: -31 div2: -30
-left: -10 right:  11 centerX:   0 div2:   0
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkIRect_centerY">centerY</a> <a href="SkRect_Reference#SkRect_centerX">SkRect::centerX</a>
-
----
-
-<a name="SkIRect_centerY"></a>
-## centerY
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int32_t centerY() const
-</pre>
-
-Returns average of top edge and bottom edge. Result does not change if <a href="#IRect">IRect</a>
-is sorted.
-
-Result is rounded down.
-
-### Return Value
-
-midpoint in y
-
-### Example
-
-<div><fiddle-embed name="6449f7156330efbb3f344c0b787330a5">
-
-#### Example Output
-
-~~~~
-left: 1073741824 right: 1073741826 centerX: 1073741825
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkIRect_centerX">centerX</a> <a href="SkRect_Reference#SkRect_centerY">SkRect::centerY</a>
-
----
-
 <a name="SkIRect_isEmpty"></a>
 ## isEmpty
 
@@ -950,39 +872,6 @@ test != sorted
 ### See Also
 
 <a href="#SkIRect_equal_operator">operator==(const SkIRect& a, const SkIRect& b)</a>
-
----
-
-<a name="SkIRect_is16Bit"></a>
-## is16Bit
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-bool is16Bit() const
-</pre>
-
-Returns true if all members: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; values are
-equal to or larger than -32768 and equal to or smaller than 32767.
-
-### Return Value
-
-true if members fit in 16-bit word
-
-### Example
-
-<div><fiddle-embed name="103e8d463e68e87e0f8f9454a7d3441c">
-
-#### Example Output
-
-~~~~
-{-32768, -32768, 32767, 32767} fits in 16 bits
-{-32768, -32768, 32768, 32768} does not fit in 16 bits
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="undocumented#SkTFitsIn">SkTFitsIn</a>
 
 ---
 
@@ -1529,58 +1418,6 @@ describes an area: <a href="#SkIRect_fLeft">fLeft</a> is less than <a href="#SkI
 | <a href="#SkIRect_intersect">intersect</a> | sets to shared area; returns true if not empty |
 |  | <a href="#SkIRect_intersect">intersect(const SkIRect& r)</a> |
 | <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> | sets to shared area; returns true if not empty skips empty check |
-| <a href="#SkIRect_quickReject">quickReject</a> | returns true if rectangles do not intersect |
-
-<a name="SkIRect_quickReject"></a>
-## quickReject
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-bool quickReject(int l, int t, int r, int b) const
-</pre>
-
-Constructs <a href="#IRect">IRect</a> (<a href="#SkIRect_quickReject_l">l</a>, <a href="#SkIRect_quickReject_t">t</a>, <a href="#SkIRect_quickReject_r">r</a>, <a href="#SkIRect_quickReject_b">b</a>) and returns true if constructed <a href="#IRect">IRect</a> does not
-intersect <a href="#IRect">IRect</a>. Does not check to see if construction or <a href="#IRect">IRect</a> is empty.
-
-Is implemented with short circuit logic so that true can be returned after
-a single compare.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkIRect_quickReject_l"> <code><strong>l </strong></code> </a></td> <td>
-x minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_quickReject_t"> <code><strong>t </strong></code> </a></td> <td>
-y minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_quickReject_r"> <code><strong>r </strong></code> </a></td> <td>
-x maximum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_quickReject_b"> <code><strong>b </strong></code> </a></td> <td>
-y maximum of constructed <a href="#IRect">IRect</a></td>
-  </tr>
-</table>
-
-### Return Value
-
-true if construction and <a href="#IRect">IRect</a> have no area in common
-
-### Example
-
-<div><fiddle-embed name="f07146508efc516559d73853e6dadc78"><div><a href="#SkIRect_quickReject">quickReject</a> is the complement of <a href="#SkIRect_Intersects">Intersects</a>.
-</div>
-
-#### Example Output
-
-~~~~
-rect (7, 11, 13, 17) test(13, 11, 15, 17) quickReject true; intersects false
-rect (7, 11, 13, 17) test(7, 7, 13, 11) quickReject true; intersects false
-rect (7, 11, 13, 17) test(12, 16, 14, 18) quickReject false; intersects true
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkIRect_Intersects">Intersects</a>
-
----
 
 <a name="SkIRect_contains"></a>
 ## contains
