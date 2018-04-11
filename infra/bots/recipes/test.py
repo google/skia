@@ -1161,7 +1161,7 @@ def GenTests(api):
     ) +
     api.step_data('dm', retcode=1) +
     api.step_data('pull /sdcard/revenge_of_the_skiabot/dm_out '+
-                  '[CUSTOM_[SWARM_OUT_DIR]]/dm', retcode=1)
+                  '[START_DIR]/[SWARM_OUT_DIR]/dm', retcode=1)
   )
 
   yield (

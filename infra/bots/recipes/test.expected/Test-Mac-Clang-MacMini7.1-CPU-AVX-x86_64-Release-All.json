@@ -109,7 +109,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "get uninteresting hashes",
@@ -177,7 +177,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/out/Release/dm",
+      "[START_DIR]/build/out/Release/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -218,7 +218,7 @@
       "--uninterestingHashesFile",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
+      "[START_DIR]/[SWARM_OUT_DIR]/dm",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",
@@ -563,7 +563,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "dm"
   },
