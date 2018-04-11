@@ -242,6 +242,7 @@ def dm_flags(api, bot):
       # This bot generates gl and vk comparison images for the large skps
       configs = [c for c in configs if c == 'gl' or c == 'vk']
       args.extend(['--skpViewportSize', "2048"])
+      args.extend(['--pr', '~ccpr', '~small'])
     if 'DDL3' in bot:
       # This bot generates the ddl-gl and ddl-vk images for the
       # large skps and the gms
