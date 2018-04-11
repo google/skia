@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7142e9e1_86f27782",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-11T13:43:09Z",
+      "side": 1,
+      "message": "MSVC-only... oh, the joy!",
+      "range": {
+        "startLine": 11,
+        "startChar": 19,
+        "endLine": 11,
+        "endChar": 57
+      },
+      "revId": "c64ee20e135a336ed775ccb6dec8a87efd19ec02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
