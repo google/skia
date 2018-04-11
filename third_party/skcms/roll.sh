@@ -10,7 +10,13 @@ set -e
 
 here=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 skcms=$(mktemp -d)
-git clone --quiet --depth 1 https://skia.googlesource.com/skcms.git $skcms
+
+if [ "$#" == "0" ]; then
+    git clone --quiet --depth 1 https://skia.googlesource.com/skcms.git $skcms
+else
+    git clone --quiet           https://skia.googlesource.com/skcms.git $skcms
+    git -C $skcms checkout $1
+fi
 
 git rm --quiet    $here/LICENSE
 git rm --quiet    $here/skcms.h
