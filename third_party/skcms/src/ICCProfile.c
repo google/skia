@@ -703,6 +703,11 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     }
 
+    if (profile->pcs != make_signature('X', 'Y', 'Z', ' ') &&
+        profile->pcs != make_signature('L', 'a', 'b', ' ')) {
+        return false;
+    }
+
     bool pcs_is_xyz = profile->pcs == make_signature('X', 'Y', 'Z', ' ');
 
     // Pre-parse commonly used tags.
