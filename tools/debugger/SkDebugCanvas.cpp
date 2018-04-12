@@ -468,6 +468,10 @@ void SkDebugCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode
                                                    bmode, paint));
 }
 
+void SkDebugCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    this->addDrawCommand(new SkDrawShadowCommand(path, rec));
+}
+
 void SkDebugCanvas::willRestore() {
     this->addDrawCommand(new SkRestoreCommand());
     this->INHERITED::willRestore();

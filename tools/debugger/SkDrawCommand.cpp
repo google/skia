@@ -28,6 +28,7 @@
 #include "picture_utils.h"
 #include "SkClipOpPriv.h"
 #include <SkLatticeIter.h>
+#include <SkShadowFlags.h>
 
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
 #define SKDEBUGCANVAS_ATTRIBUTE_VISIBLE           "visible"
@@ -120,6 +121,11 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_LATTICEXDIVS      "xDivs"
 #define SKDEBUGCANVAS_ATTRIBUTE_LATTICEYDIVS      "yDivs"
 #define SKDEBUGCANVAS_ATTRIBUTE_LATTICEFLAGS      "flags"
+#define SKDEBUGCANVAS_ATTRIBUTE_ZPLANE            "zPlane"
+#define SKDEBUGCANVAS_ATTRIBUTE_LIGHTPOSITION     "lightPositions"
+#define SKDEBUGCANVAS_ATTRIBUTE_AMBIENTCOLOR      "ambientColor"
+#define SKDEBUGCANVAS_ATTRIBUTE_SPOTCOLOR         "spotColor"
+#define SKDEBUGCANVAS_ATTRIBUTE_LIGHTRADIUS       "lightRadius"
 
 #define SKDEBUGCANVAS_VERB_MOVE                   "move"
 #define SKDEBUGCANVAS_VERB_LINE                   "line"
@@ -191,6 +197,9 @@
 #define SKDEBUGCANVAS_HINTING_NORMAL              "normal"
 #define SKDEBUGCANVAS_HINTING_FULL                "full"
 
+#define SKDEBUGCANVAS_SHADOWFLAG_TRANSPARENT_OCC  "transparentOccluder"
+#define SKDEBUGCANVAS_SHADOWFLAG_GEOMETRIC_ONLY   "geometricOnly"
+
 typedef SkDrawCommand* (*FROM_JSON)(Json::Value&, UrlDataManager&);
 
 static SkString* str_append(SkString* str, const SkRect& r) {
@@ -234,6 +243,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawRect_OpType: return "DrawRect";
         case kDrawRRect_OpType: return "DrawRRect";
         case kDrawRegion_OpType: return "DrawRegion";
+        case kDrawShadow_OpType: return "DrawShadow";
         case kDrawText_OpType: return "DrawText";
         case kDrawTextBlob_OpType: return "DrawTextBlob";
         case kDrawTextOnPath_OpType: return "DrawTextOnPath";
@@ -294,7 +304,7 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
         INSTALL_FACTORY(DrawTextOnPath);
         INSTALL_FACTORY(DrawTextRSXform);
         INSTALL_FACTORY(DrawTextBlob);
-
+        INSTALL_FACTORY(DrawShadow);
         INSTALL_FACTORY(DrawRect);
         INSTALL_FACTORY(DrawRRect);
         INSTALL_FACTORY(DrawDRRect);
@@ -449,6 +459,22 @@ void render_drrect(SkCanvas* canvas, const SkRRect& outer, const SkRRect& inner)
     canvas->restore();
 }
 
+void render_shadow(SkCanvas* canvas, const SkPath& path, SkDrawShadowRec rec) {
+    canvas->clear(0xFFFFFFFF);
+
+    const SkRect& bounds = path.getBounds();
+    if (bounds.isEmpty()) {
+        return;
+    }
+
+    SkAutoCanvasRestore acr(canvas, true);
+    xlate_and_scale_to_bounds(canvas, bounds);
+
+    rec.fAmbientColor = SK_ColorBLACK;
+    rec.fSpotColor = SK_ColorBLACK;
+    canvas->private_draw_shadow_rec(path, rec);
+}
+
 static const char* const gBlendModeMap[] = {
     "clear",
     "src",
@@ -542,6 +568,14 @@ Json::Value SkDrawCommand::MakeJsonPoint(SkScalar x, SkScalar y) {
     Json::Value result(Json::arrayValue);
     result.append(Json::Value(x));
     result.append(Json::Value(y));
+    return result;
+}
+
+Json::Value SkDrawCommand::MakeJsonPoint3(const SkPoint3& point) {
+    Json::Value result(Json::arrayValue);
+    result.append(Json::Value(point.x()));
+    result.append(Json::Value(point.y()));
+    result.append(Json::Value(point.z()));
     return result;
 }
 
@@ -1297,6 +1331,10 @@ Json::Value SkDrawCommand::MakeJsonLattice(const SkCanvas::Lattice& lattice) {
 
 static SkPoint get_json_point(Json::Value point) {
     return SkPoint::Make(point[0].asFloat(), point[1].asFloat());
+}
+
+static SkPoint3 get_json_point3(Json::Value point) {
+    return SkPoint3::Make(point[0].asFloat(), point[1].asFloat(), point[2].asFloat());
 }
 
 static SkColor get_json_color(Json::Value color) {
@@ -3212,6 +3250,63 @@ SkDrawDRRectCommand* SkDrawDRRectCommand::fromJSON(Json::Value& command,
     SkPaint paint;
     extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
     return new SkDrawDRRectCommand(outer, inner, paint);
+}
+
+SkDrawShadowCommand::SkDrawShadowCommand(const SkPath& path, const SkDrawShadowRec& rec)
+        : INHERITED(kDrawShadow_OpType) {
+    fPath = path;
+    fShadowRec = rec;
+}
+
+void SkDrawShadowCommand::execute(SkCanvas* canvas) const {
+    canvas->private_draw_shadow_rec(fPath, fShadowRec);
+}
+
+bool SkDrawShadowCommand::render(SkCanvas* canvas) const {
+    render_shadow(canvas, fPath, fShadowRec);
+    return true;
+}
+
+Json::Value SkDrawShadowCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+    result[SKDEBUGCANVAS_ATTRIBUTE_PATH] = MakeJsonPath(fPath);
+
+    bool geometricOnly = SkToBool(fShadowRec.fFlags & SkShadowFlags::kGeometricOnly_ShadowFlag);
+    bool transparentOccluder =
+            SkToBool(fShadowRec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
+
+    result[SKDEBUGCANVAS_ATTRIBUTE_PATH] = MakeJsonPath(fPath);
+    result[SKDEBUGCANVAS_ATTRIBUTE_ZPLANE] = MakeJsonPoint3(fShadowRec.fZPlaneParams);
+    result[SKDEBUGCANVAS_ATTRIBUTE_LIGHTPOSITION] = MakeJsonPoint3(fShadowRec.fLightPos);
+    result[SKDEBUGCANVAS_ATTRIBUTE_LIGHTRADIUS] = MakeJsonScalar(fShadowRec.fLightRadius);
+    result[SKDEBUGCANVAS_ATTRIBUTE_AMBIENTCOLOR] = MakeJsonColor(fShadowRec.fAmbientColor);
+    result[SKDEBUGCANVAS_ATTRIBUTE_SPOTCOLOR] = MakeJsonColor(fShadowRec.fSpotColor);
+    store_bool(&result, SKDEBUGCANVAS_SHADOWFLAG_TRANSPARENT_OCC, transparentOccluder, false);
+    store_bool(&result, SKDEBUGCANVAS_SHADOWFLAG_GEOMETRIC_ONLY, geometricOnly, false);
+    return result;
+}
+
+SkDrawShadowCommand* SkDrawShadowCommand::fromJSON(Json::Value& command,
+                                               UrlDataManager& urlDataManager) {
+    SkPath path;
+    extract_json_path(command[SKDEBUGCANVAS_ATTRIBUTE_PATH], &path);
+    SkDrawShadowRec rec;
+    rec.fZPlaneParams = get_json_point3(command[SKDEBUGCANVAS_ATTRIBUTE_ZPLANE]);
+    rec.fLightPos = get_json_point3(command[SKDEBUGCANVAS_ATTRIBUTE_LIGHTPOSITION]);
+    rec.fLightRadius = command[SKDEBUGCANVAS_ATTRIBUTE_LIGHTRADIUS].asFloat();
+    rec.fAmbientColor = get_json_color(command[SKDEBUGCANVAS_ATTRIBUTE_AMBIENTCOLOR]);
+    rec.fSpotColor = get_json_color(command[SKDEBUGCANVAS_ATTRIBUTE_SPOTCOLOR]);
+
+    rec.fFlags = SkShadowFlags::kNone_ShadowFlag;
+    if (command.isMember(SKDEBUGCANVAS_SHADOWFLAG_TRANSPARENT_OCC)
+        && command[SKDEBUGCANVAS_SHADOWFLAG_TRANSPARENT_OCC].asBool()) {
+        rec.fFlags |= SkShadowFlags::kTransparentOccluder_ShadowFlag;
+    }
+    if (command.isMember(SKDEBUGCANVAS_SHADOWFLAG_GEOMETRIC_ONLY)
+        && command[SKDEBUGCANVAS_SHADOWFLAG_GEOMETRIC_ONLY].asBool()) {
+        rec.fFlags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
+    }
+    return new SkDrawShadowCommand(path, rec);
 }
 
 SkDrawTextCommand::SkDrawTextCommand(const void* text, size_t byteLength, SkScalar x, SkScalar y,
