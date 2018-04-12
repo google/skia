@@ -49,7 +49,7 @@ class SkTaskGroup2D {
 public:
     SkTaskGroup2D(SkWorkKernel2D* kernel, int height, SkExecutor* executor, int threadCnt)
             : fKernel(kernel), fHeight(height), fThreadCnt(threadCnt), fIsFinishing(false)
-            , fWidth(0), fThreadsGroup(new SkTaskGroup(*executor)) {}
+            , fWidth(0), fUnsafeWidth(0), fThreadsGroup(new SkTaskGroup(*executor)) {}
 
     virtual ~SkTaskGroup2D() {}
 
@@ -59,7 +59,7 @@ public:
     void finish(); // wait and finish all tasks (no more tasks can be added after calling this)
 
     SK_ALWAYS_INLINE bool isFinishing() const {
-        return fIsFinishing.load(std::memory_order_relaxed);
+        return fIsFinishing.load(std::memory_order_acquire);
     }
 
 protected:
@@ -84,6 +84,7 @@ protected:
 
     std::atomic<bool>   fIsFinishing;
     std::atomic<int>    fWidth;
+    int                 fUnsafeWidth; // to reduce contention
 
     std::unique_ptr<SkTaskGroup> fThreadsGroup;
 };

@@ -15,11 +15,13 @@ void SkTaskGroup2D::start() {
 
 void SkTaskGroup2D::addColumn() {
     SkASSERT(!fIsFinishing); // we're not supposed to add more work after the calling of finish
-    fWidth++;
+    fUnsafeWidth++;
+    fWidth.store(fUnsafeWidth, std::memory_order_release);
 }
 
 void SkTaskGroup2D::finish() {
-    fIsFinishing.store(true, std::memory_order_relaxed);
+    fWidth.store(fUnsafeWidth, std::memory_order_release);
+    fIsFinishing.store(true, std::memory_order_release);
     fThreadsGroup->wait();
 }
 
@@ -34,7 +36,8 @@ void SkSpinningTaskGroup2D::work(int threadId) {
         }
 
         // Note that row = threadId
-        if (workCol < fWidth && fKernel->work2D(threadId, workCol, threadId)) {
+        int width = fWidth.load(std::memory_order_acquire);
+        if (workCol < width && fKernel->work2D(threadId, workCol, threadId)) {
             workCol++;
         } else {
             // Initialize something if we can't work
@@ -61,14 +64,15 @@ void SkFlexibleTaskGroup2D::work(int threadId) {
 #pragma clang diagnostic ignored "-Wthread-safety-analysis"
 #endif
         if (rowData.fMutex.try_lock()) {
-            while (rowData.fNextColumn < fWidth &&
+            while (rowData.fNextColumn < fWidth.load(std::memory_order_acquire) &&
                     fKernel->work2D(row, rowData.fNextColumn, threadId)) {
                 rowData.fNextColumn++;
             }
             // isFinishing can never go from true to false. Once it's true, we count how many rows
             // are completed (out of work). If that count reaches fHeight, then we're out of work
             // for the whole group and we can stop.
-            if (rowData.fNextColumn == fWidth && this->isFinishing()) {
+            if (this->isFinishing() &&
+                    rowData.fNextColumn == fWidth.load(std::memory_order_acquire)) {
                 numRowsCompleted += (completedRows[row] == false);
                 completedRows[row] = true; // so we won't count this row twice
             }
