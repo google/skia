@@ -4346,6 +4346,10 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
         return GrBackendTexture();  // invalid
     }
 
+    if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
+        return GrBackendTexture();  // invalid
+    }
+
     // Currently we don't support uploading pixel data when mipped.
     if (pixels && GrMipMapped::kYes == mipMapped) {
         return GrBackendTexture();  // invalid
@@ -4433,6 +4437,9 @@ void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
 GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h,
                                                                     GrColorType colorType,
                                                                     GrSRGBEncoded srgbEncoded) {
+    if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
+        return GrBackendRenderTarget();  // invalid
+    }
     this->handleDirtyContext();
     auto config = GrColorTypeToPixelConfig(colorType, srgbEncoded);
     GrGLenum colorBufferFormat;
