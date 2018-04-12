@@ -9,7 +9,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "setup_device"
@@ -18,7 +18,7 @@
     "cmd": [
       "ideviceinstaller",
       "-i",
-      "[START_DIR]/out/Release/dm.app"
+      "[START_DIR]/build/out/Release/dm.app"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -26,7 +26,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "install_dm"
@@ -35,7 +35,7 @@
     "cmd": [
       "ideviceinstaller",
       "-i",
-      "[START_DIR]/out/Release/nanobench.app"
+      "[START_DIR]/build/out/Release/nanobench.app"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -43,7 +43,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "install_nanobench"
@@ -60,7 +60,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push_if_needed [START_DIR]/skia/resources"
@@ -112,7 +112,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "cat_file tmp/SKP_VERSION",
@@ -129,7 +129,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm tmp/SKP_VERSION"
@@ -145,7 +145,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm skps"
@@ -161,7 +161,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "mkdir skps"
@@ -178,7 +178,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push_if_needed [START_DIR]/skp"
@@ -195,7 +195,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push_file [START_DIR]/tmp/SKP_VERSION"
@@ -247,7 +247,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "cat_file tmp/SK_IMAGE_VERSION",
@@ -264,7 +264,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm tmp/SK_IMAGE_VERSION"
@@ -280,7 +280,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm images"
@@ -296,7 +296,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "mkdir images"
@@ -313,7 +313,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push_if_needed [START_DIR]/skimage"
@@ -330,7 +330,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push_file [START_DIR]/tmp/SK_IMAGE_VERSION"
@@ -382,7 +382,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "cat_file tmp/SVG_VERSION",
@@ -399,7 +399,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm tmp/SVG_VERSION"
@@ -415,7 +415,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm svgs"
@@ -431,7 +431,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "mkdir svgs"
@@ -448,7 +448,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push_if_needed [START_DIR]/svg"
@@ -465,7 +465,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push_file [START_DIR]/tmp/SVG_VERSION"
@@ -481,7 +481,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm perf"
@@ -497,7 +497,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "mkdir perf"
@@ -620,7 +620,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "nanobench"
   },
@@ -634,7 +634,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All"
     ],
     "env": {
       "IOS_BUNDLE_ID": "com.google.nanobench",
@@ -647,7 +647,7 @@
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_pull_if_needed",
       "perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All/data"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -655,7 +655,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "pull_if_needed perf"
