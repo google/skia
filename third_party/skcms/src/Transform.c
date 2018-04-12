@@ -301,6 +301,17 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     return 0;
 }
 
+static skcms_Matrix3x3 concat_3x3(const skcms_Matrix3x3* A, const skcms_Matrix3x3* B) {
+    skcms_Matrix3x3 m = {{ {0,0,0}, {0,0,0}, {0,0,0} }};
+    for (int r = 0; r < 3; r++)
+    for (int c = 0; c < 3; c++) {
+        m.vals[r][c] = A->vals[r][0] * B->vals[0][c]
+                     + A->vals[r][1] * B->vals[1][c]
+                     + A->vals[r][2] * B->vals[2][c];
+    }
+    return m;
+}
+
 bool skcms_Transform(const void*             src,
                      skcms_PixelFormat       srcFmt,
                      skcms_AlphaFormat       srcAlpha,
@@ -467,9 +478,11 @@ bool skcms_Transform(const void*             src,
             if (!skcms_Matrix3x3_invert(&dstProfile->toXYZD50, &from_xyz)) {
                 return false;
             }
-            // TODO: concat these here and only append one matrix_3x3 op.
-            *ops++ = Op_matrix_3x3; *args++ =    to_xyz;
-            *ops++ = Op_matrix_3x3; *args++ = &from_xyz;
+            // Concat the entire gamut transform into from_xyz,
+            // now slightly misnamed but it's a handy spot to stash the result.
+            from_xyz = concat_3x3(&from_xyz, to_xyz);
+            *ops++  = Op_matrix_3x3;
+            *args++ = &from_xyz;
         }
 
         // Encode back to dst RGB using its parametric transfer functions.
