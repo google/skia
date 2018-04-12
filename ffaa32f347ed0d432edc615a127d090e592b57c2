@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed1a6d98_ca2af404",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-04-12T14:00:37Z",
+      "side": 1,
+      "message": "This is currently inconsistent with \"static bool NeedsTiling\". Maybe we should combine them to ensure a consistent answer?",
+      "revId": "ffaa32f347ed0d432edc615a127d090e592b57c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
