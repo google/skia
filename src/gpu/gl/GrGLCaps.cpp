@@ -2316,7 +2316,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // Blacklisting CCPR on ANGLE while we investigate http://skbug.com/7805.
     if (kANGLE_GrGLRenderer == ctxInfo.renderer()) {
-        fBlacklistCoverageCounting = false;
+        fBlacklistCoverageCounting = true;
     }
 
     // The ccpr vertex-shader implementation does not work on this platform. Only allow CCPR with
