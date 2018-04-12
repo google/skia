@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3565048_32483ead",
+        "filename": "infra/bots/bundle_recipes.sh",
+        "patchSetId": 40
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-12T21:31:29Z",
+      "side": 1,
+      "message": "2018.\n\nWhere did this script come from? is it just the bash version of bundle_recipes.py ?",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 16
+      },
+      "revId": "77119ccff4a299be07b78922622f40ebe538b18d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a125c44_fd2a09c8",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 40
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-12T21:31:29Z",
+      "side": 1,
+      "message": "Out of curiosity, what does this do?",
+      "range": {
+        "startLine": 43,
+        "startChar": 47,
+        "endLine": 43,
+        "endChar": 48
+      },
+      "revId": "77119ccff4a299be07b78922622f40ebe538b18d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00be7c35_8df2fd61",
+        "filename": "infra/bots/recipes/upload_nano_results.py",
+        "patchSetId": 40
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-12T21:31:29Z",
+      "side": 1,
+      "message": "In a bunch of places there is an extra dir build/test/perf here. Where did that come from?",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 11
+      },
+      "revId": "77119ccff4a299be07b78922622f40ebe538b18d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
