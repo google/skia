@@ -64,6 +64,112 @@ see head of selfCheck.cpp for additional todos
      parameters may be reused in other methods
  */
 
+#define M(mt) (1LL << (int) MarkType::k##mt)
+#define M_D M(Description)
+#define M_CS M(Class) | M(Struct)
+#define M_ST M(Subtopic) | M(Topic)
+#define M_CSST M_CS | M_ST
+#ifdef M_E
+#undef M_E
+#endif
+#define M_E M(Enum) | M(EnumClass)
+
+#define R_Y Resolvable::kYes
+#define R_N Resolvable::kNo
+#define R_O Resolvable::kOut
+#define R_F Resolvable::kFormula
+#define R_C Resolvable::kClone
+
+#define E_Y Exemplary::kYes
+#define E_N Exemplary::kNo
+#define E_O Exemplary::kOptional
+
+BmhParser::MarkProps BmhParser::kMarkProps[] = {
+// names without formal definitions (e.g. Column) aren't included
+// fill in other names once they're actually used
+  { "",             MarkType::kNone,         R_Y, E_N, 0 }
+, { "A",            MarkType::kAnchor,       R_N, E_N, 0 }
+, { "Alias",        MarkType::kAlias,        R_N, E_N, 0 }
+, { "Bug",          MarkType::kBug,          R_N, E_N, 0 }
+, { "Class",        MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
+, { "Code",         MarkType::kCode,         R_F, E_N, M_CSST | M_E | M(Method) | M(Define) | M(Typedef) }
+, { "",             MarkType::kColumn,       R_Y, E_N, M(Row) }
+, { "",             MarkType::kComment,      R_N, E_N, 0 }
+, { "Const",        MarkType::kConst,        R_Y, E_O, M_E | M_ST  }
+, { "Define",       MarkType::kDefine,       R_O, E_Y, M_ST }
+, { "DefinedBy",    MarkType::kDefinedBy,    R_N, E_N, M(Method) }
+, { "Deprecated",   MarkType::kDeprecated,   R_Y, E_N, 0 }
+, { "Description",  MarkType::kDescription,  R_Y, E_N, M(Example) | M(NoExample) }
+, { "Doxygen",      MarkType::kDoxygen,      R_Y, E_N, 0 }
+, { "Duration",     MarkType::kDuration,     R_N, E_N, M(Example) | M(NoExample) }
+, { "Enum",         MarkType::kEnum,         R_Y, E_O, M_CSST | M(Root) }
+, { "EnumClass",    MarkType::kEnumClass,    R_Y, E_O, M_CSST | M(Root) }
+, { "Example",      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M(Method) | M(Const) | M(Define) }
+, { "Experimental", MarkType::kExperimental, R_Y, E_N, 0 }
+, { "External",     MarkType::kExternal,     R_Y, E_N, M(Root) }
+, { "File",         MarkType::kFile,         R_N, E_N, M(Track) }
+, { "Formula",      MarkType::kFormula,      R_F, E_N,
+                                              M(Column) | M_E | M_ST | M(Member) | M(Method) | M_D }
+, { "Function",     MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
+, { "Height",       MarkType::kHeight,       R_N, E_N, M(Example) | M(NoExample) }
+, { "Illustration", MarkType::kIllustration, R_N, E_N, M(Subtopic) }
+, { "Image",        MarkType::kImage,        R_N, E_N, M(Example) | M(NoExample) }
+, { "In",           MarkType::kIn,           R_N, E_N, M_CSST | M_E | M(Method) | M(Typedef) }
+, { "Legend",       MarkType::kLegend,       R_Y, E_N, M(Table) }
+, { "Line",         MarkType::kLine,         R_N, E_N, M_CSST | M_E | M(Method) | M(Typedef) }
+, { "",             MarkType::kLink,         R_N, E_N, M(Anchor) }
+, { "List",         MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
+, { "Literal",      MarkType::kLiteral,      R_N, E_N, M(Code) }
+, { "",             MarkType::kMarkChar,     R_N, E_N, 0 }
+, { "Member",       MarkType::kMember,       R_Y, E_N, M_CSST }
+, { "Method",       MarkType::kMethod,       R_Y, E_Y, M_CSST }
+, { "NoExample",    MarkType::kNoExample,    R_N, E_N, M_CSST | M_E | M(Method) | M(Const) | M(Define) }
+, { "Outdent",      MarkType::kOutdent,      R_N, E_N, M(Code) }
+, { "Param",        MarkType::kParam,        R_Y, E_N, M(Method) | M(Define) }
+, { "PhraseDef",    MarkType::kPhraseDef,    R_Y, E_N, M(Subtopic) }
+, { "",             MarkType::kPhraseRef,    R_Y, E_N, 0 }
+, { "Platform",     MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
+, { "Populate",     MarkType::kPopulate,     R_N, E_N, M(Subtopic) }
+, { "Private",      MarkType::kPrivate,      R_N, E_N, 0 }
+, { "Return",       MarkType::kReturn,       R_Y, E_N, M(Method) }
+, { "",             MarkType::kRoot,         R_Y, E_N, 0 }
+, { "",             MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
+, { "SeeAlso",      MarkType::kSeeAlso,      R_C, E_N, M_CSST | M_E | M(Method) | M(Define) | M(Typedef) }
+, { "Set",          MarkType::kSet,          R_N, E_N, M(Example) | M(NoExample) }
+, { "StdOut",       MarkType::kStdOut,       R_N, E_N, M(Example) | M(NoExample) }
+, { "Struct",       MarkType::kStruct,       R_Y, E_O, M(Class) | M(Root) | M_ST }
+, { "Substitute",   MarkType::kSubstitute,   R_N, E_N, M_ST }
+, { "Subtopic",     MarkType::kSubtopic,     R_Y, E_Y, M_CSST }
+, { "Table",        MarkType::kTable,        R_Y, E_N, M(Method) | M_CSST | M_E }
+, { "Template",     MarkType::kTemplate,     R_Y, E_N, 0 }
+, { "",             MarkType::kText,         R_N, E_N, 0 }
+, { "Time",         MarkType::kTime,         R_Y, E_N, M(Track) }
+, { "ToDo",         MarkType::kToDo,         R_N, E_N, 0 }
+, { "Topic",        MarkType::kTopic,        R_Y, E_Y, M_CS | M(Root) | M(Topic) }
+, { "Track",        MarkType::kTrack,        R_Y, E_N, M_E | M_ST }
+, { "Typedef",      MarkType::kTypedef,      R_Y, E_N, M(Class) | M_ST }
+, { "",             MarkType::kUnion,        R_Y, E_N, 0 }
+, { "Volatile",     MarkType::kVolatile,     R_N, E_N, M(StdOut) }
+, { "Width",        MarkType::kWidth,        R_N, E_N, M(Example) | M(NoExample) }
+};
+
+#undef R_O
+#undef R_N
+#undef R_Y
+#undef R_F
+#undef R_C
+
+#undef M_E
+#undef M_CSST
+#undef M_ST
+#undef M_CS
+#undef M_D
+#undef M
+
+#undef E_Y
+#undef E_N
+#undef E_O
+
 bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markType,
         const vector<string>& typeNameBuilder, HasTag hasTag) {
     Definition* definition = nullptr;
@@ -77,6 +183,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kClass:
         case MarkType::kStruct:
         case MarkType::kConst:
+        case MarkType::kDefine:
         case MarkType::kEnum:
         case MarkType::kEnumClass:
         case MarkType::kMember:
@@ -88,7 +195,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             if (typeNameBuilder.size() > 1) {
                 return this->reportError<bool>("expected one name only");
             }
-            const string& name = typeNameBuilder[0];
+            string name = typeNameBuilder[0];
             if (nullptr == fRoot) {
                 fRoot = this->findBmhObject(markType, name);
                 fRoot->fFileName = fFileName;
@@ -134,8 +241,8 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                             || MarkType::kExperimental == child->fMarkType
                             || MarkType::kNoExample == child->fMarkType;
                 }
-                if (fMaps[(int) markType].fExemplary != hasExample
-                        && fMaps[(int) markType].fExemplary != Exemplary::kOptional) {
+                if (kMarkProps[(int) markType].fExemplary != hasExample
+                        && kMarkProps[(int) markType].fExemplary != Exemplary::kOptional) {
                     if (string::npos == fFileName.find("undocumented")
                             && !hasExcluder) {
                         hasExample == Exemplary::kNo ?
@@ -394,7 +501,6 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kAlias:
         case MarkType::kAnchor:
         case MarkType::kBug:
-        case MarkType::kDefine:
         case MarkType::kDeprecated:
         case MarkType::kDuration:
         case MarkType::kFile:
@@ -445,7 +551,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             } else if (MarkType::kAlias == markType) {
                 this->skipWhiteSpace();
                 const char* start = fChar;
-                this->skipToNonAlphaNum();
+                this->skipToNonName();
                 string alias(start, fChar - start);
                 if (fAliasMap.end() != fAliasMap.find(alias)) {
                     return this->reportError<bool>("duplicate alias");
@@ -493,7 +599,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
     return true;
 }
 
-void BmhParser::reportDuplicates(const Definition& def, const string& dup) const {
+void BmhParser::reportDuplicates(const Definition& def, string dup) const {
     if (MarkType::kExample == def.fMarkType && dup == def.fFiddle) {
         TextParser reporter(&def);
         reporter.reportError("duplicate example name");
@@ -546,14 +652,14 @@ bool BmhParser::checkEndMarker(MarkType markType, string match) const {
         return this->reportError<bool>("mismatched end marker expect #");
     }
     const char* nameStart = tp.fChar;
-    tp.skipToNonAlphaNum();
+    tp.skipToNonName();
     string markName(nameStart, tp.fChar - nameStart);
-    if (fMaps[(int) markType].fName != markName) {
+    if (kMarkProps[(int) markType].fName != markName) {
         return this->reportError<bool>("expected #XXX ## to match");
     }
     tp.skipSpace();
     nameStart = tp.fChar;
-    tp.skipToNonAlphaNum();
+    tp.skipToNonName();
     markName = string(nameStart, tp.fChar - nameStart);
     if ("" == markName) {
         if (fMC != tp.next() || fMC != tp.next()) {
@@ -619,7 +725,7 @@ bool BmhParser::checkParamReturn(const Definition* definition) const {
 bool BmhParser::childOf(MarkType markType) const {
     auto childError = [this](MarkType markType) -> bool {
         string errStr = "expected ";
-        errStr += fMaps[(int) markType].fName;
+        errStr += kMarkProps[(int) markType].fName;
         errStr += " parent";
         return this->reportError<bool>(errStr.c_str());
     };
@@ -645,7 +751,7 @@ string BmhParser::className(MarkType markType) {
     TextParserSave savePlace(this);
     this->skipSpace();
     const char* wordStart = fChar;
-    this->skipToNonAlphaNum();
+    this->skipToNonName();
     const char* wordEnd = fChar;
     classID = string(wordStart, wordEnd - wordStart);
     if (!mc) {
@@ -705,14 +811,14 @@ bool BmhParser::collectExternals() {
                 this->skipLine();
                 continue;
             }
-            if (this->startsWith(fMaps[(int) MarkType::kExternal].fName)) {
-                this->skipToNonAlphaNum();
+            if (this->startsWith(kMarkProps[(int) MarkType::kExternal].fName)) {
+                this->skipToNonName();
                 continue;
             }
         }
         this->skipToAlpha();
         const char* wordStart = fChar;
-        this->skipToNonAlphaNum();
+        this->skipToNonName();
         if (fChar - wordStart > 0) {
             fExternals.emplace_front(MarkType::kExternal, wordStart, fChar, fLineCount, fParent,
                     fMC);
@@ -792,7 +898,7 @@ bool BmhParser::endTableColumn(const char* end, const char* terminator) {
     return true;
 }
 
-static size_t count_indent(const string& text, size_t test, size_t end) {
+static size_t count_indent(string text, size_t test, size_t end) {
     size_t result = test;
     while (test < end) {
         if (' ' != text[test]) {
@@ -803,7 +909,7 @@ static size_t count_indent(const string& text, size_t test, size_t end) {
     return test - result;
 }
 
-static void add_code(const string& text, int pos, int end,
+static void add_code(string text, int pos, int end,
     size_t outIndent, size_t textIndent, string& example) {
     do {
         // fix this to move whole paragraph in, out, but preserve doc indent
@@ -935,9 +1041,8 @@ bool BmhParser::exampleToScript(Definition* def, ExampleOptions exampleOptions,
         code += "}";
     }
     string example = "\"" + normalizedName + "\": {\n";
-    size_t nameStart = def->fFileName.find(SkOSPath::SEPARATOR, 0);
-    SkASSERT(string::npos != nameStart);
-    string baseFile = def->fFileName.substr(nameStart + 1, def->fFileName.length() - nameStart - 5);
+    string filename = def->fileName();
+    string baseFile = filename.substr(0, filename.length() - 4);
     if (ExampleOptions::kText == exampleOptions) {
         example += "    \"code\": \"" + code + "\",\n";
         example += "    \"hash\": \"" + def->fHash + "\",\n";
@@ -1107,12 +1212,12 @@ bool BmhParser::findDefinitions() {
                 bool hasEnd = this->hasEndToken();
                 if (!hasEnd) {
                     MarkType parentType = fParent ? fParent->fMarkType : MarkType::kRoot;
-                    uint64_t parentMask = fMaps[(int) markType].fParentMask;
+                    uint64_t parentMask = kMarkProps[(int) markType].fParentMask;
                     if (parentMask && !(parentMask & (1LL << (int) parentType))) {
                         return this->reportError<bool>("invalid parent");
                     }
                 }
-                if (!this->skipName(fMaps[(int) markType].fName)) {
+                if (!this->skipName(kMarkProps[(int) markType].fName)) {
                     return this->reportError<bool>("illegal markup character");
                 }
                 if (!this->skipSpace()) {
@@ -1226,14 +1331,14 @@ bool BmhParser::findDefinitions() {
 
 MarkType BmhParser::getMarkType(MarkLookup lookup) const {
     for (int index = 0; index <= Last_MarkType; ++index) {
-        int typeLen = strlen(fMaps[index].fName);
+        int typeLen = strlen(kMarkProps[index].fName);
         if (typeLen == 0) {
             continue;
         }
         if (fChar + typeLen >= fEnd || fChar[typeLen] > ' ') {
             continue;
         }
-        int chCompare = strncmp(fChar, fMaps[index].fName, typeLen);
+        int chCompare = strncmp(fChar, kMarkProps[index].fName, typeLen);
         if (chCompare < 0) {
             goto fail;
         }
@@ -1489,7 +1594,7 @@ string BmhParser::memberName() {
     do {
         this->skipSpace();
         wordStart = fChar;
-        this->skipToNonAlphaNum();
+        this->skipToNonName();
     } while (this->anyOf(wordStart, prefixes, SK_ARRAY_COUNT(prefixes)));
     if ('*' == this->peek()) {
         this->next();
@@ -1631,7 +1736,7 @@ const char* BmhParser::checkForFullTerminal(const char* end, const Definition* d
     if (parser.eof() || fMC != parser.next()) {
         return end;
     }
-    const char* markName = fMaps[(int) definition->fMarkType].fName;
+    const char* markName = kMarkProps[(int) definition->fMarkType].fName;
     if (!parser.skipExact(markName)) {
         return end;
     }
@@ -1929,6 +2034,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         builder = fParent->fName;
     }
     switch (markType) {
+        case MarkType::kDefine:
         case MarkType::kEnum:
             // enums may be nameless
         case MarkType::kConst:
@@ -1963,7 +2069,6 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kAlias:
         case MarkType::kAnchor:
         case MarkType::kBug:  // fixme: expect number
-        case MarkType::kDefine:
         case MarkType::kDefinedBy:
         case MarkType::kDeprecated:
         case MarkType::kDuration:
@@ -2046,7 +2151,7 @@ string BmhParser::typedefName() {
     return uniqueRootName(builder, MarkType::kTypedef);
 }
 
-string BmhParser::uniqueName(const string& base, MarkType markType) {
+string BmhParser::uniqueName(string base, MarkType markType) {
     string builder(base);
     if (!builder.length()) {
         builder = fParent->fName;
@@ -2076,8 +2181,8 @@ tryNext: ;
     return numBuilder;
 }
 
-string BmhParser::uniqueRootName(const string& base, MarkType markType) {
-    auto checkName = [markType](const Definition& def, const string& numBuilder) -> bool {
+string BmhParser::uniqueRootName(string base, MarkType markType) {
+    auto checkName = [markType](const Definition& def, string numBuilder) -> bool {
         return markType == def.fMarkType && def.fName == numBuilder;
     };
 
@@ -2132,11 +2237,11 @@ tryNext: ;
 
 void BmhParser::validate() const {
     for (int index = 0; index <= (int) Last_MarkType; ++index) {
-        SkASSERT(fMaps[index].fMarkType == (MarkType) index);
+        SkASSERT(kMarkProps[index].fMarkType == (MarkType) index);
     }
     const char* last = "";
     for (int index = 0; index <= (int) Last_MarkType; ++index) {
-        const char* next = fMaps[index].fName;
+        const char* next = kMarkProps[index].fName;
         if (!last[0]) {
             last = next;
             continue;
@@ -2149,7 +2254,7 @@ void BmhParser::validate() const {
     }
 }
 
-string BmhParser::word(const string& prefix, const string& delimiter) {
+string BmhParser::word(string prefix, string delimiter) {
     string builder(prefix);
     this->skipWhiteSpace();
     const char* lineEnd = fLine + this->lineLength();
@@ -2338,7 +2443,7 @@ int main(int argc, char** const argv) {
         }
         if (FLAGS_tokens) {
             includeParser.fDebugOut = FLAGS_stdout;
-            if (includeParser.dumpTokens(FLAGS_bmh[0])) {
+            if (includeParser.dumpTokens()) {
                 bmhParser.fWroteOut = true;
             }
             done = true;
