@@ -467,7 +467,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
         switch (verb) {
             case kClose_Verb:
                 savePts = pts;
-                pts = *ptsPtr;
+                pts = firstPt;
                 autoClose = true;
                 insertClose = false;
                 accumulatingRect = false;
