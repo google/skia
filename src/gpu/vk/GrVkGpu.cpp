@@ -1555,6 +1555,10 @@ void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
 
 GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType ct,
                                                                     GrSRGBEncoded srgbEncoded) {
+    if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
+        return GrBackendRenderTarget();
+    }
+
     this->handleDirtyContext();
     GrVkImageInfo info;
     auto config = GrColorTypeToPixelConfig(ct, srgbEncoded);

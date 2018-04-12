@@ -233,6 +233,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                     desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
                     SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
 
+            REPORTER_ASSERT(reporter, proxy.get());
             REPORTER_ASSERT(reporter, 0 == testCount);
 
             if (doInstantiate) {
@@ -280,6 +281,8 @@ public:
                 },
                 desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
                 SkBudgeted::kNo);
+
+        SkASSERT(fLazyProxy.get());
 
         this->setBounds(SkRect::MakeIWH(kSize, kSize),
                         HasAABloat::kNo, IsZeroArea::kNo);
@@ -424,6 +427,8 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
                 },
                 desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
                 SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
+
+        REPORTER_ASSERT(reporter, lazyProxy.get());
 
         rtc->priv().testingOnly_addDrawOp(skstd::make_unique<LazyUninstantiateTestOp>(lazyProxy));
 
