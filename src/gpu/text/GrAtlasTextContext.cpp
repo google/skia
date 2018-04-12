@@ -764,7 +764,10 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     SkPaint dfPaint(paint);
     this->initDistanceFieldPaint(blob, &dfPaint, &textRatio, viewMatrix);
     blob->setHasDistanceField();
-    blob->setSubRunHasDistanceFields(runIndex, paint.skPaint().isLCDRenderText(),
+    int maskFormat;
+    std::tie(std::ignore, maskFormat) =
+            SkScalerContext::CalculateFlagsAndMasks(paint.skPaint(), &props);
+    blob->setSubRunHasDistanceFields(runIndex, maskFormat == SkMask::kLCD16_Format,
                                      paint.skPaint().isAntiAlias(), hasWCoord);
 
     FallbackTextHelper fallbackTextHelper(viewMatrix, paint, glyphCache, textRatio);

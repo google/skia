@@ -305,6 +305,10 @@ public:
     static bool   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
                                   uint8_t* data);
 
+    // Return the recFlags, and maskFormat
+    static std::tuple<uint16_t, int> CalculateFlagsAndMasks(
+        const SkPaint& paint, const SkSurfaceProps* surfaceProps);
+
     static void MakeRecAndEffects(const SkPaint& paint,
                                   const SkSurfaceProps* surfaceProps,
                                   const SkMatrix* deviceMatrix,

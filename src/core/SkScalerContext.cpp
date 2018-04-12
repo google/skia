@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphCache.h"
-#include "SkPaint.h"
 #include "SkScalerContext.h"
-
+#include <tuple>
 #include "SkAutoMalloc.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkColorData.h"
 #include "SkDescriptor.h"
 #include "SkDraw.h"
 #include "SkGlyph.h"
+#include "SkGlyphCache.h"
 #include "SkMakeUnique.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
+#include "SkPaint.h"
 #include "SkPaintPriv.h"
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
@@ -829,21 +829,6 @@ static SkScalar sk_relax(SkScalar x) {
     return n / 1024.0f;
 }
 
-static SkMask::Format compute_mask_format(const SkPaint& paint) {
-    uint32_t flags = paint.getFlags();
-
-    // Antialiasing being disabled trumps all other settings.
-    if (!(flags & SkPaint::kAntiAlias_Flag)) {
-        return SkMask::kBW_Format;
-    }
-
-    if (flags & SkPaint::kLCDRenderText_Flag) {
-        return SkMask::kLCD16_Format;
-    }
-
-    return SkMask::kA8_Format;
-}
-
 // Beyond this size, LCD doesn't appreciably improve quality, but it always
 // cost more RAM and draws slower, so we set a cap.
 #ifndef SK_MAX_SIZE_FOR_LCDTEXT
@@ -871,6 +856,61 @@ static SkPaint::Hinting computeHinting(const SkPaint& paint) {
         h = SkPaint::kNo_Hinting;
     }
     return h;
+}
+
+// Return the recFlags, and maskFormat
+std::tuple<uint16_t, int> SkScalerContext::CalculateFlagsAndMasks(
+    const SkPaint& paint, const SkSurfaceProps* surfaceProps)
+{
+    uint16_t recFlags = 0;
+
+    if (paint.getFlags() & SkPaint::kGenA8FromLCD_Flag) {
+        recFlags |= SkScalerContext::kGenA8FromLCD_Flag;
+    }
+
+    SkPixelGeometry geometry = surfaceProps
+                               ? surfaceProps->pixelGeometry()
+                               : SkSurfacePropsDefaultPixelGeometry();
+
+    if (paint.isAntiAlias() && paint.isLCDRenderText() &&
+            (paint.getPathEffect()
+             || paint.isFakeBoldText()
+             || paint.getStyle() != SkPaint::kFill_Style
+             || geometry == kUnknown_SkPixelGeometry)) {
+        recFlags |= SkScalerContext::kGenA8FromLCD_Flag;
+    }
+
+    int maskFormat = SkMask::kA8_Format;
+    // Antialiasing being disabled trumps all other settings.
+    if (!paint.isAntiAlias()) {
+        maskFormat = SkMask::kBW_Format;
+    } else if (paint.isLCDRenderText() && (recFlags & SkScalerContext::kGenA8FromLCD_Flag) == 0) {
+        maskFormat = SkMask::kLCD16_Format;
+    }
+
+    if (maskFormat == SkMask::kLCD16_Format) {
+        switch (geometry) {
+            case kUnknown_SkPixelGeometry:
+                // eeek, can't support LCD
+                maskFormat = SkMask::kA8_Format;
+                recFlags |= SkScalerContext::kGenA8FromLCD_Flag;
+                break;
+            case kRGB_H_SkPixelGeometry:
+                // our default, do nothing.
+                break;
+            case kBGR_H_SkPixelGeometry:
+                recFlags |= SkScalerContext::kLCD_BGROrder_Flag;
+                break;
+            case kRGB_V_SkPixelGeometry:
+                recFlags |= SkScalerContext::kLCD_Vertical_Flag;
+                break;
+            case kBGR_V_SkPixelGeometry:
+                recFlags |= SkScalerContext::kLCD_Vertical_Flag;
+                recFlags |= SkScalerContext::kLCD_BGROrder_Flag;
+                break;
+        }
+    }
+    return std::make_tuple(recFlags, maskFormat);
 }
 
 // The only reason this is not file static is because it needs the context of SkScalerContext to
@@ -916,7 +956,7 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
     SkPaint::Style  style = paint.getStyle();
     SkScalar        strokeWidth = paint.getStrokeWidth();
 
-    unsigned flags = 0;
+    uint16_t flags = 0;
 
     if (paint.isFakeBoldText()) {
 #ifdef SK_USE_FREETYPE_EMBOLDEN
@@ -957,38 +997,15 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         rec->fStrokeCap = 0;
     }
 
-    rec->fMaskFormat = SkToU8(compute_mask_format(paint));
+    uint16_t moreRecFlags;
+    std::tie(moreRecFlags, rec->fMaskFormat) = CalculateFlagsAndMasks(paint, surfaceProps);
+    flags |= moreRecFlags;
 
-    if (SkMask::kLCD16_Format == rec->fMaskFormat) {
-        if (too_big_for_lcd(*rec, checkPost2x2)) {
-            rec->fMaskFormat = SkMask::kA8_Format;
-            flags |= SkScalerContext::kGenA8FromLCD_Flag;
-        } else {
-            SkPixelGeometry geometry = surfaceProps
-                                       ? surfaceProps->pixelGeometry()
-                                       : SkSurfacePropsDefaultPixelGeometry();
-            switch (geometry) {
-                case kUnknown_SkPixelGeometry:
-                    // eeek, can't support LCD
-                    rec->fMaskFormat = SkMask::kA8_Format;
-                    flags |= SkScalerContext::kGenA8FromLCD_Flag;
-                    break;
-                case kRGB_H_SkPixelGeometry:
-                    // our default, do nothing.
-                    break;
-                case kBGR_H_SkPixelGeometry:
-                    flags |= SkScalerContext::kLCD_BGROrder_Flag;
-                    break;
-                case kRGB_V_SkPixelGeometry:
-                    flags |= SkScalerContext::kLCD_Vertical_Flag;
-                    break;
-                case kBGR_V_SkPixelGeometry:
-                    flags |= SkScalerContext::kLCD_Vertical_Flag;
-                    flags |= SkScalerContext::kLCD_BGROrder_Flag;
-                    break;
-            }
-        }
+    if (rec->fMaskFormat == SkMask::kLCD16_Format && too_big_for_lcd(*rec, checkPost2x2)) {
+        rec->fMaskFormat = SkMask::kA8_Format;
+        flags |= SkScalerContext::kGenA8FromLCD_Flag;
     }
+
 
     if (paint.isEmbeddedBitmapText()) {
         flags |= SkScalerContext::kEmbeddedBitmapText_Flag;
@@ -1002,10 +1019,8 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
     if (paint.isVerticalText()) {
         flags |= SkScalerContext::kVertical_Flag;
     }
-    if (paint.getFlags() & SkPaint::kGenA8FromLCD_Flag) {
-        flags |= SkScalerContext::kGenA8FromLCD_Flag;
-    }
-    rec->fFlags = SkToU16(flags);
+
+    rec->fFlags = flags;
 
     // these modify fFlags, so do them after assigning fFlags
     rec->setHinting(computeHinting(paint));

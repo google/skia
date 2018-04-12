@@ -59,11 +59,7 @@ bool GrTextUtils::RunPaint::modifyForRun(std::function<void(SkPaint*)> paintModF
 uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint) {
     uint32_t flags = paint.getFlags();
 
-    if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
-        return flags;
-    }
-
-    if (kUnknown_SkPixelGeometry == surfaceProps.pixelGeometry() || ShouldDisableLCD(paint)) {
+    if (paint.isLCDRenderText() && paint.isAntiAlias() && ShouldDisableLCD(paint)) {
         flags &= ~SkPaint::kLCDRenderText_Flag;
         flags |= SkPaint::kGenA8FromLCD_Flag;
     }
@@ -72,8 +68,7 @@ uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const 
 }
 
 bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
-    return paint.getMaskFilter() || paint.getPathEffect() ||
-           paint.isFakeBoldText() || paint.getStyle() != SkPaint::kFill_Style;
+    return paint.getMaskFilter();
 }
 
 bool GrTextUtils::PathTextIter::next(const SkGlyph** skGlyph, const SkPath** path, SkScalar* xpos) {

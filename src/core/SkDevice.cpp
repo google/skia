@@ -529,13 +529,7 @@ void SkBaseDevice::drawTextRSXform(const void* text, size_t len,
 uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
     uint32_t flags = paint.getFlags();
 
-    if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
-        return flags;
-    }
-
-    if (kUnknown_SkPixelGeometry == fSurfaceProps.pixelGeometry()
-        || this->onShouldDisableLCD(paint)) {
-
+    if (paint.isLCDRenderText() && paint.isAntiAlias() && this->onShouldDisableLCD(paint)) {
         flags &= ~SkPaint::kLCDRenderText_Flag;
         flags |= SkPaint::kGenA8FromLCD_Flag;
     }
