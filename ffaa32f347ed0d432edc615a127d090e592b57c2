@@ -16,6 +16,24 @@
       "revId": "ffaa32f347ed0d432edc615a127d090e592b57c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de235fb1_ebebf06f",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-04-12T16:20:50Z",
+      "side": 1,
+      "message": "NeedsTiling could be renamed to MightNeedTiling. The idea is to give a quick-reject in the case where we NEVER will need tiling, so that clients that have expensive setup for computing their bounds can skip that work entirely (in the common case of no tiling).",
+      "parentUuid": "ed1a6d98_ca2af404",
+      "revId": "ffaa32f347ed0d432edc615a127d090e592b57c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
