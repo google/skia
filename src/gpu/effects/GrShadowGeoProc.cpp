@@ -28,6 +28,8 @@ public:
         varyingHandler->emitAttributes(rsgp);
         fragBuilder->codeAppend("half4 shadowParams;");
         varyingHandler->addPassThroughAttribute(rsgp.inShadowParams(), "shadowParams");
+        fragBuilder->codeAppend("float2 tValues;");
+        varyingHandler->addPassThroughAttribute(rsgp.inTValues(), "tValues");
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(rsgp.inColor(), args.fOutputColor);
@@ -42,12 +44,16 @@ public:
                              rsgp.inPosition()->asShaderVar(),
                              args.fFPCoordTransformHandler);
 
+        fragBuilder->codeAppend("half t = tValues.x/tValues.y; ");
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
         fragBuilder->codeAppend("half distance = shadowParams.z * (1.0 - d);");
 
-        fragBuilder->codeAppend("half factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
-        fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-        fragBuilder->codeAppendf("%s = half4(factor);",
+        fragBuilder->codeAppend("half x = clamp(distance, 0.0, shadowParams.w);");
+        fragBuilder->codeAppend("half4 abcd0 = half4(0.15625, 0.6796875, 1.4921875, -1.328125);");
+        fragBuilder->codeAppend("half4 abcd1 = half4(0.21875, 1.1953125, -2.7421875, 1.328125);");
+        fragBuilder->codeAppend("half4 abcd = abcd0 + t*abcd1;");
+        fragBuilder->codeAppend("half falloff = x*(abcd.x + x*(abcd.y + x*(abcd.z + x*abcd.w)));");
+        fragBuilder->codeAppendf("%s = float4(falloff);",
                                  args.fOutputCoverage);
     }
 
@@ -67,6 +73,7 @@ GrRRectShadowGeoProc::GrRRectShadowGeoProc()
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInShadowParams = &this->addVertexAttrib("inShadowParams", kHalf4_GrVertexAttribType);
+    fInTValues = &this->addVertexAttrib("inTValues", kFloat2_GrVertexAttribType);
 }
 
 GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
