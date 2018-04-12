@@ -433,7 +433,7 @@ DEF_SIMPLE_GM(rotatedcubicpath, canvas, 200, 200) {
 DEF_GM( return new PathFillGM; )
 DEF_GM( return new PathInverseFillGM; )
 
-DEF_SIMPLE_GM(bug7792, canvas, 600, 400) {
+DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     // from skbug.com/7792 bug description
     SkPaint p;
     SkPath path;
@@ -497,5 +497,16 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 400) {
     path.lineTo(150, 150);
     path.lineTo(75, 150);
     path.moveTo(250, 75);
+    canvas->drawPath(path, p);
+    // from skbug.com/7792 comment 17
+    canvas->translate(-200 * 2, 200);
+    path.reset();
+    path.moveTo(75, 10);
+    path.moveTo(75, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    path.lineTo(75, 10);
+    path.close();
     canvas->drawPath(path, p);
 }
