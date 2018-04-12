@@ -282,15 +282,8 @@ def dm_flags(api, bot):
     args.remove('image')
     args.remove('colorImage')
 
-  if 'DDL1' in bot:
-    # The DDL1 bot just renders large skp images as a baseline for full DDL
-    args.remove('tests')
-    args.remove('gm')
-    args.remove('image')
-    args.remove('colorImage')
-    args.remove('svg')
-  elif 'DDL3' in bot:
-    # The DDL3 bot renders large skps and gms in full DDL mode
+  if 'DDL' in bot:
+    # The DDL bots just render the large skps and the gms
     args.remove('tests')
     args.remove('image')
     args.remove('colorImage')
