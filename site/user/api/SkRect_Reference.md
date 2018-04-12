@@ -906,7 +906,7 @@ left: -41 right: -20 centerX: -30.5
 
 ### See Also
 
-<a href="#SkRect_centerY">centerY</a> <a href="SkIRect_Reference#SkIRect_centerX">SkIRect::centerX</a>
+<a href="#SkRect_centerY">centerY</a>
 
 ---
 
@@ -938,7 +938,7 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 
 ### See Also
 
-<a href="#SkRect_centerX">centerX</a> <a href="SkIRect_Reference#SkIRect_centerY">SkIRect::centerY</a>
+<a href="#SkRect_centerX">centerX</a>
 
 ---
 

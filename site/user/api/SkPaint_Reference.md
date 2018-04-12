@@ -47,12 +47,12 @@ Multiple colors are drawn either by using multiple paints or with objects like
 
 | name | description |
 | --- | --- |
-| <a href="#Alpha_Methods">Alpha Methods</a> | get and set <a href="undocumented#Alpha">Alpha</a> |
+| <a href="#Alpha_Methods">Alpha Methods</a> | get and set <a href="SkColor_Reference#Alpha">Alpha</a> |
 | Anti-alias | approximating coverage with transparency |
 | <a href="#Automatic_Hinting">Automatic Hinting</a> | always adjust glyph paths |
 | <a href="#Blend_Mode_Methods">Blend Mode Methods</a> | get and set <a href="undocumented#Blend_Mode">Blend Mode</a> |
 | <a href="#Color_Filter_Methods">Color Filter Methods</a> | get and set <a href="undocumented#Color_Filter">Color Filter</a> |
-| <a href="#Color_Methods">Color Methods</a> | get and set <a href="undocumented#Color">Color</a> |
+| <a href="#Color_Methods">Color Methods</a> | get and set <a href="SkColor_Reference#Color">Color</a> |
 | <a href="#Device_Text">Device Text</a> | increase precision of glyph position |
 | <a href="#Dither">Dither</a> | distributing color error |
 | <a href="#Draw_Looper_Methods">Draw Looper Methods</a> | get and set <a href="undocumented#Draw_Looper">Draw Looper</a> |
@@ -67,7 +67,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_Hinting">Hinting</a> | glyph outline adjustment |
 | <a href="#Image_Filter_Methods">Image Filter Methods</a> | get and set <a href="undocumented#Image_Filter">Image Filter</a> |
 | <a href="#Initializers">Initializers</a> | constructors and initialization |
-| <a href="#LCD_Text">LCD Text</a> | text relying on the order of <a href="undocumented#RGB">Color RGB</a> stripes |
+| <a href="#LCD_Text">LCD Text</a> | text relying on the order of <a href="SkColor_Reference#RGB">Color RGB</a> stripes |
 | <a href="#Linear_Text">Linear Text</a> | selects text rendering as <a href="undocumented#Glyph">Glyph</a> or <a href="SkPath_Reference#Path">Path</a> |
 | <a href="#Management">Management</a> | paint copying, moving, comparing |
 | <a href="#Mask_Filter_Methods">Mask Filter Methods</a> | get and set <a href="undocumented#Mask_Filter">Mask Filter</a> |
@@ -143,9 +143,9 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_containsText">containsText</a> | returns if all text corresponds to <a href="undocumented#Glyph">Glyphs</a> |
 | <a href="#SkPaint_countText">countText</a> | returns number of <a href="undocumented#Glyph">Glyphs</a> in text |
 | <a href="#SkPaint_doComputeFastBounds">doComputeFastBounds</a> | returns bounds for quick reject tests |
-| <a href="#SkPaint_getAlpha">getAlpha</a> | returns <a href="undocumented#Alpha">Color Alpha</a>, color opacity |
+| <a href="#SkPaint_getAlpha">getAlpha</a> | returns <a href="SkColor_Reference#Alpha">Color Alpha</a>, color opacity |
 | <a href="#SkPaint_getBlendMode">getBlendMode</a> | returns <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with <a href="undocumented#Device">Device</a> |
-| <a href="#SkPaint_getColor">getColor</a> | returns <a href="undocumented#Alpha">Color Alpha</a> and <a href="undocumented#RGB">Color RGB</a>, one drawing color |
+| <a href="#SkPaint_getColor">getColor</a> | returns <a href="SkColor_Reference#Alpha">Color Alpha</a> and <a href="SkColor_Reference#RGB">Color RGB</a>, one drawing color |
 | <a href="#SkPaint_getColorFilter">getColorFilter</a> | returns <a href="undocumented#Color_Filter">Color Filter</a>, how colors are altered |
 | <a href="#SkPaint_getDrawLooper">getDrawLooper</a> | returns <a href="undocumented#Draw_Looper">Draw Looper</a>, multiple layers |
 | <a href="#SkPaint_getFillPath">getFillPath</a> | returns fill path equivalent to stroke |
@@ -201,11 +201,11 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_refTypeface">refTypeface</a> | references <a href="undocumented#Typeface">Typeface</a>, font description |
 | <a href="#SkPaint_reset">reset</a> | sets to default values |
 | <a href="#SkPaint_setARGB">setARGB</a> | sets color by component |
-| <a href="#SkPaint_setAlpha">setAlpha</a> | sets <a href="undocumented#Alpha">Color Alpha</a>, color opacity |
+| <a href="#SkPaint_setAlpha">setAlpha</a> | sets <a href="SkColor_Reference#Alpha">Color Alpha</a>, color opacity |
 | <a href="#SkPaint_setAntiAlias">setAntiAlias</a> | sets or clears Anti-alias |
 | <a href="#SkPaint_setAutohinted">setAutohinted</a> | sets <a href="undocumented#Glyph">Glyphs</a> to always be hinted |
 | <a href="#SkPaint_setBlendMode">setBlendMode</a> | sets <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with destination |
-| <a href="#SkPaint_setColor">setColor</a> | sets <a href="undocumented#Alpha">Color Alpha</a> and <a href="undocumented#RGB">Color RGB</a>, one drawing color |
+| <a href="#SkPaint_setColor">setColor</a> | sets <a href="SkColor_Reference#Alpha">Color Alpha</a> and <a href="SkColor_Reference#RGB">Color RGB</a>, one drawing color |
 | <a href="#SkPaint_setColorFilter">setColorFilter</a> | sets <a href="undocumented#Color_Filter">Color Filter</a>, alters color |
 | <a href="#SkPaint_setDevKernText">setDevKernText</a> | sets or clears <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a> |
 | <a href="#SkPaint_setDither">setDither</a> | sets or clears <a href="#Dither">Dither</a> |
@@ -252,8 +252,8 @@ Constructs <a href="#Paint">Paint</a> with default values.
 | --- | ---  |
 | Anti-alias | false |
 | <a href="undocumented#Blend_Mode">Blend Mode</a> | <a href="undocumented#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a> |
-| <a href="undocumented#Color">Color</a> | <a href="undocumented#SK_ColorBLACK">SK ColorBLACK</a> |
-| <a href="undocumented#Alpha">Color Alpha</a> | 255 |
+| <a href="SkColor_Reference#Color">Color</a> | <a href="SkColor_Reference#SK_ColorBLACK">SK ColorBLACK</a> |
+| <a href="SkColor_Reference#Alpha">Color Alpha</a> | 255 |
 | <a href="undocumented#Color_Filter">Color Filter</a> | nullptr |
 | <a href="#Dither">Dither</a> | false |
 | <a href="undocumented#Draw_Looper">Draw Looper</a> | nullptr |
@@ -903,7 +903,7 @@ paint.isDither()
 
 Anti-alias drawing approximates partial pixel coverage with transparency.
 If <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a> is clear, pixel centers contained by the shape edge are drawn opaque.
-If <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a> is set, pixels are drawn with <a href="undocumented#Alpha">Color Alpha</a> equal to their coverage.
+If <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a> is set, pixels are drawn with <a href="SkColor_Reference#Alpha">Color Alpha</a> equal to their coverage.
 
 The rule for <a href="undocumented#Alias">Aliased</a> pixels is inconsistent across platforms. A shape edge
 passing through the pixel center may, but is not required to, draw the pixel.
@@ -1093,17 +1093,17 @@ paint1 == paint2
 
 ### See Also
 
-Gradient <a href="undocumented#RGB">Color RGB</a>-565
+Gradient <a href="SkColor_Reference#RGB">Color RGB</a>-565
 
 ## <a name="Device_Text"></a> Device Text
 
 <a href="#LCD_Text">LCD Text</a> and <a href="#Subpixel_Text">Subpixel Text</a> increase the precision of glyph position.
 
-When set, <a href="#SkPaint_Flags">Flags</a> <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> takes advantage of the organization of <a href="undocumented#RGB">Color RGB</a> stripes that
+When set, <a href="#SkPaint_Flags">Flags</a> <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> takes advantage of the organization of <a href="SkColor_Reference#RGB">Color RGB</a> stripes that
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
 <a href="#LCD_Text">LCD Text</a> can be enabled on devices that orient stripes horizontally or vertically, and that order
-the color components as <a href="undocumented#RGB">Color RGB</a> or <a href="undocumented#RBG">Color RBG</a>.
+the color components as <a href="SkColor_Reference#RGB">Color RGB</a> or <a href="SkColor_Reference#RBG">Color RBG</a>.
 
 <a href="#SkPaint_Flags">Flags</a> <a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a> uses the pixel transparency to represent a fractional offset.
 As the opaqueness
@@ -1253,11 +1253,11 @@ paint1 == paint2
 
 ## <a name="LCD_Text"></a> LCD Text
 
-When set, <a href="#SkPaint_Flags">Flags</a> <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> takes advantage of the organization of <a href="undocumented#RGB">Color RGB</a> stripes that
+When set, <a href="#SkPaint_Flags">Flags</a> <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> takes advantage of the organization of <a href="SkColor_Reference#RGB">Color RGB</a> stripes that
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
 <a href="#LCD_Text">LCD Text</a> can be enabled on devices that orient stripes horizontally or vertically, and that order
-the color components as <a href="undocumented#RGB">Color RGB</a> or <a href="undocumented#RBG">Color RBG</a>.
+the color components as <a href="SkColor_Reference#RGB">Color RGB</a> or <a href="SkColor_Reference#RBG">Color RBG</a>.
 
 <a name="SkPaint_isLCDRenderText"></a>
 ## isLCDRenderText
@@ -1836,22 +1836,22 @@ kHigh_SkFilterQuality == paint.getFilterQuality()
 
 | name | description |
 | --- | ---  |
-| <a href="#SkPaint_getColor">getColor</a> | returns <a href="undocumented#Alpha">Color Alpha</a> and <a href="undocumented#RGB">Color RGB</a>, one drawing color |
-| <a href="#SkPaint_setColor">setColor</a> | sets <a href="undocumented#Alpha">Color Alpha</a> and <a href="undocumented#RGB">Color RGB</a>, one drawing color |
+| <a href="#SkPaint_getColor">getColor</a> | returns <a href="SkColor_Reference#Alpha">Color Alpha</a> and <a href="SkColor_Reference#RGB">Color RGB</a>, one drawing color |
+| <a href="#SkPaint_setColor">setColor</a> | sets <a href="SkColor_Reference#Alpha">Color Alpha</a> and <a href="SkColor_Reference#RGB">Color RGB</a>, one drawing color |
 
-<a href="undocumented#Color">Color</a> specifies the <a href="undocumented#RGB_Red">Color RGB Red</a>, <a href="undocumented#RGB_Blue">Color RGB Blue</a>, <a href="undocumented#RGB_Green">Color RGB Green</a>, and <a href="undocumented#Alpha">Color Alpha</a>
+<a href="SkColor_Reference#Color">Color</a> specifies the <a href="SkColor_Reference#RGB_Red">Color RGB Red</a>, <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a>, <a href="SkColor_Reference#RGB_Green">Color RGB Green</a>, and <a href="SkColor_Reference#Alpha">Color Alpha</a>
 values used to draw a filled or stroked shape in a 32-bit value. Each component
 occupies 8-bits, ranging from zero: no contribution; to 255: full intensity.
 All values in any combination are valid.
 
-<a href="undocumented#Color">Color</a> is not <a href="undocumented#Premultiply">Premultiplied</a>; <a href="undocumented#Alpha">Color Alpha</a> sets the transparency independent of
-<a href="undocumented#RGB">Color RGB</a>: <a href="undocumented#RGB_Red">Color RGB Red</a>, <a href="undocumented#RGB_Blue">Color RGB Blue</a>, and <a href="undocumented#RGB_Green">Color RGB Green</a>.
+<a href="SkColor_Reference#Color">Color</a> is not <a href="undocumented#Premultiply">Premultiplied</a>; <a href="SkColor_Reference#Alpha">Color Alpha</a> sets the transparency independent of
+<a href="SkColor_Reference#RGB">Color RGB</a>: <a href="SkColor_Reference#RGB_Red">Color RGB Red</a>, <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a>, and <a href="SkColor_Reference#RGB_Green">Color RGB Green</a>.
 
-The bit positions of <a href="undocumented#Alpha">Color Alpha</a> and <a href="undocumented#RGB">Color RGB</a> are independent of the bit
+The bit positions of <a href="SkColor_Reference#Alpha">Color Alpha</a> and <a href="SkColor_Reference#RGB">Color RGB</a> are independent of the bit
 positions on the output device, which may have more or fewer bits, and may have
 a different arrangement.
 
-| bit positions | <a href="undocumented#Alpha">Color Alpha</a> | <a href="undocumented#RGB_Red">Color RGB Red</a> | <a href="undocumented#RGB_Blue">Color RGB Blue</a> | <a href="undocumented#RGB_Green">Color RGB Green</a> |
+| bit positions | <a href="SkColor_Reference#Alpha">Color Alpha</a> | <a href="SkColor_Reference#RGB_Red">Color RGB Red</a> | <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a> | <a href="SkColor_Reference#RGB_Green">Color RGB Green</a> |
 | --- | --- | --- | --- | ---  |
 |  | 31 - 24 | 23 - 16 | 15 - 8 | 7 - 0 |
 
@@ -1866,13 +1866,13 @@ a different arrangement.
 SkColor getColor() const
 </pre>
 
-Retrieves <a href="undocumented#Alpha">Alpha</a> and <a href="undocumented#RGB">Color RGB</a>, <a href="undocumented#Unpremultiply">Unpremultiplied</a>, packed into 32 bits.
-Use helpers <a href="undocumented#SkColorGetA">SkColorGetA</a>, <a href="undocumented#SkColorGetR">SkColorGetR</a>, <a href="undocumented#SkColorGetG">SkColorGetG</a>, and <a href="undocumented#SkColorGetB">SkColorGetB</a> to extract
+Retrieves <a href="SkColor_Reference#Alpha">Alpha</a> and <a href="SkColor_Reference#RGB">Color RGB</a>, <a href="undocumented#Unpremultiply">Unpremultiplied</a>, packed into 32 bits.
+Use helpers <a href="SkColor_Reference#SkColorGetA">SkColorGetA</a>, <a href="SkColor_Reference#SkColorGetR">SkColorGetR</a>, <a href="SkColor_Reference#SkColorGetG">SkColorGetG</a>, and <a href="SkColor_Reference#SkColorGetB">SkColorGetB</a> to extract
 a color component.
 
 ### Return Value
 
-<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="undocumented#ARGB">Color ARGB</a>
+<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#ARGB">Color ARGB</a>
 
 ### Example
 
@@ -1888,7 +1888,7 @@ Yellow is 100% red, 100% green, and 0% blue.
 
 ### See Also
 
-<a href="undocumented#SkColor">SkColor</a>
+<a href="SkColor_Reference#SkColor">SkColor</a>
 
 ---
 
@@ -1899,13 +1899,13 @@ Yellow is 100% red, 100% green, and 0% blue.
 void setColor(SkColor color)
 </pre>
 
-Sets <a href="undocumented#Alpha">Alpha</a> and <a href="undocumented#RGB">Color RGB</a> used when stroking and filling. The <a href="#SkPaint_setColor_color">color</a> is a 32-bit value,
-<a href="undocumented#Unpremultiply">Unpremultiplied</a>, packing 8-bit components for <a href="undocumented#Alpha">Alpha</a>, <a href="undocumented#RGB_Red">Red</a>, <a href="undocumented#RGB_Blue">Blue</a>, and <a href="undocumented#RGB_Green">Green</a>.
+Sets <a href="SkColor_Reference#Alpha">Alpha</a> and <a href="SkColor_Reference#RGB">Color RGB</a> used when stroking and filling. The <a href="#SkPaint_setColor_color">color</a> is a 32-bit value,
+<a href="undocumented#Unpremultiply">Unpremultiplied</a>, packing 8-bit components for <a href="SkColor_Reference#Alpha">Alpha</a>, <a href="SkColor_Reference#RGB_Red">Red</a>, <a href="SkColor_Reference#RGB_Blue">Blue</a>, and <a href="SkColor_Reference#RGB_Green">Green</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPaint_setColor_color"> <code><strong>color </strong></code> </a></td> <td>
-<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="undocumented#ARGB">Color ARGB</a></td>
+<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#ARGB">Color ARGB</a></td>
   </tr>
 </table>
 
@@ -1923,13 +1923,13 @@ green1 == green2
 
 ### See Also
 
-<a href="undocumented#SkColor">SkColor</a> <a href="#SkPaint_setARGB">setARGB</a> <a href="undocumented#SkColorSetARGB">SkColorSetARGB</a>
+<a href="SkColor_Reference#SkColor">SkColor</a> <a href="#SkPaint_setARGB">setARGB</a> <a href="SkColor_Reference#SkColorSetARGB">SkColorSetARGB</a>
 
 ---
 
 ## <a name="Alpha_Methods"></a> Alpha Methods
 
-<a href="undocumented#Alpha">Color Alpha</a> sets the transparency independent of <a href="undocumented#RGB">Color RGB</a>: <a href="undocumented#RGB_Red">Color RGB Red</a>, <a href="undocumented#RGB_Blue">Color RGB Blue</a>, and <a href="undocumented#RGB_Green">Color RGB Green</a>.
+<a href="SkColor_Reference#Alpha">Color Alpha</a> sets the transparency independent of <a href="SkColor_Reference#RGB">Color RGB</a>: <a href="SkColor_Reference#RGB_Red">Color RGB Red</a>, <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a>, and <a href="SkColor_Reference#RGB_Green">Color RGB Green</a>.
 
 <a name="SkPaint_getAlpha"></a>
 ## getAlpha
@@ -1938,11 +1938,11 @@ green1 == green2
 uint8_t getAlpha() const
 </pre>
 
-Retrieves <a href="undocumented#Alpha">Alpha</a> from the <a href="undocumented#Color">Color</a> used when stroking and filling.
+Retrieves <a href="SkColor_Reference#Alpha">Alpha</a> from the <a href="SkColor_Reference#Color">Color</a> used when stroking and filling.
 
 ### Return Value
 
-<a href="undocumented#Alpha">Alpha</a> ranging from zero, fully transparent, to 255, fully opaque
+<a href="SkColor_Reference#Alpha">Alpha</a> ranging from zero, fully transparent, to 255, fully opaque
 
 ### Example
 
@@ -1965,16 +1965,16 @@ Retrieves <a href="undocumented#Alpha">Alpha</a> from the <a href="undocumented#
 void setAlpha(U8CPU a)
 </pre>
 
-Replaces <a href="undocumented#Alpha">Alpha</a>, leaving <a href="undocumented#RGB">Color RGB</a>
+Replaces <a href="SkColor_Reference#Alpha">Alpha</a>, leaving <a href="SkColor_Reference#RGB">Color RGB</a>
 unchanged. An out of range value triggers an assert in the debug
 build. <a href="#SkPaint_setAlpha_a">a</a> is <a href="#SkPaint_setAlpha_a">a</a> value from zero to 255.
-<a href="#SkPaint_setAlpha_a">a</a> set to zero makes <a href="undocumented#Color">Color</a> fully transparent; <a href="#SkPaint_setAlpha_a">a</a> set to 255 makes <a href="undocumented#Color">Color</a>
+<a href="#SkPaint_setAlpha_a">a</a> set to zero makes <a href="SkColor_Reference#Color">Color</a> fully transparent; <a href="#SkPaint_setAlpha_a">a</a> set to 255 makes <a href="SkColor_Reference#Color">Color</a>
 fully opaque.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPaint_setAlpha_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="undocumented#Alpha">Alpha</a> component of <a href="undocumented#Color">Color</a></td>
+<a href="SkColor_Reference#Alpha">Alpha</a> component of <a href="SkColor_Reference#Color">Color</a></td>
   </tr>
 </table>
 
@@ -1999,19 +1999,19 @@ fully opaque.
 void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 </pre>
 
-Sets <a href="undocumented#Color">Color</a> used when drawing solid fills. The color components range from 0 to 255.
-The color is <a href="undocumented#Unpremultiply">Unpremultiplied</a>; <a href="undocumented#Alpha">Alpha</a> sets the transparency independent of <a href="undocumented#RGB">Color RGB</a>.
+Sets <a href="SkColor_Reference#Color">Color</a> used when drawing solid fills. The color components range from 0 to 255.
+The color is <a href="undocumented#Unpremultiply">Unpremultiplied</a>; <a href="SkColor_Reference#Alpha">Alpha</a> sets the transparency independent of <a href="SkColor_Reference#RGB">Color RGB</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPaint_setARGB_a"> <code><strong>a </strong></code> </a></td> <td>
-amount of <a href="undocumented#Alpha">Color Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
+amount of <a href="SkColor_Reference#Alpha">Color Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
   </tr>  <tr>    <td><a name="SkPaint_setARGB_r"> <code><strong>r </strong></code> </a></td> <td>
-amount of <a href="undocumented#RGB_Red">Color RGB Red</a>, from no red (0) to full red (255)</td>
+amount of <a href="SkColor_Reference#RGB_Red">Color RGB Red</a>, from no red (0) to full red (255)</td>
   </tr>  <tr>    <td><a name="SkPaint_setARGB_g"> <code><strong>g </strong></code> </a></td> <td>
-amount of <a href="undocumented#RGB_Green">Color RGB Green</a>, from no green (0) to full green (255)</td>
+amount of <a href="SkColor_Reference#RGB_Green">Color RGB Green</a>, from no green (0) to full green (255)</td>
   </tr>  <tr>    <td><a name="SkPaint_setARGB_b"> <code><strong>b </strong></code> </a></td> <td>
-amount of <a href="undocumented#RGB_Blue">Color RGB Blue</a>, from no blue (0) to full blue (255)</td>
+amount of <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a>, from no blue (0) to full blue (255)</td>
   </tr>
 </table>
 
@@ -2029,7 +2029,7 @@ transRed1 == transRed2
 
 ### See Also
 
-<a href="#SkPaint_setColor">setColor</a> <a href="undocumented#SkColorSetARGB">SkColorSetARGB</a>
+<a href="#SkPaint_setColor">setColor</a> <a href="SkColor_Reference#SkColorSetARGB">SkColorSetARGB</a>
 
 ---
 
@@ -2057,7 +2057,7 @@ The area covered where the shape turns a corner is described by <a href="#Stroke
 The stroke is centered on the shape; it extends equally on either side of the shape edge.
 
 As <a href="#Stroke_Width">Stroke Width</a> gets smaller, the drawn path frame is thinner. <a href="#Stroke_Width">Stroke Width</a> less than one
-may have gaps, and if <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a> is set, <a href="undocumented#Alpha">Color Alpha</a> will increase to visually decrease coverage.
+may have gaps, and if <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a> is set, <a href="SkColor_Reference#Alpha">Color Alpha</a> will increase to visually decrease coverage.
 
 ## <a name="Style_Hairline"></a> Style Hairline
 
@@ -2774,19 +2774,19 @@ true if the path represents <a href="#Style_Fill">Style Fill</a>, or false if it
 
 <a href="undocumented#Shader">Shader</a> defines the colors used when drawing a shape.
 <a href="undocumented#Shader">Shader</a> may be an image, a gradient, or a computed fill.
-If <a href="#Paint">Paint</a> has no <a href="undocumented#Shader">Shader</a>, then <a href="undocumented#Color">Color</a> fills the shape.
+If <a href="#Paint">Paint</a> has no <a href="undocumented#Shader">Shader</a>, then <a href="SkColor_Reference#Color">Color</a> fills the shape.
 
-<a href="undocumented#Shader">Shader</a> is modulated by <a href="undocumented#Alpha">Color Alpha</a> component of <a href="undocumented#Color">Color</a>.
-If <a href="undocumented#Shader">Shader</a> object defines only <a href="undocumented#Alpha">Color Alpha</a>, then <a href="undocumented#Color">Color</a> modulated by <a href="undocumented#Alpha">Color Alpha</a> describes
+<a href="undocumented#Shader">Shader</a> is modulated by <a href="SkColor_Reference#Alpha">Color Alpha</a> component of <a href="SkColor_Reference#Color">Color</a>.
+If <a href="undocumented#Shader">Shader</a> object defines only <a href="SkColor_Reference#Alpha">Color Alpha</a>, then <a href="SkColor_Reference#Color">Color</a> modulated by <a href="SkColor_Reference#Alpha">Color Alpha</a> describes
 the fill.
 
-The drawn transparency can be modified without altering <a href="undocumented#Shader">Shader</a>, by changing <a href="undocumented#Alpha">Color Alpha</a>.
+The drawn transparency can be modified without altering <a href="undocumented#Shader">Shader</a>, by changing <a href="SkColor_Reference#Alpha">Color Alpha</a>.
 
 ### Example
 
 <div><fiddle-embed name="c015dc2010c15e1c00b4f7330232b0f7"></fiddle-embed></div>
 
-If <a href="undocumented#Shader">Shader</a> generates only <a href="undocumented#Alpha">Color Alpha</a> then all components of <a href="undocumented#Color">Color</a> modulate the output.
+If <a href="undocumented#Shader">Shader</a> generates only <a href="SkColor_Reference#Alpha">Color Alpha</a> then all components of <a href="SkColor_Reference#Color">Color</a> modulate the output.
 
 ### Example
 
@@ -2867,7 +2867,7 @@ Increments <a href="#SkPaint_setShader_shader">shader</a> <a href="undocumented#
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPaint_setShader_shader"> <code><strong>shader </strong></code> </a></td> <td>
-how geometry is filled with color; if nullptr, <a href="undocumented#Color">Color</a> is used instead</td>
+how geometry is filled with color; if nullptr, <a href="SkColor_Reference#Color">Color</a> is used instead</td>
   </tr>
 </table>
 
@@ -2883,7 +2883,7 @@ how geometry is filled with color; if nullptr, <a href="undocumented#Color">Colo
 <a href="undocumented#Color_Filter">Color Filter</a> may apply <a href="undocumented#Blend_Mode">Blend Mode</a>, transform the color through a matrix, or composite multiple filters.
 If <a href="#Paint">Paint</a> has no <a href="undocumented#Color_Filter">Color Filter</a>, the color is unaltered.
 
-The drawn transparency can be modified without altering <a href="undocumented#Color_Filter">Color Filter</a>, by changing <a href="undocumented#Alpha">Color Alpha</a>.
+The drawn transparency can be modified without altering <a href="undocumented#Color_Filter">Color Filter</a>, by changing <a href="SkColor_Reference#Alpha">Color Alpha</a>.
 
 ### Example
 
@@ -2974,7 +2974,7 @@ Increments filter <a href="undocumented#Reference_Count">Reference Count</a> by 
 
 ## <a name="Blend_Mode_Methods"></a> Blend Mode Methods
 
-<a href="undocumented#Blend_Mode">Blend Mode</a> describes how <a href="undocumented#Color">Color</a> combines with the destination color.
+<a href="undocumented#Blend_Mode">Blend Mode</a> describes how <a href="SkColor_Reference#Color">Color</a> combines with the destination color.
 The default setting, <a href="undocumented#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a>, draws the source color
 over the destination color.
 
@@ -3369,7 +3369,7 @@ with <a href="undocumented#Blend_Mode">Blend Mode</a> set to <a href="undocument
 which is drawn to the device using the set <a href="undocumented#Blend_Mode">Blend Mode</a>.
 
 <a href="undocumented#Image_Filter">Image Filter</a> is higher level than <a href="undocumented#Mask_Filter">Mask Filter</a>; for instance, an <a href="undocumented#Image_Filter">Image Filter</a>
-can operate on all channels of <a href="undocumented#Color">Color</a>, while <a href="undocumented#Mask_Filter">Mask Filter</a> generates <a href="undocumented#Alpha">Alpha</a> only.
+can operate on all channels of <a href="SkColor_Reference#Color">Color</a>, while <a href="undocumented#Mask_Filter">Mask Filter</a> generates <a href="SkColor_Reference#Alpha">Alpha</a> only.
 <a href="undocumented#Image_Filter">Image Filter</a> operates independently of and can be used in combination with
 <a href="undocumented#Mask_Filter">Mask Filter</a>.
 
@@ -5001,8 +5001,8 @@ bool nothingToDraw() const
 Returns true if <a href="#Paint">Paint</a> prevents all drawing;
 otherwise, the <a href="#Paint">Paint</a> may or may not allow drawing.
 
-Returns true if, for example, <a href="undocumented#Blend_Mode">Blend Mode</a> combined with <a href="undocumented#Alpha">Color Alpha</a> computes a
-new <a href="undocumented#Alpha">Alpha</a> of zero.
+Returns true if, for example, <a href="undocumented#Blend_Mode">Blend Mode</a> combined with <a href="SkColor_Reference#Alpha">Color Alpha</a> computes a
+new <a href="SkColor_Reference#Alpha">Alpha</a> of zero.
 
 ### Return Value
 
