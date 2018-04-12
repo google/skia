@@ -487,7 +487,7 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     if (fFilter) {
         if (!fFilter->filter(paint, drawType)) {
             fDone = true;
-            return false;
+            return false;   // can we really do this, if we haven't finished fLooperContext?
         }
         if (nullptr == fLooperContext) {
             // no looper means we only draw once
@@ -499,12 +499,6 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     // if we only came in here for the imagefilter, mark us as done
     if (!fLooperContext && !fFilter) {
         fDone = true;
-    }
-
-    // call this after any possible paint modifiers
-    if (fPaint->nothingToDraw()) {
-        fPaint = nullptr;
-        return false;
     }
     return true;
 }
@@ -2478,7 +2472,6 @@ void SkCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRS
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
-
     SkRect storage;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
