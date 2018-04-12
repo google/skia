@@ -174,3 +174,29 @@ DEF_TEST(QuickReject_MatrixState, reporter) {
     // quickReject() will assert if the matrix is out of sync.
     canvas.quickReject(SkRect::MakeWH(100.0f, 100.0f));
 }
+
+#include "SkLayerDrawLooper.h"
+#include "SkSurface.h"
+DEF_TEST(looper_nothingtodraw, reporter) {
+    auto surf = SkSurface::MakeRasterN32Premul(20, 20);
+
+    SkPaint paint;
+    paint.setColor(0);
+    REPORTER_ASSERT(reporter, paint.nothingToDraw());
+
+    SkLayerDrawLooper::Builder builder;
+    builder.addLayer();
+    paint.setDrawLooper(builder.detach());
+    // the presence of the looper fools this predicate, so we think it might draw
+    REPORTER_ASSERT(reporter, !paint.nothingToDraw());
+
+    // Before fixing, this would assert in ~AutoDrawLooper() in SkCanvas.cpp as it checked for
+    // a balance in the save/restore count after handling the looper. Before the fix, this
+    // code would call nothingToDraw() and since it now clears the looper, that predicate will
+    // return true, aborting the sequence prematurely, and not finishing the iterator on the looper
+    // which handles the final "restore". This was a bug -- we *must* call the looper's iterator
+    // until it returns done to keep the canvas balanced. The fix was to remove this early-exit
+    // in the autodrawlooper. Now this call won't assert.
+    // See https://skia-review.googlesource.com/c/skia/+/121220
+    surf->getCanvas()->drawRect({1, 1, 10, 10}, paint);
+}
