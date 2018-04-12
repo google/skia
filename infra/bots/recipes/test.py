@@ -238,11 +238,7 @@ def dm_flags(api, bot):
       args.extend(['--pr', 'ccpr', '--cachePathMasks', 'false'])
 
     # DDL is a GPU-only feature
-    if 'DDL1' in bot:
-      # This bot generates gl and vk comparison images for the large skps
-      configs = [c for c in configs if c == 'gl' or c == 'vk']
-      args.extend(['--skpViewportSize', "2048"])
-    if 'DDL3' in bot:
+    if 'DDL' in bot:
       # This bot generates the ddl-gl and ddl-vk images for the
       # large skps and the gms
       configs = ['ddl-' + c for c in configs if c == 'gl' or c == 'vk']
