@@ -63,15 +63,6 @@ GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
     }
     return 0;
 }
-
-bool SkSurface_Gpu::onGetRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess access) {
-    GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
-    if (!rt) {
-        return false;
-    }
-    *obj = rt->getRenderTargetHandle();
-    return true;
-}
 #endif
 
 GrBackendTexture SkSurface_Gpu::onGetBackendTexture(BackendHandleAccess access) {
