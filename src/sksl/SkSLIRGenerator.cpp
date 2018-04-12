@@ -613,8 +613,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
 }
 
 std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
-    // sk_Position = float4(sk_Position.x * rtAdjust.x + sk_Position.w * rtAdjust.y,
-    //                      sk_Position.y * rtAdjust.z + sk_Position.w * rtAdjust.w,
+    // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
     //                      0,
     //                      sk_Position.w);
     ASSERT(fSkPerVertex && fRTAdjust);
@@ -627,16 +626,15 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     #define ADJUST (fRTAdjustInterfaceBlock ? \
                     FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
                     REF(fRTAdjust))
-    #define SWIZZLE(expr, field) std::unique_ptr<Expression>(new Swizzle(fContext, expr, { field }))
-    #define OP(left, op, right) std::unique_ptr<Expression>(\
-                                   new BinaryExpression(-1, left, op, right, *fContext.fFloat_Type))
+    #define SWIZZLE(expr, ...) std::unique_ptr<Expression>(new Swizzle(fContext, expr, \
+                                                                       { __VA_ARGS__ }))
+    #define OP(left, op, right) std::unique_ptr<Expression>( \
+                                   new BinaryExpression(-1, left, op, right, \
+                                                        *fContext.fFloat2_Type))
     std::vector<std::unique_ptr<Expression>> children;
-    children.push_back(OP(OP(SWIZZLE(POS, 0), Token::STAR, SWIZZLE(ADJUST, 0)),
+    children.push_back(OP(OP(SWIZZLE(POS, 0, 1), Token::STAR, SWIZZLE(ADJUST, 0, 2)),
                           Token::PLUS,
-                          OP(SWIZZLE(POS, 3), Token::STAR, SWIZZLE(ADJUST, 1))));
-    children.push_back(OP(OP(SWIZZLE(POS, 1), Token::STAR, SWIZZLE(ADJUST, 2)),
-                          Token::PLUS,
-                          OP(SWIZZLE(POS, 3), Token::STAR, SWIZZLE(ADJUST, 3))));
+                          OP(SWIZZLE(POS, 3, 3), Token::STAR, SWIZZLE(ADJUST, 1, 3))));
     children.push_back(std::unique_ptr<Expression>(new FloatLiteral(fContext, -1, 0.0)));
     children.push_back(SWIZZLE(POS, 3));
     std::unique_ptr<Expression> result = OP(POS, Token::EQ,
@@ -645,6 +643,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
                                                                              std::move(children))));
     return std::unique_ptr<Statement>(new ExpressionStatement(std::move(result)));
 }
+
 
 void IRGenerator::convertFunction(const ASTFunction& f) {
     const Type* returnType = this->convertType(*f.fReturnType);

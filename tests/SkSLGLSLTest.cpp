@@ -1136,9 +1136,8 @@ DEF_TEST(SkSLFragCoord, r) {
          "in vec4 pos;\n"
          "void main() {\n"
          "    sk_FragCoord_Workaround = (gl_Position = pos);\n"
-         "    gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.w * sk_RTAdjust.y, "
-              "gl_Position.y * sk_RTAdjust.z + gl_Position.w * sk_RTAdjust.w, 0.0, "
-              "gl_Position.w);\n"
+         "    gl_Position = vec4(gl_Position.xy * sk_RTAdjust.xz + gl_Position.ww * sk_RTAdjust.yw,"
+                                " 0.0, gl_Position.w);\n"
          "}\n",
          SkSL::Program::kVertex_Kind);
 
@@ -1818,10 +1817,8 @@ DEF_TEST(SkSLNormalization, r) {
          "uniform vec4 sk_RTAdjust;\n"
          "void main() {\n"
          "    gl_Position = vec4(1.0);\n"
-         "    gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.w * sk_RTAdjust.y, "
-                                "gl_Position.y * sk_RTAdjust.z + gl_Position.w * sk_RTAdjust.w, "
-                                "0.0, "
-                                "gl_Position.w);\n"
+         "    gl_Position = vec4(gl_Position.xy * sk_RTAdjust.xz + gl_Position.ww * "
+                                "sk_RTAdjust.yw, 0.0, gl_Position.w);\n"
          "}\n",
          SkSL::Program::kVertex_Kind);
     test(r,
@@ -1845,16 +1842,14 @@ DEF_TEST(SkSLNormalization, r) {
          "void main() {\n"
          "    gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(gl_InvocationID));\n"
          "    {\n"
-         "        gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.w * "
-                               "sk_RTAdjust.y, gl_Position.y * sk_RTAdjust.z + gl_Position.w * "
-                               "sk_RTAdjust.w, 0.0, gl_Position.w);\n"
+         "        gl_Position = vec4(gl_Position.xy * sk_RTAdjust.xz + gl_Position.ww * "
+                                    "sk_RTAdjust.yw, 0.0, gl_Position.w);\n"
          "        EmitVertex();\n"
          "    }\n"
          "    gl_Position = gl_in[0].gl_Position + vec4(0.5, 0.0, 0.0, float(gl_InvocationID));\n"
          "    {\n"
-         "        gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.w * "
-                               "sk_RTAdjust.y, gl_Position.y * sk_RTAdjust.z + gl_Position.w * "
-                               "sk_RTAdjust.w, 0.0, gl_Position.w);\n"
+         "        gl_Position = vec4(gl_Position.xy * sk_RTAdjust.xz + gl_Position.ww * "
+                                    "sk_RTAdjust.yw, 0.0, gl_Position.w);\n"
          "        EmitVertex();\n"
          "    }\n"
          "    EndPrimitive();\n"
