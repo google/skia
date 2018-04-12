@@ -37,9 +37,12 @@
     "InProgress": {
         "include": {
             "core": [
+                "SkColor.h"
             ]
         },
         "docs": [
+            "SkColor_Reference.bmh",
+            "SkColor4f_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]

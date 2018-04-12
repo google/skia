@@ -32,6 +32,7 @@
  SK_HAS_JPEG_LIBRARY # ditto
  SK_HAS_PNG_LIBRARY # ditto
  SK_HAS_WEBP_LIBRARY # ditto
+ SK_IGNORE_GPU_DITHER # ditto
  SK_PMCOLOR_BYTE_ORDER # ditto
 
 # FreeType related
@@ -92,71 +93,6 @@ FT_Load_Glyph
     ##
 ##
 ##
-
-#Topic Color
-    #Typedef uint32_t SkColor
-    #Typedef ##
-
-    #Typedef uint32_t SkPMColor
-    #Typedef ##
-
-    # fixme: defines, not methods, need new markup type
-    #Method int SkColorGetA(color)
-    ##
-    #Method int SkColorGetR(color)
-    ##
-    #Method int SkColorGetG(color)
-    ##
-    #Method int SkColorGetB(color)
-    ##
-    #Method int SkColorSetARGB(a, r, g, b)
-    ##
-    #Method SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
-    ##
-
-    #Const SK_ColorBLACK 0xFF000000 
-    ##
-    #Const SK_ColorBLUE 0xFF0000FF 
-    ##
-    #Const SK_ColorGREEN 0xFF00FF00 
-    ##
-    #Const SK_ColorRED 0xFFFF0000 
-    ##
-    #Const SK_ColorWHITE 0xFFFFFFFF 
-    ##
-    #Const SK_ColorTRANSPARENT 0x00000000
-    ##
-    #Subtopic Alpha
-        #Alias Alpha
-    #Subtopic ##
-    #Subtopic RGB
-    #Substitute RGB
-        #Subtopic Red
-            #Alias Red
-        #Subtopic ##
-        #Subtopic Blue
-            #Alias Blue
-        #Subtopic ##
-        #Subtopic Green
-            #Alias Green
-        #Subtopic ##
-    #Subtopic ##
-    #Subtopic ARGB
-    #Substitute ARGB
-    #Subtopic ##
-
-    #Subtopic RBG
-    #Substitute RBG
-    #Subtopic ##
-
-    #Subtopic RGB-565
-    #Substitute RGB-565
-    #Alias Color_RGB-565 # quit changing - to _ !
-    #Subtopic ##
-
-    #Subtopic Gray
-    ##
-#Topic ##
 
 #Topic Color_Filter
 #Class SkColorFilter
