@@ -75,6 +75,9 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSa
         return nullptr;
     }
 
+    SkASSERT(this->width() <= fContext->caps()->maxTextureSize() &&
+             this->height() <= fContext->caps()->maxTextureSize());
+
     if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(),
                                               proxy.get(), proxy->width(), proxy->height(),
                                               params, &copyParams, scaleAdjust)) {
