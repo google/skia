@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bf3d727_711c27d8",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-12T17:12:44Z",
+      "side": 1,
+      "message": "Kind of surprised this is the first time we\u0027ve needed this function!",
+      "revId": "465403d0149c13b25d7eb9625e4352406738f13c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
