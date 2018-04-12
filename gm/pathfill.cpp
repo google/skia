@@ -509,4 +509,19 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     path.lineTo(75, 10);
     path.close();
     canvas->drawPath(path, p);
+    // from skbug.com/7792 comment 19
+    canvas->translate(200, 0);
+    path.reset();
+    path.moveTo(75, 75);
+    path.lineTo(75, 75);
+    path.lineTo(75, 75);
+    path.lineTo(75, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    path.close();
+    path.moveTo(10, 10);
+    path.lineTo(30, 10);
+    path.lineTo(10, 30);
+    canvas->drawPath(path, p);
 }

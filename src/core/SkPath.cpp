@@ -446,15 +446,16 @@ FIXME: If the API passes fill-only, return true if the filled stroke
 static int rect_make_dir(SkScalar dx, SkScalar dy) {
     return ((0 != dx) << 0) | ((dx > 0 || dy > 0) << 1);
 }
+
 bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** ptsPtr,
         bool* isClosed, Direction* direction, SkRect* rect) const {
     int corners = 0;
-    SkPoint previous;  // used to construct line from previous point
+    SkPoint lineStart;  // used to construct line from previous point
     const SkPoint* firstPt = nullptr; // first point in the rect (last of first moves)
     const SkPoint* lastPt = nullptr;  // last point in the rect (last of lines or first if closed)
     const SkPoint* pts = *ptsPtr;
     const SkPoint* savePts = nullptr; // used to allow caller to iterate through a pair of rects
-    previous.set(0, 0);
+    lineStart.set(0, 0);
     int firstDirection = 0;
     int lastDirection = 0;
     int nextDirection = 0;
@@ -469,30 +470,26 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
         switch (verb) {
             case kClose_Verb:
                 savePts = pts;
-                pts = firstPt;
                 autoClose = true;
                 insertClose = false;
                 accumulatingRect = false;
             case kLine_Verb: {
-                SkScalar left = previous.fX;
-                SkScalar top = previous.fY;
-                SkScalar right = pts->fX;
-                SkScalar bottom = pts->fY;
                 if (accumulatingRect) {
                     lastPt = pts;
                 }
-                ++pts;
-                if (left != right && top != bottom) {
+                SkPoint lineEnd = kClose_Verb == verb ? *firstPt : *pts++;
+                SkVector lineDelta = lineEnd - lineStart;
+                if (lineDelta.fX && lineDelta.fY) {
                     return false; // diagonal
                 }
                 addedLine = true;
-                if (left == right && top == bottom) {
+                if (lineStart == lineEnd) {
                     break; // single point on side OK
                 }
-                nextDirection = rect_make_dir(right - left, bottom - top);
+                nextDirection = rect_make_dir(lineDelta.fX, lineDelta.fY);
                 if (0 == corners) {
                     firstDirection = nextDirection;
-                    previous = pts[-1];
+                    lineStart = lineEnd;
                     corners = 1;
                     closedOrMoved = false;
                     break;
@@ -509,7 +506,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                         return false; // too many direction changes
                     }
                 }
-                previous = pts[-1];
+                lineStart = lineEnd;
                 if (lastDirection == nextDirection) {
                     break; // colinear segment
                 }
@@ -539,7 +536,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 } else {
                     accumulatingRect = false;
                 }
-                previous = *pts++;
+                lineStart = *pts++;
                 closedOrMoved = true;
                 break;
             default:
