@@ -1,0 +1,193 @@
+#Topic Color4f
+#Alias Color4f_Reference
+
+#Struct SkColor4f
+
+The float values are 0...1 unpremultiplied
+
+#Subtopic Overview
+    #Subtopic Subtopic
+        #Populate
+    ##
+##
+
+#Subtopic Operator
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+#Member float  fR
+##
+
+#Member float  fG
+##
+
+#Member float  fB
+##
+
+#Member float  fA
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator==(const SkColor4f& other)_const
+#In Operator
+#Line # incomplete ##
+
+#Param other  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator!=(const SkColor4f& other)_const
+#In Operator
+#Line # incomplete ##
+
+#Param other  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const float* vec() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method float* vec()
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkColor4f Pin(float r, float g, float b, float a)
+#In incomplete
+#Line # incomplete ##
+
+#Param r  incomplete ##
+#Param g  incomplete ##
+#Param b  incomplete ##
+#Param a  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkColor4f FromColor(SkColor)
+#In incomplete
+#Line # incomplete ##
+
+Convert to SkColor4f, assuming SkColor is sRGB
+
+#Param SkColor  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkColor toSkColor() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkColor4f pin() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPM4f premul() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Struct SkColor4f ##
+
+#Topic Color4f ##
