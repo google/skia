@@ -10,7 +10,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
-bool Catalog::appendFile(const string& path) {
+bool Catalog::appendFile(string path) {
     FILE* file = fopen(path.c_str(), "r");
     if (!file) {
         SkDebugf("could not append %s\n", path.c_str());
