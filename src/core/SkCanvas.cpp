@@ -433,6 +433,7 @@ public:
 
     const SkPaint& paint() const {
         SkASSERT(fPaint);
+        SkASSERT(fPaint->getDrawLooper() == nullptr);   // we should have cleared this
         return *fPaint;
     }
 
@@ -471,6 +472,8 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
 
     SkPaint* paint = fLazyPaintPerLooper.set(fLazyPaintInit.isValid() ?
                                              *fLazyPaintInit.get() : fOrigPaint);
+    // never want our downstream clients (i.e. devices) to see loopers
+    paint->setDrawLooper(nullptr);
 
     if (fTempLayerForImageFilter) {
         paint->setImageFilter(nullptr);
