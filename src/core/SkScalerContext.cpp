@@ -447,7 +447,8 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
 #ifndef SK_SUPPORT_LEGACY_PATH_DAA_BIT
-            SkPathPriv::SetIsBadForDAA(devPath, true); // crbug.com/821353
+            // DAA would have over coverage issues with small stroke_and_fill (crbug.com/821353)
+            SkPathPriv::SetIsBadForDAA(devPath, fRec.fFrameWidth > 0 && fRec.fFrameWidth <= 2);
 #endif
             generateMask(mask, devPath, fPreBlend);
         }
