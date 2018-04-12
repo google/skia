@@ -385,7 +385,9 @@ static constexpr const uint8_t kSpiderSymbol_ttf[] = {
 static bool supports_LCD() {
     static bool gSupportsLCD = []{
         uint32_t bitmap[16][16] = {};
-        UniqueCFRef<CGColorSpaceRef> colorspace(CGColorSpaceCreateDeviceRGB());
+        constexpr CGFloat whitepoint[3] = {1.f, 1.f, 1.f};
+        UniqueCFRef<CGColorSpaceRef> colorspace(
+                CGColorSpaceCreateCalibratedRGB(whitepoint, nullptr, nullptr, nullptr));
         UniqueCFRef<CGContextRef> cgContext(
                 CGBitmapContextCreate(&bitmap, 16, 16, 8, 16*4, colorspace.get(), BITMAP_INFO_RGB));
 
@@ -398,10 +400,16 @@ static bool supports_LCD() {
                 CTFontCreateWithGraphicsFont(cgFont.get(), 16, nullptr, nullptr));
         SkASSERT(ctFont);
 
+        constexpr CGFloat white[4] = {1.f, 1.f, 1.f, 1.f};
+        UniqueCFRef<CGColorRef> color(CGColorCreate(colorspace.get(), white));
+        CGContextSetFillColorSpace(cgContext.get(), colorspace.get());
+        CGContextSetStrokeColorSpace(cgContext.get(), colorspace.get());
+        CGContextSetFillColorWithColor(cgContext.get(), color.get());
+        CGContextSetStrokeColorWithColor(cgContext.get(), color.get());
+
         CGContextSetShouldSmoothFonts(cgContext.get(), true);
         CGContextSetShouldAntialias(cgContext.get(), true);
         CGContextSetTextDrawingMode(cgContext.get(), kCGTextFill);
-        CGContextSetGrayFillColor(cgContext.get(), 1, 1);
         CGPoint point = CGPointMake(0, 3);
         CGGlyph spiderGlyph = 3;
         CTFontDrawGlyphs(ctFont.get(), &spiderGlyph, &point, 1, cgContext.get());
@@ -1002,10 +1010,11 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
                              CGGlyph glyphID, size_t* rowBytesPtr,
                              bool generateA8FromLCD) {
     if (!fRGBSpace) {
-        //It doesn't appear to matter what color space is specified.
-        //Regular blends and antialiased text are always (s*a + d*(1-a))
-        //and smoothed text is always g=2.0.
-        fRGBSpace.reset(CGColorSpaceCreateDeviceRGB());
+        // It doesn't appear to matter what color space is specified.
+        // Regular blends and antialiased text are always (s*a + d*(1-a))
+        // and smoothed text is always g=2.0.
+        constexpr CGFloat whitepoint[3] = {1.f, 1.f, 1.f};
+        fRGBSpace.reset(CGColorSpaceCreateCalibratedRGB(whitepoint, nullptr, nullptr, nullptr));
     }
 
     // default to kBW_Format
@@ -1048,6 +1057,14 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         fCG.reset(CGBitmapContextCreate(image, fSize.fWidth, fSize.fHeight, 8,
                                         rowBytes, fRGBSpace.get(), bitmapInfo));
 
+        // Draw black on white to create mask. (Special path exists to speed this up in CG.)
+        constexpr CGFloat black[4] = {0.f, 0.f, 0.f, 1.f};
+        UniqueCFRef<CGColorRef> color(CGColorCreate(fRGBSpace.get(), black));
+        CGContextSetFillColorSpace(fCG.get(), fRGBSpace.get());
+        CGContextSetStrokeColorSpace(fCG.get(), fRGBSpace.get());
+        CGContextSetFillColorWithColor(fCG.get(), color.get());
+        CGContextSetStrokeColorWithColor(fCG.get(), color.get());
+
         // Skia handles quantization and subpixel positioning,
         // so disable quantization and enabe subpixel positioning in CG.
         CGContextSetAllowsFontSubpixelQuantization(fCG.get(), false);
@@ -1060,9 +1077,6 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         CGContextSetShouldSubpixelPositionFonts(fCG.get(), true);
 
         CGContextSetTextDrawingMode(fCG.get(), kCGTextFill);
-
-        // Draw black on white to create mask. (Special path exists to speed this up in CG.)
-        CGContextSetGrayFillColor(fCG.get(), 0.0f, 1.0f);
 
         // force our checks below to happen
         fDoAA = !doAA;
