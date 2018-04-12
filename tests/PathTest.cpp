@@ -4977,4 +4977,13 @@ DEF_TEST(Path_isRect, reporter) {
     SkPoint points17[] = { {75, 10}, {75, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 10} };
     path = makePath(points17, SK_ARRAY_COUNT(points17), true);
     REPORTER_ASSERT(reporter, !path.isRect(&rect, nullptr, nullptr));
+    // isolated from skbug.com/7792 comment 19
+    SkPath::Verb verbs19[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
+                               SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
+                               SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb,
+                               SkPath::kLine_Verb, SkPath::kLine_Verb };
+    SkPoint points19[] = { {75, 75}, {75, 75}, {75, 75}, {75, 75}, {150, 75}, {150, 150},
+                           {75, 150}, {10, 10}, {30, 10}, {10, 30} };
+    path = makePath2(points19, verbs19, SK_ARRAY_COUNT(verbs19));
+    REPORTER_ASSERT(reporter, !path.isRect(&rect, nullptr, nullptr));
 }
