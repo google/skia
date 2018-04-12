@@ -215,6 +215,22 @@ public:
     // For crbug.com/821353 and skbug.com/6886
     static bool IsBadForDAA(const SkPath& path) { return path.fIsBadForDAA; }
     static void SetIsBadForDAA(SkPath& path, bool isBadForDAA) { path.fIsBadForDAA = isBadForDAA; }
+
+    // Returns number of valid points for each SkPath::Iter verb
+    static int PtsInIter(unsigned verb) {
+        static const uint8_t gPtsInVerb[] = {
+            1,  // kMove    pts[0]
+            2,  // kLine    pts[0..1]
+            3,  // kQuad    pts[0..2]
+            3,  // kConic   pts[0..2]
+            4,  // kCubic   pts[0..3]
+            0,  // kClose
+            0   // kDone
+        };
+
+        SkASSERT(verb < SK_ARRAY_COUNT(gPtsInVerb));
+        return gPtsInVerb[verb];
+    }
 };
 
 #endif
