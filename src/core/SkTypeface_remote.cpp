@@ -40,7 +40,8 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
 }
 
 bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
-    return fClient->generatePath(*this->typefaceProxy(), this->getRec(), glyphID, path);
+    fClient->generatePath(*this->typefaceProxy(), this->getRec(), glyphID, path);
+    return true;
 }
 
 void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
@@ -49,4 +50,10 @@ void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 
 SkTypefaceProxy* SkScalerContextProxy::typefaceProxy() {
     return SkTypefaceProxy::DownCast(this->getTypeface());
+}
+
+bool SkTypefaceProxy::onPurgeGlyphCache(SkGlyphCache* cache) {
+  // TODO: Use a weak ptr for fRsc. There is no guarentee that the client
+  // will outlive the typeface.
+  return fRsc->canPurgeGlyphCache(cache);
 }
