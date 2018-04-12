@@ -47,7 +47,7 @@ private:
     void childCheck(const Definition* def, const char* start);
     void leafCheck(const char* start, const char* end);
     bool parseFromFile(const char* path) override { return true; }
-    void printCheck(const string& str);
+    void printCheck(string str);
 
     void reset() override {
         INHERITED::resetCommon();
@@ -60,7 +60,7 @@ private:
         fInStdOut = false;
     }
 
-    void wordCheck(const string& str);
+    void wordCheck(string str);
     void wordCheck(ptrdiff_t len, const char* ch);
 
     unordered_map<string, CheckEntry> fCode;
@@ -121,7 +121,7 @@ bool SpellCheck::check(const char* match) {
     return true;
 }
 
-static bool all_lower(const string& str) {
+static bool all_lower(string str) {
     for (auto c : str) {
         if (!islower(c)) {
             return false;
@@ -231,7 +231,7 @@ bool SpellCheck::check(Definition* def) {
             paramParser.skipWhiteSpace();
             SkASSERT(paramParser.startsWith("#Param"));
             paramParser.next(); // skip hash
-            paramParser.skipToNonAlphaNum(); // skip Param
+            paramParser.skipToNonName(); // skip Param
             paramParser.skipSpace();
             const char* paramName = paramParser.fChar;
             paramParser.skipToSpace();
@@ -345,7 +345,7 @@ bool SpellCheck::check(Definition* def) {
 }
 
 bool SpellCheck::checkable(MarkType markType) {
-    return BmhParser::Resolvable::kYes == fBmhParser.fMaps[(int) markType].fResolve;
+    return BmhParser::Resolvable::kYes == fBmhParser.kMarkProps[(int) markType].fResolve;
 }
 
 void SpellCheck::childCheck(const Definition* def, const char* start) {
@@ -459,7 +459,7 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
     } while (++chPtr <= end);
 }
 
-void SpellCheck::printCheck(const string& str) {
+void SpellCheck::printCheck(string str) {
     string word;
     for (std::stringstream stream(str); stream >> word; ) {
         wordCheck(word);
@@ -566,7 +566,7 @@ void SpellCheck::report(SkCommandLineFlags::StringArray report) {
     }
 }
 
-void SpellCheck::wordCheck(const string& str) {
+void SpellCheck::wordCheck(string str) {
     if ("nullptr" == str) {
         return;  // doesn't seem worth it, treating nullptr as a word in need of correction
     }
