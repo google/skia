@@ -16,6 +16,24 @@
       "revId": "41de674551e814d6c716a41571ff8e6a872a3943",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca9ace8b_87a73b1f",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-04-13T18:19:14Z",
+      "side": 1,
+      "message": "Got it -- if a device has 0-width but huge height (or the reverse), we would eventually call extractSubset, which will assert on the zero...\n\nSeems like we should catch such a device sooner, and not ever got down this far. I will investigate.",
+      "parentUuid": "6a463c1b_531e20b1",
+      "revId": "41de674551e814d6c716a41571ff8e6a872a3943",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
