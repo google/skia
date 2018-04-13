@@ -367,7 +367,7 @@ void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
         } else {
             record->fType = SkDAARecord::Type::kList;
             SkCoverageDeltaList* deltaList = alloc->make<SkCoverageDeltaList>(
-                    alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
+                    alloc, clippedIR, forceRLE);
             gen_alpha_deltas(path, clippedIR, clipBounds, *deltaList, blitter, skipRect,
                              containedInClip);
             record->fList = deltaList;
