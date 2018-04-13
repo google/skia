@@ -258,10 +258,11 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
     std::unique_ptr<GrAtlasTextOp> op;
     if (info.drawAsDistanceFields()) {
         bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
+        bool useLCD = info.hasUseLCDText() && props.pixelGeometry() != kUnknown_SkPixelGeometry;
         op = GrAtlasTextOp::MakeDistanceField(
                 std::move(grPaint), glyphCount, distanceAdjustTable,
                 target->colorSpaceInfo().isGammaCorrect(), paint.luminanceColor(),
-                info.hasUseLCDText(), useBGR, info.isAntiAliased());
+                useLCD, useBGR, info.isAntiAliased());
     } else {
         op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount,
                                        info.hasScaledGlyphs());
@@ -309,7 +310,7 @@ void GrAtlasTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& p
     // GrAtlasTextBlob::makeOp only takes uint16_t values for run and subRun indices.
     // Encountering something larger than this is highly unlikely, so we'll just not draw it.
     int lastRun = SkTMin(fRunCount, (1 << 16)) - 1;
-    GrTextUtils::RunPaint runPaint(&paint, nullptr, props);
+    GrTextUtils::RunPaint runPaint(&paint, nullptr);
     for (int runIndex = 0; runIndex <= lastRun; runIndex++) {
         Run& run = fRuns[runIndex];
 
