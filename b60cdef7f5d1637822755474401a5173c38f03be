@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e43d1a04_5f327dcd",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2018-04-13T19:21:34Z",
+      "side": 1,
+      "message": "The docstring is out of date. You could mention that limiting to max texture size makes it more likely to not-receive a raster copy of the image.",
+      "revId": "b60cdef7f5d1637822755474401a5173c38f03be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
