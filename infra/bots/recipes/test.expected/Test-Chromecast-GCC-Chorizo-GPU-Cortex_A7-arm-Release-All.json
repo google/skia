@@ -595,6 +595,7 @@
       "~animated-image-blurs",
       "~blur_0.01",
       "~blur_image_filter",
+      "~check_small_sigma_offset",
       "~imageblur2",
       "~lighting",
       "~longpathdash",
