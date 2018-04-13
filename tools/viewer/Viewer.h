@@ -165,6 +165,7 @@ private:
 
     SkPaint fPaint;
     SkPaintFields fPaintOverrides;
+    bool fPixelGeometryOverrides = false;
 };
 
 

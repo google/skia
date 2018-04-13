@@ -43,6 +43,7 @@ public:
     SkSurfaceProps getSurfaceProps() const { return fSurfaceProps; }
     void setSurfaceProps(const SkSurfaceProps& props) {
         fSurfaceProps = props;
+        this->setDisplayParams(fDisplayParams);
     }
 
     GrContext* getGrContext() const { return fContext.get(); }
