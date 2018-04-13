@@ -247,7 +247,8 @@ public:
         @return               created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> data,
-                                                      bool buildMips, SkColorSpace* dstColorSpace);
+                                                      bool buildMips, SkColorSpace* dstColorSpace,
+                                                      bool limitToMaxTextureSize = false);
 
     /** Creates SkImage from pixmap. SkImage is uploaded to GPU back-end using context.
 
@@ -274,7 +275,8 @@ public:
         @return               created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
-                                                     bool buildMips, SkColorSpace* dstColorSpace);
+                                                     bool buildMips, SkColorSpace* dstColorSpace,
+                                                     bool limitToMaxTextureSize = false);
 
     /** Creates SkImage from backendTexture associated with context. backendTexture and
         returned SkImage are managed internally, and are released when no longer needed.
