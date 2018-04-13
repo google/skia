@@ -23,7 +23,6 @@ public:
     WindowContext(const DisplayParams& params)
             : fContext(nullptr)
             , fDisplayParams(params)
-            , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
             , fSampleCount(1)
             , fStencilBits(0) {}
 
@@ -40,11 +39,6 @@ public:
     const DisplayParams& getDisplayParams() { return fDisplayParams; }
     virtual void setDisplayParams(const DisplayParams& params) = 0;
 
-    SkSurfaceProps getSurfaceProps() const { return fSurfaceProps; }
-    void setSurfaceProps(const SkSurfaceProps& props) {
-        fSurfaceProps = props;
-    }
-
     GrContext* getGrContext() const { return fContext.get(); }
 
     int width() const { return fWidth; }
@@ -60,7 +54,6 @@ protected:
     int               fWidth;
     int               fHeight;
     DisplayParams     fDisplayParams;
-    SkSurfaceProps    fSurfaceProps;
 
     // parameters obtained from the native window
     // Note that the platform .cpp file is responsible for

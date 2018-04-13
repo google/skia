@@ -74,7 +74,7 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
                                                               kBottomLeft_GrSurfaceOrigin,
                                                               kRGBA_8888_SkColorType,
                                                               fDisplayParams.fColorSpace,
-                                                              &fSurfaceProps);
+                                                              &fDisplayParams.fSurfaceProps);
         }
     }
 
