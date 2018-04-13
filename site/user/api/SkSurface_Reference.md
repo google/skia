@@ -327,7 +327,7 @@ Internally, sets <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to wi
 
 <a href="#Surface">Surface</a> is returned if width and height are greater than zero.
 
-Use to create <a href="#Surface">Surface</a> that matches <a href="undocumented#SkPMColor">SkPMColor</a>, the native pixel arrangement on
+Use to create <a href="#Surface">Surface</a> that matches <a href="SkColor_Reference#SkPMColor">SkPMColor</a>, the native pixel arrangement on
 the platform. <a href="#Surface">Surface</a> drawn to output device skips converting its pixel format.
 
 ### Parameters
@@ -1280,7 +1280,7 @@ void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint)
 
 Draws <a href="#Surface">Surface</a> contents to <a href="#SkSurface_draw_canvas">canvas</a>, with its top-left corner at (<a href="#SkSurface_draw_x">x</a>, <a href="#SkSurface_draw_y">y</a>).
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkSurface_draw_paint">paint</a> is not nullptr, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkSurface_draw_paint">paint</a> is not nullptr, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>.
 
 ### Parameters

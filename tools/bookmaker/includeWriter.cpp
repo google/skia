@@ -721,22 +721,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
             }
             this->indentToColumn(column);
             fIndent = column;
-#if 0
-            const char* partStart = methodPart->fContentStart;
-            const char* partEnd = methodPart->fContentEnd;
-            while ('\n' == partEnd[-1]) {
-                --partEnd;
-            }
-            while ('#' == partEnd[-1]) { // FIXME: so wrong; should not be before fContentEnd
-                --partEnd;
-            }
-            int partLen = (int) (partEnd - partStart);
-            // FIXME : detect this earlier; assert if #Return is empty
-            SkASSERT(partLen > 0 && partLen < 300);  // may assert if param desc is especially long
-            this->rewriteBlock(partLen, partStart, Phrase::kYes);
-#else
             this->descriptionOut(methodPart, SkipFirstLine::kNo, Phrase::kYes);
-#endif
             fIndent = saveIndent;
             this->lfcr();
         }
@@ -784,7 +769,7 @@ bool IncludeWriter::findEnumSubtopic(string undername, const Definition** rootDe
 }
 
 Definition* IncludeWriter::findMemberCommentBlock(const vector<Definition*>& bmhChildren,
-        const string& name) const {
+        string name) const {
     for (auto memberDef : bmhChildren) {
         if (MarkType::kMember != memberDef->fMarkType) {
             continue;
@@ -1058,6 +1043,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
+        if (string::npos != child.fName.find("validate")) {
+            SkDebugf("");
+        }
         if (KeyWord::kOperator == child.fKeyWord && method &&
                 Definition::MethodType::kOperator == method->fMethodType) {
             eatOperator = true;
@@ -1222,7 +1210,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             continue;
         }
         if (MarkType::kMethod == child.fMarkType) {
-            if (this->internalName(child)) {
+            if (this->isInternalName(child)) {
                 continue;
             }
             const char* bodyEnd = fDeferComment ? fDeferComment->fContentStart - 1 :
@@ -1242,6 +1230,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 --bodyEnd;
             }
             int blockSize = (int) (bodyEnd - fStart);
+            if (blockSize < 0) {
+                SkDebugf("");
+            }
             if (blockSize) {
                 string debugstr(fStart, blockSize);
                 this->writeBlock(blockSize, fStart);
@@ -1617,6 +1608,7 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
         RootDefinition* root = &bmhParser.fClassMap[skClassName];
         fRootTopic = root->fParent;
         root->clearVisited();
+        fFileName = includeMapper.second.fFileName;
         fStart = includeMapper.second.fContentStart;
         fEnd = includeMapper.second.fContentEnd;
         fAnonymousEnumCount = 1;
