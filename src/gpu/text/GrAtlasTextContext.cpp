@@ -198,7 +198,7 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
 
     // Regenerate textblob
     SkTextBlobRunIterator it(blob);
-    GrTextUtils::RunPaint runPaint(&paint, drawFilter, props);
+    GrTextUtils::RunPaint runPaint(&paint, drawFilter);
     for (int run = 0; !it.done(); it.next(), run++) {
         int glyphCount = it.glyphCount();
         size_t textLen = glyphCount * sizeof(uint16_t);

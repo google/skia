@@ -178,18 +178,6 @@ public:
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
         return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps);
     }
-
-    // Stolen from the SkBitmapDevice, but the SkGPUDevice is similar.
-    bool onShouldDisableLCD(const SkPaint& paint) const override {
-        if (paint.getPathEffect() ||
-            paint.isFakeBoldText() ||
-            paint.getStyle() != SkPaint::kFill_Style ||
-            !paint.isSrcOver())
-        {
-            return true;
-        }
-        return false;
-    }
 };
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
@@ -221,7 +209,6 @@ void SkTextBlobCacheDiffCanvas::onDrawTextBlob(
         // applyFontToPaint() always overwrites the exact same attributes,
         // so it is safe to not re-seed the paint for this reason.
         it.applyFontToPaint(&runPaint);
-        runPaint.setFlags(this->getTopDevice()->filterTextFlags(runPaint));
         if (auto looper = runPaint.getLooper()) {
             this->processLooper(position, it, runPaint, looper);
         } else {

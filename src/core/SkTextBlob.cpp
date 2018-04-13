@@ -71,8 +71,7 @@ private:
         SkPaint::kLCDRenderText_Flag      |
         SkPaint::kEmbeddedBitmapText_Flag |
         SkPaint::kAutoHinting_Flag        |
-        SkPaint::kVerticalText_Flag       |
-        SkPaint::kGenA8FromLCD_Flag;
+        SkPaint::kVerticalText_Flag       ;
 
     SkScalar                 fSize;
     SkScalar                 fScaleX;

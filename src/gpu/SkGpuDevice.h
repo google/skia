@@ -128,7 +128,6 @@ public:
 protected:
     bool onReadPixels(const SkPixmap&, int, int) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
-    bool onShouldDisableLCD(const SkPaint&) const final;
 
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.

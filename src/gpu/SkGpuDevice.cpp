@@ -1676,12 +1676,6 @@ void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
-    return GrTextUtils::ShouldDisableLCD(paint);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 void SkGpuDevice::flush() {
     this->flushAndSignalSemaphores(0, nullptr);
 }
