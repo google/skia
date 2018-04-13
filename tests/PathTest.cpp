@@ -4930,7 +4930,7 @@ DEF_TEST(Path_isRect, reporter) {
         }
         return path;
     };
-    // isolated from skbug.com/7792 bug description
+    // isolated from skbug.com/7792 (bug description)
     SkRect rect;
     SkPoint points[] = { {10, 10}, {75, 75}, {150, 75}, {150, 150}, {75, 150} };
     SkPath path = makePath(points, SK_ARRAY_COUNT(points), false);
@@ -4938,17 +4938,17 @@ DEF_TEST(Path_isRect, reporter) {
     SkRect compare;
     compare.set(&points[1], SK_ARRAY_COUNT(points) - 1);
     REPORTER_ASSERT(reporter, rect == compare);
-    // isolated from skbug.com/7792 comment 3
+    // isolated from skbug.com/7792#c3
     SkPoint points3[] = { {75, 50}, {100, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 50} };
     path = makePath(points3, SK_ARRAY_COUNT(points3), true);
     REPORTER_ASSERT(reporter, !path.isRect(&rect, nullptr, nullptr));
-    // isolated from skbug.com/7792 comment 9
+    // isolated from skbug.com/7792#c9
     SkPoint points9[] = { {10, 10}, {75, 75}, {150, 75}, {150, 150}, {75, 150} };
     path = makePath(points9, SK_ARRAY_COUNT(points9), true);
     REPORTER_ASSERT(reporter, path.isRect(&rect, nullptr, nullptr));
     compare.set(&points9[1], SK_ARRAY_COUNT(points9) - 1);
     REPORTER_ASSERT(reporter, rect == compare);
-    // isolated from skbug.com/7792 comment 11
+    // isolated from skbug.com/7792#c11
     SkPath::Verb verbs11[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb };
     SkPoint points11[] = { {75, 150}, {75, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 150} };
@@ -4956,7 +4956,7 @@ DEF_TEST(Path_isRect, reporter) {
     REPORTER_ASSERT(reporter, path.isRect(&rect, nullptr, nullptr));
     compare.set(&points11[0], SK_ARRAY_COUNT(points11));
     REPORTER_ASSERT(reporter, rect == compare);
-    // isolated from skbug.com/7792 comment 14
+    // isolated from skbug.com/7792#c14
     SkPath::Verb verbs14[] = { SkPath::kMove_Verb, SkPath::kMove_Verb, SkPath::kMove_Verb,
                                SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb,
@@ -4965,7 +4965,7 @@ DEF_TEST(Path_isRect, reporter) {
                            {150, 75}, {150, 150}, {75, 150}, {75, 75}, {0, 0} };
     path = makePath2(points14, verbs14, SK_ARRAY_COUNT(verbs14));
     REPORTER_ASSERT(reporter, !path.isRect(&rect, nullptr, nullptr));
-    // isolated from skbug.com/7792 comment 15
+    // isolated from skbug.com/7792#c15
     SkPath::Verb verbs15[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb, SkPath::kMove_Verb };
     SkPoint points15[] = { {75, 75}, {150, 75}, {150, 150}, {75, 150}, {250, 75} };
@@ -4973,11 +4973,11 @@ DEF_TEST(Path_isRect, reporter) {
     REPORTER_ASSERT(reporter, path.isRect(&rect, nullptr, nullptr));
     compare.set(&points15[0], SK_ARRAY_COUNT(points15) - 1);
     REPORTER_ASSERT(reporter, rect == compare);
-    // isolated from skbug.com/7792 comment 17
+    // isolated from skbug.com/7792#c17
     SkPoint points17[] = { {75, 10}, {75, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 10} };
     path = makePath(points17, SK_ARRAY_COUNT(points17), true);
     REPORTER_ASSERT(reporter, !path.isRect(&rect, nullptr, nullptr));
-    // isolated from skbug.com/7792 comment 19
+    // isolated from skbug.com/7792#c19
     SkPath::Verb verbs19[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb,
@@ -4986,4 +4986,14 @@ DEF_TEST(Path_isRect, reporter) {
                            {75, 150}, {10, 10}, {30, 10}, {10, 30} };
     path = makePath2(points19, verbs19, SK_ARRAY_COUNT(verbs19));
     REPORTER_ASSERT(reporter, !path.isRect(&rect, nullptr, nullptr));
+    // isolated from skbug.com/7792#c23
+    SkPath::Verb verbs23[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb,
+                               SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
+                               SkPath::kLine_Verb, SkPath::kClose_Verb };
+    SkPoint points23[] = { {75, 75}, {75, 75}, {75, 75}, {75, 75}, {150, 75}, {150, 150},
+                           {75, 150} };
+    path = makePath2(points23, verbs23, SK_ARRAY_COUNT(verbs23));
+    REPORTER_ASSERT(reporter, path.isRect(&rect, nullptr, nullptr));
+    compare.set(&points23[0], SK_ARRAY_COUNT(points23));
+    REPORTER_ASSERT(reporter, rect == compare);
 }

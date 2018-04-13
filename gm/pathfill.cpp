@@ -443,7 +443,7 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     path.lineTo(150, 150);
     path.lineTo(75, 150);
     canvas->drawPath(path, p);
-    // from skbug.com/7792 comment 3
+    // from skbug.com/7792#c3
     canvas->translate(200, 0);
     path.reset();
     path.moveTo(75, 50);
@@ -454,7 +454,7 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     path.lineTo(75, 50);
     path.close();
     canvas->drawPath(path, p);
-    // from skbug.com/7792 comment 9
+    // from skbug.com/7792#c9
     canvas->translate(200, 0);
     path.reset();
     path.moveTo(10, 10);
@@ -464,7 +464,7 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     path.lineTo(75, 150);
     path.close();
     canvas->drawPath(path, p);
-    // from skbug.com/7792 comment 11
+    // from skbug.com/7792#c11
     canvas->translate(-200 * 2, 200);
     path.reset();
     path.moveTo(75, 150);
@@ -474,7 +474,7 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     path.lineTo(75, 150);
     path.moveTo(75, 150);
     canvas->drawPath(path, p);
-    // from skbug.com/7792 comment 14
+    // from skbug.com/7792#c14
     canvas->translate(200, 0);
     path.reset();
     path.moveTo(250, 75);
@@ -489,7 +489,7 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     path.lineTo(0, 0);
     path.close();
     canvas->drawPath(path, p);
-    // from skbug.com/7792 comment 15
+    // from skbug.com/7792#c15
     canvas->translate(200, 0);
     path.reset();
     path.moveTo(75, 75);
@@ -498,7 +498,7 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     path.lineTo(75, 150);
     path.moveTo(250, 75);
     canvas->drawPath(path, p);
-    // from skbug.com/7792 comment 17
+    // from skbug.com/7792#c17
     canvas->translate(-200 * 2, 200);
     path.reset();
     path.moveTo(75, 10);
@@ -509,7 +509,7 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     path.lineTo(75, 10);
     path.close();
     canvas->drawPath(path, p);
-    // from skbug.com/7792 comment 19
+    // from skbug.com/7792#c19
     canvas->translate(200, 0);
     path.reset();
     path.moveTo(75, 75);
@@ -523,5 +523,17 @@ DEF_SIMPLE_GM(bug7792, canvas, 600, 600) {
     path.moveTo(10, 10);
     path.lineTo(30, 10);
     path.lineTo(10, 30);
+    canvas->drawPath(path, p);
+    // from skbug.com/7792#c23
+    canvas->translate(200, 0);
+    path.reset();
+    path.moveTo(75, 75);
+    path.lineTo(75, 75);
+    path.moveTo(75, 75);
+    path.lineTo(75, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    path.close();
     canvas->drawPath(path, p);
 }

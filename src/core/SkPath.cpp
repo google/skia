@@ -482,10 +482,10 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 if (lineDelta.fX && lineDelta.fY) {
                     return false; // diagonal
                 }
-                addedLine = true;
                 if (lineStart == lineEnd) {
                     break; // single point on side OK
                 }
+                addedLine = true;
                 nextDirection = rect_make_dir(lineDelta.fX, lineDelta.fY);
                 if (0 == corners) {
                     firstDirection = nextDirection;
