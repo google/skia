@@ -121,6 +121,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['is_debug'] = 'false'
     if 'ANGLE' in extra_tokens:
       args['skia_use_angle'] = 'true'
+    if 'EGL' in extra_tokens:
+      args['skia_use_egl'] = 'true'
+      extra_cflags.append('-DGR_EGL_TRY_GLES3_THEN_GLES2')
     if 'CommandBuffer' in extra_tokens:
       self.m.run.run_once(self.build_command_buffer)
     if 'MSAN' in extra_tokens:
