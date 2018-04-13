@@ -536,7 +536,6 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
         kEmbeddedBitmapText_Flag = 0x400,
         kAutoHinting_Flag     = 0x800,
         kVerticalText_Flag    = 0x1000,
-        kGenA8FromLCD_Flag    = 0x2000,
 
         kAllFlags = 0xFFFF,
     };
@@ -579,12 +578,6 @@ multiple settings at once.
     ##
     #Const kVerticalText_Flag       0x1000
         mask for setting Vertical_Text
-    ##
-    #Const kGenA8FromLCD_Flag       0x2000
-        #Private
-        Hack for GDI -- do not use if you can help it
-        ##
-        not intended for public use                           
     ##
     #Const kAllFlags                0xFFFF
         mask of all Flags, including private flags and flags reserved for future use
