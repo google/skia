@@ -2380,33 +2380,12 @@ void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattic
     LOOPER_END
 }
 
-class SkDeviceFilteredPaint {
-public:
-    SkDeviceFilteredPaint(SkBaseDevice* device, const SkPaint& paint) {
-        uint32_t filteredFlags = device->filterTextFlags(paint);
-        if (filteredFlags != paint.getFlags()) {
-            SkPaint* newPaint = fLazy.set(paint);
-            newPaint->setFlags(filteredFlags);
-            fPaint = newPaint;
-        } else {
-            fPaint = &paint;
-        }
-    }
-
-    const SkPaint& paint() const { return *fPaint; }
-
-private:
-    const SkPaint*  fPaint;
-    SkLazyPaint     fLazy;
-};
-
 void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                           const SkPaint& paint) {
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
-        iter.fDevice->drawText(text, byteLength, x, y, dfp.paint());
+        iter.fDevice->drawText(text, byteLength, x, y, looper.paint());
     }
 
     LOOPER_END
@@ -2419,9 +2398,7 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
-        iter.fDevice->drawPosText(text, byteLength, &pos->fX, 2, textOffset,
-                                  dfp.paint());
+        iter.fDevice->drawPosText(text, byteLength, &pos->fX, 2, textOffset, looper.paint());
     }
 
     LOOPER_END
@@ -2435,9 +2412,7 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
-        iter.fDevice->drawPosText(text, byteLength, xpos, 1, textOffset,
-                                  dfp.paint());
+        iter.fDevice->drawPosText(text, byteLength, xpos, 1, textOffset, looper.paint());
     }
 
     LOOPER_END
@@ -2448,8 +2423,7 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        iter.fDevice->drawTextOnPath(text, byteLength, path,
-                                     matrix, looper.paint());
+        iter.fDevice->drawTextOnPath(text, byteLength, path, matrix, looper.paint());
     }
 
     LOOPER_END
@@ -2491,8 +2465,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, bounds)
 
     while (iter.next()) {
-        SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
-        iter.fDevice->drawTextBlob(blob, x, y, dfp.paint(), drawFilter);
+        iter.fDevice->drawTextBlob(blob, x, y, looper.paint(), drawFilter);
     }
 
     LOOPER_END

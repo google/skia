@@ -261,7 +261,7 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
         op = GrAtlasTextOp::MakeDistanceField(
                 std::move(grPaint), glyphCount, distanceAdjustTable,
                 target->colorSpaceInfo().isGammaCorrect(), paint.luminanceColor(),
-                info.hasUseLCDText(), useBGR, info.isAntiAliased());
+                info.hasUseLCDText() && props.pixelGeometry() != kUnknown_SkPixelGeometry, useBGR, info.isAntiAliased());
     } else {
         op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount,
                                        info.hasScaledGlyphs());

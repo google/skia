@@ -126,10 +126,9 @@ public:
     virtual void validateDevBounds(const SkIRect&) {}
 
     /**
-     * Returns the text-related flags, possibly modified based on the state of the
-     * device (e.g. support for LCD).
+     * Allows the device to downgrade its geometry if it can't support LCD.
      */
-    uint32_t filterTextFlags(const SkPaint&) const;
+    SkSurfaceProps filterGeometry(const SkPaint& paint) const;
 
 protected:
     enum TileUsage {
