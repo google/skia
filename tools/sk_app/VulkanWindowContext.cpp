@@ -300,7 +300,7 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
                                                               kTopLeft_GrSurfaceOrigin,
                                                               colorType,
                                                               fDisplayParams.fColorSpace,
-                                                              &fSurfaceProps);
+                                                              &fDisplayParams.fSurfaceProps);
     }
 
     // create the command pool for the command buffers
