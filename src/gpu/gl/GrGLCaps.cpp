@@ -798,7 +798,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     if (kGL_GrGLStandard == standard) {
         shaderCaps->fVertexIDSupport = true;
     } else {
-        // Desktop GLSL 3.30 == ES GLSL 3.00.
+        // Desktop GLSL 3.30 == ES GLSL 3.00. Cool!
         shaderCaps->fVertexIDSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
     }
 
@@ -2478,8 +2478,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // to work with ESSL3. This has been seen on both Mali and Adreno devices. skbug.com/7713
     if (ctxInfo.hasExtension("GL_OES_EGL_image_external") &&
         ctxInfo.glslGeneration() >= k330_GrGLSLGeneration &&
-        !shaderCaps->fExternalTextureSupport &&  // i.e. Missing the _essl3 extension
-        (kARM_GrGLVendor == ctxInfo.vendor() || kQualcomm_GrGLVendor == ctxInfo.vendor())) {
+        !shaderCaps->fExternalTextureSupport/* &&  // i.e. Missing the _essl3 extension
+        (kARM_GrGLVendor == ctxInfo.vendor() || kQualcomm_GrGLVendor == ctxInfo.vendor())*/) {
         shaderCaps->fExternalTextureSupport = true;
         shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
     }
