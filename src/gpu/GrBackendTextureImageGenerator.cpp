@@ -18,6 +18,7 @@
 #include "GrSemaphore.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxyPriv.h"
 
 #include "SkGr.h"
 #include "SkMessageBus.h"
@@ -174,6 +175,14 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
             },
             desc, fSurfaceOrigin, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
+
+    if (!proxy) {
+        return nullptr;
+    }
+
+    if (GrMipMapped::kNo == mipMapped) {
+        proxy->texPriv().setDoesNotSupportMipMaps();
+    }
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
