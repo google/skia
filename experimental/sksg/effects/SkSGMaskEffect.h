@@ -10,6 +10,8 @@
 
 #include "SkSGEffectNode.h"
 
+class SkMaskFilter;
+
 namespace sksg {
 
 /**
@@ -42,6 +44,8 @@ protected:
 private:
     const sk_sp<RenderNode> fMaskNode;
     const Mode              fMaskMode;
+
+    sk_sp<SkMaskFilter>     fMaskFilter;
 
     typedef EffectNode INHERITED;
 };
