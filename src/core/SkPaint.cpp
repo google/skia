@@ -656,8 +656,7 @@ SkPaint::kDevKernText_Flag          |       \
 SkPaint::kLinearText_Flag           |       \
 SkPaint::kLCDRenderText_Flag        |       \
 SkPaint::kEmbeddedBitmapText_Flag   |       \
-SkPaint::kAutoHinting_Flag          |       \
-SkPaint::kGenA8FromLCD_Flag )
+SkPaint::kAutoHinting_Flag          )
 
 SkScalar SkPaint::setupForAsPaths() {
     uint32_t flags = this->getFlags();
@@ -1656,8 +1655,6 @@ void SkPaint::toString(SkString* str) const {
                           "EmbeddedBitmapText", &needSeparator);
         SkAddFlagToString(str, this->isAutohinted(), "Autohinted", &needSeparator);
         SkAddFlagToString(str, this->isVerticalText(), "VerticalText", &needSeparator);
-        SkAddFlagToString(str, SkToBool(this->getFlags() & SkPaint::kGenA8FromLCD_Flag),
-                          "GenA8FromLCD", &needSeparator);
     } else {
         str->append("None");
     }

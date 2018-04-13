@@ -125,12 +125,6 @@ public:
     void setGlobalCTM(const SkMatrix& ctm);
     virtual void validateDevBounds(const SkIRect&) {}
 
-    /**
-     * Returns the text-related flags, possibly modified based on the state of the
-     * device (e.g. support for LCD).
-     */
-    uint32_t filterTextFlags(const SkPaint&) const;
-
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
@@ -140,8 +134,6 @@ protected:
     struct TextFlags {
         uint32_t    fFlags;     // SkPaint::getFlags()
     };
-
-    virtual bool onShouldDisableLCD(const SkPaint&) const { return false; }
 
     virtual void onSave() {}
     virtual void onRestore() {}
