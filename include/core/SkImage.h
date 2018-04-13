@@ -240,14 +240,16 @@ public:
         SkImage is returned using MakeFromEncoded() if context is nullptr or does not support
         moving resources between contexts.
 
-        @param context        GPU context
-        @param data           SkImage to decode
-        @param buildMips      create SkImage as Mip_Map if true
-        @param dstColorSpace  range of colors of matching SkSurface on GPU
-        @return               created SkImage, or nullptr
+        @param context                GPU context
+        @param data                   SkImage to decode
+        @param buildMips              create SkImage as Mip_Map if true
+        @param dstColorSpace          range of colors of matching SkSurface on GPU
+        @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
+        @return                       created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> data,
-                                                      bool buildMips, SkColorSpace* dstColorSpace);
+                                                      bool buildMips, SkColorSpace* dstColorSpace,
+                                                      bool limitToMaxTextureSize = false);
 
     /** Creates SkImage from pixmap. SkImage is uploaded to GPU back-end using context.
 
@@ -267,14 +269,16 @@ public:
         as returned in raster format if possible; nullptr may be returned.
         Recognized GPU formats vary by platform and GPU back-end.
 
-        @param context        GPU context
-        @param pixmap         SkImageInfo, pixel address, and row bytes
-        @param buildMips      create SkImage as Mip_Map if true
-        @param dstColorSpace  range of colors of matching SkSurface on GPU
-        @return               created SkImage, or nullptr
+        @param context                GPU context
+        @param pixmap                 SkImageInfo, pixel address, and row bytes
+        @param buildMips              create SkImage as Mip_Map if true
+        @param dstColorSpace          range of colors of matching SkSurface on GPU
+        @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
+        @return                       created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
-                                                     bool buildMips, SkColorSpace* dstColorSpace);
+                                                     bool buildMips, SkColorSpace* dstColorSpace,
+                                                     bool limitToMaxTextureSize = false);
 
     /** Creates SkImage from backendTexture associated with context. backendTexture and
         returned SkImage are managed internally, and are released when no longer needed.
