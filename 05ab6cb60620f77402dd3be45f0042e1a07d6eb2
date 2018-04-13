@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0f6d0e6_ff83c41a",
+        "filename": "gm/SkBlurImageFilterTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-13T15:50:35Z",
+      "side": 1,
+      "message": "date",
+      "revId": "05ab6cb60620f77402dd3be45f0042e1a07d6eb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3944738_db6301d2",
+        "filename": "gm/SkBlurImageFilterTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-13T15:50:35Z",
+      "side": 1,
+      "message": "Maybe rename this file \"BlurPositioningTest.cpp\" ? Mainly I disprefer the \u0027Sk\u0027 in the file name.",
+      "revId": "05ab6cb60620f77402dd3be45f0042e1a07d6eb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
