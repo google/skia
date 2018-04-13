@@ -567,6 +567,7 @@ def dm_flags(api, bot):
       match.append('~animated-image-blurs')
       match.append('~blur_0.01')
       match.append('~blur_image_filter')
+      match.append('~check_small_sigma_offset')
       match.append('~imageblur2')
       match.append('~lighting')
       match.append('~longpathdash')
