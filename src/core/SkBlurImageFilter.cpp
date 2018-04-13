@@ -55,12 +55,13 @@ private:
     typedef SkImageFilter INHERITED;
     friend class SkImageFilter;
 
-    #if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> gpuFilter(
             SkSpecialImage *source,
             SkVector sigma, const sk_sp<SkSpecialImage> &input,
-            SkIRect inputBounds, SkIRect dstBounds, const OutputProperties& outProps) const;
-    #endif
+            SkIRect inputBounds, SkIRect dstBounds, const OutputProperties& outProps,
+            SkIPoint* offset) const;
+#endif
 
     SkSize                      fSigma;
     SkBlurImageFilter::TileMode fTileMode;
@@ -605,7 +606,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         input = ImageToColorSpace(input.get(), ctx.outputProperties());
 
         result = this->gpuFilter(source, sigma, input, inputBounds, dstBounds,
-                                 ctx.outputProperties());
+                                 ctx.outputProperties(), &resultOffset);
     } else
 #endif
     {
@@ -623,7 +624,8 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
         SkSpecialImage *source,
         SkVector sigma, const sk_sp<SkSpecialImage> &input,
-        SkIRect inputBounds, SkIRect dstBounds, const OutputProperties& outProps) const
+        SkIRect inputBounds, SkIRect dstBounds, const OutputProperties& outProps,
+        SkIPoint* offset) const
 {
     // If both sigmas produce arms of the cross that are less than 1/2048, then they
     // do not contribute to the sum of the filter in a way to change a gamma corrected result.
@@ -634,7 +636,9 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     // N[Solve[{c/n == 1/2048, sigma > 0}, sigma], 16]
     static constexpr double kZeroWindowGPU = 0.2561130112451658;
     if (sigma.x() < kZeroWindowGPU && sigma.y() < kZeroWindowGPU) {
-        return copy_image_with_bounds(source, input, inputBounds, dstBounds);
+        offset->fX = dstBounds.x()+1;
+        offset->fY = dstBounds.y()+1;
+        return input->makeSubset(inputBounds);
     }
 
     GrContext* context = source->getContext();
