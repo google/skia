@@ -59,7 +59,7 @@ public:
     void finish(); // wait and finish all tasks (no more tasks can be added after calling this)
 
     SK_ALWAYS_INLINE bool isFinishing() const {
-        return fIsFinishing.load(std::memory_order_relaxed);
+        return fIsFinishing;
     }
 
 protected:
