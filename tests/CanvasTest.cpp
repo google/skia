@@ -876,24 +876,3 @@ DEF_TEST(Canvas_SaveLayerWithNullBoundsAndZeroBoundsImageFilter, r) {
     REPORTER_ASSERT(r, canvas.getDeviceClipBounds().isEmpty());
     canvas.restore();
 }
-
-#include "SkPaintImageFilter.h"
-
-// Test that we don't crash/assert when building a canvas with degenerate coordintes
-// (esp. big ones, that might invoke tiling).
-DEF_TEST(Canvas_degenerate_dimension, reporter) {
-    // Need a paint that will sneak us past the quickReject in SkCanvas, so we can test the
-    // raster code further downstream.
-    SkPaint paint;
-    paint.setImageFilter(SkPaintImageFilter::Make(SkPaint(), nullptr));
-    REPORTER_ASSERT(reporter, !paint.canComputeFastBounds());
-
-    const int big = 100 * 1024; // big enough to definitely trigger tiling
-    for (SkISize size : {SkISize{0, big}, {big, 0}, {0, 0}}) {
-        SkBitmap bm;
-        bm.setInfo(SkImageInfo::MakeN32Premul(size.width(), size.height()));
-        SkCanvas canvas(bm);
-        canvas.drawRect({0, 0, 100, 90*1024}, paint);
-    }
-}
-
