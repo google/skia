@@ -694,6 +694,9 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_INVOCATIONID_BUILTIN:
             this->write("gl_InvocationID");
             break;
+        case SK_LASTFRAGCOLOR_BUILTIN:
+            this->write(fProgram.fSettings.fCaps->fbFetchColorName());
+            break;
         default:
             this->write(ref.fVariable.fName);
     }
