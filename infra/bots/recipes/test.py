@@ -150,10 +150,7 @@ def dm_flags(api, bot):
         'iPad4' in bot or
         'iPadPro' in bot or
         'iPhone6' in bot or
-        'iPhone7' in bot or
-        # skia:5792
-        'IntelHD530'   in bot or
-        'IntelIris540' in bot):
+        'iPhone7' in bot):
       configs = [x for x in configs if 'msaa' not in x]
 
     # The NP produces different images for dft on every run.
@@ -662,13 +659,8 @@ def dm_flags(api, bot):
     # skia:6398
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
     blacklist(['vk', 'gm', '_', 'aaxfermodes'])
-    blacklist(['vk', 'gm', '_', 'dont_clip_to_layer'])
-    blacklist(['vk', 'gm', '_', 'dftext'])
     blacklist(['vk', 'gm', '_', 'drawregionmodes'])
     blacklist(['vk', 'gm', '_', 'filterfastbounds'])
-    blacklist(['vk', 'gm', '_', 'fontmgr_iter'])
-    blacklist(['vk', 'gm', '_', 'fontmgr_match'])
-    blacklist(['vk', 'gm', '_', 'fontscaler'])
     blacklist(['vk', 'gm', '_', 'fontscalerdistortable'])
     blacklist(['vk', 'gm', '_', 'gammagradienttext'])
     blacklist(['vk', 'gm', '_', 'gammatext'])
@@ -681,40 +673,22 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'imagefilterstransformed'])
     blacklist(['vk', 'gm', '_', 'imageresizetiled'])
     blacklist(['vk', 'gm', '_', 'lcdblendmodes'])
-    blacklist(['vk', 'gm', '_', 'lcdoverlap'])
-    blacklist(['vk', 'gm', '_', 'lcdtext'])
-    blacklist(['vk', 'gm', '_', 'lcdtextsize'])
     blacklist(['vk', 'gm', '_', 'matriximagefilter'])
-    blacklist(['vk', 'gm', '_', 'mixedtextblobs'])
     blacklist(['vk', 'gm', '_', 'resizeimagefilter'])
     blacklist(['vk', 'gm', '_', 'rotate_imagefilter'])
-    blacklist(['vk', 'gm', '_', 'savelayer_lcdtext'])
     blacklist(['vk', 'gm', '_', 'shadermaskfilter_image'])
     blacklist(['vk', 'gm', '_', 'srcmode'])
     blacklist(['vk', 'gm', '_', 'surfaceprops'])
     blacklist(['vk', 'gm', '_', 'textblobgeometrychange'])
     blacklist(['vk', 'gm', '_', 'textbloblooper'])
     blacklist(['vk', 'gm', '_', 'textblobmixedsizes'])
-    blacklist(['vk', 'gm', '_', 'textblobrandomfont'])
-    blacklist(['vk', 'gm', '_', 'textfilter_color'])
-    blacklist(['vk', 'gm', '_', 'textfilter_image'])
+    blacklist(['vk', 'gm', '_', 'textblobmixedsizes_df'])
     blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
     blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
 
   if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
     # skia:7096
     match.append('~PinnedImageTest')
-
-  if 'IntelIris540' in bot and 'ANGLE' in bot:
-    for config in ['angle_d3d9_es2', 'angle_d3d11_es2', 'angle_gl_es2']:
-      # skia:6103
-      blacklist([config, 'gm', '_', 'multipicturedraw_invpathclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_noclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_pathclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
-      # skia:6141
-      blacklist([config, 'gm', '_', 'discard'])
 
   if ('IntelIris6100' in bot or 'IntelHD4400' in bot) and 'ANGLE' in bot:
     # skia:6857
@@ -909,7 +883,14 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  if 'IntelIris540' in api.vars.builder_name:
+    shards = 100
+    for shard in range(shards):
+      api.run(api.flavor.step, 'dm',
+              cmd=args+['--shard', str(shard), '--shards', str(shards)],
+              abort_on_failure=False)
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.
