@@ -430,6 +430,8 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
 
         REPORTER_ASSERT(reporter, lazyProxy.get());
 
+        lazyProxy->texPriv().setDoesNotSupportMipMaps();
+
         rtc->priv().testingOnly_addDrawOp(skstd::make_unique<LazyUninstantiateTestOp>(lazyProxy));
 
         ctx->flush();

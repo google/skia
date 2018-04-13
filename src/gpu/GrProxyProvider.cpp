@@ -552,7 +552,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
         return nullptr;
     }
 
-    surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
 
 #ifdef SK_DEBUG
     if (SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags)) {
@@ -585,7 +584,6 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
     }
 
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
-    surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
 
 #ifdef SK_DEBUG
     if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kMixedSampled)) {
@@ -616,7 +614,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallb
                                                             GrSurfaceOrigin origin,
                                                             GrPixelConfig config) {
     GrSurfaceDesc desc;
-    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
+    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNoPendingIO;
     if (Renderable::kYes == renderable) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         if (fCaps->maxWindowRectangles() > 0) {

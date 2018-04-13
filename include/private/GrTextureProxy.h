@@ -100,6 +100,19 @@ protected:
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
+    void setDoesNotSupportMipMaps() {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
+    }
+    bool doesNotSupportMipMaps() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
+    }
+
+    void setIsClampOnly() {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kIsClampOnly;
+    }
+    bool isClampOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kIsClampOnly; }
+
+
 private:
     GrMipMapped      fMipMapped;
 

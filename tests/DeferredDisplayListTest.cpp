@@ -838,11 +838,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
 
         GrTextureProxy* backingProxy = ((SkImage_Gpu*) image.get())->peekProxy();
 
+        REPORTER_ASSERT(reporter, backingProxy->texPriv().doesNotSupportMipMaps());
         if (GR_GL_TEXTURE_2D == target) {
-            REPORTER_ASSERT(reporter, !backingProxy->texPriv().doesNotSupportMipMaps());
             REPORTER_ASSERT(reporter, !backingProxy->texPriv().isClampOnly());
         } else {
-            REPORTER_ASSERT(reporter, backingProxy->texPriv().doesNotSupportMipMaps());
             REPORTER_ASSERT(reporter, backingProxy->texPriv().isClampOnly());
         }
     }
