@@ -61,7 +61,6 @@ public:
                                   SkRasterHandleAllocator* = nullptr);
 
 protected:
-    bool onShouldDisableLCD(const SkPaint&) const override;
     void* getRasterHandle() const override { return fRasterHandle; }
 
     /** These are called inside the per-device-layer loop for each draw call.

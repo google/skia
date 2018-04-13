@@ -1421,7 +1421,6 @@ void SkPDFDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
             continue;
         }
-        runPaint.setFlags(this->filterTextFlags(runPaint));
         SkPoint offset = it.offset() + SkPoint{x, y};
         this->internalDrawText(it.glyphs(), sizeof(SkGlyphID) * it.glyphCount(),
                                it.pos(), it.positioning(), offset, runPaint,
