@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a026c5ab_4837e5c6",
+        "filename": "infra/bots/bundle_recipes.sh",
+        "patchSetId": 40
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-13T12:18:25Z",
+      "side": 1,
+      "message": "It was 2017 when I wrote it :P\n\nYes, the old version was a recipe, which causes a chicken-and-egg problem.",
+      "parentUuid": "b3565048_32483ead",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 16
+      },
+      "revId": "77119ccff4a299be07b78922622f40ebe538b18d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0a125c44_fd2a09c8",
         "filename": "infra/bots/recipe_modules/vars/api.py",
         "patchSetId": 40
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "184e5f99_824cf9c2",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 40
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-13T12:18:25Z",
+      "side": 1,
+      "message": "Depot tools has this very unfortunate self-update feature which runs before executing certain commands.  See https://chromium.googlesource.com/chromium/tools/depot_tools/+/master/update_depot_tools#115 We pin depot tools to a specific version and therefore don\u0027t want it updating itself without our consent.",
+      "parentUuid": "0a125c44_fd2a09c8",
+      "range": {
+        "startLine": 43,
+        "startChar": 47,
+        "endLine": 43,
+        "endChar": 48
+      },
+      "revId": "77119ccff4a299be07b78922622f40ebe538b18d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00be7c35_8df2fd61",
         "filename": "infra/bots/recipes/upload_nano_results.py",
         "patchSetId": 40
@@ -59,6 +107,30 @@
       "writtenOn": "2018-04-12T21:31:29Z",
       "side": 1,
       "message": "In a bunch of places there is an extra dir build/test/perf here. Where did that come from?",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 11
+      },
+      "revId": "77119ccff4a299be07b78922622f40ebe538b18d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1003e1fb_2cdb9798",
+        "filename": "infra/bots/recipes/upload_nano_results.py",
+        "patchSetId": 40
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-13T12:18:25Z",
+      "side": 1,
+      "message": "We previously used the default isolated outdir, which was a temporary directory located outside the swarming task workdir.  We learned its location by using the ${ISOLATED_OUTDIR} placeholder in our isolate files and swarming commands and passed it to the recipe that way.\n\nRunning through kitchen causes the recipe properties to be sent as a JSON blob, rather than as individual flags to the program, ie. --properties \u0027{\"foo\":\"bar\"}\u0027 instead of --foo\u003dbar.\n\nWhen run_isolated.py parses the flags to the program and sees ${ISOLATED_OUTDIR} inside a flag value, it replaces that placeholder with the actual path to the isolated outdir and on Windows it helpfully fixes all of the path separators.  Unfortunately, when ${ISOLATED_OUTDIR} is inside of a JSON blob instead of by itself, the whole blob gets that treatment, which causes the repo URL (among other things) to end up with the wrong type of slash.  Then Kitchen chokes on the properties when it parses the JSON, because it thinks they\u0027re invalid escape characters.\n\nSwarming also now allows you to specify files and dirs inside the task workdir to isolate.  We decided the best way forward was to use that feature to replace ${ISOLATED_OUTDIR} thus avoiding the above problem.  So we now have \u0027Outputs: []string{\"build\"}\u0027 added to the appropriate Swarming tasks, which requires that our build tasks put their outputs inside a directory called \"build\" at the root of the workdir.  When the task finishes, the directory itself is uploaded to isolate, as opposed to just the directory contents.  So the Test and Perf tasks now receive the binaries inside a \"build\" dir as well.  The isolated dirs are named so that they don\u0027t conflict: if we just had an \"isolate\" dir, we\u0027d pass it to the test task, which would write its outputs there alongside the binaries and then the upload task would receive both the binaries and the test results.",
+      "parentUuid": "00be7c35_8df2fd61",
       "range": {
         "startLine": 25,
         "startChar": 7,
