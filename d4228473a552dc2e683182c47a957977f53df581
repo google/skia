@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac156974_5fbd5771",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-13T20:15:15Z",
+      "side": 0,
+      "message": "This flag was copied from the originally fullyLazyProxy, but I don\u0027t believe the non-fully lazy cases need this flag always on. If any specific use of lazy proxies wants it, they can pass it in themselves.",
+      "range": {
+        "startLine": 555,
+        "startChar": 20,
+        "endLine": 555,
+        "endChar": 56
+      },
+      "revId": "d4228473a552dc2e683182c47a957977f53df581",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
