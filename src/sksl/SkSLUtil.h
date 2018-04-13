@@ -170,6 +170,10 @@ public:
     bool incompleteShortIntPrecision() const {
         return false;
     }
+
+    const char* fbFetchColorName() const {
+        return nullptr;
+    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
