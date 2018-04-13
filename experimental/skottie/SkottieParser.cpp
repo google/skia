@@ -57,7 +57,7 @@ bool Parse<SkString>(const Json::Value& jv, SkString* v) {
     if (jv.isNull() || !jv.isConvertibleTo(Json::stringValue))
         return false;
 
-    v->set(jv.asCString());
+    v->set(jv.isString() ? jv.asCString() : jv.asString().c_str());
 
     return true;
 }
