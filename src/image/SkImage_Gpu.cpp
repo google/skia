@@ -735,7 +735,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> encoded,
-                                                    bool buildMips, SkColorSpace* dstColorSpace) {
+                                                    bool buildMips, SkColorSpace* dstColorSpace,
+                                                    bool limitToMaxTextureSize) {
     sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(std::move(encoded));
     if (!codecImage) {
         return nullptr;
@@ -744,6 +745,19 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     // Some backends or drivers don't support (safely) moving resources between contexts
     if (!context || !context->caps()->crossContextTextureSupport()) {
         return codecImage;
+    }
+
+    if (limitToMaxTextureSize && (codecImage->width() > context->caps()->maxTextureSize() ||
+                                  codecImage->height() > context->caps()->maxTextureSize())) {
+        SkAutoPixmapStorage pmap;
+        SkImageInfo info = as_IB(codecImage)->onImageInfo();
+        if (!dstColorSpace) {
+            info = info.makeColorSpace(nullptr);
+        }
+        if (!pmap.tryAlloc(info) || !codecImage->readPixels(pmap, 0, 0, kDisallow_CachingHint)) {
+            return nullptr;
+        }
+        return MakeCrossContextFromPixmap(context, pmap, buildMips, dstColorSpace, true);
     }
 
     // Turn the codec image into a GrTextureProxy
@@ -777,45 +791,61 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     return SkImage::MakeFromGenerator(std::move(gen));
 }
 
-sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
-                                                   bool buildMips, SkColorSpace* dstColorSpace) {
+sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
+                                                   const SkPixmap& originalPixmap, bool buildMips,
+                                                   SkColorSpace* dstColorSpace,
+                                                   bool limitToMaxTextureSize) {
     // Some backends or drivers don't support (safely) moving resources between contexts
     if (!context || !context->caps()->crossContextTextureSupport()) {
-        return SkImage::MakeRasterCopy(pixmap);
+        return SkImage::MakeRasterCopy(originalPixmap);
     }
 
     // If we don't have access to the resource provider and gpu (i.e. in a DDL context) we will not
     // be able to make everything needed for a GPU CrossContext image. Thus return a raster copy
     // instead.
     if (!context->contextPriv().resourceProvider()) {
-        return SkImage::MakeRasterCopy(pixmap);
+        return SkImage::MakeRasterCopy(originalPixmap);
     }
 
+    const SkPixmap* pixmap = &originalPixmap;
+    SkAutoPixmapStorage resized;
+    int maxTextureSize = context->caps()->maxTextureSize();
+    int maxDim = SkTMax(originalPixmap.width(), originalPixmap.height());
+    if (limitToMaxTextureSize && maxDim > maxTextureSize) {
+        float scale = static_cast<float>(maxTextureSize) / maxDim;
+        int newWidth = SkTMin(static_cast<int>(originalPixmap.width() * scale), maxTextureSize);
+        int newHeight = SkTMin(static_cast<int>(originalPixmap.height() * scale), maxTextureSize);
+        SkImageInfo info = originalPixmap.info().makeWH(newWidth, newHeight);
+        if (!resized.tryAlloc(info) || !originalPixmap.scalePixels(resized, kLow_SkFilterQuality)) {
+            return nullptr;
+        }
+        pixmap = &resized;
+    }
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     // Turn the pixmap into a GrTextureProxy
     sk_sp<GrTextureProxy> proxy;
     if (buildMips) {
         SkBitmap bmp;
-        bmp.installPixels(pixmap);
+        bmp.installPixels(*pixmap);
         proxy = proxyProvider->createMipMapProxyFromBitmap(bmp, dstColorSpace);
     } else {
         SkDestinationSurfaceColorMode colorMode = dstColorSpace
                 ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
                 : SkDestinationSurfaceColorMode::kLegacy;
 
-        if (SkImageInfoIsValid(pixmap.info(), colorMode)) {
-            ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
+        if (SkImageInfoIsValid(pixmap->info(), colorMode)) {
+            ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap->width(), pixmap->height());
             // We don't need a release proc on the data in pixmap since we know we are in a
             // GrContext that has a resource provider. Thus the createTextureProxy call will
             // immediately upload the data.
-            sk_sp<SkImage> image = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
+            sk_sp<SkImage> image = SkImage::MakeFromRaster(*pixmap, nullptr, nullptr);
             proxy = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
                                                       SkBudgeted::kYes, SkBackingFit::kExact);
         }
     }
 
     if (!proxy) {
-        return SkImage::MakeRasterCopy(pixmap);
+        return SkImage::MakeRasterCopy(*pixmap);
     }
 
     sk_sp<GrTexture> texture = sk_ref_sp(proxy->priv().peekTexture());
@@ -827,9 +857,9 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkP
     sk_sp<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
 
     auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), proxy->origin(),
-                                                    std::move(sema), pixmap.colorType(),
-                                                    pixmap.alphaType(),
-                                                    pixmap.info().refColorSpace());
+                                                    std::move(sema), pixmap->colorType(),
+                                                    pixmap->alphaType(),
+                                                    pixmap->info().refColorSpace());
     return SkImage::MakeFromGenerator(std::move(gen));
 }
 

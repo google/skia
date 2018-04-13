@@ -465,7 +465,8 @@ for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
 
 #Method static sk_sp<SkImage> MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> data,
                                                       bool buildMips,
-                                                      SkColorSpace* dstColorSpace)
+                                                      SkColorSpace* dstColorSpace,
+                                                      bool limitToMaxTextureSize = false)
 #In Constructor
 #Line # creates Image from encoded data, and uploads to GPU ##
 
@@ -491,6 +492,7 @@ moving resources between contexts.
 #Param data  Image to decode ##
 #Param buildMips  create Image as Mip_Map if true ##
 #Param dstColorSpace  range of colors of matching Surface on GPU ##
+#Param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary ##
 
 #Return created Image, or nullptr ##
 
@@ -512,7 +514,8 @@ canvas->drawImage(image, 0, 0);
 
 #Method static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
                                                       bool buildMips,
-                                                      SkColorSpace* dstColorSpace)
+                                                      SkColorSpace* dstColorSpace,
+                                                      bool limitToMaxTextureSize = false)
 #In Constructor
 #Line # creates Image from Pixmap, and uploads to GPU ##
 
@@ -538,6 +541,7 @@ Recognized GPU formats vary by platform and GPU back-end.
 #Param pixmap  Image_Info, pixel address, and row bytes ##
 #Param buildMips  create Image as Mip_Map if true ##
 #Param dstColorSpace  range of colors of matching Surface on GPU ##
+#Param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary ##
 
 #Return created Image, or nullptr ##
 
