@@ -100,9 +100,6 @@ public:
     virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return nullptr; }
 
 protected:
-    // default impl does nothing.
-    virtual void onNotifyPixelsChanged();
-
     void android_only_reset(int width, int height, size_t rowBytes);
 
 private:
