@@ -106,7 +106,7 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
                          shaderCaps->fbFetchExtensionString());
 
         // Some versions of this extension string require declaring custom color output on ES 3.0+
-        const char* fbFetchColorName = shaderCaps->fbFetchColorName();
+        const char* fbFetchColorName = "sk_LastFragColor";
         if (shaderCaps->fbFetchNeedsCustomOutput()) {
             this->enableCustomOutput();
             fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
