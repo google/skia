@@ -48,10 +48,12 @@ public:
     static constexpr int INIT_ROW_SIZE = 32;
 #endif
 
-    SkCoverageDeltaList(SkArenaAlloc* alloc, int top, int bottom, bool forceRLE);
+    SkCoverageDeltaList(SkArenaAlloc* alloc, const SkIRect& bounds, bool forceRLE);
 
-    int  top() const { return fTop; }
-    int  bottom() const { return fBottom; }
+    int  top() const { return fBounds.fTop; }
+    int  bottom() const { return fBounds.fBottom; }
+    int  left() const { return fBounds.fLeft; }
+    int  right() const { return fBounds.fRight; }
     bool forceRLE() const { return fForceRLE; }
     int  count(int y) const { this->checkY(y); return fCounts[y]; }
     bool sorted(int y) const { this->checkY(y); return fSorted[y]; }
@@ -84,12 +86,11 @@ private:
     bool*                       fSorted;
     int*                        fCounts;
     int*                        fMaxCounts;
-    int                         fTop;
-    int                         fBottom;
+    SkIRect                     fBounds;
     SkAntiRect                  fAntiRect;
     bool                        fForceRLE;
 
-    void checkY(int y) const { SkASSERT(y >= fTop && y < fBottom); }
+    void checkY(int y) const { SkASSERT(y >= fBounds.fTop && y < fBounds.fBottom); }
 
     SK_ALWAYS_INLINE void push_back(int y, const SkCoverageDelta& delta) {
         this->checkY(y);
