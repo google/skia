@@ -121,7 +121,6 @@ void SkPixelRef::notifyPixelsChanged() {
 #endif
     this->callGenIDChangeListeners();
     this->needsNewGenID();
-    this->onNotifyPixelsChanged();
 }
 
 void SkPixelRef::setImmutable() {
@@ -148,5 +147,3 @@ void SkPixelRef::restoreMutability() {
     SkASSERT(fMutability != kImmutable);
     fMutability = kMutable;
 }
-
-void SkPixelRef::onNotifyPixelsChanged() { }
