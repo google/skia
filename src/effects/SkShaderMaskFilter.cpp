@@ -6,7 +6,9 @@
  */
 
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkMaskFilterBase.h"
+#include "SkNx.h"
 #include "SkReadBuffer.h"
 #include "SkShaderMaskFilter.h"
 #include "SkShaderBase.h"
@@ -59,12 +61,44 @@ void SkShaderMF::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fShader.get());
 }
 
-static void rect_memcpy(void* dst, size_t dstRB, const void* src, size_t srcRB,
-                        size_t copyBytes, int rows) {
-    for (int i = 0; i < rows; ++i) {
-        memcpy(dst, src, copyBytes);
-        dst = (char*)dst + dstRB;
-        src = (const char*)src + srcRB;
+static void modulate_mask(const SkMask& src, const SkBitmap& mask, SkMask* dst) {
+    SkASSERT(src.fBounds == dst->fBounds);
+    SkASSERT(mask.rowBytes() == mask.info().minRowBytes());
+    SkASSERT(dst->fRowBytes ==
+             SkImageInfo::MakeA8(src.fBounds.width(), src.fBounds.height()).minRowBytes());
+
+    auto s = src.fImage;
+    auto d = dst->fImage;
+    auto m = mask.getAddr32(0, 0);
+
+    for (int y = 0; y < src.fBounds.height(); ++y) {
+        auto w = src.fBounds.width();
+        for (; w >= 8; w -= 8) {
+            const auto s16 = SkNx_cast<uint16_t>(Sk8b::Load(s));
+            const auto m16 = Sk8h({
+                                static_cast<uint16_t>(SkGetPackedA32(m[0])),
+                                static_cast<uint16_t>(SkGetPackedA32(m[1])),
+                                static_cast<uint16_t>(SkGetPackedA32(m[2])),
+                                static_cast<uint16_t>(SkGetPackedA32(m[3])),
+                                static_cast<uint16_t>(SkGetPackedA32(m[4])),
+                                static_cast<uint16_t>(SkGetPackedA32(m[5])),
+                                static_cast<uint16_t>(SkGetPackedA32(m[6])),
+                                static_cast<uint16_t>(SkGetPackedA32(m[7]))
+                              }),
+                    prod16 = s16 * m16 + 128,
+                     dst16 = (prod16 + (prod16 >> 8)) >> 8;
+            SkNx_cast<uint8_t>(dst16).store(d);
+
+            s += 8;
+            d += 8;
+            m += 8;
+        }
+
+        for (; w > 0; --w) {
+            *d++ = SkMulDiv255Round(*s++, SkGetPackedA32(*m++));
+        }
+
+        s += src.fRowBytes - src.fBounds.width();
     }
 }
 
@@ -88,27 +122,30 @@ bool SkShaderMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
         return false;   // too big to allocate, abort
     }
 
-    // Allocate and initialize dst image with a copy of the src image
     dst->fImage = SkMask::AllocImage(size);
-    rect_memcpy(dst->fImage, dst->fRowBytes, src.fImage, src.fRowBytes,
-                src.fBounds.width() * sizeof(uint8_t), src.fBounds.height());
 
-    // Now we have a dst-mask, just need to setup a canvas and draw into it
-    SkBitmap bitmap;
-    if (!bitmap.installMaskPixels(*dst)) {
+    SkBitmap dstBM;
+    if (!dstBM.installMaskPixels(*dst)) {
         return false;
     }
+
+    // We draw the mask into an N32 temp buffer to avoid slow A8 rasterization.
+    SkBitmap mask;
+    mask.allocN32Pixels(dst->fBounds.width(), dst->fBounds.height());
+    mask.eraseColor(0);
 
     SkPaint paint;
     paint.setShader(fShader);
     paint.setFilterQuality(SkFilterQuality::kLow_SkFilterQuality);
-    // this blendmode is the trick: we only draw the shader where the mask is
-    paint.setBlendMode(SkBlendMode::kSrcIn);
 
-    SkCanvas canvas(bitmap);
+    SkCanvas canvas(mask);
     canvas.translate(-SkIntToScalar(dst->fBounds.fLeft), -SkIntToScalar(dst->fBounds.fTop));
     canvas.concat(ctm);
     canvas.drawPaint(paint);
+
+    // Modulate src x mask => dst
+    modulate_mask(src, mask, dst);
+
     return true;
 }
 
