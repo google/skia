@@ -346,6 +346,33 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fSaveToSKP = true;
         fWindow->inval();
     });
+    fCommands.addCommand('G', "Modes", "Geometry", [this]() {
+        if (!fPixelGeometryOverrides) {
+            fPixelGeometryOverrides = true;
+            fWindow->setSurfaceProps(SkSurfaceProps(fWindow->getSurfaceProps().flags(), kUnknown_SkPixelGeometry));
+        } else {
+            switch (fWindow->getSurfaceProps().pixelGeometry()) {
+                case kUnknown_SkPixelGeometry:
+                    fWindow->setSurfaceProps(SkSurfaceProps(fWindow->getSurfaceProps().flags(), kRGB_H_SkPixelGeometry));
+                    break;
+                case kRGB_H_SkPixelGeometry:
+                    fWindow->setSurfaceProps(SkSurfaceProps(fWindow->getSurfaceProps().flags(), kBGR_H_SkPixelGeometry));
+                    break;
+                case kBGR_H_SkPixelGeometry:
+                    fWindow->setSurfaceProps(SkSurfaceProps(fWindow->getSurfaceProps().flags(), kRGB_V_SkPixelGeometry));
+                    break;
+                case kRGB_V_SkPixelGeometry:
+                    fWindow->setSurfaceProps(SkSurfaceProps(fWindow->getSurfaceProps().flags(), kBGR_V_SkPixelGeometry));
+                    break;
+                case kBGR_V_SkPixelGeometry:
+                    fWindow->setSurfaceProps(SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
+                    fPixelGeometryOverrides = false;
+                    break;
+            }
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
     fCommands.addCommand('H', "Paint", "Hinting mode", [this]() {
         if (!fPaintOverrides.fHinting) {
             fPaintOverrides.fHinting = true;
@@ -415,6 +442,13 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                     break;
             }
         }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('D', "Modes", "DFT", [this]() {
+        uint32_t flags = fWindow->getSurfaceProps().flags();
+        flags ^= SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
+        fWindow->setSurfaceProps(SkSurfaceProps(flags, fWindow->getSurfaceProps().pixelGeometry()));
         this->updateTitle();
         fWindow->inval();
     });
@@ -703,6 +737,30 @@ void Viewer::updateTitle() {
         }
     }
 
+    if (fPixelGeometryOverrides) {
+        switch (fWindow->getSurfaceProps().pixelGeometry()) {
+            case kUnknown_SkPixelGeometry:
+                title.append( " Flat");
+                break;
+            case kRGB_H_SkPixelGeometry:
+                title.append( " RGB");
+                break;
+            case kBGR_H_SkPixelGeometry:
+                title.append( " BGR");
+                break;
+            case kRGB_V_SkPixelGeometry:
+                title.append( " RGBV");
+                break;
+            case kBGR_V_SkPixelGeometry:
+                title.append( " BGRV");
+                break;
+        }
+    }
+
+    if (fWindow->getSurfaceProps().flags() & SkSurfaceProps::kUseDeviceIndependentFonts_Flag) {
+        title.append(" DFT");
+    }
+
     title.append(" [");
     title.append(kBackendTypeStrings[fBackendType]);
     int msaa = fWindow->sampleCount();
@@ -951,8 +1009,11 @@ void Viewer::drawSlide(SkCanvas* canvas) {
             (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) ? nullptr : cs;
         SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), colorType,
                                              kPremul_SkAlphaType, std::move(offscreenColorSpace));
-        offscreenSurface = Window::kRaster_BackendType == fBackendType ? SkSurface::MakeRaster(info)
-                                                                       : canvas->makeSurface(info);
+        SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+        canvas->getProps(&props);
+        offscreenSurface = Window::kRaster_BackendType == fBackendType
+                         ? SkSurface::MakeRaster(info, &props)
+                         : canvas->makeSurface(info);
         SkPixmap offscreenPixmap;
         if (fTileCnt > 0 && offscreenSurface->peekPixels(&offscreenPixmap)) {
             SkBitmap offscreenBitmap;

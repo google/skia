@@ -16,6 +16,7 @@
 class GrContext;
 class SkCanvas;
 class SkSurface;
+class SkSurfaceProps;
 
 namespace sk_app {
 
@@ -175,6 +176,9 @@ public:
 
     virtual const DisplayParams& getRequestedDisplayParams() { return fRequestedDisplayParams; }
     virtual void setRequestedDisplayParams(const DisplayParams&, bool allowReattach = true);
+
+    virtual const SkSurfaceProps getSurfaceProps() const;
+    virtual void setSurfaceProps(const SkSurfaceProps& props);
 
     // Actual parameters in effect, obtained from the native window.
     int sampleCount() const;

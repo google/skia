@@ -115,6 +115,9 @@ void Window::setRequestedDisplayParams(const DisplayParams& params, bool /* allo
     }
 }
 
+const SkSurfaceProps Window::getSurfaceProps() const { return this->fWindowContext->getSurfaceProps(); }
+void Window::setSurfaceProps(const SkSurfaceProps& props) { this->fWindowContext->setSurfaceProps(props); }
+
 int Window::sampleCount() const {
     if (!fWindowContext) {
         return 0;
