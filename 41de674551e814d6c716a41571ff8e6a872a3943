@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a463c1b_531e20b1",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-04-13T17:36:08Z",
+      "side": 1,
+      "message": "I think that we may still need to check \"!fRootPixmap.bounds().isEmpty()\" for the cereal (docs) crashing issue?",
+      "revId": "41de674551e814d6c716a41571ff8e6a872a3943",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
