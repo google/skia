@@ -289,7 +289,6 @@ void SkTextBlobCacheDiffCanvas::onDrawTextBlob(
         // applyFontToPaint() always overwrites the exact same attributes,
         // so it is safe to not re-seed the paint for this reason.
         it.applyFontToPaint(&runPaint);
-        runPaint.setFlags(this->getTopDevice()->filterTextFlags(runPaint));
         if (auto looper = runPaint.getLooper()) {
             this->processLooper(position, it, runPaint, looper);
         } else {

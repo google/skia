@@ -238,9 +238,6 @@ public:
         kAutoHinting_Flag        = 0x800,  //!< mask for setting auto-hinting
         kVerticalText_Flag       = 0x1000, //!< mask for setting vertical text
 
-        /** Hack for GDI -- do not use if you can help it */
-        kGenA8FromLCD_Flag       = 0x2000,
-
         /** mask of all Flags, including private flags and flags reserved for future use */
         kAllFlags                = 0xFFFF,
     };

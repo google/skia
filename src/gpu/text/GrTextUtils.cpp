@@ -52,10 +52,10 @@ bool GrTextUtils::RunPaint::modifyForRun(std::function<void(SkPaint*)> paintModF
         // The draw filter could have changed either the paint color or color filter.
         this->initFilteredColor();
     }
-    fModifiedPaint.get()->setFlags(FilterTextFlags(fProps, *fModifiedPaint.get()));
+    //fModifiedPaint.get()->setFlags(FilterTextFlags(fProps, *fModifiedPaint.get()));
     return true;
 }
-
+/*
 uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint) {
     uint32_t flags = paint.getFlags();
 
@@ -70,7 +70,7 @@ uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const 
 
     return flags;
 }
-
+*/
 bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
     return paint.getMaskFilter() || paint.getPathEffect() ||
            paint.isFakeBoldText() || paint.getStyle() != SkPaint::kFill_Style;
