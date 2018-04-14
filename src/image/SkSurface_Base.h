@@ -23,6 +23,10 @@ public:
     virtual GrBackendObject onGetTextureHandle(BackendHandleAccess) {
         return 0;
     }
+
+    virtual bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) {
+        return false;
+    }
 #endif
 
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);

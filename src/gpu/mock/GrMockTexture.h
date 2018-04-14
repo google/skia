@@ -120,6 +120,12 @@ public:
         return {this->width(), this->height(), this->numColorSamples(), numStencilBits, fInfo};
     }
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
+    GrBackendObject getRenderTargetHandle() const override {
+        return reinterpret_cast<GrBackendObject>(&fInfo);
+    }
+#endif
+
 protected:
     // constructor for subclasses
     GrMockRenderTarget(GrMockGpu* gpu, const GrSurfaceDesc& desc,
@@ -153,6 +159,10 @@ public:
             , GrMockRenderTarget(gpu, desc, rtInfo) {
         this->registerWithCacheWrapped();
     }
+
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
+    GrBackendObject getRenderTargetHandle() const override { return 0; }
+#endif
 
     GrTexture* asTexture() override { return this; }
     GrRenderTarget* asRenderTarget() override { return this; }

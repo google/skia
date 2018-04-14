@@ -25,6 +25,7 @@ public:
 
 #ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     GrBackendObject onGetTextureHandle(BackendHandleAccess) override;
+    bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) override;
 #endif
 
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
