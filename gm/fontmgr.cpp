@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2013 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -339,3 +339,12 @@ DEF_GM(return new FontMgrMatchGM;)
 DEF_GM(return new FontMgrBoundsGM(1.0, 0);)
 DEF_GM(return new FontMgrBoundsGM(0.75, 0);)
 DEF_GM(return new FontMgrBoundsGM(1.0, -0.25);)
+
+DEF_SIMPLE_GM(monospade, canvas, 200, 200) {
+	SkPaint p;
+	p.setAntiAlias(true);
+	p.setTextSize(48);
+	p.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
+	canvas->drawString("♠️♠️", 50, 50, p);
+}
+
