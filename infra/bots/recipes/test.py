@@ -144,8 +144,7 @@ def dm_flags(api, bot):
 
     # The NP produces a long error stream when we run with MSAA. The Tegra3 just
     # doesn't support it.
-    if ('NexusPlayer' in bot or
-        'Tegra3'      in bot or
+    if ('Tegra3'      in bot or
         # We aren't interested in fixing msaa bugs on current iOS devices.
         'iPad4' in bot or
         'iPadPro' in bot or
@@ -155,10 +154,6 @@ def dm_flags(api, bot):
         'IntelHD530'   in bot or
         'IntelIris540' in bot):
       configs = [x for x in configs if 'msaa' not in x]
-
-    # The NP produces different images for dft on every run.
-    if 'NexusPlayer' in bot:
-      configs = [x for x in configs if 'dft' not in x]
 
     # We want to test both the OpenGL config and the GLES config on Linux Intel:
     # GL is used by Chrome, GLES is used by ChromeOS.
@@ -614,12 +609,12 @@ def dm_flags(api, bot):
 
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     # skia:6132
-    match.append('~^tilemodes$')
-    match.append('~tilemodes_npot$')
-    match.append('~scaled_tilemodes$')
-    match.append('~emboss')
-    match.append('~^bitmapfilters$')
-    match.append('~^shadertext$')
+    #match.append('~^tilemodes$')
+    #match.append('~tilemodes_npot$')
+    #match.append('~scaled_tilemodes$')
+    #match.append('~emboss')
+    #match.append('~^bitmapfilters$')
+    #match.append('~^shadertext$')
     match.append('~^FullScreenClearWithLayers$') #skia:7191
     match.append('~^GrDefaultPathRendererTest$') #skia:7244
     match.append('~^GrMSAAPathRendererTest$') #skia:7244
@@ -635,7 +630,8 @@ def dm_flags(api, bot):
                   '~^ReadWriteAlpha$',
                   '~^SpecialImage_DeferredGpu$',
                   '~^SpecialImage_Gpu$',
-                  '~^SurfaceSemaphores$'])
+                  '~^SurfaceSemaphores$'
+    ])
 
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
@@ -909,7 +905,14 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  if 'NexusPlayer' in api.vars.builder_name:
+    shards = 100
+    for shard in range(shards):
+      api.run(api.flavor.step, 'dm%d' % shard,
+              cmd=args+['--shard', str(shard), '--shards', str(shards)],
+              abort_on_failure=False)
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.
