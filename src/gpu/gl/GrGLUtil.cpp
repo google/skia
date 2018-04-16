@@ -350,16 +350,23 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
         }
 
         int intelNumber;
-        n = sscanf(rendererString, "Intel(R) Iris(TM) Graphics %d", &intelNumber);
-        if (1 != n) {
-            n = sscanf(rendererString, "Intel(R) HD Graphics %d", &intelNumber);
-        }
-        if (1 == n) {
+        if (sscanf(rendererString, "Intel(R) Iris(TM) Graphics %d", &intelNumber) ||
+            sscanf(rendererString, "Intel(R) Iris(TM) Pro Graphics %d", &intelNumber) ||
+            sscanf(rendererString, "Intel(R) Iris(TM) Pro Graphics P%d", &intelNumber) ||
+            sscanf(rendererString, "Intel(R) Iris(R) Graphics %d", &intelNumber) ||
+            sscanf(rendererString, "Intel(R) Iris(R) Pro Graphics %d", &intelNumber) ||
+            sscanf(rendererString, "Intel(R) Iris(R) Pro Graphics P%d", &intelNumber) ||
+            sscanf(rendererString, "Intel(R) HD Graphics %d", &intelNumber) ||
+            sscanf(rendererString, "Intel(R) HD Graphics P%d", &intelNumber)) {
+
             if (intelNumber >= 4000 && intelNumber < 5000) {
                 return kIntel4xxx_GrGLRenderer;
             }
             if (intelNumber >= 6000 && intelNumber < 7000) {
                 return kIntel6xxx_GrGLRenderer;
+            }
+            if (intelNumber >= 500 && intelNumber < 600) {
+                return kIntelSkylake_GrGLRenderer;
             }
         }
 
