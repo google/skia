@@ -570,7 +570,7 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                          const char* src, char* dst, int i) {
     F r = F0, g = F0, b = F0, a = F0;
     while (true) {
-        switch (*ops++) {
+        switch (profile_next_op(*ops++)) {
             case Op_noop: break;
 
             case Op_load_565:{
