@@ -72,20 +72,25 @@ public:
             fRootPixmap.reset(dev->imageInfo(), nullptr, 0);
         }
 
-        if (bounds) {
-            SkRect devBounds;
-            dev->ctm().mapRect(&devBounds, *bounds);
-            if (devBounds.intersect(SkRect::MakeIWH(fRootPixmap.width(), fRootPixmap.height()))) {
-                fSrcBounds = devBounds.roundOut();
+        // do a quick check, so we don't even have to process "bounds" if there is no need
+        const SkIRect clipR = dev->fRCStack.rc().getBounds();
+        fNeedsTiling = clipR.right() > kMaxDim || clipR.bottom() > kMaxDim;
+        if (fNeedsTiling) {
+            if (bounds) {
+                SkRect devBounds;
+                dev->ctm().mapRect(&devBounds, *bounds);
+                if (devBounds.intersect(SkRect::Make(clipR))) {
+                    fSrcBounds = devBounds.roundOut();
+                } else {
+                    fNeedsTiling = false;
+                    fDone = true;
+                }
+                // Check again, now that we have computed srcbounds.
+                fNeedsTiling = fSrcBounds.right() > kMaxDim || fSrcBounds.bottom() > kMaxDim;
             } else {
-                fDone = true;
+                fSrcBounds = clipR;
             }
-        } else {
-            fSrcBounds = SkIRect::MakeWH(fRootPixmap.width(), fRootPixmap.height());
         }
-
-        fNeedsTiling = !fRootPixmap.bounds().isEmpty() &&  // empty pixmap map fail extractSubset?
-                        (fRootPixmap.width() > kMaxDim || fRootPixmap.height() > kMaxDim);
 
         if (fNeedsTiling) {
             // fDraw.fDst is reset each time in setupTileDraw()
@@ -94,6 +99,7 @@ public:
             // we'll step/increase it before using it
             fOrigin.set(fSrcBounds.fLeft - kMaxDim, fSrcBounds.fTop);
         } else {
+            // don't reference fSrcBounds, as it may not have been set
             fDraw.fDst = fRootPixmap;
             fDraw.fMatrix = &dev->ctm();
             fDraw.fRC = &dev->fRCStack.rc();
@@ -122,9 +128,6 @@ public:
         }
         return &fDraw;
     }
-
-    int curr_x() const { return fOrigin.x(); }
-    int curr_y() const { return fOrigin.y(); }
 
 private:
     void stepAndSetupTileDraw() {
@@ -165,8 +168,6 @@ private:
     while (const SkDraw* priv_draw = priv_tiler.next()) {   \
         priv_draw->code;                                    \
     }
-#define TILER_X(x)  (x) - priv_tiler.curr_x()
-#define TILER_Y(y)  (y) - priv_tiler.curr_y()
 
 // Helper to create an SkDraw from a device
 class SkBitmapDevice::BDDraw : public SkDraw {
