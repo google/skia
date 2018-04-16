@@ -1,7 +1,0 @@
-{
-  'variables': {
-    'command': [
-      '../../../recipe_bundle/recipes', 'run', '--timestamps',
-    ],
-  },
-}
