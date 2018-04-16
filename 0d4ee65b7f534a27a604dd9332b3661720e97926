@@ -22,6 +22,30 @@
       "revId": "0d4ee65b7f534a27a604dd9332b3661720e97926",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d6a8874_d3111163",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 767,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-16T13:17:07Z",
+      "side": 1,
+      "message": "With kitchen, Swarming no longer receives the output from the recipes; it\u0027s streamed directly to LogDog.  So the IoTimeout needs to match the ExecutionTimeout.",
+      "parentUuid": "810e608c_c5e5aac9",
+      "range": {
+        "startLine": 767,
+        "startChar": 18,
+        "endLine": 767,
+        "endChar": 22
+      },
+      "revId": "0d4ee65b7f534a27a604dd9332b3661720e97926",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
