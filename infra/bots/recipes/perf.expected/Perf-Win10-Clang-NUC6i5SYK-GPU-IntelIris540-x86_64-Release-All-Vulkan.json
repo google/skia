@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan\\data"
+      "[START_DIR]\\[SWARM_OUT_DIR]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan\\data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan\\data"
+      "[START_DIR]\\[SWARM_OUT_DIR]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan\\data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -141,7 +141,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]\\out\\Release_x64\\nanobench",
+      "[START_DIR]\\build\\out\\Release_x64\\nanobench",
       "-i",
       "[START_DIR]\\skia\\resources",
       "--skps",
@@ -200,7 +200,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan\\data\\nanobench_abc123_1337000001.json",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan\\data\\nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -228,7 +228,7 @@
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]\\out"
+      "SKIA_OUT": "[START_DIR]\\build\\out"
     },
     "name": "nanobench"
   },
@@ -242,7 +242,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan"
+      "[START_DIR]\\[SWARM_OUT_DIR]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
