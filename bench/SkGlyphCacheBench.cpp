@@ -10,7 +10,7 @@
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkGlyphCache_Globals.h"
+#include "SkStrikeCache.h"
 #include "SkGraphics.h"
 #include "SkTaskGroup.h"
 #include "SkTypeface.h"

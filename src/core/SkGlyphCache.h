@@ -10,7 +10,7 @@
 #include "SkArenaAlloc.h"
 #include "SkDescriptor.h"
 #include "SkGlyph.h"
-#include "SkGlyphCache_Globals.h"
+#include "SkStrikeCache.h"
 #include "SkPaint.h"
 #include "SkTHash.h"
 #include "SkScalerContext.h"
@@ -22,7 +22,7 @@ class SkTraceMemoryDump;
 class SkGlyphCache;
 using SkExclusiveStrikePtr = std::unique_ptr<
     SkGlyphCache,
-    SkFunctionWrapper<void, SkGlyphCache, SkGlyphCache_Globals::AttachCache>>;
+    SkFunctionWrapper<void, SkGlyphCache, SkStrikeCache::AttachCache>>;
 
 /** \class SkGlyphCache
 
@@ -191,7 +191,7 @@ public:
     };
 
 private:
-    friend class SkGlyphCache_Globals;
+    friend class SkStrikeCache;
 
     enum MetricsType {
         kNothing_MetricsType,

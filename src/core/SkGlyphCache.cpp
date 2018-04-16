@@ -8,6 +8,7 @@
 
 #include "SkGlyphCache.h"
 #include "SkGraphics.h"
+#include "SkMutex.h"
 #include "SkOnce.h"
 #include "SkPaintPriv.h"
 #include "SkPath.h"
@@ -24,11 +25,11 @@ const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
 }  // namespace
 
 // Returns the shared globals
-static SkGlyphCache_Globals& get_globals() {
+static SkStrikeCache& get_globals() {
     static SkOnce once;
-    static SkGlyphCache_Globals* globals;
+    static SkStrikeCache* globals;
 
-    once([]{ globals = new SkGlyphCache_Globals; });
+    once([]{ globals = new SkStrikeCache; });
     return *globals;
 }
 
@@ -414,22 +415,22 @@ void SkGlyphCache::dump() const {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-size_t SkGlyphCache_Globals::getTotalMemoryUsed() const {
+size_t SkStrikeCache::getTotalMemoryUsed() const {
     SkAutoExclusive ac(fLock);
     return fTotalMemoryUsed;
 }
 
-int SkGlyphCache_Globals::getCacheCountUsed() const {
+int SkStrikeCache::getCacheCountUsed() const {
     SkAutoExclusive ac(fLock);
     return fCacheCount;
 }
 
-int SkGlyphCache_Globals::getCacheCountLimit() const {
+int SkStrikeCache::getCacheCountLimit() const {
     SkAutoExclusive ac(fLock);
     return fCacheCountLimit;
 }
 
-size_t SkGlyphCache_Globals::setCacheSizeLimit(size_t newLimit) {
+size_t SkStrikeCache::setCacheSizeLimit(size_t newLimit) {
     static const size_t minLimit = 256 * 1024;
     if (newLimit < minLimit) {
         newLimit = minLimit;
@@ -443,12 +444,12 @@ size_t SkGlyphCache_Globals::setCacheSizeLimit(size_t newLimit) {
     return prevLimit;
 }
 
-size_t  SkGlyphCache_Globals::getCacheSizeLimit() const {
+size_t  SkStrikeCache::getCacheSizeLimit() const {
     SkAutoExclusive ac(fLock);
     return fCacheSizeLimit;
 }
 
-int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
+int SkStrikeCache::setCacheCountLimit(int newCount) {
     if (newCount < 0) {
         newCount = 0;
     }
@@ -461,12 +462,12 @@ int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
     return prevCount;
 }
 
-int SkGlyphCache_Globals::getCachePointSizeLimit() const {
+int SkStrikeCache::getCachePointSizeLimit() const {
     SkAutoExclusive ac(fLock);
     return fPointSizeLimit;
 }
 
-int SkGlyphCache_Globals::setCachePointSizeLimit(int newLimit) {
+int SkStrikeCache::setCachePointSizeLimit(int newLimit) {
     if (newLimit < 0) {
         newLimit = 0;
     }
@@ -478,13 +479,13 @@ int SkGlyphCache_Globals::setCachePointSizeLimit(int newLimit) {
     return prevLimit;
 }
 
-void SkGlyphCache_Globals::purgeAll() {
+void SkStrikeCache::purgeAll() {
     SkAutoExclusive ac(fLock);
     this->internalPurge(fTotalMemoryUsed);
 }
 
 SkExclusiveStrikePtr SkGlyphCache::FindStrikeExclusive(const SkDescriptor& desc) {
-    SkGlyphCache_Globals& globals = get_globals();
+    SkStrikeCache& globals = get_globals();
     SkGlyphCache*         cache;
     SkAutoExclusive       ac(globals.fLock);
 
@@ -559,7 +560,7 @@ SkExclusiveStrikePtr SkGlyphCache::CreateStrikeExclusive(
 }
 
 void SkGlyphCache::ForEachStrike(std::function<void(const SkGlyphCache&)> visitor) {
-    SkGlyphCache_Globals& globals = get_globals();
+    SkStrikeCache& globals = get_globals();
     SkAutoExclusive ac(globals.fLock);
     SkGlyphCache* cache;
 
@@ -632,7 +633,7 @@ void SkGlyphCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGlyphCache_Globals::~SkGlyphCache_Globals() {
+SkStrikeCache::~SkStrikeCache() {
     SkGlyphCache* cache = fHead;
     while (cache) {
         SkGlyphCache* next = cache->fNext;
@@ -641,7 +642,7 @@ SkGlyphCache_Globals::~SkGlyphCache_Globals() {
     }
 }
 
-void SkGlyphCache_Globals::AttachCache(SkGlyphCache* cache) {
+void SkStrikeCache::AttachCache(SkGlyphCache* cache) {
     if (cache == nullptr) {
         return;
     }
@@ -651,7 +652,7 @@ void SkGlyphCache_Globals::AttachCache(SkGlyphCache* cache) {
 }
 
 
-void SkGlyphCache_Globals::attachCacheToHead(SkGlyphCache* cache) {
+void SkStrikeCache::attachCacheToHead(SkGlyphCache* cache) {
     SkAutoExclusive ac(fLock);
 
     this->validate();
@@ -661,7 +662,7 @@ void SkGlyphCache_Globals::attachCacheToHead(SkGlyphCache* cache) {
     this->internalPurge();
 }
 
-SkGlyphCache* SkGlyphCache_Globals::internalGetTail() const {
+SkGlyphCache* SkStrikeCache::internalGetTail() const {
     SkGlyphCache* cache = fHead;
     if (cache) {
         while (cache->fNext) {
@@ -671,7 +672,7 @@ SkGlyphCache* SkGlyphCache_Globals::internalGetTail() const {
     return cache;
 }
 
-size_t SkGlyphCache_Globals::internalPurge(size_t minBytesNeeded) {
+size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
     this->validate();
 
     size_t bytesNeeded = 0;
@@ -725,7 +726,7 @@ size_t SkGlyphCache_Globals::internalPurge(size_t minBytesNeeded) {
     return bytesFreed;
 }
 
-void SkGlyphCache_Globals::internalAttachCacheToHead(SkGlyphCache* cache) {
+void SkStrikeCache::internalAttachCacheToHead(SkGlyphCache* cache) {
     SkASSERT(nullptr == cache->fPrev && nullptr == cache->fNext);
     if (fHead) {
         fHead->fPrev = cache;
@@ -737,7 +738,7 @@ void SkGlyphCache_Globals::internalAttachCacheToHead(SkGlyphCache* cache) {
     fTotalMemoryUsed += cache->fMemoryUsed;
 }
 
-void SkGlyphCache_Globals::internalDetachCache(SkGlyphCache* cache) {
+void SkStrikeCache::internalDetachCache(SkGlyphCache* cache) {
     SkASSERT(fCacheCount > 0);
     fCacheCount -= 1;
     fTotalMemoryUsed -= cache->fMemoryUsed;
@@ -770,7 +771,7 @@ void SkGlyphCache::validate() const {
 #endif
 }
 
-void SkGlyphCache_Globals::validate() const {
+void SkStrikeCache::validate() const {
     size_t computedBytes = 0;
     int computedCount = 0;
 
