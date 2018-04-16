@@ -15529,7 +15529,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -15626,7 +15626,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -15723,7 +15723,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -15820,7 +15820,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -15917,7 +15917,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16014,7 +16014,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16111,7 +16111,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16208,7 +16208,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16305,7 +16305,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16402,7 +16402,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16499,7 +16499,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16596,7 +16596,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16693,7 +16693,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16790,7 +16790,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16887,7 +16887,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -16984,7 +16984,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17081,7 +17081,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17178,7 +17178,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17275,7 +17275,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17372,7 +17372,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17469,7 +17469,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17566,7 +17566,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17663,7 +17663,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17760,7 +17760,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17857,7 +17857,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -17954,7 +17954,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18051,7 +18051,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18148,7 +18148,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18245,7 +18245,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18342,7 +18342,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18439,7 +18439,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18536,7 +18536,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18633,7 +18633,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18730,7 +18730,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18827,7 +18827,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -18924,7 +18924,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19021,7 +19021,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19118,7 +19118,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19215,7 +19215,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19312,7 +19312,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19409,7 +19409,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19506,7 +19506,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19601,7 +19601,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "skpbench_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19696,7 +19696,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "skpbench_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19793,7 +19793,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19888,7 +19888,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "skpbench_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -19985,7 +19985,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20082,7 +20082,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20179,7 +20179,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20276,7 +20276,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20371,7 +20371,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "skpbench_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20466,7 +20466,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "skpbench_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20561,7 +20561,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "skpbench_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20658,7 +20658,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20755,7 +20755,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20852,7 +20852,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -20949,7 +20949,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21046,7 +21046,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21143,7 +21143,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21240,7 +21240,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21337,7 +21337,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21434,7 +21434,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21531,7 +21531,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21628,7 +21628,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21725,7 +21725,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21820,7 +21820,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -21915,7 +21915,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22010,7 +22010,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22105,7 +22105,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22213,7 +22213,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22321,7 +22321,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22434,7 +22434,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22547,7 +22547,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 32400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22655,7 +22655,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22763,7 +22763,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22871,7 +22871,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -22984,7 +22984,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -23092,7 +23092,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -23200,7 +23200,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -23308,7 +23308,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -23416,7 +23416,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -23524,7 +23524,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -23632,7 +23632,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -23740,7 +23740,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -23848,7 +23848,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -23956,7 +23956,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -24064,7 +24064,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -24172,7 +24172,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -24280,7 +24280,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -24388,7 +24388,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -24496,7 +24496,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -24604,7 +24604,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -24712,7 +24712,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -24821,7 +24821,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -24930,7 +24930,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -25039,7 +25039,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -25149,7 +25149,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -25256,7 +25256,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -25366,7 +25366,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -25484,7 +25484,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -25597,7 +25597,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -25715,7 +25715,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -25828,7 +25828,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -25946,7 +25946,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -26059,7 +26059,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -26177,7 +26177,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -26290,7 +26290,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -26403,7 +26403,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -26516,7 +26516,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -26629,7 +26629,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -26737,7 +26737,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -26850,7 +26850,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -26963,7 +26963,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -27071,7 +27071,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -27184,7 +27184,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -27297,7 +27297,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -27411,7 +27411,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 32400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -27525,7 +27525,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 32400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -27633,7 +27633,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -27741,7 +27741,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -27849,7 +27849,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -27957,7 +27957,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -28065,7 +28065,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -28173,7 +28173,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -28281,7 +28281,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -28389,7 +28389,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -28497,7 +28497,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -28605,7 +28605,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -28713,7 +28713,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -28821,7 +28821,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -28929,7 +28929,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -29037,7 +29037,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -29145,7 +29145,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -29253,7 +29253,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -29361,7 +29361,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -29469,7 +29469,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -29577,7 +29577,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -29685,7 +29685,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -29793,7 +29793,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -29901,7 +29901,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30009,7 +30009,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30117,7 +30117,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30225,7 +30225,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30333,7 +30333,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30441,7 +30441,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30549,7 +30549,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30657,7 +30657,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30765,7 +30765,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30873,7 +30873,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -30981,7 +30981,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -31089,7 +31089,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -31197,7 +31197,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -31305,7 +31305,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -31413,7 +31413,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -31521,7 +31521,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -31629,7 +31629,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -31737,7 +31737,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -31845,7 +31845,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -31953,7 +31953,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -32061,7 +32061,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -32170,7 +32170,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -32279,7 +32279,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -32388,7 +32388,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -32497,7 +32497,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -32606,7 +32606,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -32715,7 +32715,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -32823,7 +32823,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -32931,7 +32931,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -33039,7 +33039,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -33147,7 +33147,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -33255,7 +33255,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -33363,7 +33363,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -33471,7 +33471,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -33579,7 +33579,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -33687,7 +33687,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -33795,7 +33795,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -33904,7 +33904,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34013,7 +34013,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34122,7 +34122,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34231,7 +34231,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34340,7 +34340,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34449,7 +34449,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34558,7 +34558,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34667,7 +34667,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34775,7 +34775,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34883,7 +34883,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34991,7 +34991,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35099,7 +35099,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35207,7 +35207,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35315,7 +35315,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35411,7 +35411,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35507,7 +35507,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35603,7 +35603,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35699,7 +35699,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35795,7 +35795,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35891,7 +35891,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -35988,7 +35988,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36085,7 +36085,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36182,7 +36182,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36279,7 +36279,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36376,7 +36376,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36473,7 +36473,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36570,7 +36570,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36667,7 +36667,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36764,7 +36764,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36861,7 +36861,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -36958,7 +36958,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37055,7 +37055,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37152,7 +37152,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37249,7 +37249,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37346,7 +37346,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37443,7 +37443,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37540,7 +37540,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37637,7 +37637,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37734,7 +37734,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37831,7 +37831,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -37928,7 +37928,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38025,7 +38025,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38123,7 +38123,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38220,7 +38220,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38317,7 +38317,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38415,7 +38415,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38512,7 +38512,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38609,7 +38609,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38706,7 +38706,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38803,7 +38803,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38900,7 +38900,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -38998,7 +38998,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39096,7 +39096,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39193,7 +39193,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39290,7 +39290,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39387,7 +39387,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39484,7 +39484,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39581,7 +39581,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39678,7 +39678,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39775,7 +39775,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39872,7 +39872,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -39970,7 +39970,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40068,7 +40068,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40165,7 +40165,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40262,7 +40262,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40359,7 +40359,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40456,7 +40456,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40553,7 +40553,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40650,7 +40650,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40747,7 +40747,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40844,7 +40844,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -40941,7 +40941,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41038,7 +41038,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41135,7 +41135,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41232,7 +41232,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41329,7 +41329,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41426,7 +41426,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41523,7 +41523,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41620,7 +41620,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41717,7 +41717,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41814,7 +41814,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -41911,7 +41911,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42008,7 +42008,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42105,7 +42105,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42202,7 +42202,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42299,7 +42299,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42396,7 +42396,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42493,7 +42493,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42590,7 +42590,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42687,7 +42687,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42784,7 +42784,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42881,7 +42881,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -42978,7 +42978,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43075,7 +43075,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43172,7 +43172,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43269,7 +43269,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43366,7 +43366,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43463,7 +43463,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43558,7 +43558,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43653,7 +43653,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43748,7 +43748,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43843,7 +43843,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -43951,7 +43951,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -44059,7 +44059,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -44172,7 +44172,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -44285,7 +44285,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -44393,7 +44393,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -44501,7 +44501,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -44609,7 +44609,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -44717,7 +44717,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -44825,7 +44825,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -44933,7 +44933,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -45041,7 +45041,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -45149,7 +45149,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -45257,7 +45257,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -45365,7 +45365,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -45473,7 +45473,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -45581,7 +45581,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -45689,7 +45689,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -45797,7 +45797,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -45905,7 +45905,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46013,7 +46013,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46126,7 +46126,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46234,7 +46234,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46342,7 +46342,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46450,7 +46450,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46558,7 +46558,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46666,7 +46666,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46779,7 +46779,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46887,7 +46887,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -46995,7 +46995,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -47103,7 +47103,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -47211,7 +47211,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -47319,7 +47319,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -47427,7 +47427,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -47535,7 +47535,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -47643,7 +47643,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -47751,7 +47751,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -47859,7 +47859,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -47967,7 +47967,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -48075,7 +48075,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -48183,7 +48183,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -48291,7 +48291,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -48399,7 +48399,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -48507,7 +48507,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -48615,7 +48615,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -48724,7 +48724,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -48833,7 +48833,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -48942,7 +48942,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -49051,7 +49051,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -49161,7 +49161,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -49268,7 +49268,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -49375,7 +49375,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -49485,7 +49485,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -49603,7 +49603,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -49716,7 +49716,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -49834,7 +49834,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -49947,7 +49947,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -50065,7 +50065,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -50178,7 +50178,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -50296,7 +50296,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -50409,7 +50409,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -50522,7 +50522,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -50635,7 +50635,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -50748,7 +50748,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -50856,7 +50856,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -50969,7 +50969,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -51077,7 +51077,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -51190,7 +51190,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -51298,7 +51298,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -51411,7 +51411,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -51529,7 +51529,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -51642,7 +51642,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -51755,7 +51755,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -51863,7 +51863,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -51976,7 +51976,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -52084,7 +52084,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -52197,7 +52197,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -52310,7 +52310,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -52428,7 +52428,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -52541,7 +52541,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -52659,7 +52659,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -52767,7 +52767,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -52880,7 +52880,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -52993,7 +52993,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -53107,7 +53107,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -53221,7 +53221,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -53335,7 +53335,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -53443,7 +53443,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -53551,7 +53551,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -53659,7 +53659,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -53767,7 +53767,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -53875,7 +53875,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -53983,7 +53983,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -54091,7 +54091,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -54199,7 +54199,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -54307,7 +54307,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -54415,7 +54415,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -54523,7 +54523,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -54631,7 +54631,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -54739,7 +54739,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -54852,7 +54852,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -54960,7 +54960,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -55068,7 +55068,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -55176,7 +55176,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -55284,7 +55284,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -55397,7 +55397,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -55505,7 +55505,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -55613,7 +55613,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -55721,7 +55721,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -55829,7 +55829,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -55937,7 +55937,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -56045,7 +56045,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -56153,7 +56153,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -56261,7 +56261,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -56369,7 +56369,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -56477,7 +56477,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -56585,7 +56585,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -56693,7 +56693,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -56801,7 +56801,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -56909,7 +56909,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57017,7 +57017,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57125,7 +57125,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57233,7 +57233,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57341,7 +57341,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57449,7 +57449,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57557,7 +57557,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57665,7 +57665,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57773,7 +57773,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57881,7 +57881,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -57989,7 +57989,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -58097,7 +58097,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -58205,7 +58205,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -58313,7 +58313,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -58421,7 +58421,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -58530,7 +58530,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -58639,7 +58639,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -58748,7 +58748,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -58857,7 +58857,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -58966,7 +58966,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -59075,7 +59075,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -59183,7 +59183,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -59291,7 +59291,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -59399,7 +59399,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -59507,7 +59507,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -59615,7 +59615,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -59723,7 +59723,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -59831,7 +59831,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -59939,7 +59939,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -60047,7 +60047,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -60155,7 +60155,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -60264,7 +60264,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -60373,7 +60373,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -60482,7 +60482,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -60591,7 +60591,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -60700,7 +60700,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -60809,7 +60809,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -60918,7 +60918,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -61027,7 +61027,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -61136,7 +61136,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -61245,7 +61245,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -61354,7 +61354,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -61463,7 +61463,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -61572,7 +61572,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -61681,7 +61681,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -61790,7 +61790,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -61899,7 +61899,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62007,7 +62007,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62115,7 +62115,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62223,7 +62223,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62331,7 +62331,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62439,7 +62439,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62547,7 +62547,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62655,7 +62655,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62763,7 +62763,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62871,7 +62871,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 21600000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -62979,7 +62979,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -63087,7 +63087,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -63195,7 +63195,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -63291,7 +63291,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -63387,7 +63387,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -63483,7 +63483,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -63579,7 +63579,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -63675,7 +63675,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -63771,7 +63771,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 2400000000000,
+      "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -63863,7 +63863,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "isolate": "upload_dm_results.isolate",
+      "isolate": "swarm_recipe.isolate",
       "priority": 0.8,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -63951,7 +63951,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "isolate": "upload_dm_results.isolate",
+      "isolate": "swarm_recipe.isolate",
       "priority": 0.8,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -64039,7 +64039,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "isolate": "upload_dm_results.isolate",
+      "isolate": "swarm_recipe.isolate",
       "priority": 0.8,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -64127,7 +64127,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "isolate": "upload_dm_results.isolate",
+      "isolate": "swarm_recipe.isolate",
       "priority": 0.8,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
