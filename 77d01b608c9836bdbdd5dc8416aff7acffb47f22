@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "280c7f74_eff130e7",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-16T17:26:54Z",
+      "side": 1,
+      "message": "Did you leave this intentionally, for testing?",
+      "range": {
+        "startLine": 421,
+        "startChar": 8,
+        "endLine": 421,
+        "endChar": 12
+      },
+      "revId": "77d01b608c9836bdbdd5dc8416aff7acffb47f22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
