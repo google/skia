@@ -321,3 +321,47 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     }
     return isfinitef_(*max_error);
 }
+
+static float max_error_over_curve(const skcms_TransferFunction* tf, const skcms_Curve* curve) {
+    int N = curve->table_entries ? (int)curve->table_entries : 256;
+    const float x_scale = 1.0f / (N - 1);
+    float err = 0;
+    for (int i = 0; i < N; i++) {
+        float x = i * x_scale;
+        err = fmaxf_(err, fabsf_(skcms_eval_curve(x, curve) - skcms_TransferFunction_eval(tf, x)));
+    }
+    return err;
+}
+
+skcms_TransferFunction skcms_BestSingleCurve(const skcms_ICCProfile* profile) {
+    if (!profile || !profile->has_trc) {
+        return skcms_sRGB_profile.trc[0].parametric;
+    }
+
+    skcms_TransferFunction tf[3];
+    for (int i = 0; i < 3; ++i) {
+        if (profile->trc[i].table_entries) {
+            float max_error;
+            if (!skcms_ApproximateCurve(&profile->trc[i], &tf[i], &max_error)) {
+                return skcms_sRGB_profile.trc[0].parametric;
+            }
+        } else {
+            tf[i] = profile->trc[i].parametric;
+        }
+    }
+
+    int best_tf = 0;
+    float min_max_error = INFINITY_;
+    for (int i = 0; i < 3; ++i) {
+        float err = 0;
+        for (int j = 0; j < 3; ++j) {
+            err = fmaxf_(err, max_error_over_curve(&tf[i], &profile->trc[j]));
+        }
+        if (min_max_error > err) {
+            min_max_error = err;
+            best_tf = i;
+        }
+    }
+
+    return tf[best_tf];
+}

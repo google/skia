@@ -123,6 +123,10 @@ typedef struct {
 
 bool skcms_ApproximateCurve13(const skcms_Curve* curve, skcms_TF13* approx, float* max_error);
 
+// What is the best single transfer function to use for the given profile? Note that there is
+// no real upper bound on the error of this transfer function.
+skcms_TransferFunction skcms_BestSingleCurve(const skcms_ICCProfile*);
+
 typedef struct {
     uint32_t       signature;
     uint32_t       type;
