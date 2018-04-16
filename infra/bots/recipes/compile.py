@@ -32,6 +32,9 @@ def RunSteps(api):
     bot_update = False
   api.core.setup(bot_update=bot_update)
 
+  files = api.file.listdir('listdir skia', api.vars.skia_dir)
+  api.run(api.step, 'Print', cmd=['echo', str(files)])
+
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
 
   try:
