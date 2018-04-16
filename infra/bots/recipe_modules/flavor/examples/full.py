@@ -68,6 +68,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
   'Build-Debian9-Clang-x86_64-Release-NoDEPS',
+  'Build-Debian9-Clang-x86_64-Release-SwiftShader',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
   'Build-Debian9-EMCC-wasm-Release',
   'Build-Debian9-GCC-loongson3a-Release',
