@@ -8,6 +8,7 @@
 // This test only works with the GPU backend.
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
 
@@ -132,6 +133,17 @@ protected:
 
         GrContext* context = canvas->getGrContext();
         if (!context) {
+            return;
+        }
+
+        if (!context->caps()->shaderCaps()->floatIs32Bits()) {
+            SkPaint paint;
+            sk_tool_utils::set_portable_typeface(&paint);
+            paint.setAntiAlias(true);
+            paint.setTextSize(20);
+
+            canvas->clear(SK_ColorWHITE);
+            canvas->drawString("float != fp32", 20, 40, paint);
             return;
         }
 

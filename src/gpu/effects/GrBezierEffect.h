@@ -229,6 +229,11 @@ public:
                                            bool flipKL,
                                            const GrClipEdgeType edgeType,
                                            const GrCaps& caps) {
+        if (!caps.shaderCaps()->floatIs32Bits()) {
+            // Cubic math will be too unstable if the hardware doesn't support full fp32.
+            return nullptr;
+        }
+
         // Map KLM to something that operates in device space.
         SkMatrix devKLM;
         if (!viewMatrix.invert(&devKLM)) {
