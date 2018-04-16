@@ -487,18 +487,18 @@ private:
 class TestCase {
 public:
     TestCase(const Geo& geo, const SkPaint& paint, skiatest::Reporter* r,
-             SkScalar scale = SK_Scalar1) : fBase(geo.makeShape(paint)) {
+             SkScalar scale = SK_Scalar1)
+            : fBase(new GrShape(geo.makeShape(paint))) {
         this->init(r, scale);
     }
 
-    template<typename... ShapeArgs>
-    TestCase(skiatest::Reporter* r, ShapeArgs... shapeArgs)
-            : fBase(shapeArgs...) {
+    template <typename... ShapeArgs>
+    TestCase(skiatest::Reporter* r, ShapeArgs... shapeArgs) : fBase(new GrShape(shapeArgs...)) {
         this->init(r, SK_Scalar1);
     }
 
     TestCase(const GrShape& shape, skiatest::Reporter* r, SkScalar scale = SK_Scalar1)
-        : fBase(shape) {
+            : fBase(new GrShape(shape)) {
         this->init(r, scale);
     }
 
@@ -519,9 +519,9 @@ public:
 
     void compare(skiatest::Reporter*, const TestCase& that, ComparisonExpecation) const;
 
-    const GrShape& baseShape() const { return fBase; }
-    const GrShape& appliedPathEffectShape() const { return fAppliedPE; }
-    const GrShape& appliedFullStyleShape() const { return fAppliedFull; }
+    const GrShape& baseShape() const { return *fBase; }
+    const GrShape& appliedPathEffectShape() const { return *fAppliedPE; }
+    const GrShape& appliedFullStyleShape() const { return *fAppliedFull; }
 
     // The returned array's count will be 0 if the key shape has no key.
     const Key& baseKey() const { return fBaseKey; }
@@ -548,82 +548,86 @@ private:
     }
 
     void init(skiatest::Reporter* r, SkScalar scale) {
-        fAppliedPE           = fBase.applyStyle(GrStyle::Apply::kPathEffectOnly, scale);
-        fAppliedPEThenStroke = fAppliedPE.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec,
-                                                     scale);
-        fAppliedFull         = fBase.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, scale);
+        fAppliedPE.reset(new GrShape);
+        fAppliedPEThenStroke.reset(new GrShape);
+        fAppliedFull.reset(new GrShape);
 
-        make_key(&fBaseKey, fBase);
-        make_key(&fAppliedPEKey, fAppliedPE);
-        make_key(&fAppliedPEThenStrokeKey, fAppliedPEThenStroke);
-        make_key(&fAppliedFullKey, fAppliedFull);
+        *fAppliedPE = fBase->applyStyle(GrStyle::Apply::kPathEffectOnly, scale);
+        *fAppliedPEThenStroke =
+                fAppliedPE->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, scale);
+        *fAppliedFull = fBase->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, scale);
+
+        make_key(&fBaseKey, *fBase);
+        make_key(&fAppliedPEKey, *fAppliedPE);
+        make_key(&fAppliedPEThenStrokeKey, *fAppliedPEThenStroke);
+        make_key(&fAppliedFullKey, *fAppliedFull);
 
         // All shapes should report the same "original" path, so that path renderers can get to it
         // if necessary.
-        check_original_path_ids(r, fBase, fAppliedPE, fAppliedPEThenStroke, fAppliedFull);
+        check_original_path_ids(r, *fBase, *fAppliedPE, *fAppliedPEThenStroke, *fAppliedFull);
 
         // Applying the path effect and then the stroke should always be the same as applying
         // both in one go.
         REPORTER_ASSERT(r, fAppliedPEThenStrokeKey == fAppliedFullKey);
         SkPath a, b;
-        fAppliedPEThenStroke.asPath(&a);
-        fAppliedFull.asPath(&b);
+        fAppliedPEThenStroke->asPath(&a);
+        fAppliedFull->asPath(&b);
         // If the output of the path effect is a rrect then it is possible for a and b to be
         // different paths that fill identically. The reason is that fAppliedFull will do this:
         // base -> apply path effect -> rrect_as_path -> stroke -> stroked_rrect_as_path
         // fAppliedPEThenStroke will have converted the rrect_as_path back to a rrect. However,
         // now that there is no longer a path effect, the direction and starting index get
         // canonicalized before the stroke.
-        if (fAppliedPE.asRRect(nullptr, nullptr, nullptr, nullptr)) {
+        if (fAppliedPE->asRRect(nullptr, nullptr, nullptr, nullptr)) {
             REPORTER_ASSERT(r, paths_fill_same(a, b));
         } else {
             REPORTER_ASSERT(r, a == b);
         }
-        REPORTER_ASSERT(r, fAppliedFull.isEmpty() == fAppliedPEThenStroke.isEmpty());
+        REPORTER_ASSERT(r, fAppliedFull->isEmpty() == fAppliedPEThenStroke->isEmpty());
 
         SkPath path;
-        fBase.asPath(&path);
-        REPORTER_ASSERT(r, path.isEmpty() == fBase.isEmpty());
-        REPORTER_ASSERT(r, path.getSegmentMasks() == fBase.segmentMask());
-        fAppliedPE.asPath(&path);
-        REPORTER_ASSERT(r, path.isEmpty() == fAppliedPE.isEmpty());
-        REPORTER_ASSERT(r, path.getSegmentMasks() == fAppliedPE.segmentMask());
-        fAppliedFull.asPath(&path);
-        REPORTER_ASSERT(r, path.isEmpty() == fAppliedFull.isEmpty());
-        REPORTER_ASSERT(r, path.getSegmentMasks() == fAppliedFull.segmentMask());
+        fBase->asPath(&path);
+        REPORTER_ASSERT(r, path.isEmpty() == fBase->isEmpty());
+        REPORTER_ASSERT(r, path.getSegmentMasks() == fBase->segmentMask());
+        fAppliedPE->asPath(&path);
+        REPORTER_ASSERT(r, path.isEmpty() == fAppliedPE->isEmpty());
+        REPORTER_ASSERT(r, path.getSegmentMasks() == fAppliedPE->segmentMask());
+        fAppliedFull->asPath(&path);
+        REPORTER_ASSERT(r, path.isEmpty() == fAppliedFull->isEmpty());
+        REPORTER_ASSERT(r, path.getSegmentMasks() == fAppliedFull->segmentMask());
 
-        CheckBounds(r, fBase, fBase.bounds());
-        CheckBounds(r, fAppliedPE, fAppliedPE.bounds());
-        CheckBounds(r, fAppliedPEThenStroke, fAppliedPEThenStroke.bounds());
-        CheckBounds(r, fAppliedFull, fAppliedFull.bounds());
-        SkRect styledBounds = fBase.styledBounds();
-        CheckBounds(r, fAppliedFull, styledBounds);
-        styledBounds = fAppliedPE.styledBounds();
-        CheckBounds(r, fAppliedFull, styledBounds);
+        CheckBounds(r, *fBase, fBase->bounds());
+        CheckBounds(r, *fAppliedPE, fAppliedPE->bounds());
+        CheckBounds(r, *fAppliedPEThenStroke, fAppliedPEThenStroke->bounds());
+        CheckBounds(r, *fAppliedFull, fAppliedFull->bounds());
+        SkRect styledBounds = fBase->styledBounds();
+        CheckBounds(r, *fAppliedFull, styledBounds);
+        styledBounds = fAppliedPE->styledBounds();
+        CheckBounds(r, *fAppliedFull, styledBounds);
 
         // Check that the same path is produced when style is applied by GrShape and GrStyle.
         SkPath preStyle;
         SkPath postPathEffect;
         SkPath postAllStyle;
 
-        fBase.asPath(&preStyle);
+        fBase->asPath(&preStyle);
         SkStrokeRec postPEStrokeRec(SkStrokeRec::kFill_InitStyle);
-        if (fBase.style().applyPathEffectToPath(&postPathEffect, &postPEStrokeRec, preStyle,
-                                                scale)) {
+        if (fBase->style().applyPathEffectToPath(&postPathEffect, &postPEStrokeRec, preStyle,
+                                                 scale)) {
             // run postPathEffect through GrShape to get any geometry reductions that would have
             // occurred to fAppliedPE.
             GrShape(postPathEffect, GrStyle(postPEStrokeRec, nullptr)).asPath(&postPathEffect);
 
             SkPath testPath;
-            fAppliedPE.asPath(&testPath);
+            fAppliedPE->asPath(&testPath);
             REPORTER_ASSERT(r, testPath == postPathEffect);
-            REPORTER_ASSERT(r, postPEStrokeRec.hasEqualEffect(fAppliedPE.style().strokeRec()));
+            REPORTER_ASSERT(r, postPEStrokeRec.hasEqualEffect(fAppliedPE->style().strokeRec()));
         }
         SkStrokeRec::InitStyle fillOrHairline;
-        if (fBase.style().applyToPath(&postAllStyle, &fillOrHairline, preStyle, scale)) {
+        if (fBase->style().applyToPath(&postAllStyle, &fillOrHairline, preStyle, scale)) {
             SkPath testPath;
-            fAppliedFull.asPath(&testPath);
-            if (fBase.style().hasPathEffect()) {
+            fAppliedFull->asPath(&testPath);
+            if (fBase->style().hasPathEffect()) {
                 // Because GrShape always does two-stage application when there is a path effect
                 // there may be a reduction/canonicalization step between the path effect and
                 // strokerec not reflected in postAllStyle since it applied both the path effect
@@ -637,20 +641,20 @@ private:
             }
 
             if (fillOrHairline == SkStrokeRec::kFill_InitStyle) {
-                REPORTER_ASSERT(r, fAppliedFull.style().isSimpleFill());
+                REPORTER_ASSERT(r, fAppliedFull->style().isSimpleFill());
             } else {
-                REPORTER_ASSERT(r, fAppliedFull.style().isSimpleHairline());
+                REPORTER_ASSERT(r, fAppliedFull->style().isSimpleHairline());
             }
         }
-        test_inversions(r, fBase, fBaseKey);
-        test_inversions(r, fAppliedPE, fAppliedPEKey);
-        test_inversions(r, fAppliedFull, fAppliedFullKey);
+        test_inversions(r, *fBase, fBaseKey);
+        test_inversions(r, *fAppliedPE, fAppliedPEKey);
+        test_inversions(r, *fAppliedFull, fAppliedFullKey);
     }
 
-    GrShape fBase;
-    GrShape fAppliedPE;
-    GrShape fAppliedPEThenStroke;
-    GrShape fAppliedFull;
+    std::unique_ptr<GrShape> fBase;
+    std::unique_ptr<GrShape> fAppliedPE;
+    std::unique_ptr<GrShape> fAppliedPEThenStroke;
+    std::unique_ptr<GrShape> fAppliedFull;
 
     Key fBaseKey;
     Key fAppliedPEKey;
@@ -673,8 +677,8 @@ void TestCase::testExpectations(skiatest::Reporter* reporter, SelfExpectations e
     } else {
         REPORTER_ASSERT(reporter, fBaseKey == fAppliedPEKey);
         SkPath a, b;
-        fBase.asPath(&a);
-        fAppliedPE.asPath(&b);
+        fBase->asPath(&a);
+        fAppliedPE->asPath(&b);
         REPORTER_ASSERT(reporter, a == b);
         if (expectations.fStrokeApplies) {
             REPORTER_ASSERT(reporter, fBaseKey != fAppliedFullKey);
@@ -694,19 +698,19 @@ void TestCase::compare(skiatest::Reporter* r, const TestCase& that,
             REPORTER_ASSERT(r, fAppliedFullKey != that.fAppliedFullKey);
             break;
         case kSameUpToPE_ComparisonExpecation:
-            check_equivalence(r, fBase, that.fBase, fBaseKey, that.fBaseKey);
+            check_equivalence(r, *fBase, *that.fBase, fBaseKey, that.fBaseKey);
             REPORTER_ASSERT(r, fAppliedPEKey != that.fAppliedPEKey);
             REPORTER_ASSERT(r, fAppliedFullKey != that.fAppliedFullKey);
             break;
         case kSameUpToStroke_ComparisonExpecation:
-            check_equivalence(r, fBase, that.fBase, fBaseKey, that.fBaseKey);
-            check_equivalence(r, fAppliedPE, that.fAppliedPE, fAppliedPEKey, that.fAppliedPEKey);
+            check_equivalence(r, *fBase, *that.fBase, fBaseKey, that.fBaseKey);
+            check_equivalence(r, *fAppliedPE, *that.fAppliedPE, fAppliedPEKey, that.fAppliedPEKey);
             REPORTER_ASSERT(r, fAppliedFullKey != that.fAppliedFullKey);
             break;
         case kAllSame_ComparisonExpecation:
-            check_equivalence(r, fBase, that.fBase, fBaseKey, that.fBaseKey);
-            check_equivalence(r, fAppliedPE, that.fAppliedPE, fAppliedPEKey, that.fAppliedPEKey);
-            check_equivalence(r, fAppliedFull, that.fAppliedFull, fAppliedFullKey,
+            check_equivalence(r, *fBase, *that.fBase, fBaseKey, that.fBaseKey);
+            check_equivalence(r, *fAppliedPE, *that.fAppliedPE, fAppliedPEKey, that.fAppliedPEKey);
+            check_equivalence(r, *fAppliedFull, *that.fAppliedFull, fAppliedFullKey,
                               that.fAppliedFullKey);
             break;
     }
