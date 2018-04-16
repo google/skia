@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkPDFTypes_DEFINED
 #define SkPDFTypes_DEFINED
+
+#include <type_traits>
 
 #include "SkRefCnt.h"
 #include "SkScalar.h"
@@ -129,7 +130,7 @@ private:
         bool fBoolValue;
         SkScalar fScalarValue;
         const char* fStaticString;
-        char fSkString[sizeof(SkString)];
+        std::aligned_storage<sizeof(SkString), alignof(SkString)>::type fSkString;
         SkPDFObject* fObject;
     };
     enum class Type : char {

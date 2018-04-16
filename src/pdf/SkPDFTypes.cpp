@@ -15,18 +15,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkString* pun(char* x) { return reinterpret_cast<SkString*>(x); }
-const SkString* pun(const char* x) {
-    return reinterpret_cast<const SkString*>(x);
-}
-
 SkPDFUnion::SkPDFUnion(Type t) : fType(t) {}
 
 SkPDFUnion::~SkPDFUnion() {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            pun(fSkString)->~SkString();
+            reinterpret_cast<SkString*>(&fSkString)->~SkString();
             return;
         case Type::kObjRef:
         case Type::kObject:
@@ -59,7 +54,8 @@ SkPDFUnion SkPDFUnion::copy() const {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            new (pun(u.fSkString)) SkString(*pun(fSkString));
+            new (reinterpret_cast<SkString*>(&u.fSkString))
+                SkString(*reinterpret_cast<const SkString*>(&fSkString));
             return u;
         case Type::kObjRef:
         case Type::kObject:
@@ -140,11 +136,11 @@ void SkPDFUnion::emitObject(SkWStream* stream,
             return;
         case Type::kNameSkS:
             stream->writeText("/");
-            write_name_escaped(stream, pun(fSkString)->c_str());
+            write_name_escaped(stream, reinterpret_cast<const SkString*>(&fSkString)->c_str());
             return;
         case Type::kStringSkS:
-            SkPDFUtils::WriteString(stream, pun(fSkString)->c_str(),
-                                    pun(fSkString)->size());
+            SkPDFUtils::WriteString(stream, reinterpret_cast<const SkString*>(&fSkString)->c_str(),
+                                    reinterpret_cast<const SkString*>(&fSkString)->size());
             return;
         case Type::kObjRef:
             stream->writeDecAsText(objNumMap.getObjectNumber(fObject));
@@ -221,13 +217,13 @@ SkPDFUnion SkPDFUnion::String(const char* value) {
 
 SkPDFUnion SkPDFUnion::Name(const SkString& s) {
     SkPDFUnion u(Type::kNameSkS);
-    new (pun(u.fSkString)) SkString(s);
+    new (reinterpret_cast<SkString*>(&u.fSkString)) SkString(s);
     return u;
 }
 
 SkPDFUnion SkPDFUnion::String(const SkString& s) {
     SkPDFUnion u(Type::kStringSkS);
-    new (pun(u.fSkString)) SkString(s);
+    new (reinterpret_cast<SkString*>(&u.fSkString)) SkString(s);
     return u;
 }
 
