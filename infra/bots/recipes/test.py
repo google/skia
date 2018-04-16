@@ -555,11 +555,8 @@ def dm_flags(api, bot):
     match.append('~PremulAlphaRoundTrip_Gpu')  # skia:7501
 
   if 'DDL3' in bot:
-    match.append('~shadermaskfilter_image') # skia:7751
     match.append('~persp_shaders_bw')       # skia:7751
     match.append('~persp_shaders_aa')       # skia:7751
-    match.append('~imagefilterscropped')    # skia:7755
-    match.append('~animated-image-blurs')   # skia:7755
 
   if 'Chromecast' in bot:
     if 'GPU' in bot:
