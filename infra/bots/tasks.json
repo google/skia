@@ -63863,7 +63863,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "isolate": "upload_dm_results.isolate",
+      "isolate": "swarm_recipe.isolate",
       "priority": 0.8,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -63951,7 +63951,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "isolate": "upload_dm_results.isolate",
+      "isolate": "swarm_recipe.isolate",
       "priority": 0.8,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -64039,7 +64039,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "isolate": "upload_dm_results.isolate",
+      "isolate": "swarm_recipe.isolate",
       "priority": 0.8,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -64127,7 +64127,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "isolate": "upload_dm_results.isolate",
+      "isolate": "swarm_recipe.isolate",
       "priority": 0.8,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
