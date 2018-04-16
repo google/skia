@@ -28,8 +28,8 @@ DEF_TEST(PathOpsDVector, reporter) {
         SkASSERT(ValidVector(v2));
         v1 += v2;
         REPORTER_ASSERT(reporter, v1.fX == 0 && v1.fY == 0);
-        v2 -= v2;
-        REPORTER_ASSERT(reporter, v2.fX == 0 && v2.fY == 0);
+        SkDVector zero = v2 - v2;
+        REPORTER_ASSERT(reporter, zero.fX == 0 && zero.fY == 0);
         v1 = tests[index + 1] - tests[index];
         v1 /= 2;
         v1 *= 2;
