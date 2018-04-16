@@ -28,6 +28,7 @@
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
+#include "GrTextureProxyPriv.h"
 #include "gl/GrGLDefines.h"
 #include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrYUVtoRGBEffect.h"
@@ -726,6 +727,14 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
     if (!proxy) {
         return nullptr;
+    }
+
+    // Promise images always wrap resources. So if the promise image doesn't have mip maps, we
+    // cannot allocate mips for them and thus will need a copy to use a mipped image. We can't pass
+    // the fact that this creates a wrapped texture into createLazyProxy so we need to manually call
+    // setDoesNotSupportMipMaps.
+    if (GrMipMapped::kNo == mipMapped) {
+        proxy->texPriv().setDoesNotSupportMipMaps();
     }
 
     return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, alphaType, std::move(proxy),

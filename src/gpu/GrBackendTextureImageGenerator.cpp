@@ -18,6 +18,7 @@
 #include "GrSemaphore.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxyPriv.h"
 
 #include "SkGr.h"
 #include "SkMessageBus.h"
@@ -174,6 +175,16 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
             },
             desc, fSurfaceOrigin, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
+
+    if (!proxy) {
+        return nullptr;
+    }
+
+    // We can't pass the fact that this creates a wrapped texture into createLazyProxy so we need
+    // to manually call setDoesNotSupportMipMaps.
+    if (GrMipMapped::kNo == mipMapped) {
+        proxy->texPriv().setDoesNotSupportMipMaps();
+    }
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
