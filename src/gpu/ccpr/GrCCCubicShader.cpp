@@ -15,28 +15,6 @@ using Shader = GrCCCoverageProcessor::Shader;
 
 void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
                                     const char* wind, const char** /*outHull4*/) const {
-    // Define a function that normalizes the homogeneous coordinates T=t/s in order to avoid
-    // exponent overflow.
-    SkString normalizeHomogCoordFn;
-    GrShaderVar coord("coord", kFloat2_GrSLType);
-    s->emitFunction(kFloat2_GrSLType, "normalize_homogeneous_coord", 1, &coord,
-                    s->getProgramBuilder()->shaderCaps()->fpManipulationSupport()
-                            // Exponent manipulation version: Scale the exponents so the larger
-                            // component has a magnitude in 1..2.
-                            // (Neither component should be infinity because ccpr crops big paths.)
-                            ? "int exp;"
-                              "frexp(max(abs(coord.t), abs(coord.s)), exp);"
-                              "return coord * ldexp(1, 1 - exp);"
-
-                            // Division version: Divide by the component with the larger magnitude.
-                            // (Both should not be 0 because ccpr catches degenerate cubics.)
-                            : "bool swap = abs(coord.t) > abs(coord.s);"
-                              "coord = swap ? coord.ts : coord;"
-                              "coord = float2(1, coord.t/coord.s);"
-                              "return swap ? coord.ts : coord;",
-
-                    &normalizeHomogCoordFn);
-
     // Find the cubic's power basis coefficients.
     s->codeAppendf("float2x4 C = float4x4(-1,  3, -3,  1, "
                                          " 3, -6,  3,  0, "
@@ -48,6 +26,21 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     s->codeAppend ("float D2 = -determinant(float2x2(C[0].xz, C[1].xz));");
     s->codeAppend ("float D1 = +determinant(float2x2(C));");
 
+    // Shift the exponents in D so the largest magnitude falls somewhere in 1..2. This protects us
+    // from overflow while solving for roots and KLM functionals.
+    s->codeAppend ("float Dmax = max(max(abs(D1), abs(D2)), abs(D3));");
+    s->codeAppend ("float norm;");
+    if (s->getProgramBuilder()->shaderCaps()->fpManipulationSupport()) {
+        s->codeAppend ("int exp;");
+        s->codeAppend ("frexp(Dmax, exp);");
+        s->codeAppend ("norm = ldexp(1, 1 - exp);");
+    } else {
+        s->codeAppend ("norm = 1/Dmax;"); // Dmax will not be 0 because we cull line cubics on CPU.
+    }
+    s->codeAppend ("D3 *= norm;");
+    s->codeAppend ("D2 *= norm;");
+    s->codeAppend ("D1 *= norm;");
+
     // Calculate the KLM matrix.
     s->declareGlobal(fKLMMatrix);
     s->codeAppend ("float discr = 3*D2*D2 - 4*D1*D3;");
@@ -56,10 +49,9 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     s->codeAppend ("q = x*D2 + (D2 >= 0 ? q : -q);");
 
     s->codeAppend ("float2 l, m;");
-    s->codeAppendf("l.ts = %s(float2(q, 2*x * D1));", normalizeHomogCoordFn.c_str());
-    s->codeAppendf("m.ts = %s(float2(2, q) * (discr >= 0 ? float2(D3, 1) "
-                                                        ": float2(D2*D2 - D3*D1, D1)));",
-                                                        normalizeHomogCoordFn.c_str());
+    s->codeAppend ("l.ts = float2(q, 2*x * D1);");
+    s->codeAppend ("m.ts = float2(2, q) * (discr >= 0 ? float2(D3, 1) "
+                                                     ": float2(D2*D2 - D3*D1, D1));");
 
     s->codeAppend ("float4 K;");
     s->codeAppend ("float4 lm = l.sstt * m.stst;");
