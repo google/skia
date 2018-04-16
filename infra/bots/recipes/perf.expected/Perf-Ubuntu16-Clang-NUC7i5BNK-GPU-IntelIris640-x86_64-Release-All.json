@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -146,7 +146,7 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/out/Release/nanobench",
+      "[START_DIR]/build/out/Release/nanobench",
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -189,7 +189,7 @@
       "~inc1.webp",
       "--verbose",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -218,7 +218,7 @@
       "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_intel_driver_release",
       "LIBGL_DRIVERS_PATH": "[START_DIR]/linux_vulkan_intel_driver_release",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out",
+      "SKIA_OUT": "[START_DIR]/build/out",
       "VK_ICD_FILENAMES": "[START_DIR]/linux_vulkan_intel_driver_release/intel_icd.x86_64.json"
     },
     "name": "symbolized nanobench"
@@ -233,7 +233,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

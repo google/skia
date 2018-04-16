@@ -24,7 +24,7 @@
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -33,7 +33,7 @@
     "cmd": [
       "[START_DIR]/skia/bin/gn.exe",
       "gen",
-      "[START_DIR]/out/Release_x64",
+      "[START_DIR]/build/out/Release_x64",
       "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_clang_win_version=42\"] is_debug=false skia_enable_vulkan_debug_layers=false skia_vulkan_sdk=\"[START_DIR]/win_vulkan_sdk\" win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
     ],
     "cwd": "[START_DIR]/skia",
@@ -41,7 +41,7 @@
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "gn gen"
   },
@@ -51,14 +51,14 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/out/Release_x64"
+      "[START_DIR]/build/out/Release_x64"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "ninja"
   },
@@ -212,7 +212,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dumps"
+      "[START_DIR]/[SWARM_OUT_DIR]/dumps"
     ],
     "infra_step": true,
     "name": "makedirs dumps"
@@ -225,15 +225,15 @@
       "-e",
       "1",
       "-x",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dumps",
-      "[START_DIR]/out/Release_x64/dm",
+      "[START_DIR]/[SWARM_OUT_DIR]/dumps",
+      "[START_DIR]/build/out/Release_x64/dm",
       "--some-flag"
     ],
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "dm"
   },

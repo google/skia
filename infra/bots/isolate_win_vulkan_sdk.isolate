@@ -1,7 +1,0 @@
-{
-  'variables': {
-    'command': [
-      '/bin/cp', '-rL', 'win_vulkan_sdk', '${ISOLATED_OUTDIR}',
-    ],
-  },
-}
