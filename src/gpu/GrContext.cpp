@@ -1330,6 +1330,8 @@ void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+        case kAlpha_8_as_Red_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
@@ -1338,7 +1340,12 @@ static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
         case kSBGRA_8888_GrPixelConfig:
             return kSRGBA_8888_GrPixelConfig;
         case kAlpha_half_GrPixelConfig:
+        case kAlpha_half_as_Red_GrPixelConfig:
             return kRGBA_half_GrPixelConfig;
+        case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
+            return kRGB_888_GrPixelConfig;
         default:
             return kUnknown_GrPixelConfig;
     }
