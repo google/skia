@@ -4996,4 +4996,11 @@ DEF_TEST(Path_isRect, reporter) {
     REPORTER_ASSERT(reporter, path.isRect(&rect, nullptr, nullptr));
     compare.set(&points23[0], SK_ARRAY_COUNT(points23));
     REPORTER_ASSERT(reporter, rect == compare);
+    // isolated from skbug.com/7792#c29
+    SkPath::Verb verbs29[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
+                               SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb,
+                               SkPath::kClose_Verb };
+    SkPoint points29[] = { {75, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 250}, {75, 75} };
+    path = makePath2(points29, verbs29, SK_ARRAY_COUNT(verbs29));
+    REPORTER_ASSERT(reporter, !path.isRect(&rect, nullptr, nullptr));
 }
