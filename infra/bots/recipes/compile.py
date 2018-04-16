@@ -9,6 +9,7 @@
 DEPS = [
   'core',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -31,6 +32,9 @@ def RunSteps(api):
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
   api.core.setup(bot_update=bot_update)
+
+  api.file.listdir('listdir skia', api.vars.skia_dir)
+  api.file.listdir('listdir infra/bots', api.vars.skia_dir.join('infra', 'bots'))
 
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
 
