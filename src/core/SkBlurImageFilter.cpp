@@ -55,12 +55,12 @@ private:
     typedef SkImageFilter INHERITED;
     friend class SkImageFilter;
 
-    #if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> gpuFilter(
-            SkSpecialImage *source,
-            SkVector sigma, const sk_sp<SkSpecialImage> &input,
-            SkIRect inputBounds, SkIRect dstBounds, const OutputProperties& outProps) const;
-    #endif
+            SkSpecialImage *source, SkVector sigma, const sk_sp<SkSpecialImage> &input,
+            SkIRect inputBounds, SkIRect dstBounds, SkIPoint inputOffset,
+            const OutputProperties& outProps, SkIPoint* offset) const;
+#endif
 
     SkSize                      fSigma;
     SkBlurImageFilter::TileMode fTileMode;
@@ -604,8 +604,8 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         // xform during the filter itself.
         input = ImageToColorSpace(input.get(), ctx.outputProperties());
 
-        result = this->gpuFilter(source, sigma, input, inputBounds, dstBounds,
-                                 ctx.outputProperties());
+        result = this->gpuFilter(source, sigma, input, inputBounds, dstBounds, inputOffset,
+                                 ctx.outputProperties(), &resultOffset);
     } else
 #endif
     {
@@ -621,20 +621,14 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
-        SkSpecialImage *source,
-        SkVector sigma, const sk_sp<SkSpecialImage> &input,
-        SkIRect inputBounds, SkIRect dstBounds, const OutputProperties& outProps) const
+        SkSpecialImage *source, SkVector sigma, const sk_sp<SkSpecialImage> &input,
+        SkIRect inputBounds, SkIRect dstBounds, SkIPoint inputOffset,
+        const OutputProperties& outProps, SkIPoint* offset) const
 {
-    // If both sigmas produce arms of the cross that are less than 1/2048, then they
-    // do not contribute to the sum of the filter in a way to change a gamma corrected result.
-    // Let s = 1/(2*sigma^2)
-    // The normalizing value   n = 1 + 4*E^(-s) + 4*E^(-2s)
-    // The raw cross arm value c = E^-s
-    // The normalized cross arm value = c/n
-    // N[Solve[{c/n == 1/2048, sigma > 0}, sigma], 16]
-    static constexpr double kZeroWindowGPU = 0.2561130112451658;
-    if (sigma.x() < kZeroWindowGPU && sigma.y() < kZeroWindowGPU) {
-        return copy_image_with_bounds(source, input, inputBounds, dstBounds);
+    if (0 == sigma.x() && 0 == sigma.y()) {
+        offset->fX = inputBounds.x() + inputOffset.fX;
+        offset->fY = inputBounds.y() + inputOffset.fY;
+        return input->makeSubset(inputBounds);
     }
 
     GrContext* context = source->getContext();
