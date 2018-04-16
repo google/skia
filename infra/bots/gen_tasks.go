@@ -616,7 +616,7 @@ func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
 		},
 		Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
 		Dimensions: linuxGceDimensions(),
-		Isolate:    "empty.isolate",
+		Isolate:    relpath("empty.isolate"),
 		Priority:   0.7,
 	})
 	return name
