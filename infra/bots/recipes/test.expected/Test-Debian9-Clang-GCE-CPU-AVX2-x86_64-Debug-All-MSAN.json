@@ -117,7 +117,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
-      "[START_DIR]/build/out/Debug/dm",
+      "[START_DIR]/out/Debug/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -426,7 +426,7 @@
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/msan:[START_DIR]/clang_linux/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "symbolized dm"
   },

@@ -24,7 +24,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -33,7 +33,7 @@
     "cmd": [
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
-      "[START_DIR]/build/out/Release",
+      "[START_DIR]/out/Release",
       "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-static-libstdc++\", \"-static-libgcc\"] is_debug=false"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
@@ -41,7 +41,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "gn gen"
   },
@@ -51,14 +51,14 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/build/out/Release"
+      "[START_DIR]/out/Release"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "ninja"
   },
@@ -209,7 +209,7 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/build/out/Release/nanobench",
+      "[START_DIR]/out/Release/nanobench",
       "--some-flag"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
@@ -217,7 +217,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "symbolized nanobench"
   },
