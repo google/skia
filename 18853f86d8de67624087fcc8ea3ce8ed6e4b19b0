@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6440cc95_c0ea0986",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-16T16:45:09Z",
+      "side": 1,
+      "message": "Yeah, kind of historical. We can change in the future if necessary.",
+      "parentUuid": "a9652e16_bf9bdb54",
+      "revId": "18853f86d8de67624087fcc8ea3ce8ed6e4b19b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b52c0d47_4e4fc7cb",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 7
@@ -33,6 +51,24 @@
       "revId": "18853f86d8de67624087fcc8ea3ce8ed6e4b19b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baadb4d6_04492af0",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-16T16:45:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b52c0d47_4e4fc7cb",
+      "revId": "18853f86d8de67624087fcc8ea3ce8ed6e4b19b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "b57ef446_8e2c6e01",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-16T16:45:09Z",
+      "side": 1,
+      "message": "gsutil is Python, so I think there\u0027s only the one package.  The uploads all run on Linux anyway, so I\u0027m not sure platform would matter anyway.",
+      "parentUuid": "aad3fe79_ba0097fc",
+      "revId": "18853f86d8de67624087fcc8ea3ce8ed6e4b19b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b38686d1_ada930e0",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 7
@@ -64,6 +118,30 @@
       "writtenOn": "2018-04-16T16:23:56Z",
       "side": 1,
       "message": "nit: IMO we should think about adding Kitchen support to Task Scheduler and reducing the boilerplate so that tasks.json isn\u0027t huge and completely unreviewable.",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 249,
+        "endChar": 1
+      },
+      "revId": "18853f86d8de67624087fcc8ea3ce8ed6e4b19b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fafe7805_db912b88",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-16T16:45:09Z",
+      "side": 1,
+      "message": "Coupling task scheduler that tightly with individual repos really concerns me.",
+      "parentUuid": "b38686d1_ada930e0",
       "range": {
         "startLine": 167,
         "startChar": 0,
@@ -116,6 +194,30 @@
     },
     {
       "key": {
+        "uuid": "7c6fd798_c88673ad",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-16T16:45:09Z",
+      "side": 1,
+      "message": "Err... I don\u0027t know.  Maybe consistency?  I wrote this CL 5 months ago.  Removed.",
+      "parentUuid": "334e2e13_58ab2604",
+      "range": {
+        "startLine": 737,
+        "startChar": 55,
+        "endLine": 737,
+        "endChar": 80
+      },
+      "revId": "18853f86d8de67624087fcc8ea3ce8ed6e4b19b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "85d523af_314e103b",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 7
@@ -139,6 +241,30 @@
     },
     {
       "key": {
+        "uuid": "cbbe0303_a3f7ba00",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 966,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-16T16:45:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85d523af_314e103b",
+      "range": {
+        "startLine": 964,
+        "startChar": 0,
+        "endLine": 966,
+        "endChar": 0
+      },
+      "revId": "18853f86d8de67624087fcc8ea3ce8ed6e4b19b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8be5e284_de97af62",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 7
@@ -150,6 +276,24 @@
       "writtenOn": "2018-04-16T16:23:56Z",
       "side": 1,
       "message": "Isn\u0027t this already in deps?",
+      "revId": "18853f86d8de67624087fcc8ea3ce8ed6e4b19b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b26a0860_d974e1e0",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 974,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-16T16:45:09Z",
+      "side": 1,
+      "message": "Good catch, fixed.",
+      "parentUuid": "8be5e284_de97af62",
       "revId": "18853f86d8de67624087fcc8ea3ce8ed6e4b19b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
