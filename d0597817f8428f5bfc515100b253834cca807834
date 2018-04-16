@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "728b5a7c_faf1a400",
+        "filename": "tests/GrShapeTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-16T13:42:14Z",
+      "side": 1,
+      "message": "Aren\u0027t this line and the next one surplus to requirements ?",
+      "revId": "d0597817f8428f5bfc515100b253834cca807834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c72eb251_c4f67ba7",
+        "filename": "tests/GrShapeTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-16T13:42:14Z",
+      "side": 1,
+      "message": "\"-\u003e\" -\u003e \".\" ?",
+      "revId": "d0597817f8428f5bfc515100b253834cca807834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
