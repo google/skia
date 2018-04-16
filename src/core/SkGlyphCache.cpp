@@ -50,6 +50,9 @@ SkGlyphCache::~SkGlyphCache() {
         if (g->fPathData) {
             delete g->fPathData->fPath;
         }
+        if (g->fColorLayer) {
+            delete[] g->fColorLayer;
+        }
     });
 }
 
@@ -207,6 +210,24 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     }
     return glyph.fImage;
 }
+
+const SkColorLayer* SkGlyphCache::findColorLayers(const SkGlyph& glyph, size_t* count) {
+  if (glyph.fColorLayerCount == kColorLayersNotRetrieved) {
+    const size_t fakeArrayCount = 5;
+    SkColorLayer* colorLayer = fAlloc.makeArray<SkColorLayer>(fakeArrayCount);
+    for (size_t i = 0; i < fakeArrayCount; ++i) {
+      colorLayer[i].fGlyphID = glyph.getGlyphID() + i + 1;
+      colorLayer[i].fPaletteIndex = i + 1;
+    }
+    const_cast<SkGlyph&>(glyph).fColorLayerCount = fakeArrayCount;
+    const_cast<SkGlyph&>(glyph).fColorLayer = colorLayer;
+  }
+
+  SkASSERT(glyph.fColorLayerCount != kColorLayersNotRetrieved);
+  *count = glyph.fColorLayerCount;
+  return glyph.fColorLayer;
+}
+
 
 const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
     if (glyph.fWidth) {

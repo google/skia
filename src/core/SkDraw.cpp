@@ -1425,6 +1425,35 @@ public:
             return;
         }
 
+        size_t colorLayerCount = 0;
+        const SkColorLayer* colorLayers = fGlyphCache->findColorLayers(glyph, &colorLayerCount);
+
+        if (!colorLayerCount) {
+            DrawOneLayer(glyph, position, fPaint);
+            return;
+        }
+
+        SkFixed subX = glyph.getSubXFixed();
+        SkFixed subY = glyph.getSubYFixed();
+        SkColor someColors[] = { SK_ColorYELLOW, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorRED, SK_ColorBLUE, SK_ColorBLACK };
+        SkPaint currentPaint(fPaint);
+        for (size_t i = 0; i < colorLayerCount; ++i) {
+            const SkGlyph& layerGlyph =
+                    fGlyphCache->getGlyphIDMetrics(colorLayers[i].fGlyphID, subX, subY);
+            printf("layer glyph id %d, extents: %hu %hu\n", colorLayers[i].fGlyphID, layerGlyph.fWidth, layerGlyph.fHeight);
+            if (layerGlyph.fWidth && layerGlyph.fHeight) {
+              if (colorLayers[i].fPaletteIndex == 0xFFFF) {
+                currentPaint = fPaint;
+              } else {
+                currentPaint.setColor(someColors[colorLayers[i].fPaletteIndex]);
+              }
+              DrawOneLayer(layerGlyph, position, currentPaint);
+            }
+        }
+    }
+
+private:
+    void DrawOneLayer(const SkGlyph& glyph, SkPoint position, const SkPaint& paint) {
         int left = SkScalarFloorToInt(position.fX);
         int top  = SkScalarFloorToInt(position.fY);
         SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
@@ -1445,7 +1474,7 @@ public:
             if (!clipper.done() && this->getImageData(glyph, &mask)) {
                 const SkIRect& cr = clipper.rect();
                 do {
-                    this->blitMask(mask, cr);
+                    this->blitMask(mask, cr, paint);
                     clipper.next();
                 } while (!clipper.done());
             }
@@ -1462,12 +1491,11 @@ public:
             }
 
             if (this->getImageData(glyph, &mask)) {
-                this->blitMask(mask, *bounds);
+                this->blitMask(mask, *bounds, paint);
             }
         }
     }
 
-private:
     static bool UsingRegionToDraw(const SkRasterClip* rClip) {
         return rClip->isBW() && !rClip->isRect();
     }
@@ -1493,16 +1521,26 @@ private:
         return true;
     }
 
-    void blitMask(const SkMask& mask, const SkIRect& clip) const {
+    void blitMask(const SkMask& mask, const SkIRect& clip, const SkPaint& paint) const {
+        // TODO: Adapt to different incoming mask formats.
+        // Make paint a pointer, choose drawSprite whenever that paint is not null.
+        printf("mask format: %d", mask.fFormat);
         if (SkMask::kARGB32_Format == mask.fFormat) {
             SkBitmap bm;
             bm.installPixels(
                 SkImageInfo::MakeN32Premul(mask.fBounds.width(), mask.fBounds.height()),
                 (SkPMColor*)mask.fImage, mask.fRowBytes);
 
-            fDraw.drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), fPaint);
+            fDraw.drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
+        } else if ( mask.fFormat == SkMask::kA8_Format) {
+            SkBitmap bm;
+            bm.installPixels(
+                SkImageInfo::MakeA8(mask.fBounds.width(), mask.fBounds.height()),
+                (SkPMColor*)mask.fImage, mask.fRowBytes);
+
+            fDraw.drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
         } else {
-            fBlitter->blitMask(mask, clip);
+          fBlitter->blitMask(mask, clip);
         }
     }
 
