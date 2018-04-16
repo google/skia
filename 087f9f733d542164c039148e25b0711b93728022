@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4005caad_c6cb1a38",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-16T14:36:47Z",
+      "side": 1,
+      "message": "But we don\u0027t know that it is wrapped. This was the version I proposed where we pass in an additional flag to say he the thing I\u0027m going to be creating is eventually will be a wrapped/borrowed resource.",
+      "parentUuid": "670f8e3e_2047b5e0",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4baddff3_ea4941c9",
         "filename": "src/gpu/GrGpu.cpp",
         "patchSetId": 2
@@ -70,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "f360f971_14b7ca14",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-16T14:36:47Z",
+      "side": 1,
+      "message": "Same reason as above",
+      "parentUuid": "c218651f_0b7152a4",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bd6712bd_346f218e",
         "filename": "tests/DeferredDisplayListTest.cpp",
         "patchSetId": 2
@@ -87,6 +123,24 @@
     },
     {
       "key": {
+        "uuid": "9510b097_cfff95a1",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-16T14:36:47Z",
+      "side": 1,
+      "message": "Yeah I think that would work. Would you rather to test always pass in kYes and then go back to the original test here? Or do we want all combinations.",
+      "parentUuid": "bd6712bd_346f218e",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "69b27a35_f27d9d53",
         "filename": "tests/LazyProxyTest.cpp",
         "patchSetId": 2
@@ -98,6 +152,24 @@
       "writtenOn": "2018-04-16T14:04:42Z",
       "side": 1,
       "message": "Can this go in createLazyProxy ?",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8f6d88d_76bae941",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-16T14:36:47Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "69b27a35_f27d9d53",
       "revId": "087f9f733d542164c039148e25b0711b93728022",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
