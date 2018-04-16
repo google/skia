@@ -392,6 +392,12 @@ public:
         return fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines;
     }
 
+    // Intel Skylake instanced draws get corrupted if we mix them with normal ones. Adding a flush
+    // in between seems to resolve this.
+    bool requiresFlushBetweenNonAndInstancedDraws() const {
+        return fRequiresFlushBetweenNonAndInstancedDraws;
+    }
+
     // Returns the observed maximum number of instances the driver can handle in a single call to
     // glDrawArraysInstanced without crashing, or 'pendingInstanceCount' if this
     // workaround is not necessary.
@@ -501,6 +507,7 @@ private:
     bool fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
+    bool fRequiresFlushBetweenNonAndInstancedDraws : 1;
     int fMaxInstancesPerDrawArraysWithoutCrashing;
 
     uint32_t fBlitFramebufferFlags;

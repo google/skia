@@ -461,6 +461,9 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         fHWVertexArrayState.invalidate();
         fHWBufferState[kVertex_GrBufferType].invalidate();
         fHWBufferState[kIndex_GrBufferType].invalidate();
+        if (this->glCaps().requiresFlushBetweenNonAndInstancedDraws()) {
+            fRequiresFlushBeforeNextInstancedDraw = true;
+        }
     }
 
     if (resetBits & kRenderTarget_GrGLBackendState) {
@@ -2485,6 +2488,9 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool disa
             }
         }
 #endif
+        if (this->glCaps().requiresFlushBetweenNonAndInstancedDraws()) {
+            fRequiresFlushBeforeNextInstancedDraw = false;
+        }
         fHWBoundRenderTargetUniqueID = rtID;
         this->flushViewport(target->getViewport());
     }
@@ -2618,6 +2624,9 @@ void GrGLGpu::sendMeshToGpu(const GrPrimitiveProcessor& primProc, GrPrimitiveTyp
         this->setupGeometry(primProc, nullptr, vertexBuffer, 0, nullptr, 0);
         GL_CALL(DrawArrays(glPrimType, baseVertex, vertexCount));
     }
+    if (this->glCaps().requiresFlushBetweenNonAndInstancedDraws()) {
+        fRequiresFlushBeforeNextInstancedDraw = true;
+    }
     fStats.incNumDraws();
 }
 
@@ -2638,6 +2647,9 @@ void GrGLGpu::sendIndexedMeshToGpu(const GrPrimitiveProcessor& primProc,
     } else {
         GL_CALL(DrawElements(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, indices));
     }
+    if (this->glCaps().requiresFlushBetweenNonAndInstancedDraws()) {
+        fRequiresFlushBeforeNextInstancedDraw = true;
+    }
     fStats.incNumDraws();
 }
 
@@ -2646,6 +2658,11 @@ void GrGLGpu::sendInstancedMeshToGpu(const GrPrimitiveProcessor& primProc, GrPri
                                      int vertexCount, int baseVertex,
                                      const GrBuffer* instanceBuffer, int instanceCount,
                                      int baseInstance) {
+    if (fRequiresFlushBeforeNextInstancedDraw) {
+        SkASSERT(this->glCaps().requiresFlushBetweenNonAndInstancedDraws());
+        GL_CALL(Flush());
+        fRequiresFlushBeforeNextInstancedDraw = false;
+    }
     GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
     int maxInstances = this->glCaps().maxInstancesPerDrawArraysWithoutCrashing(instanceCount);
     for (int i = 0; i < instanceCount; i += maxInstances) {
@@ -2662,6 +2679,11 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc
                                             int baseIndex, const GrBuffer* vertexBuffer,
                                             int baseVertex, const GrBuffer* instanceBuffer,
                                             int instanceCount, int baseInstance) {
+    if (fRequiresFlushBeforeNextInstancedDraw) {
+        SkASSERT(this->glCaps().requiresFlushBetweenNonAndInstancedDraws());
+        GL_CALL(Flush());
+        fRequiresFlushBeforeNextInstancedDraw = false;
+    }
     const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
     GrGLvoid* indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
                                                 sizeof(uint16_t) * baseIndex);

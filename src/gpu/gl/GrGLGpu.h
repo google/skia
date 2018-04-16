@@ -628,8 +628,9 @@ private:
         return (wide ? 0x2 : 0x0) | (tall ? 0x1 : 0x0);
     }
 
-    float                                   fHWMinSampleShading;
-    GrPrimitiveType                         fLastPrimitiveType;
+    float fHWMinSampleShading;
+    GrPrimitiveType fLastPrimitiveType;
+    bool fRequiresFlushBeforeNextInstancedDraw = false;
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.
