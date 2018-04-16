@@ -16,6 +16,24 @@
       "revId": "654454de9be011be05b37ac808f36dcf94f442ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bb6ef19_4b23c4ca",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-16T19:59:00Z",
+      "side": 1,
+      "message": "Maybe we just have to leave this warning off.  That test is only there to test that self assignment is safe.  :/",
+      "parentUuid": "f9cd9fcb_660d0cc1",
+      "revId": "654454de9be011be05b37ac808f36dcf94f442ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
