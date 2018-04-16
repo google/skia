@@ -284,6 +284,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             // Must flush the context to make sure all the cmds (copies, etc.) from above are sent
             // to the gpu before we delete the backendHandle.
             context->flush();
+            gpu->testingOnly_flushGpuAndSync();
             gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
     }
