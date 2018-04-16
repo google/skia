@@ -590,6 +590,7 @@ public:
     SkPoint* fQuad = fPts + 4;
     SkScalar fT = 0.5f;
     bool fShowSub = false;
+    bool fShowFlatness = false;
 
     CubicCurve2() {
         fPts[0] = { 90, 300 };
@@ -612,6 +613,7 @@ protected:
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
                 case 's': fShowSub = !fShowSub; break;
+                case 'f': fShowFlatness = !fShowFlatness; break;
                 case '-': fT -= 1.0f / 32; break;
                 case '=': fT += 1.0f / 32; break;
                 default: goto DONE;
@@ -645,6 +647,29 @@ protected:
             canvas->drawCircle(storage[i].fX, storage[i].fY, 4, paint);
         }
     }
+    
+    void showFlattness(SkCanvas* canvas) {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+
+        paint.setColor(0xFF888888);
+        canvas->drawLine(fPts[0], fPts[3], paint);
+        canvas->drawLine(fQuad[0], fQuad[2], paint);
+
+        paint.setColor(0xFF0000FF);
+        SkPoint pts[2];
+        pts[0] = (fQuad[0] + fQuad[1] + fQuad[1] + fQuad[2])*0.25;
+        pts[1] = (fQuad[0] + fQuad[2]) * 0.5;
+        canvas->drawLine(pts[0], pts[1], paint);
+
+        SkVector v = fPts[0] - fPts[1] - fPts[1] + fPts[2];
+        v = v * 0.75;
+        canvas->drawLine(fPts[1], fPts[1] + v, paint);
+        v = fPts[1] - fPts[2] - fPts[2] + fPts[3];
+        v = v * 0.75;
+        canvas->drawLine(fPts[2], fPts[2] + v, paint);
+    }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
@@ -672,6 +697,10 @@ protected:
             paint.setStyle(SkPaint::kFill_Style);
             paint.setTextSize(20);
             canvas->drawText(str.c_str(), str.size(), 20, 20, paint);
+        }
+
+        if (fShowFlatness) {
+            this->showFlattness(canvas);
         }
 
         paint.setStyle(SkPaint::kFill_Style);
