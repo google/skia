@@ -729,11 +729,11 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     shaderCaps->fPreferFlatInterpolation = shaderCaps->fFlatInterpolationSupport &&
                                            kQualcomm_GrGLVendor != ctxInfo.vendor();
     if (kGL_GrGLStandard == standard) {
-        shaderCaps->fNoPerspectiveInterpolationSupport =
-            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+        shaderCaps->fNoPerspectiveInterpolationSupport = false;
+//            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
     } else {
         if (ctxInfo.hasExtension("GL_NV_shader_noperspective_interpolation")) {
-            shaderCaps->fNoPerspectiveInterpolationSupport = true;
+            shaderCaps->fNoPerspectiveInterpolationSupport = false;
             shaderCaps->fNoPerspectiveInterpolationExtensionString =
                 "GL_NV_shader_noperspective_interpolation";
         }
