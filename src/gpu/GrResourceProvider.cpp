@@ -288,7 +288,7 @@ sk_sp<const GrBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrBufferType in
                                                                  const void* data,
                                                                  const GrUniqueKey& key) {
     if (auto buffer = this->findByUniqueKey<GrBuffer>(key)) {
-        return buffer;
+        return std::move(buffer);
     }
     if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern, 0,
                                          data)) {
