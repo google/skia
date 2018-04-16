@@ -51,13 +51,13 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
                                const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit,
                                SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
-        : fConfig(desc.fConfig)
+        : fSurfaceFlags(surfaceFlags)
+        , fConfig(desc.fConfig)
         , fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
         , fOrigin(origin)
         , fFit(fit)
         , fBudgeted(budgeted)
-        , fSurfaceFlags(surfaceFlags)
         , fLazyInstantiateCallback(std::move(callback))
         , fLazyInstantiationType(lazyType)
         , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
@@ -74,13 +74,13 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
 // Wrapped version
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit)
         : INHERITED(std::move(surface))
+        , fSurfaceFlags(fTarget->surfacePriv().flags())
         , fConfig(fTarget->config())
         , fWidth(fTarget->width())
         , fHeight(fTarget->height())
         , fOrigin(origin)
         , fFit(fit)
         , fBudgeted(fTarget->resourcePriv().isBudgeted())
-        , fSurfaceFlags(fTarget->surfacePriv().flags())
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
@@ -425,6 +425,10 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(), needsStencil);
 
     SkASSERT(surface->config() == fProxy->fConfig);
+    // Assert the flags are the same except for kNoPendingIO which is not passed onto the GrSurface.
+    SkDEBUGCODE(GrInternalSurfaceFlags proxyFlags =
+            fProxy->fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO);
+    SkASSERT(surface->surfacePriv().flags() == proxyFlags);
     SkDEBUGCODE(fProxy->validateLazySurface(surface.get());)
     this->assign(std::move(surface));
     return true;

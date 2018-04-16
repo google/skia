@@ -34,6 +34,10 @@ public:
     bool doesNotSupportMipMaps() const { return fTextureProxy->doesNotSupportMipMaps(); }
     bool isClampOnly() const { return fTextureProxy->isClampOnly(); }
 
+    void setDoesNotSupportMipMaps() {
+        fTextureProxy->setDoesNotSupportMipMaps();
+    }
+
 private:
     explicit GrTextureProxyPriv(GrTextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
     GrTextureProxyPriv(const GrTextureProxyPriv&) {} // unimpl
