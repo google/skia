@@ -9,6 +9,7 @@
 #include "SkColor.h"
 #include "SkColorData.h"
 #include "SkOpts.h"
+#include "SkXfermode_opts.h"
 
 SkBlitMask::BlitLCD16RowProc SkBlitMask::BlitLCD16RowFactory(bool isOpaque) {
     BlitLCD16RowProc proc = PlatformBlitRowProcs16(isOpaque);
@@ -78,11 +79,16 @@ bool SkBlitMask::BlitColor(const SkPixmap& device, const SkMask& mask,
 static void A8_RowProc_Blend(
         SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
     const uint8_t* SK_RESTRICT mask = static_cast<const uint8_t*>(maskIn);
+
+#ifndef SK_SUPPORT_LEGACY_A8_MASKBLITTER
+    Sk4px::MapDstSrcAlpha(count, dst, src, mask, xfer_aa<SrcOver>);
+#else
     for (int i = 0; i < count; ++i) {
         if (mask[i]) {
             dst[i] = SkBlendARGB32(src[i], dst[i], mask[i]);
         }
     }
+#endif
 }
 
 // expand the steps that SkAlphaMulQ performs, but this way we can
@@ -97,6 +103,10 @@ static void A8_RowProc_Blend(
 static void A8_RowProc_Opaque(
         SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
     const uint8_t* SK_RESTRICT mask = static_cast<const uint8_t*>(maskIn);
+
+#ifndef SK_SUPPORT_LEGACY_A8_MASKBLITTER
+    Sk4px::MapDstSrcAlpha(count, dst, src, mask, xfer_aa<Src>);
+else
     for (int i = 0; i < count; ++i) {
         int m = mask[i];
         if (m) {
@@ -117,6 +127,7 @@ static void A8_RowProc_Opaque(
 #endif
         }
     }
+#endif // SK_SUPPORT_LEGACY_A8_MASKBLITTER
 }
 
 static int upscale31To255(int value) {
