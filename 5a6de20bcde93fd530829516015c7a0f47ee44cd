@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "785aa9b0_08dca264",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-16T21:08:30Z",
+      "side": 1,
+      "message": "Make?",
+      "range": {
+        "startLine": 130,
+        "startChar": 30,
+        "endLine": 130,
+        "endChar": 38
+      },
+      "revId": "5a6de20bcde93fd530829516015c7a0f47ee44cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
