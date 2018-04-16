@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "810e608c_c5e5aac9",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 767,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-16T13:12:52Z",
+      "side": 1,
+      "message": "Why does this need IO timeout of 24 hours? similar question for the IO timeouts below.",
+      "range": {
+        "startLine": 767,
+        "startChar": 18,
+        "endLine": 767,
+        "endChar": 22
+      },
+      "revId": "0d4ee65b7f534a27a604dd9332b3661720e97926",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
