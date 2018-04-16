@@ -40,7 +40,6 @@ public:
         kWeightedTriangles, // Triangles (from the tessellator) whose winding magnitude > 1.
         kQuadratics,
         kCubics,
-        kConics
     };
     static const char* PrimitiveTypeName(PrimitiveType);
 
@@ -54,15 +53,14 @@ public:
         void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans);
     };
 
-    // Defines a single primitive shape with 4 input points, or 3 input points plus a "weight"
-    // parameter duplicated in both lanes of the 4th input (i.e. Cubics, Conics, and Triangles with
-    // a weighted winding number). X,Y point values are transposed.
+    // Defines a single primitive shape with 4 input points, or 3 input points plus a W parameter
+    // duplicated in both 4th components (i.e. Cubics or Triangles with a custom winding number).
+    // X,Y point values are transposed.
     struct QuadPointInstance {
         float fX[4];
         float fY[4];
 
         void set(const SkPoint[4], float dx, float dy);
-        void setW(const SkPoint[3], const Sk2f& trans, float w);
         void setW(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
     };
 
@@ -207,11 +205,6 @@ private:
     // Number of bezier points for curves, or 3 for triangles.
     int numInputPoints() const { return PrimitiveType::kCubics == fPrimitiveType ? 4 : 3; }
 
-    int hasInputWeight() const {
-        return PrimitiveType::kWeightedTriangles == fPrimitiveType ||
-               PrimitiveType::kConics == fPrimitiveType;
-    }
-
     enum class Impl : bool {
         kGeometryShader,
         kVertexShader
@@ -266,7 +259,6 @@ inline const char* GrCCCoverageProcessor::PrimitiveTypeName(PrimitiveType type) 
         case PrimitiveType::kWeightedTriangles: return "kWeightedTriangles";
         case PrimitiveType::kQuadratics: return "kQuadratics";
         case PrimitiveType::kCubics: return "kCubics";
-        case PrimitiveType::kConics: return "kConics";
     }
     SK_ABORT("Invalid PrimitiveType");
     return "";
@@ -289,11 +281,6 @@ inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint p[4], fl
     Sk4f::Load2(p, &X, &Y);
     (X + dx).store(&fX);
     (Y + dy).store(&fY);
-}
-
-inline void GrCCCoverageProcessor::QuadPointInstance::setW(const SkPoint p[3], const Sk2f& trans,
-                                                           float w) {
-    this->setW(p[0], p[1], p[2], trans, w);
 }
 
 inline void GrCCCoverageProcessor::QuadPointInstance::setW(const SkPoint& p0, const SkPoint& p1,

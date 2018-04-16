@@ -52,10 +52,9 @@ protected:
         int numInputPoints = proc.numInputPoints();
         SkASSERT(3 == numInputPoints || 4 == numInputPoints);
 
-        int inputWidth = (4 == numInputPoints || proc.hasInputWeight()) ? 4 : 3;
-        const char* posValues = (4 == inputWidth) ? "sk_Position" : "sk_Position.xyz";
+        const char* posValues = (4 == numInputPoints) ? "sk_Position" : "sk_Position.xyz";
         g->codeAppendf("float%ix2 pts = transpose(float2x%i(sk_in[0].%s, sk_in[1].%s));",
-                       inputWidth, inputWidth, posValues, posValues);
+                       numInputPoints, numInputPoints, posValues, posValues);
 
         GrShaderVar wind("wind", kHalf_GrSLType);
         g->declareGlobal(wind);
@@ -390,7 +389,8 @@ public:
 
 void GrCCCoverageProcessor::initGS() {
     SkASSERT(Impl::kGeometryShader == fImpl);
-    if (4 == this->numInputPoints() || this->hasInputWeight()) {
+    if (PrimitiveType::kCubics == fPrimitiveType ||
+        PrimitiveType::kWeightedTriangles == fPrimitiveType) {
         this->addVertexAttrib("x_or_y_values", kFloat4_GrVertexAttribType);
         SkASSERT(sizeof(QuadPointInstance) == this->getVertexStride() * 2);
         SkASSERT(offsetof(QuadPointInstance, fY) == this->getVertexStride());
