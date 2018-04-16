@@ -16,11 +16,11 @@
     }                               \
     fprintf(fOut, __VA_ARGS__)
 
-static void add_ref(const string& leadingSpaces, const string& ref, string* result) {
+static void add_ref(string leadingSpaces, string ref, string* result) {
     *result += leadingSpaces + ref;
 }
 
-static string preformat(const string& orig) {
+static string preformat(string orig) {
     string result;
     for (auto c : orig) {
         if ('<' == c) {
@@ -34,7 +34,7 @@ static string preformat(const string& orig) {
     return result;
 }
 
-static bool all_lower(const string& ref) {
+static bool all_lower(string ref) {
 	for (auto ch : ref) {
 		if (!islower(ch)) {
 			return false;
@@ -57,6 +57,12 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         const char* base = t.fChar;
         t.skipWhiteSpace();
         const char* wordStart = t.fChar;
+        if (BmhParser::Resolvable::kFormula == resolvable && !t.eof() && '"' == t.peek()) {
+            t.next();
+            t.skipToEndBracket('"');
+            t.next();
+            continue;
+        }
         t.skipToMethodStart();
         const char* start = t.fChar;
         if (wordStart < start) {
@@ -179,14 +185,16 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             // look for Sk / sk / SK ..
         if (!ref.compare(0, 2, "Sk") && ref != "Skew" && ref != "Skews" &&
               ref != "Skip" && ref != "Skips") {
-            if (BmhParser::Resolvable::kOut != resolvable) {
+            if (BmhParser::Resolvable::kOut != resolvable &&
+                    BmhParser::Resolvable::kFormula != resolvable) {
                 t.reportError("missed Sk prefixed");
                 fAddRefFailed = true;
                 return result;
             }
         }
         if (!ref.compare(0, 2, "SK")) {
-            if (BmhParser::Resolvable::kOut != resolvable) {
+            if (BmhParser::Resolvable::kOut != resolvable &&
+                    BmhParser::Resolvable::kFormula != resolvable) {
                 t.reportError("missed SK prefixed");
                 fAddRefFailed = true;
                 return result;
@@ -196,7 +204,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             // TODO:
             // look for all lowercase w/o trailing parens as mistaken method matches
             // will also need to see if Example Description matches var in example
-            const Definition* def;
+            const Definition* def = nullptr;
             if (fMethod && (def = fMethod->hasParam(ref))) {
 				result += linkRef(leadingSpaces, def, ref, resolvable);
                 fLastParam = def;
@@ -268,7 +276,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         } while ((test = test->fParent));
     found:
         if (!test) {
-            if (BmhParser::Resolvable::kOut != resolvable) {
+            if (BmhParser::Resolvable::kOut != resolvable &&
+                    BmhParser::Resolvable::kFormula != resolvable) {
                 t.reportError("undefined reference");
                 fAddRefFailed = true;
             } else {
@@ -385,11 +394,13 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
         fPopulators[kClassesAndStructs].fDescription = "embedded struct and class members";
         fPopulators[kConstants].fDescription = "enum and enum class, const values";
         fPopulators[kConstructors].fDescription = "functions that construct";
+        fPopulators[kDefines].fDescription = "preprocessor definitions of functions, values";
         fPopulators[kMemberFunctions].fDescription = "static functions and member methods";
         fPopulators[kMembers].fDescription = "member values";
         fPopulators[kOperators].fDescription = "operator overloading methods";
         fPopulators[kRelatedFunctions].fDescription = "similar methods grouped together";
         fPopulators[kSubtopics].fDescription = "";
+        fPopulators[kTypedefs].fDescription = "types defined by other types";
         this->populateTables(fRoot);
         this->markTypeOut(topicDef);
     }
@@ -416,7 +427,7 @@ bool MdOut::checkParamReturnBody(const Definition* def) {
     TextParser paramBody(def);
     const char* descriptionStart = paramBody.fChar;
     if (!islower(descriptionStart[0]) && !isdigit(descriptionStart[0])) {
-        paramBody.skipToNonAlphaNum();
+        paramBody.skipToNonName();
         string ref = string(descriptionStart, paramBody.fChar - descriptionStart);
         if (!this->isDefined(paramBody, ref, BmhParser::Resolvable::kYes)) {
             string errorStr = MarkType::kReturn == def->fMarkType ? "return" : "param";
@@ -504,7 +515,7 @@ const Definition* MdOut::findParamType() {
     return nullptr;
 }
 
-const Definition* MdOut::isDefined(const TextParser& parser, const string& ref,
+const Definition* MdOut::isDefined(const TextParser& parser, string ref,
         BmhParser::Resolvable resolvable) {
     auto rootIter = fBmhParser.fClassMap.find(ref);
     if (rootIter != fBmhParser.fClassMap.end()) {
@@ -529,6 +540,10 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref,
     auto aliasIter = fBmhParser.fAliasMap.find(ref);
     if (aliasIter != fBmhParser.fAliasMap.end()) {
         return aliasIter->second;
+    }
+    auto defineIter = fBmhParser.fDefineMap.find(ref);
+    if (defineIter != fBmhParser.fDefineMap.end()) {
+        return &defineIter->second;
     }
     for (const auto& external : fBmhParser.fExternals) {
         if (external.fName == ref) {
@@ -682,8 +697,8 @@ string MdOut::linkName(const Definition* ref) const {
 
 // for now, hard-code to html links
 // def should not include SkXXX_
-string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
-        const string& ref, BmhParser::Resolvable resolvable) const {
+string MdOut::linkRef(string leadingSpaces, const Definition* def,
+        string ref, BmhParser::Resolvable resolvable) const {
     string buildup;
     string refName;
     const string* str = &def->fFiddle;
@@ -1015,7 +1030,7 @@ void MdOut::markTypeOut(Definition* def) {
             paramParser.skipWhiteSpace();
             SkASSERT(paramParser.startsWith("#Param"));
             paramParser.next(); // skip hash
-            paramParser.skipToNonAlphaNum(); // skip Param
+            paramParser.skipToNonName(); // skip Param
             paramParser.skipSpace();
             const char* paramName = paramParser.fChar;
             paramParser.skipToSpace();
@@ -1140,7 +1155,7 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         default:
             SkDebugf("fatal error: MarkType::k%s unhandled in %s()\n",
-                    fBmhParser.fMaps[(int) def->fMarkType].fName, __func__);
+                    BmhParser::kMarkProps[(int) def->fMarkType].fName, __func__);
             SkASSERT(0); // handle everything
             break;
     }
@@ -1276,9 +1291,9 @@ void MdOut::populateTables(const Definition* def) {
         if (MarkType::kTopic == child->fMarkType || MarkType::kSubtopic == child->fMarkType) {
             string name = child->fName;
             bool builtInTopic = name == kClassesAndStructs || name == kConstants
-                    || name == kConstructors || name == kMemberFunctions || name == kMembers
-                    || name == kOperators || name == kOverview || name == kRelatedFunctions
-                    || name == kSubtopics;
+                    || name == kConstructors || name == kDefines || name == kMemberFunctions
+                    || name == kMembers || name == kOperators || name == kOverview
+                    || name == kRelatedFunctions || name == kSubtopics || name == kTypedefs;
             if (!builtInTopic && child->fName != kOverview) {
                 this->populator(kRelatedFunctions).fMembers.push_back(child);
             }
@@ -1298,9 +1313,15 @@ void MdOut::populateTables(const Definition* def) {
             this->populator(kConstants).fMembers.push_back(child);
             continue;
         }
+        if (MarkType::kDefine == child->fMarkType) {
+            this->populator(kDefines).fMembers.push_back(child);
+        }
         if (MarkType::kMember == child->fMarkType) {
             this->populator(kMembers).fMembers.push_back(child);
             continue;
+        }
+        if (MarkType::kTypedef == child->fMarkType) {
+            this->populator(kTypedefs).fMembers.push_back(child);
         }
         if (MarkType::kMethod != child->fMarkType) {
             continue;
@@ -1410,7 +1431,7 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
     }
 }
 
-void MdOut::rowOut(const char* name, const string& description) {
+void MdOut::rowOut(const char* name, string description) {
     this->lfAlways(1);
     FPRINTF("| ");
     this->resolveOut(name, name + strlen(name), BmhParser::Resolvable::kYes);
@@ -1425,8 +1446,8 @@ void MdOut::subtopicsOut() {
     SkASSERT(csParent);
     this->rowOut("name", "description");
     this->rowOut("---", "---");
-    for (auto item : { kClassesAndStructs, kConstants, kConstructors, kMemberFunctions,
-            kMembers, kOperators, kRelatedFunctions } ) {
+    for (auto item : { kClassesAndStructs, kConstants, kConstructors, kDefines,
+            kMemberFunctions, kMembers, kOperators, kRelatedFunctions, kTypedefs } ) {
         for (auto entry : this->populator(item).fMembers) {
             if (entry->csParent() == csParent) {
                 string description = fPopulators.find(item)->second.fDescription;
