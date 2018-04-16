@@ -192,9 +192,8 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
-      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "gclient runhooks"
   },
@@ -226,7 +225,7 @@
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
       "GYP_GENERATORS": "ninja",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "GN"
   },
@@ -242,7 +241,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Build Chrome"
   },
@@ -290,7 +289,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Recreate SKPs"
   },

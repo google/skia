@@ -17,7 +17,7 @@
   {
     "cmd": [
       "catchsegv",
-      "[START_DIR]/build/out/devrel/run_testlab",
+      "[START_DIR]/out/devrel/run_testlab",
       "--logtostderr",
       "--devices",
       "[START_DIR]/whitelist_devices.json",
@@ -29,7 +29,7 @@
       "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "run firebase testlab"
   },

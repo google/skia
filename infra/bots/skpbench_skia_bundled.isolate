@@ -1,10 +1,10 @@
 {
   'includes': [
     'assets.isolate',
-    'swarm_recipe.isolate',
   ],
   'variables': {
     'files': [
+      '../../../.gclient',
       '../../tools/valgrind.supp',
       '../../tools/skpbench/',
     ],

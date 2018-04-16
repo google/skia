@@ -27,7 +27,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
@@ -72,7 +72,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION",
@@ -91,7 +91,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -109,7 +109,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/skps"
@@ -127,7 +127,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
@@ -144,7 +144,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps",
@@ -179,7 +179,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SKP_VERSION /sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -188,7 +188,7 @@
     "cmd": [
       "adb.1.0.35",
       "push",
-      "[START_DIR]/build/out/Release/skpbench",
+      "[START_DIR]/out/Release/skpbench",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -196,7 +196,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "push skpbench"
@@ -211,7 +211,7 @@
       "--adb_binary",
       "adb.1.0.35",
       "--resultsfile",
-      "[START_DIR]/[SWARM_OUT_DIR]/table",
+      "[CUSTOM_[SWARM_OUT_DIR]]/table",
       "--config",
       "gles",
       "-v5",
@@ -225,7 +225,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "skpbench"
   },
@@ -267,7 +267,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench/data"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -277,7 +277,7 @@
       "python",
       "-u",
       "[START_DIR]/skia/tools/skpbench/skiaperf.py",
-      "[START_DIR]/[SWARM_OUT_DIR]/table",
+      "[CUSTOM_[SWARM_OUT_DIR]]/table",
       "--properties",
       "gitHash",
       "abc123",
@@ -286,7 +286,7 @@
       "swarming_task_id",
       "123456",
       "--outfile",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench/data/skpbench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench/data/skpbench_abc123_1337000001.json",
       "--key",
       "arch",
       "arm64",
@@ -309,7 +309,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Parse skpbench output into Perf json"
   },
@@ -318,13 +318,13 @@
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[START_DIR]/build/out/Release"
+      "[START_DIR]/out/Release"
     ],
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "dump log",
@@ -358,7 +358,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "kill adb server"
