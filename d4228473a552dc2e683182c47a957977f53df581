@@ -22,6 +22,30 @@
       "revId": "d4228473a552dc2e683182c47a957977f53df581",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55b0071c_92011ae0",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-16T14:04:42Z",
+      "side": 0,
+      "message": "sgtm",
+      "parentUuid": "ac156974_5fbd5771",
+      "range": {
+        "startLine": 555,
+        "startChar": 20,
+        "endLine": 555,
+        "endChar": 56
+      },
+      "revId": "d4228473a552dc2e683182c47a957977f53df581",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

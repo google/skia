@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "670f8e3e_2047b5e0",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-16T14:04:42Z",
+      "side": 1,
+      "message": "Can this get set in the createLazyProxy method? We\u0027re passing in the mipMapped variable after all.",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4baddff3_ea4941c9",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-16T14:04:42Z",
+      "side": 1,
+      "message": "// Ganesh will not ever create mipmaps for a wrapped resource. By setting this flag here, it will also be propagated to any proxy that wraps this texture.\n\n?",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe6ec9a6_ba04e9ce",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-16T14:04:42Z",
+      "side": 1,
+      "message": "// Similar comment here ?",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c218651f_0b7152a4",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-16T14:04:42Z",
+      "side": 1,
+      "message": "Can this go in createLazyProxy ?",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd6712bd_346f218e",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-16T14:04:42Z",
+      "side": 1,
+      "message": "If we passed in GrMipMapped::kYes would this test that certain backend formats remove the mipmapping flag?",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69b27a35_f27d9d53",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-16T14:04:42Z",
+      "side": 1,
+      "message": "Can this go in createLazyProxy ?",
+      "revId": "087f9f733d542164c039148e25b0711b93728022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
