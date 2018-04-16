@@ -144,8 +144,7 @@ def dm_flags(api, bot):
 
     # The NP produces a long error stream when we run with MSAA. The Tegra3 just
     # doesn't support it.
-    if ('NexusPlayer' in bot or
-        'Tegra3'      in bot or
+    if ('Tegra3'      in bot or
         # We aren't interested in fixing msaa bugs on current iOS devices.
         'iPad4' in bot or
         'iPadPro' in bot or
@@ -155,10 +154,6 @@ def dm_flags(api, bot):
         'IntelHD530'   in bot or
         'IntelIris540' in bot):
       configs = [x for x in configs if 'msaa' not in x]
-
-    # The NP produces different images for dft on every run.
-    if 'NexusPlayer' in bot:
-      configs = [x for x in configs if 'dft' not in x]
 
     # We want to test both the OpenGL config and the GLES config on Linux Intel:
     # GL is used by Chrome, GLES is used by ChromeOS.
@@ -538,6 +533,24 @@ def dm_flags(api, bot):
       blacklist([gl_msaa_config, 'gm', '_', 'imageblurtiled'])
       blacklist([gl_msaa_config, 'gm', '_', 'imagefiltersbase'])
 
+  if 'NexusPlayer-GPU' in bot and sample_count is not '':
+    gl_msaa_config = gl_prefix + 'msaa' + sample_count
+    blacklist([gl_msaa_config, 'gm', '_', 'c_gms'])
+    blacklist([gl_msaa_config, 'gm', '_', 'circles'])
+    blacklist([gl_msaa_config, 'gm', '_', 'fancy_gradients'])
+    blacklist([gl_msaa_config, 'gm', '_', 'lumafilter'])
+    blacklist([gl_msaa_config, 'gm', '_', 'ovals'])
+    blacklist([gl_msaa_config, 'gm', '_', 'radial_gradient2'])
+    blacklist([gl_msaa_config, 'gm', '_', 'radial_gradient2_nodither'])
+    blacklist([gl_msaa_config, 'gm', '_', 'roundrects'])
+    blacklist([gl_msaa_config, 'gm', '_', 'shadermaskfilter_gradient'])
+    blacklist([gl_msaa_config, 'gm', '_', 'srcmode'])
+    blacklist([gl_msaa_config, 'gm', '_', 'strokedlines'])
+    blacklist([gl_msaa_config, 'svg', '_', 'car.svg'])
+    blacklist([gl_msaa_config, 'svg', '_', 'gallardo.svg'])
+    blacklist([gl_msaa_config, 'svg', '_', 'rg1024_green_grapes.svg'])
+    blacklist([gl_msaa_config, 'svg', '_', 'tiger-8.svg'])
+
   match = []
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
@@ -614,12 +627,12 @@ def dm_flags(api, bot):
 
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     # skia:6132
-    match.append('~^tilemodes$')
-    match.append('~tilemodes_npot$')
-    match.append('~scaled_tilemodes$')
-    match.append('~emboss')
-    match.append('~^bitmapfilters$')
-    match.append('~^shadertext$')
+    #match.append('~^tilemodes$')
+    #match.append('~tilemodes_npot$')
+    #match.append('~scaled_tilemodes$')
+    #match.append('~emboss')
+    #match.append('~^bitmapfilters$')
+    #match.append('~^shadertext$')
     match.append('~^FullScreenClearWithLayers$') #skia:7191
     match.append('~^GrDefaultPathRendererTest$') #skia:7244
     match.append('~^GrMSAAPathRendererTest$') #skia:7244
@@ -909,7 +922,14 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  if 'NexusPlayer' in api.vars.builder_name:
+    shards = 100
+    for shard in range(shards):
+      api.run(api.flavor.step, 'dm%d' % shard,
+              cmd=args+['--shard', str(shard), '--shards', str(shards)],
+              abort_on_failure=False)
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.
