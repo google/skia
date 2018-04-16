@@ -31,7 +31,6 @@ public:
         kLineTo,
         kMonotonicQuadraticTo, // Monotonic relative to the vector between its endpoints [P2 - P0].
         kMonotonicCubicTo,
-        kMonotonicConicTo,
         kEndClosedContour, // endPt == startPt.
         kEndOpenContour // endPt != startPt.
     };
@@ -42,7 +41,6 @@ public:
         int fWeightedTriangles; // Triangles (from the tessellator) whose winding magnitude > 1.
         int fQuadratics;
         int fCubics;
-        int fConics;
 
         void operator+=(const PrimitiveTallies&);
         PrimitiveTallies operator-(const PrimitiveTallies&) const;
@@ -55,7 +53,6 @@ public:
 
     const SkTArray<SkPoint, true>& points() const { SkASSERT(!fBuildingContour); return fPoints; }
     const SkTArray<Verb, true>& verbs() const { SkASSERT(!fBuildingContour); return fVerbs; }
-    float getConicWeight(int idx) const { SkASSERT(!fBuildingContour); return fConicWeights[idx]; }
 
     void reset() {
         SkASSERT(!fBuildingContour);
@@ -92,8 +89,6 @@ public:
     //       intersection vs. 1.489 on the tiger).
     void cubicTo(const SkPoint[4], float inflectPad = 0.55f, float loopIntersectPad = 2);
 
-    void conicTo(const SkPoint[3], float w);
-
     PrimitiveTallies endContour(); // Returns the numbers of primitives needed to draw the contour.
 
 private:
@@ -121,17 +116,15 @@ private:
     void appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
                                   int maxSubdivisions = kMaxSubdivionsPerCubicSection);
 
-    void appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, float w);
-
     // Transient state used while building a contour.
     SkPoint fCurrAnchorPoint;
     PrimitiveTallies fCurrContourTallies;
     SkCubicType fCurrCubicType;
     SkDEBUGCODE(bool fBuildingContour = false);
 
-    SkSTArray<128, SkPoint, true> fPoints;
-    SkSTArray<32, float, true> fConicWeights;
-    SkSTArray<128, Verb, true> fVerbs;
+    // TODO: These points could eventually be written directly to block-allocated GPU buffers.
+    SkSTArray<128, SkPoint, true>   fPoints;
+    SkSTArray<128, Verb, true>      fVerbs;
 };
 
 inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b) {
@@ -139,7 +132,6 @@ inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b
     fWeightedTriangles += b.fWeightedTriangles;
     fQuadratics += b.fQuadratics;
     fCubics += b.fCubics;
-    fConics += b.fConics;
 }
 
 GrCCGeometry::PrimitiveTallies
@@ -147,13 +139,12 @@ inline GrCCGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) cons
     return {fTriangles - b.fTriangles,
             fWeightedTriangles - b.fWeightedTriangles,
             fQuadratics - b.fQuadratics,
-            fCubics - b.fCubics,
-            fConics - b.fConics};
+            fCubics - b.fCubics};
 }
 
 inline bool GrCCGeometry::PrimitiveTallies::operator==(const PrimitiveTallies& b) {
     return fTriangles == b.fTriangles && fWeightedTriangles == b.fWeightedTriangles &&
-           fQuadratics == b.fQuadratics && fCubics == b.fCubics && fConics == b.fConics;
+           fQuadratics == b.fQuadratics && fCubics == b.fCubics;
 }
 
 #endif
