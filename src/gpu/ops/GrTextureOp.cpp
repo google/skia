@@ -131,7 +131,7 @@ public:
                 args.fVaryingHandler->addPassThroughAttribute(&textureGP.fColors,
                                                               args.fOutputColor,
                                                               Interpolation::kCanBeFlat);
-                args.fFragBuilder->codeAppend("float2 texCoord;");
+                args.fFragBuilder->codeAppend("half2 texCoord;");
                 args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords,
                                                               "texCoord");
                 if (textureGP.numTextureSamplers() > 1) {
@@ -263,7 +263,7 @@ private:
             fTextureIdx = this->addVertexAttrib("textureIdx", kInt_GrVertexAttribType);
         }
 
-        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
+        fTextureCoords = this->addVertexAttrib("textureCoords", kHalf2_GrVertexAttribType);
         if (coverageAA) {
             fAAEdges[0] = this->addVertexAttrib("aaEdge0", kFloat3_GrVertexAttribType);
             fAAEdges[1] = this->addVertexAttrib("aaEdge1", kFloat3_GrVertexAttribType);

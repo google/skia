@@ -158,9 +158,11 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     // only rectangular corners, that side's value corresponds to the rect edge's value outset by
     // half a pixel.
     fInnerRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                   kMedium_GrSLPrecision,
                                                    "innerRect", &rectName);
     // x is (r + .5) and y is 1/(r + .5)
     fRadiusPlusHalfUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+                                                        kMedium_GrSLPrecision,
                                                         "radiusPlusHalf", &radiusPlusHalfName);
 
     // If we're on a device where float != fp32 then the length calculation could overflow.
@@ -190,9 +192,9 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     // alphas together.
     switch (crre.getCircularCornerFlags()) {
         case CircularRRectEffect::kAll_CornerFlags:
-            fragBuilder->codeAppendf("float2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
-            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
-            fragBuilder->codeAppend("float2 dxy = max(max(dxy0, dxy1), 0.0);");
+            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
+            fragBuilder->codeAppendf("half2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
+            fragBuilder->codeAppend("half2 dxy = max(max(dxy0, dxy1), 0.0);");
             fragBuilder->codeAppendf("half alpha = %s;", clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTopLeft_CornerFlag:

@@ -726,14 +726,14 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // This is the value for GLSL ES 3.0.
     }
     // Flat interpolation appears to be slow on Qualcomm GPUs (tested Adreno 405 and 530).
-    shaderCaps->fPreferFlatInterpolation = shaderCaps->fFlatInterpolationSupport &&
-                                           kQualcomm_GrGLVendor != ctxInfo.vendor();
+    shaderCaps->fPreferFlatInterpolation = false; //shaderCaps->fFlatInterpolationSupport &&
+//                                           kQualcomm_GrGLVendor != ctxInfo.vendor();
     if (kGL_GrGLStandard == standard) {
-        shaderCaps->fNoPerspectiveInterpolationSupport =
-            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+        shaderCaps->fNoPerspectiveInterpolationSupport = false;
+//            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
     } else {
         if (ctxInfo.hasExtension("GL_NV_shader_noperspective_interpolation")) {
-            shaderCaps->fNoPerspectiveInterpolationSupport = true;
+            shaderCaps->fNoPerspectiveInterpolationSupport = false;
             shaderCaps->fNoPerspectiveInterpolationExtensionString =
                 "GL_NV_shader_noperspective_interpolation";
         }
