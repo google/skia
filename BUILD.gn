@@ -42,6 +42,7 @@ declare_args() {
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
+  skia_gpu_workarounds_header = ""
   skia_vulkan_header = ""
   skia_vulkan_sdk = getenv("VULKAN_SDK")
   skia_qt_path = getenv("QT_PATH")
@@ -152,6 +153,7 @@ config("skia_private") {
   visibility = [ ":*" ]
 
   include_dirs = [
+    "$root_gen_dir",
     "include/private",
     "src/c",
     "src/codec",
@@ -652,6 +654,14 @@ optional("gpu") {
   if (skia_enable_atlas_text) {
     sources += skia_atlas_text_sources
   }
+
+  if (skia_gpu_workarounds_header != "") {
+    public_defines +=
+        [ "SK_GPU_WORKAROUNDS_HEADER=\"$skia_gpu_workarounds_header\"" ]
+  } else {
+    public_defines +=
+        [ "SK_GPU_WORKAROUNDS_HEADER=\"GrDriverBugWorkaroundsAutogen.h\"" ]
+  }
 }
 
 optional("heif") {
@@ -689,7 +699,7 @@ optional("pdf") {
     "//third_party/zlib",
   ]
   if (skia_use_libjpeg_turbo) {
-    deps += [ ":jpeg"]
+    deps += [ ":jpeg" ]
   }
   sources = skia_pdf_sources
   sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
@@ -786,6 +796,28 @@ optional("xml") {
     "src/xml/SkXMLParser.cpp",
     "src/xml/SkXMLWriter.cpp",
   ]
+}
+
+if (skia_enable_gpu) {
+  action("workaround_list") {
+    script = "tools/build_workaround_header.py"
+
+    inputs = [
+      "src/gpu/gpu_workaround_list.txt",
+    ]
+
+    outputs = [
+      "$root_gen_dir/GrDriverBugWorkaroundsAutogen.h",
+    ]
+
+    args = [
+      "--output-file",
+      rebase_path(outputs[0], root_build_dir),
+    ]
+    foreach(file, inputs) {
+      args += [ rebase_path(file, root_build_dir) ]
+    }
+  }
 }
 
 component("skia") {
