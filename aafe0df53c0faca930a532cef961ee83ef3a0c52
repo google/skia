@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "291ef955_262edaac",
+        "filename": "src/pathops/SkPathOpsCubic.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-16T04:09:04Z",
+      "side": 1,
+      "message": "Looks like the failure was just \"t,s\" and \"t/s\" having slightly different scale and taking different directions in roughly_between.\n\nThese asserts I added a while back seem like overkill.\n\nDoes this look ok now? Or should we be calling roughly_between on t/s? (t and s both should both not grow much larger than 2)",
+      "revId": "aafe0df53c0faca930a532cef961ee83ef3a0c52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
