@@ -126,6 +126,10 @@ public:
      */
     static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
 
+#if defined(SK_USE_SKCMS)
+    static sk_sp<SkColorSpace> MakeICC(const skcms_ICCProfile*);
+#endif
+
     /**
      *  Types of colorspaces.
      */
