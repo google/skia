@@ -542,63 +542,28 @@ static double calc_dot_cross_cubic(const SkPoint& p0, const SkPoint& p1, const S
     return (xComp + yComp + wComp);
 }
 
-// Calc coefficients of I(s,t) where roots of I are inflection points of curve
-// I(s,t) = t*(3*d0*s^2 - 3*d1*s*t + d2*t^2)
-// d0 = a1 - 2*a2+3*a3
-// d1 = -a2 + 3*a3
-// d2 = 3*a3
-// a1 = p0 . (p3 x p2)
-// a2 = p1 . (p0 x p3)
-// a3 = p2 . (p1 x p0)
-// Places the values of d1, d2, d3 in array d passed in
-static void calc_cubic_inflection_func(const SkPoint p[4], double d[4]) {
-    const double a1 = calc_dot_cross_cubic(p[0], p[3], p[2]);
-    const double a2 = calc_dot_cross_cubic(p[1], p[0], p[3]);
-    const double a3 = calc_dot_cross_cubic(p[2], p[1], p[0]);
-
-    d[3] = 3 * a3;
-    d[2] = d[3] - a2;
-    d[1] = d[2] - a2 + a1;
-    d[0] = 0;
+// Returns a positive power of 2 that, when multiplied by n, and excepting the two edge cases listed
+// below, shifts the exponent of n to yield a magnitude somewhere inside [1..2).
+// Returns 2^1023 if abs(n) < 2^-1022 (including 0).
+// Returns NaN if n is Inf or NaN.
+inline static double previous_inverse_pow2(double n) {
+    uint64_t bits;
+    memcpy(&bits, &n, sizeof(double));
+    bits = ((1023llu*2 << 52) + ((1llu << 52) - 1)) - bits; // exp=-exp
+    bits &= (0x7ffllu) << 52; // mantissa=1.0, sign=0
+    memcpy(&n, &bits, sizeof(double));
+    return n;
 }
 
-static void normalize_t_s(double t[], double s[], int count) {
-    // Keep the exponents at or below zero to avoid overflow down the road.
-    for (int i = 0; i < count; ++i) {
-        SkASSERT(0 != s[i]); // classify_cubic should not call this method when s[i] is 0 or NaN.
+inline static void write_cubic_inflection_roots(double t0, double s0, double t1, double s1,
+                                                double* t, double* s) {
+    t[0] = t0;
+    s[0] = s0;
 
-        uint64_t bitsT, bitsS;
-        memcpy(&bitsT, &t[i], sizeof(double));
-        memcpy(&bitsS, &s[i], sizeof(double));
-
-        uint64_t maxExponent = SkTMax(bitsT & 0x7ff0000000000000, bitsS & 0x7ff0000000000000);
-
-#ifdef SK_DEBUG
-        uint64_t maxExponentValue = maxExponent >> 52;
-        // Ensure max(absT,absS) is NOT in denormalized form. SkClassifyCubic is given fp32 points,
-        // and does not call this method when s==0, so this should never happen.
-        SkASSERT(0 != maxExponentValue);
-        // Ensure 1/max(absT,absS) will NOT be in denormalized form. SkClassifyCubic is given fp32
-        // points, so this should never happen.
-        SkASSERT(2046 != maxExponentValue);
-#endif
-
-        // Pick a normalizer that scales the larger exponent to 1 (aka 1023 in biased form), but
-        // does NOT change the mantissa (thus preserving accuracy).
-        double normalizer;
-        uint64_t normalizerExponent = (uint64_t(1023 * 2) << 52) - maxExponent;
-        memcpy(&normalizer, &normalizerExponent, sizeof(double));
-
-        t[i] *= normalizer;
-        s[i] *= normalizer;
-    }
-}
-
-static void sort_and_orient_t_s(double t[2], double s[2]) {
     // This copysign/abs business orients the implicit function so positive values are always on the
     // "left" side of the curve.
-    t[1] = -copysign(t[1], t[1] * s[1]);
-    s[1] = -fabs(s[1]);
+    t[1] = -copysign(t1, t1 * s1);
+    s[1] = -fabs(s1);
 
     // Ensure t[0]/s[0] <= t[1]/s[1] (s[1] is negative from above).
     if (copysign(s[1], s[0]) * t[0] > -fabs(s[0]) * t[1]) {
@@ -607,76 +572,76 @@ static void sort_and_orient_t_s(double t[2], double s[2]) {
     }
 }
 
-// See "Resolution Independent Curve Rendering using Programmable Graphics Hardware"
-// https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
-// discr(I) = 3*d2^2 - 4*d1*d3
-// Classification:
-// d1 != 0, discr(I) > 0        Serpentine
-// d1 != 0, discr(I) < 0        Loop
-// d1 != 0, discr(I) = 0        Cusp (with inflection at infinity)
-// d1 = 0, d2 != 0              Cusp (with cusp at infinity)
-// d1 = d2 = 0, d3 != 0         Quadratic
-// d1 = d2 = d3 = 0             Line or Point
-static SkCubicType classify_cubic(const double d[4], double t[2], double s[2]) {
-    if (0 == d[1]) {
-        if (0 == d[2]) {
+SkCubicType SkClassifyCubic(const SkPoint P[4], double t[2], double s[2], double d[4]) {
+    // Find the cubic's inflection function, I = [T^3  -3T^2  3T  -1] dot D. (D0 will always be 0
+    // for integral cubics.)
+    //
+    // See "Resolution Independent Curve Rendering using Programmable Graphics Hardware",
+    // 4.2 Curve Categorization:
+    //
+    // https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
+    double A1 = calc_dot_cross_cubic(P[0], P[3], P[2]);
+    double A2 = calc_dot_cross_cubic(P[1], P[0], P[3]);
+    double A3 = calc_dot_cross_cubic(P[2], P[1], P[0]);
+
+    double D3 = 3 * A3;
+    double D2 = D3 - A2;
+    double D1 = D2 - A2 + A1;
+
+    // Shift the exponents in D so the largest magnitude falls somewhere in 1..2. This protects us
+    // from overflow down the road while solving for roots and KLM functionals.
+    double Dmax = std::max(std::max(fabs(D1), fabs(D2)), fabs(D3));
+    double norm = previous_inverse_pow2(Dmax);
+    D1 *= norm;
+    D2 *= norm;
+    D3 *= norm;
+
+    if (d) {
+        d[3] = D3;
+        d[2] = D2;
+        d[1] = D1;
+        d[0] = 0;
+    }
+
+    // Now use the inflection function to classify the cubic.
+    //
+    // See "Resolution Independent Curve Rendering using Programmable Graphics Hardware",
+    // 4.4 Integral Cubics:
+    //
+    // https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
+    if (0 != D1) {
+        double discr = 3*D2*D2 - 4*D1*D3;
+        if (discr > 0) { // Serpentine.
             if (t && s) {
-                t[0] = t[1] = 1;
-                s[0] = s[1] = 0; // infinity
+                double q = 3*D2 + copysign(sqrt(3*discr), D2);
+                write_cubic_inflection_roots(q, 6*D1, 2*D3, q, t, s);
             }
-            return 0 == d[3] ? SkCubicType::kLineOrPoint : SkCubicType::kQuadratic;
+            return SkCubicType::kSerpentine;
+        } else if (discr < 0) { // Loop.
+            if (t && s) {
+                double q = D2 + copysign(sqrt(-discr), D2);
+                write_cubic_inflection_roots(q, 2*D1, 2*(D2*D2 - D3*D1), D1*q, t, s);
+            }
+            return SkCubicType::kLoop;
+        } else { // Cusp.
+            if (t && s) {
+                write_cubic_inflection_roots(D2, 2*D1, D2, 2*D1, t, s);
+            }
+            return SkCubicType::kLocalCusp;
         }
-        if (t && s) {
-            t[0] = d[3];
-            s[0] = 3 * d[2];
-            normalize_t_s(t, s, 1);
-            t[1] = 1;
-            s[1] = 0; // infinity
-        }
-        return SkCubicType::kCuspAtInfinity;
-    }
-
-    const double discr = 3 * d[2] * d[2] - 4 * d[1] * d[3];
-    if (discr > 0) {
-        if (t && s) {
-            const double q = 3 * d[2] + copysign(sqrt(3 * discr), d[2]);
-            t[0] = q;
-            s[0] = 6 * d[1];
-            t[1] = 2 * d[3];
-            s[1] = q;
-            normalize_t_s(t, s, 2);
-            sort_and_orient_t_s(t, s);
-        }
-        return SkCubicType::kSerpentine;
-    } else if (discr < 0) {
-        if (t && s) {
-            const double q = d[2] + copysign(sqrt(-discr), d[2]);
-            t[0] = q;
-            s[0] = 2 * d[1];
-            t[1] = 2 * (d[2] * d[2] - d[3] * d[1]);
-            s[1] = d[1] * q;
-            normalize_t_s(t, s, 2);
-            sort_and_orient_t_s(t, s);
-        }
-        return SkCubicType::kLoop;
     } else {
-        if (t && s) {
-            t[0] = d[2];
-            s[0] = 2 * d[1];
-            normalize_t_s(t, s, 1);
-            t[1] = t[0];
-            s[1] = s[0];
-            sort_and_orient_t_s(t, s);
+        if (0 != D2) { // Cusp at T=infinity.
+            if (t && s) {
+                write_cubic_inflection_roots(D3, 3*D2, 1, 0, t, s); // T1=infinity.
+            }
+            return SkCubicType::kCuspAtInfinity;
+        } else { // Degenerate.
+            if (t && s) {
+                write_cubic_inflection_roots(1, 0, 1, 0, t, s); // T0=T1=infinity.
+            }
+            return 0 != D3 ? SkCubicType::kQuadratic : SkCubicType::kLineOrPoint;
         }
-        return SkCubicType::kLocalCusp;
     }
-}
-
-SkCubicType SkClassifyCubic(const SkPoint src[4], double t[2], double s[2], double d[4]) {
-    double localD[4];
-    double* dd = d ? d : localD;
-    calc_cubic_inflection_func(src, dd);
-    return classify_cubic(dd, t, s);
 }
 
 template <typename T> void bubble_sort(T array[], int count) {
