@@ -129,9 +129,15 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
         int     lastX = clip.fLeft; // init x to clip.fLeft
         SkFixed coverage = 0;       // init coverage to 0
 
-        // skip deltas with x less than clip.fLeft; they must be precision errors
-        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i)
-            ;
+        // skip deltas with x less than clip.fLeft; they may be:
+        //   1. precision errors
+        //   2. deltas generated during init-once phase (threaded backend) that has a wider
+        //      clip than the final tile clip.
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i) {
+#ifndef SK_SUPPORT_LEGACY_THREADED_DAA_BUGS
+            coverage += deltas->getDelta(y, i).fDelta;
+#endif
+        }
         for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
             const SkCoverageDelta& delta = deltas->getDelta(y, i);
             SkASSERT(delta.fX >= lastX);    // delta must be x sorted
