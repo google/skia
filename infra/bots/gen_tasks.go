@@ -616,7 +616,7 @@ func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
 		},
 		Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
 		Dimensions: linuxGceDimensions(),
-		Isolate:    "empty.isolate",
+		Isolate:    relpath("empty.isolate"),
 		Priority:   0.7,
 	})
 	return name
@@ -722,7 +722,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		!strings.Contains(parts["os"], "Win") &&
 		!strings.Contains(parts["os"], "Mac") {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
-		task := kitchenTask(uploadName, "upload_skiaserve", "upload_dm_results.isolate", SERVICE_ACCOUNT_UPLOAD_BINARY, linuxGceDimensions(), nil, OUTPUT_NONE)
+		task := kitchenTask(uploadName, "upload_skiaserve", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_BINARY, linuxGceDimensions(), nil, OUTPUT_NONE)
 		task.Dependencies = append(task.Dependencies, name)
 		b.MustAddTask(uploadName, task)
 		return uploadName
