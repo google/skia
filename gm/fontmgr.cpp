@@ -339,3 +339,40 @@ DEF_GM(return new FontMgrMatchGM;)
 DEF_GM(return new FontMgrBoundsGM(1.0, 0);)
 DEF_GM(return new FontMgrBoundsGM(0.75, 0);)
 DEF_GM(return new FontMgrBoundsGM(1.0, -0.25);)
+
+#include <algorithm>
+#include <vector>
+
+DEF_SIMPLE_GM(restsymbol, canvas, 200, 200) {
+    sk_sp<SkFontMgr> mgr(SkFontMgr::RefDefault());
+    int familiesCount = mgr->countFamilies();
+    std::vector<SkFontID> fontIDs;
+    for (int i = 0; i < familiesCount; ++i) {
+        SkString familyName;
+        mgr->getFamilyName(i, &familyName);
+        sk_sp<SkFontStyleSet> styleSet(mgr->createStyleSet(i));
+        int N = styleSet->count();
+        for (int j = 0; j < N; ++j) {
+            SkFontStyle fontStyle;
+            SkString style;
+            styleSet->getStyle(j, &fontStyle, &style);
+            SkUnichar restChar = 0x1d13d;
+            sk_sp<SkTypeface> typeface(mgr->matchFamilyStyleCharacter(familyName.c_str(), fontStyle,
+                                                             nullptr, 0, restChar));
+            SkFontID fontID = typeface->uniqueID();
+            if (std::find(fontIDs.begin(), fontIDs.end(), fontID) == fontIDs.end()) {
+                fontIDs.push_back(fontID);
+            } else {
+                continue;
+            }
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            paint.setTextSize(24);
+            canvas->drawString(familyName, 10, 28, paint);
+            paint.setTypeface(typeface);
+            paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+            canvas->drawText(&restChar, 4, 100, 28, paint);
+            canvas->translate(0, 28);
+        }
+    }
+}
