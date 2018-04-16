@@ -49,7 +49,18 @@ inline static SkAlpha ScalarToAlpha(SkScalar a) {
 
 void SkBlitter::blitFatAntiRect(const SkRect& rect) {
     SkIRect bounds = rect.roundOut();
-    SkASSERT(bounds.width() >= 3 && bounds.height() >= 3);
+    SkASSERT(bounds.width() >= 3);
+
+    // skbug.com/7813
+    // To ensure consistency of the threaded backend (a rect that's considered fat in the init-once
+    // phase must also be considered fat in the draw phase), we have to deal with rects with small
+    // heights because the horizontal tiling in the threaded backend may change the height.
+    //
+    // This also implies that we cannot do vertical tiling unless we can blit any rect (not just the
+    // fat one.)
+    if (bounds.height() == 0) {
+        return;
+    }
 
     int         runSize = bounds.width() + 1; // +1 so we can set runs[bounds.width()] = 0
     void*       storage = this->allocBlitMemory(runSize * (sizeof(int16_t) + sizeof(SkAlpha)));
@@ -66,18 +77,26 @@ void SkBlitter::blitFatAntiRect(const SkRect& rect) {
     SkScalar partialT = bounds.fTop + 1 - rect.fTop;
     SkScalar partialB = rect.fBottom - (bounds.fBottom - 1);
 
+    if (bounds.height() == 1) {
+        partialT = rect.fBottom - rect.fTop;
+    }
+
     alphas[0] = ScalarToAlpha(partialL * partialT);
     alphas[1] = ScalarToAlpha(partialT);
     alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialT);
     this->blitAntiH(bounds.fLeft, bounds.fTop, alphas, runs);
 
-    this->blitAntiRect(bounds.fLeft, bounds.fTop + 1, bounds.width() - 2, bounds.height() - 2,
-                       ScalarToAlpha(partialL), ScalarToAlpha(partialR));
+    if (bounds.height() > 2) {
+        this->blitAntiRect(bounds.fLeft, bounds.fTop + 1, bounds.width() - 2, bounds.height() - 2,
+                           ScalarToAlpha(partialL), ScalarToAlpha(partialR));
+    }
 
-    alphas[0] = ScalarToAlpha(partialL * partialB);
-    alphas[1] = ScalarToAlpha(partialB);
-    alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialB);
-    this->blitAntiH(bounds.fLeft, bounds.fBottom - 1, alphas, runs);
+    if (bounds.height() > 1) {
+        alphas[0] = ScalarToAlpha(partialL * partialB);
+        alphas[1] = ScalarToAlpha(partialB);
+        alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialB);
+        this->blitAntiH(bounds.fLeft, bounds.fBottom - 1, alphas, runs);
+    }
 }
 
 void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
