@@ -88,7 +88,7 @@ def dm_flags(api, bot):
 
     # These are the canonical configs that we would ideally run on all bots. We
     # may opt out or substitute some below for specific bots
-    configs.extend(['8888', 'srgb', 'pdf'])
+    configs.extend(['8888', 'srgb', 'pdf', 't8888'])
 
     # Runs out of memory on Android bots. Everyone else seems fine.
     if 'Android' in bot:
