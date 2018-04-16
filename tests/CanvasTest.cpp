@@ -897,4 +897,3 @@ DEF_TEST(Canvas_degenerate_dimension, reporter) {
         canvas.drawRect({0, 0, 100, 90*1024}, paint);
     }
 }
-
