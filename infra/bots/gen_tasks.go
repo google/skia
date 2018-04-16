@@ -616,7 +616,7 @@ func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
 		},
 		Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
 		Dimensions: linuxGceDimensions(),
-		Isolate:    "empty.isolate",
+		Isolate:    relpath("empty.isolate"),
 		Priority:   0.7,
 	})
 	return name
@@ -722,7 +722,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		!strings.Contains(parts["os"], "Win") &&
 		!strings.Contains(parts["os"], "Mac") {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
-		task := kitchenTask(uploadName, "upload_skiaserve", "upload_dm_results.isolate", SERVICE_ACCOUNT_UPLOAD_BINARY, linuxGceDimensions(), nil, OUTPUT_NONE)
+		task := kitchenTask(uploadName, "upload_skiaserve", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_BINARY, linuxGceDimensions(), nil, OUTPUT_NONE)
 		task.Dependencies = append(task.Dependencies, name)
 		b.MustAddTask(uploadName, task)
 		return uploadName
@@ -764,7 +764,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string, parts map[string]string) stri
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
 	task.ExecutionTimeout = 24 * time.Hour
-	task.IoTimeout = time.Hour
+	task.IoTimeout = 24 * time.Hour
 	b.MustAddTask(name, task)
 	return name
 }
@@ -887,19 +887,21 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	}
 	task.ExecutionTimeout = 4 * time.Hour
 	task.Expiration = 20 * time.Hour
-	task.IoTimeout = 40 * time.Minute
+	task.IoTimeout = 4 * time.Hour
 	task.MaxAttempts = 1
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		task.ExecutionTimeout = 9 * time.Hour
 		task.Expiration = 48 * time.Hour
-		task.IoTimeout = time.Hour
+		task.IoTimeout = 9 * time.Hour
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
 		task.Dimensions = append(task.Dimensions, "valgrind:1")
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		task.ExecutionTimeout = 9 * time.Hour
+		task.IoTimeout = 9 * time.Hour
 	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
 		// skia:6737
 		task.ExecutionTimeout = 6 * time.Hour
+		task.IoTimeout = 6 * time.Hour
 	}
 	iid := internalHardwareLabel(parts)
 	if iid != nil {
@@ -945,7 +947,7 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 		task.Dependencies = append(task.Dependencies, compileTaskName)
 		task.ExecutionTimeout = 4 * time.Hour
 		task.Expiration = 20 * time.Hour
-		task.IoTimeout = 40 * time.Minute
+		task.IoTimeout = 4 * time.Hour
 		task.MaxAttempts = 1
 		if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
 			task.Dependencies = append(task.Dependencies, deps...)
@@ -990,7 +992,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	task.Dependencies = append(task.Dependencies, compileTaskName)
 	task.ExecutionTimeout = 4 * time.Hour
 	task.Expiration = 20 * time.Hour
-	task.IoTimeout = 40 * time.Minute
+	task.IoTimeout = 4 * time.Hour
 	task.MaxAttempts = 1
 	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
 		task.Dependencies = append(task.Dependencies, deps...)
@@ -999,14 +1001,16 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		task.ExecutionTimeout = 9 * time.Hour
 		task.Expiration = 48 * time.Hour
-		task.IoTimeout = time.Hour
+		task.IoTimeout = 9 * time.Hour
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
 		task.Dimensions = append(task.Dimensions, "valgrind:1")
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		task.ExecutionTimeout = 9 * time.Hour
+		task.IoTimeout = 9 * time.Hour
 	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
 		// skia:6737
 		task.ExecutionTimeout = 6 * time.Hour
+		task.IoTimeout = 6 * time.Hour
 	}
 	iid := internalHardwareLabel(parts)
 	if iid != nil {
