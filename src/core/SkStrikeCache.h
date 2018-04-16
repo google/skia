@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkGlyphCache_Globals_DEFINED
-#define SkGlyphCache_Globals_DEFINED
+#ifndef SkStrikeCache_DEFINED
+#define SkStrikeCache_DEFINED
 
-#include "SkMutex.h"
 #include "SkSpinlock.h"
 
 class SkGlyphCache;
@@ -27,9 +26,9 @@ class SkGlyphCache;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkGlyphCache_Globals {
+class SkStrikeCache {
 public:
-    SkGlyphCache_Globals() {
+    SkStrikeCache() {
         fHead = nullptr;
         fTotalMemoryUsed = 0;
         fCacheSizeLimit = SK_DEFAULT_FONT_CACHE_LIMIT;
@@ -38,7 +37,7 @@ public:
         fPointSizeLimit = SK_DEFAULT_FONT_CACHE_POINT_SIZE_LIMIT;
     }
 
-    ~SkGlyphCache_Globals();
+    ~SkStrikeCache();
 
     static void AttachCache(SkGlyphCache* cache);
 
@@ -88,4 +87,4 @@ private:
     size_t internalPurge(size_t minBytesNeeded = 0);
 };
 
-#endif
+#endif  // SkStrikeCache_DEFINED
