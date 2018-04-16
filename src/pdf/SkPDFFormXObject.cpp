@@ -35,5 +35,5 @@ sk_sp<SkPDFObject> SkPDFMakeFormXObject(std::unique_ptr<SkStreamAsset> content,
     }
     group->insertBool("I", true);  // Isolated.
     form->dict()->insertObject("Group", std::move(group));
-    return form;
+    return std::move(form);
 }
