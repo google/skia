@@ -339,11 +339,8 @@
       "_",
       ".SRW",
       "--match",
-      "~shadermaskfilter_image",
       "~persp_shaders_bw",
       "~persp_shaders_aa",
-      "~imagefilterscropped",
-      "~animated-image-blurs",
       "--nonativeFonts",
       "--verbose"
     ],
