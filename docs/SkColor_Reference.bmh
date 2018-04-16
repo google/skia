@@ -1,0 +1,735 @@
+#Topic Color
+#Alias Color_Reference
+
+#Subtopic Overview
+    #Subtopic Subtopic
+        #Populate
+    ##
+##
+
+#Subtopic Define
+#Populate
+##
+
+#Subtopic Function
+#Populate
+##
+
+#Subtopic Typedef
+#Populate
+##
+
+    #Subtopic Alpha
+        #Alias Alpha
+    #Subtopic ##
+
+    #Subtopic RGB
+    #Substitute RGB
+        #Subtopic Red
+            #Alias Red
+        #Subtopic ##
+        #Subtopic Blue
+            #Alias Blue
+        #Subtopic ##
+        #Subtopic Green
+            #Alias Green
+        #Subtopic ##
+    #Subtopic ##
+
+    #Subtopic ARGB
+    #Substitute ARGB
+    #Subtopic ##
+
+    #Subtopic RBG
+    #Substitute RBG
+    #Subtopic ##
+
+    #Subtopic RGB-565
+    #Substitute RGB-565
+    #Alias Color_RGB-565 # quit changing - to _ !
+    #Subtopic ##
+
+    #Subtopic Gray
+    ##
+
+# ------------------------------------------------------------------------------
+
+#Typedef uint8_t SkAlpha
+
+Types and macros for colors
+8-bit type for an alpha value. 0xFF is 100% opaque, 0x00 is 100% transparent.
+
+#Typedef ##
+
+# ------------------------------------------------------------------------------
+
+#Typedef uint32_t SkColor
+
+32 bit ARGB color value, not premultiplied. The color components are always in
+a known order. This is different from SkPMColor, which has its bytes in a configuration
+dependent order, to match the format of kBGRA_8888_SkColorType bitmaps. SkColor
+is the type used to specify colors in SkPaint and in gradients.
+
+#Typedef ##
+
+# ------------------------------------------------------------------------------
+
+#Method static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+#In Function
+#Line # incomplete ##
+
+Return a SkColor value from 8 bit component values
+
+#Param a  incomplete ##
+#Param r  incomplete ##
+#Param g  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Define SkColorSetARGBInline
+
+#Code
+###$
+    #define SkColorSetARGBInline SkColorSetARGB
+$$$#
+##
+
+Legacy aliases.
+
+#NoExample
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SkColorSetARGBMacro
+
+#Code
+###$
+    #define SkColorSetARGBMacro  SkColorSetARGB
+$$$#
+##
+
+#NoExample
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SkColorSetRGB
+#Line # incomplete ##
+
+#Code
+###$
+    #define SkColorSetRGB(r, g, b)  SkColorSetARGB(0xFF, r, g, b)
+$$$#
+##
+
+Return a SkColor value from 8 bit component values, with an implied value
+of 0xFF for alpha (fully opaque)
+
+#Param r incomplete ##
+#Param g incomplete ##
+#Param b incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SkColorGetA
+#Line # incomplete ##
+
+#Code
+###$
+    #define SkColorGetA(color)      (((color) >> 24) & 0xFF)
+$$$#
+##
+
+return the alpha byte from a SkColor value
+
+#Param color incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SkColorGetR
+#Line # incomplete ##
+
+#Code
+###$
+    #define SkColorGetR(color)      (((color) >> 16) & 0xFF)
+$$$#
+##
+
+return the red byte from a SkColor value
+
+#Param color incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SkColorGetG
+#Line # incomplete ##
+
+#Code
+###$
+    #define SkColorGetG(color)      (((color) >>  8) & 0xFF)
+$$$#
+##
+
+return the green byte from a SkColor value
+
+#Param color incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SkColorGetB
+#Line # incomplete ##
+
+#Code
+###$
+    #define SkColorGetB(color)      (((color) >>  0) & 0xFF)
+$$$#
+##
+
+return the blue byte from a SkColor value
+
+#Param color incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Method static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a)
+#In Function
+#Line # incomplete ##
+
+#Param c  incomplete ##
+#Param a  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_AlphaTRANSPARENT
+
+#Code
+###$
+    #define SK_AlphaTRANSPARENT static_cast<SkAlpha>(0x00)
+$$$#
+##
+
+common colors
+transparent SkAlpha value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_AlphaOPAQUE
+
+#Code
+###$
+    #define SK_AlphaOPAQUE      static_cast<SkAlpha>(0xFF)
+$$$#
+##
+
+opaque SkAlpha value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorTRANSPARENT
+
+#Code
+###$
+    #define SK_ColorTRANSPARENT static_cast<SkColor>(0x00000000)
+$$$#
+##
+
+transparent SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorBLACK
+
+#Code
+###$
+    #define SK_ColorBLACK       static_cast<SkColor>(0xFF000000)
+$$$#
+##
+
+black SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorDKGRAY
+
+#Code
+###$
+    #define SK_ColorDKGRAY      static_cast<SkColor>(0xFF444444)
+$$$#
+##
+
+dark gray SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorGRAY
+
+#Code
+###$
+    #define SK_ColorGRAY        static_cast<SkColor>(0xFF888888)
+$$$#
+##
+
+gray SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorLTGRAY
+
+#Code
+###$
+    #define SK_ColorLTGRAY      static_cast<SkColor>(0xFFCCCCCC)
+$$$#
+##
+
+light gray SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorWHITE
+
+#Code
+###$
+    #define SK_ColorWHITE       static_cast<SkColor>(0xFFFFFFFF)
+$$$#
+##
+
+white SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorRED
+
+#Code
+###$
+    #define SK_ColorRED         static_cast<SkColor>(0xFFFF0000)
+$$$#
+##
+
+red SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorGREEN
+
+#Code
+###$
+    #define SK_ColorGREEN       static_cast<SkColor>(0xFF00FF00)
+$$$#
+##
+
+green SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorBLUE
+
+#Code
+###$
+    #define SK_ColorBLUE        static_cast<SkColor>(0xFF0000FF)
+$$$#
+##
+
+blue SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorYELLOW
+
+#Code
+###$
+    #define SK_ColorYELLOW      static_cast<SkColor>(0xFFFFFF00)
+$$$#
+##
+
+yellow SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorCYAN
+
+#Code
+###$
+    #define SK_ColorCYAN        static_cast<SkColor>(0xFF00FFFF)
+$$$#
+##
+
+cyan SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Define SK_ColorMAGENTA
+
+#Code
+###$
+    #define SK_ColorMAGENTA     static_cast<SkColor>(0xFFFF00FF)
+$$$#
+##
+
+magenta SkColor value
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Define ##
+
+# ------------------------------------------------------------------------------
+
+#Subtopic HSV
+
+#Subtopic Hue
+Hue represents an angle, in degrees, on a color wheel. Hue has a positive value
+modulo 360, where zero degrees is red.
+##
+
+#Subtopic Saturation
+##
+
+#Subtopic Value
+##
+
+#Method SK_API void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3])
+#In Function
+#Line # incomplete ##
+
+Convert RGB components to HSV.
+hsv[0] is Hue [0 .. 360)
+hsv[1] is Saturation [0...1]
+hsv[2] is Value [0...1]
+
+#Param red  red component value [0..255]
+##
+#Param green  green component value [0..255]
+##
+#Param blue  blue component value [0..255]
+##
+#Param hsv  3 element array which holds the resulting HSV components.
+##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static inline void SkColorToHSV(SkColor color, SkScalar hsv[3])
+#In Function
+#Line # incomplete ##
+
+Convert the argb color to its HSV components.
+hsv[0] represents Hue, and is assigned a value from zero to less than 360.
+hsv[1] is Saturation [0...1]
+hsv[2] is Value [0...1]
+
+#Param color  the argb color to convert. Note: the alpha component is ignored.
+##
+#Param hsv  3 element array which holds the resulting HSV components.
+##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SK_API SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])
+#In Function
+#Line # incomplete ##
+
+Convert HSV components to an ARGB color. The alpha component is passed through unchanged.
+hsv[0] represents Hue, an angle from zero to less than 360.
+hsv[1] represents Saturation, and varies from zero to one.
+hsv[2] represents Value, and varies from zero to one.
+
+If hsv values are out of range, they are pinned.
+
+#Param alpha  the alpha component of the returned argb color.
+##
+#Param hsv  3 element array which holds the input HSV components.
+##
+
+#Return  the resulting argb color
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static inline SkColor SkHSVToColor(const SkScalar hsv[3])
+#In Function
+#Line # incomplete ##
+
+Convert HSV components to an ARGB color. The alpha component set to 0xFF.
+hsv[0] represents Hue, an angle from zero to less than 360.
+hsv[1] represents Saturation, and varies from zero to one.
+hsv[2] represents Value, and varies from zero to one.
+
+If hsv values are out of range, they are pinned.
+
+#Param hsv  3 element array which holds the input HSV components.
+##
+
+#Return  the resulting argb color
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Subtopic HSV ##
+
+# ------------------------------------------------------------------------------
+
+#Typedef uint32_t SkPMColor
+
+32 bit ARGB color value, premultiplied. The byte order for this value is
+configuration dependent, matching the format of kBGRA_8888_SkColorType bitmaps.
+This is different from SkColor, which is nonpremultiplied, and is always in the
+same byte order.
+
+#Typedef ##
+
+# ------------------------------------------------------------------------------
+
+#Method SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+#In Function
+#Line # incomplete ##
+
+Return a SkPMColor value from unpremultiplied 8 bit component values
+
+#Param a  incomplete ##
+#Param r  incomplete ##
+#Param g  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SK_API SkPMColor SkPreMultiplyColor(SkColor c)
+#In Function
+#Line # incomplete ##
+
+Return a SkPMColor value from a SkColor value. This is done by multiplying the color
+components by the color's alpha, and by arranging the bytes in a configuration
+dependent order, to match the format of kBGRA_8888_SkColorType bitmaps.
+
+#Param c  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Topic Color ##

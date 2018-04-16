@@ -791,7 +791,9 @@ at compile time.
 
 Some platform implementations may ignore dithering. Set
 
-#Define SK_IGNORE_GPU_DITHER
+#Formula
+SK_IGNORE_GPU_DITHER
+##
 
 to ignore Dither on GPU_Surface.
 

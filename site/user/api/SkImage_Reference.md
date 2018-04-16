@@ -13,6 +13,7 @@ SkImage Reference
 | <a href="#Constructor">Constructor</a> | functions that construct <a href="#SkImage">SkImage</a> |
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
+| Typedef | types defined by other types |
 
 # <a name="SkImage"></a> Class SkImage
 <a href="#Image">Image</a> describes a two dimensional array of pixels to draw. The pixels may be
@@ -783,11 +784,11 @@ created <a href="#Image">Image</a>, or nullptr
 
 <table>
   <tr>
-    <td><a name="SkImage_BitDepth_kU8"> <code><strong>SkImage::BitDepth::kU8 </strong></code> </a></td><td>0</td><td>Use 8 bits per <a href="undocumented#ARGB">Color ARGB</a> component using unsigned integer format.
+    <td><a name="SkImage_BitDepth_kU8"> <code><strong>SkImage::BitDepth::kU8 </strong></code> </a></td><td>0</td><td>Use 8 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using unsigned integer format.
 </td>
   </tr>
   <tr>
-    <td><a name="SkImage_BitDepth_kF16"> <code><strong>SkImage::BitDepth::kF16 </strong></code> </a></td><td>1</td><td>Use 16 bits per <a href="undocumented#ARGB">Color ARGB</a> component using half-precision floating point format.
+    <td><a name="SkImage_BitDepth_kF16"> <code><strong>SkImage::BitDepth::kF16 </strong></code> </a></td><td>1</td><td>Use 16 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using half-precision floating point format.
 </td>
   </tr>
 </table>
@@ -1173,7 +1174,7 @@ alphaOnly = true
 bool isOpaque() const
 </pre>
 
-Returns true if pixels ignore their <a href="undocumented#Alpha">Alpha</a> value and are treated as fully opaque.
+Returns true if pixels ignore their <a href="SkColor_Reference#Alpha">Alpha</a> value and are treated as fully opaque.
 
 ### Return Value
 
