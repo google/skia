@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6d534232_1d053058",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-17T13:20:08Z",
+      "side": 1,
+      "message": "No, we don\u0027t, but I didn\u0027t want to change the behavior at the moment.  We used to have Chrome (and others, I think) canaries named like this.  I can change it now if you\u0027d prefer.",
+      "parentUuid": "5c295cf9_703800fe",
+      "range": {
+        "startLine": 29,
+        "startChar": 5,
+        "endLine": 29,
+        "endChar": 11
+      },
+      "revId": "328382715c0865c6a4bcdd29e02ea1ef85c1ff55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f29444ec_2fc6d016",
         "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-17T13:16:33Z",
       "side": 1,
       "message": "[optional]: It wasn\u0027t obvious to me looking at this what recurse meant. Maybe there is a better name here? prefix? I don\u0027t really have any good suggestions.",
+      "range": {
+        "startLine": 88,
+        "startChar": 7,
+        "endLine": 88,
+        "endChar": 14
+      },
+      "revId": "328382715c0865c6a4bcdd29e02ea1ef85c1ff55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "298f847a_9961eef4",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-17T13:20:08Z",
+      "side": 1,
+      "message": "IMO \"recurse\" is descriptive of what it means, since the schema is recursively defined.  Maybe recurse_roles?",
+      "parentUuid": "f29444ec_2fc6d016",
       "range": {
         "startLine": 88,
         "startChar": 7,
