@@ -294,6 +294,7 @@ skia_core_sources = [
   "$_src/core/SkSpriteBlitter.h",
   "$_src/core/SkStream.cpp",
   "$_src/core/SkStreamPriv.h",
+  "$_src/core/SkStrikeCache.cpp",
   "$_src/core/SkStrikeCache.h",
   "$_src/core/SkString.cpp",
   "$_src/core/SkStringUtils.cpp",
