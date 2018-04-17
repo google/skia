@@ -11,6 +11,7 @@
 #include "SkDescriptor.h"
 #include "SkSpinlock.h"
 #include "SkTemplates.h"
+#include "SkArenaAlloc.h"
 
 class SkGlyphCache;
 class SkTraceMemoryDump;
@@ -38,11 +39,20 @@ public:
 
     static void AttachCache(SkGlyphCache* cache);
 
-    using ExclusiveStrikePtr = std::unique_ptr<
+    using ExclusiveStrikePtr =
+        std::unique_ptr<
             SkGlyphCache,
             SkFunctionWrapper<void, SkGlyphCache, SkStrikeCache::AttachCache>>;
 
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
+
+    static std::unique_ptr<SkScalerContext> CreateScalerContext(
+        const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);
+
+    static ExclusiveStrikePtr CreateStrikeExclusive(
+            const SkDescriptor& desc,
+            std::unique_ptr<SkScalerContext> scaler,
+            SkPaint::FontMetrics* maybeMetrics = nullptr);
 
     static void PurgeAll();
 
@@ -69,7 +79,6 @@ public:
     int  getCachePointSizeLimit() const;
     int  setCachePointSizeLimit(int limit);
 
-
 #ifdef SK_DEBUG
     void validate() const;
 #else
@@ -77,6 +86,16 @@ public:
 #endif
 
 private:
+    friend class SkGlyphCache;
+    template <typename T>
+    struct Node {
+        Node(const SkDescriptor& desc) : fDesc{desc} {}
+        const SkDescriptor& getDescriptor() const {return *fDesc.getDesc(); }
+        T* fNext{nullptr};
+        T* fPrev{nullptr};
+        SkAutoDescriptor fDesc;
+    };
+
     // The following methods can only be called when mutex is already held.
     SkGlyphCache* internalGetHead() const { return fHead; }
     SkGlyphCache* internalGetTail() const;

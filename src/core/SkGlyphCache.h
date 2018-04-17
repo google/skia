@@ -19,7 +19,6 @@
 
 class SkTraceMemoryDump;
 
-
 /** \class SkGlyphCache
 
     This class represents a strike: a specific combination of typeface, size, matrix, etc., and
@@ -33,7 +32,7 @@ class SkTraceMemoryDump;
     The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
     when they go out of scope.
 */
-class SkGlyphCache {
+class SkGlyphCache : private SkStrikeCache::Node<SkGlyphCache> {
 public:
     /** Return true if glyph is cached. */
     bool isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const;
@@ -107,7 +106,7 @@ public:
         return fFontMetrics;
     }
 
-    const SkDescriptor& getDescriptor() const { return *fDesc; }
+    using Node::getDescriptor;
 
     SkMask::Format getMaskFormat() const {
         return fScalerContext->getMaskFormat();
@@ -121,11 +120,6 @@ public:
     size_t getMemoryUsed() const { return fMemoryUsed; }
 
     void dump() const;
-
-    static std::unique_ptr<SkScalerContext> CreateScalerContext(
-            const SkDescriptor& desc,
-            const SkScalerContextEffects& effects,
-            const SkTypeface& typeface);
 
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
@@ -146,11 +140,6 @@ public:
         return FindOrCreateStrikeExclusive(
                 paint, nullptr, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
     }
-
-    static SkExclusiveStrikePtr CreateStrikeExclusive(
-        const SkDescriptor& desc,
-        std::unique_ptr<SkScalerContext> scaler,
-        SkPaint::FontMetrics* maybeMetrics = nullptr);
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -230,9 +219,6 @@ private:
     static const SkGlyph::Intercept* MatchBounds(const SkGlyph* glyph,
                                                  const SkScalar bounds[2]);
 
-    SkGlyphCache*          fNext{nullptr};
-    SkGlyphCache*          fPrev{nullptr};
-    const std::unique_ptr<SkDescriptor> fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;
     SkPaint::FontMetrics   fFontMetrics;
 
