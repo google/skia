@@ -702,14 +702,27 @@ size_t SkGlyphCache_Globals::internalPurge(size_t minBytesNeeded) {
     // we start at the tail and proceed backwards, as the linklist is in LRU
     // order, with unimportant entries at the tail.
     SkGlyphCache* cache = this->internalGetTail();
-    while (cache != nullptr &&
-           (bytesFreed < bytesNeeded || countFreed < countNeeded)) {
-        SkGlyphCache* prev = cache->fPrev;
-        bytesFreed += cache->fMemoryUsed;
-        countFreed += 1;
 
+    // As we find caches that can't be purged, we move them to the front of the
+    // list. Attempt to delete caches until everything in the list can be
+    // purged.
+    SkGlyphCache* firstNonPurgeableCache = nullptr;
+    while (cache != nullptr &&
+           (bytesFreed < bytesNeeded || countFreed < countNeeded) &&
+           cache != firstNonPurgeableCache) {
+        SkGlyphCache* prev = cache->fPrev;
         this->internalDetachCache(cache);
-        delete cache;
+
+        if (cache->getScalerContext()->getTypeface()->PurgeGlyphCache(cache)) {
+          bytesFreed += cache->fMemoryUsed;
+          countFreed += 1;
+          delete cache;
+        } else {
+          this->internalAttachCacheToHead(cache);
+        }
+
+        if (!firstNonPurgeableCache)
+           firstNonPurgeableCache = cache;
         cache = prev;
     }
 

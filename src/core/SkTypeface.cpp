@@ -238,6 +238,10 @@ std::unique_ptr<SkFontData> SkTypeface::makeFontData() const {
     return this->onMakeFontData();
 }
 
+bool SkTypeface::PurgeGlyphCache(SkGlyphCache* cache) {
+  return this->onPurgeGlyphCache(cache);
+}
+
 // This implementation is temporary until this method can be made pure virtual.
 std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
     int index;
