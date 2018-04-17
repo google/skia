@@ -135,7 +135,7 @@ SkStrikeDifferences::SkStrikeDifferences(
         : fTypefaceID{typefaceID}
         , fDesc{std::move(desc)} { }
 
-void SkStrikeDifferences::operator()(uint16_t glyphID, SkIPoint pos) {
+void SkStrikeDifferences::add(uint16_t glyphID, SkIPoint pos) {
     SkPackedGlyphID packedGlyphID{glyphID, pos.x(), pos.y()};
     fGlyphIDs->add(packedGlyphID);
 }
@@ -324,7 +324,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
     auto typefaceID = SkTypefaceProxy::DownCast(runPaint.getTypeface())->remoteTypefaceID();
-    auto& addGlyph = fStrikeCacheDiff->findStrikeDifferences(*desc, typefaceID);
+    auto& diffs = fStrikeCacheDiff->findStrikeDifferences(*desc, typefaceID);
 
     auto cache = SkGlyphCache::FindStrikeExclusive(*desc);
     bool isSubpixel = SkToBool(rec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
@@ -346,7 +346,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
             continue;
         }
 
-        addGlyph(glyphs[index], subPixelPos);
+        diffs.add(glyphs[index], subPixelPos);
     }
 }
 

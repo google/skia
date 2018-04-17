@@ -450,9 +450,11 @@ static int rect_make_dir(SkScalar dx, SkScalar dy) {
 bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** ptsPtr,
         bool* isClosed, Direction* direction, SkRect* rect) const {
     int corners = 0;
+    SkPoint closeXY;  // used to determine if final line falls on a diagonal
     SkPoint lineStart;  // used to construct line from previous point
     const SkPoint* firstPt = nullptr; // first point in the rect (last of first moves)
     const SkPoint* lastPt = nullptr;  // last point in the rect (last of lines or first if closed)
+    const SkPoint* lastCountedPt = nullptr;  // point creating 3rd corner
     const SkPoint* pts = *ptsPtr;
     const SkPoint* savePts = nullptr; // used to allow caller to iterate through a pair of rects
     lineStart.set(0, 0);
@@ -473,6 +475,9 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 accumulatingRect = false;
             case kLine_Verb: {
                 if (accumulatingRect) {
+                    lastCountedPt = pts;
+                }
+                if (kClose_Verb != verb) {
                     lastPt = pts;
                 }
                 SkPoint lineEnd = kClose_Verb == verb ? *firstPt : *pts++;
@@ -512,6 +517,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                     if ((directions[0] ^ directions[2]) != 2) {
                         return false;
                     }
+                    accumulatingRect = false;
                 } else if (corners == 4) {
                     if ((directions[1] ^ directions[3]) != 2) {
                         return false;
@@ -533,6 +539,10 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                     firstPt = pts;
                     accumulatingRect = true;
                 } else {
+                    closeXY = *firstPt - *lastPt;
+                    if (closeXY.fX && closeXY.fY) {
+                        return false;   // we're diagonal, abort
+                    }
                     accumulatingRect = false;
                 }
                 lineStart = *pts++;
@@ -550,19 +560,19 @@ addMissingClose:
     if (corners < 3 || corners > 4) {
         return false;
     }
-    SkPoint closeXY = *firstPt - *lastPt;
+    closeXY = *firstPt - *lastPt;
     // If autoClose, check if close generates diagonal
     bool result = 4 == corners && (closeXY.isZero() || (autoClose && (!closeXY.fX || !closeXY.fY)));
     if (!result) {
+        if (closeXY.fX && closeXY.fY) {
+            return false;   // we're diagonal, abort
+        }
         // check if we are just an incomplete rectangle, in which case we can
         // return true, but not claim to be closed.
         // e.g.
         //    3 sided rectangle
         //    4 sided but the last edge is not long enough to reach the start
         //
-        if (closeXY.fX && closeXY.fY) {
-            return false;   // we're diagonal, abort (can we ever reach this?)
-        }
         int closeDirection = rect_make_dir(closeXY.fX, closeXY.fY);
         // make sure the close-segment doesn't double-back on itself
         if (3 == corners || (closeDirection ^ directions[1]) == 2) {
@@ -574,7 +584,7 @@ addMissingClose:
         *ptsPtr = savePts;
     }
     if (result && rect) {
-        ptrdiff_t count = lastPt - firstPt + 1;
+        ptrdiff_t count = lastCountedPt - firstPt + 1;
         rect->set(firstPt, (int) count);
     }
     if (result && isClosed) {

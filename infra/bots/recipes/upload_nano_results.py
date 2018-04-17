@@ -22,7 +22,7 @@ def RunSteps(api):
 
   now = api.time.utcnow()
   src_path = api.path['start_dir'].join(
-      'perfdata', builder_name, 'data')
+      'perf', 'perfdata', builder_name, 'data')
   with api.context(cwd=src_path):
     results = api.file.glob_paths(
         'find results',
