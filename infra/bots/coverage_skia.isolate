@@ -1,6 +1,0 @@
-{
-  'includes': [                                                                 
-    'skia_repo.isolate',                                                        
-    'test_skia.isolate',
-  ],
-}
