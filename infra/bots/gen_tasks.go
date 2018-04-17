@@ -1374,11 +1374,18 @@ func main() {
 // TODO(borenet): The below really belongs in its own file, probably next to the
 // builder_name_schema.json file.
 
+// schema is a sub-struct of JobNameSchema.
+type schema struct {
+	Keys         []string `json:"keys"`
+	OptionalKeys []string `json:"optional_keys"`
+	RecurseRoles []string `json:"recurse_roles"`
+}
+
 // JobNameSchema is a struct used for (de)constructing Job names in a
 // predictable format.
 type JobNameSchema struct {
-	Schema map[string][]string `json:"builder_name_schema"`
-	Sep    string              `json:"builder_name_sep"`
+	Schema map[string]*schema `json:"builder_name_schema"`
+	Sep    string             `json:"builder_name_sep"`
 }
 
 // NewJobNameSchema returns a JobNameSchema instance based on the given JSON
@@ -1399,56 +1406,143 @@ func NewJobNameSchema(jsonFile string) (*JobNameSchema, error) {
 // ParseJobName splits the given Job name into its component parts, according
 // to the schema.
 func (s *JobNameSchema) ParseJobName(n string) (map[string]string, error) {
+	popFront := func(items []string) (string, []string, error) {
+		if len(items) == 0 {
+			return "", nil, fmt.Errorf("Invalid job name: %s (not enough parts)", n)
+		}
+		return items[0], items[1:], nil
+	}
+
+	result := map[string]string{}
+
+	var parse func(int, string, []string) ([]string, error)
+	parse = func(depth int, role string, parts []string) ([]string, error) {
+		s, ok := s.Schema[role]
+		if !ok {
+			return nil, fmt.Errorf("Invalid job name; %q is not a valid role.", role)
+		}
+		if depth == 0 {
+			result["role"] = role
+		} else {
+			result[fmt.Sprintf("sub-role-%d", depth)] = role
+		}
+		var err error
+		for _, key := range s.Keys {
+			var value string
+			value, parts, err = popFront(parts)
+			if err != nil {
+				return nil, err
+			}
+			result[key] = value
+		}
+		for _, subRole := range s.RecurseRoles {
+			if len(parts) > 0 && parts[0] == subRole {
+				parts, err = parse(depth+1, parts[0], parts[1:])
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+		for _, key := range s.OptionalKeys {
+			if len(parts) > 0 {
+				var value string
+				value, parts, err = popFront(parts)
+				if err != nil {
+					return nil, err
+				}
+				result[key] = value
+			}
+		}
+		if len(parts) > 0 {
+			return nil, fmt.Errorf("Invalid job name: %s (too many parts)", n)
+		}
+		return parts, nil
+	}
+
 	split := strings.Split(n, s.Sep)
 	if len(split) < 2 {
-		return nil, fmt.Errorf("Invalid job name: %q", n)
+		return nil, fmt.Errorf("Invalid job name: %s (not enough parts)", n)
 	}
 	role := split[0]
 	split = split[1:]
-	keys, ok := s.Schema[role]
-	if !ok {
-		return nil, fmt.Errorf("Invalid job name; %q is not a valid role.", role)
-	}
-	extraConfig := ""
-	if len(split) == len(keys)+1 {
-		extraConfig = split[len(split)-1]
-		split = split[:len(split)-1]
-	}
-	if len(split) != len(keys) {
-		return nil, fmt.Errorf("Invalid job name; %q has incorrect number of parts.", n)
-	}
-	rv := make(map[string]string, len(keys)+2)
-	rv["role"] = role
-	if extraConfig != "" {
-		rv["extra_config"] = extraConfig
-	}
-	for i, k := range keys {
-		rv[k] = split[i]
-	}
-	return rv, nil
+	_, err := parse(0, role, split)
+	return result, err
 }
 
 // MakeJobName assembles the given parts of a Job name, according to the schema.
 func (s *JobNameSchema) MakeJobName(parts map[string]string) (string, error) {
-	role, ok := parts["role"]
-	if !ok {
-		return "", fmt.Errorf("Invalid job parts; jobs must have a role.")
-	}
-	keys, ok := s.Schema[role]
-	if !ok {
-		return "", fmt.Errorf("Invalid job parts; unknown role %q", role)
-	}
 	rvParts := make([]string, 0, len(parts))
-	rvParts = append(rvParts, role)
-	for _, k := range keys {
-		v, ok := parts[k]
-		if !ok {
-			return "", fmt.Errorf("Invalid job parts; missing %q", k)
+
+	var process func(int, map[string]string) (map[string]string, error)
+	process = func(depth int, parts map[string]string) (map[string]string, error) {
+		roleKey := "role"
+		if depth != 0 {
+			roleKey = fmt.Sprintf("sub-role-%d", depth)
 		}
-		rvParts = append(rvParts, v)
+		role, ok := parts[roleKey]
+		if !ok {
+			return nil, fmt.Errorf("Invalid job parts; missing key %q", roleKey)
+		}
+
+		s, ok := s.Schema[role]
+		if !ok {
+			return nil, fmt.Errorf("Invalid job parts; unknown role %q", role)
+		}
+		rvParts = append(rvParts, role)
+		delete(parts, roleKey)
+
+		for _, key := range s.Keys {
+			value, ok := parts[key]
+			if !ok {
+				return nil, fmt.Errorf("Invalid job parts; missing %q", key)
+			}
+			rvParts = append(rvParts, value)
+			delete(parts, key)
+		}
+
+		if len(s.RecurseRoles) > 0 {
+			subRoleKey := fmt.Sprintf("sub-role-%d", depth+1)
+			subRole, ok := parts[subRoleKey]
+			if !ok {
+				return nil, fmt.Errorf("Invalid job parts; missing %q", subRoleKey)
+			}
+			rvParts = append(rvParts, subRole)
+			delete(parts, subRoleKey)
+			found := false
+			for _, recurseRole := range s.RecurseRoles {
+				if recurseRole == subRole {
+					found = true
+					var err error
+					parts, err = process(depth+1, parts)
+					if err != nil {
+						return nil, err
+					}
+					break
+				}
+			}
+			if !found {
+				return nil, fmt.Errorf("Invalid job parts; unknown sub-role %q", subRole)
+			}
+		}
+		for _, key := range s.OptionalKeys {
+			if value, ok := parts[key]; ok {
+				rvParts = append(rvParts, value)
+				delete(parts, key)
+			}
+		}
+		if len(parts) > 0 {
+			return nil, fmt.Errorf("Invalid job parts: too many parts: %v", parts)
+		}
+		return parts, nil
 	}
-	if _, ok := parts["extra_config"]; ok {
-		rvParts = append(rvParts, parts["extra_config"])
+
+	// Copy the parts map, so that we can modify at will.
+	partsCpy := make(map[string]string, len(parts))
+	for k, v := range parts {
+		partsCpy[k] = v
+	}
+	if _, err := process(0, partsCpy); err != nil {
+		return "", err
 	}
 	return strings.Join(rvParts, s.Sep), nil
 }
