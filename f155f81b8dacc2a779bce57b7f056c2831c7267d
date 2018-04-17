@@ -22,6 +22,30 @@
       "revId": "f155f81b8dacc2a779bce57b7f056c2831c7267d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "724d4709_ce3487b9",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-17T20:54:23Z",
+      "side": 1,
+      "message": "I think so. That way it is all contained in the strike cache. It will take some plumbing to get this done, but I don\u0027t think it is too hard.",
+      "parentUuid": "a924ff4d_6e26c622",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 17
+      },
+      "revId": "f155f81b8dacc2a779bce57b7f056c2831c7267d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
