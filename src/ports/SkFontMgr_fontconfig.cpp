@@ -692,7 +692,7 @@ protected:
         FcResult result;
         // Set an arbitrary limit on the number of pattern object values to consider.
         // TODO: re-write this to avoid N*M
-#ifdef OS_TIZEN
+#ifdef SK_BUILD_FOR_TIZEN
         // Tizen fonts have a lot of names...
         static const int maxId = 256;
 #else

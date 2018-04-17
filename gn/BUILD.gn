@@ -21,9 +21,15 @@ declare_args() {
       cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
     }
   } else if (is_tizen) {
-    ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar"
-    cc = "$ncli/tools/llvm-4.0.0/bin/clang"
-    cxx = "$ncli/tools/llvm-4.0.0/bin/clang++"
+    if (host_os == "win") {
+      ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar.exe"
+      cc = "$ncli/tools/llvm-4.0.0/bin/clang.exe"
+      cxx = "$ncli/tools/llvm-4.0.0/bin/clang++.exe"
+    } else {
+      ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar"
+      cc = "$ncli/tools/llvm-4.0.0/bin/clang"
+      cxx = "$ncli/tools/llvm-4.0.0/bin/clang++"
+    }
   }
 
   msvc = 2017
