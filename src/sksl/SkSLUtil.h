@@ -155,6 +155,10 @@ public:
         return nullptr;
     }
 
+    const char* secondExternalTextureExtensionString() const {
+        return nullptr;
+    }
+
     const char* versionDeclString() const {
         return "";
     }

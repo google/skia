@@ -2478,15 +2478,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
             fInvalidateFBType = kNone_InvalidateFBType;
     }
 
-    // Various Samsung devices (Note4, S7, ...) don't advertise the image_external_essl3 extension,
-    // (only the base image_external extension), but do support it, and require that it be enabled
-    // to work with ESSL3. This has been seen on both Mali and Adreno devices. skbug.com/7713
+    // Many ES3 drivers only advertise the ES2 image_external extension, but support the _essl3
+    // extension, and require that it be enabled to work with ESSL3. Other devices require the ES2
+    // extension to be enabled, even when using ESSL3. Enabling both extensions fixes both cases.
+    // skbug.com/7713
     if (ctxInfo.hasExtension("GL_OES_EGL_image_external") &&
         ctxInfo.glslGeneration() >= k330_GrGLSLGeneration &&
-        !shaderCaps->fExternalTextureSupport &&  // i.e. Missing the _essl3 extension
-        (kARM_GrGLVendor == ctxInfo.vendor() || kQualcomm_GrGLVendor == ctxInfo.vendor())) {
+        !shaderCaps->fExternalTextureSupport) { // i.e. Missing the _essl3 extension
         shaderCaps->fExternalTextureSupport = true;
-        shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
+        shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
+        shaderCaps->fSecondExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
     }
 }
 
