@@ -73,8 +73,23 @@
   {
     "cmd": [
       "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "makedirs perf"
+  },
+  {
+    "cmd": [
+      "python",
       "[START_DIR]/skia/tools/calmbench/ab.py",
-      "[CUSTOM_[SWARM_OUT_DIR]]",
+      "[START_DIR]/[SWARM_OUT_DIR]",
       "modified",
       "master",
       "[START_DIR]/out/Release/nanobench",
@@ -108,7 +123,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "Run calmbench"
   },

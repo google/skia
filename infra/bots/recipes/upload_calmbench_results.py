@@ -25,7 +25,7 @@ def FindFile(api, suffix):
   with api.context(cwd=api.path['start_dir']):
     results = api.file.glob_paths(
         'find %s results' % suffix,
-        api.path['start_dir'],
+        api.vars.perf_dir,
         '*.%s' % suffix,
         test_data=['bench_modified_master.%s' % suffix])
   if len(results) != 1:  # pragma: nocover

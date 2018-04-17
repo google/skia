@@ -27,6 +27,12 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.builder_name = self.m.properties['buildername']
 
     self.slave_dir = self.m.path['start_dir']
+
+    # Special input/output directories.
+    self.build_dir = self.slave_dir.join('build')
+    self.test_dir = self.slave_dir.join('test')
+    self.perf_dir = self.slave_dir.join('perf')
+
     self.checkout_root = self.slave_dir
     self.default_env = self.m.context.env
     self.default_env['CHROME_HEADLESS'] = '1'
@@ -34,7 +40,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
         self.default_env.get('PATH', '%(PATH)s'),
         str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
     ])
-    self.gclient_env = {}
+    self.gclient_env = {'DEPOT_TOOLS_UPDATE': '0'}
     self.is_compile_bot = self.builder_name.startswith('Build-')
 
     self.persistent_checkout = False
@@ -64,7 +70,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
       # got_revision is filled in after checkout steps.
       self.got_revision = None
     else:
-      # If there's no persistent checkout, then we have to asume we got the
+      # If there's no persistent checkout, then we have to assume we got the
       # correct revision of the files from isolate.
       self.got_revision = self.m.properties['revision']
 
@@ -90,7 +96,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.resource_dir = self.skia_dir.join('resources')
     self.images_dir = self.slave_dir.join('skimage')
     self.skia_out = self.skia_dir.join('out', self.builder_name)
-    self.swarming_out_dir = self.make_path(self.m.properties['swarm_out_dir'])
+    self.swarming_out_dir = self.slave_dir.join(
+        self.m.properties['swarm_out_dir'])
     if 'ParentRevision' in self.builder_name:
       # Tasks that depend on ParentRevision builds usually also depend on a
       # second build task. Use a different path for build results so that the
@@ -99,7 +106,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.local_skp_dir = self.slave_dir.join('skp')
     self.local_svg_dir = self.slave_dir.join('svg')
     if not self.is_compile_bot:
-      self.skia_out = self.slave_dir.join('out')
+      self.skia_out = self.build_dir.join('out')
     self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
     # Some bots also require a checkout of chromium.
