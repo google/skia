@@ -18,12 +18,12 @@ extern "C" {
 #endif
 
 // A row-major 3x3 matrix (ie vals[row][col])
-typedef struct {
+typedef struct skcms_Matrix3x3 {
     float vals[3][3];
 } skcms_Matrix3x3;
 
 // A row-major 3x4 matrix (ie vals[row][col])
-typedef struct {
+typedef struct skcms_Matrix3x4 {
     float vals[3][4];
 } skcms_Matrix3x4;
 
@@ -34,12 +34,12 @@ typedef struct {
 //          = sign(encoded) * ((a*|encoded| + b)^g + e), d <= |encoded|
 //
 // (A simple gamma transfer function sets g to gamma and a to 1.)
-typedef struct {
+typedef struct skcms_TransferFunction {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
-typedef union {
+typedef union skcms_Curve {
     struct {
         uint32_t alias_of_table_entries;
         skcms_TransferFunction parametric;
@@ -51,7 +51,7 @@ typedef union {
     };
 } skcms_Curve;
 
-typedef struct {
+typedef struct skcms_A2B {
     // Optional: N 1D curves, followed by an N-dimensional CLUT.
     // If input_channels == 0, these curves and CLUT are skipped,
     // Otherwise, input_channels must be in [1, 4].
@@ -73,7 +73,7 @@ typedef struct {
     skcms_Curve     output_curves[3];
 } skcms_A2B;
 
-typedef struct {
+typedef struct skcms_ICCProfile {
     const uint8_t* buffer;
 
     uint32_t size;
@@ -117,7 +117,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* ap
 
 // A specialized approximation for transfer functions with gamma between 1 and 3.
 //     f(x) = Ax^3 + Bx^2 + (1-A-B)x
-typedef struct {
+typedef struct skcms_TF13 {
     float A,B;
 } skcms_TF13;
 
@@ -127,7 +127,7 @@ bool skcms_ApproximateCurve13(const skcms_Curve* curve, skcms_TF13* approx, floa
 // no real upper bound on the error of this transfer function.
 skcms_TransferFunction skcms_BestSingleCurve(const skcms_ICCProfile*);
 
-typedef struct {
+typedef struct skcms_ICCTag {
     uint32_t       signature;
     uint32_t       type;
     uint32_t       size;
@@ -137,7 +137,7 @@ typedef struct {
 void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
 bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 
-typedef enum {
+typedef enum skcms_PixelFormat {
     skcms_PixelFormat_RGB_565,
     skcms_PixelFormat_BGR_565,
 
@@ -177,7 +177,7 @@ typedef enum {
 // with non-color-managed drawing systems, PremulAsEncoded is probably the "premul"
 // you're looking for; if you want linear blending, PremulLinear is the choice for you.
 
-typedef enum {
+typedef enum skcms_AlphaFormat {
     skcms_AlphaFormat_Opaque,          // alpha is always opaque
                                        //   tf-1(r),   tf-1(g),   tf-1(b),   1.0
     skcms_AlphaFormat_Unpremul,        // alpha and color are unassociated
