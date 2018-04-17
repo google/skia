@@ -1083,6 +1083,14 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             }
             fFoundImageDecl = true;
         }
+        if (!fFoundExternalSamplerDecl && var.fVar->fType == *fContext.fSamplerExternalOES_Type) {
+            if (fProgram.fSettings.fCaps->externalTextureExtensionString()) {
+                fHeader.writeText("#extension ");
+                fHeader.writeText(fProgram.fSettings.fCaps->externalTextureExtensionString());
+                fHeader.writeText(" : require\n");
+            }
+            fFoundExternalSamplerDecl = true;
+        }
     }
     if (wroteType) {
         this->write(";");

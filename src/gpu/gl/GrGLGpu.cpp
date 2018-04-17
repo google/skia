@@ -3568,10 +3568,6 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
             fshaderTxt.appendf("#extension %s : require\n", extension);
         }
     }
-    if (samplerType == kTextureExternalSampler_GrSLType) {
-        fshaderTxt.appendf("#extension %s : require\n",
-                           shaderCaps->externalTextureExtensionString());
-    }
     vTexCoord.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     vTexCoord.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";");
