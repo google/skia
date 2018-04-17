@@ -193,13 +193,13 @@ protected:
 
         if (fShowObject) {
             canvas->drawPath(path, paint);
-        } else {
-            SkPaint strokePaint;
+        //} else {
+        //    SkPaint strokePaint;
 
-            strokePaint.setColor(paint.getColor());
-            strokePaint.setStyle(SkPaint::kStroke_Style);
+        //    strokePaint.setColor(paint.getColor());
+        //    strokePaint.setStyle(SkPaint::kStroke_Style);
 
-            canvas->drawPath(path, strokePaint);
+        //    canvas->drawPath(path, strokePaint);
         }
     }
 

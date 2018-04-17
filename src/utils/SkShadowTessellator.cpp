@@ -253,20 +253,29 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
     // fill in fan from previous quad
     SkScalar rotSin, rotCos;
     int numSteps;
-    compute_radial_steps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
-    SkVector prevNormal = fPrevOutset;
+
+    // flatten out curve
+    SkPoint startPt = fPrevPoint + fPrevOutset;
+    SkPoint endPt = fPrevPoint + nextNormal;
+    SkVector midVector = fPrevOutset + nextNormal;
+    SkPoint pivotPt = fPrevPoint - midVector;
+    SkVector startVector = startPt - pivotPt;
+    SkVector endVector = endPt - pivotPt;
+    SkScalar pivotRadius = startVector.length();
+    compute_radial_steps(startVector, endVector, pivotRadius, &rotSin, &rotCos, &numSteps);
+    SkVector prevNormal = startVector;
     for (int i = 0; i < numSteps-1; ++i) {
         SkVector currNormal;
         currNormal.fX = prevNormal.fX*rotCos - prevNormal.fY*rotSin;
         currNormal.fY = prevNormal.fY*rotCos + prevNormal.fX*rotSin;
-        *fPositions.push() = fPrevPoint + currNormal;
+        *fPositions.push() = pivotPt + currNormal;
         *fColors.push() = fPenumbraColor;
         this->appendTriangle(fPrevUmbraIndex, fPositions.count() - 1, fPositions.count() - 2);
 
         prevNormal = currNormal;
     }
     if (finishArc && numSteps) {
-        *fPositions.push() = fPrevPoint + nextNormal;
+        *fPositions.push() = pivotPt + endVector;
         *fColors.push() = fPenumbraColor;
         this->appendTriangle(fPrevUmbraIndex, fPositions.count() - 1, fPositions.count() - 2);
     }
