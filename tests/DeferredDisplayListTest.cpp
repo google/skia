@@ -350,7 +350,7 @@ public:
         SkSurfaceCharacterization c = this->createCharacterization(context);
         SkAssertResult(c.isValid());
 
-        SkDeferredDisplayListRecorder r(c);
+        SkDeferredDisplayListRecorder r(c, 0, 0);
         SkCanvas* canvas = r.getCanvas();
         if (!canvas) {
             return nullptr;
@@ -710,7 +710,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     SkSurfaceCharacterization c;
     SkAssertResult(s->characterize(&c));
 
-    std::unique_ptr<SkDeferredDisplayListRecorder> recorder(new SkDeferredDisplayListRecorder(c));
+    std::unique_ptr<SkDeferredDisplayListRecorder> recorder(new SkDeferredDisplayListRecorder(c, 0, 0));
 
     SkCanvas* canvas = recorder->getCanvas();
     if (!canvas) {
@@ -763,13 +763,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         SkAssertResult(s->characterize(&characterization));
 
         // never calling getCanvas means the backing surface is never allocated
-        SkDeferredDisplayListRecorder recorder(characterization);
+        SkDeferredDisplayListRecorder recorder(characterization, 0, 0);
     }
 
     {
         SkSurfaceCharacterization invalid;
 
-        SkDeferredDisplayListRecorder recorder(invalid);
+        SkDeferredDisplayListRecorder recorder(invalid, 0, 0);
 
         const SkSurfaceCharacterization c = recorder.characterization();
         REPORTER_ASSERT(reporter, !c.isValid());
@@ -802,7 +802,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
     SkSurfaceCharacterization characterization;
     SkAssertResult(s->characterize(&characterization));
 
-    SkDeferredDisplayListRecorder recorder(characterization);
+    SkDeferredDisplayListRecorder recorder(characterization, 0, 0);
     SkCanvas* canvas = recorder.getCanvas();
 
     canvas->flush();
@@ -821,7 +821,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
     SkSurfaceCharacterization characterization;
     SkAssertResult(s->characterize(&characterization));
 
-    SkDeferredDisplayListRecorder recorder(characterization);
+    SkDeferredDisplayListRecorder recorder(characterization, 0, 0);
 
     for (GrGLenum target : { GR_GL_TEXTURE_EXTERNAL, GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_2D } ) {
         GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
