@@ -50,12 +50,10 @@ public:
         this->didRemoveRefOrPendingIO();
     }
 
-#ifdef SK_DEBUG
     bool isUnique_debugOnly() const { // For asserts.
         SkASSERT(fRefCnt >= 0 && fPendingWrites >= 0 && fPendingReads >= 0);
         return 1 == fRefCnt + fPendingWrites + fPendingReads;
     }
-#endif
 
     void release() {
         // The proxy itself may still have multiple refs. It can be owned by an SkImage and multiple

@@ -470,7 +470,12 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps,
                                                             bool managedOpList) {
-    if (this->wasAbandoned() || !sProxy->asRenderTargetProxy()) {
+    if (this->wasAbandoned()) {
+        SkDebugf("@@@@@> fail !wasAbandoned\n");
+        return nullptr;
+    }
+    if (!sProxy->asRenderTargetProxy()) {
+        SkDebugf("@@@@@> fail !asRenderTargetProxy\n");
         return nullptr;
     }
 
@@ -478,6 +483,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
     // by, including internal usage.
     if (!SkSurface_Gpu::Valid(fContext->caps(), sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
+        SkDebugf("@@@@@> fail colorspace\n");
         return nullptr;
     }
 
