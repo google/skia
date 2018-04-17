@@ -790,7 +790,6 @@ def test_steps(api):
   use_hash_file = False
   if api.vars.upload_dm_results:
     host_dm_dir = str(api.vars.dm_dir)
-    api.flavor.create_clean_host_dir(api.vars.test_dir)
     device_dm_dir = str(api.flavor.device_dirs.dm_dir)
     if host_dm_dir != device_dm_dir:
       api.flavor.create_clean_device_dir(device_dm_dir)
@@ -1157,7 +1156,7 @@ def GenTests(api):
     ) +
     api.step_data('dm', retcode=1) +
     api.step_data('pull /sdcard/revenge_of_the_skiabot/dm_out '+
-                  '[START_DIR]/[SWARM_OUT_DIR]/dm', retcode=1)
+                  '[CUSTOM_[SWARM_OUT_DIR]]/dm', retcode=1)
   )
 
   yield (

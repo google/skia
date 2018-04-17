@@ -90,34 +90,6 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "rmtree",
-      "[START_DIR]/test"
-    ],
-    "infra_step": true,
-    "name": "rmtree test"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/test"
-    ],
-    "infra_step": true,
-    "name": "makedirs test"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
@@ -137,7 +109,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "get uninteresting hashes",
@@ -210,7 +182,7 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/build/out/Debug/dm",
+      "[START_DIR]/out/Debug/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -251,7 +223,7 @@
       "--uninterestingHashesFile",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",
@@ -424,7 +396,7 @@
       "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_intel_driver_debug",
       "LIBGL_DRIVERS_PATH": "[START_DIR]/linux_vulkan_intel_driver_debug",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out",
+      "SKIA_OUT": "[START_DIR]/out",
       "VK_ICD_FILENAMES": "[START_DIR]/linux_vulkan_intel_driver_debug/intel_icd.x86_64.json"
     },
     "name": "symbolized dm"

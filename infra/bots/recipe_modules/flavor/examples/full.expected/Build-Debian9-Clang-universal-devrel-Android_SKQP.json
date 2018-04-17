@@ -120,7 +120,7 @@
       "/path/to/tmp/json",
       "copy",
       "[CUSTOM_/_B_WORK]/skia/infra/cts/whitelist_devices.json",
-      "[START_DIR]/[SWARM_OUT_DIR]"
+      "[CUSTOM_[SWARM_OUT_DIR]]"
     ],
     "infra_step": true,
     "name": "copy whitelist"

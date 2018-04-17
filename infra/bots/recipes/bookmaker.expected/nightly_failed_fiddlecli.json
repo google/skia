@@ -104,7 +104,7 @@
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "go version"
   },
@@ -119,7 +119,7 @@
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "env go version"
   },
@@ -137,13 +137,13 @@
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "go get fiddlecli"
   },
   {
     "cmd": [
-      "[START_DIR]/build/out/Release/bookmaker",
+      "[START_DIR]/out/Release/bookmaker",
       "-a",
       "docs/status.json",
       "-e",
@@ -156,7 +156,7 @@
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Extract all fiddles out of md files"
   },
@@ -177,7 +177,7 @@
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Force fiddle to compile all examples",
     "~followup_annotations": [

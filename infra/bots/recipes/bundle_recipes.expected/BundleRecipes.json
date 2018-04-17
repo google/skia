@@ -1,0 +1,61 @@
+[
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "PATH": "[START_DIR]/git:[START_DIR]/git/bin:<PATH>"
+    },
+    "infra_step": true,
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "add",
+      "."
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "PATH": "[START_DIR]/git:[START_DIR]/git/bin:<PATH>"
+    },
+    "infra_step": true,
+    "name": "git add"
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-m",
+      "commit recipes"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "PATH": "[START_DIR]/git:[START_DIR]/git/bin:<PATH>"
+    },
+    "infra_step": true,
+    "name": "git commit"
+  },
+  {
+    "cmd": [
+      "python",
+      "[START_DIR]/skia/infra/bots/recipes.py",
+      "bundle",
+      "--destination",
+      "[SWARM_OUT_DIR]/recipe_bundle"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "PATH": "[START_DIR]/git:[START_DIR]/git/bin:<PATH>"
+    },
+    "infra_step": true,
+    "name": "Bundle Recipes"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

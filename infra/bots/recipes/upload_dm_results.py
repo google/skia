@@ -29,7 +29,7 @@ def RunSteps(api):
   builder_name = api.properties['buildername']
   revision = api.properties['revision']
 
-  results_dir = api.path['start_dir'].join('test', 'dm')
+  results_dir = api.path['start_dir'].join('dm')
 
   # Move dm.json and verbose.log to their own directory.
   json_file = results_dir.join(DM_JSON)

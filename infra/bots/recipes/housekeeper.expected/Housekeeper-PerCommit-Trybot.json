@@ -122,7 +122,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Housekeeper-PerCommit/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Housekeeper-PerCommit/data"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "infra_step": true,
@@ -133,11 +133,11 @@
       "python",
       "RECIPE_MODULE[skia::core]/resources/run_binary_size_analysis.py",
       "--library",
-      "[START_DIR]/build/out/Release/libskia.so",
+      "[START_DIR]/out/Release/libskia.so",
       "--githash",
       "abc123",
       "--dest",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Housekeeper-PerCommit/data/nanobench_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Housekeeper-PerCommit/data/nanobench_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json",
       "--issue_number",
       "456789"
     ],
@@ -146,7 +146,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "generate binary size data"
   },
