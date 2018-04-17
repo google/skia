@@ -86,7 +86,7 @@ private:
 class SkStrikeDifferences {
 public:
     SkStrikeDifferences(SkFontID typefaceID, std::unique_ptr<SkDescriptor> desc);
-    void operator()(uint16_t glyphID, SkIPoint pos);
+    void add(uint16_t glyphID, SkIPoint pos);
     SkFontID fTypefaceID;
     std::unique_ptr<SkDescriptor> fDesc;
     std::unique_ptr<SkTHashSet<SkPackedGlyphID>> fGlyphIDs =
