@@ -191,8 +191,9 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
       self._adb('kill adb server', 'kill-server')
 
   def _ssh(self, title, *cmd, **kwargs):
+    self.m.run(self.m.step, 'which ssh', cmd=['which', 'ssh'])
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', 'root@%s' % self.user_ip] + list(cmd)
+               '-t', '-t', '-vv', 'root@%s' % self.user_ip] + list(cmd)
 
     return self.m.run(self.m.step, title, cmd=ssh_cmd, **kwargs)
 
