@@ -20,7 +20,6 @@ BUILDER_NAME_SCHEMA = None
 BUILDER_NAME_SEP = None
 
 # Builder roles.
-BUILDER_ROLE_CANARY = 'Canary'
 BUILDER_ROLE_BUILD = 'Build'
 BUILDER_ROLE_HOUSEKEEPER = 'Housekeeper'
 BUILDER_ROLE_INFRA = 'Infra'
@@ -28,8 +27,7 @@ BUILDER_ROLE_PERF = 'Perf'
 BUILDER_ROLE_TEST = 'Test'
 BUILDER_ROLE_UPLOAD = 'Upload'
 BUILDER_ROLE_CALMBENCH = "Calmbench"
-BUILDER_ROLES = (BUILDER_ROLE_CANARY,
-                 BUILDER_ROLE_BUILD,
+BUILDER_ROLES = (BUILDER_ROLE_BUILD,
                  BUILDER_ROLE_HOUSEKEEPER,
                  BUILDER_ROLE_INFRA,
                  BUILDER_ROLE_PERF,
@@ -74,47 +72,99 @@ def _LoadSchema():
 _LoadSchema()
 
 
-def MakeBuilderName(role, extra_config=None, **kwargs):
-  schema = BUILDER_NAME_SCHEMA.get(role)
-  if not schema:
-    raise ValueError('%s is not a recognized role.' % role)
-  for k, v in kwargs.iteritems():
+def MakeBuilderName(**parts):
+  for v in parts.itervalues():
     if BUILDER_NAME_SEP in v:
-      raise ValueError('%s not allowed in %s.' % (BUILDER_NAME_SEP, v))
-    if not k in schema:
-      raise ValueError('Schema does not contain "%s": %s' %(k, schema))
-  if extra_config and BUILDER_NAME_SEP in extra_config:
-    raise ValueError('%s not allowed in %s.' % (BUILDER_NAME_SEP,
-                                                extra_config))
-  name_parts = [role]
-  name_parts.extend([kwargs[attribute] for attribute in schema])
-  if extra_config:
-    name_parts.append(extra_config)
-  return BUILDER_NAME_SEP.join(name_parts)
+      raise ValueError('Parts cannot contain "%s"' % BUILDER_NAME_SEP)
+
+  rv_parts = []
+
+  def process(depth, parts):
+    role_key = 'role'
+    if depth != 0:
+      role_key = 'sub-role-%d' % depth
+    role = parts.get(role_key)
+    if not role:
+      raise ValueError('Invalid parts; missing key %s' % role_key)
+    s = BUILDER_NAME_SCHEMA.get(role)
+    if not s:
+      raise ValueError('Invalid parts; unknown role %s' % role)
+    rv_parts.append(role)
+    del parts[role_key]
+
+    for key in s.get('keys', []):
+      value = parts.get(key)
+      if not value:
+        raise ValueError('Invalid parts; missing %s' % key)
+      rv_parts.append(value)
+      del parts[key]
+
+    recurse_roles = s.get('recurse_roles', [])
+    if len(recurse_roles) > 0:
+      sub_role_key = 'sub-role-%d' % (depth+1)
+      sub_role = parts.get(sub_role_key)
+      if not sub_role:
+        raise ValueError('Invalid parts; missing %s' % sub_role_key)
+
+      found = False
+      for recurse_role in recurse_roles:
+        if recurse_role == sub_role:
+          found = True
+          parts = process(depth+1, parts)
+          break
+      if not found:
+        raise ValueError('Invalid parts; unknown sub-role %s' % sub_role)
+
+    for key in s.get('optional_keys', []):
+      if parts.get(key):
+        rv_parts.append(parts[key])
+        del parts[key]
+
+    if len(parts) > 0:
+      raise ValueError('Invalid parts; too many parts: %s' % parts)
+
+    return parts
+
+  process(0, parts)
+
+  return BUILDER_NAME_SEP.join(rv_parts)
 
 
 def DictForBuilderName(builder_name):
   """Makes a dictionary containing details about the builder from its name."""
-  split_name = builder_name.split(BUILDER_NAME_SEP)
+  split = builder_name.split(BUILDER_NAME_SEP)
 
-  def pop_front():
+  def pop_front(items):
     try:
-      return split_name.pop(0)
+      return items.pop(0), items
     except:
-      raise ValueError('Invalid builder name: %s' % builder_name)
+      raise ValueError(
+          'Invalid builder name: %s (not enough parts)' % builder_name)
 
   result = {}
-  if split_name[0] in BUILDER_NAME_SCHEMA.keys():
-    key_list = BUILDER_NAME_SCHEMA[split_name[0]]
-    result['role'] = pop_front()
-    for key in key_list:
-      result[key] = pop_front()
-    if split_name:
-      result['extra_config'] = pop_front()
-    if split_name:
+
+  def _parse(depth, role, parts):
+    schema = BUILDER_NAME_SCHEMA.get(role)
+    if not schema:
       raise ValueError('Invalid builder name: %s' % builder_name)
-  else:
-    raise ValueError('Invalid builder name: %s' % builder_name)
+    if depth == 0:
+      result['role'] = role
+    else:
+      result['sub-role-%d' % depth] = role
+    for key in schema.get('keys', []):
+      value, parts = pop_front(parts)
+      result[key] = value
+    for sub_role in schema.get('recurse_roles', []):
+      if len(parts) > 0 and sub_role == parts[0]:
+        parts = _parse(depth+1, parts[0], parts[1:])
+    for key in schema.get('optional_keys', []):
+      if parts:
+        value, parts = pop_front(parts)
+        result[key] = value
+    if parts:
+      raise ValueError('Invalid builder name: %s' % builder_name)
+    return parts
+
+  _parse(0, split[0], split[1:])
+
   return result
-
-
