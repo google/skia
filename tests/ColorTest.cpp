@@ -7,8 +7,10 @@
 
 #include "SkColor.h"
 #include "SkColorData.h"
+#include "SkColorPriv.h"
 #include "SkMathPriv.h"
 #include "SkRandom.h"
+#include "SkTypes.h"
 #include "SkUnPreMultiply.h"
 #include "Test.h"
 

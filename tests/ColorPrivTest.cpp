@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-
+#include "SkColor.h"
 #include "SkColorData.h"
+#include "SkColorPriv.h"
+#include "SkTypes.h"
+#include "Test.h"
 
 #define ASSERT(expr) REPORTER_ASSERT(r, expr)
 
