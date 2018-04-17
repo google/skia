@@ -31,6 +31,8 @@
 #include "SkTextFormatParams.h"
 #include "SkWriteBuffer.h"
 
+#include "base/logging.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
@@ -886,7 +888,8 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
                                         const SkMatrix* deviceMatrix,
                                         SkScalerContextFlags scalerContextFlags,
                                         SkScalerContextRec* rec,
-                                        SkScalerContextEffects* effects) {
+                                        SkScalerContextEffects* effects,
+                                        bool log) {
     SkASSERT(deviceMatrix == nullptr || !deviceMatrix->hasPerspective());
 
     SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
@@ -1036,7 +1039,7 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
     // cache. This way if we're asking for something that they will ignore,
     // they can modify our rec up front, so we don't create duplicate cache
     // entries.
-    typeface->onFilterRec(rec);
+    //typeface->onFilterRec(rec);
 
     if (!SkToBool(scalerContextFlags & SkScalerContextFlags::kFakeGamma)) {
         rec->ignoreGamma();
@@ -1225,6 +1228,44 @@ SkDescriptor* SkScalerContext::AutoDescriptorGivenRecAndEffects(
     generate_descriptor(rec, effects, &peBuffer, &mfBuffer, ad->getDesc());
 
     return ad->getDesc();
+}
+
+SkDescriptor* SkScalerContext::AutoDescriptorFromDesc(
+    const SkDescriptor* source_desc,
+    SkFontID font_id,
+    SkAutoDescriptor* ad) {
+  ad->reset(source_desc->getLength());
+  auto* desc = ad->getDesc();
+  desc->init();
+
+  // Rec.
+  {
+    uint32_t size;
+    auto ptr = source_desc->findEntry(kRec_SkDescriptorTag, &size);
+    SkScalerContextRec rec;
+    std::memcpy(&rec, ptr, size);
+    rec.fFontID = font_id;
+    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+  }
+
+  // Path effect.
+  {
+    uint32_t size;
+    auto ptr = source_desc->findEntry(kPathEffect_SkDescriptorTag, &size);
+    if (ptr)
+      desc->addEntry(kPathEffect_SkDescriptorTag, size, ptr);
+  }
+
+  // Mask filter.
+  {
+    uint32_t size;
+    auto ptr = source_desc->findEntry(kMaskFilter_SkDescriptorTag, &size);
+    if (ptr)
+      desc->addEntry(kMaskFilter_SkDescriptorTag, size, ptr);
+  }
+
+  desc->computeChecksum();
+  return desc;
 }
 
 std::unique_ptr<SkDescriptor> SkScalerContext::DescriptorGivenRecAndEffects(
