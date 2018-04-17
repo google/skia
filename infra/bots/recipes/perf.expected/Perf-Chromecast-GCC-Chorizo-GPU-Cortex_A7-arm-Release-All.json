@@ -9,7 +9,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "read chromecast ip",
@@ -33,7 +33,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "adb connect 192.168.1.2:5555"
@@ -51,7 +51,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "mkdir /cache/skia/resources"
@@ -69,7 +69,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "mkdir /cache/skia/bin"
@@ -86,7 +86,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push [START_DIR]/skia/resources/* /cache/skia/resources",
@@ -152,7 +152,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "read /cache/skia/SKP_VERSION",
@@ -171,7 +171,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm /cache/skia/SKP_VERSION"
@@ -189,7 +189,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm /cache/skia/skps"
@@ -207,7 +207,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "mkdir /cache/skia/skps"
@@ -224,7 +224,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push [START_DIR]/skp/* /cache/skia/skps",
@@ -262,7 +262,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SKP_VERSION /cache/skia/SKP_VERSION"
@@ -280,7 +280,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "rm /cache/skia/perf"
@@ -298,7 +298,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "mkdir /cache/skia/perf"
@@ -335,7 +335,7 @@
     "cmd": [
       "adb",
       "push",
-      "[START_DIR]/out/Release/nanobench",
+      "[START_DIR]/build/out/Release/nanobench",
       "/cache/skia/bin"
     ],
     "cwd": "[START_DIR]/skia",
@@ -343,7 +343,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "push nanobench"
@@ -403,7 +403,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "nanobench"
   },
@@ -417,7 +417,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -427,17 +427,17 @@
       "adb",
       "pull",
       "/cache/skia/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
-    "name": "pull /cache/skia/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
+    "name": "pull /cache/skia/perf [START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
   },
   {
     "cmd": [
@@ -455,7 +455,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "Delete executables"
@@ -470,7 +470,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "disconnect"
@@ -485,7 +485,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "adb connect 192.168.1.2:5555 (2)"
@@ -495,13 +495,13 @@
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[START_DIR]/out/Release"
+      "[START_DIR]/build/out/Release"
     ],
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "dump log",
@@ -534,7 +534,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "disconnect (2)"
@@ -549,7 +549,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/build/out"
     },
     "infra_step": true,
     "name": "kill adb server"
