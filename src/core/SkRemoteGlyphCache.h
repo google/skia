@@ -11,7 +11,6 @@
 #include <memory>
 #include <tuple>
 #include <unordered_map>
-#include <vector>
 
 #include "SkData.h"
 #include "SkDescriptor.h"
@@ -87,10 +86,13 @@ class SkStrikeDifferences {
 public:
     SkStrikeDifferences(SkFontID typefaceID, std::unique_ptr<SkDescriptor> desc);
     void add(uint16_t glyphID, SkIPoint pos);
+
     SkFontID fTypefaceID;
     std::unique_ptr<SkDescriptor> fDesc;
-    std::unique_ptr<SkTHashSet<SkPackedGlyphID>> fGlyphIDs =
-            skstd::make_unique<SkTHashSet<SkPackedGlyphID>>();
+
+    // Top 16 bits are the base glyph ID.
+    // The bottom 16 are a bitmask of the 4x4 possible subpixel positions needed, 1<<(4y+x).
+    SkTDArray<uint32_t> fGlyphIDsAndPositionMasks;
 };
 
 class SkStrikeCacheDifferenceSpec {
@@ -157,7 +159,7 @@ public:
     ~SkStrikeServer();
 
     // embedding clients call these methods
-    void serve(const SkData&, std::vector<uint8_t>*);
+    void serve(const SkData&, SkTDArray<uint8_t>*);
 
     void prepareSerializeProcs(SkSerialProcs* procs);
 
@@ -202,7 +204,7 @@ private:
 
     SkStrikeCacheClientRPC fClientRPC;
 
-    std::vector<uint8_t> fBuffer;
+    SkTDArray<uint8_t> fBuffer;
 };
 
 #endif  // SkRemoteGlyphCache_DEFINED

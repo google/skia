@@ -340,6 +340,17 @@ public:
         fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
     }
 
+    // Methods to fit std::vector's API
+    void    clear()       { this->rewind(); }
+    const T* data() const { return this->begin(); }
+          T* data()       { return this->begin(); }
+    size_t   size() const { return this->count(); }
+
+    void resize (size_t n) { this->setCount(n); }
+    void reserve(size_t n) { this->setReserve(n); }
+
+    void push_back(const T& v) { this->push(v); }
+
 private:
     T*      fArray;
     int     fReserve;
