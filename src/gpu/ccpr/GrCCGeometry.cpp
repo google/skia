@@ -27,7 +27,7 @@ void GrCCGeometry::beginContour(const SkPoint& pt) {
     SkASSERT(!fBuildingContour);
     // Store the current verb count in the fTriangles field for now. When we close the contour we
     // will use this value to calculate the actual number of triangles in its fan.
-    fCurrContourTallies = {fVerbs.count(), 0, 0, 0};
+    fCurrContourTallies = {fVerbs.count(), 0, 0, 0, 0};
 
     fPoints.push_back(pt);
     fVerbs.push_back(Verb::kBeginContour);
@@ -125,7 +125,8 @@ static inline bool is_convex_curve_monotonic(const Sk2f& startPt, const Sk2f& ta
     return dot0 >= tolerance && dot1 >= tolerance;
 }
 
-static inline Sk2f lerp(const Sk2f& a, const Sk2f& b, const Sk2f& t) {
+template<int N> static inline SkNx<N,float> lerp(const SkNx<N,float>& a, const SkNx<N,float>& b,
+                                                 const SkNx<N,float>& t) {
     return SkNx_fma(t, b - a, a);
 }
 
@@ -328,6 +329,54 @@ static inline bool is_cubic_nearly_quadratic(const Sk2f& p0, const Sk2f& p1, con
     return ((c1 - c2).abs() <= 1).allTrue();
 }
 
+// Given a convex curve segment with the following order-2 tangent function:
+//
+//                                                       |C2x  C2y|
+//     tan = some_scale * |dx/dt  dy/dt| = |t^2  t  1| * |C1x  C1y|
+//                                                       |C0x  C0y|
+//
+// This function finds the T value whose tangent angle is halfway between the tangents at T=0 and
+// T=1 (tan0 and tan1).
+static inline float find_midtangent(const Sk2f& tan0, const Sk2f& tan1,
+                                    float scale2, const Sk2f& C2,
+                                    float scale1, const Sk2f& C1,
+                                    float scale0, const Sk2f& C0) {
+    // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
+    // midtangent. 'n' will therefore bisect tan0 and -tan1, giving us the normal to the midtangent.
+    //
+    //     n dot midtangent = 0
+    //
+    Sk2f n = normalize(tan0) - normalize(tan1);
+
+    // Find the T value at the midtangent. This is a simple quadratic equation:
+    //
+    //     midtangent dot n = 0
+    //
+    //     (|t^2  t  1| * C) dot n = 0
+    //
+    //     |t^2  t  1| dot C*n = 0
+    //
+    // First find coeffs = C*n.
+    Sk4f C[2];
+    Sk2f::Store4(C, C2, C1, C0, 0);
+    Sk4f coeffs = C[0]*n[0] + C[1]*n[1];
+    if (1 != scale2 || 1 != scale1 || 1 != scale0) {
+        coeffs *= Sk4f(scale2, scale1, scale0, 0);
+    }
+
+    // Now solve the quadratic.
+    float a = coeffs[0], b = coeffs[1], c = coeffs[2];
+    float discr = b*b - 4*a*c;
+    if (discr < 0) {
+        return 0; // This will only happen if the curve is a line.
+    }
+
+    // The roots are q/a and c/q. Pick the one closer to T=.5.
+    float q = -.5f * (b + copysignf(std::sqrt(discr), b));
+    float r = .5f*q*a;
+    return std::abs(q*q - r) < std::abs(a*c - r) ? q/a : c/q;
+}
+
 void GrCCGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopIntersectPad) {
     SkASSERT(fBuildingContour);
     SkASSERT(P[0] == fPoints.back());
@@ -486,7 +535,7 @@ void GrCCGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopInter
         this->appendMonotonicCubics(p0, ab2, abc2, abcd2);
     } else if (T2 > T1) {
         // Section 3 (middle section).
-        Sk2f midp2 = lerp(abc2, abcd2, T1/T2);
+        Sk2f midp2 = lerp(abc2, abcd2, Sk2f(T1/T2));
         this->appendMonotonicCubics(midp0, midp1, midp2, abcd2);
     }
 
@@ -499,25 +548,18 @@ template<GrCCGeometry::AppendCubicFn AppendLeftRight>
 inline void GrCCGeometry::chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
                                                 const Sk2f& p3, const Sk2f& tan0,
                                                 const Sk2f& tan1, int maxFutureSubdivisions) {
-    // Find the T value whose tangent is perpendicular to the vector that bisects tan0 and -tan1.
-    Sk2f n = normalize(tan0) - normalize(tan1);
-
-    float a = 3 * dot(p3 + (p1 - p2)*3 - p0, n);
-    float b = 6 * dot(p0 - p1*2 + p2, n);
-    float c = 3 * dot(p1 - p0, n);
-
-    float discr = b*b - 4*a*c;
-    if (discr < 0) {
-        // If this is the case then the cubic must be nearly flat.
-        (this->*AppendLeftRight)(p0, p1, p2, p3, maxFutureSubdivisions);
+    float midT = find_midtangent(tan0, tan1, 3, p3 + (p1 - p2)*3 - p0,
+                                             6, p0 - p1*2 + p2,
+                                             3, p1 - p0);
+    // Use positive logic since NaN fails comparisons. (However midT should not be NaN since we cull
+    // near-flat cubics in cubicTo().)
+    if (!(midT > 0 && midT < 1)) {
+        // The cubic is flat. Otherwise there would be a real midtangent inside T=0..1.
+        this->appendLine(p3);
         return;
     }
 
-    float q = -.5f * (b + copysignf(std::sqrt(discr), b));
-    float m = .5f*q*a;
-    float T = std::abs(q*q - m) < std::abs(a*c - m) ? q/a : c/q;
-
-    this->chopCubic<AppendLeftRight, AppendLeftRight>(p0, p1, p2, p3, T, maxFutureSubdivisions);
+    this->chopCubic<AppendLeftRight, AppendLeftRight>(p0, p1, p2, p3, midT, maxFutureSubdivisions);
 }
 
 template<GrCCGeometry::AppendCubicFn AppendLeft, GrCCGeometry::AppendCubicFn AppendRight>
@@ -608,6 +650,87 @@ void GrCCGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, cons
     } else {
         this->appendSingleMonotonicQuadratic(p0, c, p3);
     }
+}
+
+void GrCCGeometry::conicTo(const SkPoint P[3], float w) {
+    SkASSERT(fBuildingContour);
+    SkASSERT(P[0] == fPoints.back());
+    Sk2f p0 = Sk2f::Load(P);
+    Sk2f p1 = Sk2f::Load(P+1);
+    Sk2f p2 = Sk2f::Load(P+2);
+
+    // Don't crunch on the curve if it is nearly flat (or just very small). Collinear control points
+    // can break the midtangent-finding math below.
+    if (are_collinear(p0, p1, p2)) {
+        this->appendLine(p2);
+        return;
+    }
+
+    Sk2f tan0 = p1 - p0;
+    Sk2f tan1 = p2 - p1;
+    // The derivative of a conic has a cumbersome order-4 denominator. However, this isn't necessary
+    // if we are only interested in a vector in the same *direction* as a given tangent line. Since
+    // the denominator scales dx and dy uniformly, we can throw it out completely after evaluating
+    // the derivative with the standard quotient rule. This leaves us with a simpler quadratic
+    // function that we use to find the midtangent.
+    float midT = find_midtangent(tan0, tan1, 1, (w - 1) * (p2 - p0),
+                                             1, (p2 - p0) - 2*w*(p1 - p0),
+                                             1, w*(p1 - p0));
+    // Use positive logic since NaN fails comparisons. (However midT should not be NaN since we cull
+    // near-linear conics above. And while w=0 is flat, it's not a line and has valid midtangents.)
+    if (!(midT > 0 && midT < 1)) {
+        // The conic is flat. Otherwise there would be a real midtangent inside T=0..1.
+        this->appendLine(p2);
+        return;
+    }
+
+    // Evaluate the conic at midT.
+    Sk4f p3d0 = Sk4f(p0[0], p0[1], 1, 0);
+    Sk4f p3d1 = Sk4f(p1[0], p1[1], 1, 0) * w;
+    Sk4f p3d2 = Sk4f(p2[0], p2[1], 1, 0);
+    Sk4f midT4 = midT;
+
+    Sk4f p3d01 = lerp(p3d0, p3d1, midT4);
+    Sk4f p3d12 = lerp(p3d1, p3d2, midT4);
+    Sk4f p3d012 = lerp(p3d01, p3d12, midT4);
+
+    Sk2f midpoint = Sk2f(p3d012[0], p3d012[1]) / p3d012[2];
+
+    if (are_collinear(p0, midpoint, p2, 1) || // Check if the curve is within one pixel of flat.
+        ((midpoint - p1).abs() < 1).allTrue()) { // Check if the curve is almost a triangle.
+        // Draw the conic as a triangle instead. Our AA approximation won't do well if the curve
+        // gets wrapped too tightly, and if we get too close to p1 we will pick up artifacts from
+        // the implicit function's reflection.
+        this->appendLine(midpoint);
+        this->appendLine(p2);
+        return;
+    }
+
+    if (!is_convex_curve_monotonic(p0, tan0, p2, tan1)) {
+        // Chop the conic at midtangent to produce two monotonic segments.
+        Sk2f ww = Sk2f(p3d01[2], p3d12[2]) * Sk2f(p3d012[2]).rsqrt();
+        this->appendMonotonicConic(p0, Sk2f(p3d01[0], p3d01[1]) / p3d01[2], midpoint, ww[0]);
+        this->appendMonotonicConic(midpoint, Sk2f(p3d12[0], p3d12[1]) / p3d12[2], p2, ww[1]);
+        return;
+    }
+
+    this->appendMonotonicConic(p0, p1, p2, w);
+}
+
+void GrCCGeometry::appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, float w) {
+    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+
+    // Don't send curves to the GPU if we know they are nearly flat (or just very small).
+    if (are_collinear(p0, p1, p2)) {
+        this->appendLine(p2);
+        return;
+    }
+
+    p1.store(&fPoints.push_back());
+    p2.store(&fPoints.push_back());
+    fConicWeights.push_back(w);
+    fVerbs.push_back(Verb::kMonotonicConicTo);
+    ++fCurrContourTallies.fConics;
 }
 
 GrCCGeometry::PrimitiveTallies GrCCGeometry::endContour() {

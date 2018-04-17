@@ -65,10 +65,6 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
 
     SkPath path;
     args.fShape->asPath(&path);
-    if (SkPathPriv::ConicWeightCnt(path)) {
-        return CanDrawPath::kNo;
-    }
-
     SkRect devBounds;
     SkIRect devIBounds;
     args.fViewMatrix->mapRect(&devBounds, path.getBounds());
@@ -94,7 +90,7 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
 }
 
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    SkASSERT(!fFlushing);
+    myskassert(!fFlushing);
     auto op = skstd::make_unique<DrawPathsOp>(this, args, args.fPaint.getColor());
     args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     return true;
@@ -148,10 +144,10 @@ CCPR::DrawPathsOp::~DrawPathsOp() {
 GrDrawOp::RequiresDstTexture CCPR::DrawPathsOp::finalize(const GrCaps& caps,
                                                          const GrAppliedClip* clip,
                                                          GrPixelConfigIsClamped dstIsClamped) {
-    SkASSERT(!fCCPR->fFlushing);
+    myskassert(!fCCPR->fFlushing);
     // There should only be one single path draw in this Op right now.
-    SkASSERT(1 == fInstanceCount);
-    SkASSERT(&fHeadDraw == fTailDraw);
+    myskassert(1 == fInstanceCount);
+    myskassert(&fHeadDraw == fTailDraw);
     GrProcessorSet::Analysis analysis =
             fProcessors.finalize(fHeadDraw.fColor, GrProcessorAnalysisCoverage::kSingleChannel,
                                  clip, false, caps, dstIsClamped, &fHeadDraw.fColor);
@@ -160,12 +156,12 @@ GrDrawOp::RequiresDstTexture CCPR::DrawPathsOp::finalize(const GrCaps& caps,
 
 bool CCPR::DrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
     DrawPathsOp* that = op->cast<DrawPathsOp>();
-    SkASSERT(fCCPR == that->fCCPR);
-    SkASSERT(!fCCPR->fFlushing);
-    SkASSERT(fOwningRTPendingPaths);
-    SkASSERT(fInstanceCount);
-    SkASSERT(!that->fOwningRTPendingPaths || that->fOwningRTPendingPaths == fOwningRTPendingPaths);
-    SkASSERT(that->fInstanceCount);
+    myskassert(fCCPR == that->fCCPR);
+    myskassert(!fCCPR->fFlushing);
+    myskassert(fOwningRTPendingPaths);
+    myskassert(fInstanceCount);
+    myskassert(!that->fOwningRTPendingPaths || that->fOwningRTPendingPaths == fOwningRTPendingPaths);
+    myskassert(that->fInstanceCount);
 
     if (this->getFillType() != that->getFillType() || fSRGBFlags != that->fSRGBFlags ||
         fProcessors != that->fProcessors) {
@@ -183,8 +179,8 @@ bool CCPR::DrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
 }
 
 void CCPR::DrawPathsOp::wasRecorded(GrRenderTargetOpList* opList) {
-    SkASSERT(!fCCPR->fFlushing);
-    SkASSERT(!fOwningRTPendingPaths);
+    myskassert(!fCCPR->fFlushing);
+    myskassert(!fOwningRTPendingPaths);
     fOwningRTPendingPaths = &fCCPR->fRTPendingPathsMap[opList->uniqueID()];
     fOwningRTPendingPaths->fDrawOps.addToTail(this);
 }
@@ -193,11 +189,6 @@ bool GrCoverageCountingPathRenderer::canMakeClipProcessor(const SkPath& deviceSp
     if (!fDrawCachablePaths && !deviceSpacePath.isVolatile()) {
         return false;
     }
-
-    if (SkPathPriv::ConicWeightCnt(deviceSpacePath)) {
-        return false;
-    }
-
     return true;
 }
 
@@ -207,8 +198,8 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
         int rtWidth, int rtHeight) {
     using MustCheckBounds = GrCCClipProcessor::MustCheckBounds;
 
-    SkASSERT(!fFlushing);
-    SkASSERT(this->canMakeClipProcessor(deviceSpacePath));
+    myskassert(!fFlushing);
+    myskassert(this->canMakeClipProcessor(deviceSpacePath));
 
     ClipPath& clipPath = fRTPendingPathsMap[opListID].fClipPaths[deviceSpacePath.getGenerationID()];
     if (clipPath.isUninitialized()) {
@@ -226,15 +217,15 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
 void CCPR::ClipPath::init(GrProxyProvider* proxyProvider,
                           const SkPath& deviceSpacePath, const SkIRect& accessRect,
                           int rtWidth, int rtHeight) {
-    SkASSERT(this->isUninitialized());
+    myskassert(this->isUninitialized());
 
     fAtlasLazyProxy = proxyProvider->createFullyLazyProxy(
             [this](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     return sk_sp<GrTexture>();
                 }
-                SkASSERT(fHasAtlas);
-                SkASSERT(!fHasAtlasTransform);
+                myskassert(fHasAtlas);
+                myskassert(!fHasAtlasTransform);
 
                 GrTextureProxy* textureProxy = fAtlas ? fAtlas->textureProxy() : nullptr;
                 if (!textureProxy || !textureProxy->instantiate(resourceProvider)) {
@@ -243,7 +234,7 @@ void CCPR::ClipPath::init(GrProxyProvider* proxyProvider,
                     return sk_sp<GrTexture>();
                 }
 
-                SkASSERT(kTopLeft_GrSurfaceOrigin == textureProxy->origin());
+                myskassert(kTopLeft_GrSurfaceOrigin == textureProxy->origin());
 
                 fAtlasScale = {1.f / textureProxy->width(), 1.f / textureProxy->height()};
                 fAtlasTranslate = {fAtlasOffsetX * fAtlasScale.x(),
@@ -270,12 +261,12 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
                                               SkTArray<sk_sp<GrRenderTargetContext>>* results) {
     using PathInstance = GrCCPathProcessor::Instance;
 
-    SkASSERT(!fFlushing);
-    SkASSERT(!fPerFlushIndexBuffer);
-    SkASSERT(!fPerFlushVertexBuffer);
-    SkASSERT(!fPerFlushInstanceBuffer);
-    SkASSERT(!fPerFlushPathParser);
-    SkASSERT(fPerFlushAtlases.empty());
+    myskassert(!fFlushing);
+    myskassert(!fPerFlushIndexBuffer);
+    myskassert(!fPerFlushVertexBuffer);
+    myskassert(!fPerFlushInstanceBuffer);
+    myskassert(!fPerFlushPathParser);
+    myskassert(fPerFlushAtlases.empty());
     SkDEBUGCODE(fFlushing = true);
 
     if (fRTPendingPathsMap.empty()) {
@@ -342,7 +333,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     }
 
     PathInstance* pathInstanceData = static_cast<PathInstance*>(fPerFlushInstanceBuffer->map());
-    SkASSERT(pathInstanceData);
+    myskassert(pathInstanceData);
     int pathInstanceIdx = 0;
 
     fPerFlushPathParser = sk_make_sp<GrCCPathParser>(maxTotalPaths, maxPathPoints, numSkPoints,
@@ -373,7 +364,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 
     fPerFlushInstanceBuffer->unmap();
 
-    SkASSERT(pathInstanceIdx == maxTotalPaths - skippedTotalPaths - numClipPaths);
+    myskassert(pathInstanceIdx == maxTotalPaths - skippedTotalPaths - numClipPaths);
 
     if (!fPerFlushAtlases.empty()) {
         auto coverageCountBatchID = fPerFlushPathParser->closeCurrentBatch();
@@ -401,8 +392,8 @@ int CCPR::DrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
                                       int pathInstanceIdx) {
     GrCCPathParser* parser = fCCPR->fPerFlushPathParser.get();
     const GrCCAtlas* currentAtlas = nullptr;
-    SkASSERT(fInstanceCount > 0);
-    SkASSERT(-1 == fBaseInstance);
+    myskassert(fInstanceCount > 0);
+    myskassert(-1 == fBaseInstance);
     fBaseInstance = pathInstanceIdx;
 
     for (const SingleDraw* draw = this->head(); draw; draw = draw->fNext) {
@@ -439,7 +430,7 @@ int CCPR::DrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
                 draw->fColor};
     }
 
-    SkASSERT(pathInstanceIdx == fBaseInstance + fInstanceCount - fNumSkippedInstances);
+    myskassert(pathInstanceIdx == fBaseInstance + fInstanceCount - fNumSkippedInstances);
     if (currentAtlas) {
         this->addAtlasBatch(currentAtlas, pathInstanceIdx);
     }
@@ -450,8 +441,8 @@ int CCPR::DrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
 void CCPR::ClipPath::placePathInAtlas(GrCoverageCountingPathRenderer* ccpr,
                                       GrOnFlushResourceProvider* onFlushRP,
                                       GrCCPathParser* parser) {
-    SkASSERT(!this->isUninitialized());
-    SkASSERT(!fHasAtlas);
+    myskassert(!this->isUninitialized());
+    myskassert(!fHasAtlas);
     parser->parseDeviceSpacePath(fDeviceSpacePath);
     fAtlas = ccpr->placeParsedPathInAtlas(onFlushRP, fAccessRect, fPathDevIBounds, &fAtlasOffsetX,
                                           &fAtlasOffsetY);
@@ -499,14 +490,14 @@ GrCCAtlas* GrCoverageCountingPathRenderer::placeParsedPathInAtlas(
 }
 
 void CCPR::DrawPathsOp::onExecute(GrOpFlushState* flushState) {
-    SkASSERT(fCCPR->fFlushing);
-    SkASSERT(flushState->rtCommandBuffer());
+    myskassert(fCCPR->fFlushing);
+    myskassert(flushState->rtCommandBuffer());
 
     if (!fCCPR->fPerFlushResourcesAreValid) {
         return;  // Setup failed.
     }
 
-    SkASSERT(fBaseInstance >= 0);  // Make sure setupResources has been called.
+    myskassert(fBaseInstance >= 0);  // Make sure setupResources has been called.
 
     GrPipeline::InitArgs initArgs;
     initArgs.fFlags = fSRGBFlags;
@@ -520,7 +511,7 @@ void CCPR::DrawPathsOp::onExecute(GrOpFlushState* flushState) {
 
     for (int i = 0; i < fAtlasBatches.count(); baseInstance = fAtlasBatches[i++].fEndInstanceIdx) {
         const AtlasBatch& batch = fAtlasBatches[i];
-        SkASSERT(batch.fEndInstanceIdx > baseInstance);
+        myskassert(batch.fEndInstanceIdx > baseInstance);
 
         if (!batch.fAtlas->textureProxy()) {
             continue;  // Atlas failed to allocate.
@@ -539,12 +530,12 @@ void CCPR::DrawPathsOp::onExecute(GrOpFlushState* flushState) {
         flushState->rtCommandBuffer()->draw(pipeline, pathProc, &mesh, nullptr, 1, this->bounds());
     }
 
-    SkASSERT(baseInstance == fBaseInstance + fInstanceCount - fNumSkippedInstances);
+    myskassert(baseInstance == fBaseInstance + fInstanceCount - fNumSkippedInstances);
 }
 
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opListIDs,
                                                int numOpListIDs) {
-    SkASSERT(fFlushing);
+    myskassert(fFlushing);
     fPerFlushAtlases.reset();
     fPerFlushPathParser.reset();
     fPerFlushInstanceBuffer.reset();

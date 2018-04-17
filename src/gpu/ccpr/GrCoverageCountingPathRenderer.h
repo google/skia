@@ -18,6 +18,8 @@
 #include "ccpr/GrCCPathProcessor.h"
 #include "ops/GrDrawOp.h"
 
+#define myskassert(C) if (!(C)) { SkDebugf("@@@@@> myskassert failed!!! %s, %s, %s", #C, __FILE__, __LINE__); }
+
 /**
  * This is a path renderer that draws antialiased paths by counting coverage in an offscreen
  * buffer. (See GrCCCoverageProcessor, GrCCPathProcessor)
@@ -35,8 +37,8 @@ public:
 
     ~GrCoverageCountingPathRenderer() override {
         // Ensure no Ops exist that could have a dangling pointer back into this class.
-        SkASSERT(fRTPendingPathsMap.empty());
-        SkASSERT(0 == fPendingDrawOpsCount);
+        myskassert(fRTPendingPathsMap.empty());
+        myskassert(0 == fPendingDrawOpsCount);
     }
 
     // This is the Op that ultimately draws a path into its final destination, using the atlas we
@@ -58,7 +60,7 @@ public:
         };
 
         const SingleDraw* head() const {
-            SkASSERT(fInstanceCount >= 1);
+            myskassert(fInstanceCount >= 1);
             return &fHeadDraw;
         }
 
@@ -82,7 +84,7 @@ public:
 
     private:
         SkPath::FillType getFillType() const {
-            SkASSERT(fInstanceCount >= 1);
+            myskassert(fInstanceCount >= 1);
             return fHeadDraw.fPath.getFillType();
         }
 
@@ -92,8 +94,8 @@ public:
         };
 
         void addAtlasBatch(const GrCCAtlas* atlas, int endInstanceIdx) {
-            SkASSERT(endInstanceIdx > fBaseInstance);
-            SkASSERT(fAtlasBatches.empty() ||
+            myskassert(endInstanceIdx > fBaseInstance);
+            myskassert(fAtlasBatches.empty() ||
                      endInstanceIdx > fAtlasBatches.back().fEndInstanceIdx);
             fAtlasBatches.push_back() = {atlas, endInstanceIdx};
         }
@@ -129,9 +131,9 @@ public:
 
         ~ClipPath() {
             // Ensure no clip FPs exist with a dangling pointer back into this class.
-            SkASSERT(!fAtlasLazyProxy || fAtlasLazyProxy->isUnique_debugOnly());
+            myskassert(!fAtlasLazyProxy || fAtlasLazyProxy->isUnique_debugOnly());
             // Ensure no lazy proxy callbacks exist with a dangling pointer back into this class.
-            SkASSERT(fHasAtlasTransform);
+            myskassert(fHasAtlasTransform);
         }
 
         bool isUninitialized() const { return !fAtlasLazyProxy; }
@@ -139,31 +141,31 @@ public:
                   const SkPath& deviceSpacePath, const SkIRect& accessRect,
                   int rtWidth, int rtHeight);
         void addAccess(const SkIRect& accessRect) {
-            SkASSERT(!this->isUninitialized());
+            myskassert(!this->isUninitialized());
             fAccessRect.join(accessRect);
         }
 
         GrTextureProxy* atlasLazyProxy() const {
-            SkASSERT(!this->isUninitialized());
+            myskassert(!this->isUninitialized());
             return fAtlasLazyProxy.get();
         }
         const SkPath& deviceSpacePath() const {
-            SkASSERT(!this->isUninitialized());
+            myskassert(!this->isUninitialized());
             return fDeviceSpacePath;
         }
         const SkIRect& pathDevIBounds() const {
-            SkASSERT(!this->isUninitialized());
+            myskassert(!this->isUninitialized());
             return fPathDevIBounds;
         }
         void placePathInAtlas(GrCoverageCountingPathRenderer*, GrOnFlushResourceProvider*,
                               GrCCPathParser*);
 
         const SkVector& atlasScale() const {
-            SkASSERT(fHasAtlasTransform);
+            myskassert(fHasAtlasTransform);
             return fAtlasScale;
         }
         const SkVector& atlasTranslate() const {
-            SkASSERT(fHasAtlasTransform);
+            myskassert(fHasAtlasTransform);
             return fAtlasTranslate;
         }
 
@@ -206,7 +208,7 @@ private:
     struct RTPendingPaths {
         ~RTPendingPaths() {
             // Ensure all DrawPathsOps in this opList have been deleted.
-            SkASSERT(fDrawOps.isEmpty());
+            myskassert(fDrawOps.isEmpty());
         }
 
         SkTInternalLList<DrawPathsOp> fDrawOps;
