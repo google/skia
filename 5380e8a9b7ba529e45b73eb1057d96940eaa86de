@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0ea2029_add0f0ed",
+        "filename": "src/core/SkBlitMask_D32.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-17T21:56:32Z",
+      "side": 1,
+      "message": "This is roughly equivalent, right?  But trims a mul?\n\n const auto s_aa \u003d s.approxMulDiv255(aa);\n return s_aa + d.approxMulDiv255(s_aa.alphas().inv());",
+      "range": {
+        "startLine": 86,
+        "startChar": 11,
+        "endLine": 87,
+        "endChar": 53
+      },
+      "revId": "5380e8a9b7ba529e45b73eb1057d96940eaa86de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
