@@ -8,6 +8,8 @@
 #ifndef GrVulkanDefines_DEFINED
 #define GrVulkanDefines_DEFINED
 
+#include "SkTypes.h"
+
 #if defined(SK_BUILD_FOR_WIN)
 #   if !defined(VK_USE_PLATFORM_WIN32_KHR)
 #      define VK_USE_PLATFORM_WIN32_KHR
@@ -28,6 +30,6 @@
 #define VK_NO_PROTOTYPES
 #endif
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.h> // IWYU pragma: export
 
 #endif
