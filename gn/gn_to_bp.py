@@ -95,6 +95,7 @@ cc_library_static {
 
     defaults: ["skia_deps",
                "skia_pgo",
+               "skia_lto",
     ],
 }
 
@@ -121,6 +122,18 @@ cc_defaults {
     ],
     pgo: {
         enable_profile_use: false,
+    },
+}
+
+// Build Skia libraries with ThinLTO.
+cc_defaults {
+    name: "skia_lto",
+    target: {
+        android: {
+            lto: {
+                thin: true,
+            },
+        },
     },
 }
 
@@ -157,7 +170,8 @@ cc_defaults {
     name: "skia_tool_deps",
     defaults: [
         "skia_deps",
-        "skia_pgo_no_profile_use"
+        "skia_pgo_no_profile_use",
+        "skia_lto",
     ],
     static_libs: [
         "libjsoncpp",
