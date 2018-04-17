@@ -57,6 +57,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fFragCoordConventionsExtensionString = nullptr;
     fSecondaryOutputExtensionString = nullptr;
     fExternalTextureExtensionString = nullptr;
+    fSecondExternalTextureExtensionString = nullptr;
     fTexelBufferExtensionString = nullptr;
     fNoPerspectiveInterpolationExtensionString = nullptr;
     fFBFetchColorName = nullptr;
