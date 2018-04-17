@@ -405,10 +405,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
             fPaintOverrides.fFlags |= SkPaint::kAntiAlias_Flag;
             fPaint.setAntiAlias(false);
-            fPaintOverrides.fOriginalSkUseAnalyticAA = gSkUseAnalyticAA;
-            fPaintOverrides.fOriginalSkForceAnalyticAA = gSkForceAnalyticAA;
-            fPaintOverrides.fOriginalSkUseDeltaAA = gSkUseDeltaAA;
-            fPaintOverrides.fOriginalSkForceDeltaAA = gSkForceDeltaAA;
             gSkUseAnalyticAA = gSkForceAnalyticAA = false;
             gSkUseDeltaAA = gSkForceDeltaAA = false;
         } else {
@@ -416,24 +412,30 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             switch (fPaintOverrides.fAntiAlias) {
                 case SkPaintFields::AntiAliasState::Alias:
                     fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Normal;
+                    gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                    gSkUseDeltaAA = gSkForceDeltaAA = false;
                     break;
                 case SkPaintFields::AntiAliasState::Normal:
                     fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::AnalyticAAEnabled;
-                    gSkUseDeltaAA = gSkForceDeltaAA = false;
                     gSkUseAnalyticAA = true;
+                    gSkForceAnalyticAA = false;
+                    gSkUseDeltaAA = gSkForceDeltaAA = false;
                     break;
                 case SkPaintFields::AntiAliasState::AnalyticAAEnabled:
                     fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::AnalyticAAForced;
-                    gSkForceAnalyticAA = true;
+                    gSkUseAnalyticAA = gSkForceAnalyticAA = true;
+                    gSkUseDeltaAA = gSkForceDeltaAA = false;
                     break;
                 case SkPaintFields::AntiAliasState::AnalyticAAForced:
                     fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::DeltaAAEnabled;
                     gSkUseAnalyticAA = gSkForceAnalyticAA = false;
                     gSkUseDeltaAA = true;
+                    gSkForceDeltaAA = false;
                     break;
                 case SkPaintFields::AntiAliasState::DeltaAAEnabled:
                     fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::DeltaAAForced;
-                    gSkForceDeltaAA = true;
+                    gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                    gSkUseDeltaAA = gSkForceDeltaAA = true;
                     break;
                 case SkPaintFields::AntiAliasState::DeltaAAForced:
                     fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
@@ -1342,6 +1344,105 @@ void Viewer::drawImGui() {
 
             if (fShowSlidePicker) {
                 ImGui::SetNextTreeNodeOpen(true);
+            }
+
+            if (ImGui::CollapsingHeader("Paint")) {
+                int hintingIdx = 0;
+                if (fPaintOverrides.fHinting) {
+                    hintingIdx = fPaint.getHinting() + 1;
+                }
+                if (ImGui::Combo("Hinting", &hintingIdx,
+                                 "Default\0None\0Slight\0Normal\0Full\0\0"))
+                {
+                    if (hintingIdx == 0) {
+                        fPaintOverrides.fHinting = false;
+                        fPaint.setHinting(SkPaint::kNo_Hinting);
+                    } else {
+                        fPaintOverrides.fHinting = true;
+                        SkPaint::Hinting hinting = SkTo<SkPaint::Hinting>(hintingIdx - 1);
+                        fPaint.setHinting(hinting);
+                    }
+                    paramsChanged = true;
+                }
+
+                int aliasIdx = 0;
+                if (fPaintOverrides.fFlags & SkPaint::kAntiAlias_Flag) {
+                    aliasIdx = SkTo<int>(fPaintOverrides.fAntiAlias) + 1;
+                }
+                if (ImGui::Combo("Anti-Alias", &aliasIdx,
+                                 "Default\0Alias\0Normal\0AnalyticAAEnabled\0AnalyticAAForced\0"
+                                 "DeltaAAEnabled\0DeltaAAForced\0\0"))
+                {
+                    gSkUseAnalyticAA = fPaintOverrides.fOriginalSkUseAnalyticAA;
+                    gSkForceAnalyticAA = fPaintOverrides.fOriginalSkForceAnalyticAA;
+                    gSkUseDeltaAA = fPaintOverrides.fOriginalSkUseDeltaAA;
+                    gSkForceDeltaAA = fPaintOverrides.fOriginalSkForceDeltaAA;
+                    if (aliasIdx == 0) {
+                        fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
+                        fPaintOverrides.fFlags &= ~SkPaint::kAntiAlias_Flag;
+                    } else {
+                        fPaintOverrides.fFlags |= SkPaint::kAntiAlias_Flag;
+                        fPaintOverrides.fAntiAlias =SkTo<SkPaintFields::AntiAliasState>(aliasIdx-1);
+                        fPaint.setAntiAlias(aliasIdx > 1);
+                        switch (fPaintOverrides.fAntiAlias) {
+                            case SkPaintFields::AntiAliasState::Alias:
+                                break;
+                            case SkPaintFields::AntiAliasState::Normal:
+                                break;
+                            case SkPaintFields::AntiAliasState::AnalyticAAEnabled:
+                                gSkUseAnalyticAA = true;
+                                gSkForceAnalyticAA = false;
+                                gSkUseDeltaAA = gSkForceDeltaAA = false;
+                                break;
+                            case SkPaintFields::AntiAliasState::AnalyticAAForced:
+                                gSkUseAnalyticAA = gSkForceAnalyticAA = true;
+                                gSkUseDeltaAA = gSkForceDeltaAA = false;
+                                break;
+                            case SkPaintFields::AntiAliasState::DeltaAAEnabled:
+                                gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                                gSkUseDeltaAA = true;
+                                gSkForceDeltaAA = false;
+                                break;
+                            case SkPaintFields::AntiAliasState::DeltaAAForced:
+                                gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                                gSkUseDeltaAA = gSkForceDeltaAA = true;
+                                break;
+                        }
+                    }
+                    paramsChanged = true;
+                }
+
+                int subpixelAAIdx = 0;
+                if (fPaintOverrides.fFlags & SkPaint::kLCDRenderText_Flag) {
+                    subpixelAAIdx = fPaint.isLCDRenderText() ? 2 : 1;
+                }
+                if (ImGui::Combo("Subpixel Anti-Alias", &subpixelAAIdx,
+                                 "Default\0lcd\0LCD\0\0"))
+                {
+                    if (subpixelAAIdx == 0) {
+                        fPaintOverrides.fFlags &= ~SkPaint::kLCDRenderText_Flag;
+                    } else {
+                        fPaintOverrides.fFlags |= SkPaint::kLCDRenderText_Flag;
+                        fPaint.setLCDRenderText(subpixelAAIdx == 2);
+                    }
+                    paramsChanged = true;
+                }
+
+                int subpixelPositionIdx = 0;
+                if (fPaintOverrides.fFlags & SkPaint::kSubpixelText_Flag) {
+                    subpixelPositionIdx = fPaint.isSubpixelText() ? 2 : 1;
+                }
+                if (ImGui::Combo("Subpixel Position Glyphs", &subpixelPositionIdx,
+                                 "Default\0Pixel Glyphs\0Subpixel Glyphs\0\0"))
+                {
+                    if (subpixelPositionIdx == 0) {
+                        fPaintOverrides.fFlags &= ~SkPaint::kSubpixelText_Flag;
+                    } else {
+                        fPaintOverrides.fFlags |= SkPaint::kSubpixelText_Flag;
+                        fPaint.setSubpixelText(subpixelPositionIdx == 2);
+                    }
+                    paramsChanged = true;
+                }
             }
 
             if (ImGui::CollapsingHeader("Slide")) {
