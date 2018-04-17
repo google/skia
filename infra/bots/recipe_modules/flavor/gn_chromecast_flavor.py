@@ -198,6 +198,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
 
   def step(self, name, cmd, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    self.m.run(self.m.step, 'chmod', cmd=['chmod', 'a+x', app])
 
     self._adb('push %s' % cmd[0],
               'push', app, self.m.vars.android_bin_dir)
