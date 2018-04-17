@@ -564,6 +564,9 @@ addMissingClose:
     // If autoClose, check if close generates diagonal
     bool result = 4 == corners && (closeXY.isZero() || (autoClose && (!closeXY.fX || !closeXY.fY)));
     if (!result) {
+        if (closeXY.fX && closeXY.fY) {
+            return false;   // we're diagonal, abort
+        }
         // check if we are just an incomplete rectangle, in which case we can
         // return true, but not claim to be closed.
         // e.g.
