@@ -7,6 +7,7 @@
 
 
 #include "SkGlyphCache.h"
+#include "SkAutoMalloc.h"
 #include "SkGraphics.h"
 #include "SkOnce.h"
 #include "SkPaintPriv.h"
@@ -14,6 +15,7 @@
 #include "SkTemplates.h"
 #include "SkTraceMemoryDump.h"
 #include "SkTypeface.h"
+#include "SkOTTable_COLR.h"
 
 #include <cctype>
 
@@ -49,6 +51,9 @@ SkGlyphCache::~SkGlyphCache() {
     fGlyphMap.foreach([](SkGlyph* g) {
         if (g->fPathData) {
             delete g->fPathData->fPath;
+        }
+        if (g->fColorLayer) {
+            delete[] g->fColorLayer;
         }
     });
 }
@@ -207,6 +212,34 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     }
     return glyph.fImage;
 }
+
+const SkColorLayer* SkGlyphCache::findColorLayers(const SkGlyph& glyph, size_t* count) {
+  SkFontTableTag colrTag(SkSetFourByteTag('C','O','L','R'));
+  size_t colrTableSize = fScalerContext->getTypeface()->getTableSize(colrTag);
+  if (!colrTableSize)
+    return nullptr;
+  SkAutoMalloc tableBuffer(colrTableSize);
+  size_t retrievedTableBytes = fScalerContext->getTypeface()->getTableData(colrTag, 0, colrTableSize, tableBuffer.get());
+  SkASSERT(retrievedTableBytes == colrTableSize);
+
+  size_t numColorLayersForGlyph =
+          findColorLayersForGlyphId(reinterpret_cast<SkOTTableColor*>(tableBuffer.get()),
+                                    glyph.getGlyphID(), nullptr, nullptr);
+
+  if (glyph.fColorLayerCount == kColorLayersNotRetrieved) {
+    const size_t fakeArrayCount = 5;
+    SkColorLayer* colorLayer = fAlloc.makeArray<SkColorLayer>(numColorLayersForGlyph);
+    findColorLayersForGlyphId(reinterpret_cast<SkOTTableColor*>(tableBuffer.get()),
+                              glyph.getGlyphID(), (SkOTTableColor::LayerRecord*)colorLayer, &numColorLayersForGlyph);
+    const_cast<SkGlyph&>(glyph).fColorLayerCount = numColorLayersForGlyph;
+    const_cast<SkGlyph&>(glyph).fColorLayer = colorLayer;
+  }
+
+  SkASSERT(glyph.fColorLayerCount != kColorLayersNotRetrieved);
+  *count = glyph.fColorLayerCount;
+  return glyph.fColorLayer;
+}
+
 
 const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
     if (glyph.fWidth) {

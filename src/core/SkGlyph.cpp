@@ -8,11 +8,13 @@
 #include "SkGlyph.h"
 
 void SkGlyph::initWithGlyphID(SkPackedGlyphID glyph_id) {
-    fID             = glyph_id;
-    fImage          = nullptr;
-    fPathData       = nullptr;
-    fMaskFormat     = MASK_FORMAT_UNKNOWN;
-    fForceBW        = 0;
+    fID              = glyph_id;
+    fImage           = nullptr;
+    fPathData        = nullptr;
+    fMaskFormat      = MASK_FORMAT_UNKNOWN;
+    fForceBW         = 0;
+    fColorLayerCount = kColorLayersNotRetrieved;
+    fColorLayer      = nullptr;
 }
 
 void SkGlyph::toMask(SkMask* mask) const {

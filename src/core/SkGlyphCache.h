@@ -105,6 +105,11 @@ public:
     */
     const SkPath* findPath(const SkGlyph&);
 
+    /** Return the color layers (according to the COLR OpenType table) for an
+     * SkGlyph as an array of SkColorLayers. Out parameter count contains the
+     * number of layers. */
+    const SkColorLayer* findColorLayers(const SkGlyph&, size_t* count);
+
     /** Return the vertical metrics for this strike.
     */
     const SkPaint::FontMetrics& getFontMetrics() const {

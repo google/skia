@@ -159,6 +159,7 @@ public:
 #endif
 
     friend class SkThreadedBMPDevice; // to access private method drawPath
+    friend class DrawOneGlyph;
 };
 
 #endif

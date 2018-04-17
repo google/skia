@@ -23,6 +23,7 @@ class SkGlyphCache;
 #define MASK_FORMAT_JUST_ADVANCE    MASK_FORMAT_UNKNOWN
 
 #define kMaxGlyphWidth (1<<13)
+static constexpr size_t kColorLayersNotRetrieved = static_cast<size_t>(-1);
 
 /** (glyph-index or unicode-point) + subpixel-pos */
 struct SkPackedID {
@@ -131,6 +132,11 @@ struct SkPackedUnicharID : public SkPackedID {
     }
 };
 
+struct SkColorLayer {
+    SkGlyphID fGlyphID;
+    uint16_t  fPaletteIndex;
+};
+
 SK_BEGIN_REQUIRE_DENSE
 class SkGlyph {
     // Support horizontal and vertical skipping strike-through / underlines.
@@ -151,16 +157,18 @@ class SkGlyph {
 
 public:
     static const SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedID::kSubBits;
-    void*       fImage;
-    PathData*   fPathData;
-    float       fAdvanceX, fAdvanceY;
+    void*         fImage;
+    PathData*     fPathData;
+    size_t        fColorLayerCount;
+    SkColorLayer* fColorLayer;
+    float         fAdvanceX, fAdvanceY;
 
-    uint16_t    fWidth, fHeight;
-    int16_t     fTop, fLeft;
+    uint16_t      fWidth, fHeight;
+    int16_t       fTop, fLeft;
 
-    uint8_t     fMaskFormat;
-    int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
-    int8_t      fForceBW;
+    uint8_t       fMaskFormat;
+    int8_t        fRsbDelta, fLsbDelta;  // used by auto-kerning
+    int8_t        fForceBW;
 
     void initWithGlyphID(SkPackedGlyphID glyph_id);
 

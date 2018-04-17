@@ -20,6 +20,7 @@
 #include "SkMaskFilterBase.h"
 #include "SkMatrix.h"
 #include "SkMatrixUtils.h"
+#include "SKOTTable_CPAL.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkPathPriv.h"
@@ -1401,6 +1402,17 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength, SkScalar x, 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+static SkColor lookupColorIndexFromTypeface(SkTypeface* typeface, uint16_t colorIndex) {
+  SkFontTableTag cpalTag(SkSetFourByteTag('C','P','A','L'));
+  size_t cpalTableSize = typeface->getTableSize(cpalTag);
+  SkAutoMalloc tableBuffer(cpalTableSize);
+  size_t retrievedTableBytes = typeface->getTableData(cpalTag, 0, cpalTableSize, tableBuffer.get());
+  SkASSERT(retrievedTableBytes == cpalTableSize);
+  SkOTTableColorPalette* cpalTable = (SkOTTableColorPalette*)tableBuffer.get();
+  return colorForIndexFromFirstPalette(cpalTable, colorIndex);
+}
+
+
 class DrawOneGlyph {
 public:
     DrawOneGlyph(const SkDraw& draw, const SkPaint& paint, SkGlyphCache* cache, SkBlitter* blitter)
@@ -1425,6 +1437,37 @@ public:
             return;
         }
 
+        size_t colorLayerCount = 0;
+        const SkColorLayer* colorLayers = fGlyphCache->findColorLayers(glyph, &colorLayerCount);
+
+        if (!colorLayerCount) {
+            DrawOneLayer(glyph, position);
+            return;
+        }
+
+        SkFixed subX = glyph.getSubXFixed();
+        SkFixed subY = glyph.getSubYFixed();
+        SkColor someColors[] = { SK_ColorYELLOW, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorRED, SK_ColorBLUE, SK_ColorBLACK };
+        SkPaint currentPaint(fPaint);
+        for (size_t i = 0; i < colorLayerCount; ++i) {
+            const SkGlyph& layerGlyph =
+                    fGlyphCache->getGlyphIDMetrics(colorLayers[i].fGlyphID, subX, subY);
+            printf("layer glyph id %d, extents: %hu %hu\n", colorLayers[i].fGlyphID, layerGlyph.fWidth, layerGlyph.fHeight);
+            if (layerGlyph.fWidth && layerGlyph.fHeight) {
+              if (colorLayers[i].fPaletteIndex == 0xFFFF) {
+                currentPaint = fPaint;
+              } else {
+                  currentPaint.setColor(lookupColorIndexFromTypeface(
+                          fGlyphCache->getScalerContext()->getTypeface(),
+                          colorLayers[i].fPaletteIndex));
+              }
+              DrawOneLayer(layerGlyph, position, &currentPaint);
+            }
+        }
+    }
+
+private:
+    void DrawOneLayer(const SkGlyph& glyph, SkPoint position, const SkPaint* paint = nullptr) {
         int left = SkScalarFloorToInt(position.fX);
         int top  = SkScalarFloorToInt(position.fY);
         SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
@@ -1445,7 +1488,7 @@ public:
             if (!clipper.done() && this->getImageData(glyph, &mask)) {
                 const SkIRect& cr = clipper.rect();
                 do {
-                    this->blitMask(mask, cr);
+                    this->blitMask(mask, cr, paint);
                     clipper.next();
                 } while (!clipper.done());
             }
@@ -1462,12 +1505,11 @@ public:
             }
 
             if (this->getImageData(glyph, &mask)) {
-                this->blitMask(mask, *bounds);
+                this->blitMask(mask, *bounds, paint);
             }
         }
     }
 
-private:
     static bool UsingRegionToDraw(const SkRasterClip* rClip) {
         return rClip->isBW() && !rClip->isRect();
     }
@@ -1493,8 +1535,13 @@ private:
         return true;
     }
 
-    void blitMask(const SkMask& mask, const SkIRect& clip) const {
-        if (SkMask::kARGB32_Format == mask.fFormat) {
+    void blitMask(const SkMask& mask, const SkIRect& clip, const SkPaint* paint = nullptr) const {
+        printf("mask format: %d", mask.fFormat);
+        // For fonts with color glyphs, incoming as bitmaps here, or as COLR
+        // layer that needs colorization using the specified paint, take the
+        // drawSprite path.
+        // TODO: Always use drawDevMask (for COLR / when paint is specified)?
+        if (SkMask::kARGB32_Format == mask.fFormat && !paint) {
             SkBitmap bm;
             bm.installPixels(
                 SkImageInfo::MakeN32Premul(mask.fBounds.width(), mask.fBounds.height()),
@@ -1502,7 +1549,12 @@ private:
 
             fDraw.drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), fPaint);
         } else {
+          if (paint) {
+            // COLR glyph mask needs to be blit with custom SkPaint.
+            fDraw.drawDevMask(mask, *paint);
+          } else {
             fBlitter->blitMask(mask, clip);
+          }
         }
     }
 
