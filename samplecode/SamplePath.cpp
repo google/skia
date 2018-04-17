@@ -669,6 +669,9 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setAntiAlias(true);
 
+        SkPaint paint2(paint);
+        paint2.setColor(0xFF008800);
+
         paint.setColor(0xFF888888);
         canvas->drawLine(fPts[0], fPts[3], paint);
         canvas->drawLine(fQuad[0], fQuad[2], paint);
@@ -683,15 +686,18 @@ protected:
 
         SkVector v0 = (fPts[0] - fPts[1] - fPts[1] + fPts[2]) * fScale;
         SkVector v1 = (fPts[1] - fPts[2] - fPts[2] + fPts[3]) * fScale;
+        SkVector v = (v0 + v1) * 0.5f;
 
         SkPoint anchor;
         SkScalar ts[2];
         int n = find_max_deviation_cubic(fPts, ts);
         if (n > 0) {
             SkEvalCubicAt(fPts, ts[0], &anchor, nullptr, nullptr);
+            canvas->drawLine(anchor, anchor + v, paint2);
             canvas->drawLine(anchor, anchor + v0, paint);
             if (n == 2) {
                 SkEvalCubicAt(fPts, ts[1], &anchor, nullptr, nullptr);
+                canvas->drawLine(anchor, anchor + v, paint2);
             }
             canvas->drawLine(anchor, anchor + v1, paint);
         }
