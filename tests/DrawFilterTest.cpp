@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDrawFilter.h"
-#include "SkSurface.h"
-#include "Test.h"
+#include "SkCanvas.h"      // for SkCanvas
+#include "SkDrawFilter.h"  // for SkDrawFilter, SkDrawFilter::Type
+#include "SkRefCnt.h"      // for sk_sp
+#include "SkSurface.h"     // for SkSurface
+#include "Test.h"          // for REPORTER_ASSERT, Reporter, DEF_TEST
+class SkPaint;
 
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
 
