@@ -204,7 +204,7 @@ template <typename D, typename S> constexpr inline bool SkTFitsIn(S s) {
     using RealS = typename sktfitsin::Private::underlying_type<S>::type;
     using RealD = typename sktfitsin::Private::underlying_type<D>::type;
 
-    return sktfitsin::Private::SkTFitsIn<RealD, RealS>::type::fits(s);
+    return sktfitsin::Private::SkTFitsIn<RealD, RealS>::type::fits(static_cast<RealS>(s));
 }
 
 #endif
