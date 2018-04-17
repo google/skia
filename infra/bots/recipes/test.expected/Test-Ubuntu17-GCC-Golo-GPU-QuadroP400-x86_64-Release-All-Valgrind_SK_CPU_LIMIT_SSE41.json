@@ -120,7 +120,7 @@
       "--error-exitcode=1",
       "--num-callers=40",
       "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
-      "[START_DIR]/out/Release/dm",
+      "[START_DIR]/build/out/Release/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -294,7 +294,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out",
+      "SKIA_OUT": "[START_DIR]/build/out",
       "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
     },
     "name": "dm"

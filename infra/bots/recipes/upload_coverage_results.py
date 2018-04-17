@@ -48,13 +48,13 @@ def RunSteps(api):
 
   # The raw data files are brought in as isolated inputs. It is possible
   # for there to be 1 if the coverage task wasn't broken up.
-  raw_inputs = api.file.glob_paths('find raw inputs', api.path['start_dir'],
-                                   RAW_FILE,
-                                   test_data=['a.raw', 'b.raw', 'c.raw'])
+  raw_inputs = api.file.glob_paths(
+      'find raw inputs', api.path['start_dir'].join('coverage'),
+      RAW_FILE, test_data=['a.raw', 'b.raw', 'c.raw'])
 
 
   # The instrumented executable is brought in as an isolated input.
-  executable = api.path['start_dir'].join('out','Debug','dm')
+  executable = api.path['start_dir'].join('build', 'out','Debug','dm')
   # clang_dir is brought in via CIPD.
   clang_dir = api.path['start_dir'].join('clang_linux', 'bin')
 
