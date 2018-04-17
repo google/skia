@@ -428,6 +428,9 @@ static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& pain
 void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
                                     const SkRect* src, const SkRect& dst,
                                     const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
+    SkASSERT(dst.isFinite());
+    SkASSERT(dst.isSorted());
+
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc, tmpDst;
     SkBitmap    tmpBitmap;
@@ -456,6 +459,9 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
             }
             // recompute dst, based on the smaller tmpSrc
             matrix.mapRect(&tmpDst, tmpSrc);
+            if (!tmpDst.isFinite()) {
+                return;
+            }
             dstPtr = &tmpDst;
         }
     }
