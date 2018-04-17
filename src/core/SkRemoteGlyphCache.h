@@ -87,10 +87,13 @@ class SkStrikeDifferences {
 public:
     SkStrikeDifferences(SkFontID typefaceID, std::unique_ptr<SkDescriptor> desc);
     void add(uint16_t glyphID, SkIPoint pos);
+
     SkFontID fTypefaceID;
     std::unique_ptr<SkDescriptor> fDesc;
-    std::unique_ptr<SkTHashSet<SkPackedGlyphID>> fGlyphIDs =
-            skstd::make_unique<SkTHashSet<SkPackedGlyphID>>();
+
+    // Top 16 bits are the base glyph ID.
+    // The bottom 16 are a bitmask of the 4x4 possible subpixel positions needed, 1<<(4y+x).
+    std::vector<uint32_t> fGlyphIDsAndPositionMasks;
 };
 
 class SkStrikeCacheDifferenceSpec {
