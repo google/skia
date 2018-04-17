@@ -46,6 +46,30 @@
       "revId": "f155f81b8dacc2a779bce57b7f056c2831c7267d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eee47f4c_3483c757",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-17T20:55:35Z",
+      "side": 1,
+      "message": "Sounds good.",
+      "parentUuid": "724d4709_ce3487b9",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 17
+      },
+      "revId": "f155f81b8dacc2a779bce57b7f056c2831c7267d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
