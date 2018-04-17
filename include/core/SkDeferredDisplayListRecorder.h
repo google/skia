@@ -37,7 +37,7 @@ class SkSurface;
  */
 class SK_API SkDeferredDisplayListRecorder {
 public:
-    SkDeferredDisplayListRecorder(const SkSurfaceCharacterization&);
+    SkDeferredDisplayListRecorder(const SkSurfaceCharacterization&, int x, int y);
     ~SkDeferredDisplayListRecorder();
 
     const SkSurfaceCharacterization& characterization() const {
@@ -119,6 +119,7 @@ private:
     bool init();
 
     const SkSurfaceCharacterization             fCharacterization;
+    int fX, fY;
 
 #if SK_SUPPORT_GPU
     sk_sp<GrContext>                            fContext;

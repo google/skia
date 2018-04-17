@@ -2192,7 +2192,7 @@ public:
     // replacing each image-index with a promise image.
     void preprocess(SkData* compressedPictureData, const PromiseImageHelper& helper) {
 
-        SkDeferredDisplayListRecorder recorder(fCharacterization);
+        SkDeferredDisplayListRecorder recorder(fCharacterization, fClip.fLeft, fClip.fTop);
 
         // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
         // Maybe set it up in the ctor?
@@ -2214,7 +2214,7 @@ public:
         }
 
         subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
-        subCanvas->translate(-fClip.fLeft, -fClip.fTop);
+//        subCanvas->translate(-fClip.fLeft, -fClip.fTop);
 
         // Note: in this use case we only render a picture to the deferred canvas
         // but, more generally, clients will use arbitrary draw calls.

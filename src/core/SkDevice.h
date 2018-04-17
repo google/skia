@@ -339,6 +339,7 @@ protected:
 private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
+    friend class SkDeferredDisplayListRecorder; // for setOrigin
     friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
     friend class SkDrawIter;

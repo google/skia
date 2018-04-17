@@ -48,8 +48,11 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
 #include "SkImage_Gpu.h"
 #include "SkSurface_Gpu.h"
 
-SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c)
-        : fCharacterization(c) {
+SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c,
+                                                             int x, int y)
+        : fCharacterization(c)
+        , fX(x)
+        , fY(y) {
     if (fCharacterization.isValid()) {
         fContext = GrContextPriv::MakeDDL(fCharacterization.refContextInfo());
     }
@@ -65,6 +68,8 @@ SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
     }
 }
 
+#include "SkGpuDevice.h"
+#include "GrRenderTargetContext.h"
 
 bool SkDeferredDisplayListRecorder::init() {
     SkASSERT(fContext);
@@ -124,8 +129,23 @@ bool SkDeferredDisplayListRecorder::init() {
                                                                  std::move(proxy),
                                                                  fCharacterization.refColorSpace(),
                                                                  &fCharacterization.surfaceProps());
+#if 0
     fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(),
                                                       sk_ref_sp(c->asRenderTargetContext()));
+#else
+    sk_sp<GrRenderTargetContext> rtc = sk_ref_sp(c->asRenderTargetContext());
+    int w = c->width();
+    int h = c->height();
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(fContext.get(), std::move(rtc),
+                                                w, h, SkGpuDevice::kUninit_InitContents));
+    if (!device) {
+        return nullptr;
+    }
+
+    device->setOrigin(SkMatrix::I(), fX, fY);
+
+    fSurface = sk_make_sp<SkSurface_Gpu>(std::move(device));
+#endif
     return SkToBool(fSurface.get());
 }
 
