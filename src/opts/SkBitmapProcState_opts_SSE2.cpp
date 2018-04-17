@@ -234,11 +234,18 @@ void S32_alpha_D32_filter_DX_SSE2(const SkBitmapProcState& s,
     } while (--count > 0);
 }
 
+// Temporarily go into 64bit so we don't overflow during the add. Since we shift down by 16
+// in the end, the result should always fit back in 32bits.
+static inline int32_t safe_fixed_add_shift(SkFixed a, SkFixed b) {
+    int64_t tmp = a;
+    return SkToS32((tmp + b) >> 16);
+}
+
 static inline uint32_t ClampX_ClampY_pack_filter(SkFixed f, unsigned max,
                                                  SkFixed one) {
     unsigned i = SkClampMax(f >> 16, max);
     i = (i << 4) | ((f >> 12) & 0xF);
-    return (i << 14) | SkClampMax((f + one) >> 16, max);
+    return (i << 14) | SkClampMax(safe_fixed_add_shift(f, one), max);
 }
 
 /*  SSE version of ClampX_ClampY_filter_scale()
