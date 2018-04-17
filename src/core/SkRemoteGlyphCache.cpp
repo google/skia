@@ -52,7 +52,7 @@ static size_t pad(size_t size, size_t alignment) {
 // N.B. pointers are only valid until the next call.
 class Serializer {
 public:
-    Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} { }
+    Serializer(SkTDArray<uint8_t>* buffer) : fBuffer{buffer} { }
 
     template <typename T>
     T* push_back(const T& data) {
@@ -84,7 +84,7 @@ private:
         return &(*fBuffer)[aligned];
     }
 
-    std::vector<uint8_t>* fBuffer;
+    SkTDArray<uint8_t>* fBuffer;
 };
 
 // -- Deserializer -------------------------------------------------------------------------------
@@ -136,24 +136,37 @@ SkStrikeDifferences::SkStrikeDifferences(
         , fDesc{std::move(desc)} { }
 
 void SkStrikeDifferences::add(uint16_t glyphID, SkIPoint pos) {
-    SkPackedGlyphID packedGlyphID{glyphID, pos.x(), pos.y()};
-    fGlyphIDs->add(packedGlyphID);
+    uint32_t packed = SkPackedGlyphID{glyphID, pos.x(), pos.y()}.getPackedID();
+
+    uint32_t y = (packed >> 24) & 3,
+             x = (packed >> 26) & 3;
+
+    uint32_t posmask = 1 << ((y<<2) | x);
+
+    for (uint32_t& glyphID_and_posmask : fGlyphIDsAndPositionMasks) {
+        if (glyphID_and_posmask >> 16 == glyphID) {
+            glyphID_and_posmask |= posmask;
+            return;
+        }
+    }
+    fGlyphIDsAndPositionMasks.push_back((uint32_t)glyphID << 16 | posmask);
 }
 
 SkStrikeDifferences& SkStrikeCacheDifferenceSpec::findStrikeDifferences(
     const SkDescriptor& desc, SkFontID typefaceID)
 {
-    auto mapIter = fDescriptorToDifferencesMap.find(&desc);
-    if (mapIter == fDescriptorToDifferencesMap.end()) {
+    auto it = fDescriptorToDifferencesMap.find(&desc);
+    if (it == fDescriptorToDifferencesMap.end()) {
         auto newDesc = desc.copy();
         auto newDescPtr = newDesc.get();
-        SkStrikeDifferences strikeDiffs{typefaceID, std::move(newDesc)};
 
-        mapIter = fDescriptorToDifferencesMap.emplace_hint(
-            mapIter, newDescPtr, std::move(strikeDiffs));
+        it = fDescriptorToDifferencesMap.emplace_hint(
+                it,
+                newDescPtr,
+                SkStrikeDifferences{typefaceID, std::move(newDesc)});
     }
 
-    return mapIter->second;
+    return it->second;
 }
 
 template <typename PerStrike, typename PerGlyph>
@@ -162,10 +175,27 @@ void SkStrikeCacheDifferenceSpec::iterateDifferences(PerStrike perStrike, PerGly
         auto strikeDiff = &i.second;
         perStrike(strikeDiff->fTypefaceID,
                   *strikeDiff->fDesc,
-                  strikeDiff->fGlyphIDs->count());
-        strikeDiff->fGlyphIDs->foreach([&](SkPackedGlyphID id) {
-            perGlyph(id);
-        });
+                  strikeDiff->fGlyphIDsAndPositionMasks.size());
+
+        for (uint32_t glyphID_and_posmask : strikeDiff->fGlyphIDsAndPositionMasks) {
+            uint16_t glyphID = glyphID_and_posmask >> 16;
+            uint16_t posmask = glyphID_and_posmask & 0xffff;
+            while (posmask) {
+                uint32_t bit = 31 - __builtin_clz(posmask);
+
+                uint32_t x = (bit >> 0) & 3,
+                         y = (bit >> 2) & 3;
+
+                // TODO: use/add better SkPackedGlyphID routines.
+                uint32_t packed = glyphID;
+                packed |= x << 26;
+                packed |= y << 24;
+
+                perGlyph(*reinterpret_cast<SkPackedGlyphID*>(&packed));
+
+                posmask ^= (1<<bit);
+            }
+        }
     }
 }
 
@@ -411,7 +441,7 @@ size_t SkStrikeCacheDifferenceSpec::sizeBytes() const {
         const auto& strike = pair.second;
         sum += sizeof(StrikeSpec)
                + strike.fDesc->getLength()
-               + strike.fGlyphIDs->count() * sizeof(SkPackedGlyphID);
+               + strike.fGlyphIDsAndPositionMasks.size() * sizeof(uint32_t);
     }
     return sum;
 }
@@ -507,7 +537,7 @@ SkStrikeServer::~SkStrikeServer() {
     printf("Strike server - ops: %d\n", fOpCount);
 }
 
-void SkStrikeServer::serve(const SkData& inBuffer, std::vector<uint8_t>* outBuffer) {
+void SkStrikeServer::serve(const SkData& inBuffer, SkTDArray<uint8_t>* outBuffer) {
 
     fOpCount += 1;
 

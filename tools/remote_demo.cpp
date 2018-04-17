@@ -198,7 +198,7 @@ static int renderer(
             return 1;
         }
 
-        std::vector<uint8_t> tmpBuffer;
+        SkTDArray<uint8_t> tmpBuffer;
         while (true) {
             auto inBuffer = read_SkData(readFd);
             if (inBuffer == nullptr) {
