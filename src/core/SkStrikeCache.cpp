@@ -44,6 +44,23 @@ SkExclusiveStrikePtr SkStrikeCache::FindStrikeExclusive(const SkDescriptor& desc
     return get_globals().findStrikeExclusive(desc);
 }
 
+std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
+        const SkDescriptor& desc,
+        const SkScalerContextEffects& effects,
+        const SkTypeface& typeface) {
+    auto scaler = typeface.createScalerContext(effects, &desc, true /* can fail */);
+
+    // Check if we can create a scaler-context before creating the glyphcache.
+    // If not, we may have exhausted OS/font resources, so try purging the
+    // cache once and try again
+    // pass true the first time, to notice if the scalercontext failed,
+    if (scaler == nullptr) {
+        PurgeAll();
+        scaler = typeface.createScalerContext(effects, &desc, false /* must succeed */);
+    }
+    return scaler;
+}
+
 void SkStrikeCache::PurgeAll() {
     get_globals().purgeAll();
 }
@@ -131,7 +148,7 @@ SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc
     SkAutoExclusive       ac(fLock);
 
     for (cache = internalGetHead(); cache != nullptr; cache = cache->fNext) {
-        if (*cache->fDesc == desc) {
+        if (cache->getDescriptor() == desc) {
             this->internalDetachCache(cache);
             return SkExclusiveStrikePtr(cache);
         }
@@ -348,3 +365,17 @@ void SkGraphics::PurgeFontCache() {
     SkTypefaceCache::PurgeAll();
 }
 
+SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
+    const SkDescriptor& desc,
+    std::unique_ptr<SkScalerContext> scaler,
+    SkPaint::FontMetrics* maybeMetrics)
+{
+    SkPaint::FontMetrics fontMetrics;
+    if (maybeMetrics != nullptr) {
+        fontMetrics = *maybeMetrics;
+    } else {
+        scaler->getFontMetrics(&fontMetrics);
+    }
+
+    return SkExclusiveStrikePtr(new SkGlyphCache(desc, move(scaler), fontMetrics));
+}

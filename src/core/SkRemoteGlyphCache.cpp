@@ -482,8 +482,8 @@ static void update_caches_from_strikes_data(SkStrikeClient *client,
         SkScalerContextEffects effects;
         auto strike = SkGlyphCache::FindStrikeExclusive(*desc);
         if (strike == nullptr) {
-            auto scaler = SkGlyphCache::CreateScalerContext(*desc, effects, *tf);
-            strike = SkGlyphCache::CreateStrikeExclusive(*desc, std::move(scaler), fontMetrics);
+            auto scaler = SkStrikeCache::CreateScalerContext(*desc, effects, *tf);
+            strike = SkStrikeCache::CreateStrikeExclusive(*desc, std::move(scaler), fontMetrics);
         }
         for (int j = 0; j < spec->glyphCount; j++) {
             auto glyph = deserializer->read<SkGlyph>();
