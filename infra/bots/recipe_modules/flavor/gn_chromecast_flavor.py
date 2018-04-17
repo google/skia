@@ -192,7 +192,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
 
   def _ssh(self, title, *cmd, **kwargs):
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', 'root@%s' % self.user_ip] + list(cmd)
+               '-t', '-t', '-vv', 'root@%s' % self.user_ip] + list(cmd)
 
     return self.m.run(self.m.step, title, cmd=ssh_cmd, **kwargs)
 
@@ -203,4 +203,8 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
               'push', app, self.m.vars.android_bin_dir)
 
     cmd[0] = '%s/%s' % (self.m.vars.android_bin_dir, cmd[0])
+    self._ssh('None of your business', 'whoami', infra_step=False)
+    self._ssh('Exploring root', 'ls -la', '/', infra_step=False)
+    self._ssh('Exploring skia', 'ls -la', '/cache/skia', infra_step=False)
+    self._ssh('Exploring skia/bin', 'ls -la', '/cache/skia/bin', infra_step=False)
     self._ssh(str(name), *cmd, infra_step=False)
