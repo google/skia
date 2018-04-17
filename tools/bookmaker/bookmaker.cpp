@@ -53,6 +53,7 @@ deprecated methods should be sorted down in md out, and show include "Deprecated
 rewrap text to fit in some number of columns
 #Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
      would rather keep links for boby above #Literal, and/or make it a block and not a one-liner
+add check to require #Const to contain #Code block
 see head of selfCheck.cpp for additional todos
  */
 
@@ -67,6 +68,7 @@ see head of selfCheck.cpp for additional todos
 #define M(mt) (1LL << (int) MarkType::k##mt)
 #define M_D M(Description)
 #define M_CS M(Class) | M(Struct)
+#define M_MCD M(Method) | M(Const) | M(Define)
 #define M_ST M(Subtopic) | M(Topic)
 #define M_CSST M_CS | M_ST
 #ifdef M_E
@@ -92,7 +94,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "Alias",        MarkType::kAlias,        R_N, E_N, 0 }
 , { "Bug",          MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",        MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
-, { "Code",         MarkType::kCode,         R_F, E_N, M_CSST | M_E | M(Method) | M(Define) | M(Typedef) }
+, { "Code",         MarkType::kCode,         R_F, E_N, M_CSST | M_E | M_MCD | M(Typedef) }
 , { "",             MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",             MarkType::kComment,      R_N, E_N, 0 }
 , { "Const",        MarkType::kConst,        R_Y, E_O, M_E | M_ST  }
@@ -104,7 +106,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "Duration",     MarkType::kDuration,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Enum",         MarkType::kEnum,         R_Y, E_O, M_CSST | M(Root) }
 , { "EnumClass",    MarkType::kEnumClass,    R_Y, E_O, M_CSST | M(Root) }
-, { "Example",      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M(Method) | M(Const) | M(Define) }
+, { "Example",      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M_MCD }
 , { "Experimental", MarkType::kExperimental, R_Y, E_N, 0 }
 , { "External",     MarkType::kExternal,     R_Y, E_N, M(Root) }
 , { "File",         MarkType::kFile,         R_N, E_N, M(Track) }
@@ -123,7 +125,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "",             MarkType::kMarkChar,     R_N, E_N, 0 }
 , { "Member",       MarkType::kMember,       R_Y, E_N, M_CSST }
 , { "Method",       MarkType::kMethod,       R_Y, E_Y, M_CSST }
-, { "NoExample",    MarkType::kNoExample,    R_N, E_N, M_CSST | M_E | M(Method) | M(Const) | M(Define) }
+, { "NoExample",    MarkType::kNoExample,    R_N, E_N, M_CSST | M_E | M_MCD }
 , { "Outdent",      MarkType::kOutdent,      R_N, E_N, M(Code) }
 , { "Param",        MarkType::kParam,        R_Y, E_N, M(Method) | M(Define) }
 , { "PhraseDef",    MarkType::kPhraseDef,    R_Y, E_N, M(Subtopic) }
@@ -134,7 +136,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "Return",       MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",             MarkType::kRoot,         R_Y, E_N, 0 }
 , { "",             MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
-, { "SeeAlso",      MarkType::kSeeAlso,      R_C, E_N, M_CSST | M_E | M(Method) | M(Define) | M(Typedef) }
+, { "SeeAlso",      MarkType::kSeeAlso,      R_C, E_N, M_CSST | M_E | M_MCD | M(Typedef) }
 , { "Set",          MarkType::kSet,          R_N, E_N, M(Example) | M(NoExample) }
 , { "StdOut",       MarkType::kStdOut,       R_N, E_N, M(Example) | M(NoExample) }
 , { "Struct",       MarkType::kStruct,       R_Y, E_O, M(Class) | M(Root) | M_ST }
@@ -163,6 +165,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 #undef M_CSST
 #undef M_ST
 #undef M_CS
+#undef M_MCD
 #undef M_D
 #undef M
 

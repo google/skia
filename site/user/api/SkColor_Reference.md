@@ -244,8 +244,14 @@ incomplete
 
 ---
 
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_AlphaTRANSPARENT"> <code><strong>SK_AlphaTRANSPARENT </strong></code> </a></td><td>0x00</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_AlphaTRANSPARENT">SK AlphaTRANSPARENT</a> static_cast<<a href="#SkAlpha">SkAlpha</a>>(0x00)
+    constexpr <a href="#SkAlpha">SkAlpha</a> <a href="#SK_AlphaTRANSPARENT">SK AlphaTRANSPARENT</a> = 0x00;
 </pre>
 
 common colors
@@ -259,8 +265,18 @@ transparent <a href="#SkAlpha">SkAlpha</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_AlphaOPAQUE"> <code><strong>SK_AlphaOPAQUE </strong></code> </a></td><td>0xFF</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_AlphaOPAQUE">SK AlphaOPAQUE</a>      static_cast<<a href="#SkAlpha">SkAlpha</a>>(0xFF)
+    constexpr <a href="#SkAlpha">SkAlpha</a> <a href="#SK_AlphaOPAQUE">SK AlphaOPAQUE</a>      = 0xFF;
 </pre>
 
 opaque <a href="#SkAlpha">SkAlpha</a> value
@@ -273,8 +289,18 @@ opaque <a href="#SkAlpha">SkAlpha</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorTRANSPARENT"> <code><strong>SK_ColorTRANSPARENT </strong></code> </a></td><td>0x00000000</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a> static_cast<<a href="#SkColor">SkColor</a>>(0x00000000)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a> = <a href="#SkColorSetARGB">SkColorSetARGB(0x00, 0x00, 0x00, 0x00)</a>;
 </pre>
 
 transparent <a href="#SkColor">SkColor</a> value
@@ -287,8 +313,18 @@ transparent <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorBLACK"> <code><strong>SK_ColorBLACK </strong></code> </a></td><td>0xFF000000</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorBLACK">SK ColorBLACK</a>       static_cast<<a href="#SkColor">SkColor</a>>(0xFF000000)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorBLACK">SK ColorBLACK</a>       = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x00, 0x00, 0x00)</a>;
 </pre>
 
 black <a href="#SkColor">SkColor</a> value
@@ -301,8 +337,18 @@ black <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorDKGRAY"> <code><strong>SK_ColorDKGRAY </strong></code> </a></td><td>0xFF444444</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorDKGRAY">SK ColorDKGRAY</a>      static_cast<<a href="#SkColor">SkColor</a>>(0xFF444444)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorDKGRAY">SK ColorDKGRAY</a>      = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x44, 0x44, 0x44)</a>;
 </pre>
 
 dark gray <a href="#SkColor">SkColor</a> value
@@ -315,8 +361,18 @@ dark gray <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorGRAY"> <code><strong>SK_ColorGRAY </strong></code> </a></td><td>0xFF888888</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorGRAY">SK ColorGRAY</a>        static_cast<<a href="#SkColor">SkColor</a>>(0xFF888888)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorGRAY">SK ColorGRAY</a>        = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x88, 0x88, 0x88)</a>;
 </pre>
 
 gray <a href="#SkColor">SkColor</a> value
@@ -329,8 +385,18 @@ gray <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorLTGRAY"> <code><strong>SK_ColorLTGRAY </strong></code> </a></td><td>0xFFCCCCCC</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorLTGRAY">SK ColorLTGRAY</a>      static_cast<<a href="#SkColor">SkColor</a>>(0xFFCCCCCC)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorLTGRAY">SK ColorLTGRAY</a>      = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xCC, 0xCC, 0xCC)</a>;
 </pre>
 
 light gray <a href="#SkColor">SkColor</a> value
@@ -343,8 +409,18 @@ light gray <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorWHITE"> <code><strong>SK_ColorWHITE </strong></code> </a></td><td>0xFFFFFFFF</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorWHITE">SK ColorWHITE</a>       static_cast<<a href="#SkColor">SkColor</a>>(0xFFFFFFFF)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorWHITE">SK ColorWHITE</a>       = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF)</a>;
 </pre>
 
 white <a href="#SkColor">SkColor</a> value
@@ -357,8 +433,18 @@ white <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorRED"> <code><strong>SK_ColorRED </strong></code> </a></td><td>0xFFFF0000</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorRED">SK ColorRED</a>         static_cast<<a href="#SkColor">SkColor</a>>(0xFFFF0000)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorRED">SK ColorRED</a>         = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00)</a>;
 </pre>
 
 red <a href="#SkColor">SkColor</a> value
@@ -371,8 +457,18 @@ red <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorGREEN"> <code><strong>SK_ColorGREEN </strong></code> </a></td><td>0xFF00FF00</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorGREEN">SK ColorGREEN</a>       static_cast<<a href="#SkColor">SkColor</a>>(0xFF00FF00)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorGREEN">SK ColorGREEN</a>       = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00)</a>;
 </pre>
 
 green <a href="#SkColor">SkColor</a> value
@@ -385,8 +481,18 @@ green <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorBLUE"> <code><strong>SK_ColorBLUE </strong></code> </a></td><td>0xFF0000FF</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorBLUE">SK ColorBLUE</a>        static_cast<<a href="#SkColor">SkColor</a>>(0xFF0000FF)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorBLUE">SK ColorBLUE</a>        = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF)</a>;
 </pre>
 
 blue <a href="#SkColor">SkColor</a> value
@@ -399,8 +505,18 @@ blue <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorYELLOW"> <code><strong>SK_ColorYELLOW </strong></code> </a></td><td>0xFFFFFF00</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorYELLOW">SK ColorYELLOW</a>      static_cast<<a href="#SkColor">SkColor</a>>(0xFFFFFF00)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorYELLOW">SK ColorYELLOW</a>      = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xFF, 0xFF, 0x00)</a>;
 </pre>
 
 yellow <a href="#SkColor">SkColor</a> value
@@ -413,8 +529,18 @@ yellow <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorCYAN"> <code><strong>SK_ColorCYAN </strong></code> </a></td><td>0xFF00FFFF</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorCYAN">SK ColorCYAN</a>        static_cast<<a href="#SkColor">SkColor</a>>(0xFF00FFFF)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorCYAN">SK ColorCYAN</a>        = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x00, 0xFF, 0xFF)</a>;
 </pre>
 
 cyan <a href="#SkColor">SkColor</a> value
@@ -427,8 +553,18 @@ cyan <a href="#SkColor">SkColor</a> value
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorMAGENTA"> <code><strong>SK_ColorMAGENTA </strong></code> </a></td><td>0xFFFF00FF</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorMAGENTA">SK ColorMAGENTA</a>     static_cast<<a href="#SkColor">SkColor</a>>(0xFFFF00FF)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorMAGENTA">SK ColorMAGENTA</a>     = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xFF, 0x00, 0xFF)</a>;
 </pre>
 
 magenta <a href="#SkColor">SkColor</a> value
@@ -440,6 +576,10 @@ magenta <a href="#SkColor">SkColor</a> value
 ### See Also
 
 incomplete
+
+</td>
+  </tr>
+</table>
 
 ## <a name="HSV"></a> HSV
 
