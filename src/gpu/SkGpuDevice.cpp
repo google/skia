@@ -1379,7 +1379,7 @@ void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
         return;
     }
 
-    static const GrSamplerState::Filter kMode = GrSamplerState::Filter::kNearest;
+    static const GrSamplerState::Filter kMode = GrSamplerState::Filter::kBilerp;
     auto fp = producer->createFragmentProcessor(
             SkMatrix::I(), SkRect::MakeIWH(producer->width(), producer->height()),
             GrTextureProducer::kNo_FilterConstraint, true, &kMode,
@@ -1434,7 +1434,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
                                       const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerLattice", fContext.get());
 
-    static const GrSamplerState::Filter kMode = GrSamplerState::Filter::kNearest;
+    static const GrSamplerState::Filter kMode = GrSamplerState::Filter::kBilerp;
     std::unique_ptr<GrFragmentProcessor> fp(producer->createFragmentProcessor(
             SkMatrix::I(), SkRect::MakeIWH(producer->width(), producer->height()),
             GrTextureProducer::kNo_FilterConstraint, true, &kMode,
