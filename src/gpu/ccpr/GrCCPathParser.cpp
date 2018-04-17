@@ -114,7 +114,9 @@ void GrCCPathParser::parsePath(const SkPath& path, const SkPoint* deviceSpacePts
         return;
     }
 
+    const float* conicWeights = SkPathPriv::ConicWeightData(path);
     int ptsIdx = 0;
+    int conicWeightsIdx = 0;
     bool insideContour = false;
 
     for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
@@ -142,11 +144,16 @@ void GrCCPathParser::parsePath(const SkPath& path, const SkPoint* deviceSpacePts
                 ptsIdx += 3;
                 continue;
             case SkPath::kConic_Verb:
-                SK_ABORT("Conics are not supported.");
+                fGeometry.conicTo(&deviceSpacePts[ptsIdx - 1], conicWeights[conicWeightsIdx]);
+                ptsIdx += 2;
+                ++conicWeightsIdx;
+                continue;
             default:
                 SK_ABORT("Unexpected path verb.");
         }
     }
+    SkASSERT(ptsIdx == path.countPoints());
+    SkASSERT(conicWeightsIdx == SkPathPriv::ConicWeightCnt(path));
 
     this->endContourIfNeeded(insideContour);
 }
@@ -196,6 +203,7 @@ void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clip
                     continue;
 
                 case GrCCGeometry::Verb::kMonotonicQuadraticTo:
+                case GrCCGeometry::Verb::kMonotonicConicTo:
                     fan.lineTo(pts[ptsIdx + 1]);
                     ptsIdx += 2;
                     continue;
@@ -377,7 +385,9 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
     fBaseInstances[0].fCubics = fBaseInstances[1].fWeightedTriangles +
                                 fTotalPrimitiveCounts[1].fWeightedTriangles;
     fBaseInstances[1].fCubics = fBaseInstances[0].fCubics + fTotalPrimitiveCounts[0].fCubics;
-    int quadEndIdx = fBaseInstances[1].fCubics + fTotalPrimitiveCounts[1].fCubics;
+    fBaseInstances[0].fConics = fBaseInstances[1].fCubics + fTotalPrimitiveCounts[1].fCubics;
+    fBaseInstances[1].fConics = fBaseInstances[0].fConics + fTotalPrimitiveCounts[0].fConics;
+    int quadEndIdx = fBaseInstances[1].fConics + fTotalPrimitiveCounts[1].fConics;
 
     fInstanceBuffer = onFlushRP->makeBuffer(kVertex_GrBufferType,
                                             quadEndIdx * sizeof(QuadPointInstance));
@@ -400,6 +410,7 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
 
     const SkTArray<SkPoint, true>& pts = fGeometry.points();
     int ptsIdx = -1;
+    int nextConicWeightIdx = 0;
 
     // Expand the ccpr verbs into GPU instance buffers.
     for (GrCCGeometry::Verb verb : fGeometry.verbs()) {
@@ -454,6 +465,17 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
                 }
                 continue;
 
+            case GrCCGeometry::Verb::kMonotonicConicTo:
+                quadPointInstanceData[currIndices->fConics++].setW(
+                        &pts[ptsIdx], atlasOffset, fGeometry.getConicWeight(nextConicWeightIdx));
+                ptsIdx += 2;
+                ++nextConicWeightIdx;
+                if (!currFanIsTessellated) {
+                    SkASSERT(!currFan.empty());
+                    currFan.push_back(ptsIdx);
+                }
+                continue;
+
             case GrCCGeometry::Verb::kEndClosedContour:  // endPt == startPt.
                 if (!currFanIsTessellated) {
                     SkASSERT(!currFan.empty());
@@ -489,7 +511,9 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(instanceIndices[0].fWeightedTriangles == fBaseInstances[1].fWeightedTriangles);
     SkASSERT(instanceIndices[1].fWeightedTriangles == fBaseInstances[0].fCubics);
     SkASSERT(instanceIndices[0].fCubics == fBaseInstances[1].fCubics);
-    SkASSERT(instanceIndices[1].fCubics == quadEndIdx);
+    SkASSERT(instanceIndices[1].fCubics == fBaseInstances[0].fConics);
+    SkASSERT(instanceIndices[0].fConics == fBaseInstances[1].fConics);
+    SkASSERT(instanceIndices[1].fConics == quadEndIdx);
 
     fMeshesScratchBuffer.reserve(fMaxMeshesPerDraw);
     fDynamicStatesScratchBuffer.reserve(fMaxMeshesPerDraw);
@@ -526,6 +550,11 @@ void GrCCPathParser::drawCoverageCount(GrOpFlushState* flushState, CoverageCount
     if (batchTotalCounts.fCubics) {
         this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kCubics,
                              &PrimitiveTallies::fCubics, drawBounds);
+    }
+
+    if (batchTotalCounts.fConics) {
+        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kConics,
+                             &PrimitiveTallies::fConics, drawBounds);
     }
 }
 
