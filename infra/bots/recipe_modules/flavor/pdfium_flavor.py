@@ -17,7 +17,7 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
     pdfium_dir = self.m.vars.checkout_root.join('pdfium')
 
     # Runhook to generate the gn binary in buildtools.
-    with self.m.context(cwd=pdfium_dir, env=self.m.vars.gclient_env):
+    with self.m.context(cwd=pdfium_dir):
       # TODO(borenet): Remove this hack and replace with
       # 'self.m.gclient.runhooks()' after the transition to Kitchen:
       # https://bugs.chromium.org/p/skia/issues/detail?id=7050

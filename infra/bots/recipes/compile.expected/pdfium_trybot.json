@@ -125,9 +125,6 @@
       "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
-    "env": {
-      "DEPOT_TOOLS_UPDATE": "0"
-    },
     "name": "git setup"
   },
   {
@@ -140,7 +137,6 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
     "env": {
-      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
     },
     "infra_step": true,
@@ -154,9 +150,6 @@
       "06493714339009216197d59c5413da2a1efdf4a2"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
-    "env": {
-      "DEPOT_TOOLS_UPDATE": "0"
-    },
     "infra_step": true,
     "name": "git checkout"
   },
@@ -167,9 +160,6 @@
       "HEAD"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
-    "env": {
-      "DEPOT_TOOLS_UPDATE": "0"
-    },
     "infra_step": true,
     "name": "read revision",
     "stdout": "/path/to/tmp/",
@@ -186,9 +176,6 @@
       "-x"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
-    "env": {
-      "DEPOT_TOOLS_UPDATE": "0"
-    },
     "infra_step": true,
     "name": "git clean"
   },
@@ -199,9 +186,6 @@
       "sync"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
-    "env": {
-      "DEPOT_TOOLS_UPDATE": "0"
-    },
     "infra_step": true,
     "name": "submodule sync"
   },
@@ -214,9 +198,6 @@
       "--recursive"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
-    "env": {
-      "DEPOT_TOOLS_UPDATE": "0"
-    },
     "infra_step": true,
     "name": "submodule update"
   },
@@ -230,7 +211,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
@@ -246,7 +226,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
@@ -264,7 +243,6 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
-      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
@@ -282,7 +260,6 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
-      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
@@ -294,7 +271,7 @@
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
       "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium/Release",
-      "[START_DIR]/[SWARM_OUT_DIR]/out/Release"
+      "[CUSTOM_[SWARM_OUT_DIR]]/out/Release"
     ],
     "infra_step": true,
     "name": "copy build products",
