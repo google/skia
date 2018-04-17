@@ -23,6 +23,8 @@ DEPS = [
 def RunSteps(api):
   api.core.setup()
   api.flavor.install(skps=True, svgs=True)
+  api.file.ensure_directory('makedirs perf', api.vars.swarming_out_dir)
+
   with api.context(cwd=api.vars.skia_dir):
     extra_arg = '--svgs %s --skps %s' % (api.flavor.device_dirs.svg_dir,
                                          api.flavor.device_dirs.skp_dir)
