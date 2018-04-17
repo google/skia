@@ -453,6 +453,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
     SkPoint lineStart;  // used to construct line from previous point
     const SkPoint* firstPt = nullptr; // first point in the rect (last of first moves)
     const SkPoint* lastPt = nullptr;  // last point in the rect (last of lines or first if closed)
+    const SkPoint* lastCountedPt = nullptr;  // point creating 3rd corner
     const SkPoint* pts = *ptsPtr;
     const SkPoint* savePts = nullptr; // used to allow caller to iterate through a pair of rects
     lineStart.set(0, 0);
@@ -473,6 +474,9 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 accumulatingRect = false;
             case kLine_Verb: {
                 if (accumulatingRect) {
+                    lastCountedPt = pts;
+                }
+                if (kClose_Verb != verb) {
                     lastPt = pts;
                 }
                 SkPoint lineEnd = kClose_Verb == verb ? *firstPt : *pts++;
@@ -512,6 +516,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                     if ((directions[0] ^ directions[2]) != 2) {
                         return false;
                     }
+                    accumulatingRect = false;
                 } else if (corners == 4) {
                     if ((directions[1] ^ directions[3]) != 2) {
                         return false;
@@ -574,7 +579,7 @@ addMissingClose:
         *ptsPtr = savePts;
     }
     if (result && rect) {
-        ptrdiff_t count = lastPt - firstPt + 1;
+        ptrdiff_t count = lastCountedPt - firstPt + 1;
         rect->set(firstPt, (int) count);
     }
     if (result && isClosed) {
