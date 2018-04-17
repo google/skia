@@ -270,12 +270,10 @@ return the blue byte from a SkColor value
 
 # ------------------------------------------------------------------------------
 
-#Define SK_AlphaTRANSPARENT
+#Const SK_AlphaTRANSPARENT 0x00
 
 #Code
-###$
-    #define SK_AlphaTRANSPARENT static_cast<SkAlpha>(0x00)
-$$$#
+    constexpr SkAlpha SK_AlphaTRANSPARENT = 0x00;
 ##
 
 common colors
@@ -287,16 +285,14 @@ transparent SkAlpha value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_AlphaOPAQUE
+#Const SK_AlphaOPAQUE 0xFF
 
 #Code
-###$
-    #define SK_AlphaOPAQUE      static_cast<SkAlpha>(0xFF)
-$$$#
+    constexpr SkAlpha SK_AlphaOPAQUE      = 0xFF;
 ##
 
 opaque SkAlpha value
@@ -307,16 +303,14 @@ opaque SkAlpha value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorTRANSPARENT
+#Const SK_ColorTRANSPARENT 0x00000000
 
 #Code
-###$
-    #define SK_ColorTRANSPARENT static_cast<SkColor>(0x00000000)
-$$$#
+    constexpr SkColor SK_ColorTRANSPARENT = SkColorSetARGB(0x00, 0x00, 0x00, 0x00);
 ##
 
 transparent SkColor value
@@ -327,16 +321,14 @@ transparent SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorBLACK
+#Const SK_ColorBLACK 0xFF000000
 
 #Code
-###$
-    #define SK_ColorBLACK       static_cast<SkColor>(0xFF000000)
-$$$#
+    constexpr SkColor SK_ColorBLACK       = SkColorSetARGB(0xFF, 0x00, 0x00, 0x00);
 ##
 
 black SkColor value
@@ -347,19 +339,18 @@ black SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorDKGRAY
+#Const SK_ColorDKGRAY 0xFF444444
 
 #Code
-###$
-    #define SK_ColorDKGRAY      static_cast<SkColor>(0xFF444444)
-$$$#
+    constexpr SkColor SK_ColorDKGRAY      = SkColorSetARGB(0xFF, 0x44, 0x44, 0x44);
 ##
 
 dark gray SkColor value
+HTML DarkGray is equivalent to 0xFFA9A9A9
 
 #Example
 // incomplete
@@ -367,19 +358,18 @@ dark gray SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorGRAY
+#Const SK_ColorGRAY 0xFF888888
 
 #Code
-###$
-    #define SK_ColorGRAY        static_cast<SkColor>(0xFF888888)
-$$$#
+    constexpr SkColor SK_ColorGRAY        = SkColorSetARGB(0xFF, 0x88, 0x88, 0x88);
 ##
 
 gray SkColor value
+HTML Gray is equivalent to 0xFF808080
 
 #Example
 // incomplete
@@ -387,19 +377,18 @@ gray SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorLTGRAY
+#Const SK_ColorLTGRAY 0xFFCCCCCC
 
 #Code
-###$
-    #define SK_ColorLTGRAY      static_cast<SkColor>(0xFFCCCCCC)
-$$$#
+    constexpr SkColor SK_ColorLTGRAY      = SkColorSetARGB(0xFF, 0xCC, 0xCC, 0xCC);
 ##
 
 light gray SkColor value
+HTML LightGray is equivalent to 0xFFD3D3D3
 
 #Example
 // incomplete
@@ -407,16 +396,14 @@ light gray SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorWHITE
+#Const SK_ColorWHITE 0xFFFFFFFF
 
 #Code
-###$
-    #define SK_ColorWHITE       static_cast<SkColor>(0xFFFFFFFF)
-$$$#
+    constexpr SkColor SK_ColorWHITE       = SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF);
 ##
 
 white SkColor value
@@ -427,16 +414,14 @@ white SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorRED
+#Const SK_ColorRED 0xFFFF0000
 
 #Code
-###$
-    #define SK_ColorRED         static_cast<SkColor>(0xFFFF0000)
-$$$#
+    constexpr SkColor SK_ColorRED         = SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00);
 ##
 
 red SkColor value
@@ -447,19 +432,18 @@ red SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorGREEN
+#Const SK_ColorGREEN 0xFF00FF00
 
 #Code
-###$
-    #define SK_ColorGREEN       static_cast<SkColor>(0xFF00FF00)
-$$$#
+    constexpr SkColor SK_ColorGREEN       = SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00);
 ##
 
 green SkColor value
+HTML Green is equivalent to 0xFF008000
 
 #Example
 // incomplete
@@ -467,16 +451,14 @@ green SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorBLUE
+#Const SK_ColorBLUE 0xFF0000FF
 
 #Code
-###$
-    #define SK_ColorBLUE        static_cast<SkColor>(0xFF0000FF)
-$$$#
+    constexpr SkColor SK_ColorBLUE        = SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF);
 ##
 
 blue SkColor value
@@ -487,16 +469,14 @@ blue SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorYELLOW
+#Const SK_ColorYELLOW 0xFFFFFF00
 
 #Code
-###$
-    #define SK_ColorYELLOW      static_cast<SkColor>(0xFFFFFF00)
-$$$#
+    constexpr SkColor SK_ColorYELLOW      = SkColorSetARGB(0xFF, 0xFF, 0xFF, 0x00);
 ##
 
 yellow SkColor value
@@ -507,16 +487,14 @@ yellow SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorCYAN
+#Const SK_ColorCYAN 0xFF00FFFF
 
 #Code
-###$
-    #define SK_ColorCYAN        static_cast<SkColor>(0xFF00FFFF)
-$$$#
+    constexpr SkColor SK_ColorCYAN        = SkColorSetARGB(0xFF, 0x00, 0xFF, 0xFF);
 ##
 
 cyan SkColor value
@@ -527,16 +505,14 @@ cyan SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorMAGENTA
+#Const SK_ColorMAGENTA 0xFFFF00FF
 
 #Code
-###$
-    #define SK_ColorMAGENTA     static_cast<SkColor>(0xFFFF00FF)
-$$$#
+    constexpr SkColor SK_ColorMAGENTA     = SkColorSetARGB(0xFF, 0xFF, 0x00, 0xFF);
 ##
 
 magenta SkColor value
@@ -547,7 +523,7 @@ magenta SkColor value
 
 #SeeAlso incomplete
 
-#Define ##
+#Const ##
 
 # ------------------------------------------------------------------------------
 
