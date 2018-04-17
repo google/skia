@@ -12,6 +12,7 @@
 #include "SkRefCnt.h"
 
 class SkData;
+struct skcms_ICCProfile;
 
 enum SkGammaNamed {
     kLinear_SkGammaNamed,
@@ -125,6 +126,11 @@ public:
      *  Create an SkColorSpace from an ICC profile.
      */
     static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
+
+    /**
+     *  Create an SkColorSpace from a parsed (skcms) ICC profile.
+     */
+    static sk_sp<SkColorSpace> Make(const skcms_ICCProfile*);
 
     /**
      *  Types of colorspaces.
