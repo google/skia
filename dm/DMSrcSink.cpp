@@ -2099,12 +2099,14 @@ public:
             sk_sp<PromiseImageCallbackContext> callbackContext(
                                                     new PromiseImageCallbackContext(context));
 
+            const PromiseImageInfo& info = fImageInfo[i];
+
             // DDL TODO: how can we tell if we need mipmapping!
             callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
-                                                                fImageInfo[i].fBitmap.getPixels(),
-                                                                fImageInfo[i].fBitmap.width(),
-                                                                fImageInfo[i].fBitmap.height(),
-                                                                fImageInfo[i].fBitmap.colorType(),
+                                                                info.fBitmap.getPixels(),
+                                                                info.fBitmap.width(),
+                                                                info.fBitmap.height(),
+                                                                info.fBitmap.colorType(),
                                                                 false, GrMipMapped::kNo));
             // The GMs sometimes request too large an image
             //SkAssertResult(callbackContext->backendTexture().isValid());
@@ -2262,8 +2264,11 @@ private:
         const PromiseImageHelper::PromiseImageInfo& curImage = helper->getInfo(*indexPtr);
 
         if (!curImage.fCallbackContext->backendTexture().isValid()) {
-            // We weren't able to make a backend texture for this SkImage
-            return nullptr;
+            // We weren't able to make a backend texture for this SkImage. In this case we create
+            // a separate bitmap-backed image for each thread.
+            // Note: we would like to share the same bitmap between all the threads but
+            // SkBitmap is not thread-safe.
+            return SkImage::MakeRasterCopy(curImage.fBitmap.pixmap());
         }
         SkASSERT(curImage.fIndex == *indexPtr);
 
