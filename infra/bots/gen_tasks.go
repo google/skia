@@ -68,6 +68,11 @@ var (
 		Pool             string   `json:"pool"`
 	}
 
+	// alternateServiceAccount can be set in an init function to override the normal service accounts.
+	// Takes one of SERVICE_ACCOUNT_* constants as an argument and returns the service account that
+	// should be used, or uses sklog.Fatal to indicate a problem.
+	alternateServiceAccount func(serviceAccountEnum string) string
+
 	// alternateSwarmDimensions can be set in an init function to override the default swarming bot
 	// dimensions for the given task.
 	alternateSwarmDimensions func(parts map[string]string) []string
