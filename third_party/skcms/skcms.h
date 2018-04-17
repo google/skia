@@ -101,6 +101,8 @@ typedef struct skcms_ICCProfile {
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.
 extern const skcms_ICCProfile skcms_sRGB_profile;
+// Ditto for XYZD50, the most common profile connection space.
+extern const skcms_ICCProfile skcms_XYZD50_profile;
 
 // Practical equality test for two skcms_ICCProfiles.
 // The implementation is subject to change, but it will always try to answer
