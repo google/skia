@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include <SkRectPriv.h>
 #include "gm.h"
 #include "SkAnimTimer.h"
 #include "SkPath.h"
 #include "SkDashPathEffect.h"
 
 int dash1[] = { 1, 1 };
-int dash2[] = { 1, 3 };
+int dash2[] = { 140, 1 };
 int dash3[] = { 1, 1, 3, 3 };
 int dash4[] = { 1, 3, 2, 4 };
 
@@ -43,8 +44,8 @@ protected:
         refPaint.setStrokeWidth(1);
         const SkScalar radius = 125;
         SkRect oval = SkRect::MakeLTRB(-radius - 20, -radius - 20, radius + 20, radius + 20);
-        SkPath circle;
-        circle.addCircle(0, 0, radius);
+        //SkPath circle;
+        //circle.addCircle(0, 0, radius);
         SkScalar circumference = radius * SK_ScalarPI * 2;
         int wedges[] = { 6, 12, 36 };
         canvas->translate(radius+20, radius+20);
@@ -69,8 +70,8 @@ protected:
                     }
                 }
                 canvas->save();
-                canvas->rotate(fRotation);
-                canvas->drawPath(refPath, refPaint);
+                //canvas->rotate(fRotation);
+                //canvas->drawPath(refPath, refPaint);
                 canvas->restore();
                 SkPaint p;
                 p.setAntiAlias(true);
@@ -84,8 +85,9 @@ protected:
                 }
                 p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
                 canvas->save();
-                canvas->rotate(fRotation);
-                canvas->drawPath(circle, p);
+                //canvas->rotate(fRotation);
+                canvas->drawOval({-radius, -radius, radius, radius}, p);
+                //canvas->drawPath(circle, p);
                 canvas->restore();
                 canvas->translate(0, radius * 2 + 50);
             }
@@ -108,3 +110,104 @@ private:
 };
 
 DEF_GM(return new DashCircleGM; )
+
+class DashCircle2GM : public skiagm::GM {
+public:
+    DashCircle2GM() {}
+
+protected:
+    SkString onShortName() override { return SkString("dashcircle2"); }
+
+    SkISize onISize() override { return SkISize::Make(900, 1200); }
+
+    void onDraw(SkCanvas *canvas) override {
+        // These intervals are defined relative to tau.
+        static constexpr SkScalar kIntervals[][2]{
+                {0.3333333, 0.3333333},
+                {0.01,  0.01},
+                {0.01,  0.09},
+                {0.095, 0.005},
+                {0.02,  0.04},
+                {0.1,   0.2},
+                {0.25,  0.25},
+                {0.6,   0.7}, // adds to > 1
+                {1.2,   .8}, // on is > 1
+        };
+
+        //fPhaseDegrees = 45.f;
+        static constexpr int kN = SK_ARRAY_COUNT(kIntervals);
+        static constexpr SkScalar kRadius = 20.f;
+        static constexpr SkScalar kStrokeWidth = 10.f;
+        sk_sp<SkPathEffect> deffects[SK_ARRAY_COUNT(kIntervals)];
+        for (int i = 0; i < kN; ++i) {
+            static constexpr SkScalar kTau = 2 * SK_ScalarPI;
+            static constexpr SkScalar kCircumference = kRadius * kTau;
+            SkScalar scaledIntervals[2] = {kCircumference * kIntervals[i][0],
+                                           kCircumference * kIntervals[i][1]};
+            deffects[i] = SkDashPathEffect::Make(scaledIntervals, 2, kCircumference * fPhaseDegrees * kTau / 360.f);
+        }
+
+        SkMatrix rotate;
+        rotate.setRotate(25.f);
+        static const SkMatrix kMatrices[]{
+                SkMatrix::I(),
+                SkMatrix::MakeScale(1.2f),
+                SkMatrix::MakeAll(1, 0, 0, 0, -1, 0, 0, 0, 1),  // y flipper
+                SkMatrix::MakeAll(-1, 0, 0, 0, 1, 0, 0, 0, 1),  // x flipper
+                SkMatrix::MakeScale(0.2f),
+                rotate,
+                SkMatrix::Concat(
+                        SkMatrix::Concat(SkMatrix::MakeAll(-1, 0, 0, 0, 1, 0, 0, 0, 1), rotate),
+                        rotate)
+        };
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(kStrokeWidth);
+        paint.setStyle(SkPaint::kStroke_Style);
+        bool invert = true;
+        if (invert)
+            paint.setColor(SK_ColorWHITE);
+
+        static constexpr SkScalar kPad = 5.f;
+        static const SkRect kCircle = {-kRadius, -kRadius, kRadius, kRadius};
+        static const SkRect kBounds = kCircle.makeOutset(kStrokeWidth / 2.f, kStrokeWidth / 2.f);
+
+        SkRect bounds = SkRect::MakeEmpty();
+        for (const auto &m : kMatrices) {
+            SkRect devBounds;
+            m.mapRect(&devBounds, kBounds);
+            bounds.join(devBounds);
+        }
+        if (invert)
+            canvas->clear(SK_ColorBLACK);
+
+        canvas->save();
+        canvas->translate(-bounds.fLeft + kPad, -bounds.fTop + kPad);
+        for (const auto &de : deffects) {
+            canvas->save();
+            paint.setPathEffect(de);
+            for (const auto &m : kMatrices) {
+                canvas->save();
+                canvas->concat(m);
+                canvas->drawOval(kCircle, paint);
+                canvas->restore();
+
+                canvas->translate(bounds.width() + kPad, 0);
+            }
+            canvas->restore();
+            canvas->translate(0, bounds.height() + kPad);
+        }
+        canvas->restore();
+    }
+
+protected:
+    bool onAnimate(const SkAnimTimer& timer) override {
+        fPhaseDegrees = timer.secs();
+        return true;
+    }
+
+    SkScalar fPhaseDegrees = 0.f;
+};
+
+DEF_GM(return new DashCircle2GM; )

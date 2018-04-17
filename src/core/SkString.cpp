@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 // number of bytes (on the stack) to receive the printf result
-static const size_t kBufferSize = 1024;
+static const size_t kBufferSize = 10 * 1024;
 
 #define ARGS_TO_BUFFER(format, buffer, size, written)      \
     do {                                                   \

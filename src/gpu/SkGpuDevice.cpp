@@ -510,7 +510,7 @@ void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawOval", fContext.get());
     // Presumably the path effect warps this to something other than an oval
-    if (paint.getPathEffect()) {
+    if (/*paint.getPathEffect()*/ false) {
         SkPath path;
         path.setIsVolatile(true);
         path.addOval(oval);

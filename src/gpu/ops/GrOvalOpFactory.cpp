@@ -93,7 +93,7 @@ public:
 
     ~CircleGeometryProcessor() override {}
 
-    const char* name() const override { return "CircleEdge"; }
+    const char* name() const override { return "CircleGeometryProcessor"; }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
@@ -224,6 +224,184 @@ sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestDa
 }
 #endif
 
+class ButtCapStrokedCircleGeometryProcessor : public GrGeometryProcessor {
+public:
+    ButtCapStrokedCircleGeometryProcessor(const SkMatrix& localMatrix)
+            : INHERITED(kButtCapStrokedCircleGeometryProcessor_ClassID)
+            , fLocalMatrix(localMatrix) {
+        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+        fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
+        fInCircleEdge = &this->addVertexAttrib("inCircleEdge", kFloat4_GrVertexAttribType);
+        fInDashParams = &this->addVertexAttrib("inDashParams", kFloat4_GrVertexAttribType);
+    }
+
+    ~ButtCapStrokedCircleGeometryProcessor() override {}
+
+    const char* name() const override { return "ButtCapStrokedCircleGeometryProcessor"; }
+
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
+    }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
+        return new GLSLProcessor();
+    }
+
+private:
+    class GLSLProcessor : public GrGLSLGeometryProcessor {
+    public:
+        GLSLProcessor() {}
+
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+            const ButtCapStrokedCircleGeometryProcessor& bcscgp = args.fGP.cast<ButtCapStrokedCircleGeometryProcessor>();
+            GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+
+            // emit attributes
+            varyingHandler->emitAttributes(bcscgp);
+            fragBuilder->codeAppend("float4 circleEdge;");
+            varyingHandler->addPassThroughAttribute(bcscgp.fInCircleEdge, "circleEdge");
+
+            fragBuilder->codeAppend("float4 dashParams;");
+            varyingHandler->addPassThroughAttribute(bcscgp.fInDashParams, "dashParams", GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
+            GrGLSLVarying wrapDashes(kHalf4_GrSLType);
+            // When we are in the first interval we can't simply look back to the previous interval
+            // as the circle may be evenly divisible by the on-off interval. We store a dash for
+            // the last partial interval in wrapDashes.xy. It is in the space of the first interval.
+            // Similarly, when in the last on-off interval the next (actually first) dash may be
+            // closer because our interval is truncated. We store the first dash in the space of the
+            // last interval in wrapDashes.zw.
+            varyingHandler->addVarying("wrapDashes", &wrapDashes, GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
+            vertBuilder->codeAppendf("float4 dashParams = %s;", bcscgp.fInDashParams->fName);
+            vertBuilder->codeAppend(R"(
+                    float4 wrapDashes;
+                    // "end" is where the circle ends in the space of the last partial on-off
+                    // interval.
+                    float end = mod(6.28318530718, dashParams.y);
+                    half offset = 0;
+                    if (-dashParams.w >= end) {
+                         // The phase pushes the dash corresponding to the last partial interval
+                         // beyond the end of the circle. Use the dash from the previous interval
+                         // which has been phase shifted into the last interval.
+                         offset = -dashParams.y;
+                    } else if (dashParams.w > dashParams.y - end) {
+                         offset = dashParams.y;
+                    }
+                    wrapDashes.x = -end + offset - dashParams.w;
+                    // The end of this dash may be beyond the end point. Hence the min.
+                    wrapDashes.y = min(wrapDashes.x + dashParams.x, 0);
+
+                    offset = 0;
+                    if (dashParams.w >= dashParams.x) {
+                        // The phase has shifted the dash corresponding to the first interval
+                        // before the start of the circle. Pick up the dash from the next interval.
+                        offset = dashParams.y;
+                    } else if (-dashParams.w > dashParams.y - dashParams.x) {
+                        // The phase has a dash corresponding to a negative angle into the first
+                        // interval. That dash can influence the last interval and is closer than
+                        // the dash corresponding to the first interval. Use it instead.
+                        offset = -dashParams.y;
+                    }
+                    wrapDashes.z = end + offset - dashParams.w;
+                    wrapDashes.w = wrapDashes.z + dashParams.x;
+                    // The start of the dash we're considering may be clipped by the end of the
+                    // circle (which corresponds to "end" in the last interval).
+                    wrapDashes.z = max(wrapDashes.z, end);
+            )");
+            vertBuilder->codeAppendf("%s = wrapDashes;", wrapDashes.vsOut());
+            fragBuilder->codeAppendf("half4 wrapDashes = %s;", wrapDashes.fsIn());
+
+            // setup pass through color
+            varyingHandler->addPassThroughAttribute(bcscgp.fInColor, args.fOutputColor, GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
+
+            // Setup position
+            this->writeOutputPosition(vertBuilder, gpArgs, bcscgp.fInPosition->fName);
+
+            // emit transforms
+            this->emitTransforms(vertBuilder,
+                                 varyingHandler,
+                                 uniformHandler,
+                                 bcscgp.fInPosition->asShaderVar(),
+                                 bcscgp.fLocalMatrix,
+                                 args.fFPCoordTransformHandler);
+            GrShaderVar fnArgs[] = {
+                GrShaderVar("angle", kFloat_GrSLType),
+                GrShaderVar("diameter", kFloat_GrSLType),
+            };
+            SkString fnName;
+            fragBuilder->emitFunction(kFloat_GrSLType, "coverage_from_edge", SK_ARRAY_COUNT(fnArgs), fnArgs,
+                    R"(float linearDist;
+                       angle = clamp(angle, -3.1415, 3.1415);
+                       linearDist = diameter * sin(angle / 2);
+                       return clamp(linearDist + 0.5, 0, 1);
+                    )", &fnName);
+            fragBuilder->codeAppendf(R"(
+                    float d = length(circleEdge.xy) * circleEdge.z;
+                    half distanceToOuterEdge = circleEdge.z - d;
+                    half edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);
+                    half distanceToInnerEdge = d - circleEdge.z * circleEdge.w;
+                    half innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);
+                    edgeAlpha *= innerAlpha;
+                    half angleFromStart = atan(circleEdge.y, circleEdge.x) - dashParams.z;
+                    angleFromStart = mod(angleFromStart, 6.28318530718);
+                    float x = mod(angleFromStart, dashParams.y);
+
+                    // Convert the radial distance from center to pixel into a diameter.
+                    d *= 2;
+                    half2 nextDashParams = half2(dashParams.y, dashParams.y + dashParams.x);
+                    half2 prevDashParams = half2(-dashParams.y, -dashParams.y + dashParams.x);
+
+                    float4 extraCoverage = float4(0);
+
+                    half dashAlpha = 0;
+                    if (angleFromStart - x + dashParams.y >= 6.28318530718) {
+                         dashAlpha += %s(x - wrapDashes.z, d) * %s(wrapDashes.w - x, d);
+                    }
+                    if (angleFromStart - x - dashParams.y < -0.01) {
+                         dashAlpha += %s(x - wrapDashes.x, d) * %s(wrapDashes.y - x, d);
+                    }
+
+                    x += dashParams.w;
+                    dashAlpha += %s(x, d) * %s(dashParams.x - x, d);
+                    dashAlpha += %s(x - nextDashParams.x, d) * %s(nextDashParams.y - x, d);
+                    dashAlpha += %s(x - prevDashParams.x, d) * %s(prevDashParams.y - x, d);
+
+                    dashAlpha = min(dashAlpha, 1);
+                    edgeAlpha *= dashAlpha;
+                    )", fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str());
+            fragBuilder->codeAppendf("%s = half4(edgeAlpha) + extraCoverage;", args.fOutputCoverage);
+            //fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
+        }
+
+        static void GenKey(const GrGeometryProcessor& gp,
+                           const GrShaderCaps&,
+                           GrProcessorKeyBuilder* b) {
+            const ButtCapStrokedCircleGeometryProcessor& bcscgp = gp.cast<ButtCapStrokedCircleGeometryProcessor>();
+            b->add32(bcscgp.fLocalMatrix.hasPerspective());
+        }
+
+        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
+                     FPCoordTransformIter&& transformIter) override {
+            this->setTransformDataHelper(primProc.cast<ButtCapStrokedCircleGeometryProcessor>().fLocalMatrix,
+                                         pdman, &transformIter);
+        }
+
+    private:
+        typedef GrGLSLGeometryProcessor INHERITED;
+    };
+
+    SkMatrix fLocalMatrix;
+    const Attribute* fInPosition;
+    const Attribute* fInColor;
+    const Attribute* fInCircleEdge;
+    const Attribute* fInDashParams;
+
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
+
+    typedef GrGeometryProcessor INHERITED;
+};
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -1139,6 +1317,303 @@ private:
     bool fClipPlane;
     bool fClipPlaneIsect;
     bool fClipPlaneUnion;
+
+    typedef GrMeshDrawOp INHERITED;
+};
+
+class ButtCapDashedCircleOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelper;
+
+public:
+    DEFINE_OP_CLASS_ID
+
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                          SkPoint center, SkScalar radius, SkScalar strokeWidth,
+                                          SkScalar startAngle, SkScalar onAngle, SkScalar offAngle, SkScalar phaseAngle) {
+        SkASSERT(circle_stays_circle(viewMatrix));
+        // TODO: Check angles and radius to see if dashes too close together.
+
+        return Helper::FactoryHelper<ButtCapDashedCircleOp>(std::move(paint), viewMatrix, center, radius, strokeWidth,
+                                               startAngle, onAngle, offAngle, phaseAngle);
+    }
+
+    ButtCapDashedCircleOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+                         SkPoint center, SkScalar radius, SkScalar strokeWidth,
+                         SkScalar startAngle, SkScalar onAngle, SkScalar offAngle, SkScalar phaseAngle)
+            : GrMeshDrawOp(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
+        SkASSERT(circle_stays_circle(viewMatrix));
+        viewMatrix.mapPoints(&center, 1);
+        radius = viewMatrix.mapRadius(radius);
+        strokeWidth = viewMatrix.mapRadius(strokeWidth);
+
+        bool reflection;
+        if (true) {
+            SkVector start;
+            if (!startAngle) {
+                start = {1, 0};
+            } else {
+                start.fY = SkScalarSinCos(startAngle, &start.fX);
+            }
+            viewMatrix.mapVectors(&start, 1);
+            startAngle = SkScalarATan2(start.fY, start.fX);
+            reflection = viewMatrix.getScaleX() * viewMatrix.getScaleY() - viewMatrix.getSkewX() * viewMatrix.getSkewY() < 0;
+        } else {
+            reflection = viewMatrix.getScaleX() * viewMatrix.getScaleY() < 0.f;
+        }
+        auto totalAngle = onAngle + offAngle;
+        phaseAngle = SkScalarMod(phaseAngle + totalAngle / 2, totalAngle) - totalAngle / 2;
+
+        SkScalar halfWidth = 0;
+        if (SkScalarNearlyZero(strokeWidth)) {
+            halfWidth = SK_ScalarHalf;
+        } else {
+            halfWidth = SkScalarHalf(strokeWidth);
+        }
+
+        SkScalar outerRadius = radius + halfWidth;
+        SkScalar innerRadius = radius - halfWidth;
+
+        // The radii are outset for two reasons. First, it allows the shader to simply perform
+        // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
+        // Second, the outer radius is used to compute the verts of the bounding box that is
+        // rendered and the outset ensures the box will cover all partially covered by the circle.
+        outerRadius += SK_ScalarHalf;
+        innerRadius -= SK_ScalarHalf;
+        fViewMatrixIfUsingLocalCoords = viewMatrix;
+
+        SkRect devBounds = SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
+                                            center.fX + outerRadius, center.fY + outerRadius);
+
+        fCircles.push_back(Circle{
+            color,
+            outerRadius,
+            innerRadius,
+            onAngle,
+            totalAngle,
+            startAngle,
+            phaseAngle,
+            reflection,
+            devBounds
+        });
+        // Use the original radius and stroke radius for the bounds so that it does not include the
+        // AA bloat.
+        radius += halfWidth;
+        this->setBounds(
+                {center.fX - radius, center.fY - radius, center.fX + radius, center.fY + radius},
+                HasAABloat::kYes, IsZeroArea::kNo);
+        fVertCount = circle_type_to_vert_count(true);
+        fIndexCount = circle_type_to_index_count(true);
+    }
+
+    const char* name() const override { return "ButtCappedDashedCircleOp"; }
+
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
+    }
+
+    SkString dumpInfo() const override {
+        SkString string;
+        /*
+        for (int i = 0; i < fCircles.count(); ++i) {
+            string.appendf(
+                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
+                    "InnerRad: %.2f, OuterRad: %.2f\n",
+                    fCircles[i].fColor, fCircles[i].fDevBounds.fLeft, fCircles[i].fDevBounds.fTop,
+                    fCircles[i].fDevBounds.fRight, fCircles[i].fDevBounds.fBottom,
+                    fCircles[i].fInnerRadius, fCircles[i].fOuterRadius);
+        }
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
+         */
+        return string;
+    }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
+        GrColor* color = &fCircles.front().fColor;
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kSingleChannel, color);
+    }
+
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+private:
+    void onPrepareDraws(Target* target) override {
+        SkMatrix localMatrix;
+        if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
+            return;
+        }
+
+        // Setup geometry processor
+        sk_sp<GrGeometryProcessor> gp(new ButtCapStrokedCircleGeometryProcessor(localMatrix));
+
+        struct CircleVertex {
+            SkPoint fPos;
+            GrColor fColor;
+            SkPoint fOffset;
+            SkScalar fOuterRadius;
+            SkScalar fInnerRadius;
+            SkScalar fOnAngle;
+            SkScalar fTotalIntervalAngle;
+            SkScalar fStartAngle;
+            SkScalar fPhaseAngle;
+        };
+
+        size_t vertexStride = gp->getVertexStride();
+        SkASSERT(vertexStride == sizeof(CircleVertex));
+
+        const GrBuffer* vertexBuffer;
+        int firstVertex;
+        char* vertices = (char*)target->makeVertexSpace(vertexStride, fVertCount, &vertexBuffer,
+                                                        &firstVertex);
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
+        const GrBuffer* indexBuffer = nullptr;
+        int firstIndex = 0;
+        uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
+        if (!indices) {
+            SkDebugf("Could not allocate indices\n");
+            return;
+        }
+
+        int currStartVertex = 0;
+        for (const auto& circle : fCircles) {
+            // The inner radius in the vertex data must be specified in normalized space.
+            auto normInnerRadius = circle.fInnerRadius / circle.fOuterRadius;
+            const SkRect& bounds = circle.fDevBounds;
+
+            auto init_const_attrs = [circle, normInnerRadius] (CircleVertex* v) {
+                v->fColor = circle.fColor;
+                v->fOuterRadius = circle.fOuterRadius;
+                v->fInnerRadius = normInnerRadius;
+                v->fOnAngle = circle.fOnAngle;
+                v->fTotalIntervalAngle = circle.fTotalIntervalAngle;
+                v->fStartAngle = circle.fStartAngle;
+                v->fPhaseAngle = circle.fPhaseAngle;
+                if (circle.fReflection) {
+                    v->fStartAngle =  -v->fStartAngle;
+                    v->fOffset.fY = -v->fOffset.fY;
+                }
+            };
+
+            // Outer ring
+            CircleVertex* v0 = reinterpret_cast<CircleVertex*>(vertices + 0 * vertexStride);
+            CircleVertex* v1 = reinterpret_cast<CircleVertex*>(vertices + 1 * vertexStride);
+            CircleVertex* v2 = reinterpret_cast<CircleVertex*>(vertices + 2 * vertexStride);
+            CircleVertex* v3 = reinterpret_cast<CircleVertex*>(vertices + 3 * vertexStride);
+            CircleVertex* v4 = reinterpret_cast<CircleVertex*>(vertices + 4 * vertexStride);
+            CircleVertex* v5 = reinterpret_cast<CircleVertex*>(vertices + 5 * vertexStride);
+            CircleVertex* v6 = reinterpret_cast<CircleVertex*>(vertices + 6 * vertexStride);
+            CircleVertex* v7 = reinterpret_cast<CircleVertex*>(vertices + 7 * vertexStride);
+
+            // Inner ring
+            CircleVertex* v8  = reinterpret_cast<CircleVertex*>(vertices + 8 * vertexStride);
+            CircleVertex* v9  = reinterpret_cast<CircleVertex*>(vertices + 9 * vertexStride);
+            CircleVertex* v10 = reinterpret_cast<CircleVertex*>(vertices + 10 * vertexStride);
+            CircleVertex* v11 = reinterpret_cast<CircleVertex*>(vertices + 11 * vertexStride);
+            CircleVertex* v12 = reinterpret_cast<CircleVertex*>(vertices + 12 * vertexStride);
+            CircleVertex* v13 = reinterpret_cast<CircleVertex*>(vertices + 13 * vertexStride);
+            CircleVertex* v14 = reinterpret_cast<CircleVertex*>(vertices + 14 * vertexStride);
+            CircleVertex* v15 = reinterpret_cast<CircleVertex*>(vertices + 15 * vertexStride);
+
+
+            SkPoint center = SkPoint::Make(bounds.centerX(), bounds.centerY());
+            SkScalar halfWidth = 0.5f * bounds.width();
+            auto init_outer_vertex = [center, halfWidth, init_const_attrs](CircleVertex* v, SkScalar x, SkScalar y) {
+                v->fPos = center + SkPoint{x * halfWidth, y * halfWidth};
+                v->fOffset = {x, y};
+                init_const_attrs(v);
+            };
+            static constexpr SkScalar octOffset = 0.41421356237f;  // sqrt(2) - 1
+            init_outer_vertex(v0, -octOffset, -1);
+            init_outer_vertex(v1,  octOffset, -1);
+            init_outer_vertex(v2,  1, -octOffset);
+            init_outer_vertex(v3,  1, octOffset);
+            init_outer_vertex(v4,  octOffset, 1);
+            init_outer_vertex(v5,  -octOffset, 1);
+            init_outer_vertex(v6,  -1, octOffset);
+            init_outer_vertex(v7,  -1, -octOffset);
+
+            auto init_inner_vertex = [center, circle, normInnerRadius, init_const_attrs](CircleVertex* v, SkScalar x, SkScalar y) {
+                v->fPos = center + SkPoint{x * circle.fInnerRadius, y * circle.fInnerRadius};
+                v->fOffset = {x * normInnerRadius, y * normInnerRadius};
+                init_const_attrs(v);
+            };
+
+            // cosine and sine of pi/8
+            static constexpr SkScalar c = 0.923579533f;
+            static constexpr SkScalar s = 0.382683432f;
+
+            init_inner_vertex(v8,  -s, -c);
+            init_inner_vertex(v9,   s, -c);
+            init_inner_vertex(v10,  c, -s);
+            init_inner_vertex(v11,  c,  s);
+            init_inner_vertex(v12,  s,  c);
+            init_inner_vertex(v13, -s,  c);
+            init_inner_vertex(v14, -c,  s);
+            init_inner_vertex(v15, -c, -s);
+
+            const uint16_t* primIndices = circle_type_to_indices(true);
+            const int primIndexCount = circle_type_to_index_count(true);
+            for (int i = 0; i < primIndexCount; ++i) {
+                *indices++ = primIndices[i] + currStartVertex;
+            }
+
+            currStartVertex += circle_type_to_vert_count(true);
+            vertices += circle_type_to_vert_count(true) * vertexStride;
+        }
+
+        GrMesh mesh(GrPrimitiveType::kTriangles);
+        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
+        mesh.setVertexData(vertexBuffer, firstVertex);
+        target->draw(gp.get(),  fHelper.makePipeline(target), mesh);
+    }
+
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+        ButtCapDashedCircleOp* that = t->cast<ButtCapDashedCircleOp>();
+
+        // can only represent 65535 unique vertices with 16-bit indices
+        if (fVertCount + that->fVertCount > 65536) {
+            return false;
+        }
+
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
+            return false;
+        }
+
+        if (fHelper.usesLocalCoords() &&
+            !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
+            return false;
+        }
+
+        fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
+        this->joinBounds(*that);
+        fVertCount += that->fVertCount;
+        fIndexCount += that->fIndexCount;
+        return true;
+    }
+
+    struct Circle {
+        GrColor fColor;
+        SkScalar fOuterRadius;
+        SkScalar fInnerRadius;
+        SkScalar fOnAngle;
+        SkScalar fTotalIntervalAngle;
+        SkScalar fStartAngle;
+        SkScalar fPhaseAngle;
+        bool fReflection;
+        SkRect fDevBounds;
+    };
+
+    SkMatrix fViewMatrixIfUsingLocalCoords;
+    Helper fHelper;
+    SkSTArray<1, Circle, true> fCircles;
+    int fVertCount;
+    int fIndexCount;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -2401,6 +2876,52 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrPaint&& paint,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrPaint&& paint,
+                                                      const SkMatrix& viewMatrix,
+                                                      const SkRect& oval,
+                                                      const GrStyle& style,
+                                                      const GrShaderCaps* shaderCaps) {
+    // we can draw circles
+    SkScalar width = oval.width();
+    if (width > SK_ScalarNearlyZero && SkScalarNearlyEqual(width, oval.height()) &&
+        circle_stays_circle(viewMatrix)) {
+        SkPoint center = {oval.centerX(), oval.centerY()};
+        if (style.hasNonDashPathEffect()) {
+            return nullptr;
+        } else if (style.isDashed()) {
+            if (style.dashIntervalCnt() != 2) {
+                return nullptr;
+            }
+            auto onInterval = style.dashIntervals()[0];
+            auto offInterval = style.dashIntervals()[1];
+            auto angularOnInterval = onInterval / (width / 2.f);
+            auto angularOffInterval = offInterval / (width / 2.f);
+            auto phaseAngle = style.dashPhase() / (width / 2.f);
+            return ButtCapDashedCircleOp::Make(std::move(paint), viewMatrix, center, width / 2.f,
+                                               style.strokeRec().getWidth(), 0.f, angularOnInterval,
+                                               angularOffInterval, phaseAngle);
+        }
+        return CircleOp::Make(std::move(paint), viewMatrix, center, width / 2.f,
+                              style);
+    }
+
+    if (style.pathEffect()) {
+        return nullptr;
+    }
+
+    // prefer the device space ellipse op for batchability
+    if (viewMatrix.rectStaysRect()) {
+        return EllipseOp::Make(std::move(paint), viewMatrix, oval, style.strokeRec());
+    }
+
+    // Otherwise, if we have shader derivative support, render as device-independent
+    if (shaderCaps->shaderDerivativeSupport()) {
+        return DIEllipseOp::Make(std::move(paint), viewMatrix, oval, style.strokeRec());
+    }
+
+    return nullptr;
+}
 
 std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrPaint&& paint,
                                                       const SkMatrix& viewMatrix,
