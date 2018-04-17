@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec773d44_d54eba8e",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 1469,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-17T16:35:54Z",
+      "side": 1,
+      "message": "Move this to 1540 so it can be closer to where it is used.\nOr maybe it makes more sense to make the copy inside process.",
+      "revId": "831223c6a953a58644b0678ade43c7389889537f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
