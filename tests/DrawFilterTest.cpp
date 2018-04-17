@@ -7,8 +7,10 @@
 
 #include "SkCanvas.h"
 #include "SkDrawFilter.h"
+#include "SkRefCnt.h"
 #include "SkSurface.h"
 #include "Test.h"
+class SkPaint;
 
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
 
