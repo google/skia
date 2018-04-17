@@ -40,6 +40,8 @@ def _adb(api, title, *cmd, **kwargs):
 
 def skpbench_steps(api):
   """benchmark Skia using skpbench."""
+  api.file.ensure_directory('makedirs perf_dir', api.vars.perf_data_dir)
+
   app = api.vars.skia_out.join(api.vars.configuration, 'skpbench')
   _adb(api, 'push skpbench', 'push', app, api.vars.android_bin_dir)
 
@@ -90,7 +92,6 @@ def skpbench_steps(api):
 
   now = api.time.utcnow()
   ts = int(calendar.timegm(now.utctimetuple()))
-  api.file.ensure_directory('makedirs perf_dir', api.vars.perf_data_dir)
   json_path = api.path.join(
       api.vars.perf_data_dir,
       'skpbench_%s_%d.json' % (api.vars.got_revision, ts))
