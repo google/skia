@@ -1047,6 +1047,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     size_t bpp = GrBytesPerPixel(dataConfig);
 
     if (width == 0 || height == 0) {
+        SkDebugf("@@@@@> [GrGLGpu::uploadTexData] 0\n");
         return false;
     }
 
@@ -1057,6 +1058,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     GrGLenum externalType;
     if (!this->glCaps().getTexImageFormats(texConfig, dataConfig, &internalFormat, &externalFormat,
                                            &externalType)) {
+        SkDebugf("@@@@@> [GrGLGpu::uploadTexData] 1\n");
         return false;
     }
     // TexStorage requires a sized format, and internalFormat may or may not be
@@ -1197,7 +1199,11 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                     texConfig, *interface, caps, target, internalFormat,
                     internalFormatForTexStorage, externalFormat, externalType,
                     texelsShallowCopy, mipLevelCount, width, height);
+            if (!succeeded) {
+            SkDebugf("@@@@@> [GrGLGpu::uploadTexData] 6\n");
+            }
         } else {
+            SkDebugf("@@@@@> [GrGLGpu::uploadTexData] 5\n");
             succeeded = false;
         }
     } else {
@@ -1633,6 +1639,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
     GL_CALL(GenTextures(1, &(info->fID)));
 
     if (!info->fID) {
+        SkDebugf("@@@@@> [GrGLGpu::createTextureImpl] GenTextures made a 0 id\n");
         return false;
     }
 
@@ -1654,6 +1661,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
                              info->fTarget, kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight,
                              desc.fConfig, texels, mipLevelCount, mipMapsStatus)) {
         GL_CALL(DeleteTextures(1, &(info->fID)));
+        SkDebugf("@@@@@> [GrGLGpu::createTextureImpl] uploadTexData failed\n");
         return false;
     }
     info->fFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);

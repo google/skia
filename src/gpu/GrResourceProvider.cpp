@@ -181,17 +181,18 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
     SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
 
     if (this->isAbandoned()) {
+        SkDebugf("@@@@@> [createApproxTexture] abandoned\n");
         return nullptr;
     }
 
     if (!fCaps->validateSurfaceDesc(desc, GrMipMapped::kNo)) {
+        SkDebugf("@@@@@> [createApproxTexture] validateSurfaceDesc\n");
         return nullptr;
     }
 
     if (auto tex = this->refScratchTexture(desc, flags)) {
         return tex;
     }
-
     SkTCopyOnFirstWrite<GrSurfaceDesc> copyDesc(desc);
 
     // bin by pow2 with a reasonable min

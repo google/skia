@@ -162,11 +162,15 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     } else {
         if (SkBackingFit::kApprox == fFit) {
             surface = resourceProvider->createApproxTexture(desc, resourceProviderFlags);
+            if (!surface) {
+                SkDebugf("@@@> trace0 resourceProvider->createApproxTexture failed!!!\n");
+            }
         } else {
             surface = resourceProvider->createTexture(desc, fBudgeted, resourceProviderFlags);
         }
     }
     if (!surface) {
+        SkDebugf("@@@> trace0 !surface\n");
         return nullptr;
     }
 
@@ -218,6 +222,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
                                                        descFlags, mipMapped);
     if (!surface) {
+        SkDebugf("@@@@@> fail !createSurfaceImpl\n");
         return false;
     }
 

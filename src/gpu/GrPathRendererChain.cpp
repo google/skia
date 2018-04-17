@@ -100,6 +100,13 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
         }
     }
 
+    if (!args.fShape->style().isSimpleFill() || args.fShape->inverseFilled()) {
+        return nullptr;
+    }
+    if (!args.fViewMatrix->hasPerspective() && GrAAType::kCoverage == args.fAAType) {
+        return fCoverageCountingPathRenderer;
+    }
+
     GrPathRenderer* bestPathRenderer = nullptr;
     for (const sk_sp<GrPathRenderer>& pr : fChain) {
         GrPathRenderer::StencilSupport support = GrPathRenderer::kNoSupport_StencilSupport;
