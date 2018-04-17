@@ -19,10 +19,6 @@
 
 class SkTraceMemoryDump;
 
-class SkGlyphCache;
-using SkExclusiveStrikePtr = std::unique_ptr<
-    SkGlyphCache,
-    SkFunctionWrapper<void, SkGlyphCache, SkStrikeCache::AttachCache>>;
 
 /** \class SkGlyphCache
 
@@ -155,15 +151,6 @@ public:
         const SkDescriptor& desc,
         std::unique_ptr<SkScalerContext> scaler,
         SkPaint::FontMetrics* maybeMetrics = nullptr);
-
-    static void Dump();
-
-    /** Dump memory usage statistics of all the attaches caches in the process using the
-        SkTraceMemoryDump interface.
-    */
-    static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
-
-    static void ForEachStrike(std::function<void(const SkGlyphCache&)> visitor);
 
 #ifdef SK_DEBUG
     void validate() const;
