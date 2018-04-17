@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1fa287b3_5ad7b35b",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-17T13:23:42Z",
+      "side": 1,
+      "message": "Upto you. I was just curious because I didn\u0027t see any Canary- builds.",
+      "parentUuid": "6d534232_1d053058",
+      "range": {
+        "startLine": 29,
+        "startChar": 5,
+        "endLine": 29,
+        "endChar": 11
+      },
+      "revId": "328382715c0865c6a4bcdd29e02ea1ef85c1ff55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f29444ec_2fc6d016",
         "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
         "patchSetId": 1
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "IMO \"recurse\" is descriptive of what it means, since the schema is recursively defined.  Maybe recurse_roles?",
       "parentUuid": "f29444ec_2fc6d016",
+      "range": {
+        "startLine": 88,
+        "startChar": 7,
+        "endLine": 88,
+        "endChar": 14
+      },
+      "revId": "328382715c0865c6a4bcdd29e02ea1ef85c1ff55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad11b7e4_da77bfca",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-17T13:23:42Z",
+      "side": 1,
+      "message": "recurse_roles SGTM",
+      "parentUuid": "298f847a_9961eef4",
       "range": {
         "startLine": 88,
         "startChar": 7,
