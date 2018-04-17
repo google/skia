@@ -73,6 +73,7 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 
 bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (LazyState::kNot != this->lazyInstantiationState()) {
+        SkDebugf("@@@@@> fail not lazy\n");
         return false;
     }
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
@@ -81,6 +82,7 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 
     if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), this->needsStencil(),
                                kDescFlags, this->mipMapped(), key.isValid() ? &key : nullptr)) {
+        SkDebugf("@@@@@> fail instantiateImpl\n");
         return false;
     }
     if (key.isValid()) {

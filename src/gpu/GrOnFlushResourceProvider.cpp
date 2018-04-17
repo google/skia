@@ -64,6 +64,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
                                              props, false));
 
     if (!renderTargetContext) {
+        SkDebugf("@@@@@> fail !renderTargetContext\n");
         return nullptr;
     }
 
@@ -73,6 +74,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     // we have to manually ensure it is allocated here. The proxy had best have been created
     // with the kNoPendingIO flag!
     if (!renderTargetContext->asSurfaceProxy()->instantiate(resourceProvider)) {
+        SkDebugf("@@@@@> fail !instantiate\n");
         return nullptr;
     }
 

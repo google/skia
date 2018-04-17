@@ -218,6 +218,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
                                                        descFlags, mipMapped);
     if (!surface) {
+        SkDebugf("@@@@@> fail !createSurfaceImpl\n");
         return false;
     }
 
