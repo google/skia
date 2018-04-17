@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a924ff4d_6e26c622",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-17T20:52:01Z",
+      "side": 1,
+      "message": "Just to make sure I\u0027m getting this right, did we want to put the discardable handle for knowing the pinned status for a strike cache here?",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 17
+      },
+      "revId": "f155f81b8dacc2a779bce57b7f056c2831c7267d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
