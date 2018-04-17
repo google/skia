@@ -550,12 +550,7 @@ class SkBitmapDeviceFilteredSurfaceProps {
 public:
     SkBitmapDeviceFilteredSurfaceProps(const SkBitmap& bitmap, const SkPaint& paint,
                                        const SkSurfaceProps& surfaceProps) {
-        if (kN32_SkColorType != bitmap.colorType() ||
-            paint.getPathEffect() ||
-            paint.isFakeBoldText() ||
-            paint.getStyle() != SkPaint::kFill_Style ||
-            !paint.isSrcOver())
-        {
+        if (kN32_SkColorType != bitmap.colorType() || !paint.isSrcOver()) {
             SkSurfaceProps* newPaint = fLazy.init(surfaceProps.flags(), kUnknown_SkPixelGeometry);
             fSurfaceProps = newPaint;
         } else {
