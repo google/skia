@@ -8,11 +8,19 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
+#include "SkColorSpace_XYZ.h"
+#include "SkData.h"
+#include "SkImageInfo.h"
+#include "SkMatrix44.h"
+#include "SkRefCnt.h"
+#include "SkStream.h"
+#include "SkTypes.h"
 #include "Test.h"
-
 #include "png.h"
+
+#include <memory>
+#include <utility>
 
 static bool almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.001f;

@@ -5,15 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
+#include "SkColorSpaceXform.h"
+#include "SkColorSpaceXformPriv.h"
+#include "SkColorSpaceXform_Base.h"
 #include "SkColorSpace_A2B.h"
 #include "SkColorSpace_XYZ.h"
-#include "SkColorSpaceXform_Base.h"
+#include "SkData.h"
+#include "SkGammas.h"
+#include "SkImageInfo.h"
+#include "SkMalloc.h"
+#include "SkMatrix.h"
+#include "SkMatrix44.h"
+#include "SkRefCnt.h"
+#include "SkTemplates.h"
+#include "SkTypes.h"
 #include "Test.h"
+
+#include <memory>
+#include <utility>
+#include <vector>
 
 static constexpr int kChannels = 3;
 

@@ -4,9 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
-#include "SkTemplates.h"
+
 #include "SkScopeExit.h"
+#include "SkTypes.h"
+#include "Test.h"
+
 #include <utility>
 
 namespace {
