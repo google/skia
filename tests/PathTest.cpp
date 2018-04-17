@@ -5012,4 +5012,10 @@ DEF_TEST(Path_isRect, reporter) {
     REPORTER_ASSERT(reporter, path.isRect(&rect, nullptr, nullptr));
     compare.set(&points31[0], 4);
     REPORTER_ASSERT(reporter, rect == compare);
+    // isolated from skbug.com/7792#c36
+    SkPath::Verb verbs36[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
+                               SkPath::kLine_Verb, SkPath::kMove_Verb, SkPath::kLine_Verb  };
+    SkPoint points36[] = { {75, 75}, {150, 75}, {150, 150}, {10, 150}, {75, 75}, {75, 75} };
+    path = makePath2(points36, verbs36, SK_ARRAY_COUNT(verbs36));
+    REPORTER_ASSERT(reporter, !path.isRect(&rect, nullptr, nullptr));
 }
