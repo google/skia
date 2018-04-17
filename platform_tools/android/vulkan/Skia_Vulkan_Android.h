@@ -8,6 +8,8 @@
 #ifndef Skia_Vulkan_Android_DEFINED
 #define Skia_Vulkan_Android_DEFINED
 
+#include "SkTypes.h"
+
 #if !defined(SK_BUILD_FOR_ANDROID)
 #error "Must be building for android to use this header"
 #endif
@@ -15,7 +17,7 @@
 #  define VK_USE_PLATFORM_ANDROID_KHR
 #endif
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.h> // IWYU pragma: export
 
 #endif
 
