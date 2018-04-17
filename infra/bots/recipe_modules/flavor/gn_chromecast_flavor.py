@@ -192,7 +192,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
 
   def _ssh(self, title, *cmd, **kwargs):
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', 'root@%s' % self.user_ip] + list(cmd)
+               '-t', '-t', '-vv', 'root@%s' % self.user_ip] + list(cmd)
 
     return self.m.run(self.m.step, title, cmd=ssh_cmd, **kwargs)
 
