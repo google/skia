@@ -16,6 +16,7 @@
 #include "SkAnimTimer.h"
 #include "SkExecutor.h"
 #include "SkJSONCPP.h"
+#include "SkScan.h"
 #include "SkTouchGesture.h"
 #include "Slide.h"
 #include "StatsLayer.h"
@@ -63,10 +64,10 @@ public:
             DeltaAAEnabled,
             DeltaAAForced,
         } fAntiAlias = AntiAliasState::Alias;
-        bool fOriginalSkUseAnalyticAA = false;
-        bool fOriginalSkForceAnalyticAA = false;
-        bool fOriginalSkUseDeltaAA = false;
-        bool fOriginalSkForceDeltaAA = false;
+        const bool fOriginalSkUseAnalyticAA = gSkUseAnalyticAA;
+        const bool fOriginalSkForceAnalyticAA = gSkForceAnalyticAA;
+        const bool fOriginalSkUseDeltaAA = gSkUseDeltaAA;
+        const bool fOriginalSkForceDeltaAA = gSkForceDeltaAA;
 
         bool fTextAlign = false;
         bool fCapType = false;

@@ -117,3 +117,22 @@ std::unique_ptr<SkColorSpaceXform> MakeSkcmsXform(SkColorSpace* src, SkColorSpac
             ? skcms_AlphaFormat_PremulLinear : skcms_AlphaFormat_PremulAsEncoded;
     return skstd::make_unique<SkColorSpaceXform_skcms>(srcProfile, dstProfile, premulFormat);
 }
+
+sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile* profile) {
+    if (!profile) {
+        return nullptr;
+    }
+
+    if (!profile->has_toXYZD50 || !profile->has_trc) {
+        return nullptr;
+    }
+
+    skcms_TransferFunction tf = skcms_BestSingleCurve(profile);
+    SkColorSpaceTransferFn skia_tf;
+    memcpy(&skia_tf, &tf, sizeof(skia_tf));
+
+    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    toXYZD50.set3x3RowMajorf(&profile->toXYZD50.vals[0][0]);
+
+    return SkColorSpace::MakeRGB(skia_tf, toXYZD50);
+}

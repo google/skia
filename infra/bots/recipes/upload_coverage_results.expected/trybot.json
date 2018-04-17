@@ -7,16 +7,16 @@
       "--json-output",
       "/path/to/tmp/json",
       "glob",
-      "[START_DIR]",
+      "[START_DIR]/coverage",
       "*.profraw"
     ],
     "infra_step": true,
     "name": "find raw inputs",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/a.raw@@@",
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/b.raw@@@",
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/c.raw@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/coverage/a.raw@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/coverage/b.raw@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/coverage/c.raw@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -25,9 +25,9 @@
       "tar",
       "-zcvf",
       "[START_DIR]/raw_data.profraw.tar.gz",
-      "[START_DIR]/a.raw",
-      "[START_DIR]/b.raw",
-      "[START_DIR]/c.raw"
+      "[START_DIR]/coverage/a.raw",
+      "[START_DIR]/coverage/b.raw",
+      "[START_DIR]/coverage/c.raw"
     ],
     "name": "create raw data archive"
   },
@@ -47,9 +47,9 @@
       "-sparse",
       "-o",
       "[START_DIR]/output.profdata",
-      "[START_DIR]/a.raw",
-      "[START_DIR]/b.raw",
-      "[START_DIR]/c.raw"
+      "[START_DIR]/coverage/a.raw",
+      "[START_DIR]/coverage/b.raw",
+      "[START_DIR]/coverage/c.raw"
     ],
     "name": "merge and index"
   },
@@ -67,7 +67,7 @@
     "cmd": [
       "[START_DIR]/clang_linux/bin/llvm-cov",
       "show",
-      "[START_DIR]/out/Debug/dm",
+      "[START_DIR]/build/out/Debug/dm",
       "-instr-profile=[START_DIR]/output.profdata",
       "-use-color=0",
       "-format=text",
@@ -108,7 +108,7 @@
     "cmd": [
       "[START_DIR]/clang_linux/bin/llvm-cov",
       "show",
-      "[START_DIR]/out/Debug/dm",
+      "[START_DIR]/build/out/Debug/dm",
       "-instr-profile=[START_DIR]/output.profdata",
       "-use-color=1",
       "-format=html",

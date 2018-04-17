@@ -203,4 +203,6 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
               'push', app, self.m.vars.android_bin_dir)
 
     cmd[0] = '%s/%s' % (self.m.vars.android_bin_dir, cmd[0])
+    self._ssh('Exploring skia', 'ls -la', '/cache/skia', infra_step=False)
+    self._ssh('Exploring skia/bin', 'ls -la', '/cache/skia/bin', infra_step=False)
     self._ssh(str(name), *cmd, infra_step=False)
