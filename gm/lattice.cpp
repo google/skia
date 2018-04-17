@@ -110,10 +110,16 @@ protected:
             { 200, 200, },
         };
 
+        const SkScalar x = SkIntToScalar(100);
+        const SkScalar y = SkIntToScalar(100);
+
+        const SkIRect bounds = SkIRect::MakeLTRB(padLeft, padTop,
+                                                 image->width() - padRight,
+                                                 image->height() - padBottom);
+
+#if 0
         canvas->drawImage(image, 10, 10, nullptr);
 
-        SkScalar x = SkIntToScalar(100);
-        SkScalar y = SkIntToScalar(100);
 
         SkCanvas::Lattice lattice;
         lattice.fXCount = 4;
@@ -123,8 +129,6 @@ protected:
         lattice.fRectTypes = nullptr;
         lattice.fColors = nullptr;
 
-        SkIRect bounds = SkIRect::MakeLTRB(padLeft, padTop,
-                                           image->width() - padRight, image->height() - padBottom);
         lattice.fBounds = (bounds == SkIRect::MakeWH(image->width(), image->height())) ?
                 nullptr : &bounds;
 
@@ -136,7 +140,9 @@ protected:
                 canvas->drawBitmapLattice(bitmap, lattice, r);
             }
         }
+#endif
 
+#if 1
         // Provide hints about 3 solid color rects. These colors match
         // what was already in the bitmap.
         int fixedColorX[3] = {2, 4, 1};
@@ -152,10 +158,16 @@ protected:
 
         // Include the degenerate first div.  While normally the first patch is "scalable",
         // this will mean that the first non-degenerate patch is "fixed".
-        lattice.fXCount = 5;
-        lattice.fXDivs = xDivs;
-        lattice.fYCount = 5;
-        lattice.fYDivs = yDivs;
+        SkCanvas::Lattice lattice2;
+
+        lattice2.fXCount = 5;
+        lattice2.fXDivs = xDivs;
+        lattice2.fYCount = 5;
+        lattice2.fYDivs = yDivs;
+        lattice2.fRectTypes = nullptr;
+        lattice2.fColors = nullptr;
+        lattice2.fBounds = (bounds == SkIRect::MakeWH(image->width(), image->height())) ?
+                nullptr : &bounds;
 
         // Let's skip a few rects.
         SkCanvas::Lattice::RectType flags[36];
@@ -165,35 +177,34 @@ protected:
         flags[12] = SkCanvas::Lattice::kTransparent;
         flags[19] = SkCanvas::Lattice::kTransparent;
         for (int rectNum = 0; rectNum < 3; rectNum++) {
-            flags[fixedColorY[rectNum]*6 + fixedColorX[rectNum]]
-                   = SkCanvas::Lattice::kFixedColor;
+            flags[fixedColorY[rectNum]*6 + fixedColorX[rectNum]] = SkCanvas::Lattice::kFixedColor;
         }
-        lattice.fRectTypes = flags;
+        lattice2.fRectTypes = flags;
 
         SkColor colors[36];
         sk_bzero(colors, 36 * sizeof(SkColor));
         for (int rectNum = 0; rectNum < 3; rectNum++) {
-            colors[fixedColorY[rectNum]*6 + fixedColorX[rectNum]]
-                   = fixedColor[rectNum];
+            colors[fixedColorY[rectNum]*6 + fixedColorX[rectNum]] = fixedColor[rectNum];
         }
 
-        lattice.fColors = colors;
+        lattice2.fColors = colors;
 
         canvas->translate(400, 0);
-        for (int iy = 0; iy < 2; ++iy) {
-            for (int ix = 0; ix < 2; ++ix) {
+        for (int iy = 1; iy < 2; ++iy) {
+            for (int ix = 1; ix < 2; ++ix) {
                 int i = ix * 2 + iy;
                 SkRect r = SkRect::MakeXYWH(x + ix * 60, y + iy * 60,
                                             size[i].width(), size[i].height());
-                canvas->drawImageLattice(image.get(), lattice, r);
+                canvas->drawImageLattice(image.get(), lattice2, r);
             }
         }
+#endif
 
         canvas->restore();
     }
 
     void onDraw(SkCanvas* canvas) override {
-        this->onDrawHelper(canvas, 0, 0, 0, 0);
+//        this->onDrawHelper(canvas, 0, 0, 0, 0);
         canvas->translate(0.0f, 400.0f);
         this->onDrawHelper(canvas, 3, 7, 4, 11);
     }
@@ -209,7 +220,7 @@ class LatticeGM2 : public skiagm::GM {
 public:
     LatticeGM2() {}
     SkString onShortName() override {
-        return SkString("lattice2");
+        return SkString("l4ttice2");
     }
 
     SkISize onISize() override {
