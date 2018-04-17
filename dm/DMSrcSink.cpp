@@ -2192,7 +2192,7 @@ public:
     // replacing each image-index with a promise image.
     void preprocess(SkData* compressedPictureData, const PromiseImageHelper& helper) {
 
-        SkDeferredDisplayListRecorder recorder(fCharacterization);
+        SkDeferredDisplayListRecorder recorder(fCharacterization, fClip.fLeft, fClip.fTop);
 
         // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
         // Maybe set it up in the ctor?
@@ -2213,8 +2213,9 @@ public:
             }
         }
 
-        subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
-        subCanvas->translate(-fClip.fLeft, -fClip.fTop);
+        subCanvas->clipRect(SkRect::Make(fClip));
+//        subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
+//        subCanvas->translate(-fClip.fLeft, -fClip.fTop);
 
         // Note: in this use case we only render a picture to the deferred canvas
         // but, more generally, clients will use arbitrary draw calls.
@@ -2367,10 +2368,17 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         }
                     }
 
+#if 1
                     // Second, run the cpu pre-processing in threads
                     SkTaskGroup().batch(tileData.count(), [&](int i) {
                         tileData[i].preprocess(compressedPictureData.get(), helper);
                     });
+#else
+                    for (int i = 0; i < tileData.count(); ++i) {
+                        SkDebugf("tile: %d\n", i);
+                        tileData[i].preprocess(compressedPictureData.get(), helper);
+                    }
+#endif
 
                     // This drops the helper's refs on all the promise images
                     helper.reset();
