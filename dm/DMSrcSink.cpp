@@ -76,6 +76,8 @@
 #include "GrGpu.h"
 #endif
 
+#include "sk_tool_utils.h"
+
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
 DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
@@ -2297,13 +2299,20 @@ private:
 
 Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    SkPictureRecorder recorder;
-    Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
-                                                 SkIntToScalar(size.height())));
-    if (!err.isEmpty()) {
-        return err;
+
+    sk_sp<SkPicture> inputPicture;
+    {
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(size.width()),
+                                                   SkIntToScalar(size.height()));
+
+        std::unique_ptr<SkCanvas> ddlCanvas = sk_tool_utils::CreateDDLCanvas(canvas);
+        Error err = src.draw(ddlCanvas.get());
+        if (!err.isEmpty()) {
+            return err;
+        }
+        inputPicture = recorder.finishRecordingAsPicture();
     }
-    sk_sp<SkPicture> inputPicture(recorder.finishRecordingAsPicture());
 
     // this is our ultimate final drawing area/rect
     SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
@@ -2341,9 +2350,6 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         return SkStringPrintf("DDLs are GPU only");
                     }
 
-                    // This is here bc this is the first point where we have access to the context
-                    helper.uploadAllToGPU(context);
-
                     int xTileSize = viewport.width()/fNumDivisions;
                     int yTileSize = viewport.height()/fNumDivisions;
 
@@ -2371,6 +2377,9 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                     SkTaskGroup().batch(tileData.count(), [&](int i) {
                         tileData[i].preprocess(compressedPictureData.get(), helper);
                     });
+
+                    // This is here bc this is the first point where we have access to the context
+                    helper.uploadAllToGPU(context);
 
                     // This drops the helper's refs on all the promise images
                     helper.reset();

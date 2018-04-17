@@ -252,6 +252,10 @@ namespace sk_tool_utils {
 
     bool copy_to(SkBitmap* dst, SkColorType dstCT, const SkBitmap& src);
     void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
+
+    // Proxy SkCanvas calls to unowned target, extracting SkImage info along the way
+    std::unique_ptr<SkCanvas> CreateDDLCanvas(SkCanvas* wrappedCanvas);
+
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED
