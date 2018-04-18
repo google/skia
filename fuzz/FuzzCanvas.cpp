@@ -55,7 +55,6 @@
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
 #include "SkReadBuffer.h"
-#include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTextBlob.h"
 #include "SkTileImageFilter.h"
@@ -489,7 +488,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
 
 static sk_sp<SkMaskFilter> make_fuzz_maskfilter(Fuzz* fuzz) {
     int maskfilterType;
-    fuzz->nextRange(&maskfilterType, 0, 2);
+    fuzz->nextRange(&maskfilterType, 0, 1);
     switch (maskfilterType) {
         case 0:
             return nullptr;
@@ -506,12 +505,6 @@ static sk_sp<SkMaskFilter> make_fuzz_maskfilter(Fuzz* fuzz) {
             fuzz->nextRange(&flags, 0, 1);
             bool respectCTM = flags != 0;
             return SkMaskFilter::MakeBlur(blurStyle, sigma, occluder, respectCTM);
-        }
-        case 2: {
-            SkRRect first, second;
-            SkScalar radius;
-            fuzz->next(&first, &second, &radius);
-            return SkRRectsGaussianEdgeMaskFilter::Make(first, second, radius);
         }
         default:
             SkASSERT(false);

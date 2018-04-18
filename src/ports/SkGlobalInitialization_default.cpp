@@ -34,7 +34,6 @@
 #include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
-#include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkShaderMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
@@ -63,7 +62,6 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     // MaskFilter
     SkMaskFilter::InitializeFlattenables();
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
-    SkRRectsGaussianEdgeMaskFilter::InitializeFlattenables();
     SkShaderMaskFilter::InitializeFlattenables();
 
     // DrawLooper
