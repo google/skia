@@ -186,9 +186,11 @@ struct DeviceCM {
     SkMatrix                       fStashedMatrix; // original CTM; used by imagefilter in saveLayer
     sk_sp<SkImage>                 fClipImage;
     SkMatrix                       fClipMatrix;
+    sk_sp<SkBaseDevice>            fCoverageDevice; // optional
 
     DeviceCM(sk_sp<SkBaseDevice> device, const SkPaint* paint, const SkMatrix& stashed,
-             const SkImage* clipImage, const SkMatrix* clipMatrix)
+             const SkImage* clipImage, const SkMatrix* clipMatrix,
+             sk_sp<SkBaseDevice> coverage = nullptr)
         : fNext(nullptr)
         , fDevice(std::move(device))
         , fPaint(paint ? skstd::make_unique<SkPaint>(*paint) : nullptr)
@@ -1047,19 +1049,32 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(), paint);
 
     sk_sp<SkBaseDevice> newDevice;
+    sk_sp<SkBaseDevice> newCoverage;
     {
         const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType() ||
                                      (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
-        const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
-        const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
-                                                                             preserveLCDText,
-                                                                             fAllocator.get());
+        const SkBaseDevice::TileUsage never_tile = SkBaseDevice::kNever_TileUsage;
+        SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, never_tile, geo,
+                                                                       preserveLCDText,
+                                                                       fAllocator.get());
         newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
         if (!newDevice) {
             return;
         }
+
+        if (saveLayerFlags & kMaskAgainstCoverage_SaveLayerFlag) {
+            info = SkImageInfo::Make(info.width(), info.height(), kAlpha_8_SkColorType,
+                                     kPremul_SkAlphaType, nullptr);
+            createInfo = SkBaseDevice::CreateInfo(info, never_tile, kUnknown_SkPixelGeometry, false,
+                                                  fAllocator.get());
+            newCoverage.reset(priorDevice->onCreateDevice(createInfo, nullptr));
+            if (!newCoverage) {
+                return;
+            }
+        }
     }
-    DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix, rec.fClipMask, rec.fClipMatrix);
+    DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix, rec.fClipMask, rec.fClipMatrix,
+                                   std::move(newCoverage));
 
     // only have a "next" if this new layer doesn't affect the clip (rare)
     layer->fNext = BoundsAffectsClip(saveLayerFlags) ? nullptr : fMCRec->fTopLayer;

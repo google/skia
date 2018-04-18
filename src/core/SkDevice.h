@@ -312,9 +312,9 @@ protected:
             , fAllocator(allocator)
         {}
 
-        const SkImageInfo       fInfo;
-        const TileUsage         fTileUsage;
-        const SkPixelGeometry   fPixelGeometry;
+        SkImageInfo              fInfo;
+        TileUsage                fTileUsage;
+        SkPixelGeometry          fPixelGeometry;
         SkRasterHandleAllocator* fAllocator = nullptr;
     };
 
