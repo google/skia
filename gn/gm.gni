@@ -258,7 +258,6 @@ gm_sources = [
   "$_gm/rects.cpp",
   "$_gm/repeated_bitmap.cpp",
   "$_gm/resizeimagefilter.cpp",
-  "$_gm/reveal.cpp",
   "$_gm/roundrects.cpp",
   "$_gm/rrect.cpp",
   "$_gm/rrectclipdrawpaint.cpp",
