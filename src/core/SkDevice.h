@@ -305,16 +305,19 @@ protected:
                    TileUsage tileUsage,
                    SkPixelGeometry geo,
                    bool preserveLCDText,
+                   bool trackCoverage,
                    SkRasterHandleAllocator* allocator)
             : fInfo(info)
             , fTileUsage(tileUsage)
             , fPixelGeometry(AdjustGeometry(info, tileUsage, geo, preserveLCDText))
+            , fTrackCoverage(trackCoverage)
             , fAllocator(allocator)
         {}
 
         const SkImageInfo       fInfo;
         const TileUsage         fTileUsage;
         const SkPixelGeometry   fPixelGeometry;
+        const bool              fTrackCoverage = false;
         SkRasterHandleAllocator* fAllocator = nullptr;
     };
 
