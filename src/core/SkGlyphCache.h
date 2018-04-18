@@ -32,7 +32,7 @@ class SkTraceMemoryDump;
     The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
     when they go out of scope.
 */
-class SkGlyphCache : private SkStrikeCache::Node<SkGlyphCache> {
+class SkGlyphCache : private SkStrikeCache::Node {
 public:
     /** Return true if glyph is cached. */
     bool isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const;
