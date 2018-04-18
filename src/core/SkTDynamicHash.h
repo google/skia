@@ -19,7 +19,8 @@
 template <typename T,
           typename Key,
           typename Traits = T,
-          int kGrowPercent = 75>  // Larger -> more memory efficient, but slower.
+          int kGrowPercent = 75,  // Larger -> more memory efficient, but slower.
+          int kPurgePercent = 50> // % of deleted entries that will trigger a purge instead of grow.
 class SkTDynamicHash {
 public:
     SkTDynamicHash() : fCount(0), fDeleted(0), fCapacity(0), fArray(nullptr) {
@@ -242,7 +243,17 @@ private:
 
     void maybeGrow() {
         if (100 * (fCount + fDeleted + 1) > fCapacity * kGrowPercent) {
-            this->resize(fCapacity > 0 ? fCapacity * 2 : 4);
+            auto newCapacity = fCapacity > 0 ? fCapacity : 2;
+
+            // Only grow the storage when fCount/fDeleted >= kPurgePercent
+            // (i.e. most entries are in use) -- otherwise just purge the
+            // tombstones.
+            if (fCount * kPurgePercent >= fDeleted * 100) {
+                newCapacity *= 2;
+            }
+            SkASSERT(newCapacity > fCount + 1);
+
+            this->resize(newCapacity);
         }
     }
 
