@@ -506,6 +506,9 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 closedOrMoved = autoClose;
                 lineStart = lineEnd;
                 if (directions[corners - 1] == nextDirection) {
+                    if (3 == corners && kLine_Verb == verb) {
+                        lastCountedPt = lastPt;
+                    }
                     break; // colinear segment
                 }
                 if (corners >= 4) {
@@ -513,12 +516,12 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 }
                 directions[corners++] = nextDirection;
                 // opposite lines must point in opposite directions; xoring them should equal 2
-                if (corners == 3) {
+                if (3 == corners) {
                     if ((directions[0] ^ directions[2]) != 2) {
                         return false;
                     }
                     accumulatingRect = false;
-                } else if (corners == 4) {
+                } else if (4 == corners) {
                     if ((directions[1] ^ directions[3]) != 2) {
                         return false;
                     }
@@ -575,7 +578,7 @@ addMissingClose:
         //
         int closeDirection = rect_make_dir(closeXY.fX, closeXY.fY);
         // make sure the close-segment doesn't double-back on itself
-        if (3 == corners || (closeDirection ^ directions[1]) == 2) {
+        if (3 == corners || 2 == (closeDirection ^ directions[1])) {
             result = true;
             autoClose = false;  // we are not closed
         }
