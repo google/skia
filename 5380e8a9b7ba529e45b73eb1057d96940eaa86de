@@ -22,6 +22,30 @@
       "revId": "5380e8a9b7ba529e45b73eb1057d96940eaa86de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eac883f_9340abb5",
+        "filename": "src/core/SkBlitMask_D32.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-18T13:08:45Z",
+      "side": 1,
+      "message": "Yeah, that works pretty well, thanks:\n\n   1693.36  \tshadermaskfilter_picture_80\t8888\n   1637.45  \tshadermaskfilter_picture_ff\t8888\n   1691.65  \tshadermaskfilter_bitmap_80\t8888\n   1637.70  \tshadermaskfilter_bitmap_ff\t8888\n\nI was hesitant to mix multiple approxMulDiv terms, wary of accumulating imprecision.  Specifically, do opaque dests stay opaque regardless of src/aa?  But I have no proof that the prev versions is better in that regad :)  I should look into proving/disproving that in a unit test.",
+      "parentUuid": "d0ea2029_add0f0ed",
+      "range": {
+        "startLine": 86,
+        "startChar": 11,
+        "endLine": 87,
+        "endChar": 53
+      },
+      "revId": "5380e8a9b7ba529e45b73eb1057d96940eaa86de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
