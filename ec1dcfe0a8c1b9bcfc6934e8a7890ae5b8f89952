@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce85b757_ef223e44",
+        "filename": "include/core/SkRemoteGlyphCache.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-18T22:19:54Z",
+      "side": 1,
+      "message": "The impl includes a lot of skia internal stuff, and it was getting a paint to clean all the includes. This file pulls out the part that the embedder really needs.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 29
+      },
+      "revId": "ec1dcfe0a8c1b9bcfc6934e8a7890ae5b8f89952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a756a27b_59c91a12",
+        "filename": "include/core/SkRemoteGlyphCache.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-18T22:19:54Z",
+      "side": 1,
+      "message": "I changed this to directly deserialize, instead of setting the SkDeserialProcs. The renderer can send invalid data, in which case we should early abort the rasterization.",
+      "range": {
+        "startLine": 109,
+        "startChar": 4,
+        "endLine": 109,
+        "endChar": 87
+      },
+      "revId": "ec1dcfe0a8c1b9bcfc6934e8a7890ae5b8f89952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29929333_8727ab21",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-18T22:19:54Z",
+      "side": 1,
+      "message": "SkDescriptor doesn\u0027t have an API to modify the rec. If that\u0027s feasible, then we could modify the rec and re-compute the checksum instead of doing this. Or let me know if there is any better way to replace the font id in the desc.",
+      "range": {
+        "startLine": 549,
+        "startChar": 8,
+        "endLine": 551,
+        "endChar": 95
+      },
+      "revId": "ec1dcfe0a8c1b9bcfc6934e8a7890ae5b8f89952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
