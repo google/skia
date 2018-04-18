@@ -8,10 +8,11 @@
 #ifndef SkStrikeCache_DEFINED
 #define SkStrikeCache_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkDescriptor.h"
+#include "SkRemoteGlyphCachePriv.h"
 #include "SkSpinlock.h"
 #include "SkTemplates.h"
-#include "SkArenaAlloc.h"
 
 class SkGlyphCache;
 class SkTraceMemoryDump;
@@ -48,8 +49,11 @@ public:
 
     static ExclusiveStrikePtr CreateStrikeExclusive(
             const SkDescriptor& desc,
-            std::unique_ptr<SkScalerContext> scaler,
-            SkPaint::FontMetrics* maybeMetrics = nullptr);
+            std::unique_ptr<SkScalerContext>
+                    scaler,
+            SkPaint::FontMetrics* maybeMetrics = nullptr,
+            SkStrikeClientImpl::DiscardableHandle discardableHandle =
+                    SkStrikeClientImpl::DiscardableHandle());
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
             const SkDescriptor& desc,
@@ -101,11 +105,13 @@ public:
 private:
     friend class SkGlyphCache;
     struct Node {
-        Node(const SkDescriptor& desc) : fDesc{desc} {}
+        Node(const SkDescriptor& desc, const SkStrikeClientImpl::DiscardableHandle& handle)
+                : fDesc{desc}, fDiscardableHandle(handle) {}
         const SkDescriptor& getDescriptor() const {return *fDesc.getDesc(); }
         SkGlyphCache* fNext{nullptr};
         SkGlyphCache* fPrev{nullptr};
         SkAutoDescriptor fDesc;
+        SkStrikeClientImpl::DiscardableHandle fDiscardableHandle;
     };
 
     // The following methods can only be called when mutex is already held.

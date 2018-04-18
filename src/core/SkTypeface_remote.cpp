@@ -8,15 +8,13 @@
 #include "SkTypeface_remote.h"
 
 #include "SkPaint.h"
-#include "SkRemoteGlyphCache.h"
+#include "SkRemoteGlyphCachePriv.h"
 
-SkScalerContextProxy::SkScalerContextProxy(
-        sk_sp<SkTypeface> tf,
-        const SkScalerContextEffects& effects,
-        const SkDescriptor* desc,
-        SkStrikeClient* rsc)
-    : SkScalerContext{std::move(tf), effects, desc}
-    , fClient{rsc} {}
+SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
+                                           const SkScalerContextEffects& effects,
+                                           const SkDescriptor* desc,
+                                           SkStrikeClientImpl* rsc)
+        : SkScalerContext{std::move(tf), effects, desc}, fClient{rsc} {}
 
 unsigned SkScalerContextProxy::generateGlyphCount()  {
     SK_ABORT("Should never be called.");
@@ -40,7 +38,8 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
 }
 
 bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
-    return fClient->generatePath(*this->typefaceProxy(), this->getRec(), glyphID, path);
+    fClient->generatePath(*this->typefaceProxy(), this->getRec(), glyphID, path);
+    return true;
 }
 
 void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
