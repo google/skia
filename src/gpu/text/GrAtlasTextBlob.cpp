@@ -71,7 +71,7 @@ SkExclusiveStrikePtr GrAtlasTextBlob::setupCache(int runIndex,
     run->fTypeface = SkPaintPriv::RefTypefaceOrDefault(skPaint);
     run->fPathEffect = sk_ref_sp(effects.fPathEffect);
     run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);
-    return SkGlyphCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *run->fTypeface);
+    return SkStrikeCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *run->fTypeface);
 }
 
 void GrAtlasTextBlob::appendGlyph(int runIndex,

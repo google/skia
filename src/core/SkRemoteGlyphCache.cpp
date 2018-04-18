@@ -326,7 +326,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     auto typefaceID = SkTypefaceProxy::DownCast(runPaint.getTypeface())->remoteTypefaceID();
     auto& diffs = fStrikeCacheDiff->findStrikeDifferences(*desc, typefaceID);
 
-    auto cache = SkGlyphCache::FindStrikeExclusive(*desc);
+    auto cache = SkStrikeCache::FindStrikeExclusive(*desc);
     bool isSubpixel = SkToBool(rec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
     SkAxisAlignment axisAlignment = SkAxisAlignment::kNone_SkAxisAlignment;
     if (it.positioning() == SkTextBlob::kHorizontal_Positioning) {
@@ -480,7 +480,7 @@ static void update_caches_from_strikes_data(SkStrikeClient *client,
 
         // TODO: implement effects handling.
         SkScalerContextEffects effects;
-        auto strike = SkGlyphCache::FindStrikeExclusive(*desc);
+        auto strike = SkStrikeCache::FindStrikeExclusive(*desc);
         if (strike == nullptr) {
             auto scaler = SkStrikeCache::CreateScalerContext(*desc, effects, *tf);
             strike = SkStrikeCache::CreateStrikeExclusive(*desc, std::move(scaler), fontMetrics);
