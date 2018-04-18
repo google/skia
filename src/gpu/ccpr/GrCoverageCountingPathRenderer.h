@@ -205,8 +205,14 @@ private:
 
     struct RTPendingPaths {
         ~RTPendingPaths() {
-            // Ensure all DrawPathsOps in this opList have been deleted.
-            SkASSERT(fDrawOps.isEmpty());
+            // Ensure there are no surviving DrawPathsOps with a dangling pointer into this class.
+            if (!fDrawOps.isEmpty()) {
+                SK_ABORT("CCPR DrawPathsOp(s) not deleted during flush");
+            }
+            // Clip lazy proxies also reference this class from their callbacks, but those callbacks
+            // are only invoked at flush time while we are still alive. (Unlike DrawPathsOps, that
+            // unregister themselves upon destruction.) So it shouldn't matter if any clip proxies
+            // are still around.
         }
 
         SkTInternalLList<DrawPathsOp> fDrawOps;
