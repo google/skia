@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca7de894_d1f948e8",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-18T15:54:15Z",
+      "side": 1,
+      "message": "I think this could be clearer if we\u0027re consistent about whether we prefix with SkStrikeCache:: inside the class.  (I\u0027d prefer yes, prefix, but dropping the prefix consistently would probably read fine too.)",
+      "range": {
+        "startLine": 409,
+        "startChar": 11,
+        "endLine": 409,
+        "endChar": 26
+      },
+      "revId": "e0f91efa3cb93273449e96d5415566eae91d4460",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55cdb84c_6f8763ae",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-18T15:54:15Z",
+      "side": 1,
+      "message": "Might be worth double checking that this is still needed.",
+      "range": {
+        "startLine": 102,
+        "startChar": 4,
+        "endLine": 102,
+        "endChar": 30
+      },
+      "revId": "e0f91efa3cb93273449e96d5415566eae91d4460",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3f47844_b72af510",
+        "filename": "src/pdf/SkPDFFont.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-18T15:54:15Z",
+      "side": 1,
+      "message": "??",
+      "revId": "e0f91efa3cb93273449e96d5415566eae91d4460",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
