@@ -87,12 +87,11 @@ public:
 
 private:
     friend class SkGlyphCache;
-    template <typename T>
     struct Node {
         Node(const SkDescriptor& desc) : fDesc{desc} {}
         const SkDescriptor& getDescriptor() const {return *fDesc.getDesc(); }
-        T* fNext{nullptr};
-        T* fPrev{nullptr};
+        SkGlyphCache* fNext{nullptr};
+        SkGlyphCache* fPrev{nullptr};
         SkAutoDescriptor fDesc;
     };
 
