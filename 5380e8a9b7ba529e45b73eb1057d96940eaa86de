@@ -94,6 +94,30 @@
       "revId": "5380e8a9b7ba529e45b73eb1057d96940eaa86de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b488774_8bfd57dd",
+        "filename": "src/core/SkBlitMask_D32.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-18T15:45:22Z",
+      "side": 1,
+      "message": "Yeah, I\u0027d _definitely_ believe that any or all of that SkBlend / SkMulQ stuff is broken.",
+      "parentUuid": "8f88c9df_997c0893",
+      "range": {
+        "startLine": 86,
+        "startChar": 11,
+        "endLine": 87,
+        "endChar": 53
+      },
+      "revId": "5380e8a9b7ba529e45b73eb1057d96940eaa86de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
