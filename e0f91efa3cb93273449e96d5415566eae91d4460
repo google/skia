@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fe0b9a6a_424779a2",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-18T16:22:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca7de894_d1f948e8",
+      "range": {
+        "startLine": 409,
+        "startChar": 11,
+        "endLine": 409,
+        "endChar": 26
+      },
+      "revId": "e0f91efa3cb93273449e96d5415566eae91d4460",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "55cdb84c_6f8763ae",
         "filename": "src/core/SkStrikeCache.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-18T15:54:15Z",
       "side": 1,
       "message": "Might be worth double checking that this is still needed.",
+      "range": {
+        "startLine": 102,
+        "startChar": 4,
+        "endLine": 102,
+        "endChar": 30
+      },
+      "revId": "e0f91efa3cb93273449e96d5415566eae91d4460",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34147b15_ae04cbe5",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-18T16:22:04Z",
+      "side": 1,
+      "message": "Still needed. But, should be gone soon.",
+      "parentUuid": "55cdb84c_6f8763ae",
       "range": {
         "startLine": 102,
         "startChar": 4,
@@ -62,6 +110,24 @@
       "revId": "e0f91efa3cb93273449e96d5415566eae91d4460",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f681c9c6_e065222e",
+        "filename": "src/pdf/SkPDFFont.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-18T16:22:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3f47844_b72af510",
+      "revId": "e0f91efa3cb93273449e96d5415566eae91d4460",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
