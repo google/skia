@@ -9,6 +9,7 @@
 #include "GaussNewton.h"
 #include "PortableMath.h"
 #include <limits.h>
+#include <stdlib.h>
 
 // Evaluating skcms_TF13{A,B} at x:
 //   f(x) = Ax^3 + Bx^2 + (1-A-B)x
@@ -55,11 +56,28 @@ bool skcms_ApproximateCurve13(const skcms_Curve* curve, skcms_TF13* approx, floa
     for (int i = 0; i < N; i++) {
         float x = i * (1.0f / (N-1));
 
-        float err = fabsf_( skcms_eval_curve(x, curve) - eval_13(x,NULL,P) );
+        const float got  = eval_13(x,NULL,P),
+                    want = skcms_eval_curve(x, curve);
+
+        const float err = fabsf_(got - want);
         if (err > *max_error) {
             *max_error = err;
         }
+
+        // Compare what bytes we'd choose for these floats, rounded, and scaled by 255,
+        // but intentionally not clamped... if this goes negative, we want it to hurt.
+
+        const int gbyte = (int)(255.0f * got  + 0.5f),
+                  wbyte = (int)(255.0f * want + 0.5f);
+
+        // Allow no more than 1/256 error, and no error at all at the beginning or end.
+        const int tol = (i == 0 || i == N-1) ? 0
+                                             : 1;
+        if (abs(gbyte - wbyte) > tol) {
+            return false;
+        }
     }
+
     approx->A = P[0];
     approx->B = P[1];
     return true;
