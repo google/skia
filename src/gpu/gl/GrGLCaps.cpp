@@ -1468,7 +1468,19 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     } else {
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_BGRA;
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_BGRA8;
-        if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
+        if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
+            fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                            nonMSAARenderFlags;
+
+            if (ctxInfo.hasExtension("GL_EXT_texture_storage")) {
+                supportsBGRATexStorage = true;
+            }
+            if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888") &&
+                (this->usesMSAARenderBuffers() || this->fMSFBOType == kMixedSamples_MSFBOType)) {
+                fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |=
+                    ConfigInfo::kRenderableWithMSAA_Flag;
+            }
+        } else if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
             // This APPLE extension introduces complexity on ES2. It leaves the internal format
             // as RGBA, but allows BGRA as the external format. From testing, it appears that the
             // driver remembers the external format when the texture is created (with TexImage).
@@ -1480,18 +1492,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                 // The APPLE extension doesn't make this renderable.
                 fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
                 supportsBGRATexStorage = true;
-            }
-        } else if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
-            fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
-                                                            nonMSAARenderFlags;
-
-            if (ctxInfo.hasExtension("GL_EXT_texture_storage")) {
-                supportsBGRATexStorage = true;
-            }
-            if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888") &&
-                (this->usesMSAARenderBuffers() || this->fMSFBOType == kMixedSamples_MSFBOType)) {
-                fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |=
-                    ConfigInfo::kRenderableWithMSAA_Flag;
             }
         }
     }
