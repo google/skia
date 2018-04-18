@@ -8,7 +8,7 @@
 #include "GrCCGeometry.h"
 
 #include "GrTypes.h"
-#include "GrPathUtils.h"
+#include "SkGeometry.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -229,7 +229,10 @@ static inline bool is_cubic_nearly_quadratic(const Sk2f& p0, const Sk2f& p1, con
     return ((c1 - c2).abs() <= 1).allTrue();
 }
 
-using ExcludedTerm = GrPathUtils::ExcludedTerm;
+enum class ExcludedTerm : bool {
+    kQuadraticTerm,
+    kLinearTerm
+};
 
 // Finds where to chop a non-loop around its inflection points. The resulting cubic segments will be
 // chopped such that a box of radius 'padRadius', centered at any point along the curve segment, is
@@ -241,10 +244,13 @@ using ExcludedTerm = GrPathUtils::ExcludedTerm;
 // A serpentine cubic has two inflection points, so this method takes Sk2f and computes the padding
 // for both in SIMD.
 static inline void find_chops_around_inflection_points(float padRadius, Sk2f tl, Sk2f sl,
-                                                       const SkMatrix& CIT, ExcludedTerm skipTerm,
+                                                       const Sk2f& C0, const Sk2f& C1,
+                                                       ExcludedTerm skipTerm, float Cdet,
                                                        SkSTArray<4, float>* chops) {
     SkASSERT(chops->empty());
     SkASSERT(padRadius >= 0);
+
+    padRadius /= std::abs(Cdet); // Scale this single value rather than all of C^-1 later on.
 
     // The homogeneous parametric functions for distance from lines L & M are:
     //
@@ -275,8 +281,10 @@ static inline void find_chops_around_inflection_points(float padRadius, Sk2f tl,
     //     L = C^-1 * (l excluding skipTerm)
     //
     // (See comments for GrPathUtils::calcCubicInverseTransposePowerBasisMatrix.)
-    Sk2f Lx = CIT[0] * l3 + CIT[3] * l2or1;
-    Sk2f Ly = CIT[1] * l3 + CIT[4] * l2or1;
+    // We are only interested in the normal to L, so only need the upper 2x2 of C^-1. And rather
+    // than divide by determinant(C) here, we have already performed this divide on padRadius.
+    Sk2f Lx =  C1[1]*l3 - C0[1]*l2or1;
+    Sk2f Ly = -C1[0]*l3 + C0[0]*l2or1;
 
     // A box of radius "padRadius" is touching line L if "center dot L" is less than the Manhattan
     // with of L. (See rationale in are_collinear.)
@@ -321,10 +329,13 @@ static inline void swap_if_greater(float& a, float& b) {
 // A loop intersection falls at two different T values, so this method takes Sk2f and computes the
 // padding for both in SIMD.
 static inline void find_chops_around_loop_intersection(float padRadius, Sk2f t2, Sk2f s2,
-                                                       const SkMatrix& CIT, ExcludedTerm skipTerm,
+                                                       const Sk2f& C0, const Sk2f& C1,
+                                                       ExcludedTerm skipTerm, float Cdet,
                                                        SkSTArray<4, float>* chops) {
     SkASSERT(chops->empty());
     SkASSERT(padRadius >= 0);
+
+    padRadius /= std::abs(Cdet); // Scale this single value rather than all of C^-1 later on.
 
     // The parametric functions for distance from lines L & M are:
     //
@@ -355,9 +366,11 @@ static inline void find_chops_around_loop_intersection(float padRadius, Sk2f t2,
     //     L = C^-1 * (l excluding skipTerm)
     //
     // (See comments for GrPathUtils::calcCubicInverseTransposePowerBasisMatrix.)
+    // We are only interested in the normal to L, so only need the upper 2x2 of C^-1. And rather
+    // than divide by determinant(C) here, we have already performed this divide on padRadius.
     Sk2f l2or1 = (ExcludedTerm::kLinearTerm == skipTerm) ? l2 : l1;
-    Sk2f Lx = CIT[3] * l2or1 + CIT[0]; // l3 is always 1.
-    Sk2f Ly = CIT[4] * l2or1 - CIT[1];
+    Sk2f Lx = -C0[1]*l2or1 + C1[1]; // l3 is always 1.
+    Sk2f Ly =  C0[0]*l2or1 - C1[0];
 
     // A box of radius "padRadius" is touching line L if "center dot L" is less than the Manhattan
     // with of L. (See rationale in are_collinear.)
@@ -476,18 +489,21 @@ void GrCCGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopInter
     Sk2f t = Sk2f(static_cast<float>(tt[0]), static_cast<float>(tt[1]));
     Sk2f s = Sk2f(static_cast<float>(ss[0]), static_cast<float>(ss[1]));
 
-    SkMatrix CIT;
-    ExcludedTerm skipTerm = GrPathUtils::calcCubicInverseTransposePowerBasisMatrix(P, &CIT);
-    SkASSERT(ExcludedTerm::kNonInvertible != skipTerm); // Should have been caught above.
-    SkASSERT(0 == CIT[6]);
-    SkASSERT(0 == CIT[7]);
-    SkASSERT(1 == CIT[8]);
+    ExcludedTerm skipTerm = (std::abs(D[2]) > std::abs(D[1]))
+                                    ? ExcludedTerm::kQuadraticTerm
+                                    : ExcludedTerm::kLinearTerm;
+    Sk2f C0 = SkNx_fma(Sk2f(3), p1 - p2, p3 - p0);
+    Sk2f C1 = (ExcludedTerm::kLinearTerm == skipTerm
+                       ? SkNx_fma(Sk2f(-2), p1, p0 + p2)
+                       : p1 - p0) * 3;
+    Sk2f C0x1 = C0 * SkNx_shuffle<1,0>(C1);
+    float Cdet = C0x1[0] - C0x1[1];
 
     SkSTArray<4, float> chops;
     if (SkCubicType::kLoop != fCurrCubicType) {
-        find_chops_around_inflection_points(inflectPad, t, s, CIT, skipTerm, &chops);
+        find_chops_around_inflection_points(inflectPad, t, s, C0, C1, skipTerm, Cdet, &chops);
     } else {
-        find_chops_around_loop_intersection(loopIntersectPad, t, s, CIT, skipTerm, &chops);
+        find_chops_around_loop_intersection(loopIntersectPad, t, s, C0, C1, skipTerm, Cdet, &chops);
     }
     if (4 == chops.count() && chops[1] >= chops[2]) {
         // This just the means the KLM roots are so close that their paddings overlap. We will
