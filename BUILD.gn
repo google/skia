@@ -46,6 +46,7 @@ declare_args() {
   skia_vulkan_sdk = getenv("VULKAN_SDK")
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
+  skia_generate_workarounds = false
   skia_lex = false
 
   skia_skqp_enable_driver_correctness_workarounds = false
@@ -584,6 +585,9 @@ optional("gpu") {
     ":compile_processors",
     ":run_sksllex",
   ]
+  if (skia_generate_workarounds) {
+    deps += [ ":workaround_list" ]
+  }
   public_defines = []
 
   sources = skia_gpu_sources + skia_sksl_sources + skia_gpu_processor_outputs
@@ -689,7 +693,7 @@ optional("pdf") {
     "//third_party/zlib",
   ]
   if (skia_use_libjpeg_turbo) {
-    deps += [ ":jpeg"]
+    deps += [ ":jpeg" ]
   }
   sources = skia_pdf_sources
   sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
@@ -786,6 +790,32 @@ optional("xml") {
     "src/xml/SkXMLParser.cpp",
     "src/xml/SkXMLWriter.cpp",
   ]
+}
+
+if (skia_enable_gpu && skia_generate_workarounds) {
+  action("workaround_list") {
+    script = "tools/build_workaround_header.py"
+
+    inputs = [
+      "src/gpu/gpu_workaround_list.txt",
+    ]
+
+    # see comments in skia_compile_processors about out dir path shenanigans.
+    output_file =
+        rebase_path("src/gpu/GrDriverBugWorkaroundsAutogen.h", root_out_dir)
+
+    outputs = [
+      "$root_out_dir/$output_file",
+    ]
+    args = [
+      "--output-file",
+      "$output_file",
+    ]
+
+    foreach(file, inputs) {
+      args += [ rebase_path(file, root_build_dir) ]
+    }
+  }
 }
 
 component("skia") {
