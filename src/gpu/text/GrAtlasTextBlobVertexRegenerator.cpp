@@ -245,7 +245,7 @@ bool Regenerator::doRegen(Regenerator::Result* result) {
             effects.fPathEffect = fRun->fPathEffect.get();
             effects.fMaskFilter = fRun->fMaskFilter.get();
             *fLazyCache =
-                SkGlyphCache::FindOrCreateStrikeExclusive(*desc, effects, *fRun->fTypeface);
+                SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *fRun->fTypeface);
         }
 
         if (regenGlyphs) {
