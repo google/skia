@@ -65,13 +65,15 @@ public:
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
             GrPaint&& paint, int glyphCount, const GrDistanceFieldAdjustTable* distanceAdjustTable,
-            bool useGammaCorrectDistanceTable, SkColor luminanceColor, bool isLCD, bool useBGR,
-            bool isAntiAliased) {
+            bool useGammaCorrectDistanceTable, SkColor luminanceColor, const SkSurfaceProps& props,
+            bool isAntiAliased, bool useLCD) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
+        bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
+        bool isLCD = useLCD && SkPixelGeometryIsH(props.pixelGeometry());
         op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
-                                       : isLCD ? (useBGR ? kLCDBGRDistanceField_MaskType
-                                                         : kLCDDistanceField_MaskType)
+                                       : isLCD ? (isBGR ? kLCDBGRDistanceField_MaskType
+                                                        : kLCDDistanceField_MaskType)
                                                : kGrayscaleDistanceField_MaskType;
         op->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
         op->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
