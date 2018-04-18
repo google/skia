@@ -17,8 +17,9 @@ public:
                             skcms_AlphaFormat premulFormat)
         : fSrcProfile(srcProfile)
         , fDstProfile(dstProfile)
-        , fPremulFormat(premulFormat)
-    {}
+        , fPremulFormat(premulFormat) {
+        skcms_EnsureUsableAsDestination(&fDstProfile, &skcms_sRGB_profile);
+    }
 
     bool apply(ColorFormat, void*, ColorFormat, const void*, int, SkAlphaType) const override;
 
