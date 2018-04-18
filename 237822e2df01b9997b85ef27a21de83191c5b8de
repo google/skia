@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1108da6_d62429c6",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-18T20:49:51Z",
+      "side": 1,
+      "message": "Hidden from prying eyes.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 97
+      },
+      "revId": "237822e2df01b9997b85ef27a21de83191c5b8de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97d73f2c_56afdd61",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-18T20:49:51Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 13,
+        "startChar": 9,
+        "endLine": 13,
+        "endChar": 25
+      },
+      "revId": "237822e2df01b9997b85ef27a21de83191c5b8de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
