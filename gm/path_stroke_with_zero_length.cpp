@@ -148,6 +148,7 @@ static void draw_zero_length_capped_paths(SkCanvas* canvas, bool aa) {
                 SkParsePath::FromSVGString(pathStr.c_str(), &path);
 
                 surface->getCanvas()->clear(SK_ColorTRANSPARENT);
+                if (15 == width && SkPaint::kSquare_Cap == cap && verb && 14 == strlen(verb)) {
                 surface->getCanvas()->drawPath(path, paint);
                 auto img = surface->makeImageSnapshot();
 
@@ -157,6 +158,7 @@ static void draw_zero_length_capped_paths(SkCanvas* canvas, bool aa) {
 
                 if (!draw_path_cell(canvas, img.get(), expectedCaps)) {
                     ++numFailedTests;
+                }
                 }
                 canvas->translate(kCellWidth + kCellPad, 0);
             }

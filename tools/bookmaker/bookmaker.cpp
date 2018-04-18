@@ -53,6 +53,8 @@ deprecated methods should be sorted down in md out, and show include "Deprecated
 rewrap text to fit in some number of columns
 #Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
      would rather keep links for boby above #Literal, and/or make it a block and not a one-liner
+add check to require #Const to contain #Code block if defining const or constexpr (enum consts have
+     #Code blocks inside the #Enum def
 see head of selfCheck.cpp for additional todos
  */
 
