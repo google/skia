@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b342b6f2_ce4bc94a",
+        "filename": "src/core/SkTDynamicHash.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-18T21:01:36Z",
+      "side": 1,
+      "message": "very lgtm",
+      "range": {
+        "startLine": 249,
+        "startChar": 12,
+        "endLine": 249,
+        "endChar": 36
+      },
+      "revId": "5fd69ce958b976e94d626348da1c4c6be9583ed9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
