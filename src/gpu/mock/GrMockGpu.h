@@ -126,6 +126,8 @@ private:
     void testingOnly_flushGpuAndSync() override {}
 #endif
 
+    const GrMockOptions fMockOptions;
+
     static int NextInternalTextureID();
     static int NextExternalTextureID();
     static int NextInternalRenderTargetID();

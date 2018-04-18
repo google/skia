@@ -226,6 +226,14 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         }
     }
 
+#ifdef SK_DEBUG
+    for (const auto& opList : fOpLists) {
+        // If there are any remaining opLists at this point, make sure they will not survive the
+        // flush. Otherwise we need to call endFlush() on them.
+        // http://skbug.com/7111
+        SkASSERT(!opList || opList->unique());
+    }
+#endif
     fOpLists.reset();
 
     GrSemaphoresSubmitted result = gpu->finishFlush(numSemaphores, backendSemaphores);
@@ -246,6 +254,13 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     return result;
 }
 
+static void end_oplist_flush_if_not_unique(const sk_sp<GrOpList>& opList) {
+    if (!opList->unique()) {
+        // TODO: Eventually this should be guaranteed unique: http://skbug.com/7111
+        opList->endFlush();
+    }
+}
+
 bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState) {
     SkASSERT(startIndex <= stopIndex && stopIndex <= fOpLists.count());
 
@@ -260,12 +275,14 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         if (resourceProvider->explicitlyAllocateGPUResources()) {
             if (!fOpLists[i]->isInstantiated()) {
                 // If the backing surface wasn't allocated drop the draw of the entire opList.
+                end_oplist_flush_if_not_unique(fOpLists[i]); // http://skbug.com/7111
                 fOpLists[i] = nullptr;
                 continue;
             }
         } else {
             if (!fOpLists[i]->instantiate(resourceProvider)) {
                 SkDebugf("OpList failed to instantiate.\n");
+                end_oplist_flush_if_not_unique(fOpLists[i]); // http://skbug.com/7111
                 fOpLists[i] = nullptr;
                 continue;
             }
@@ -313,11 +330,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         if (!fOpLists[i]) {
             continue;
         }
-        if (!fOpLists[i]->unique()) {
-            // TODO: Eventually this should be guaranteed unique.
-            // https://bugs.chromium.org/p/skia/issues/detail?id=7111
-            fOpLists[i]->endFlush();
-        }
+        end_oplist_flush_if_not_unique(fOpLists[i]); // http://skbug.com/7111
         fOpLists[i] = nullptr;
     }
 

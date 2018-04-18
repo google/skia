@@ -126,6 +126,7 @@ public:
         mockOptions.fGeometryShaderSupport = true;
         mockOptions.fIntegerSupport = true;
         mockOptions.fFlatInterpolationSupport = true;
+        this->customizeMockOptions(&mockOptions);
 
         GrContextOptions ctxOptions;
         ctxOptions.fAllowPathMaskCaching = false;
@@ -154,6 +155,7 @@ public:
     virtual ~CCPRTest() {}
 
 protected:
+    virtual void customizeMockOptions(GrMockOptions*) {}
     virtual void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) = 0;
 
     sk_sp<GrContext>   fMockContext;
@@ -191,6 +193,13 @@ class GrCCPRTest_cleanup : public CCPRTest {
     }
 };
 DEF_CCPR_TEST(GrCCPRTest_cleanup)
+
+class GrCCPRTest_cleanupWithTexAllocFail : public GrCCPRTest_cleanup {
+    void customizeMockOptions(GrMockOptions* options) override {
+        options->fFailTextureAllocations = true;
+    }
+};
+DEF_CCPR_TEST(GrCCPRTest_cleanupWithTexAllocFail)
 
 class GrCCPRTest_unregisterCulledOps : public CCPRTest {
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
