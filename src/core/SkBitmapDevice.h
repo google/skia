@@ -55,10 +55,15 @@ public:
      *  any drawing to this device will have no effect.
      */
     SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
-                   void* externalHandle = nullptr);
+                   void* externalHandle, const SkBitmap* coverage);
 
     static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&,
-                                  SkRasterHandleAllocator* = nullptr);
+                                  bool trackCoverage,
+                                  SkRasterHandleAllocator*);
+
+    static SkBitmapDevice* Create(const SkImageInfo& info, const SkSurfaceProps& props) {
+        return Create(info, props, false, nullptr);
+    }
 
 protected:
     void* getRasterHandle() const override { return fRasterHandle; }
@@ -165,6 +170,7 @@ private:
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
+    std::unique_ptr<SkBitmap> fCoverage;    // if non-null, will have the same dimensions as fBitmap
 
     typedef SkBaseDevice INHERITED;
 };
