@@ -46,6 +46,30 @@
       "revId": "5380e8a9b7ba529e45b73eb1057d96940eaa86de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a8d72aa_4e6b7526",
+        "filename": "src/core/SkBlitMask_D32.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-18T13:45:57Z",
+      "side": 1,
+      "message": "Yeah, approxMulDiv255() is always correct when either term is 0 or 255, so it\u0027s usually safe to chain a couple for things like this.\n\nIf I\u0027m remembering right, the only reason _not_ to use it is when you can do less work by dividing a bunch of multiplies by 255 once at the end.  If I were doing this again, I think I might be inclined to eliminate the ::Wide type altogether, and just always have operator*() be approxMulDiv255().",
+      "parentUuid": "0eac883f_9340abb5",
+      "range": {
+        "startLine": 86,
+        "startChar": 11,
+        "endLine": 87,
+        "endChar": 53
+      },
+      "revId": "5380e8a9b7ba529e45b73eb1057d96940eaa86de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
