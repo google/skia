@@ -144,17 +144,16 @@ void GrCCGeometry::quadraticTo(const SkPoint P[3]) {
         return;
     }
 
-    this->appendMonotonicQuadratics(p0, p1, p2);
+    this->appendQuadratics(p0, p1, p2);
 }
 
-inline void GrCCGeometry::appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1,
-                                                    const Sk2f& p2) {
+inline void GrCCGeometry::appendQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p2 - p1;
 
     // This should almost always be this case for well-behaved curves in the real world.
     if (is_convex_curve_monotonic(p0, tan0, p2, tan1)) {
-        this->appendSingleMonotonicQuadratic(p0, p1, p2);
+        this->appendMonotonicQuadratic(p0, p1, p2);
         return;
     }
 
@@ -182,38 +181,68 @@ inline void GrCCGeometry::appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& 
     Sk2f p12 = SkNx_fma(t, tan1, p1);
     Sk2f p012 = lerp(p01, p12, t);
 
-    this->appendSingleMonotonicQuadratic(p0, p01, p012);
-    this->appendSingleMonotonicQuadratic(p012, p12, p2);
+    this->appendMonotonicQuadratic(p0, p01, p012);
+    this->appendMonotonicQuadratic(p012, p12, p2);
 }
 
-inline void GrCCGeometry::appendSingleMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1,
-                                                         const Sk2f& p2) {
-    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
-
+inline void GrCCGeometry::appendMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
     // Don't send curves to the GPU if we know they are nearly flat (or just very small).
     if (are_collinear(p0, p1, p2)) {
+        SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
         this->appendLine(p2);
         return;
     }
 
+    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
     p1.store(&fPoints.push_back());
     p2.store(&fPoints.push_back());
     fVerbs.push_back(Verb::kMonotonicQuadraticTo);
     ++fCurrContourTallies.fQuadratics;
 }
 
+static inline Sk2f first_unless_nearly_zero(const Sk2f& a, const Sk2f& b) {
+    Sk2f aa = a*a;
+    aa += SkNx_shuffle<1,0>(aa);
+    SkASSERT(aa[0] == aa[1]);
+
+    Sk2f bb = b*b;
+    bb += SkNx_shuffle<1,0>(bb);
+    SkASSERT(bb[0] == bb[1]);
+
+    return (aa > bb * SK_ScalarNearlyZero).thenElse(a, b);
+}
+
+static inline void get_cubic_tangents(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                      const Sk2f& p3, Sk2f* tan0, Sk2f* tan1) {
+    *tan0 = first_unless_nearly_zero(p1 - p0, p2 - p0);
+    *tan1 = first_unless_nearly_zero(p3 - p2, p3 - p1);
+}
+
+static inline bool is_cubic_nearly_quadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                             const Sk2f& p3, const Sk2f& tan0, const Sk2f& tan1,
+                                             Sk2f* c) {
+    Sk2f c1 = SkNx_fma(Sk2f(1.5f), tan0, p0);
+    Sk2f c2 = SkNx_fma(Sk2f(-1.5f), tan1, p3);
+    *c = (c1 + c2) * .5f; // Hopefully optimized out if not used?
+    return ((c1 - c2).abs() <= 1).allTrue();
+}
+
 using ExcludedTerm = GrPathUtils::ExcludedTerm;
 
-// Calculates the padding to apply around inflection points, in homogeneous parametric coordinates.
+// Finds where to chop a non-loop around its inflection points. The resulting cubic segments will be
+// chopped such that a box of radius 'padRadius', centered at any point along the curve segment, is
+// guaranteed to not cross the tangent lines at the inflection points (a.k.a lines L & M).
 //
-// More specifically, if the inflection point lies at C(t/s), then C((t +/- returnValue) / s) will
-// be the two points on the curve at which a square box with radius "padRadius" will have a corner
-// that touches the inflection point's tangent line.
+// 'chops' will be filled with 4 T values. The segments between T0..T1 and T2..T3 must be drawn with
+// flat lines instead of cubics.
 //
 // A serpentine cubic has two inflection points, so this method takes Sk2f and computes the padding
 // for both in SIMD.
-static inline Sk2f calc_inflect_homogeneous_padding(float padRadius, const Sk2f& t, const Sk2f& s,
-                                                    const SkMatrix& CIT, ExcludedTerm skipTerm) {
+static inline void find_chops_around_inflection_points(float padRadius, const Sk2f& t,
+                                                       const Sk2f& s, const SkMatrix& CIT,
+                                                       ExcludedTerm skipTerm,
+                                                       SkSTArray<4, float>* chops) {
+    SkASSERT(chops->empty());
     SkASSERT(padRadius >= 0);
 
     Sk2f Clx = s*s*s;
@@ -222,13 +251,13 @@ static inline Sk2f calc_inflect_homogeneous_padding(float padRadius, const Sk2f&
     Sk2f Lx = CIT[0] * Clx + CIT[3] * Cly;
     Sk2f Ly = CIT[1] * Clx + CIT[4] * Cly;
 
-    float ret[2];
-    Sk2f bloat = padRadius * (Lx.abs() + Ly.abs());
-    (bloat * s >= 0).thenElse(bloat, -bloat).store(ret);
+    Sk2f pad = padRadius * (Lx.abs() + Ly.abs());
+    pad = (pad * s >= 0).thenElse(pad, -pad);
+    pad = Sk2f(std::cbrt(pad[0]), std::cbrt(pad[1]));
 
-    ret[0] = cbrtf(ret[0]);
-    ret[1] = cbrtf(ret[1]);
-    return Sk2f::Load(ret);
+    Sk2f leftT = (t - pad) / s;
+    Sk2f rightT = (t + pad) / s;
+    Sk2f::Store2(chops->push_back_n(4), leftT, rightT);
 }
 
 static inline void swap_if_greater(float& a, float& b) {
@@ -237,22 +266,23 @@ static inline void swap_if_greater(float& a, float& b) {
     }
 }
 
-// Calculates all parameter values for a loop at which points a square box with radius "padRadius"
-// will have a corner that touches a tangent line from the intersection.
+// Finds where to chop a non-loop around its intersection point. The resulting cubic segments will
+// be chopped such that a box of radius 'padRadius', centered at any point along the curve segment,
+// is guaranteed to not cross the tangent lines at the intersection point (a.k.a lines L & M).
 //
-// T2 must contain the lesser parameter value of the loop intersection in its first component, and
-// the greater in its second.
+// 'chops' will be filled with 0, 2, or 4 T values. The segments between T0..T1 and T2..T3 must be
+// drawn with quadratic splines instead of cubics.
 //
-// roots[0] will be filled with 1 or 3 sorted parameter values, representing the padding points
-// around the first tangent. roots[1] will be filled with the padding points for the second tangent.
-static inline void calc_loop_intersect_padding_pts(float padRadius, const Sk2f& T2,
-                                                  const SkMatrix& CIT, ExcludedTerm skipTerm,
-                                                  SkSTArray<3, float, true> roots[2]) {
+// A loop intersection falls at two different T values, so this method takes Sk2f and computes the
+// padding for both in SIMD.
+static inline void find_chops_around_loop_intersection(float padRadius, const Sk2f& t,
+                                                       const Sk2f& s, const SkMatrix& CIT,
+                                                       ExcludedTerm skipTerm,
+                                                       SkSTArray<4, float>* chops) {
+    SkASSERT(chops->empty());
     SkASSERT(padRadius >= 0);
-    SkASSERT(T2[0] <= T2[1]);
-    SkASSERT(roots[0].empty());
-    SkASSERT(roots[1].empty());
 
+    Sk2f T2 = t/s;
     Sk2f T1 = SkNx_shuffle<1,0>(T2);
     Sk2f Cl = (ExcludedTerm::kLinearTerm == skipTerm) ? T2*-2 - T1 : T2*T2 + T2*T1*2;
     Sk2f Lx = Cl * CIT[3] + CIT[0];
@@ -286,47 +316,197 @@ static inline void calc_loop_intersect_padding_pts(float padRadius, const Sk2f& 
 
     for (int i = 0; i < 2; ++i) {
         if (1 == numRoots[i]) {
+            // When there is only one root, line L chops from root..1, line M chops from 0..root.
+            if (1 == i) {
+                chops->push_back(0);
+            }
             float A = cbrtf(R[i]);
             float B = A != 0 ? QQ[i]/A : 0;
-            roots[i].push_back(A + B + D[i]);
+            chops->push_back(A + B + D[i]);
+            if (0 == i) {
+                chops->push_back(1);
+            }
             continue;
         }
 
         static constexpr float k2PiOver3 = 2 * SK_ScalarPI / 3;
         float theta = std::acos(cosTheta3[i]) * (1.f/3);
-        roots[i].push_back(P[i] * std::cos(theta) + D[i]);
-        roots[i].push_back(P[i] * std::cos(theta + k2PiOver3) + D[i]);
-        roots[i].push_back(P[i] * std::cos(theta - k2PiOver3) + D[i]);
+        float roots[3] = {P[i] * std::cos(theta) + D[i],
+                          P[i] * std::cos(theta + k2PiOver3) + D[i],
+                          P[i] * std::cos(theta - k2PiOver3) + D[i]};
 
         // Sort the three roots.
-        swap_if_greater(roots[i][0], roots[i][1]);
-        swap_if_greater(roots[i][1], roots[i][2]);
-        swap_if_greater(roots[i][0], roots[i][1]);
+        swap_if_greater(roots[0], roots[1]);
+        swap_if_greater(roots[1], roots[2]);
+        swap_if_greater(roots[0], roots[1]);
+
+        // Line L chops around the first 2 roots, line M chops around the second 2.
+        chops->push_back_n(2, &roots[i]);
     }
 }
 
-static inline Sk2f first_unless_nearly_zero(const Sk2f& a, const Sk2f& b) {
-    Sk2f aa = a*a;
-    aa += SkNx_shuffle<1,0>(aa);
-    SkASSERT(aa[0] == aa[1]);
+void GrCCGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopIntersectPad) {
+    SkASSERT(fBuildingContour);
+    SkASSERT(P[0] == fPoints.back());
 
-    Sk2f bb = b*b;
-    bb += SkNx_shuffle<1,0>(bb);
-    SkASSERT(bb[0] == bb[1]);
+    // Don't crunch on the curve or inflate geometry if it is nearly flat (or just very small).
+    // Flat curves can break the math below.
+    if (are_collinear(P)) {
+        this->lineTo(P[3]);
+        return;
+    }
 
-    return (aa > bb * SK_ScalarNearlyZero).thenElse(a, b);
+    Sk2f p0 = Sk2f::Load(P);
+    Sk2f p1 = Sk2f::Load(P+1);
+    Sk2f p2 = Sk2f::Load(P+2);
+    Sk2f p3 = Sk2f::Load(P+3);
+
+    // Also detect near-quadratics ahead of time.
+    Sk2f tan0, tan1, c;
+    get_cubic_tangents(p0, p1, p2, p3, &tan0, &tan1);
+    if (is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan1, &c)) {
+        this->appendQuadratics(p0, c, p3);
+        return;
+    }
+
+    double tt[2], ss[2], D[4];
+    fCurrCubicType = SkClassifyCubic(P, tt, ss, D);
+    SkASSERT(!SkCubicIsDegenerate(fCurrCubicType));
+    Sk2f t = Sk2f(static_cast<float>(tt[0]), static_cast<float>(tt[1]));
+    Sk2f s = Sk2f(static_cast<float>(ss[0]), static_cast<float>(ss[1]));
+
+    SkMatrix CIT;
+    ExcludedTerm skipTerm = GrPathUtils::calcCubicInverseTransposePowerBasisMatrix(P, &CIT);
+    SkASSERT(ExcludedTerm::kNonInvertible != skipTerm); // Should have been caught above.
+    SkASSERT(0 == CIT[6]);
+    SkASSERT(0 == CIT[7]);
+    SkASSERT(1 == CIT[8]);
+
+    SkSTArray<4, float> chops;
+    if (SkCubicType::kLoop != fCurrCubicType) {
+        find_chops_around_inflection_points(inflectPad, t, s, CIT, skipTerm, &chops);
+    } else {
+        find_chops_around_loop_intersection(loopIntersectPad, t, s, CIT, skipTerm, &chops);
+    }
+    if (chops[1] >= chops[2]) {
+        // This just the means the KLM roots are so close that their paddings overlap. We will
+        // approximate the entire middle section, but still have it chopped midway. For loops this
+        // chop guarantees the append code only sees convex segments. Otherwise, it means we are (at
+        // least almost) a cusp and the chop makes sure we get a sharp point.
+        Sk2f ts = t * SkNx_shuffle<1,0>(s);
+        chops[1] = chops[2] = (ts[0] + ts[1]) / (2*s[0]*s[1]);
+    }
+
+#ifdef SK_DEBUG
+    for (int i = 1; i < chops.count(); ++i) {
+        SkASSERT(chops[i] >= chops[i - 1]);
+    }
+#endif
+    this->appendCubics(AppendCubicMode::kLiteral, p0, p1, p2, p3, chops.begin(), chops.count());
 }
 
-static inline bool is_cubic_nearly_quadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                             const Sk2f& p3, Sk2f& tan0, Sk2f& tan1, Sk2f& c) {
-    tan0 = first_unless_nearly_zero(p1 - p0, p2 - p0);
-    tan1 = first_unless_nearly_zero(p3 - p2, p3 - p1);
+static inline void chop_cubic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
+                              float T, Sk2f* ab, Sk2f* abc, Sk2f* abcd, Sk2f* bcd, Sk2f* cd) {
+    Sk2f TT = T;
+    *ab = lerp(p0, p1, TT);
+    Sk2f bc = lerp(p1, p2, TT);
+    *cd = lerp(p2, p3, TT);
+    *abc = lerp(*ab, bc, TT);
+    *bcd = lerp(bc, *cd, TT);
+    *abcd = lerp(*abc, *bcd, TT);
+}
 
-    Sk2f c1 = SkNx_fma(Sk2f(1.5f), tan0, p0);
-    Sk2f c2 = SkNx_fma(Sk2f(-1.5f), tan1, p3);
-    c = (c1 + c2) * .5f; // Hopefully optimized out if not used?
+void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f& p1,
+                                const Sk2f& p2, const Sk2f& p3, const float chops[], int numChops,
+                                float localT0, float localT1) {
+    if (numChops) {
+        SkASSERT(numChops > 0);
+        int midChopIdx = numChops/2;
+        float T = chops[midChopIdx];
+        // Chops alternate between literal and approximate mode.
+        AppendCubicMode rightMode = (AppendCubicMode)((bool)mode ^ (midChopIdx & 1) ^ 1);
 
-    return ((c1 - c2).abs() <= 1).allTrue();
+        if (T <= localT0) {
+            // T is outside 0..1. Append the right side only.
+            this->appendCubics(rightMode, p0, p1, p2, p3, &chops[midChopIdx + 1],
+                               numChops - midChopIdx - 1, localT0, localT1);
+            return;
+        }
+
+        if (T >= localT1) {
+            // T is outside 0..1. Append the left side only.
+            this->appendCubics(mode, p0, p1, p2, p3, chops, midChopIdx, localT0, localT1);
+            return;
+        }
+
+        float localT = (T - localT0) / (localT1 - localT0);
+        Sk2f p01, p02, pT, p11, p12;
+        chop_cubic(p0, p1, p2, p3, localT, &p01, &p02, &pT, &p11, &p12);
+        this->appendCubics(mode, p0, p01, p02, pT, chops, midChopIdx, localT0, T);
+        this->appendCubics(rightMode, pT, p11, p12, p3, &chops[midChopIdx + 1],
+                           numChops - midChopIdx - 1, T, localT1);
+        return;
+    }
+
+    this->appendCubics(mode, p0, p1, p2, p3);
+}
+
+void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f& p1,
+                                const Sk2f& p2, const Sk2f& p3, int maxSubdivisions) {
+    if ((p0 == p3).allTrue()) {
+        return;
+    }
+
+    if (SkCubicType::kLoop != fCurrCubicType) {
+        // Serpentines and cusps are always monotonic after chopping around inflection points.
+        SkASSERT(!SkCubicIsDegenerate(fCurrCubicType));
+
+        if (AppendCubicMode::kApproximate == mode) {
+            // This section passes through an inflection point, so we can get away with a flat line.
+            // This can cause some curves to feel slightly more flat when inspected rigorously back
+            // and forth against another renderer, but for now this seems acceptable given the
+            // simplicity.
+            SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+            this->appendLine(p3);
+            return;
+        }
+    } else {
+        Sk2f tan0, tan1;
+        get_cubic_tangents(p0, p1, p2, p3, &tan0, &tan1);
+
+        if (maxSubdivisions && !is_convex_curve_monotonic(p0, tan0, p3, tan1)) {
+            this->chopAndAppendCubicAtMidTangent(mode, p0, p1, p2, p3, tan0, tan1,
+                                                 maxSubdivisions - 1);
+            return;
+        }
+
+        if (AppendCubicMode::kApproximate == mode) {
+            Sk2f c;
+            if (!is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan1, &c) && maxSubdivisions) {
+                this->chopAndAppendCubicAtMidTangent(mode, p0, p1, p2, p3, tan0, tan1,
+                                                     maxSubdivisions - 1);
+                return;
+            }
+
+            this->appendMonotonicQuadratic(p0, c, p3);
+            return;
+        }
+    }
+
+    // Don't send curves to the GPU if we know they are nearly flat (or just very small).
+    // Since the cubic segment is known to be convex at this point, our flatness check is simple.
+    if (are_collinear(p0, (p1 + p2) * .5f, p3)) {
+        SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+        this->appendLine(p3);
+        return;
+    }
+
+    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+    p1.store(&fPoints.push_back());
+    p2.store(&fPoints.push_back());
+    p3.store(&fPoints.push_back());
+    fVerbs.push_back(Verb::kMonotonicCubicTo);
+    ++fCurrContourTallies.fCubics;
 }
 
 // Given a convex curve segment with the following order-2 tangent function:
@@ -377,177 +557,11 @@ static inline float find_midtangent(const Sk2f& tan0, const Sk2f& tan1,
     return std::abs(q*q - r) < std::abs(a*c - r) ? q/a : c/q;
 }
 
-void GrCCGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopIntersectPad) {
-    SkASSERT(fBuildingContour);
-    SkASSERT(P[0] == fPoints.back());
-
-    // Don't crunch on the curve or inflate geometry if it is nearly flat (or just very small).
-    // Flat curves can break the math below.
-    if (are_collinear(P)) {
-        this->lineTo(P[3]);
-        return;
-    }
-
-    Sk2f p0 = Sk2f::Load(P);
-    Sk2f p1 = Sk2f::Load(P+1);
-    Sk2f p2 = Sk2f::Load(P+2);
-    Sk2f p3 = Sk2f::Load(P+3);
-
-    // Also detect near-quadratics ahead of time.
-    Sk2f tan0, tan1, c;
-    if (is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan1, c)) {
-        this->appendMonotonicQuadratics(p0, c, p3);
-        return;
-    }
-
-    double tt[2], ss[2];
-    fCurrCubicType = SkClassifyCubic(P, tt, ss);
-    SkASSERT(!SkCubicIsDegenerate(fCurrCubicType)); // Should have been caught above.
-
-    SkMatrix CIT;
-    ExcludedTerm skipTerm = GrPathUtils::calcCubicInverseTransposePowerBasisMatrix(P, &CIT);
-    SkASSERT(ExcludedTerm::kNonInvertible != skipTerm); // Should have been caught above.
-    SkASSERT(0 == CIT[6]);
-    SkASSERT(0 == CIT[7]);
-    SkASSERT(1 == CIT[8]);
-
-    // Each cubic has five different sections (not always inside t=[0..1]):
-    //
-    //   1. The section before the first inflection or loop intersection point, with padding.
-    //   2. The section that passes through the first inflection/intersection (aka the K,L
-    //      intersection point or T=tt[0]/ss[0]).
-    //   3. The section between the two inflections/intersections, with padding.
-    //   4. The section that passes through the second inflection/intersection (aka the K,M
-    //      intersection point or T=tt[1]/ss[1]).
-    //   5. The section after the second inflection/intersection, with padding.
-    //
-    // Sections 1,3,5 can be rendered directly using the CCPR cubic shader.
-    //
-    // Sections 2 & 4 must be approximated. For loop intersections we render them with
-    // quadratic(s), and when passing through an inflection point we use a plain old flat line.
-    //
-    // We find T0..T3 below to be the dividing points between these five sections.
-    float T0, T1, T2, T3;
-    if (SkCubicType::kLoop != fCurrCubicType) {
-        Sk2f t = Sk2f(static_cast<float>(tt[0]), static_cast<float>(tt[1]));
-        Sk2f s = Sk2f(static_cast<float>(ss[0]), static_cast<float>(ss[1]));
-        Sk2f pad = calc_inflect_homogeneous_padding(inflectPad, t, s, CIT, skipTerm);
-
-        float T[2];
-        ((t - pad) / s).store(T);
-        T0 = T[0];
-        T2 = T[1];
-
-        ((t + pad) / s).store(T);
-        T1 = T[0];
-        T3 = T[1];
-    } else {
-        const float T[2] = {static_cast<float>(tt[0]/ss[0]), static_cast<float>(tt[1]/ss[1])};
-        SkSTArray<3, float, true> roots[2];
-        calc_loop_intersect_padding_pts(loopIntersectPad, Sk2f::Load(T), CIT, skipTerm, roots);
-        T0 = roots[0].front();
-        if (1 == roots[0].count() || 1 == roots[1].count()) {
-            // The loop is tighter than our desired padding. Collapse the middle section to a point
-            // somewhere in the middle-ish of the loop and Sections 2 & 4 will approximate the the
-            // whole thing with quadratics.
-            T1 = T2 = (T[0] + T[1]) * .5f;
-        } else {
-            T1 = roots[0][1];
-            T2 = roots[1][1];
-        }
-        T3 = roots[1].back();
-    }
-
-    // Guarantee that T0..T3 are monotonic.
-    if (T0 > T3) {
-        // This is not a mathematically valid scenario. The only reason it would happen is if
-        // padding is very small and we have encountered FP rounding error.
-        T0 = T1 = T2 = T3 = (T0 + T3) / 2;
-    } else if (T1 > T2) {
-        // This just means padding before the middle section overlaps the padding after it. We
-        // collapse the middle section to a single point that splits the difference between the
-        // overlap in padding.
-        T1 = T2 = (T1 + T2) / 2;
-    }
-    // Clamp T1 & T2 inside T0..T3. The only reason this would be necessary is if we have
-    // encountered FP rounding error.
-    T1 = std::max(T0, std::min(T1, T3));
-    T2 = std::max(T0, std::min(T2, T3));
-
-    // Next we chop the cubic up at all T0..T3 inside 0..1 and store the resulting segments.
-    if (T1 >= 1) {
-        // Only sections 1 & 2 can be in 0..1.
-        this->chopCubic<&GrCCGeometry::appendMonotonicCubics,
-                        &GrCCGeometry::appendCubicApproximation>(p0, p1, p2, p3, T0);
-        return;
-    }
-
-    if (T2 <= 0) {
-        // Only sections 4 & 5 can be in 0..1.
-        this->chopCubic<&GrCCGeometry::appendCubicApproximation,
-                        &GrCCGeometry::appendMonotonicCubics>(p0, p1, p2, p3, T3);
-        return;
-    }
-
-    Sk2f midp0, midp1; // These hold the first two bezier points of the middle section, if needed.
-
-    if (T1 > 0) {
-        Sk2f T1T1 = Sk2f(T1);
-        Sk2f ab1 = lerp(p0, p1, T1T1);
-        Sk2f bc1 = lerp(p1, p2, T1T1);
-        Sk2f cd1 = lerp(p2, p3, T1T1);
-        Sk2f abc1 = lerp(ab1, bc1, T1T1);
-        Sk2f bcd1 = lerp(bc1, cd1, T1T1);
-        Sk2f abcd1 = lerp(abc1, bcd1, T1T1);
-
-        // Sections 1 & 2.
-        this->chopCubic<&GrCCGeometry::appendMonotonicCubics,
-                        &GrCCGeometry::appendCubicApproximation>(p0, ab1, abc1, abcd1, T0/T1);
-
-        if (T2 >= 1) {
-            // The rest of the curve is Section 3 (middle section).
-            this->appendMonotonicCubics(abcd1, bcd1, cd1, p3);
-            return;
-        }
-
-        // Now calculate the first two bezier points of the middle section. The final two will come
-        // from when we chop the other side, as that is numerically more stable.
-        midp0 = abcd1;
-        midp1 = lerp(abcd1, bcd1, Sk2f((T2 - T1) / (1 - T1)));
-    } else if (T2 >= 1) {
-        // The entire cubic is Section 3 (middle section).
-        this->appendMonotonicCubics(p0, p1, p2, p3);
-        return;
-    }
-
-    SkASSERT(T2 > 0 && T2 < 1);
-
-    Sk2f T2T2 = Sk2f(T2);
-    Sk2f ab2 = lerp(p0, p1, T2T2);
-    Sk2f bc2 = lerp(p1, p2, T2T2);
-    Sk2f cd2 = lerp(p2, p3, T2T2);
-    Sk2f abc2 = lerp(ab2, bc2, T2T2);
-    Sk2f bcd2 = lerp(bc2, cd2, T2T2);
-    Sk2f abcd2 = lerp(abc2, bcd2, T2T2);
-
-    if (T1 <= 0) {
-        // The curve begins at Section 3 (middle section).
-        this->appendMonotonicCubics(p0, ab2, abc2, abcd2);
-    } else if (T2 > T1) {
-        // Section 3 (middle section).
-        Sk2f midp2 = lerp(abc2, abcd2, Sk2f(T1/T2));
-        this->appendMonotonicCubics(midp0, midp1, midp2, abcd2);
-    }
-
-    // Sections 4 & 5.
-    this->chopCubic<&GrCCGeometry::appendCubicApproximation,
-                    &GrCCGeometry::appendMonotonicCubics>(abcd2, bcd2, cd2, p3, (T3-T2) / (1-T2));
-}
-
-template<GrCCGeometry::AppendCubicFn AppendLeftRight>
-inline void GrCCGeometry::chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                                const Sk2f& p3, const Sk2f& tan0,
-                                                const Sk2f& tan1, int maxFutureSubdivisions) {
+inline void GrCCGeometry::chopAndAppendCubicAtMidTangent(AppendCubicMode mode, const Sk2f& p0,
+                                                         const Sk2f& p1, const Sk2f& p2,
+                                                         const Sk2f& p3, const Sk2f& tan0,
+                                                         const Sk2f& tan1,
+                                                         int maxFutureSubdivisions) {
     float midT = find_midtangent(tan0, tan1, 3, p3 + (p1 - p2)*3 - p0,
                                              6, p0 - p1*2 + p2,
                                              3, p1 - p0);
@@ -559,97 +573,10 @@ inline void GrCCGeometry::chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, 
         return;
     }
 
-    this->chopCubic<AppendLeftRight, AppendLeftRight>(p0, p1, p2, p3, midT, maxFutureSubdivisions);
-}
-
-template<GrCCGeometry::AppendCubicFn AppendLeft, GrCCGeometry::AppendCubicFn AppendRight>
-inline void GrCCGeometry::chopCubic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                    const Sk2f& p3, float T, int maxFutureSubdivisions) {
-    if (T >= 1) {
-        (this->*AppendLeft)(p0, p1, p2, p3, maxFutureSubdivisions);
-        return;
-    }
-
-    if (T <= 0) {
-        (this->*AppendRight)(p0, p1, p2, p3, maxFutureSubdivisions);
-        return;
-    }
-
-    Sk2f TT = T;
-    Sk2f ab = lerp(p0, p1, TT);
-    Sk2f bc = lerp(p1, p2, TT);
-    Sk2f cd = lerp(p2, p3, TT);
-    Sk2f abc = lerp(ab, bc, TT);
-    Sk2f bcd = lerp(bc, cd, TT);
-    Sk2f abcd = lerp(abc, bcd, TT);
-    (this->*AppendLeft)(p0, ab, abc, abcd, maxFutureSubdivisions);
-    (this->*AppendRight)(abcd, bcd, cd, p3, maxFutureSubdivisions);
-}
-
-void GrCCGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                         const Sk2f& p3, int maxSubdivisions) {
-    SkASSERT(maxSubdivisions >= 0);
-    if ((p0 == p3).allTrue()) {
-        return;
-    }
-
-    if (maxSubdivisions) {
-        Sk2f tan0 = first_unless_nearly_zero(p1 - p0, p2 - p0);
-        Sk2f tan1 = first_unless_nearly_zero(p3 - p2, p3 - p1);
-
-        if (!is_convex_curve_monotonic(p0, tan0, p3, tan1)) {
-            this->chopCubicAtMidTangent<&GrCCGeometry::appendMonotonicCubics>(p0, p1, p2, p3,
-                                                                              tan0, tan1,
-                                                                              maxSubdivisions - 1);
-            return;
-        }
-    }
-
-    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
-
-    // Don't send curves to the GPU if we know they are nearly flat (or just very small).
-    // Since the cubic segment is known to be convex at this point, our flatness check is simple.
-    if (are_collinear(p0, (p1 + p2) * .5f, p3)) {
-        this->appendLine(p3);
-        return;
-    }
-
-    p1.store(&fPoints.push_back());
-    p2.store(&fPoints.push_back());
-    p3.store(&fPoints.push_back());
-    fVerbs.push_back(Verb::kMonotonicCubicTo);
-    ++fCurrContourTallies.fCubics;
-}
-
-void GrCCGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                            const Sk2f& p3, int maxSubdivisions) {
-    SkASSERT(maxSubdivisions >= 0);
-    if ((p0 == p3).allTrue()) {
-        return;
-    }
-
-    if (SkCubicType::kLoop != fCurrCubicType && SkCubicType::kQuadratic != fCurrCubicType) {
-        // This section passes through an inflection point, so we can get away with a flat line.
-        // This can cause some curves to feel slightly more flat when inspected rigorously back and
-        // forth against another renderer, but for now this seems acceptable given the simplicity.
-        SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
-        this->appendLine(p3);
-        return;
-    }
-
-    Sk2f tan0, tan1, c;
-    if (!is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan1, c) && maxSubdivisions) {
-        this->chopCubicAtMidTangent<&GrCCGeometry::appendCubicApproximation>(p0, p1, p2, p3,
-                                                                             tan0, tan1,
-                                                                             maxSubdivisions - 1);
-        return;
-    }
-
-    if (maxSubdivisions) {
-        this->appendMonotonicQuadratics(p0, c, p3);
-    } else {
-        this->appendSingleMonotonicQuadratic(p0, c, p3);
-    }
+    Sk2f p01, p02, pT, p11, p12;
+    chop_cubic(p0, p1, p2, p3, midT, &p01, &p02, &pT, &p11, &p12);
+    this->appendCubics(mode, p0, p01, p02, pT, maxFutureSubdivisions);
+    this->appendCubics(mode, pT, p11, p12, p3, maxFutureSubdivisions);
 }
 
 void GrCCGeometry::conicTo(const SkPoint P[3], float w) {

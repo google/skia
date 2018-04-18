@@ -99,27 +99,21 @@ public:
 private:
     inline void appendLine(const Sk2f& endpt);
 
-    inline void appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
-    inline void appendSingleMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
+    inline void appendQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
+    inline void appendMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
 
-    using AppendCubicFn = void(GrCCGeometry::*)(const Sk2f& p0, const Sk2f& p1,
-                                                const Sk2f& p2, const Sk2f& p3,
-                                                int maxSubdivisions);
-    static constexpr int kMaxSubdivionsPerCubicSection = 2;
-
-    template<AppendCubicFn AppendLeftRight>
-    inline void chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                      const Sk2f& p3, const Sk2f& tan0, const Sk2f& tan3,
-                                      int maxFutureSubdivisions = kMaxSubdivionsPerCubicSection);
-
-    template<AppendCubicFn AppendLeft, AppendCubicFn AppendRight>
-    inline void chopCubic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
-                          float T, int maxFutureSubdivisions = kMaxSubdivionsPerCubicSection);
-
-    void appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
-                               int maxSubdivisions = kMaxSubdivionsPerCubicSection);
-    void appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
-                                  int maxSubdivisions = kMaxSubdivionsPerCubicSection);
+    enum class AppendCubicMode : bool {
+        kLiteral,
+        kApproximate
+    };
+    void appendCubics(AppendCubicMode, const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                      const Sk2f& p3, const float chops[], int numChops, float localT0 = 0,
+                     float localT1 = 1);
+    void appendCubics(AppendCubicMode, const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                      const Sk2f& p3, int maxSubdivisions = 2);
+    void chopAndAppendCubicAtMidTangent(AppendCubicMode, const Sk2f& p0, const Sk2f& p1,
+                                        const Sk2f& p2, const Sk2f& p3, const Sk2f& tan0,
+                                        const Sk2f& tan1, int maxFutureSubdivisions);
 
     void appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, float w);
 
