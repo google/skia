@@ -16,6 +16,7 @@
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkRSXform.h"
+#include "SkStrikeCache.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
 

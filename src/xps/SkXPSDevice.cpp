@@ -44,6 +44,7 @@
 #include "SkShader.h"
 #include "SkSize.h"
 #include "SkStream.h"
+#include "SkStrikeCache.h"
 #include "SkTDArray.h"
 #include "SkTLazy.h"
 #include "SkTScopedComPtr.h"

@@ -28,17 +28,69 @@ static SkStrikeCache& get_globals() {
     return *globals;
 }
 
+struct SkStrikeCache::Node {
+    Node(const SkDescriptor& desc,
+         std::unique_ptr<SkScalerContext> scaler,
+         const SkPaint::FontMetrics& metrics)
+            : fCache{desc, std::move(scaler), metrics} {}
+    Node*        fNext{nullptr};
+    Node*        fPrev{nullptr};
+    SkGlyphCache fCache;
+};
+
+SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(SkStrikeCache::Node* node) : fNode{node} {}
+SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr() : fNode{nullptr} {}
+SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(ExclusiveStrikePtr&& o)
+    : fNode{o.fNode} {
+    o.fNode = nullptr;
+}
+
+SkStrikeCache::ExclusiveStrikePtr&
+SkStrikeCache::ExclusiveStrikePtr::operator = (ExclusiveStrikePtr&& o) {
+    Attach(fNode);
+    fNode = o.fNode;
+    o.fNode = nullptr;
+    return *this;
+}
+
+SkStrikeCache::ExclusiveStrikePtr::~ExclusiveStrikePtr() {
+    SkStrikeCache::Attach(fNode);
+}
+SkGlyphCache* SkStrikeCache::ExclusiveStrikePtr::get() const {
+    return &fNode->fCache;
+}
+SkGlyphCache* SkStrikeCache::ExclusiveStrikePtr::operator -> () const {
+    return this->get();
+}
+SkGlyphCache& SkStrikeCache::ExclusiveStrikePtr::operator *  () const {
+    return *this->get();
+}
+SkStrikeCache::ExclusiveStrikePtr::operator bool () const {
+    return fNode != nullptr;
+}
+
+bool operator == (const SkStrikeCache::ExclusiveStrikePtr& lhs,
+                  const SkStrikeCache::ExclusiveStrikePtr& rhs) {
+    return lhs.fNode == rhs.fNode;
+}
+bool operator == (const SkStrikeCache::ExclusiveStrikePtr& lhs, decltype(nullptr)) {
+    return lhs.fNode == nullptr;
+}
+bool operator == (decltype(nullptr), const SkStrikeCache::ExclusiveStrikePtr& rhs) {
+    return nullptr == rhs.fNode;
+}
+
 SkStrikeCache::~SkStrikeCache() {
-    SkGlyphCache* cache = fHead;
-    while (cache) {
-        SkGlyphCache* next = cache->fNext;
-        delete cache;
-        cache = next;
+    Node* node = fHead;
+    while (node) {
+        Node* next = node->fNext;
+        delete node;
+        node = next;
     }
 }
 
-void SkStrikeCache::AttachCache(SkGlyphCache* cache) {
-    get_globals().attachCache(cache);
+void SkStrikeCache::Attach(Node* node) {
+    get_globals().attachNode(node);
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindStrikeExclusive(const SkDescriptor& desc) {
@@ -131,27 +183,27 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
 }
 
 
-void SkStrikeCache::attachCache(SkGlyphCache *cache) {
-    if (cache == nullptr) {
+void SkStrikeCache::attachNode(Node* node) {
+    if (node == nullptr) {
         return;
     }
     SkAutoExclusive ac(fLock);
 
     this->validate();
-    cache->validate();
+    node->fCache.validate();
 
-    this->internalAttachCacheToHead(cache);
+    this->internalAttachToHead(node);
     this->internalPurge();
 }
 
 SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc) {
-    SkGlyphCache*         cache;
-    SkAutoExclusive       ac(fLock);
+    Node*           node;
+    SkAutoExclusive ac(fLock);
 
-    for (cache = internalGetHead(); cache != nullptr; cache = cache->fNext) {
-        if (cache->getDescriptor() == desc) {
-            this->internalDetachCache(cache);
-            return SkExclusiveStrikePtr(cache);
+    for (node = internalGetHead(); node != nullptr; node = node->fNext) {
+        if (node->fCache.getDescriptor() == desc) {
+            this->internalDetachCache(node);
+            return SkExclusiveStrikePtr(node);
         }
     }
 
@@ -232,19 +284,19 @@ void SkStrikeCache::forEachStrike(std::function<void(const SkGlyphCache&)> visit
 
     this->validate();
 
-    for (SkGlyphCache* cache = this->internalGetHead(); cache != nullptr; cache = cache->fNext) {
-        visitor(*cache);
+    for (Node* node = this->internalGetHead(); node != nullptr; node = node->fNext) {
+        visitor(node->fCache);
     }
 }
 
-SkGlyphCache* SkStrikeCache::internalGetTail() const {
-    SkGlyphCache* cache = fHead;
-    if (cache) {
-        while (cache->fNext) {
-            cache = cache->fNext;
+SkStrikeCache::Node* SkStrikeCache::internalGetTail() const {
+    Node* node = fHead;
+    if (node) {
+        while (node->fNext) {
+            node = node->fNext;
         }
     }
-    return cache;
+    return node;
 }
 
 size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
@@ -277,16 +329,16 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
 
     // we start at the tail and proceed backwards, as the linklist is in LRU
     // order, with unimportant entries at the tail.
-    SkGlyphCache* cache = this->internalGetTail();
-    while (cache != nullptr &&
+    Node* node = this->internalGetTail();
+    while (node != nullptr &&
            (bytesFreed < bytesNeeded || countFreed < countNeeded)) {
-        SkGlyphCache* prev = cache->fPrev;
-        bytesFreed += cache->fMemoryUsed;
+        Node* prev = node->fPrev;
+        bytesFreed += node->fCache.getMemoryUsed();
         countFreed += 1;
 
-        this->internalDetachCache(cache);
-        delete cache;
-        cache = prev;
+        this->internalDetachCache(node);
+        delete node;
+        node = prev;
     }
 
     this->validate();
@@ -301,32 +353,32 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
     return bytesFreed;
 }
 
-void SkStrikeCache::internalAttachCacheToHead(SkGlyphCache* cache) {
-    SkASSERT(nullptr == cache->fPrev && nullptr == cache->fNext);
+void SkStrikeCache::internalAttachToHead(Node* node) {
+    SkASSERT(nullptr == node->fPrev && nullptr == node->fNext);
     if (fHead) {
-        fHead->fPrev = cache;
-        cache->fNext = fHead;
+        fHead->fPrev = node;
+        node->fNext = fHead;
     }
-    fHead = cache;
+    fHead = node;
 
     fCacheCount += 1;
-    fTotalMemoryUsed += cache->fMemoryUsed;
+    fTotalMemoryUsed += node->fCache.getMemoryUsed();
 }
 
-void SkStrikeCache::internalDetachCache(SkGlyphCache* cache) {
+void SkStrikeCache::internalDetachCache(Node* node) {
     SkASSERT(fCacheCount > 0);
     fCacheCount -= 1;
-    fTotalMemoryUsed -= cache->fMemoryUsed;
+    fTotalMemoryUsed -= node->fCache.getMemoryUsed();
 
-    if (cache->fPrev) {
-        cache->fPrev->fNext = cache->fNext;
+    if (node->fPrev) {
+        node->fPrev->fNext = node->fNext;
     } else {
-        fHead = cache->fNext;
+        fHead = node->fNext;
     }
-    if (cache->fNext) {
-        cache->fNext->fPrev = cache->fPrev;
+    if (node->fNext) {
+        node->fNext->fPrev = node->fPrev;
     }
-    cache->fPrev = cache->fNext = nullptr;
+    node->fPrev = node->fNext = nullptr;
 }
 
 size_t SkGraphics::GetFontCacheLimit() {
@@ -378,7 +430,7 @@ SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
         scaler->getFontMetrics(&fontMetrics);
     }
 
-    return SkExclusiveStrikePtr(new SkGlyphCache(desc, move(scaler), fontMetrics));
+    return SkExclusiveStrikePtr(new Node(desc, move(scaler), fontMetrics));
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
@@ -413,3 +465,22 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(const SkPaint& p
     return FindOrCreateStrikeExclusive(
             paint, nullptr, kFakeGammaAndBoostContrast, nullptr);
 }
+
+#ifdef SK_DEBUG
+void SkStrikeCache::validate() const {
+    size_t computedBytes = 0;
+    int computedCount = 0;
+
+    const Node* node = fHead;
+    while (node != nullptr) {
+        computedBytes += node->fCache.getMemoryUsed();
+        computedCount += 1;
+        node = node->fNext;
+    }
+
+    SkASSERTF(fCacheCount == computedCount, "fCacheCount: %d, computedCount: %d", fCacheCount,
+              computedCount);
+    SkASSERTF(fTotalMemoryUsed == computedBytes, "fTotalMemoryUsed: %d, computedBytes: %d",
+              fTotalMemoryUsed, computedBytes);
+}
+#endif

@@ -11,7 +11,7 @@
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitSet.h"
-#include "SkGlyphCache.h"
+#include "SkStrikeCache.h"
 #include "SkPDFTypes.h"
 #include "SkTDArray.h"
 #include "SkTypeface.h"

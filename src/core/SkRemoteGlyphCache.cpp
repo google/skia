@@ -13,6 +13,7 @@
 
 #include "SkDevice.h"
 #include "SkFindAndPlaceGlyph.h"
+#include "SkStrikeCache.h"
 #include "SkTypeface_remote.h"
 
 template <typename T>

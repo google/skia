@@ -11,6 +11,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkStrikeCache.h"
 #include "sk_tool_utils.h"
 
 static constexpr int kScreenWidth = 1500;
