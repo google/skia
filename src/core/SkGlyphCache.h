@@ -123,24 +123,6 @@ public:
 
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
-    static SkExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor& desc);
-
-    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(
-        const SkDescriptor& desc,
-        const SkScalerContextEffects& effects,
-        const SkTypeface& typeface);
-
-    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(
-        const SkPaint& paint,
-        const SkSurfaceProps* surfaceProps,
-        SkScalerContextFlags scalerContextFlags,
-        const SkMatrix* deviceMatrix);
-
-    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(const SkPaint& paint) {
-        return FindOrCreateStrikeExclusive(
-                paint, nullptr, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
-    }
-
 #ifdef SK_DEBUG
     void validate() const;
 #else
@@ -244,11 +226,9 @@ public:
     SkAutoGlyphCacheNoGamma(const SkPaint& paint,
                             const SkSurfaceProps* surfaceProps,
                             const SkMatrix* matrix)
-        : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(
+        : SkExclusiveStrikePtr(SkStrikeCache::FindOrCreateStrikeExclusive(
             paint, surfaceProps, SkScalerContextFlags::kNone, matrix)) {}
 
-private:
-    using INHERITED = SkExclusiveStrikePtr;
 };
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
 #endif

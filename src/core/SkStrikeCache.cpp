@@ -17,6 +17,7 @@
 #include "SkTraceMemoryDump.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
+#include "SkPaintPriv.h"
 
 // Returns the shared globals
 static SkStrikeCache& get_globals() {
@@ -378,4 +379,37 @@ SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
     }
 
     return SkExclusiveStrikePtr(new SkGlyphCache(desc, move(scaler), fontMetrics));
+}
+
+SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
+    const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface)
+{
+    auto cache = FindStrikeExclusive(desc);
+    if (cache == nullptr) {
+        auto scaler = CreateScalerContext(desc, effects, typeface);
+        cache = CreateStrikeExclusive(desc, move(scaler));
+    }
+    return cache;
+}
+
+SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
+    const SkPaint& paint,
+    const SkSurfaceProps* surfaceProps,
+    SkScalerContextFlags scalerContextFlags,
+    const SkMatrix* deviceMatrix)
+{
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+        paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
+
+    auto tf = SkPaintPriv::GetTypefaceOrDefault(paint);
+
+    return FindOrCreateStrikeExclusive(*desc, effects, *tf);
+}
+
+SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(const SkPaint& paint) {
+    return FindOrCreateStrikeExclusive(
+            paint, nullptr, kFakeGammaAndBoostContrast, nullptr);
 }
