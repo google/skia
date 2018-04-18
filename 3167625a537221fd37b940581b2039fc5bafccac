@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdeee603_2a17f5b1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-04-18T13:54:59Z",
+      "side": 1,
+      "message": "I was planning to upload an image for testing on the bots, but I\u0027m having trouble authenticating. (Maybe that\u0027s for the best anyway; in the past we\u0027ve run into problems running out of memory decoding the DNG images we already test; this will naturally raise the likelihood of that...)",
+      "range": {
+        "startLine": 10,
+        "startChar": 6,
+        "endLine": 10,
+        "endChar": 10
+      },
+      "revId": "3167625a537221fd37b940581b2039fc5bafccac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
