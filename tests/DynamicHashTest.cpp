@@ -63,6 +63,38 @@ DEF_TEST(DynamicHash_growth, reporter) {
     ASSERT(hash.count() == 5);
 }
 
+DEF_TEST(DynamicHash_growth_bounded, reporter) {
+    Entry a = { 1, 2.0 };
+    Entry b = { 2, 3.0 };
+    Entry c = { 3, 4.0 };
+    Entry d = { 4, 5.0 };
+    Entry e = { 5, 6.0 };
+
+    Hash hash;
+    ASSERT(hash.capacity() == 0);
+
+    hash.add(&a);
+    ASSERT(hash.capacity() == 4);
+
+    hash.remove(a.key);
+    hash.add(&b);
+    ASSERT(hash.capacity() == 4);
+
+    hash.remove(b.key);
+    hash.add(&c);
+    ASSERT(hash.capacity() == 4);
+
+    hash.remove(c.key);
+    hash.add(&d);
+    ASSERT(hash.capacity() == 4);
+
+    hash.remove(d.key);
+    hash.add(&e);
+    ASSERT(hash.capacity() == 4);
+
+    ASSERT(hash.count() == 1);
+}
+
 DEF_TEST(DynamicHash_add, reporter) {
     Hash hash;
     Entry a = { 1, 2.0 };
