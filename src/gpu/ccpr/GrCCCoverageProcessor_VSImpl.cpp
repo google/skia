@@ -257,9 +257,10 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     GrGLSLVertexBuilder* v = args.fVertBuilder;
     int numInputPoints = proc.numInputPoints();
 
-    const char* swizzle = (4 == numInputPoints) ? "xyzw" : "xyz";
+    int inputWidth = (4 == numInputPoints || proc.hasInputWeight()) ? 4 : 3;
+    const char* swizzle = (4 == inputWidth) ? "xyzw" : "xyz";
     v->codeAppendf("float%ix2 pts = transpose(float2x%i(%s.%s, %s.%s));",
-                   numInputPoints, numInputPoints, proc.getAttrib(kAttribIdx_X).fName, swizzle,
+                   inputWidth, inputWidth, proc.getAttrib(kAttribIdx_X).fName, swizzle,
                    proc.getAttrib(kAttribIdx_Y).fName, swizzle);
 
     if (PrimitiveType::kWeightedTriangles != proc.fPrimitiveType) {
@@ -476,7 +477,8 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         }
 
         case PrimitiveType::kQuadratics:
-        case PrimitiveType::kCubics: {
+        case PrimitiveType::kCubics:
+        case PrimitiveType::kConics: {
             GR_DEFINE_STATIC_UNIQUE_KEY(gCurveVertexBufferKey);
             fVSVertexBuffer = rp->findOrMakeStaticBuffer(kVertex_GrBufferType,
                                                          sizeof(kCurveVertices), kCurveVertices,
@@ -499,8 +501,7 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         }
     }
 
-    if (PrimitiveType::kCubics == fPrimitiveType ||
-        PrimitiveType::kWeightedTriangles == fPrimitiveType) {
+    if (4 == this->numInputPoints() || this->hasInputWeight()) {
         SkASSERT(kAttribIdx_X == this->numAttribs());
         this->addInstanceAttrib("X", kFloat4_GrVertexAttribType);
 
@@ -550,6 +551,7 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createVSImpl(std::unique_ptr<Sh
             return new VSImpl(std::move(shadr), 3);
         case PrimitiveType::kQuadratics:
         case PrimitiveType::kCubics:
+        case PrimitiveType::kConics:
             return new VSImpl(std::move(shadr), 4);
     }
     SK_ABORT("Invalid RenderPass");
