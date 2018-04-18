@@ -390,6 +390,25 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool so
     if (sortY && top == bot)
         return 0;
 
+    int altCount0, altCount1;
+    {
+        float dx = std::max(std::abs(x0 + x2 - x1 - x1), std::abs(x1 + x3 - x2 - x2));
+        float dy = std::max(std::abs(y0 + y2 - y1 - y1), std::abs(y1 + y3 - y2 - y2));
+        float len = sqrtf(dx*dx + dy*dy);
+        len = len / 64;
+        float wang = 3;
+        float count = sqrtf(len * wang);
+        altCount0 = std::max(1, sk_float_ceil2int(count));
+        altCount0 = std::min(altCount0, 1 << MAX_COEFF_SHIFT);
+
+        dx = (x0 - x1 - x2 + x3) * 0.5;
+        dy = (y0 - y1 - y2 + y3) * 0.5;
+        len = sqrtf(dx*dx + dy*dy) / 64;
+        count = sqrtf(len * wang);
+        altCount1 = std::max(1, sk_float_ceil2int(count));
+        altCount1 = std::min(altCount1, 1 << MAX_COEFF_SHIFT);
+    }
+
     // compute number of steps needed (1 << shift)
     {
         // Can't use (center of curve - center of baseline), since center-of-curve
@@ -419,6 +438,9 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool so
 
     fWinding    = SkToS8(winding);
     fCurveCount = SkToS8(SkLeftShift(-1, shift));
+    if (altCount0 != -fCurveCount || altCount1 != altCount0) {
+        SkDebugf("cubic counts [curr alt0 alt1] %2d  %2d  %2d\n", -fCurveCount, altCount0, altCount1);
+    }
     fCurveShift = SkToU8(shift);
     fCubicDShift = SkToU8(downShift);
 
