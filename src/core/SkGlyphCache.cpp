@@ -9,7 +9,6 @@
 #include "SkGraphics.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
-#include "SkPaintPriv.h"
 #include "SkPath.h"
 #include "SkTemplates.h"
 #include "SkTypeface.h"
@@ -385,38 +384,6 @@ void SkGlyphCache::dump() const {
                face->uniqueID(), name.c_str(), style.weight(), style.width(), style.slant(),
                rec.dump().c_str(), fGlyphMap.count());
     SkDebugf("%s\n", msg.c_str());
-}
-
-SkExclusiveStrikePtr SkGlyphCache::FindStrikeExclusive(const SkDescriptor& desc) {
-    return SkStrikeCache::FindStrikeExclusive(desc);
-}
-
-SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
-    const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface)
-{
-    auto cache = SkGlyphCache::FindStrikeExclusive(desc);
-    if (cache == nullptr) {
-        auto scaler = SkStrikeCache::CreateScalerContext(desc, effects, typeface);
-        cache = SkStrikeCache::CreateStrikeExclusive(desc, std::move(scaler));
-    }
-    return cache;
-}
-
-SkExclusiveStrikePtr SkGlyphCache::FindOrCreateStrikeExclusive(
-    const SkPaint& paint,
-    const SkSurfaceProps* surfaceProps,
-    SkScalerContextFlags scalerContextFlags,
-    const SkMatrix* deviceMatrix)
-{
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
-
-    auto tf = SkPaintPriv::GetTypefaceOrDefault(paint);
-
-    return FindOrCreateStrikeExclusive(*desc, effects, *tf);
 }
 
 #ifdef SK_DEBUG

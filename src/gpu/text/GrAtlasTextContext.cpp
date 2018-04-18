@@ -500,7 +500,7 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
     SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(pathPaint.getTextEncoding(),
                                                                         pathPaint.isDevKernText(),
                                                                         true);
-    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
             pathPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 
     const char*        stop = text + byteLength;
@@ -703,7 +703,7 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
 
     {
         auto origPaintCache =
-            SkGlyphCache::FindOrCreateStrikeExclusive(*desc.getDesc(), effects, *typeface);
+            SkStrikeCache::FindOrCreateStrikeExclusive(*desc.getDesc(), effects, *typeface);
 
         SkAutoKern autokern;
         const char* stop = text + byteLength;

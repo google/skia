@@ -38,7 +38,7 @@ SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
     }
     tmpPaint.setTextSize((SkScalar)unitsPerEm);
     const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    return SkGlyphCache::FindOrCreateStrikeExclusive(
+    return SkStrikeCache::FindOrCreateStrikeExclusive(
             tmpPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 }
 

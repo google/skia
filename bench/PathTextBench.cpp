@@ -46,7 +46,7 @@ private:
 
     void onDelayedSetup() override {
         SkPaint defaultPaint;
-        auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(defaultPaint);
+        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(defaultPaint);
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkPackedGlyphID id(cache->unicharToGlyph(kGlyphs[i]));
             sk_ignore_unused_variable(cache->getScalerContext()->getPath(id, &fGlyphs[i]));

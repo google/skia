@@ -1368,7 +1368,7 @@ void SkPDFDevice::internalDrawText(
         scaledGlyphCachePaint.setTextScaleX(paint.getTextScaleX());
         scaledGlyphCachePaint.setTextSkewX(paint.getTextSkewX());
         scaledGlyphCachePaint.setTypeface(sk_ref_sp(typeface));
-        auto scaledGlyphCache = SkGlyphCache::FindOrCreateStrikeExclusive(scaledGlyphCachePaint);
+        auto scaledGlyphCache = SkStrikeCache::FindOrCreateStrikeExclusive(scaledGlyphCachePaint);
         SkTHashMap<SkPDFCanon::BitmapGlyphKey, SkPDFCanon::BitmapGlyph>* map =
             &this->getCanon()->fBitmapGlyphImages;
         for (PositionedGlyph positionedGlyph : fMissingGlyphs) {

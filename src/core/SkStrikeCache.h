@@ -46,13 +46,26 @@ public:
 
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
 
-    static std::unique_ptr<SkScalerContext> CreateScalerContext(
-        const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);
-
     static ExclusiveStrikePtr CreateStrikeExclusive(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
             SkPaint::FontMetrics* maybeMetrics = nullptr);
+
+    static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
+            const SkDescriptor& desc,
+            const SkScalerContextEffects& effects,
+            const SkTypeface& typeface);
+
+    static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
+            const SkPaint& paint,
+            const SkSurfaceProps* surfaceProps,
+            SkScalerContextFlags scalerContextFlags,
+            const SkMatrix* deviceMatrix);
+
+    static ExclusiveStrikePtr FindOrCreateStrikeExclusive(const SkPaint& paint);
+
+    static std::unique_ptr<SkScalerContext> CreateScalerContext(
+            const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);
 
     static void PurgeAll();
 
