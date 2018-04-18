@@ -22,6 +22,29 @@
       "revId": "6db2744f5cd799e0e89d990cc0a17464c68fb654",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5e2996c_0a76e1dc",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-18T19:05:37Z",
+      "side": 1,
+      "message": "I\u0027m concerned about what this (especially the mask format) is being used for. Note that individual SkScalerContext::generateMetrics calls can set the mask format of an individual glyph to anything. We\u0027ve actually overloaded the SkMaskFormat here. The SkScalerContext doesn\u0027t really have a SkMaskFormat, were just using it as a (poor) signal of how to render. We may need to fix that first.",
+      "range": {
+        "startLine": 309,
+        "startChar": 37,
+        "endLine": 309,
+        "endChar": 59
+      },
+      "revId": "6db2744f5cd799e0e89d990cc0a17464c68fb654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
