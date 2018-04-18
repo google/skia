@@ -70,6 +70,30 @@
       "revId": "5380e8a9b7ba529e45b73eb1057d96940eaa86de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f88c9df_997c0893",
+        "filename": "src/core/SkBlitMask_D32.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-18T15:43:14Z",
+      "side": 1,
+      "message": "Ack.\n\nLooking at some of the gold diffs (shadermaskfilter_image, alpha_image), it appears this CL actually fixes an opacity issue: prev results were not fully opaque in some areas (0xfe), but the new ones are (0xff)",
+      "parentUuid": "4a8d72aa_4e6b7526",
+      "range": {
+        "startLine": 86,
+        "startChar": 11,
+        "endLine": 87,
+        "endChar": 53
+      },
+      "revId": "5380e8a9b7ba529e45b73eb1057d96940eaa86de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
