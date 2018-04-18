@@ -354,6 +354,24 @@ static skcms_Matrix3x3 concat_3x3(const skcms_Matrix3x3* A, const skcms_Matrix3x
     return m;
 }
 
+static bool prep_for_destination(const skcms_ICCProfile* profile,
+                                 skcms_Matrix3x3* fromXYZD50,
+                                 skcms_TransferFunction* invR,
+                                 skcms_TransferFunction* invG,
+                                 skcms_TransferFunction* invB) {
+    // We only support destinations with parametric transfer functions
+    // and with gamuts that can be transformed from XYZD50.
+    return profile->has_trc
+        && profile->has_toXYZD50
+        && profile->trc[0].table_entries == 0
+        && profile->trc[1].table_entries == 0
+        && profile->trc[2].table_entries == 0
+        && skcms_TransferFunction_invert(&profile->trc[0].parametric, invR)
+        && skcms_TransferFunction_invert(&profile->trc[1].parametric, invG)
+        && skcms_TransferFunction_invert(&profile->trc[2].parametric, invB)
+        && skcms_Matrix3x3_invert(&profile->toXYZD50, fromXYZD50);
+}
+
 bool skcms_Transform(const void*             src,
                      skcms_PixelFormat       srcFmt,
                      skcms_AlphaFormat       srcAlpha,
@@ -427,6 +445,11 @@ bool skcms_Transform(const void*             src,
         srcAlpha == skcms_AlphaFormat_PremulLinear ||
         dstAlpha == skcms_AlphaFormat_PremulLinear) {
 
+        if (!prep_for_destination(dstProfile,
+                                  &from_xyz, &inv_dst_tf_r, &inv_dst_tf_b, &inv_dst_tf_g)) {
+            return false;
+        }
+
         if (srcProfile->has_A2B) {
             if (srcProfile->A2B.input_channels) {
                 for (int i = 0; i < (int)srcProfile->A2B.input_channels; i++) {
@@ -497,11 +520,6 @@ bool skcms_Transform(const void*             src,
             *ops++ = Op_unpremul;
         }
 
-        // We only support destination gamuts that can be transformed from XYZD50.
-        if (!dstProfile->has_toXYZD50) {
-            return false;
-        }
-
         // A2B sources should already be in XYZD50 at this point.
         // Others still need to be transformed using their toXYZD50 matrix.
         // N.B. There are profiles that contain both A2B tags and toXYZD50 matrices.
@@ -517,9 +535,6 @@ bool skcms_Transform(const void*             src,
         // There's a chance the source and destination gamuts are identical,
         // in which case we can skip the gamut transform.
         if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3))) {
-            if (!skcms_Matrix3x3_invert(&dstProfile->toXYZD50, &from_xyz)) {
-                return false;
-            }
             // Concat the entire gamut transform into from_xyz,
             // now slightly misnamed but it's a handy spot to stash the result.
             from_xyz = concat_3x3(&from_xyz, to_xyz);
@@ -527,25 +542,14 @@ bool skcms_Transform(const void*             src,
             *args++ = &from_xyz;
         }
 
-        // Encode back to dst RGB using its parametric transfer functions.
-        if (dstProfile->has_trc &&
-            dstProfile->trc[0].table_entries == 0 &&
-            dstProfile->trc[1].table_entries == 0 &&
-            dstProfile->trc[2].table_entries == 0 &&
-            skcms_TransferFunction_invert(&dstProfile->trc[0].parametric, &inv_dst_tf_r) &&
-            skcms_TransferFunction_invert(&dstProfile->trc[1].parametric, &inv_dst_tf_g) &&
-            skcms_TransferFunction_invert(&dstProfile->trc[2].parametric, &inv_dst_tf_b)) {
-
-            if (dstAlpha == skcms_AlphaFormat_PremulLinear) {
-                *ops++ = Op_premul;
-            }
-
-            if (!is_identity_tf(&inv_dst_tf_r)) { *ops++ = Op_tf_r; *args++ = &inv_dst_tf_r; }
-            if (!is_identity_tf(&inv_dst_tf_g)) { *ops++ = Op_tf_g; *args++ = &inv_dst_tf_g; }
-            if (!is_identity_tf(&inv_dst_tf_b)) { *ops++ = Op_tf_b; *args++ = &inv_dst_tf_b; }
-        } else {
-            return false;
+        if (dstAlpha == skcms_AlphaFormat_PremulLinear) {
+            *ops++ = Op_premul;
         }
+
+        // Encode back to dst RGB using its parametric transfer functions.
+        if (!is_identity_tf(&inv_dst_tf_r)) { *ops++ = Op_tf_r; *args++ = &inv_dst_tf_r; }
+        if (!is_identity_tf(&inv_dst_tf_g)) { *ops++ = Op_tf_g; *args++ = &inv_dst_tf_g; }
+        if (!is_identity_tf(&inv_dst_tf_b)) { *ops++ = Op_tf_b; *args++ = &inv_dst_tf_b; }
     }
 
     if (dstAlpha == skcms_AlphaFormat_Opaque) {
@@ -581,4 +585,45 @@ bool skcms_Transform(const void*             src,
 #endif
     run(program, arguments, src, dst, n, src_bpp,dst_bpp);
     return true;
+}
+
+static void assert_usable_as_destination(const skcms_ICCProfile* profile) {
+#if defined(NDEBUG)
+    (void)profile;
+#else
+    skcms_Matrix3x3 fromXYZD50;
+    skcms_TransferFunction invR, invG, invB;
+    assert(prep_for_destination(profile, &fromXYZD50, &invR, &invG, &invB));
+#endif
+}
+
+void skcms_EnsureUsableAsDestination(skcms_ICCProfile* profile, const skcms_ICCProfile* fallback) {
+    assert_usable_as_destination(fallback);
+    skcms_ICCProfile ok = *fallback;
+
+    skcms_Matrix3x3 fromXYZD50;
+    if (profile->has_toXYZD50 && skcms_Matrix3x3_invert(&profile->toXYZD50, &fromXYZD50)) {
+        ok.toXYZD50 = profile->toXYZD50;
+    }
+
+    for (int i = 0; profile->has_trc && i < 3; i++) {
+        skcms_TransferFunction inv;
+        if (profile->trc[i].table_entries == 0
+                && skcms_TransferFunction_invert(&profile->trc[i].parametric, &inv)) {
+            ok.trc[i] = profile->trc[i];
+            continue;
+        }
+
+        // Note there's a little gap here that we could fill by allowing fitting
+        // parametric curves to non-invertible parametric curves.
+
+        float max_error;
+        if (skcms_ApproximateCurve(&profile->trc[i], &ok.trc[i].parametric, &max_error)) {
+            // Parametric curves from skcms_ApproximateCurve() are guaranteed to be invertible.
+            ok.trc[i].table_entries = 0;
+        }
+    }
+
+    *profile = ok;
+    assert_usable_as_destination(profile);
 }
