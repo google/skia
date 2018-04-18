@@ -9,8 +9,9 @@
 #define SkTextToPathIter_DEFINED
 
 #include "SkAutoKern.h"
-#include "SkGlyphCache.h"
 #include "SkPaint.h"
+#include "SkStrikeCache.h"
+
 
 class SkTextBaseIter {
 protected:

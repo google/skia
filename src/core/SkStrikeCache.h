@@ -11,7 +11,6 @@
 #include "SkDescriptor.h"
 #include "SkSpinlock.h"
 #include "SkTemplates.h"
-#include "SkArenaAlloc.h"
 
 class SkGlyphCache;
 class SkTraceMemoryDump;
@@ -30,19 +29,35 @@ class SkTraceMemoryDump;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkGlyphCache;
-
 class SkStrikeCache {
+    struct Node;
+
 public:
     SkStrikeCache() = default;
     ~SkStrikeCache();
 
-    static void AttachCache(SkGlyphCache* cache);
 
-    using ExclusiveStrikePtr =
-        std::unique_ptr<
-            SkGlyphCache,
-            SkFunctionWrapper<void, SkGlyphCache, SkStrikeCache::AttachCache>>;
+    class ExclusiveStrikePtr {
+    public:
+        explicit ExclusiveStrikePtr(Node*);
+        ExclusiveStrikePtr();
+        ExclusiveStrikePtr(const ExclusiveStrikePtr&) = delete;
+        ExclusiveStrikePtr& operator = (const ExclusiveStrikePtr&) = delete;
+        ExclusiveStrikePtr(ExclusiveStrikePtr&&);
+        ExclusiveStrikePtr& operator = (ExclusiveStrikePtr&&);
+        ~ExclusiveStrikePtr();
+
+        SkGlyphCache* get() const;
+        SkGlyphCache* operator -> () const;
+        SkGlyphCache& operator *  () const;
+        explicit operator bool () const;
+        friend bool operator == (const ExclusiveStrikePtr&, const ExclusiveStrikePtr&);
+        friend bool operator == (const ExclusiveStrikePtr&, decltype(nullptr));
+        friend bool operator == (decltype(nullptr), const ExclusiveStrikePtr&);
+
+    private:
+        Node* fNode;
+    };
 
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
 
@@ -76,7 +91,7 @@ public:
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
     // call when a glyphcache is available for caching (i.e. not in use)
-    void attachCache(SkGlyphCache *cache);
+    void attachNode(Node* node);
     ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
 
     void purgeAll(); // does not change budget
@@ -99,20 +114,13 @@ public:
 #endif
 
 private:
-    friend class SkGlyphCache;
-    struct Node {
-        Node(const SkDescriptor& desc) : fDesc{desc} {}
-        const SkDescriptor& getDescriptor() const {return *fDesc.getDesc(); }
-        SkGlyphCache* fNext{nullptr};
-        SkGlyphCache* fPrev{nullptr};
-        SkAutoDescriptor fDesc;
-    };
+    static void Attach(Node* node);
 
     // The following methods can only be called when mutex is already held.
-    SkGlyphCache* internalGetHead() const { return fHead; }
-    SkGlyphCache* internalGetTail() const;
-    void internalDetachCache(SkGlyphCache*);
-    void internalAttachCacheToHead(SkGlyphCache*);
+    Node* internalGetHead() const { return fHead; }
+    Node* internalGetTail() const;
+    void internalDetachCache(Node*);
+    void internalAttachToHead(Node*);
 
     // Checkout budgets, modulated by the specified min-bytes-needed-to-purge,
     // and attempt to purge caches to match.
@@ -122,7 +130,7 @@ private:
     void forEachStrike(std::function<void(const SkGlyphCache&)> visitor) const;
 
     mutable SkSpinlock fLock;
-    SkGlyphCache*      fHead{nullptr};
+    Node*              fHead{nullptr};
     size_t             fTotalMemoryUsed{0};
     size_t             fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
     int32_t            fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};

@@ -6,6 +6,7 @@
  */
 
 #include "SkData.h"
+#include "SkGlyphCache.h"
 #include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
 #include "SkPDFConvertType1FontStream.h"

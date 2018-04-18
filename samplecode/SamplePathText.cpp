@@ -12,6 +12,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkStrikeCache.h"
 #include "SkTaskGroup.h"
 #include "sk_tool_utils.h"
 

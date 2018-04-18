@@ -6,6 +6,7 @@
  */
 
 #include "SkGlyphCache.h"
+
 #include "SkGraphics.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
@@ -15,10 +16,10 @@
 #include <cctype>
 
 SkGlyphCache::SkGlyphCache(
-        const SkDescriptor& desc,
-        std::unique_ptr<SkScalerContext> scaler,
-        const SkPaint::FontMetrics& fontMetrics)
-    : Node{desc}
+    const SkDescriptor& desc,
+    std::unique_ptr<SkScalerContext> scaler,
+    const SkPaint::FontMetrics& fontMetrics)
+    : fDesc{desc}
     , fScalerContext{std::move(scaler)}
     , fFontMetrics(fontMetrics)
 {
@@ -32,6 +33,10 @@ SkGlyphCache::~SkGlyphCache() {
             delete g->fPathData->fPath;
         }
     });
+}
+
+const SkDescriptor& SkGlyphCache::getDescriptor() const {
+    return *fDesc.getDesc();
 }
 
 SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(SkPackedUnicharID packedUnicharID) {
@@ -399,23 +404,6 @@ void SkGlyphCache::validate() const {
         }
     }
 #endif
-}
-
-void SkStrikeCache::validate() const {
-    size_t computedBytes = 0;
-    int computedCount = 0;
-
-    const SkGlyphCache* head = fHead;
-    while (head != nullptr) {
-        computedBytes += head->fMemoryUsed;
-        computedCount += 1;
-        head = head->fNext;
-    }
-
-    SkASSERTF(fCacheCount == computedCount, "fCacheCount: %d, computedCount: %d", fCacheCount,
-              computedCount);
-    SkASSERTF(fTotalMemoryUsed == computedBytes, "fTotalMemoryUsed: %d, computedBytes: %d",
-              fTotalMemoryUsed, computedBytes);
 }
 
 #endif
