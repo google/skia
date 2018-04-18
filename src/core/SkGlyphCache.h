@@ -187,7 +187,7 @@ private:
     };
 
     SkGlyphCache(const SkDescriptor& desc, std::unique_ptr<SkScalerContext> scaler,
-                 const SkPaint::FontMetrics&);
+                 const SkPaint::FontMetrics&, const SkStrikeClientImpl::DiscardableHandle&);
     ~SkGlyphCache();
 
     // Return the SkGlyph* associated with MakeID. The id parameter is the
