@@ -235,31 +235,74 @@ using ExcludedTerm = GrPathUtils::ExcludedTerm;
 // chopped such that a box of radius 'padRadius', centered at any point along the curve segment, is
 // guaranteed to not cross the tangent lines at the inflection points (a.k.a lines L & M).
 //
-// 'chops' will be filled with 4 T values. The segments between T0..T1 and T2..T3 must be drawn with
-// flat lines instead of cubics.
+// 'chops' will be filled with 0, 2, or 4 T values. The segments between T0..T1 and T2..T3 must be
+// drawn with flat lines instead of cubics.
 //
 // A serpentine cubic has two inflection points, so this method takes Sk2f and computes the padding
 // for both in SIMD.
-static inline void find_chops_around_inflection_points(float padRadius, const Sk2f& t,
-                                                       const Sk2f& s, const SkMatrix& CIT,
-                                                       ExcludedTerm skipTerm,
+static inline void find_chops_around_inflection_points(float padRadius, Sk2f tl, Sk2f sl,
+                                                       const SkMatrix& CIT, ExcludedTerm skipTerm,
                                                        SkSTArray<4, float>* chops) {
     SkASSERT(chops->empty());
     SkASSERT(padRadius >= 0);
 
-    Sk2f Clx = s*s*s;
-    Sk2f Cly = (ExcludedTerm::kLinearTerm == skipTerm) ? s*s*t*-3 : s*t*t*3;
+    // The homogeneous parametric functions for distance from lines L & M are:
+    //
+    //     l(t,s) = (t*sl - s*tl)^3
+    //     m(t,s) = (t*sm - s*tm)^3
+    //
+    // See "Resolution Independent Curve Rendering using Programmable Graphics Hardware",
+    // 4.3 Finding klmn:
+    //
+    // https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
+    //
+    // From here on we use Sk2f with "L" names, but the second lane will be for line M.
+    tl = (sl > 0).thenElse(tl, -tl); // Tl=tl/sl is the triple root of l(t,s). Normalize so s >= 0.
+    sl = sl.abs();
 
-    Sk2f Lx = CIT[0] * Clx + CIT[3] * Cly;
-    Sk2f Ly = CIT[1] * Clx + CIT[4] * Cly;
+    // Convert l(t,s), m(t,s) to power-basis form:
+    //
+    //                                                  | l3  m3 |
+    //    |l(t,s)  m(t,s)| = |t^3  t^2*s  t*s^2  s^3| * | l2  m2 |
+    //                                                  | l1  m1 |
+    //                                                  | l0  m0 |
+    //
+    Sk2f l3 = sl*sl*sl;
+    Sk2f l2or1 = (ExcludedTerm::kLinearTerm == skipTerm) ? sl*sl*tl*-3 : sl*tl*tl*3;
 
-    Sk2f pad = padRadius * (Lx.abs() + Ly.abs());
-    pad = (pad * s >= 0).thenElse(pad, -pad);
-    pad = Sk2f(std::cbrt(pad[0]), std::cbrt(pad[1]));
+    // The equation for line L can be found as follows:
+    //
+    //     L = C^-1 * (l excluding skipTerm)
+    //
+    // (See comments for GrPathUtils::calcCubicInverseTransposePowerBasisMatrix.)
+    Sk2f Lx = CIT[0] * l3 + CIT[3] * l2or1;
+    Sk2f Ly = CIT[1] * l3 + CIT[4] * l2or1;
 
-    Sk2f leftT = (t - pad) / s;
-    Sk2f rightT = (t + pad) / s;
-    Sk2f::Store2(chops->push_back_n(4), leftT, rightT);
+    // A box of radius "padRadius" is touching line L if "center dot L" is less than the Manhattan
+    // with of L. (See rationale in are_collinear.)
+    Sk2f Lwidth = Lx.abs() + Ly.abs();
+    Sk2f pad = Lwidth * padRadius;
+
+    // Will T=(t + cbrt(pad))/s be greater than 0? No need to solve roots outside T=0..1.
+    Sk2f insideLeftPad = pad + tl*tl*tl;
+
+    // Will T=(t - cbrt(pad))/s be less than 1? No need to solve roots outside T=0..1.
+    Sk2f tms = tl - sl;
+    Sk2f insideRightPad = pad - tms*tms*tms;
+
+    // Solve for the T values where abs(l(T)) = pad.
+    if (insideLeftPad[0] > 0 && insideRightPad[0] > 0) {
+        float padT = cbrtf(pad[0]);
+        Sk2f pts = (tl[0] + Sk2f(-padT, +padT)) / sl[0];
+        pts.store(chops->push_back_n(2));
+    }
+
+    // Solve for the T values where abs(m(T)) = pad.
+    if (insideLeftPad[1] > 0 && insideRightPad[1] > 0) {
+        float padT = cbrtf(pad[1]);
+        Sk2f pts = (tl[1] + Sk2f(-padT, +padT)) / sl[1];
+        pts.store(chops->push_back_n(2));
+    }
 }
 
 static inline void swap_if_greater(float& a, float& b) {
@@ -277,58 +320,114 @@ static inline void swap_if_greater(float& a, float& b) {
 //
 // A loop intersection falls at two different T values, so this method takes Sk2f and computes the
 // padding for both in SIMD.
-static inline void find_chops_around_loop_intersection(float padRadius, const Sk2f& t,
-                                                       const Sk2f& s, const SkMatrix& CIT,
-                                                       ExcludedTerm skipTerm,
+static inline void find_chops_around_loop_intersection(float padRadius, Sk2f t2, Sk2f s2,
+                                                       const SkMatrix& CIT, ExcludedTerm skipTerm,
                                                        SkSTArray<4, float>* chops) {
     SkASSERT(chops->empty());
     SkASSERT(padRadius >= 0);
 
-    Sk2f T2 = t/s;
-    Sk2f T1 = SkNx_shuffle<1,0>(T2);
-    Sk2f Cl = (ExcludedTerm::kLinearTerm == skipTerm) ? T2*-2 - T1 : T2*T2 + T2*T1*2;
-    Sk2f Lx = Cl * CIT[3] + CIT[0];
-    Sk2f Ly = Cl * CIT[4] + CIT[1];
+    // The parametric functions for distance from lines L & M are:
+    //
+    //     l(T) = (T - Td)^2 * (T - Te)
+    //     m(T) = (T - Td) * (T - Te)^2
+    //
+    // See "Resolution Independent Curve Rendering using Programmable Graphics Hardware",
+    // 4.3 Finding klmn:
+    //
+    // https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
+    Sk2f T2 = t2/s2; // T2 is the double root of l(T).
+    Sk2f T1 = SkNx_shuffle<1,0>(T2); // T1 is the other root of l(T).
 
-    Sk2f bloat = Sk2f(+.5f * padRadius, -.5f * padRadius) * (Lx.abs() + Ly.abs());
-    Sk2f q = (1.f/3) * (T2 - T1);
+    // Convert l(T), m(T) to power-basis form:
+    //
+    //                                      |  1   1 |
+    //    |l(T)  m(T)| = |T^3  T^2  T  1| * | l2  m2 |
+    //                                      | l1  m1 |
+    //                                      | l0  m0 |
+    //
+    // From here on we use Sk2f with "L" names, but the second lane will be for line M.
+    Sk2f l2 = SkNx_fma(Sk2f(-2), T2, -T1);
+    Sk2f l1 = T2 * SkNx_fma(Sk2f(2), T1, T2);
+    Sk2f l0 = -T2*T2*T1;
 
-    Sk2f qqq = q*q*q;
-    Sk2f discr = qqq*bloat*2 + bloat*bloat;
+    // The equation for line L can be found as follows:
+    //
+    //     L = C^-1 * (l excluding skipTerm)
+    //
+    // (See comments for GrPathUtils::calcCubicInverseTransposePowerBasisMatrix.)
+    Sk2f l2or1 = (ExcludedTerm::kLinearTerm == skipTerm) ? l2 : l1;
+    Sk2f Lx = CIT[3] * l2or1 + CIT[0]; // l3 is always 1.
+    Sk2f Ly = CIT[4] * l2or1 - CIT[1];
 
-    float numRoots[2], D[2];
-    (discr < 0).thenElse(3, 1).store(numRoots);
-    (T2 - q).store(D);
+    // A box of radius "padRadius" is touching line L if "center dot L" is less than the Manhattan
+    // with of L. (See rationale in are_collinear.)
+    Sk2f Lwidth = Lx.abs() + Ly.abs();
+    Sk2f pad = Lwidth * padRadius;
 
-    // Values for calculating one root.
-    float R[2], QQ[2];
-    if ((discr >= 0).anyTrue()) {
-        Sk2f r = qqq + bloat;
-        Sk2f s = r.abs() + discr.sqrt();
-        (r > 0).thenElse(-s, s).store(R);
-        (q*q).store(QQ);
-    }
+    // Is l(T=0) outside the padding around line L?
+    Sk2f lT0 = l0; // l(T=0) = |0  0  0  1| dot |1  l2  l1  l0| = l0
+    Sk2f outsideT0 = lT0.abs() - pad;
+
+    // Is l(T=1) outside the padding around line L?
+    Sk2f lT1 = (Sk2f(1) + l2 + l1 + l0).abs(); // l(T=1) = |1  1  1  1| dot |1  l2  l1  l0|
+    Sk2f outsideT1 = lT1.abs() - pad;
+
+    // Values for solving the cubic.
+    Sk2f p, q, qqq, discr, numRoots, D;
+    bool hasDiscr = false;
+
+    // Values for calculating one root (rarely needed).
+    Sk2f R, QQ;
+    bool hasOneRootVals = false;
 
     // Values for calculating three roots.
-    float P[2], cosTheta3[2];
-    if ((discr < 0).anyTrue()) {
-        (q.abs() * -2).store(P);
-        ((q >= 0).thenElse(1, -1) + bloat / qqq.abs()).store(cosTheta3);
-    }
+    Sk2f P, cosTheta3;
+    bool hasThreeRootVals = false;
 
+    // Solve for the T values where l(T) = +pad and m(T) = -pad.
     for (int i = 0; i < 2; ++i) {
+        float T = T2[i]; // T is the point we are chopping around.
+        if ((T < 0 && outsideT0[i] >= 0) || (T > 1 && outsideT1[i] >= 0)) {
+            // The padding around T is completely out of range. No point solving for it.
+            continue;
+        }
+
+        if (!hasDiscr) {
+            p = Sk2f(+.5f, -.5f) * pad;
+            q = (1.f/3) * (T2 - T1);
+            qqq = q*q*q;
+            discr = qqq*p*2 + p*p;
+            numRoots = (discr < 0).thenElse(3, 1);
+            D = T2 - q;
+            hasDiscr = true;
+        }
+
         if (1 == numRoots[i]) {
-            // When there is only one root, line L chops from root..1, line M chops from 0..root.
+            if (!hasOneRootVals) {
+                Sk2f r = qqq + p;
+                Sk2f s = r.abs() + discr.sqrt();
+                R = (r > 0).thenElse(-s, s);
+                QQ = q*q;
+                hasOneRootVals = true;
+            }
+
+            float A = cbrtf(R[i]);
+            float B = A != 0 ? QQ[i]/A : 0;
+            // When there is only one root, ine L chops from root..1, line M chops from 0..root.
             if (1 == i) {
                 chops->push_back(0);
             }
-            float A = cbrtf(R[i]);
-            float B = A != 0 ? QQ[i]/A : 0;
             chops->push_back(A + B + D[i]);
             if (0 == i) {
                 chops->push_back(1);
             }
             continue;
+        }
+
+        if (!hasThreeRootVals) {
+            P = q.abs() * -2;
+            cosTheta3 = (q >= 0).thenElse(1, -1) + p / qqq.abs();
+            hasThreeRootVals = true;
         }
 
         static constexpr float k2PiOver3 = 2 * SK_ScalarPI / 3;
@@ -390,7 +489,7 @@ void GrCCGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopInter
     } else {
         find_chops_around_loop_intersection(loopIntersectPad, t, s, CIT, skipTerm, &chops);
     }
-    if (chops[1] >= chops[2]) {
+    if (4 == chops.count() && chops[1] >= chops[2]) {
         // This just the means the KLM roots are so close that their paddings overlap. We will
         // approximate the entire middle section, but still have it chopped midway. For loops this
         // chop guarantees the append code only sees convex segments. Otherwise, it means we are (at
