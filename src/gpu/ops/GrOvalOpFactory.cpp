@@ -195,10 +195,13 @@ private:
                 }
                 fragBuilder->codeAppend("edgeAlpha *= clip;");
                 if (cgp.fInRoundCapCenters) {
+                    // We compute coverage of the round caps as circles at the butt caps produced
+                    // by the clip planes. The inverse of the clip planes is applied so that there
+                    // is no double counting.
                     fragBuilder->codeAppendf(
-                            "half dcap1 = circleEdge.z * (%s - length(circleEdge.xy - "
+                            "half dcap1 = (1 - clip) * circleEdge.z * (%s - length(circleEdge.xy - "
                             "                                         roundCapCenters.xy));"
-                            "half dcap2 = circleEdge.z * (%s - length(circleEdge.xy - "
+                            "half dcap2 = (1 - clip) * circleEdge.z * (%s - length(circleEdge.xy - "
                             "                                         roundCapCenters.zw));"
                             "half capAlpha = max(dcap1, 0) + max(dcap2, 0);"
                             "edgeAlpha = min(edgeAlpha + capAlpha, 1.0);",
