@@ -46,6 +46,30 @@
       "revId": "24e9b11fe80908175ac0d3674d3bd6675b45d32b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccccb752_b8ef3a2b",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-18T16:41:49Z",
+      "side": 1,
+      "message": "For serialization, I think we can avoid using a vector altogether going forward. If its not too cheap to keep tracking the size required for serialization as you\u0027re adding glyphs to send (I don\u0027t think it will be), then we can allocate a shared memory block of this size and serialize directly into it. This avoids this intermediate allocation and subsequent copy too.\n\nI think this didn\u0027t show up in profiling because serialization only happens during first draws when the glyphs are missing. The analysis ends up being the hot path because that\u0027s the cost you have to pay for every draw, even  if its a complete cache hit.",
+      "parentUuid": "93b3a891_dc286844",
+      "range": {
+        "startLine": 146,
+        "startChar": 4,
+        "endLine": 146,
+        "endChar": 69
+      },
+      "revId": "24e9b11fe80908175ac0d3674d3bd6675b45d32b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
