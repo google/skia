@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Sk4px.h"
 #include "SkBlitMask.h"
 #include "SkColor.h"
 #include "SkColorData.h"
@@ -78,11 +79,20 @@ bool SkBlitMask::BlitColor(const SkPixmap& device, const SkMask& mask,
 static void A8_RowProc_Blend(
         SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
     const uint8_t* SK_RESTRICT mask = static_cast<const uint8_t*>(maskIn);
+
+#ifndef SK_SUPPORT_LEGACY_A8_MASKBLITTER
+    Sk4px::MapDstSrcAlpha(count, dst, src, mask,
+        [](const Sk4px& d, const Sk4px& s, const Sk4px& aa) {
+            const auto s_aa = s.approxMulDiv255(aa);
+            return s_aa + d.approxMulDiv255(s_aa.alphas().inv());
+        });
+#else
     for (int i = 0; i < count; ++i) {
         if (mask[i]) {
             dst[i] = SkBlendARGB32(src[i], dst[i], mask[i]);
         }
     }
+#endif
 }
 
 // expand the steps that SkAlphaMulQ performs, but this way we can
@@ -97,6 +107,13 @@ static void A8_RowProc_Blend(
 static void A8_RowProc_Opaque(
         SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
     const uint8_t* SK_RESTRICT mask = static_cast<const uint8_t*>(maskIn);
+
+#ifndef SK_SUPPORT_LEGACY_A8_MASKBLITTER
+    Sk4px::MapDstSrcAlpha(count, dst, src, mask,
+        [](const Sk4px& d, const Sk4px& s, const Sk4px& aa) {
+            return (s * aa + d * aa.inv()).div255();
+        });
+#else
     for (int i = 0; i < count; ++i) {
         int m = mask[i];
         if (m) {
@@ -117,6 +134,7 @@ static void A8_RowProc_Opaque(
 #endif
         }
     }
+#endif // SK_SUPPORT_LEGACY_A8_MASKBLITTER
 }
 
 static int upscale31To255(int value) {
