@@ -165,10 +165,15 @@ public:
     ~SkDngMemoryAllocator() override {}
 
     dng_memory_block* Allocate(uint32 size) override {
-        // To avoid arbitary allocation requests which might lead to out-of-memory, limit the
-        // amount of memory that can be allocated at once. The memory limit is based on experiments
-        // and supposed to be sufficient for all valid DNG images.
-        if (size > 300 * 1024 * 1024) {  // 300 MB
+        // To avoid arbitary allocation requests which might lead to out-of-memory,
+        // limit the amount of memory that can be allocated at once. The memory
+        // limit was increased to handle DNG with non-identity WarpRectilinear
+        // opcodes. See b/78120086.
+        constexpr size_t memoryLimit = 500 * 1024 * 1024; // 500 MB
+        if (size > memoryLimit) {
+            SkCodecPrintf("DNG SDK attempted to allocate too much memory.\n"
+                          "\tRequest (bytes): %i\n\tArbitrary limit: %i", size,
+                          memoryLimit);
             ThrowMemoryFull();
         }
         return dng_memory_allocator::Allocate(size);
