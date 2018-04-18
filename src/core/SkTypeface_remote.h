@@ -16,16 +16,15 @@
 #include "SkScalerContext.h"
 #include "SkTypeface.h"
 
-class SkStrikeClient;
+class SkStrikeClientImpl;
 class SkTypefaceProxy;
 
 class SkScalerContextProxy : public SkScalerContext {
 public:
-    SkScalerContextProxy(
-            sk_sp<SkTypeface> tf,
-            const SkScalerContextEffects& effects,
-            const SkDescriptor* desc,
-            SkStrikeClient* rsc);
+    SkScalerContextProxy(sk_sp<SkTypeface> tf,
+                         const SkScalerContextEffects& effects,
+                         const SkDescriptor* desc,
+                         SkStrikeClientImpl* rsc);
 
 protected:
     unsigned generateGlyphCount() override;
@@ -46,22 +45,18 @@ private:
     SkTypefaceProxy* typefaceProxy();
 
     SkArenaAlloc          fAlloc{kMinAllocAmount};
-    SkStrikeClient* const fClient;
+    SkStrikeClientImpl* const fClient;
     typedef SkScalerContext INHERITED;
 };
 
 class SkTypefaceProxy : public SkTypeface {
 public:
-    SkTypefaceProxy(
-            SkFontID fontId,
-            int glyphCount,
-            const SkFontStyle& style,
-            bool isFixed,
-            SkStrikeClient* rsc)
-            : INHERITED{style, false}
-            , fFontId{fontId}
-            , fGlyphCount{glyphCount}
-            , fRsc{rsc} { }
+    SkTypefaceProxy(SkFontID fontId,
+                    int glyphCount,
+                    const SkFontStyle& style,
+                    bool isFixed,
+                    SkStrikeClientImpl* rsc)
+            : INHERITED{style, false}, fFontId{fontId}, fGlyphCount{glyphCount}, fRsc{rsc} {}
     SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
     static SkTypefaceProxy* DownCast(SkTypeface* typeface) {
@@ -138,7 +133,9 @@ protected:
 private:
     const SkFontID        fFontId;
     const int             fGlyphCount;
-    SkStrikeClient* const fRsc;
+
+    // TODO: Does this need a ref to the strike client? If yes, make it a weak ref.
+    SkStrikeClientImpl* const fRsc;
 
     typedef SkTypeface INHERITED;
 };
