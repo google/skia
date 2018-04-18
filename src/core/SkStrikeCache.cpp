@@ -278,14 +278,25 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
     // we start at the tail and proceed backwards, as the linklist is in LRU
     // order, with unimportant entries at the tail.
     SkGlyphCache* cache = this->internalGetTail();
-    while (cache != nullptr &&
-           (bytesFreed < bytesNeeded || countFreed < countNeeded)) {
-        SkGlyphCache* prev = cache->fPrev;
-        bytesFreed += cache->fMemoryUsed;
-        countFreed += 1;
 
+    // As we find caches that can't be purged, we move them to the front of the
+    // list. Attempt to delete caches until none of the caches in the list can
+    // be purged.
+    SkGlyphCache* firstNonPurgeableCache = nullptr;
+    while (cache != nullptr && (bytesFreed < bytesNeeded || countFreed < countNeeded) &&
+           cache != firstNonPurgeableCache) {
+        SkGlyphCache* prev = cache->fPrev;
         this->internalDetachCache(cache);
-        delete cache;
+
+        if (cache->fDiscardableHandle.deleteHandle()) {
+            bytesFreed += cache->fMemoryUsed;
+            countFreed += 1;
+            delete cache;
+        } else {
+            this->internalAttachCacheToHead(cache);
+        }
+
+        if (!firstNonPurgeableCache) firstNonPurgeableCache = cache;
         cache = prev;
     }
 
@@ -367,10 +378,11 @@ void SkGraphics::PurgeFontCache() {
 }
 
 SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
-    const SkDescriptor& desc,
-    std::unique_ptr<SkScalerContext> scaler,
-    SkPaint::FontMetrics* maybeMetrics)
-{
+        const SkDescriptor& desc,
+        std::unique_ptr<SkScalerContext>
+                scaler,
+        SkPaint::FontMetrics* maybeMetrics,
+        SkStrikeClientImpl::DiscardableHandle discardableHandle) {
     SkPaint::FontMetrics fontMetrics;
     if (maybeMetrics != nullptr) {
         fontMetrics = *maybeMetrics;
@@ -378,7 +390,8 @@ SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
         scaler->getFontMetrics(&fontMetrics);
     }
 
-    return SkExclusiveStrikePtr(new SkGlyphCache(desc, move(scaler), fontMetrics));
+    return SkExclusiveStrikePtr(
+            new SkGlyphCache(desc, move(scaler), fontMetrics, discardableHandle));
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
