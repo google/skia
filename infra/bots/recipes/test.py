@@ -554,10 +554,6 @@ def dm_flags(api, bot):
     match.append('~WritePixels')  # skia:4711
     match.append('~PremulAlphaRoundTrip_Gpu')  # skia:7501
 
-  if 'DDL3' in bot:
-    match.append('~persp_shaders_bw')       # skia:7751
-    match.append('~persp_shaders_aa')       # skia:7751
-
   if 'Chromecast' in bot:
     if 'GPU' in bot:
       # skia:6687

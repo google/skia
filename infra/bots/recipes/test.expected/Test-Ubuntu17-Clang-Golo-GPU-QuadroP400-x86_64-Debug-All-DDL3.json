@@ -338,9 +338,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~persp_shaders_bw",
-      "~persp_shaders_aa",
       "--nonativeFonts",
       "--verbose"
     ],
