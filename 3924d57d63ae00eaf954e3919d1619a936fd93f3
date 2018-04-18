@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cae2dd53_9e8ba157",
+        "filename": "src/core/SkTDynamicHash.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-18T20:01:50Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem like the right explanation for the implementation below.  Reading this explanation, I\u0027d expect we grow when\n\n       deleted         kPurgePercent\n   ---------------  \u003c  -------------\n   deleted + count          100\n\nI\u0027d think that\u0027d make the check,\n\n   if (100 * deleted \u003c kPurgePercent * (deleted + count)) {\n      ...\n   }",
+      "range": {
+        "startLine": 23,
+        "startChar": 37,
+        "endLine": 23,
+        "endChar": 100
+      },
+      "revId": "3924d57d63ae00eaf954e3919d1619a936fd93f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
