@@ -609,6 +609,8 @@ public:
         /** Initializes layer with the contents of the previous layer. */
         kInitWithPrevious_SaveLayerFlag       = 1 << 2,
 
+        kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag  = 1 << 3,
+
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
         /** To be deprecated soon. */
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
