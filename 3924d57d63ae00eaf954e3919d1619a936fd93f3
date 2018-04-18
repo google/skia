@@ -22,6 +22,30 @@
       "revId": "3924d57d63ae00eaf954e3919d1619a936fd93f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "984d5f63_9f7bdb7d",
+        "filename": "src/core/SkTDynamicHash.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-18T20:59:56Z",
+      "side": 1,
+      "message": "Doh, I bounced back and forth between the two and landed in different places.\n\nI wonder if making this tunable is too much footgun... I don\u0027t expect anyone to tweak it, so maybe a simpler/hardcoded heuristic would suffice?\n\nPTAL",
+      "parentUuid": "cae2dd53_9e8ba157",
+      "range": {
+        "startLine": 23,
+        "startChar": 37,
+        "endLine": 23,
+        "endChar": 100
+      },
+      "revId": "3924d57d63ae00eaf954e3919d1619a936fd93f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
