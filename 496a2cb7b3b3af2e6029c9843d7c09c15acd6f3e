@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0be1927_0a154833",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-19T18:52:32Z",
+      "side": 1,
+      "message": "I\u0027m not sure I really get,\n\n   1) the point of canDelete() / onCanDelete();\n   2) the point of marking onCanDelete() protected when it\u0027s pure virtual.\n   3) why we require onCanDelete() to be const\n\n\nCan\u0027t this be\n\n  struct SkStrikePinner {\n      virtual ~SkStrikePinner() {}\n      virtual bool canDelete() \u003d 0;\n  };\n\n?",
+      "revId": "496a2cb7b3b3af2e6029c9843d7c09c15acd6f3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
