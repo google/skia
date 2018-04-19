@@ -314,11 +314,127 @@
   },
   {
     "cmd": [
+      "which",
+      "ssh"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/build/out"
+    },
+    "infra_step": true,
+    "name": "which ssh"
+  },
+  {
+    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
+      "root@192.168.1.2",
+      "whoami"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/build/out"
+    },
+    "infra_step": true,
+    "name": "None of your business"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "-vvv",
+      "root@192.168.1.2",
+      "ls -la",
+      "/"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/build/out"
+    },
+    "infra_step": true,
+    "name": "Exploring root"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "-vvv",
+      "root@192.168.1.2",
+      "ls -la",
+      "/cache/skia"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/build/out"
+    },
+    "infra_step": true,
+    "name": "Exploring skia"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "-vvv",
+      "root@192.168.1.2",
+      "ls -la",
+      "/cache/skia/bin"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/build/out"
+    },
+    "infra_step": true,
+    "name": "Exploring skia/bin"
+  },
+  {
+    "cmd": [
+      "scp",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-vvv",
+      "[START_DIR]/build/out/Debug/nanobench",
+      "root@192.168.1.2:/cache/skia/bin"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/build/out"
+    },
+    "infra_step": true,
+    "name": "SCP time"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "-vvv",
       "root@192.168.1.2",
       "/cache/skia/bin/nanobench",
       "--nogpu",
@@ -356,6 +472,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "root@192.168.1.2",
       "rm",
       "-r",

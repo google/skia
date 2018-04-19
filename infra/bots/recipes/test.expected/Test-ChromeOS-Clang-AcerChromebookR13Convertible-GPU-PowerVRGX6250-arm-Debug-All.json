@@ -30,6 +30,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "mkdir",
       "-p",
@@ -51,6 +52,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "sudo",
       "mount",
@@ -75,6 +77,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "rm",
       "-rf",
@@ -96,6 +99,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "mkdir",
       "-p",
@@ -165,6 +169,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "cat",
       "/home/chronos/user/SKP_VERSION"
@@ -186,6 +191,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "rm",
       "-f",
@@ -207,6 +213,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "rm",
       "-rf",
@@ -228,6 +235,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "mkdir",
       "-p",
@@ -317,6 +325,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "cat",
       "/home/chronos/user/SK_IMAGE_VERSION"
@@ -338,6 +347,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "rm",
       "-f",
@@ -359,6 +369,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "rm",
       "-rf",
@@ -380,6 +391,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "mkdir",
       "-p",
@@ -469,6 +481,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "cat",
       "/home/chronos/user/SVG_VERSION"
@@ -490,6 +503,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "rm",
       "-f",
@@ -511,6 +525,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "rm",
       "-rf",
@@ -532,6 +547,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "mkdir",
       "-p",
@@ -621,6 +637,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "rm",
       "-rf",
@@ -642,6 +659,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "mkdir",
       "-p",
@@ -836,11 +854,65 @@
   },
   {
     "cmd": [
+      "which",
+      "ssh"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/build/out"
+    },
+    "infra_step": true,
+    "name": "which ssh"
+  },
+  {
+    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
+      "foo@127.0.0.1",
+      "whoami"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/build/out"
+    },
+    "name": "None of your business"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "-vvv",
+      "foo@127.0.0.1",
+      "ls -la",
+      "/"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/build/out"
+    },
+    "name": "Exploring root"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "chmod",
       "+x",
@@ -862,6 +934,7 @@
       "-oBatchMode=yes",
       "-t",
       "-t",
+      "-vvv",
       "foo@127.0.0.1",
       "/home/chronos/user/bin/dm",
       "--resourcePath",

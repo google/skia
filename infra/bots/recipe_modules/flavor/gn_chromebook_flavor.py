@@ -53,7 +53,7 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
       kwargs['infra_step'] = True
 
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', self.user_ip] + list(cmd)
+               '-t', '-t', '-vvv', self.user_ip] + list(cmd)
 
     return self._run(title, ssh_cmd, **kwargs)
 
@@ -223,5 +223,9 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     cmd[0] = '%s/%s' % (self._bin_dir, cmd[0])
     self.copy_file_to_device(app, cmd[0])
 
+    self.m.run(self.m.step, 'which ssh', cmd=['which', 'ssh'], infra_step=True,
+          abort_on_failure=False)
+    self._ssh('None of your business', 'whoami', infra_step=False)
+    self._ssh('Exploring root', 'ls -la', '/', infra_step=False)
     self._ssh('chmod %s' % name, 'chmod', '+x', cmd[0])
     self._ssh(str(name), *cmd)
