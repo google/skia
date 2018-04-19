@@ -109,6 +109,11 @@ def nanobench_flags(api, bot):
       configs = ['angle_d3d11_es2']
       if sample_count is not '':
         configs.append('angle_d3d11_es2_msaa' + sample_count)
+      if 'QuadroP400' in bot:
+        # See skia:7823 and chromium:693090.
+        configs.append('angle_gl_es2')
+        if sample_count is not '':
+          configs.append('angle_gl_es2_msaa' + sample_count)
 
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
@@ -364,6 +369,7 @@ TEST_BUILDERS = [
    'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan',
+  'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan',
   'Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE',
