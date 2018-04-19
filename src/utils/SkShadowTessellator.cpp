@@ -121,7 +121,7 @@ static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScala
     SkScalar rSin = v1.cross(v2);
     SkScalar theta = SkScalarATan2(rSin, rCos);
 
-    int steps = SkScalarFloorToInt(r*theta*kRecipPixelsPerArcSegment);
+    int steps = SkScalarRoundToInt(SkScalarAbs(r*theta*kRecipPixelsPerArcSegment));
 
     SkScalar dTheta = theta / steps;
     *rotSin = SkScalarSinCos(dTheta, rotCos);
