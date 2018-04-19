@@ -339,7 +339,14 @@ private:
      *  This is the same as calling setCount(count() + delta).
      */
     void adjustCount(int delta) {
-        this->setCount(fCount + delta);
+        SkASSERT(delta > 0);
+
+        // We take care to avoid overflow here.
+        // The sum of fCount and delta is at most 4294967294, which fits fine in uint32_t.
+        uint32_t count = (uint32_t)fCount + (uint32_t)delta;
+        SkASSERT_RELEASE( SkTFitsIn<int>(count) );
+
+        this->setCount(SkTo<int>(count));
     }
 
     /**
@@ -352,8 +359,14 @@ private:
      */
     void resizeStorageToAtLeast(int count) {
         SkASSERT(count > fReserve);
-        fReserve = count + 4;
-        fReserve += fReserve / 4;
+
+        // We take care to avoid overflow here.
+        // The maximum value we can get for reserve here is 2684354563, which fits in uint32_t.
+        uint32_t reserve = (uint32_t)count + 4;
+        reserve += reserve / 4;
+        SkASSERT_RELEASE( SkTFitsIn<int>(reserve) );
+
+        fReserve = SkTo<int>(reserve);
         fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
     }
 };
