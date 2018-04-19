@@ -53,7 +53,7 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
       kwargs['infra_step'] = True
 
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', self.user_ip] + list(cmd)
+               '-t', '-t', '-vvv', self.user_ip] + list(cmd)
 
     return self._run(title, ssh_cmd, **kwargs)
 
