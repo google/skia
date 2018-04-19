@@ -107,6 +107,7 @@ TEST_BUILDERS = [
   'Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All',
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN',

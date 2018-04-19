@@ -306,6 +306,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
 
+    if 'SwiftShader' in extra_tokens:
+      ld_library_path.append(self.m.vars.skia_out.join('swiftshader_out'))
+
     if 'MSAN' in extra_tokens:
       # Find the MSAN-built libc++.
       ld_library_path.append(clang_linux + '/msan')
