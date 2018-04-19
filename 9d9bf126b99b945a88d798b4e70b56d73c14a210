@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57cdf083_b39a6780",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-19T18:49:55Z",
+      "side": 1,
+      "message": "I\u0027m a bit unsure about whether this is the best way to manage the lifetime of things here and would be great to get your thoughts too.\n\nThe problem is that chrome will remove its reference to SkStrikeClient once a renderer is terminated. And with that, the DiscardableHandleManager will be destroyed. But the SkStrikeCache instances the client created will live on in the glyph cache. And we need to safely handle their deletion. Right now I\u0027ve made DiscardableHandle that we pass to the cache hold onto a weak ref to the strike client. Does that look correct? I find that a bit error prone because somebody could take a strong ref to the client that may live beyond the DiscardableHandleManager.\n\nAlternately, we can make the DiscardableHandleManager ref-counted instead of SkStrikeClient. And the implementation can ensure that it is valid to use it even after the SkStrikeClient is destroyed. The DiscardableHandle can keep a ref to the DiscardableHandleManager.",
+      "range": {
+        "startLine": 154,
+        "startChar": 13,
+        "endLine": 154,
+        "endChar": 49
+      },
+      "revId": "9d9bf126b99b945a88d798b4e70b56d73c14a210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

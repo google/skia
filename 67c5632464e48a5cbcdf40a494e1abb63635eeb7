@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "728776e9_2456c2f6",
+        "filename": "include/core/SkRemoteGlyphCache.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-19T18:49:55Z",
+      "side": 1,
+      "message": "I pulled it out because some of the includes in SkRemoteGlyphCachePriv had private headers and transitively include more private things which would break when included in chromium. Took another pass and cleaned it up, and merged it back in.",
+      "parentUuid": "f142a1bd_36c96f9f",
+      "range": {
+        "startLine": 5,
+        "startChar": 16,
+        "endLine": 5,
+        "endChar": 23
+      },
+      "revId": "67c5632464e48a5cbcdf40a494e1abb63635eeb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bcdebbcd_f5da3d43",
         "filename": "src/core/SkStrikeCache.h",
         "patchSetId": 14
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-19T17:19:19Z",
       "side": 1,
       "message": "I just created a different API for this. Please see https://skia-review.googlesource.com/c/skia/+/122500, and tell me what you think.",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 30
+      },
+      "revId": "67c5632464e48a5cbcdf40a494e1abb63635eeb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31f37e67_304715c6",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-19T18:49:55Z",
+      "side": 1,
+      "message": "Sure, that looks great. I\u0027ll switch this with an implementation of SkStrikePinner.",
+      "parentUuid": "bcdebbcd_f5da3d43",
       "range": {
         "startLine": 55,
         "startChar": 12,
@@ -68,6 +116,30 @@
       "revId": "67c5632464e48a5cbcdf40a494e1abb63635eeb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fb52674_d8a3c9d0",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-19T18:49:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "650a94d4_3b6dce54",
+      "range": {
+        "startLine": 27,
+        "startChar": 25,
+        "endLine": 27,
+        "endChar": 43
+      },
+      "revId": "67c5632464e48a5cbcdf40a494e1abb63635eeb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
