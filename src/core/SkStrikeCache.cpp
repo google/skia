@@ -30,12 +30,16 @@ static SkStrikeCache& get_globals() {
 
 struct SkStrikeCache::Node {
     Node(const SkDescriptor& desc,
-         std::unique_ptr<SkScalerContext> scaler,
-         const SkPaint::FontMetrics& metrics)
-            : fCache{desc, std::move(scaler), metrics} {}
-    Node*        fNext{nullptr};
-    Node*        fPrev{nullptr};
-    SkGlyphCache fCache;
+        std::unique_ptr<SkScalerContext> scaler,
+        const SkPaint::FontMetrics& metrics,
+        std::unique_ptr<SkStrikePinner> pinner)
+        : fCache{desc, std::move(scaler), metrics}
+        , fPinner{std::move(pinner)} {}
+
+    Node*                           fNext{nullptr};
+    Node*                           fPrev{nullptr};
+    SkGlyphCache                    fCache;
+    std::unique_ptr<SkStrikePinner> fPinner;
 };
 
 SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(SkStrikeCache::Node* node) : fNode{node} {}
@@ -208,6 +212,22 @@ SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc
     }
 
     return SkExclusiveStrikePtr(nullptr);
+}
+
+SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
+        const SkDescriptor& desc,
+        std::unique_ptr<SkScalerContext> scaler,
+        SkPaint::FontMetrics* maybeMetrics,
+        std::unique_ptr<SkStrikePinner> pinner)
+{
+    SkPaint::FontMetrics fontMetrics;
+    if (maybeMetrics != nullptr) {
+        fontMetrics = *maybeMetrics;
+    } else {
+        scaler->getFontMetrics(&fontMetrics);
+    }
+
+    return SkExclusiveStrikePtr(new Node(desc, std::move(scaler), fontMetrics, std::move(pinner)));
 }
 
 void SkStrikeCache::purgeAll() {
@@ -418,28 +438,13 @@ void SkGraphics::PurgeFontCache() {
     SkTypefaceCache::PurgeAll();
 }
 
-SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
-    const SkDescriptor& desc,
-    std::unique_ptr<SkScalerContext> scaler,
-    SkPaint::FontMetrics* maybeMetrics)
-{
-    SkPaint::FontMetrics fontMetrics;
-    if (maybeMetrics != nullptr) {
-        fontMetrics = *maybeMetrics;
-    } else {
-        scaler->getFontMetrics(&fontMetrics);
-    }
-
-    return SkExclusiveStrikePtr(new Node(desc, move(scaler), fontMetrics));
-}
-
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
     const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface)
 {
     auto cache = FindStrikeExclusive(desc);
     if (cache == nullptr) {
         auto scaler = CreateScalerContext(desc, effects, typeface);
-        cache = CreateStrikeExclusive(desc, move(scaler));
+        cache = CreateStrikeExclusive(desc, std::move(scaler));
     }
     return cache;
 }
