@@ -30,12 +30,16 @@ static SkStrikeCache& get_globals() {
 
 struct SkStrikeCache::Node {
     Node(const SkDescriptor& desc,
-         std::unique_ptr<SkScalerContext> scaler,
-         const SkPaint::FontMetrics& metrics)
-            : fCache{desc, std::move(scaler), metrics} {}
-    Node*        fNext{nullptr};
-    Node*        fPrev{nullptr};
-    SkGlyphCache fCache;
+        std::unique_ptr<SkScalerContext> scaler,
+        const SkPaint::FontMetrics& metrics,
+        std::unique_ptr<SkStrikePinner> pinner)
+        : fCache{desc, std::move(scaler), metrics}
+        , fPinner{std::move(pinner)} {}
+
+    Node*                           fNext{nullptr};
+    Node*                           fPrev{nullptr};
+    SkGlyphCache                    fCache;
+    std::unique_ptr<SkStrikePinner> fPinner;
 };
 
 SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(SkStrikeCache::Node* node) : fNode{node} {}
@@ -112,6 +116,39 @@ std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
         scaler = typeface.createScalerContext(effects, &desc, false /* must succeed */);
     }
     return scaler;
+}
+
+SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
+        const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface)
+{
+    auto cache = FindStrikeExclusive(desc);
+    if (cache == nullptr) {
+        auto scaler = CreateScalerContext(desc, effects, typeface);
+        cache = CreateStrikeExclusive(desc, std::move(scaler));
+    }
+    return cache;
+}
+
+SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
+        const SkPaint& paint,
+        const SkSurfaceProps* surfaceProps,
+        SkScalerContextFlags scalerContextFlags,
+        const SkMatrix* deviceMatrix)
+{
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+            paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
+
+    auto tf = SkPaintPriv::GetTypefaceOrDefault(paint);
+
+    return FindOrCreateStrikeExclusive(*desc, effects, *tf);
+}
+
+SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(const SkPaint& paint) {
+    return FindOrCreateStrikeExclusive(
+            paint, nullptr, kFakeGammaAndBoostContrast, nullptr);
 }
 
 void SkStrikeCache::PurgeAll() {
@@ -208,6 +245,22 @@ SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc
     }
 
     return SkExclusiveStrikePtr(nullptr);
+}
+
+SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
+        const SkDescriptor& desc,
+        std::unique_ptr<SkScalerContext> scaler,
+        SkPaint::FontMetrics* maybeMetrics,
+        std::unique_ptr<SkStrikePinner> pinner)
+{
+    SkPaint::FontMetrics fontMetrics;
+    if (maybeMetrics != nullptr) {
+        fontMetrics = *maybeMetrics;
+    } else {
+        scaler->getFontMetrics(&fontMetrics);
+    }
+
+    return SkExclusiveStrikePtr(new Node(desc, std::move(scaler), fontMetrics, std::move(pinner)));
 }
 
 void SkStrikeCache::purgeAll() {
@@ -327,17 +380,19 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
     size_t  bytesFreed = 0;
     int     countFreed = 0;
 
-    // we start at the tail and proceed backwards, as the linklist is in LRU
+    // Start at the tail and proceed backwards deleting; the list is in LRU
     // order, with unimportant entries at the tail.
     Node* node = this->internalGetTail();
-    while (node != nullptr &&
-           (bytesFreed < bytesNeeded || countFreed < countNeeded)) {
+    while (node != nullptr && (bytesFreed < bytesNeeded || countFreed < countNeeded)) {
         Node* prev = node->fPrev;
-        bytesFreed += node->fCache.getMemoryUsed();
-        countFreed += 1;
 
-        this->internalDetachCache(node);
-        delete node;
+        // Only delete if the strike is not pinned.
+        if (node->fPinner == nullptr || node->fPinner->canDelete()) {
+            bytesFreed += node->fCache.getMemoryUsed();
+            countFreed += 1;
+            this->internalDetachCache(node);
+            delete node;
+        }
         node = prev;
     }
 
@@ -381,6 +436,27 @@ void SkStrikeCache::internalDetachCache(Node* node) {
     node->fPrev = node->fNext = nullptr;
 }
 
+#ifdef SK_DEBUG
+void SkStrikeCache::validate() const {
+    size_t computedBytes = 0;
+    int computedCount = 0;
+
+    const Node* node = fHead;
+    while (node != nullptr) {
+        computedBytes += node->fCache.getMemoryUsed();
+        computedCount += 1;
+        node = node->fNext;
+    }
+
+    SkASSERTF(fCacheCount == computedCount, "fCacheCount: %d, computedCount: %d", fCacheCount,
+              computedCount);
+    SkASSERTF(fTotalMemoryUsed == computedBytes, "fTotalMemoryUsed: %d, computedBytes: %d",
+              fTotalMemoryUsed, computedBytes);
+}
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 size_t SkGraphics::GetFontCacheLimit() {
     return get_globals().getCacheSizeLimit();
 }
@@ -417,70 +493,3 @@ void SkGraphics::PurgeFontCache() {
     get_globals().purgeAll();
     SkTypefaceCache::PurgeAll();
 }
-
-SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
-    const SkDescriptor& desc,
-    std::unique_ptr<SkScalerContext> scaler,
-    SkPaint::FontMetrics* maybeMetrics)
-{
-    SkPaint::FontMetrics fontMetrics;
-    if (maybeMetrics != nullptr) {
-        fontMetrics = *maybeMetrics;
-    } else {
-        scaler->getFontMetrics(&fontMetrics);
-    }
-
-    return SkExclusiveStrikePtr(new Node(desc, move(scaler), fontMetrics));
-}
-
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
-    const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface)
-{
-    auto cache = FindStrikeExclusive(desc);
-    if (cache == nullptr) {
-        auto scaler = CreateScalerContext(desc, effects, typeface);
-        cache = CreateStrikeExclusive(desc, move(scaler));
-    }
-    return cache;
-}
-
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
-    const SkPaint& paint,
-    const SkSurfaceProps* surfaceProps,
-    SkScalerContextFlags scalerContextFlags,
-    const SkMatrix* deviceMatrix)
-{
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
-
-    auto tf = SkPaintPriv::GetTypefaceOrDefault(paint);
-
-    return FindOrCreateStrikeExclusive(*desc, effects, *tf);
-}
-
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(const SkPaint& paint) {
-    return FindOrCreateStrikeExclusive(
-            paint, nullptr, kFakeGammaAndBoostContrast, nullptr);
-}
-
-#ifdef SK_DEBUG
-void SkStrikeCache::validate() const {
-    size_t computedBytes = 0;
-    int computedCount = 0;
-
-    const Node* node = fHead;
-    while (node != nullptr) {
-        computedBytes += node->fCache.getMemoryUsed();
-        computedCount += 1;
-        node = node->fNext;
-    }
-
-    SkASSERTF(fCacheCount == computedCount, "fCacheCount: %d, computedCount: %d", fCacheCount,
-              computedCount);
-    SkASSERTF(fTotalMemoryUsed == computedBytes, "fTotalMemoryUsed: %d, computedBytes: %d",
-              fTotalMemoryUsed, computedBytes);
-}
-#endif
