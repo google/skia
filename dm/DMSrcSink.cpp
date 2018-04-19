@@ -1510,7 +1510,8 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
             backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, info.width(), info.height(), info.colorType(), true, GrMipMapped::kNo);
+                    nullptr, info.width(), info.height(), info.colorType(), info.colorSpace(),
+                    true, GrMipMapped::kNo);
             surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
                                                         kTopLeft_GrSurfaceOrigin, fSampleCount,
                                                         fColorType, info.refColorSpace(), &props);
@@ -2107,6 +2108,7 @@ public:
                                                                 info.fBitmap.width(),
                                                                 info.fBitmap.height(),
                                                                 info.fBitmap.colorType(),
+                                                                info.fBitmap.colorSpace(),
                                                                 false, GrMipMapped::kNo));
             // The GMs sometimes request too large an image
             //SkAssertResult(callbackContext->backendTexture().isValid());

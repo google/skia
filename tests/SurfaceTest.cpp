@@ -109,7 +109,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
 
         auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, colorType, true, GrMipMapped::kNo);
+                nullptr, kSize, kSize, colorType, nullptr, true, GrMipMapped::kNo);
         surf = SkSurface::MakeFromBackendTexture(ctxInfo.grContext(), backendTex,
                                                  kTopLeft_GrSurfaceOrigin, 0, colorType, nullptr,
                                                  nullptr);
@@ -136,8 +136,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                         colorType, can, SkToBool(surf));
 
-        backendTex = gpu->createTestingOnlyBackendTexture(nullptr, kSize, kSize, colorType, true,
-                                                          GrMipMapped::kNo);
+        backendTex = gpu->createTestingOnlyBackendTexture(nullptr, kSize, kSize, colorType, nullptr,
+                                                          true, GrMipMapped::kNo);
         surf = SkSurface::MakeFromBackendTexture(ctxInfo.grContext(), backendTex,
                                                  kTopLeft_GrSurfaceOrigin, kSampleCnt, colorType,
                                                  nullptr, nullptr);
@@ -190,7 +190,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
         }
         auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, colorType, true, GrMipMapped::kNo);
+                nullptr, kSize, kSize, colorType, nullptr, true, GrMipMapped::kNo);
         if (!backendTex.isValid()) {
             continue;
         }
