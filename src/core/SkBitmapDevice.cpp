@@ -10,6 +10,7 @@
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkMallocPixelRef.h"
+#include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -104,6 +105,8 @@ public:
             fDraw.fMatrix = &dev->ctm();
             fDraw.fRC = &dev->fRCStack.rc();
             fOrigin.set(0, 0);
+
+            fDraw.fCoverage = dev->accessCoverage();
         }
     }
 
@@ -180,6 +183,7 @@ public:
         }
         fMatrix = &dev->ctm();
         fRC = &dev->fRCStack.rc();
+        fCoverage = dev->accessCoverage();
     }
 };
 
@@ -238,17 +242,24 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
-                               SkRasterHandleAllocator::Handle hndl)
+                               SkRasterHandleAllocator::Handle hndl, const SkBitmap* coverage)
     : INHERITED(bitmap.info(), surfaceProps)
     , fBitmap(bitmap)
     , fRasterHandle(hndl)
     , fRCStack(bitmap.width(), bitmap.height())
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
+
+    if (coverage) {
+        SkASSERT(coverage->width() == bitmap.width());
+        SkASSERT(coverage->height() == bitmap.height());
+        fCoverage = skstd::make_unique<SkBitmap>(*coverage);
+    }
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
                                        const SkSurfaceProps& surfaceProps,
+                                       bool trackCoverage,
                                        SkRasterHandleAllocator* allocator) {
     SkAlphaType newAT = origInfo.alphaType();
     if (!valid_for_bitmap_device(origInfo, &newAT)) {
@@ -282,7 +293,16 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         }
     }
 
-    return new SkBitmapDevice(bitmap, surfaceProps, hndl);
+    SkBitmap coverage;
+    if (trackCoverage) {
+        SkImageInfo ci = SkImageInfo::Make(info.width(), info.height(), kAlpha_8_SkColorType,
+                                           kPremul_SkAlphaType);
+        if (!coverage.tryAllocPixelsFlags(ci, SkBitmap::kZeroPixels_AllocFlag)) {
+            return nullptr;
+        }
+    }
+
+    return new SkBitmapDevice(bitmap, surfaceProps, hndl, trackCoverage ? &coverage : nullptr);
 }
 
 void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
@@ -294,7 +314,8 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
 
 SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-    return SkBitmapDevice::Create(cinfo.fInfo, surfaceProps, cinfo.fAllocator);
+    return SkBitmapDevice::Create(cinfo.fInfo, surfaceProps, cinfo.fTrackCoverage,
+                                  cinfo.fAllocator);
 }
 
 bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
@@ -593,7 +614,22 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
     if (paint->getMaskFilter()) {
         paint.writable()->setMaskFilter(paint->getMaskFilter()->makeWithMatrix(this->ctm()));
     }
-    this->drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, *paint);
+
+    // hack to test coverage
+    SkBitmapDevice* src = static_cast<SkBitmapDevice*>(device);
+    if (src->fCoverage) {
+        SkDraw draw;
+        draw.fDst = fBitmap.pixmap();
+        draw.fMatrix = &SkMatrix::I();
+        draw.fRC = &fRCStack.rc();
+        SkPaint paint(origPaint);
+        paint.setShader(SkShader::MakeBitmapShader(src->fBitmap, SkShader::kClamp_TileMode,
+                                                   SkShader::kClamp_TileMode, nullptr));
+        draw.drawBitmap(*src->fCoverage.get(),
+                        SkMatrix::MakeTrans(SkIntToScalar(x),SkIntToScalar(y)), nullptr, paint);
+    } else {
+        this->drawSprite(src->fBitmap, x, y, *paint);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

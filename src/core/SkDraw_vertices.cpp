@@ -294,7 +294,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         // no colors[] and no texture, stroke hairlines with paint's color.
         SkPaint p;
         p.setStyle(SkPaint::kStroke_Style);
-        SkAutoBlitterChoose blitter(fDst, *fMatrix, p);
+        SkAutoBlitterChoose blitter(*this, nullptr, p);
         // Abort early if we failed to create a shader context.
         if (blitter->isNullBlitter()) {
             return;
