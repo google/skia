@@ -209,6 +209,12 @@ def dm_flags(api, bot):
       if sample_count is not '':
         configs.append('angle_d3d11_es2_msaa' + sample_count)
         configs.append('angle_d3d11_es3_msaa' + sample_count)
+      if 'GTX' in bot or 'Quadro' in bot:
+        # See skia:7823 and chromium:693090.
+        configs.append('angle_gl_es3')
+        if sample_count is not '':
+          configs.append('angle_gl_es2_msaa' + sample_count)
+          configs.append('angle_gl_es3_msaa' + sample_count)
 
     # Vulkan bot *only* runs the vk config.
     if 'Vulkan' in bot:
