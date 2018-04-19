@@ -29,13 +29,23 @@ class SkTraceMemoryDump;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class SkStrikePinner {
+public:
+    virtual ~SkStrikePinner() = default;
+    bool canDelete() const {
+        return this->onCanDelete();
+    }
+
+protected:
+    virtual bool onCanDelete() const = 0;
+};
+
 class SkStrikeCache {
     struct Node;
 
 public:
     SkStrikeCache() = default;
     ~SkStrikeCache();
-
 
     class ExclusiveStrikePtr {
     public:
@@ -64,7 +74,8 @@ public:
     static ExclusiveStrikePtr CreateStrikeExclusive(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
-            SkPaint::FontMetrics* maybeMetrics = nullptr);
+            SkPaint::FontMetrics* maybeMetrics = nullptr,
+            std::unique_ptr<SkStrikePinner> = nullptr);
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
             const SkDescriptor& desc,
