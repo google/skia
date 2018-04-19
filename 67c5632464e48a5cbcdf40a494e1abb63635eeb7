@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f142a1bd_36c96f9f",
+        "filename": "include/core/SkRemoteGlyphCache.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-19T17:19:19Z",
+      "side": 1,
+      "message": "This is probably only ever going to be used by chrome. So all this should be combined back with priv and left in src/core.",
+      "range": {
+        "startLine": 5,
+        "startChar": 16,
+        "endLine": 5,
+        "endChar": 23
+      },
+      "revId": "67c5632464e48a5cbcdf40a494e1abb63635eeb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcdebbcd_f5da3d43",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-19T17:19:19Z",
+      "side": 1,
+      "message": "I just created a different API for this. Please see https://skia-review.googlesource.com/c/skia/+/122500, and tell me what you think.",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 30
+      },
+      "revId": "67c5632464e48a5cbcdf40a494e1abb63635eeb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "650a94d4_3b6dce54",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-19T17:19:19Z",
+      "side": 1,
+      "message": "I don\u0027t want to add another level of indirection yet. It just makes for busy work while things are changing.",
+      "range": {
+        "startLine": 27,
+        "startChar": 25,
+        "endLine": 27,
+        "endChar": 43
+      },
+      "revId": "67c5632464e48a5cbcdf40a494e1abb63635eeb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
