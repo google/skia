@@ -192,7 +192,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
 
   def _ssh(self, title, *cmd, **kwargs):
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', 'root@%s' % self.user_ip] + list(cmd)
+               '-t', '-vvv',  'root@%s' % self.user_ip] + list(cmd)
 
     return self.m.run(self.m.step, title, cmd=ssh_cmd, **kwargs)
 
@@ -202,5 +202,18 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     self._adb('push %s' % cmd[0],
               'push', app, self.m.vars.android_bin_dir)
 
+    self.m.run(self.m.step, 'which ssh', cmd=['which', 'ssh'], infra_step=True,
+          abort_on_failure=False)
+    self._ssh('None of your business', 'whoami', infra_step=True,
+          abort_on_failure=False)
+    self._ssh('Exploring root', 'ls -la', '/', infra_step=True,
+          abort_on_failure=False)
+    self._ssh('Exploring skia', 'ls -la', '/cache/skia', infra_step=True,
+          abort_on_failure=False)
+    self._ssh('Exploring skia/bin', 'ls -la', '/cache/skia/bin', infra_step=True,
+          abort_on_failure=False)
+    scp_cmd = ['scp', '-oConnectTimeout=15', '-oBatchMode=yes',
+               '-vvv', app, 'root@%s:%s' % (self.user_ip, self.m.vars.android_bin_dir)]
+    self.m.run(self.m.step, "SCP time", cmd=scp_cmd, infra_step=True, abort_on_failure=False)
     cmd[0] = '%s/%s' % (self.m.vars.android_bin_dir, cmd[0])
     self._ssh(str(name), *cmd, infra_step=False)
