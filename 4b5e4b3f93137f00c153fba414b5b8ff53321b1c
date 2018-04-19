@@ -16,6 +16,24 @@
       "revId": "4b5e4b3f93137f00c153fba414b5b8ff53321b1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72df36d8_01548a68",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-19T19:23:11Z",
+      "side": 0,
+      "message": "Oh, sorry. I was just matching function order between .h and .cpp.",
+      "parentUuid": "97c007ea_122f62aa",
+      "revId": "4b5e4b3f93137f00c153fba414b5b8ff53321b1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
