@@ -557,6 +557,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			}
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("mips64el_toolchain_linux"))
 		}
+		if strings.Contains(name, "SwiftShader") {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cmake_linux"))
+		}
 	} else if strings.Contains(name, "Win") {
 		deps = append(deps, isolateCIPDAsset(b, ISOLATE_WIN_TOOLCHAIN_NAME))
 		if strings.Contains(name, "Clang") {

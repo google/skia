@@ -22,6 +22,29 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
           '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
           '--no-sync', '--no-hooks', '--make-output-dir'])
 
+  def compile_swiftshader(self, swiftshader_root, cc, cxx, out):
+    """Build SwiftShader with CMake.
+
+    Building SwiftShader works differently from any other Skia third_party lib.
+    See discussion in skia:7671 for more detail.
+
+    Args:
+      swiftshader_root: root of the SwiftShader checkout.
+      cc, cxx: compiler binaries to use
+      out: target directory for libEGL.so and libGLESv2.so
+    """
+    cmake_bin = str(self.m.vars.slave_dir.join('cmake_linux', 'bin'))
+    env = {
+        'CC': cc,
+        'CXX': cxx,
+        'PATH': '%%(PATH)s:%s' % cmake_bin
+    }
+    self.m.file.ensure_directory('makedirs swiftshader_out', out)
+    with self.m.context(cwd=out, env=env):
+      self._run('swiftshader cmake', ['cmake', swiftshader_root, '-GNinja'])
+      self._run('swiftshader ninja',
+                ['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
+
   def compile(self, unused_target):
     """Build Skia with GN."""
     compiler      = self.m.vars.builder_cfg.get('compiler',      '')
@@ -121,6 +144,19 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['is_debug'] = 'false'
     if 'ANGLE' in extra_tokens:
       args['skia_use_angle'] = 'true'
+    if 'SwiftShader' in extra_tokens:
+      swiftshader_root = self.m.vars.skia_dir.join('third_party', 'externals',
+                                                   'swiftshader')
+      swiftshader_out = self.m.vars.skia_out.join('swiftshader_out')
+      self.compile_swiftshader(swiftshader_root, cc, cxx, swiftshader_out)
+      args['skia_use_egl'] = 'true'
+      extra_cflags.append('-DGR_EGL_TRY_GLES3_THEN_GLES2')
+      extra_ldflags.extend([
+          # TODO(dogben): Use headers from Khronos rather than SwiftShader's
+          # copy.
+          '-I%s' % swiftshader_root.join('include'),
+          '-L%s' % swiftshader_out,
+      ])
     if 'CommandBuffer' in extra_tokens:
       self.m.run.run_once(self.build_command_buffer)
     if 'MSAN' in extra_tokens:
