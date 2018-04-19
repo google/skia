@@ -737,6 +737,17 @@ protected:
         for (SkPoint p : fPts) {
             canvas->drawCircle(p.fX, p.fY, 7, paint);
         }
+
+        {
+            SkScalar ts[2];
+            int n = SkFindCubicInflections(fPts, ts);
+            for (int i = 0; i < n; ++i) {
+                SkPoint p;
+                SkEvalCubicAt(fPts, ts[i], &p, nullptr, nullptr);
+                canvas->drawCircle(p.fX, p.fY, 3, paint);
+            }
+        }
+
     }
 
     bool onClick(Click* click) override {
