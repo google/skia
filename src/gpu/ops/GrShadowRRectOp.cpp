@@ -188,8 +188,7 @@ public:
 
     // An insetWidth > 1/2 rect width or height indicates a simple fill.
     ShadowCircularRRectOp(GrColor color, const SkRect& devRect,
-                          float devRadius, bool isCircle, float blurRadius, float insetWidth,
-                          float blurClamp)
+                          float devRadius, bool isCircle, float blurRadius, float insetWidth)
             : INHERITED(ClassID()) {
         SkRect bounds = devRect;
         SkASSERT(insetWidth > 0);
@@ -225,7 +224,7 @@ public:
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 
         fGeoData.emplace_back(Geometry{color, outerRadius, umbraInset, innerRadius,
-                                       blurRadius, blurClamp, bounds, type, isCircle});
+                                       blurRadius, bounds, type, isCircle});
         if (isCircle) {
             fVertCount = circle_type_to_vert_count(kStroke_RRectType == type);
             fIndexCount = circle_type_to_index_count(kStroke_RRectType == type);
@@ -266,7 +265,6 @@ private:
         SkScalar  fUmbraInset;
         SkScalar  fInnerRadius;
         SkScalar  fBlurRadius;
-        SkScalar  fClampValue;
         SkRect    fDevBounds;
         RRectType fType;
         bool      fIsCircle;
@@ -277,7 +275,7 @@ private:
         GrColor fColor;
         SkPoint fOffset;
         SkScalar fDistanceCorrection;
-        SkScalar fClampValue;
+        SkScalar fPad;   // to be used later
     };
 
     void fillInCircleVerts(const Geometry& args, bool isStroked, CircleVertex** verts) const {
@@ -287,7 +285,6 @@ private:
         SkScalar innerRadius = args.fInnerRadius;
         SkScalar blurRadius = args.fBlurRadius;
         SkScalar distanceCorrection = outerRadius / blurRadius;
-        SkScalar clampValue = args.fClampValue;
 
         const SkRect& bounds = args.fDevBounds;
 
@@ -302,56 +299,56 @@ private:
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
+        (*verts)->fPad = 0;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, -halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
+        (*verts)->fPad = 0;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, -octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
+        (*verts)->fPad = 0;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
+        (*verts)->fPad = 0;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
+        (*verts)->fPad = 0;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-octOffset * halfWidth, halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
+        (*verts)->fPad = 0;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
+        (*verts)->fPad = 0;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, -octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
+        (*verts)->fPad = 0;
         (*verts)++;
 
         if (isStroked) {
@@ -366,56 +363,56 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, -c * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, -s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, c * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-s * r, c * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, -s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
         } else {
             // filled
@@ -423,7 +420,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
         }
     }
@@ -466,7 +463,6 @@ private:
                                           outerVec.fX + outerVec.fY);
         diagVec *= umbraInset / (2 * umbraInset - outerRadius);
         SkScalar distanceCorrection = umbraInset / blurRadius;
-        SkScalar clampValue = args.fClampValue;
 
         // build corner by corner
         for (int i = 0; i < 4; ++i) {
@@ -475,7 +471,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkVector::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             // outer points
@@ -483,35 +479,35 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yMid[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yOuter[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = diagVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xMid[i], yOuter[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xInner[i], yOuter[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
         }
 
@@ -529,7 +525,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             // TR
@@ -537,7 +533,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             // BL
@@ -545,7 +541,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
 
             // BR
@@ -553,7 +549,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
+            (*verts)->fPad = 0;
             (*verts)++;
         }
 
@@ -648,8 +644,7 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRRect& rrect,
                                SkScalar blurWidth,
-                               SkScalar insetWidth,
-                               SkScalar blurClamp) {
+                               SkScalar insetWidth) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
 
@@ -668,8 +663,7 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
                                                                scaledRadius,
                                                                rrect.isOval(),
                                                                blurWidth,
-                                                               scaledInsetWidth,
-                                                               blurClamp));
+                                                               scaledInsetWidth));
 }
 }
 
@@ -689,21 +683,20 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     viewMatrix.postScale(scale, scale);
     SkScalar insetWidth = random->nextSScalar1() * 72.f;
     SkScalar blurWidth = random->nextSScalar1() * 72.f;
-    SkScalar blurClamp = random->nextSScalar1();
     bool isCircle = random->nextBool();
     // This op doesn't use a full GrPaint, just a color.
     GrColor color = paint.getColor();
     if (isCircle) {
         SkRect circle = GrTest::TestSquare(random);
         SkRRect rrect = SkRRect::MakeOval(circle);
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
+        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth);
     } else {
         SkRRect rrect;
         do {
             // This may return a rrect with elliptical corners, which we don't support.
             rrect = GrTest::TestRRectSimple(random);
         } while (!SkRRectPriv::IsSimpleCircular(rrect));
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
+        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth);
     }
 }
 

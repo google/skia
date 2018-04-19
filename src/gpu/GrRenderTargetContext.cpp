@@ -1024,15 +1024,10 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             // set a large inset to force a fill
             devSpaceInsetWidth = ambientRRect.width();
         }
-        // the fraction of the blur we want to apply is devSpaceInsetWidth/devSpaceAmbientBlur,
-        // which is just 1/umbraRecipAlpha.
-        SkScalar blurClamp = SkScalarInvert(umbraRecipAlpha);
-
         std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(ambientColor, viewMatrix,
                                                              ambientRRect,
                                                              devSpaceAmbientBlur,
-                                                             devSpaceInsetWidth,
-                                                             blurClamp);
+                                                             devSpaceInsetWidth);
         SkASSERT(op);
         this->addDrawOp(clip, std::move(op));
     }
