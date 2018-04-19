@@ -876,6 +876,11 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if strings.Contains(name, "SKQP") {
 		recipe = "skqp_test"
 	}
+	extraProps := map[string]string{}
+	iid := internalHardwareLabel(parts)
+	if iid != nil {
+		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)
+	}
 	task := kitchenTask(name, recipe, "test_skia_bundled.isolate", "", swarmDimensions(parts), nil, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
 	task.Dependencies = append(task.Dependencies, compileTaskName)
@@ -905,10 +910,6 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		// skia:6737
 		task.ExecutionTimeout = 6 * time.Hour
 		task.IoTimeout = 6 * time.Hour
-	}
-	iid := internalHardwareLabel(parts)
-	if iid != nil {
-		task.Command = append(task.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
 	}
 	b.MustAddTask(name, task)
 
