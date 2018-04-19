@@ -14,14 +14,14 @@
 #include "SkTypeface.h"
 #include <cctype>
 
-SkGlyphCache::SkGlyphCache(
-        const SkDescriptor& desc,
-        std::unique_ptr<SkScalerContext> scaler,
-        const SkPaint::FontMetrics& fontMetrics)
-    : Node{desc}
-    , fScalerContext{std::move(scaler)}
-    , fFontMetrics(fontMetrics)
-{
+SkGlyphCache::SkGlyphCache(const SkDescriptor& desc,
+                           std::unique_ptr<SkScalerContext>
+                                   scaler,
+                           const SkPaint::FontMetrics& fontMetrics,
+                           const SkStrikeClient::DiscardableHandle& discardableHandle)
+        : Node{desc, discardableHandle}
+        , fScalerContext{std::move(scaler)}
+        , fFontMetrics(fontMetrics) {
     SkASSERT(fScalerContext != nullptr);
     fMemoryUsed = sizeof(*this);
 }

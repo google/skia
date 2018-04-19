@@ -129,14 +129,14 @@ public:
 
     SkString dump() const {
         SkString msg;
-        msg.appendf("Rec\n");
+        msg.appendf("Rec: font_id: %x\n", fFontID);
         msg.appendf("  textsize %g prescale %g preskew %g post [%g %g %g %g]\n",
                    fTextSize, fPreScaleX, fPreSkewX, fPost2x2[0][0],
                    fPost2x2[0][1], fPost2x2[1][0], fPost2x2[1][1]);
         msg.appendf("  frame %g miter %g format %d join %d cap %d flags %#hx\n",
                    fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
-        msg.appendf("  lum bits %x, device gamma %d, paint gamma %d contrast %d\n",
-                    fLumBits, fDeviceGamma, fPaintGamma, fContrast);
+        msg.appendf("  lum bits %x, device gamma %f, paint gamma %f contrast %f\n", fLumBits,
+                    getDeviceGamma(), getPaintGamma(), getContrast());
         return msg;
     }
 
@@ -310,7 +310,8 @@ public:
                                   const SkMatrix* deviceMatrix,
                                   SkScalerContextFlags scalerContextFlags,
                                   SkScalerContextRec* rec,
-                                  SkScalerContextEffects* effects);
+                                  SkScalerContextEffects* effects,
+                                  bool applyTypefaceFiltering = true);
 
     static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
                                                  SkAutoDescriptor* ad);
@@ -319,6 +320,10 @@ public:
         const SkScalerContextRec& rec,
         const SkScalerContextEffects& effects,
         SkAutoDescriptor* ad);
+
+    static SkDescriptor* AutoDescriptorFromDesc(const SkDescriptor* source_desc,
+                                                SkFontID font_id,
+                                                SkAutoDescriptor* ad);
 
     static std::unique_ptr<SkDescriptor> DescriptorGivenRecAndEffects(
         const SkScalerContextRec& rec,
