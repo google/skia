@@ -143,6 +143,7 @@ public:
     }
 
     void setReserve(int reserve) {
+        SkASSERT(reserve >= 0);
         if (reserve > fReserve) {
             this->resizeStorageToAtLeast(reserve);
         }
