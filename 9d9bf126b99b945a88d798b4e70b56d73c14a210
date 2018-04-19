@@ -22,6 +22,30 @@
       "revId": "9d9bf126b99b945a88d798b4e70b56d73c14a210",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6445ece9_77dd6ada",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-19T18:55:40Z",
+      "side": 1,
+      "message": "Your SkStrikePinner will hold a ref to the DiscardableHandleManager. When all the pinners are gone, the manager is deleted.",
+      "parentUuid": "57cdf083_b39a6780",
+      "range": {
+        "startLine": 154,
+        "startChar": 13,
+        "endLine": 154,
+        "endChar": 49
+      },
+      "revId": "9d9bf126b99b945a88d798b4e70b56d73c14a210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
