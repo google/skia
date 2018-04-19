@@ -77,10 +77,8 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
     if (!generatingImageFromPath) {
         generateMetrics(glyph);
     } else {
-        SkPath      devPath, fillPath;
-        SkMatrix    fillToDevMatrix;
-        generatingImageFromPath = this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath,
-                                                        &fillToDevMatrix);
+        SkPath devPath;
+        generatingImageFromPath = this->internalGetPath(glyph->getPackedID(), &devPath);
         if (!generatingImageFromPath) {
             generateMetrics(glyph);
         } else {
@@ -436,12 +434,11 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     if (!fGenerateImageFromPath) {
         generateImage(*glyph);
     } else {
-        SkPath      devPath, fillPath;
-        SkMatrix    fillToDevMatrix;
-        SkMask      mask;
+        SkPath devPath;
+        SkMask mask;
 
         glyph->toMask(&mask);
-        if (!this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix)) {
+        if (!this->internalGetPath(glyph->getPackedID(), &devPath)) {
             generateImage(*glyph);
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
@@ -507,7 +504,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 }
 
 bool SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
-    return this->internalGetPath(glyphID, nullptr, path, nullptr);
+    return this->internalGetPath(glyphID, path);
 }
 
 void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* fm) {
@@ -521,8 +518,7 @@ SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
-                                      SkPath* devPath, SkMatrix* fillToDevMatrix) {
+bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) {
     SkPath  path;
     if (!generatePath(glyphID.code(), &path)) {
         return false;
@@ -546,7 +542,7 @@ bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
 
         fRec.getMatrixFrom2x2(&matrix);
         if (!matrix.invert(&inverse)) {
-            // assume fillPath and devPath are already empty.
+            // assume devPath is already empty.
             return true;
         }
         path.transform(inverse, &localPath);
@@ -579,37 +575,17 @@ bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
         }
 
         // now return stuff to the caller
-        if (fillToDevMatrix) {
-            *fillToDevMatrix = matrix;
-        }
         if (devPath) {
             localPath.transform(matrix, devPath);
         }
-        if (fillPath) {
-            fillPath->swap(localPath);
-        }
     } else {   // nothing tricky to do
-        if (fillToDevMatrix) {
-            fillToDevMatrix->reset();
-        }
         if (devPath) {
-            if (fillPath == nullptr) {
-                devPath->swap(path);
-            } else {
-                *devPath = path;
-            }
-        }
-
-        if (fillPath) {
-            fillPath->swap(path);
+            devPath->swap(path);
         }
     }
 
     if (devPath) {
         devPath->updateBoundsCache();
-    }
-    if (fillPath) {
-        fillPath->updateBoundsCache();
     }
     return true;
 }
