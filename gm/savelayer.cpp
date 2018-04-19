@@ -238,3 +238,19 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
         }
     }
 }
+
+DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
+    SkRect r = { 0, 0, 200, 200 };
+    unsigned flags = SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag;
+    SkCanvas::SaveLayerRec rec(&r, nullptr, flags);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+
+    canvas->saveLayer(rec);
+    canvas->drawCircle(100, 100, 50, paint);
+    paint.setColor(SK_ColorBLUE);
+    canvas->drawRect({10, 90, 190, 110}, paint);
+    canvas->restore();
+}
+
