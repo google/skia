@@ -100,10 +100,8 @@ void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
         glyph->fWidth = ibounds.width();
         glyph->fHeight = ibounds.height();
     } else {
-        SkPath      devPath, fillPath;
-        SkMatrix    fillToDevMatrix;
-
-        this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix);
+        SkPath devPath;
+        this->internalGetPath(glyph->getPackedID(), &devPath);
 
         // just use devPath
         const SkIRect ir = devPath.getBounds().roundOut();
