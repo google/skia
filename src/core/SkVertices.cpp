@@ -57,16 +57,17 @@ SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
                              uint32_t builderFlags) {
     bool hasTexs = SkToBool(builderFlags & SkVertices::kHasTexCoords_BuilderFlag);
     bool hasColors = SkToBool(builderFlags & SkVertices::kHasColors_BuilderFlag);
-    this->init(mode, vertexCount, indexCount,
+    bool colorsAsData = SkToBool(builderFlags & SkVertices::kTreatColorsAsData_BuilderFlag);
+    this->init(mode, vertexCount, indexCount, colorsAsData,
                SkVertices::Sizes(vertexCount, indexCount, hasTexs, hasColors));
 }
 
-SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
+SkVertices::Builder::Builder(VertexMode mode, bool colorsAsData, int vertexCount, int indexCount,
                              const SkVertices::Sizes& sizes) {
-    this->init(mode, vertexCount, indexCount, sizes);
+    this->init(mode, vertexCount, indexCount, false, sizes);
 }
 
-void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
+void SkVertices::Builder::init(VertexMode mode, bool colorsAsData, int vertexCount, int indexCount,
                                const SkVertices::Sizes& sizes) {
     if (!sizes.isValid()) {
         return; // fVertices will already be null
@@ -85,6 +86,7 @@ void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
     fVertices->fVertexCnt = vertexCount;
     fVertices->fIndexCnt = indexCount;
     fVertices->fMode = mode;
+    fVertices->fTreatColorsAsData = colorsAsData;
     // We defer assigning fBounds and fUniqueID until detach() is called
 }
 
@@ -126,13 +128,13 @@ uint16_t* SkVertices::Builder::indices() {
 sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
                                        const SkPoint pos[], const SkPoint texs[],
                                        const SkColor colors[], int indexCount,
-                                       const uint16_t indices[]) {
+                                       const uint16_t indices[], bool colorAsData) {
     Sizes sizes(vertexCount, indexCount, texs != nullptr, colors != nullptr);
     if (!sizes.isValid()) {
         return nullptr;
     }
 
-    Builder builder(mode, vertexCount, indexCount, sizes);
+    Builder builder(mode, colorAsData, vertexCount, indexCount, sizes);
     SkASSERT(builder.isValid());
 
     sk_careful_memcpy(builder.positions(), pos, sizes.fVSize);
@@ -157,6 +159,7 @@ size_t SkVertices::approximateSize() const {
 #define kMode_Mask          0x0FF
 #define kHasTexs_Mask       0x100
 #define kHasColors_Mask     0x200
+#define kColorsAsData_Mask  0x400
 #define kHeaderSize         (3 * sizeof(uint32_t))
 
 sk_sp<SkData> SkVertices::encode() const {
@@ -168,6 +171,9 @@ sk_sp<SkData> SkVertices::encode() const {
     }
     if (this->hasColors()) {
         packed |= kHasColors_Mask;
+    }
+    if (this->treatColorsAsData()) {
+        packed |= kColorsAsData_Mask;
     }
 
     Sizes sizes(fVertexCnt, fIndexCnt, this->hasTexCoords(), this->hasColors());
@@ -208,6 +214,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     }
     const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
     const bool hasColors = SkToBool(packed & kHasColors_Mask);
+    const bool colorsAsData = SkToBool(packed & kColorsAsData_Mask);
     Sizes sizes(vertexCount, indexCount, hasTexs, hasColors);
     if (!sizes.isValid()) {
         return nullptr;
@@ -217,14 +224,14 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
         return nullptr;
     }
 
-    Builder builder(mode, vertexCount, indexCount, sizes);
+    Builder builder(mode, colorsAsData, vertexCount, indexCount, sizes);
 
     reader.read(builder.positions(), sizes.fVSize);
     reader.read(builder.texCoords(), sizes.fTSize);
     reader.read(builder.colors(), sizes.fCSize);
     reader.read(builder.indices(), sizes.fISize);
     if (indexCount > 0) {
-        // validate that the indicies are in range
+        // validate that the indices are in range
         SkASSERT(indexCount == builder.indexCount());
         const uint16_t* indices = builder.indices();
         for (int i = 0; i < indexCount; ++i) {

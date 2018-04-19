@@ -36,20 +36,23 @@ public:
                                       const SkPoint texs[],
                                       const SkColor colors[],
                                       int indexCount,
-                                      const uint16_t indices[]);
+                                      const uint16_t indices[],
+                                      bool colorAsData = false);
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
-                                      const SkColor colors[]) {
-        return MakeCopy(mode, vertexCount, positions, texs, colors, 0, nullptr);
+                                      const SkColor colors[],
+                                      bool colorAsData = false) {
+        return MakeCopy(mode, vertexCount, positions, texs, colors, 0, nullptr, colorAsData);
     }
 
     struct Sizes;
 
     enum BuilderFlags {
-        kHasTexCoords_BuilderFlag   = 1 << 0,
-        kHasColors_BuilderFlag      = 1 << 1,
+        kHasTexCoords_BuilderFlag      = 1 << 0,
+        kHasColors_BuilderFlag         = 1 << 1,
+        kTreatColorsAsData_BuilderFlag = 1 << 2,  // will not premul colors on GPU
     };
     class Builder {
     public:
@@ -69,9 +72,9 @@ public:
         sk_sp<SkVertices> detach();
 
     private:
-        Builder(VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+        Builder(VertexMode mode, bool colorAsData, int vertexCount, int indexCount, const Sizes&);
 
-        void init(VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+        void init(VertexMode mode, bool colorAsData, int vertexCount, int indexCount, const Sizes&);
 
         // holds a partially complete object. only completed in detach()
         sk_sp<SkVertices> fVertices;
@@ -91,6 +94,7 @@ public:
     const SkPoint* positions() const { return fPositions; }
     const SkPoint* texCoords() const { return fTexs; }
     const SkColor* colors() const { return fColors; }
+    bool treatColorsAsData() const { return fTreatColorsAsData; }
 
     int indexCount() const { return fIndexCnt; }
     const uint16_t* indices() const { return fIndices; }
@@ -135,6 +139,7 @@ private:
     int     fIndexCnt;
 
     VertexMode fMode;
+    bool       fTreatColorsAsData;
     // below here is where the actual array data is stored.
 };
 
