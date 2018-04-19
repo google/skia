@@ -18,6 +18,8 @@ GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
 GR_STATIC_ASSERT(2 * sizeof(float) == sizeof(SkPoint));
 GR_STATIC_ASSERT(0 == offsetof(SkPoint, fX));
 
+static constexpr float kFlatnessThreshold = 1/16.f; // 1/16 of a pixel.
+
 void GrCCGeometry::beginPath() {
     SkASSERT(!fBuildingContour);
     fVerbs.push_back(Verb::kBeginPath);
@@ -59,7 +61,7 @@ static inline float dot(const Sk2f& a, const Sk2f& b) {
 }
 
 static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                 float tolerance = 1/16.f) { // 1/16 of a pixel.
+                                 float tolerance = kFlatnessThreshold) {
     Sk2f l = p2 - p0; // Line from p0 -> p2.
 
     // lwidth = Manhattan width of l.
@@ -87,7 +89,7 @@ static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
     return std::abs(d) <= lwidth * tolerance;
 }
 
-static inline bool are_collinear(const SkPoint P[4], float tolerance = 1/16.f) { // 1/16 of a pixel.
+static inline bool are_collinear(const SkPoint P[4], float tolerance = kFlatnessThreshold) {
     Sk4f Px, Py;               // |Px  Py|   |p0 - p3|
     Sk4f::Load2(P, &Px, &Py);  // |.   . | = |p1 - p3|
     Px -= Px[3];               // |.   . |   |p2 - p3|
@@ -586,56 +588,40 @@ void GrCCGeometry::conicTo(const SkPoint P[3], float w) {
     Sk2f p1 = Sk2f::Load(P+1);
     Sk2f p2 = Sk2f::Load(P+2);
 
-    // Don't crunch on the curve if it is nearly flat (or just very small). Collinear control points
-    // can break the midtangent-finding math below.
-    if (are_collinear(p0, p1, p2)) {
-        this->appendLine(p2);
-        return;
-    }
-
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p2 - p1;
-    // The derivative of a conic has a cumbersome order-4 denominator. However, this isn't necessary
-    // if we are only interested in a vector in the same *direction* as a given tangent line. Since
-    // the denominator scales dx and dy uniformly, we can throw it out completely after evaluating
-    // the derivative with the standard quotient rule. This leaves us with a simpler quadratic
-    // function that we use to find the midtangent.
-    float midT = find_midtangent(tan0, tan1, 1, (w - 1) * (p2 - p0),
-                                             1, (p2 - p0) - 2*w*(p1 - p0),
-                                             1, w*(p1 - p0));
-    // Use positive logic since NaN fails comparisons. (However midT should not be NaN since we cull
-    // near-linear conics above. And while w=0 is flat, it's not a line and has valid midtangents.)
-    if (!(midT > 0 && midT < 1)) {
-        // The conic is flat. Otherwise there would be a real midtangent inside T=0..1.
-        this->appendLine(p2);
-        return;
-    }
-
-    // Evaluate the conic at midT.
-    Sk4f p3d0 = Sk4f(p0[0], p0[1], 1, 0);
-    Sk4f p3d1 = Sk4f(p1[0], p1[1], 1, 0) * w;
-    Sk4f p3d2 = Sk4f(p2[0], p2[1], 1, 0);
-    Sk4f midT4 = midT;
-
-    Sk4f p3d01 = lerp(p3d0, p3d1, midT4);
-    Sk4f p3d12 = lerp(p3d1, p3d2, midT4);
-    Sk4f p3d012 = lerp(p3d01, p3d12, midT4);
-
-    Sk2f midpoint = Sk2f(p3d012[0], p3d012[1]) / p3d012[2];
-
-    if (are_collinear(p0, midpoint, p2, 1) || // Check if the curve is within one pixel of flat.
-        ((midpoint - p1).abs() < 1).allTrue()) { // Check if the curve is almost a triangle.
-        // Draw the conic as a triangle instead. Our AA approximation won't do well if the curve
-        // gets wrapped too tightly, and if we get too close to p1 we will pick up artifacts from
-        // the implicit function's reflection.
-        this->appendLine(midpoint);
-        this->appendLine(p2);
-        return;
-    }
 
     if (!is_convex_curve_monotonic(p0, tan0, p2, tan1)) {
+        // The derivative of a conic has a cumbersome order-4 denominator. However, this isn't
+        // necessary if we are only interested in a vector in the same *direction* as a given
+        // tangent line. Since the denominator scales dx and dy uniformly, we can throw it out
+        // completely after evaluating the derivative with the standard quotient rule. This leaves
+        // us with a simpler quadratic function that we use to find the midtangent.
+        float midT = find_midtangent(tan0, tan1, 1, (w - 1) * (p2 - p0),
+                                                 1, (p2 - p0) - 2*w*(p1 - p0),
+                                                 1, w*(p1 - p0));
+        // Use positive logic since NaN fails comparisons. (However midT should not be NaN since we
+        // cull near-linear conics above. And while w=0 is flat, it's not a line and has valid
+        // midtangents.)
+        if (!(midT > 0 && midT < 1)) {
+            // The conic is flat. Otherwise there would be a real midtangent inside T=0..1.
+            this->appendLine(p2);
+            return;
+        }
+
         // Chop the conic at midtangent to produce two monotonic segments.
+        Sk4f p3d0 = Sk4f(p0[0], p0[1], 1, 0);
+        Sk4f p3d1 = Sk4f(p1[0], p1[1], 1, 0) * w;
+        Sk4f p3d2 = Sk4f(p2[0], p2[1], 1, 0);
+        Sk4f midT4 = midT;
+
+        Sk4f p3d01 = lerp(p3d0, p3d1, midT4);
+        Sk4f p3d12 = lerp(p3d1, p3d2, midT4);
+        Sk4f p3d012 = lerp(p3d01, p3d12, midT4);
+
+        Sk2f midpoint = Sk2f(p3d012[0], p3d012[1]) / p3d012[2];
         Sk2f ww = Sk2f(p3d01[2], p3d12[2]) * Sk2f(p3d012[2]).rsqrt();
+
         this->appendMonotonicConic(p0, Sk2f(p3d01[0], p3d01[1]) / p3d01[2], midpoint, ww[0]);
         this->appendMonotonicConic(midpoint, Sk2f(p3d12[0], p3d12[1]) / p3d12[2], p2, ww[1]);
         return;
@@ -645,10 +631,32 @@ void GrCCGeometry::conicTo(const SkPoint P[3], float w) {
 }
 
 void GrCCGeometry::appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, float w) {
+    SkASSERT(w >= 0);
     SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
 
-    // Don't send curves to the GPU if we know they are nearly flat (or just very small).
-    if (are_collinear(p0, p1, p2)) {
+    Sk2f base = p2 - p0;
+    Sk2f baseAbs = base.abs();
+    float baseWidth = baseAbs[0] + baseAbs[1];
+
+    // Find the height of the curve. Max height always occurs at T=.5 for conics.
+    Sk2f d = (p1 - p0) * SkNx_shuffle<1,0>(base);
+    float h1 = std::abs(d[1] - d[0]); // Height of p1 above the base.
+    float ht = h1*w, hs = 1 + w; // Height of the conic = ht/hs.
+
+    if (ht < (baseWidth*hs) * kFlatnessThreshold) { // i.e. ht/hs < baseWidth * kFlatnessThreshold
+        // We are flat. (See rationale in are_collinear.)
+        this->appendLine(p2);
+        return;
+    }
+
+    if (w > 1 && h1*hs - ht < baseWidth*hs) { // i.e. w > 1 && h1 - ht/hs < baseWidth
+        // If we get within 1px of p1 when w > 1, we will pick up artifacts from the implicit
+        // function's reflection. Chop at max height (T=.5) and draw a triangle instead.
+        Sk2f p1w = p1*w;
+        Sk2f ab = p0 + p1w;
+        Sk2f bc = p1w + p2;
+        Sk2f highpoint = (ab + bc) / (2*(1 + w));
+        this->appendLine(highpoint);
         this->appendLine(p2);
         return;
     }
