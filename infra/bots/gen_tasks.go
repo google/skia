@@ -47,6 +47,8 @@ const (
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
+	DEFAULT_PROJECT = "skia"
+
 	// Swarming output dirs.
 	OUTPUT_NONE     = "output_ignored" // This will result in outputs not being isolated.
 	OUTPUT_BUILD    = "build"
@@ -77,9 +79,6 @@ var (
 	// jobs.json.
 	JOBS []string
 
-	LOGDOG_ANNOTATION_URL = fmt.Sprintf("logdog://logs.chromium.org/%s/%s/+/annotations", PROJECT, specs.PLACEHOLDER_TASK_ID)
-	PROJECT               = "skia"
-
 	// General configuration information.
 	CONFIG struct {
 		GsBucketCoverage string   `json:"gs_bucket_coverage"`
@@ -89,6 +88,9 @@ var (
 		NoUpload         []string `json:"no_upload"`
 		Pool             string   `json:"pool"`
 	}
+
+	// alternateProject can be set in an init function to override the default project ID.
+	alternateProject string
 
 	// alternateServiceAccount can be set in an init function to override the normal service accounts.
 	// Takes one of SERVICE_ACCOUNT_* constants as an argument and returns the service account that
@@ -164,6 +166,15 @@ var (
 	jobsFile              = flag.String("jobs", "", "JSON file containing jobs to run.")
 )
 
+// Build the LogDog annotation URL.
+func logdogAnnotationUrl() string {
+	project := DEFAULT_PROJECT
+	if alternateProject != "" {
+		project = alternateProject
+	}
+	return fmt.Sprintf("logdog://logs.chromium.org/%s/%s/+/annotations", project, specs.PLACEHOLDER_TASK_ID)
+}
+
 // Create a properties JSON string.
 func props(p map[string]string) string {
 	d := make(map[string]interface{}, len(p)+1)
@@ -233,7 +244,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 			"-workdir", ".",
 			"-recipe", recipe,
 			"-properties", props(properties),
-			"-logdog-annotation-url", LOGDOG_ANNOTATION_URL,
+			"-logdog-annotation-url", logdogAnnotationUrl(),
 		},
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
@@ -242,7 +253,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 			"VPYTHON_VIRTUALENV_ROOT": []string{"${cache_dir}/vpython"},
 		},
 		ExtraTags: map[string]string{
-			"log_location": LOGDOG_ANNOTATION_URL,
+			"log_location": logdogAnnotationUrl(),
 		},
 		Isolate:        relpath(isolate),
 		Outputs:        outputs,
@@ -876,6 +887,11 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if strings.Contains(name, "SKQP") {
 		recipe = "skqp_test"
 	}
+	extraProps := map[string]string{}
+	iid := internalHardwareLabel(parts)
+	if iid != nil {
+		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)
+	}
 	task := kitchenTask(name, recipe, "test_skia_bundled.isolate", "", swarmDimensions(parts), nil, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
 	task.Dependencies = append(task.Dependencies, compileTaskName)
@@ -905,10 +921,6 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		// skia:6737
 		task.ExecutionTimeout = 6 * time.Hour
 		task.IoTimeout = 6 * time.Hour
-	}
-	iid := internalHardwareLabel(parts)
-	if iid != nil {
-		task.Command = append(task.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
 	}
 	b.MustAddTask(name, task)
 
