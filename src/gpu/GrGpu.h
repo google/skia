@@ -454,7 +454,8 @@ public:
         only to be used for testing (particularly for testing the methods that import an externally
         created texture into Skia. Must be matched with a call to deleteTestingOnlyTexture(). */
     GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h, SkColorType,
-                                                     bool isRenderTarget, GrMipMapped);
+                                                     SkColorSpace* cs, bool isRenderTarget,
+                                                     GrMipMapped);
     /** Older version based on GrPixelConfig. Currently the preferred one above devolves to this. */
     virtual GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                              GrPixelConfig config,
