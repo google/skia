@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d098cfd_d0ec3ade",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-04-19T20:01:13Z",
+      "side": 1,
+      "message": "^",
+      "revId": "7e7bbb4ab73bd38d424769548e0224888c670ab7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad7308e9_76ea0202",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-04-19T20:01:13Z",
+      "side": 1,
+      "message": "^",
+      "revId": "7e7bbb4ab73bd38d424769548e0224888c670ab7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
