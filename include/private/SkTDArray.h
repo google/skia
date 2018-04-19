@@ -208,18 +208,6 @@ public:
         }
     }
 
-    template <typename S> int select(S&& selector) const {
-        const T* iter = fArray;
-        const T* stop = fArray + fCount;
-
-        for (; iter < stop; iter++) {
-            if (selector(*iter)) {
-                return SkToInt(iter - fArray);
-            }
-        }
-        return -1;
-    }
-
     int find(const T& elem) const {
         const T* iter = fArray;
         const T* stop = fArray + fCount;
