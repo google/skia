@@ -191,8 +191,14 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
       self._adb('kill adb server', 'kill-server')
 
   def _ssh(self, title, *cmd, **kwargs):
+    # Don't use -t -t (Force psuedo-tty allocation) like in the ChromeOS
+    # version because the pseudo-tty allocation seems to fail
+    # instantly when talking to a Chromecast.
+    # This was excacerbated when we migrated to kitchen and was marked by
+    # the symptoms of all the ssh commands instantly failing (even after
+    # connecting and authenticating) with exit code -1 (255)
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', 'root@%s' % self.user_ip] + list(cmd)
+               '-T', 'root@%s' % self.user_ip] + list(cmd)
 
     return self.m.run(self.m.step, title, cmd=ssh_cmd, **kwargs)
 
