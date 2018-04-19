@@ -258,6 +258,9 @@ SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distan
                                            int maxt, const SkPoint& maxPt, unsigned ptIndex) {
     int halft = (mint + maxt) >> 1;
     SkPoint halfPt = conic.evalAt(tValue2Scalar(halft));
+    if (!halfPt.isFinite()) {
+        return 0;
+    }
     if (tspan_big_enough(maxt - mint) && conic_too_curvy(minPt, halfPt, maxPt)) {
         distance = this->compute_conic_segs(conic, distance, mint, minPt, halft, halfPt, ptIndex);
         distance = this->compute_conic_segs(conic, distance, halft, halfPt, maxt, maxPt, ptIndex);
