@@ -115,7 +115,7 @@ private:
 
     // these are needed since we've manually sized our allocation (see Builder::init)
     friend class SkNVRefCnt<SkVertices>;
-    void operator delete(void* p) { ::operator delete(p); }
+    void operator delete(void* p);
 
     static sk_sp<SkVertices> Alloc(int vCount, int iCount, uint32_t builderFlags,
                                    size_t* arraySize);
