@@ -2194,7 +2194,7 @@ public:
     // This method operates in parallel
     // In each thread we will reconvert the compressedPictureData into an SkPicture
     // replacing each image-index with a promise image.
-    void preprocess(SkData* compressedPictureData, const PromiseImageHelper& helper) {
+    void preprocess(SkData* compressedPictureData, const PromiseImageHelper& helper, bool draw) {
 
         SkDeferredDisplayListRecorder recorder(fCharacterization);
 
@@ -2202,27 +2202,31 @@ public:
         // Maybe set it up in the ctor?
         SkCanvas* subCanvas = recorder.getCanvas();
 
-        sk_sp<SkPicture> reconstitutedPicture;
+        if (draw) {
+            sk_sp<SkPicture> reconstitutedPicture;
 
-        {
-            PerRecorderContext perRecorderContext { &recorder, &helper };
+            {
+                PerRecorderContext perRecorderContext { &recorder, &helper };
 
-            SkDeserialProcs procs;
-            procs.fImageCtx = (void*) &perRecorderContext;
-            procs.fImageProc = PromiseImageCreator;
+                SkDeserialProcs procs;
+                procs.fImageCtx = (void*) &perRecorderContext;
+                procs.fImageProc = PromiseImageCreator;
 
-            reconstitutedPicture = SkPicture::MakeFromData(compressedPictureData, &procs);
-            if (!reconstitutedPicture) {
-                return;
+                reconstitutedPicture = SkPicture::MakeFromData(compressedPictureData, &procs);
+                if (!reconstitutedPicture) {
+                    return;
+                }
             }
+
+            subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
+            subCanvas->translate(-fClip.fLeft, -fClip.fTop);
+
+            // Note: in this use case we only render a picture to the deferred canvas
+            // but, more generally, clients will use arbitrary draw calls.
+            subCanvas->drawPicture(reconstitutedPicture);
+        } else {
+            subCanvas->clear(SK_ColorGRAY);
         }
-
-        subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
-        subCanvas->translate(-fClip.fLeft, -fClip.fTop);
-
-        // Note: in this use case we only render a picture to the deferred canvas
-        // but, more generally, clients will use arbitrary draw calls.
-        subCanvas->drawPicture(reconstitutedPicture);
 
         fDisplayList = recorder.detach();
     }
@@ -2374,10 +2378,16 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         }
                     }
 
+#if 0
                     // Second, run the cpu pre-processing in threads
                     SkTaskGroup().batch(tileData.count(), [&](int i) {
                         tileData[i].preprocess(compressedPictureData.get(), helper);
                     });
+#else
+                    for (int i = 0; i < tileData.count(); ++i) {
+                        tileData[i].preprocess(compressedPictureData.get(), helper, i == 7);
+                    }
+#endif
 
                     // This drops the helper's refs on all the promise images
                     helper.reset();

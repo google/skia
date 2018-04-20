@@ -1034,6 +1034,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     // FIXME: do willSaveLayer() overriders returning kNoLayer_SaveLayerStrategy really care about
     // the clipRectBounds() call above?
     if (kNoLayer_SaveLayerStrategy == strategy) {
+        SkASSERT(!modifiedRec);
         return;
     }
 

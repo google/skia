@@ -54,6 +54,7 @@ protected:
         paint.setColor(SK_ColorBLACK);
         paint.setAntiAlias(true);
 
+        int draw = 0;
         canvas->translate(10, 25);
         canvas->save();
         canvas->translate(80, 0);
@@ -73,13 +74,23 @@ protected:
                 for (int j = 0; j < 2; ++j) {
                     canvas->save();
                     canvas->translate(10 * (1 - j), 10 * (1 - j));
-                    if (DrawType::kCircle == fDrawType) {
-                        canvas->drawCircle(coord, coord, kRadius, paint);
-                    } else if (DrawType::kRect == fDrawType) {
-                        canvas->drawRect(rect, paint);
-                    } else {
-                        canvas->drawRRect(rrect, paint);
+                    if (
+                        //draw == 0
+//                        draw == 1
+//                        draw == 2 ||
+//                         draw == 3 ||
+                        draw == 4
+//                        draw == 5
+                        ) {
+                        if (DrawType::kCircle == fDrawType) {
+                            canvas->drawCircle(coord, coord, kRadius, paint);
+                        } else if (DrawType::kRect == fDrawType) {
+                            canvas->drawRect(rect, paint);
+                        } else {
+                            canvas->drawRRect(rrect, paint);
+                        }
                     }
+                    ++draw;
                     paint.setMaskFilter(nullptr);
                     canvas->restore();
                 }
@@ -89,8 +100,9 @@ protected:
         }
         canvas->restore();
         if (kBench_Mode != this->getMode()) {
-            this->drawOverlay(canvas);
+            //this->drawOverlay(canvas);
         }
+        SkDebugf("draws %d\n", draw);
     }
 
     void drawOverlay(SkCanvas* canvas) {
