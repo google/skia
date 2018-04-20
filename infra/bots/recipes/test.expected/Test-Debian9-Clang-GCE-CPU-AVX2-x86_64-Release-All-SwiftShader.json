@@ -258,6 +258,7 @@
       "pdf",
       "--randomProcessorTest",
       "--disableDriverCorrectnessWorkarounds",
+      "--gpu_threading",
       "--config",
       "gles",
       "glesdft",

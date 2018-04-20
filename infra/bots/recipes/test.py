@@ -86,6 +86,7 @@ def dm_flags(api, bot):
   if 'SwiftShader' in api.vars.extra_tokens:
     configs.extend(['gles', 'glesdft'])
     args.append('--disableDriverCorrectnessWorkarounds')
+    args.append('--gpu_threading')
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
     args.append('--nogpu')
