@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "600c85d9_8eb9079f",
+        "filename": "gm/dashcircle.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-20T17:55:58Z",
+      "side": 1,
+      "message": "If you mean one of those people that realizes that that the proper circle constant is C/R and not C/D then yes I am one of those people.",
+      "parentUuid": "47ec8ba3_3e168098",
+      "range": {
+        "startLine": 122,
+        "startChar": 51,
+        "endLine": 122,
+        "endChar": 54
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a3fb2dd_4fb8d2ee",
         "filename": "gm/dashcircle.cpp",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3716ec15_ed138f06",
+        "filename": "gm/dashcircle.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-20T17:55:58Z",
+      "side": 1,
+      "message": "Done, added a thinly stroked circle outset from each existing test case.",
+      "parentUuid": "2a3fb2dd_4fb8d2ee",
+      "range": {
+        "startLine": 138,
+        "startChar": 34,
+        "endLine": 138,
+        "endChar": 54
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2200ee30_dc878ee1",
+        "filename": "gm/dashcircle.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-20T17:55:58Z",
+      "side": 1,
+      "message": "Really only the bounds thing could be moved. The dash effects depend on the phase which animates in viewer so have to be remade every frame. The matrices are already static and so only get made once (other than rotate by 25 degrees... we really should have MakeRotate()).",
+      "parentUuid": "4a2434af_be13a645",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 9
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11e70398_4c2f205c",
         "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
         "patchSetId": 7
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "8ad9bab9_f54ca278",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-20T17:55:58Z",
+      "side": 1,
+      "message": "Done, changed this to ButtCapDashedCircleGeometryProcessor",
+      "parentUuid": "11e70398_4c2f205c",
+      "range": {
+        "startLine": 264,
+        "startChar": 6,
+        "endLine": 264,
+        "endChar": 43
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8fb212aa_a24efe93",
         "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
         "patchSetId": 7
@@ -114,6 +210,30 @@
       "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4686a1fa_4a6b4b47",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-20T17:55:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fb212aa_a24efe93",
+      "range": {
+        "startLine": 1638,
+        "startChar": 12,
+        "endLine": 1638,
+        "endChar": 77
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
