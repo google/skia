@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5441d4fb_c68a4b33",
+        "filename": "tests/CanvasTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-20T14:40:05Z",
+      "side": 1,
+      "message": "REPORTER_ASSERT?",
+      "revId": "9f279bb2921ef44cccec67e5e67a98cd7ea45001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
