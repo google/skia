@@ -260,6 +260,8 @@
       "--nocpu",
       "--skpViewportSize",
       "2048",
+      "--gpuThreads",
+      "0",
       "--config",
       "ddl-gl",
       "--src",

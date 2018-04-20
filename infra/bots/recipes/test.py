@@ -254,6 +254,7 @@ def dm_flags(api, bot):
       # large skps and the gms
       configs = ['ddl-' + c for c in configs if c == 'gl' or c == 'vk']
       args.extend(['--skpViewportSize', "2048"])
+      args.extend(['--gpuThreads', "0"])
 
   tf = api.vars.builder_cfg.get('test_filter')
   if 'All' != tf:
