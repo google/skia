@@ -720,6 +720,8 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 	}
 
+	task.MaxAttempts = 1
+
 	// Add the task.
 	b.MustAddTask(name, task)
 
@@ -779,6 +781,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
 	task.ExecutionTimeout = 24 * time.Hour
 	task.IoTimeout = 24 * time.Hour
+	task.MaxAttempts = 1
 	b.MustAddTask(name, task)
 	return name
 }
@@ -819,6 +822,9 @@ func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 // should add as a dependency.
 func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "android_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(), nil, OUTPUT_NONE)
+	task.ExecutionTimeout = 1 * time.Hour
+	task.IoTimeout = 1 * time.Hour
+	task.MaxAttempts = 1
 	b.MustAddTask(name, task)
 	return name
 }
@@ -848,6 +854,7 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
+	task.MaxAttempts = 1
 	b.MustAddTask(name, task)
 
 	// Upload results if necessary.

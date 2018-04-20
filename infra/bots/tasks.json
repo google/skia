@@ -3502,6 +3502,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -3608,6 +3609,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -3728,6 +3730,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -3834,6 +3837,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -3940,6 +3944,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -4046,6 +4051,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -4152,6 +4158,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -4258,6 +4265,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -4378,6 +4386,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -4484,6 +4493,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -4590,6 +4600,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -4696,6 +4707,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -4802,6 +4814,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -4908,6 +4921,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -5014,6 +5028,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -5100,10 +5115,13 @@
           "${cache_dir}/vpython"
         ]
       },
+      "execution_timeout_ns": 3600000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
+      "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -5207,6 +5225,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -5313,6 +5332,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -5423,6 +5443,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -5529,6 +5550,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -5635,6 +5657,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -5741,6 +5764,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -5847,6 +5871,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -5957,6 +5982,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -6067,6 +6093,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -6182,6 +6209,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -6297,6 +6325,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -6407,6 +6436,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -6517,6 +6547,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -6627,6 +6658,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -6737,6 +6769,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -6852,6 +6885,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -6967,6 +7001,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -7077,6 +7112,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -7187,6 +7223,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -7297,6 +7334,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -7412,6 +7450,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -7527,6 +7566,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -7637,6 +7677,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -7747,6 +7788,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -7857,6 +7899,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -7967,6 +8010,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -8077,6 +8121,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -8187,6 +8232,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -8297,6 +8343,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -8407,6 +8454,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -8517,6 +8565,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -8632,6 +8681,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -8747,6 +8797,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -8857,6 +8908,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -8972,6 +9024,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -9087,6 +9140,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -9197,6 +9251,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -9307,6 +9362,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -9417,6 +9473,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -9527,6 +9584,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -9632,6 +9690,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -9737,6 +9796,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -9842,6 +9902,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -9947,6 +10008,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10052,6 +10114,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10157,6 +10220,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10262,6 +10326,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10368,6 +10433,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10473,6 +10539,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10578,6 +10645,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10683,6 +10751,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10788,6 +10857,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10893,6 +10963,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -10998,6 +11069,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -11103,6 +11175,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -11213,6 +11286,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -11318,6 +11392,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -11423,6 +11498,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -11528,6 +11604,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -11633,6 +11710,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -11738,6 +11816,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -11843,6 +11922,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -11948,6 +12028,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -12053,6 +12134,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -12158,6 +12240,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -12263,6 +12346,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -12374,6 +12458,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -12486,6 +12571,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -12598,6 +12684,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -12710,6 +12797,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -12822,6 +12910,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -12934,6 +13023,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -13046,6 +13136,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -13159,6 +13250,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -13271,6 +13363,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -13383,6 +13476,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -13495,6 +13589,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -13608,6 +13703,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -13715,6 +13811,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -13822,6 +13919,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -13929,6 +14027,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -14037,6 +14136,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -14144,6 +14244,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -14252,6 +14353,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -14365,6 +14467,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "calmbench.isolate",
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ],
@@ -14477,6 +14580,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "calmbench.isolate",
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ],
@@ -25151,6 +25255,7 @@
       },
       "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
+      "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -25258,6 +25363,7 @@
       },
       "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
+      "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -49163,6 +49269,7 @@
       },
       "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
+      "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -49270,6 +49377,7 @@
       },
       "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
+      "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -49377,6 +49485,7 @@
       },
       "io_timeout_ns": 86400000000000,
       "isolate": "skia_repo.isolate",
+      "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
