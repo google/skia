@@ -28,7 +28,7 @@ public:
     static std::unique_ptr<GrDrawOp> MakeOvalOp(GrPaint&&,
                                                 const SkMatrix&,
                                                 const SkRect& oval,
-                                                const SkStrokeRec&,
+                                                const GrStyle& style,
                                                 const GrShaderCaps*);
 
     static std::unique_ptr<GrDrawOp> MakeRRectOp(GrPaint&&,
