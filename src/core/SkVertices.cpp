@@ -235,3 +235,8 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     }
     return builder.detach();
 }
+
+void SkVertices::operator delete(void* p)
+{
+    ::operator delete(p);
+}
