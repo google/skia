@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "5a176178_bdc4f886",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1037,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-20T14:41:53Z",
+      "side": 1,
+      "message": "How about the other early-returns, like this one - do we need to be defensive also?",
+      "revId": "9f279bb2921ef44cccec67e5e67a98cd7ea45001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5441d4fb_c68a4b33",
         "filename": "tests/CanvasTest.cpp",
         "patchSetId": 1
