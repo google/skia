@@ -7,6 +7,8 @@
 
 #include <initializer_list>
 #include <functional>
+#include <sk_tool_utils.h>
+#include <SkAutoPixmapStorage.h>
 #include "Test.h"
 #if SK_SUPPORT_GPU
 #include "GrShape.h"
@@ -53,6 +55,36 @@ static bool paths_fill_same(const SkPath& a, const SkPath& b) {
     return pathXor.isEmpty();
 }
 
+static void draw_clipped_out_path(const SkPath &path, const SkRect &bounds, SkSurface *surface,
+                                  int tol) {
+    surface->getCanvas()->clear(0x0);
+    SkRect clip = SkRect::MakeXYWH(surface->width()/4, surface->height()/4,
+                                   surface->width()/2, surface->height()/2);
+    SkMatrix matrix;
+    matrix.setRectToRect(bounds, clip, SkMatrix::kFill_ScaleToFit);
+    clip.outset(SkIntToScalar(tol), SkIntToScalar(tol));
+    surface->getCanvas()->clipRect(clip, kDifference_SkClipOp);
+    surface->getCanvas()->concat(matrix);
+    SkPaint whitePaint;
+    whitePaint.setColor(SK_ColorWHITE);
+    surface->getCanvas()->drawPath(path, whitePaint);
+}
+
+static bool find_non_zero_alpha(const SkPixmap& pixmap, int* x, int* y) {
+    SkASSERT(pixmap.colorType() == kAlpha_8_SkColorType);
+    for (int py = 0; py < pixmap.height(); ++py) {
+        const uint8_t* row = pixmap.addr8(0, py);
+        for (int px = 0; px < pixmap.width(); ++px) {
+            if (row[px]) {
+                *x = px;
+                *y = py;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds) {
     // We test the bounds by rasterizing the path into a kRes by kRes grid. The bounds is
     // mapped to the range kRes/4 to 3*kRes/4 in x and y. A difference clip is used to avoid
@@ -60,37 +92,25 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     // everything got clipped out.
     static constexpr int kRes = 2000;
     // This tolerance is in units of 1/kRes fractions of the bounds width/height.
-    static constexpr int kTol = 0;
+    static constexpr int kTol = 4;
     GR_STATIC_ASSERT(kRes % 4 == 0);
     SkImageInfo info = SkImageInfo::MakeA8(kRes, kRes);
     sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
-    surface->getCanvas()->clear(0x0);
-    SkRect clip = SkRect::MakeXYWH(kRes/4, kRes/4, kRes/2, kRes/2);
-    SkMatrix matrix;
-    matrix.setRectToRect(bounds, clip, SkMatrix::kFill_ScaleToFit);
-    clip.outset(SkIntToScalar(kTol), SkIntToScalar(kTol));
-    surface->getCanvas()->clipRect(clip, kDifference_SkClipOp);
-    surface->getCanvas()->concat(matrix);
-    SkPaint whitePaint;
-    whitePaint.setColor(SK_ColorWHITE);
-    surface->getCanvas()->drawPath(path, whitePaint);
+    draw_clipped_out_path(path, bounds, surface.get(), kTol);
     SkPixmap pixmap;
-    surface->getCanvas()->peekPixels(&pixmap);
-#if defined(SK_BUILD_FOR_WIN)
-    // The static constexpr version in #else causes cl.exe to crash.
-    const uint8_t* kZeros = reinterpret_cast<uint8_t*>(calloc(kRes, 1));
-#else
-    static constexpr uint8_t kZeros[kRes] = {0};
+    surface->peekPixels(&pixmap);
+    int badx, bady;
+    if (find_non_zero_alpha(pixmap, &badx, &bady)) {
+#if 1
+        float xpos = (float)(badx + 0.5)/kRes * 2 * bounds.width() + bounds.fLeft / 2.f;
+        float ypos = (float)(bady + 0.5)/kRes * 2 * bounds.height() + bounds.fTop / 2.f;
+        SkDebugf("First bounds violation found at (%f, %f)", xpos, ypos);
+        SkString filename("/usr/local/google/home/bsalomon/src/skia/bad_bounds.png");
+        sk_tool_utils::EncodeImageToFile(filename.c_str(), pixmap,
+                                         SkEncodedImageFormat::kPNG, 100);
 #endif
-    for (int y = 0; y < kRes; ++y) {
-        const uint8_t* row = pixmap.addr8(0, y);
-        if (0 != memcmp(kZeros, row, kRes)) {
-            return false;
-        }
+        return false;
     }
-#ifdef SK_BUILD_FOR_WIN
-    free(const_cast<uint8_t*>(kZeros));
-#endif
     return true;
 }
 
@@ -2221,4 +2241,58 @@ DEF_TEST(GrShape, reporter) {
     test_volatile_path(reporter, PathGeo(SkPath(), PathGeo::Invert::kNo));
 }
 
+
+DEF_TEST(GrShape_arcs, reporter) {
+    SkStrokeRec roundStroke(SkStrokeRec::kFill_InitStyle);
+    roundStroke.setStrokeStyle(2.f);
+    roundStroke.setStrokeParams(SkPaint::kRound_Cap, SkPaint::kRound_Join, 1.f);
+
+    SkStrokeRec squareStroke(roundStroke);
+    squareStroke.setStrokeParams(SkPaint::kSquare_Cap, SkPaint::kRound_Join, 1.f);
+
+    SkStrokeRec roundStrokeAndFill(roundStroke);
+    roundStrokeAndFill.setStrokeStyle(2.f, true);
+
+    static constexpr SkScalar kIntervals[] = {1, 2};
+    auto dash = SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 1.5f);
+
+    SkTArray<GrStyle> styles;
+    styles.push_back(GrStyle::SimpleFill());
+    styles.push_back(GrStyle::SimpleHairline());
+    styles.push_back(GrStyle(roundStroke, nullptr));
+    styles.push_back(GrStyle(squareStroke, nullptr));
+    styles.push_back(GrStyle(roundStrokeAndFill, nullptr));
+    styles.push_back(GrStyle(roundStroke, dash));
+
+    for (const auto& style : styles) {
+        TestCase emptyArc(GrShape::MakeArc(SkRect::MakeEmpty(), 0, 90.f, false, style),
+                          reporter);
+        TestCase emptyPath(reporter, SkPath(), style);
+        emptyArc.compare(reporter, emptyPath, TestCase::kAllSame_ComparisonExpecation);
+        static constexpr SkRect kOval1{0, 0, 10, 10};
+        static constexpr SkRect kOval2{10, 0, 10, 10};
+        TestCase arc1CW(GrShape::MakeArc(kOval1, 0, 90.f, false, GrStyle::SimpleFill()), reporter);
+        TestCase arc1CCW(GrShape::MakeArc(kOval1, 90.f, -90.f, false, GrStyle::SimpleFill()),
+                         reporter);
+        TestCase arc2CW(GrShape::MakeArc(kOval2, 0, 90.f, false, GrStyle::SimpleFill()), reporter);
+        TestCase arc2CCW(GrShape::MakeArc(kOval2, 90.f, -90.f, false, GrStyle::SimpleFill()),
+                         reporter);
+        auto reversedExepectations = style.hasPathEffect() ?
+                                     TestCase::kAllDifferent_ComparisonExpecation : TestCase::kAllSame_ComparisonExpecation;
+        arc1CW.compare(reporter, arc1CCW, reversedExepectations);
+        arc2CW.compare(reporter, arc2CCW, reversedExepectations);
+        arc1CW.compare(reporter, arc2CW, TestCase::kAllDifferent_ComparisonExpecation);
+
+        auto ovalExpectations = TestCase::kAllSame_ComparisonExpecation;
+        if (style.hasPathEffect()) {
+            ovalExpectations = TestCase::kAllDifferent_ComparisonExpecation;
+        }
+        if (style.strokeRec().getWidth() >= 0 && style.strokeRec().getCap() != SkPaint::kButt_Cap) {
+            ovalExpectations = TestCase::kAllDifferent_ComparisonExpecation;
+        }
+        TestCase ovalArc(GrShape::MakeArc(kOval1, 150.f, 790.f, false, style), reporter);
+        TestCase oval(GrShape(SkRRect::MakeOval(kOval1)), reporter);
+        ovalArc.compare(reporter, oval, ovalExpectations);
+    }
+}
 #endif

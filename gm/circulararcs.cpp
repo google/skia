@@ -228,8 +228,16 @@ DEF_SIMPLE_GM(onebadarc, canvas, 100, 100) {
     p0.setStyle(SkPaint::kStroke_Style);
     p0.setAlpha(100);
     canvas->translate(20, 0);
-    canvas->drawPath(path, p0);
+    //canvas->drawPath(path, p0);
 
     SkRect kRect = { 60, 0, 100, 40};
-    canvas->drawArc(kRect, 45, 90, true, p0);
+    //canvas->drawArc(kRect, 45, 90, true, p0);
+    static constexpr SkRect kOval1{0, 0, 10, 10};
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStrokeCap((SkPaint::Cap)1);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(2);
+    canvas->drawArc(kOval1, 150.f, 790.f, false, p);
+
 }
