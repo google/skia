@@ -83,7 +83,11 @@ def dm_flags(api, bot):
       'Chromecast' in bot):
     args.append('--ignoreSigInt')
 
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+  if 'SwiftShader' in api.vars.extra_tokens:
+    configs.extend(['gles', 'glesdft'])
+    args.append('--disableDriverCorrectnessWorkarounds')
+
+  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
     args.append('--nogpu')
 
     # These are the canonical configs that we would ideally run on all bots. We
@@ -966,6 +970,7 @@ TEST_BUILDERS = [
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug-All',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All',
