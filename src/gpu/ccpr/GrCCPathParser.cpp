@@ -340,8 +340,7 @@ static void emit_tessellated_fan(const GrTessellator::WindingVertex* vertices, i
         } else {
             quadPointInstanceData[indices->fWeightedTriangles++].setW(
                     vertices[i].fPos, vertices[i+1].fPos, vertices[i + 2].fPos, atlasOffset,
-                    // Tessellator has opposite winding sense.
-                    -static_cast<float>(vertices[i].fWinding));
+                    static_cast<float>(abs(vertices[i].fWinding)));
         }
     }
 }

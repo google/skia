@@ -59,18 +59,11 @@ protected:
 
         GrShaderVar wind("wind", kHalf_GrSLType);
         g->declareGlobal(wind);
-        if (PrimitiveType::kWeightedTriangles != proc.fPrimitiveType) {
-            g->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], "
-                                                                "pts[0] - pts[2]));");
-            if (4 == numInputPoints) {
-                g->codeAppend ("area_x2 += determinant(float2x2(pts[0] - pts[2], "
-                                                               "pts[0] - pts[3]));");
-            }
-            g->codeAppendf("%s = sign(area_x2);", wind.c_str());
-        } else {
+        Shader::EmitWind(proc, g, "pts", wind.c_str());
+        if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
             SkASSERT(3 == numInputPoints);
             SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(0).fType);
-            g->codeAppendf("%s = sk_in[0].sk_Position.w;", wind.c_str());
+            g->codeAppendf("%s *= sk_in[0].sk_Position.w;", wind.c_str());
         }
 
         SkString emitVertexFn;

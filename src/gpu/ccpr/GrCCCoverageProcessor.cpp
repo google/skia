@@ -44,6 +44,23 @@ class GrCCCoverageProcessor::TriangleShader : public GrCCCoverageProcessor::Shad
     GrGLSLVarying fCoverages;
 };
 
+void GrCCCoverageProcessor::Shader::EmitWind(const GrCCCoverageProcessor& proc,
+                                             GrGLSLVertexGeoBuilder* s, const char* pts,
+                                             const char* outputWind) {
+    s->codeAppendf("float2 a = %s[0] - %s[1], b = %s[0] - %s[2];", pts, pts, pts, pts);
+    s->codeAppend ("float area_x2 = determinant(float2x2(a, b));");
+    if (4 == proc.numInputPoints()) {
+        s->codeAppendf("area_x2 += determinant(float2x2(%s[0] - %s[2], "
+                                                       "%s[0] - %s[3]));", pts, pts, pts, pts);
+    }
+    s->codeAppendf("%s = sign(area_x2);", outputWind);
+    if (proc.isTriangles()) {
+        s->codeAppend ("float2 bbox_size = max(abs(a), abs(b));");
+        s->codeAppend ("float base = max(max(bbox_size.x, bbox_size.y), 1);");
+        s->codeAppend ("wind = (abs(area_x2) < base * 1e-4) ? 0 : wind;");
+    }
+}
+
 void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder* s,
                                                              const char* leftPt,
                                                              const char* rightPt,
