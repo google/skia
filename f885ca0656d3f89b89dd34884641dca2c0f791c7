@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34b2008e_32550687",
+        "filename": "src/gpu/GrPaint.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-20T20:11:54Z",
+      "side": 1,
+      "message": "Since this function is answering a question about color I think this check should be done by drawRect().",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 5
+      },
+      "revId": "f885ca0656d3f89b89dd34884641dca2c0f791c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
