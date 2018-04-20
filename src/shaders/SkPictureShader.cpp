@@ -171,24 +171,15 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     fPicture->flatten(buffer);
 }
 
-// This helper returns two artifacts:
-//
-// 1) a cached image shader, which wraps a single picture tile at the given CTM/local matrix
-//
-// 2) a tile scale adjustment, to be applied downstream when dispatching createContext(),
-//    appendStages() and asFragmentProcessor() in callers
-//
-// The composite local matrix includes the actual local matrix, any inherited/outer local matrix
-// and a scale component (to mape the actual tile bitmap size -> fTile size).
-//
+// Returns a cached image shader, which wraps a single picture tile at the given
+// CTM/local matrix.  Also adjusts the local matrix for tile scaling.
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
-                                                 const SkMatrix& localMatrix,
+                                                 SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
                                                  SkColorSpace* dstColorSpace,
-                                                 SkVector* scaleAdjust,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
 
-    const SkMatrix m = SkMatrix::Concat(viewMatrix, localMatrix);
+    const SkMatrix m = SkMatrix::Concat(viewMatrix, **localMatrix);
 
     // Use a rotation-invariant scale
     SkPoint scale;
@@ -270,25 +261,22 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
         fAddedToCache.store(true);
     }
 
-    scaleAdjust->set(1 / tileScale.width(), 1 / tileScale.height());
+    if (tileScale.width() != 1 || tileScale.height() != 1) {
+        localMatrix->writable()->preScale(1 / tileScale.width(), 1 / tileScale.height());
+    }
 
     return tileShader;
 }
 
 bool SkPictureShader::onAppendStages(const StageRec& rec) const {
     auto lm = this->totalLocalMatrix(rec.fLocalM);
-    SkVector scaleAdjust;
 
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->refBitmapShader(rec.fCTM, *lm, rec.fDstCS, &scaleAdjust);
+    bitmapShader = this->refBitmapShader(rec.fCTM, &lm, rec.fDstCS);
 
     if (!bitmapShader) {
         return false;
-    }
-
-    if (scaleAdjust != SkVector::Make(1, 1)) {
-        lm.writable()->preScale(scaleAdjust.fX, scaleAdjust.fY);
     }
 
     StageRec localRec = rec;
@@ -301,17 +289,9 @@ bool SkPictureShader::onAppendStages(const StageRec& rec) const {
 SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
 const {
     auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
-    SkVector scaleAdjust;
-    sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix,
-                                                         *lm,
-                                                         rec.fDstColorSpace,
-                                                         &scaleAdjust);
+    sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix, &lm, rec.fDstColorSpace);
     if (!bitmapShader) {
         return nullptr;
-    }
-
-    if (scaleAdjust != SkVector::Make(1, 1)) {
-        lm.writable()->preScale(scaleAdjust.fX, scaleAdjust.fY);
     }
 
     ContextRec localRec = rec;
@@ -382,16 +362,11 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     }
 
     auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
-    SkVector scaleAdjust;
-    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix,*lm,
+    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, &lm,
                                                        args.fDstColorSpaceInfo->colorSpace(),
-                                                       &scaleAdjust, maxTextureSize));
+                                                       maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
-    }
-
-    if (scaleAdjust != SkVector::Make(1, 1)) {
-        lm.writable()->preScale(scaleAdjust.fX, scaleAdjust.fY);
     }
 
     // We want to *reset* args.fPreLocalMatrix, not compose it.
