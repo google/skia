@@ -91,7 +91,7 @@ public:
     /*
      * Dump out the GrOpList dependency DAG
      */
-    SkDEBUGCODE(virtual void dump() const;)
+    SkDEBUGCODE(virtual void dump(bool printDependencies) const;)
 
     SkDEBUGCODE(virtual int numOps() const = 0;)
     SkDEBUGCODE(virtual int numClips() const { return 0; })

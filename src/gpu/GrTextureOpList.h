@@ -56,7 +56,7 @@ public:
 
     GrTextureOpList* asTextureOpList() override { return this; }
 
-    SkDEBUGCODE(void dump() const override;)
+    SkDEBUGCODE(void dump(bool printDependencies) const override;)
 
     SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
 
