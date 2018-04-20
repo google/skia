@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47ec8ba3_3e168098",
+        "filename": "gm/dashcircle.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-20T15:34:14Z",
+      "side": 1,
+      "message": "you\u0027re one of those people...",
+      "range": {
+        "startLine": 122,
+        "startChar": 51,
+        "endLine": 122,
+        "endChar": 54
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a3fb2dd_4fb8d2ee",
+        "filename": "gm/dashcircle.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-20T15:34:14Z",
+      "side": 1,
+      "message": "Do you want to test thin strokes at all to make sure your inner and outer edge coverage interact well?",
+      "range": {
+        "startLine": 138,
+        "startChar": 34,
+        "endLine": 138,
+        "endChar": 54
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a2434af_be13a645",
+        "filename": "gm/dashcircle.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-20T15:34:14Z",
+      "side": 1,
+      "message": "Super small nit: should this setup work be moved to an onOnceBeforeDraw call?",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 9
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11e70398_4c2f205c",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-20T15:34:14Z",
+      "side": 1,
+      "message": "nit should this have the word dash in it, or is this meant to be a general butt capped stroked circle thing",
+      "range": {
+        "startLine": 264,
+        "startChar": 6,
+        "endLine": 264,
+        "endChar": 43
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fb212aa_a24efe93",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-20T15:34:14Z",
+      "side": 1,
+      "message": "can we get more comments about why this is, either here or where we declare the vert attribs.",
+      "range": {
+        "startLine": 1638,
+        "startChar": 12,
+        "endLine": 1638,
+        "endChar": 77
+      },
+      "revId": "2b2003a7e6963eee15c20d1c4da5ae63f1edce20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
