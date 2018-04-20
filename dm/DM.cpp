@@ -75,7 +75,7 @@ DEFINE_bool2(pathOpsExtended, x, false, "Run extended pathOps tests.");
 DEFINE_string(matrix, "1 0 0 1",
               "2x2 scale+skew matrix to apply or upright when using "
               "'matrix' or 'upright' in config.");
-DEFINE_bool(gpu_threading, false, "Allow GPU work to run on multiple threads?");
+DEFINE_bool(gpu_threading, true, "Allow GPU work to run on multiple threads?");
 
 DEFINE_string(blacklist, "",
         "Space-separated config/src/srcOptions/name quadruples to blacklist. "
