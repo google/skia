@@ -33,6 +33,24 @@
       "revId": "9f279bb2921ef44cccec67e5e67a98cd7ea45001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b84352ee_fb707a09",
+        "filename": "tests/CanvasTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-20T14:59:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5441d4fb_c68a4b33",
+      "revId": "9f279bb2921ef44cccec67e5e67a98cd7ea45001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
