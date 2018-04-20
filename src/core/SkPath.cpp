@@ -480,6 +480,9 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 if (lineDelta.fX && lineDelta.fY) {
                     return false; // diagonal
                 }
+                if (!lineDelta.isFinite()) {
+                    return false; // path contains infinity or NaN
+                }
                 if (lineStart == lineEnd) {
                     break; // single point on side OK
                 }
