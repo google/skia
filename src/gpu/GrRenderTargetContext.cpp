@@ -1311,8 +1311,9 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
         }
     }
 
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
-                                     GrShape(SkRRect::MakeOval(oval), style));
+    this->drawShapeUsingPathRenderer(
+            clip, std::move(paint), aa, viewMatrix,
+            GrShape(SkRRect::MakeOval(oval), SkPath::kCW_Direction, 2, false, style));
 }
 
 void GrRenderTargetContext::drawArc(const GrClip& clip,
