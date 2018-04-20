@@ -511,14 +511,6 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
 void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawOval", fContext.get());
-    // Presumably the path effect warps this to something other than an oval
-    if (paint.getPathEffect()) {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addOval(oval);
-        this->drawPath(path, paint, nullptr, true);
-        return;
-    }
 
     if (paint.getMaskFilter()) {
         // The RRect path can handle special case blurring
