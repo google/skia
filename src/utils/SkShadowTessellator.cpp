@@ -34,7 +34,8 @@ public:
         }
         return SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, this->vertexCount(),
                                     fPositions.begin(), nullptr, fColors.begin(),
-                                    this->indexCount(), fIndices.begin());
+                                    this->indexCount(), fIndices.begin(),
+                                    SkVertices::kDont_PremulColorMode);
     }
 
 protected:
@@ -255,12 +256,18 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
     int numSteps;
     compute_radial_steps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
     SkVector prevNormal = fPrevOutset;
+    SkVector halfNormal = fPrevOutset + nextNormal;
+    halfNormal *= 0.5f;
+    SkScalar cornerFalloffFactor = 4 * halfNormal.length() / fRadius;
+    SkScalar floatNumSteps = SkIntToScalar(numSteps);
     for (int i = 0; i < numSteps-1; ++i) {
         SkVector currNormal;
         currNormal.fX = prevNormal.fX*rotCos - prevNormal.fY*rotSin;
         currNormal.fY = prevNormal.fY*rotCos + prevNormal.fX*rotSin;
         *fPositions.push() = fPrevPoint + currNormal;
-        *fColors.push() = fPenumbraColor;
+        SkScalar stepsFrac = SkIntToScalar(i + 1) / floatNumSteps;
+        uint8_t falloffFactor = 255.999f*(1 - cornerFalloffFactor * (stepsFrac - stepsFrac * stepsFrac));
+        *fColors.push() = SkColorSetARGB(SkColorGetA(fPenumbraColor), 255, 0, 0);
         this->appendTriangle(fPrevUmbraIndex, fPositions.count() - 1, fPositions.count() - 2);
 
         prevNormal = currNormal;

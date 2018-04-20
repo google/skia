@@ -275,7 +275,7 @@ private:
         GrColor fColor;
         SkPoint fOffset;
         SkScalar fDistanceCorrection;
-        SkScalar fPad;   // to be used later
+        SkScalar fFalloffFactor;
     };
 
     void fillInCircleVerts(const Geometry& args, bool isStroked, CircleVertex** verts) const {
@@ -299,56 +299,56 @@ private:
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fPad = 0;
+        (*verts)->fFalloffFactor = SK_Scalar1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, -halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fPad = 0;
+        (*verts)->fFalloffFactor = SK_Scalar1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, -octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fPad = 0;
+        (*verts)->fFalloffFactor = SK_Scalar1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fPad = 0;
+        (*verts)->fFalloffFactor = SK_Scalar1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fPad = 0;
+        (*verts)->fFalloffFactor = SK_Scalar1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-octOffset * halfWidth, halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fPad = 0;
+        (*verts)->fFalloffFactor = SK_Scalar1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fPad = 0;
+        (*verts)->fFalloffFactor = SK_Scalar1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, -octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fPad = 0;
+        (*verts)->fFalloffFactor = SK_Scalar1;
         (*verts)++;
 
         if (isStroked) {
@@ -363,56 +363,56 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, -c * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, -s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, c * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-s * r, c * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, -s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
         } else {
             // filled
@@ -420,7 +420,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
         }
     }
@@ -457,11 +457,11 @@ private:
         // we also skew the vectors we send to the shader that help define the circle.
         // By doing so, we end up with a quarter circle in the corner rather than the
         // elliptical curve.
-        SkVector outerVec = SkVector::Make(0.5f*(outerRadius - umbraInset), -umbraInset);
+        SkVector outerVec = SkVector::Make(outerRadius - umbraInset, -outerRadius - umbraInset);
         outerVec.normalize();
-        SkVector diagVec = SkVector::Make(outerVec.fX + outerVec.fY,
-                                          outerVec.fX + outerVec.fY);
-        diagVec *= umbraInset / (2 * umbraInset - outerRadius);
+        SkScalar diagVal = umbraInset / (SK_ScalarSqrt2*(outerRadius - umbraInset) - outerRadius);
+        SkVector diagVec = SkVector::Make(diagVal, diagVal);
+
         SkScalar distanceCorrection = umbraInset / blurRadius;
 
         // build corner by corner
@@ -471,7 +471,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkVector::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             // outer points
@@ -479,35 +479,35 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yMid[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = outerRadius/umbraInset;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yOuter[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = diagVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = 0;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xMid[i], yOuter[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = outerRadius / umbraInset;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xInner[i], yOuter[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
         }
 
@@ -525,7 +525,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             // TR
@@ -533,7 +533,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             // BL
@@ -541,7 +541,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
 
             // BR
@@ -549,7 +549,7 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fPad = 0;
+            (*verts)->fFalloffFactor = SK_Scalar1;
             (*verts)++;
         }
 
