@@ -10,7 +10,7 @@
 
 #Struct SkIRect
 
-SkIRect holds four 32 bit integer coordinates describing the upper and
+SkIRect holds four 32-bit integer coordinates describing the upper and
 lower bounds of a rectangle. SkIRect may be created from outer bounds or 
 from position, width, and height. SkIRect describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
