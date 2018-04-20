@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9172698e_af29c4e3",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-04-20T20:24:01Z",
+      "side": 1,
+      "message": "Since we\u0027re doing this everywhere, so the filter quality will never be above kLow in this call, I could make this more general. Preference?",
+      "range": {
+        "startLine": 1362,
+        "startChar": 30,
+        "endLine": 1362,
+        "endChar": 57
+      },
+      "revId": "cc0dcd951a3a41ef7909b0f185ac824e3997ac65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
