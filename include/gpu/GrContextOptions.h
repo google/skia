@@ -168,7 +168,7 @@ struct GrContextOptions {
      * behavior that is only relevant when 'fExplicitlyAllocateGPUResources' is enabled.
      * Eventually this will just be what is done and will not be optional.
      */
-    Enable fSortRenderTargets = Enable::kDefault;
+    Enable fSortRenderTargets = Enable::kNo;
 
     /**
      * Disables correctness workarounds that are enabled for particular GPUs, OSes, or drivers.

@@ -168,7 +168,7 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
     auto filter = [&] (const GrSurface* s) {
         return !proxy->priv().requiresNoPendingIO() || !s->surfacePriv().hasPendingIO();
     };
-    sk_sp<GrSurface> surface(fFreePool.findAndRemove(key, filter));
+    sk_sp<GrSurface> surface(nullptr); //fFreePool.findAndRemove(key, filter));
     if (surface) {
         if (SkBudgeted::kYes == proxy->isBudgeted() &&
             SkBudgeted::kNo == surface->resourcePriv().isBudgeted()) {
@@ -262,6 +262,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
                 }
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
+            SkDebugf("assigning %x %dx%d to %x\n", surface, surface->width(), surface->height(), cur->proxy());
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
             GrTextureProxy* tex = cur->proxy()->asTextureProxy();
             if (tex && tex->getUniqueKey().isValid()) {

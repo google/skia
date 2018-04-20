@@ -9,6 +9,7 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrShape.h"
 #include "GrSurfaceContext.h"
 #include "GrTextureProxy.h"
@@ -92,6 +93,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
 }
 
 sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBackingFit fit) {
+#if 0
     GrSurfaceDesc desc;
     desc.fWidth = fPixels->width();
     desc.fHeight = fPixels->height();
@@ -109,4 +111,37 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBacki
     }
 
     return sContext->asTextureProxyRef();
+#else
+    SkImageInfo ii = SkImageInfo::MakeA8(fPixels->width(), fPixels->height());
+    size_t rowBytes = fPixels->rowBytes();
+
+#if 1
+    SkBitmap bm;
+    bm.installPixels(ii, fPixels, rowBytes);
+
+    char filename[256];
+
+    _snprintf(filename, 256, "c:\\src\\bugs\\foo.png");
+    filename[255] = '\0';
+
+    SkFILEWStream file(filename);
+    SkASSERT(file.isValid());
+
+    SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100);
+#endif
+
+    sk_sp<SkData> data = fPixels->detachPixelsAsData();
+    if (!data) {
+        return nullptr;
+    }
+
+    sk_sp<SkImage> img = SkImage::MakeRasterData(ii, std::move(data), rowBytes);
+    if (!img) {
+        return nullptr;
+    }
+
+    return context->contextPriv().proxyProvider()->createTextureProxy(std::move(img),
+                                                                      kNone_GrSurfaceFlags, 1,
+                                                                      SkBudgeted::kYes, fit);
+#endif
 }

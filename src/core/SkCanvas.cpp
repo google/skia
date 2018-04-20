@@ -984,6 +984,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkLazyPaint lazyP;
     SkImageFilter* imageFilter = paint ? paint->getImageFilter() : nullptr;
     SkMatrix stashedMatrix = fMCRec->fMatrix;
+    MCRec* mungedRec = nullptr;
     SkMatrix remainder;
     SkSize scale;
     /*
@@ -1006,6 +1007,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         stashedMatrix.decomposeScale(&scale, &remainder))
     {
         // We will restore the matrix (which we are overwriting here) in restore via fStashedMatrix
+        mungedRec = fMCRec;
         this->internalSetMatrix(SkMatrix::MakeScale(scale.width(), scale.height()));
         SkPaint* p = lazyP.set(*paint);
         p->setImageFilter(SkImageFilter::MakeMatrixFilter(remainder,
@@ -1015,12 +1017,17 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         paint = p;
     }
 
+    MCRec* prevTop = nullptr;
+
     // do this before we create the layer. We don't call the public save() since
     // that would invoke a possibly overridden virtual
     this->internalSave();
 
     SkIRect ir;
     if (!this->clipRectBounds(bounds, saveLayerFlags, &ir, imageFilter)) {
+        if (mungedRec) {
+            mungedRec->fMatrix = stashedMatrix;
+        }
         return;
     }
 
@@ -1644,6 +1651,7 @@ void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
         return this->drawIRect(region.getBounds(), paint);
     }
 
+    const SkMatrix& ctm = this->getTotalMatrix();
     this->onDrawRegion(region, paint);
 }
 

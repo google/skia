@@ -28,8 +28,8 @@ GrTextureOpList::~GrTextureOpList() {
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
-void GrTextureOpList::dump() const {
-    INHERITED::dump();
+void GrTextureOpList::dump1(bool printDependencies) const {
+    INHERITED::dump1(printDependencies);
 
     SkDebugf("ops (%d):\n", fRecordedOps.count());
     for (int i = 0; i < fRecordedOps.count(); ++i) {

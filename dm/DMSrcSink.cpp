@@ -2192,7 +2192,7 @@ public:
     // This method operates in parallel
     // In each thread we will reconvert the compressedPictureData into an SkPicture
     // replacing each image-index with a promise image.
-    void preprocess(SkData* compressedPictureData, const PromiseImageHelper& helper) {
+    void preprocess(SkData* compressedPictureData, const PromiseImageHelper& helper, bool draw) {
 
         SkDeferredDisplayListRecorder recorder(fCharacterization);
 
@@ -2200,6 +2200,7 @@ public:
         // Maybe set it up in the ctor?
         SkCanvas* subCanvas = recorder.getCanvas();
 
+if (draw) {
         sk_sp<SkPicture> reconstitutedPicture;
 
         {
@@ -2221,6 +2222,9 @@ public:
         // Note: in this use case we only render a picture to the deferred canvas
         // but, more generally, clients will use arbitrary draw calls.
         subCanvas->drawPicture(reconstitutedPicture);
+} else {
+    subCanvas->clear(SK_ColorCYAN);
+}
 
         fDisplayList = recorder.detach();
     }
@@ -2239,6 +2243,8 @@ public:
         dst->drawImage(std::move(img), fClip.fLeft, fClip.fTop);
         dst->restore();
     }
+
+    const SkIRect& clipRect() const { return fClip; }
 
 private:
     // This stack-based context allows each thread to re-inflate the image indices into
@@ -2372,10 +2378,20 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         }
                     }
 
+#if 0
                     // Second, run the cpu pre-processing in threads
                     SkTaskGroup().batch(tileData.count(), [&](int i) {
                         tileData[i].preprocess(compressedPictureData.get(), helper);
                     });
+#else
+                    for (int i = 0; i < tileData.count(); ++i) {
+                        SkDebugf("tile %d: %d %d %d %d\n", i, tileData[i].clipRect().fLeft,
+                                                              tileData[i].clipRect().fTop,
+                                                              tileData[i].clipRect().fRight,
+                                                              tileData[i].clipRect().fBottom);
+                        tileData[i].preprocess(compressedPictureData.get(), helper, i==4);
+                    }
+#endif
 
                     // This drops the helper's refs on all the promise images
                     helper.reset();

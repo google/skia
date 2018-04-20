@@ -32,16 +32,17 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        canvas->save();
         canvas->clear(SK_ColorGREEN);
 
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
-        paint.setColor(0xFFFF0000);
+        paint.setColor(SK_ColorRED);
         paint.setAntiAlias(true);
 
         canvas->translate(-50.0f, 75.0f);
         canvas->rotate(-45.0f);
-        canvas->drawRegion(fRegion, paint);
+//        canvas->drawRegion(fRegion, paint);
 
         canvas->translate(125.0f, 125.0f);
         paint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr, nullptr));
@@ -58,9 +59,10 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         float intervals[] = { 5.0f, 5.0f };
         paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
-        canvas->drawRegion(fRegion, paint);
+//        canvas->drawRegion(fRegion, paint);
 
-        canvas->setMatrix(SkMatrix::I());
+        canvas->restore();
+//        canvas->setMatrix(SkMatrix::I());
         canvas->translate(100, 325);
         paint.setPathEffect(nullptr);
         paint.setStyle(SkPaint::kFill_Style);
@@ -68,12 +70,12 @@ protected:
         SkColor colors[] = { SK_ColorBLUE, SK_ColorYELLOW };
         paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
                                                      SkShader::kClamp_TileMode));
-        canvas->drawRegion(fRegion, paint);
+//        canvas->drawRegion(fRegion, paint);
     }
 
+private:
     SkRegion fRegion;
 
-private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new DrawRegionModesGM; )

@@ -49,7 +49,7 @@ public:
     *  Returns an SkData object wrapping the allocated pixels memory, and resets the pixmap.
     *  If the storage hasn't been allocated, the result is NULL.
     */
-    const SkData* SK_WARN_UNUSED_RESULT detachPixelsAsData();
+    sk_sp<SkData> SK_WARN_UNUSED_RESULT detachPixelsAsData();
 
     // We wrap these so we can clear our internal storage
 

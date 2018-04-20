@@ -493,6 +493,7 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
     if (paint.getMaskFilter()) {
         SkPath path;
         region.getBoundaryPath(&path);
+        path.dump();
         return this->drawPath(path, paint, nullptr, false);
     }
 
