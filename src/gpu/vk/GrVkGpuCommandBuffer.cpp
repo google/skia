@@ -190,6 +190,13 @@ void GrVkGpuRTCommandBuffer::submit() {
             continue;
         }
 
+        // Make sure if we only have a discard load that we execute the discard on the whole image.
+        // TODO: Once we improve our tracking of discards so that we never end up flushing a discard
+        // call with no actually ops, remove this.
+        if (cbInfo.fIsEmpty && cbInfo.fLoadStoreState == LoadStoreState::kStartsWithDiscard) {
+            cbInfo.fBounds = SkRect::MakeWH(vkRT->width(), vkRT->height());
+        }
+
         if (cbInfo.fBounds.intersect(0, 0,
                                      SkIntToScalar(fRenderTarget->width()),
                                      SkIntToScalar(fRenderTarget->height()))) {
