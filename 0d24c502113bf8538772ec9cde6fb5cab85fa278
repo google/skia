@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f99984be_c92b60b0",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-04-20T15:13:27Z",
+      "side": 0,
+      "message": "Interestingly, nothing overrides MaxThreads, and though it returns fMaxThreads, which is protected, it is always set to kMaxMPThreads, so that\u0027s what I return on !ANDROID.",
+      "range": {
+        "startLine": 101,
+        "startChar": 65,
+        "endLine": 103,
+        "endChar": 51
+      },
+      "revId": "0d24c502113bf8538772ec9cde6fb5cab85fa278",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
