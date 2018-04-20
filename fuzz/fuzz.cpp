@@ -29,6 +29,7 @@
 #endif
 
 #include <iostream>
+#include <regex>
 #include <signal.h>
 #include "sk_tool_utils.h"
 
@@ -58,10 +59,11 @@ DEFINE_string2(type, t, "", "How to interpret --bytes, one of:\n"
                             "sksl2glsl\n"
                             "textblob");
 
-static int fuzz_file(const char* path);
+static int fuzz_file(const char* path, const char* type);
 static uint8_t calculate_option(SkData*);
+static int try_auto_detect(const char* path, sk_sp<SkData> bytes);
 
-static void fuzz_api(sk_sp<SkData>);
+static void fuzz_api(sk_sp<SkData> bytes, const char* name);
 static void fuzz_color_deserialize(sk_sp<SkData>);
 static void fuzz_filter_fuzz(sk_sp<SkData>);
 static void fuzz_icc(sk_sp<SkData>);
@@ -81,20 +83,23 @@ static void fuzz_sksl2glsl(sk_sp<SkData>);
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n"
-                                 "--help lists the valid types\n");
+                                 "       fuzz <path/to/file>\n"
+                                 "--help lists the valid types. If type is not specified,\n"
+                                 "fuzz will make a guess based on the name of the file.\n");
     SkCommandLineFlags::Parse(argc, argv);
 
     const char* path = FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0];
+    const char* type = FLAGS_type.isEmpty() ? nullptr : FLAGS_type[0];
 
     if (!sk_isdir(path)) {
-        return fuzz_file(path);
+        return fuzz_file(path, type);
     }
 
     SkOSFile::Iter it(path);
     for (SkString file; it.next(&file); ) {
         SkString p = SkOSPath::Join(path, file.c_str());
         SkDebugf("Fuzzing %s\n", p.c_str());
-        int rv = fuzz_file(p.c_str());
+        int rv = fuzz_file(p.c_str(), type);
         if (rv != 0) {
             return rv;
         }
@@ -102,80 +107,147 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-static int fuzz_file(const char* path) {
+static int fuzz_file(const char* path, const char* type) {
     sk_sp<SkData> bytes(SkData::MakeFromFileName(path));
     if (!bytes) {
         SkDebugf("Could not read %s\n", path);
         return 1;
     }
 
-    if (!FLAGS_type.isEmpty()) {
-        if (0 == strcmp("animated_image_decode", FLAGS_type[0])) {
-            fuzz_animated_img(bytes);
-            return 0;
-        }
-        if (0 == strcmp("api", FLAGS_type[0])) {
-            fuzz_api(bytes);
-            return 0;
-        }
-        if (0 == strcmp("color_deserialize", FLAGS_type[0])) {
-            fuzz_color_deserialize(bytes);
-            return 0;
-        }
-        if (0 == strcmp("icc", FLAGS_type[0])) {
-            fuzz_icc(bytes);
-            return 0;
-        }
-        if (0 == strcmp("image_decode", FLAGS_type[0])) {
-            fuzz_img2(bytes);
-            return 0;
-        }
-        if (0 == strcmp("image_scale", FLAGS_type[0])) {
-            uint8_t option = calculate_option(bytes.get());
-            fuzz_img(bytes, option, 0);
-            return 0;
-        }
-        if (0 == strcmp("image_mode", FLAGS_type[0])) {
-            uint8_t option = calculate_option(bytes.get());
-            fuzz_img(bytes, 0, option);
-            return 0;
-        }
-        if (0 == strcmp("path_deserialize", FLAGS_type[0])) {
-            fuzz_path_deserialize(bytes);
-            return 0;
-        }
-        if (0 == strcmp("region_deserialize", FLAGS_type[0])) {
-            fuzz_region_deserialize(bytes);
-            return 0;
-        }
-        if (0 == strcmp("region_set_path", FLAGS_type[0])) {
-            fuzz_region_set_path(bytes);
-            return 0;
-        }
-        if (0 == strcmp("pipe", FLAGS_type[0])) {
-            fuzz_skpipe(bytes);
-            return 0;
-        }
-        if (0 == strcmp("skp", FLAGS_type[0])) {
-            fuzz_skp(bytes);
-            return 0;
-        }
-        if (0 == strcmp("filter_fuzz", FLAGS_type[0])) {
-            fuzz_filter_fuzz(bytes);
-            return 0;
-        }
-        if (0 == strcmp("textblob", FLAGS_type[0])) {
-            fuzz_textblob_deserialize(bytes);
-            return 0;
-        }
-#if SK_SUPPORT_GPU
-        if (0 == strcmp("sksl2glsl", FLAGS_type[0])) {
-            fuzz_sksl2glsl(bytes);
-            return 0;
-        }
-#endif
+    if (!type) {
+        return try_auto_detect(path, bytes);
     }
+
+    if (0 == strcmp("animated_image_decode", type)) {
+        fuzz_animated_img(bytes);
+        return 0;
+    }
+    if (0 == strcmp("api", type)) {
+        const char* name = FLAGS_name.isEmpty() ? "" : FLAGS_name[0];
+        fuzz_api(bytes, name);
+        return 0;
+    }
+    if (0 == strcmp("color_deserialize", type)) {
+        fuzz_color_deserialize(bytes);
+        return 0;
+    }
+    if (0 == strcmp("icc", type)) {
+        fuzz_icc(bytes);
+        return 0;
+    }
+    if (0 == strcmp("image_decode", type)) {
+        fuzz_img2(bytes);
+        return 0;
+    }
+    if (0 == strcmp("image_scale", type)) {
+        uint8_t option = calculate_option(bytes.get());
+        fuzz_img(bytes, option, 0);
+        return 0;
+    }
+    if (0 == strcmp("image_mode", type)) {
+        uint8_t option = calculate_option(bytes.get());
+        fuzz_img(bytes, 0, option);
+        return 0;
+    }
+    if (0 == strcmp("path_deserialize", type)) {
+        fuzz_path_deserialize(bytes);
+        return 0;
+    }
+    if (0 == strcmp("region_deserialize", type)) {
+        fuzz_region_deserialize(bytes);
+        return 0;
+    }
+    if (0 == strcmp("region_set_path", type)) {
+        fuzz_region_set_path(bytes);
+        return 0;
+    }
+    if (0 == strcmp("pipe", type)) {
+        fuzz_skpipe(bytes);
+        return 0;
+    }
+    if (0 == strcmp("skp", type)) {
+        fuzz_skp(bytes);
+        return 0;
+    }
+    if (0 == strcmp("filter_fuzz", type)) {
+        fuzz_filter_fuzz(bytes);
+        return 0;
+    }
+    if (0 == strcmp("textblob", type)) {
+        fuzz_textblob_deserialize(bytes);
+        return 0;
+    }
+#if SK_SUPPORT_GPU
+    if (0 == strcmp("sksl2glsl", type)) {
+        fuzz_sksl2glsl(bytes);
+        return 0;
+    }
+#endif
+    SkDebugf("Unknown type %s\n", type);
     SkCommandLineFlags::PrintUsage();
+    return 1;
+}
+
+static std::map<std::string, std::string> cf_api_map = {
+    {"api_draw_functions", "DrawFunctions"},
+    {"api_gradients", "Gradients"},
+    {"api_image_filter", "ImageFilter"},
+    {"api_mock_gpu_canvas", "MockGPUCanvas"},
+    {"api_null_canvas", "NullCanvas"},
+    {"api_path_measure", "PathMeasure"},
+    {"api_raster_n32_canvas", "RasterN32Canvas"},
+    {"jpeg_encoder", "JPEGEncoder"},
+    {"png_encoder", "PNGEncoder"},
+    {"webp_encoder", "WEBPEncoder"}
+};
+
+static std::map<std::string, std::string> cf_map = {
+    {"animated_image_decode", "animated_image_decode"},
+    {"image_decode", "image_decode"},
+    {"image_filter_deserialize", "filter_fuzz"},
+    {"image_filter_deserialize_width", "filter_fuzz"},
+    {"path_deserialize", "path_deserialize"},
+    {"region_deserialize", "region_deserialize"},
+    {"region_set_path", "region_set_path"},
+    {"textblob_deserialize", "textblob"}
+};
+
+static int try_auto_detect(const char* path, sk_sp<SkData> bytes) {
+    std::cmatch m;
+    std::regex clusterfuzz("clusterfuzz-testcase(-minimized)?-([a-z0-9_]+)-[\\d]+");
+    std::regex skiafuzzer("(api-)?(\\w+)-[a-f0-9]+");
+
+    if (std::regex_search(path, m, clusterfuzz)) {
+        std::string type = m.str(2);
+        if (type.find("api_") != std::string::npos || type.find("_encoder") != std::string::npos) {
+            if (cf_api_map.find(type) != cf_api_map.end()) {
+                fuzz_api(bytes, cf_api_map[type].c_str());
+                return 0;
+            } else {
+                SkDebugf("Unrecognized api name %s\n", type.c_str());
+                // This will print all api names.
+                fuzz_api(bytes, "");
+                return 1;
+            }
+        } else {
+            if (cf_map.find(type) != cf_map.end()) {
+                return fuzz_file(path, cf_map[type].c_str());
+            }
+        }
+    } else if (std::regex_search(path, m, skiafuzzer)) {
+        std::string a1 = m.str(1);
+        std::string typeOrName = m.str(2);
+        if (a1.length() > 0) {
+            // it's an api fuzzer
+            fuzz_api(bytes, typeOrName.c_str());
+            return 0;
+        } else {
+            return fuzz_file(path, typeOrName.c_str());
+        }
+    }
+
+    SkCommandLineFlags::PrintUsage();
+    SkDebugf("Could not detect type for %s\n", path);
     return 1;
 }
 
@@ -193,9 +265,7 @@ static uint8_t calculate_option(SkData* bytes) {
     return total;
 }
 
-static void fuzz_api(sk_sp<SkData> bytes) {
-    const char* name = FLAGS_name.isEmpty() ? "" : FLAGS_name[0];
-
+static void fuzz_api(sk_sp<SkData> bytes, const char* name) {
     for (auto r = sk_tools::Registry<Fuzzable>::Head(); r; r = r->next()) {
         auto fuzzable = r->factory();
         if (0 == strcmp(name, fuzzable.name)) {
