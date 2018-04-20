@@ -133,7 +133,14 @@ static inline void finish_command_buffer(GrGpuRTCommandBuffer* buffer) {
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
 bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
-    if (0 == fRecordedOps.count() && GrLoadOp::kClear != fColorLoadOp) {
+    // TODO: Forcing the execution of the discard here isn't ideal since it will cause us to do a
+    // discard and then store the data back in memory so that the load op on future draws doesn't
+    // think the memory is unitialized. Ideally we would want a system where we are tracking whether
+    // the proxy itself has valid data or not, and then use that as a signal on whether we should be
+    // loading or discarding. In that world we wouldni;t need to worry about executing oplists with
+    // no ops just to do a discard.
+    if (0 == fRecordedOps.count() && GrLoadOp::kClear != fColorLoadOp &&
+        GrLoadOp::kDiscard != fColorLoadOp) {
         return false;
     }
 
