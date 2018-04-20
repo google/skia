@@ -96,6 +96,9 @@ public:
     // SkTraceMemoryDump interface.
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
+    // Counts the number of caches for the given typeface.
+    static int CountCachesForTesting(const SkTypeface*);
+
     // call when a glyphcache is available for caching (i.e. not in use)
     void attachNode(Node* node);
     ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
