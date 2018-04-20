@@ -34,7 +34,8 @@ public:
         }
         return SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, this->vertexCount(),
                                     fPositions.begin(), nullptr, fColors.begin(),
-                                    this->indexCount(), fIndices.begin());
+                                    this->indexCount(), fIndices.begin(),
+                                    SkVertices::kDont_PremulColorMode);
     }
 
 protected:
