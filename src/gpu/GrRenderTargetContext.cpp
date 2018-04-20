@@ -1162,7 +1162,8 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
             SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
             stroke.setStrokeStyle(outerR - innerR);
             auto op = GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, circleBounds,
-                                                  stroke, this->caps()->shaderCaps());
+                                                  GrStyle(stroke, nullptr),
+                                                  this->caps()->shaderCaps());
             if (op) {
                 this->addDrawOp(clip, std::move(op));
                 return true;
@@ -1294,21 +1295,17 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawOval", fContext);
 
-    if (oval.isEmpty()) {
-       return;
+    if (oval.isEmpty() && !style.pathEffect()) {
+        return;
     }
 
-    SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
-
     AutoCheckFlush acf(this->drawingManager());
-    const SkStrokeRec& stroke = style.strokeRec();
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrDrawOp> op =
-                GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, oval, stroke, shaderCaps);
-        if (op) {
+        if (auto op = GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, oval, style,
+                                                  shaderCaps)) {
             this->addDrawOp(clip, std::move(op));
             return;
         }

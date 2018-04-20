@@ -68,6 +68,7 @@ public:
     enum ClassID {
         kBigKeyProcessor_ClassID,
         kBlockInputFragmentProcessor_ClassID,
+        kButtCapStrokedCircleGeometryProcessor_ClassID,
         kCircleGeometryProcessor_ClassID,
         kCircularRRectEffect_ClassID,
         kColorMatrixEffect_ClassID,
