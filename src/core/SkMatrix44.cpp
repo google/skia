@@ -205,13 +205,13 @@ void SkMatrix44::setIdentity() {
     this->setTypeMask(kIdentity_Mask);
 }
 
-void SkMatrix44::set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
-                        SkMScalar m10, SkMScalar m11, SkMScalar m12,
-                        SkMScalar m20, SkMScalar m21, SkMScalar m22) {
-    fMat[0][0] = m00; fMat[0][1] = m01; fMat[0][2] = m02; fMat[0][3] = 0;
-    fMat[1][0] = m10; fMat[1][1] = m11; fMat[1][2] = m12; fMat[1][3] = 0;
-    fMat[2][0] = m20; fMat[2][1] = m21; fMat[2][2] = m22; fMat[2][3] = 0;
-    fMat[3][0] = 0;   fMat[3][1] = 0;   fMat[3][2] = 0;   fMat[3][3] = 1;
+void SkMatrix44::set3x3(SkMScalar m_00, SkMScalar m_10, SkMScalar m_20,
+                        SkMScalar m_01, SkMScalar m_11, SkMScalar m_21,
+                        SkMScalar m_02, SkMScalar m_12, SkMScalar m_22) {
+    fMat[0][0] = m_00; fMat[0][1] = m_10; fMat[0][2] = m_20; fMat[0][3] = 0;
+    fMat[1][0] = m_01; fMat[1][1] = m_11; fMat[1][2] = m_21; fMat[1][3] = 0;
+    fMat[2][0] = m_02; fMat[2][1] = m_12; fMat[2][2] = m_22; fMat[2][3] = 0;
+    fMat[3][0] = 0;    fMat[3][1] = 0;    fMat[3][2] = 0;    fMat[3][3] = 1;
     this->dirtyTypeMask();
 }
 
