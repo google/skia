@@ -1017,6 +1017,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         paint = p;
     }
 
+    MCRec* prevTop = nullptr;
+
     // do this before we create the layer. We don't call the public save() since
     // that would invoke a possibly overridden virtual
     this->internalSave();
