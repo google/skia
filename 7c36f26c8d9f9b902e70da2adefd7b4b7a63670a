@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6469ad8_ac9bbd18",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-20T01:12:08Z",
+      "side": 1,
+      "message": "Do you mind adding a \n\ttask.ExecutionTimeout \u003d 1 * time.Hour\n\ttask.IoTimeout \u003d 1 * time.Hour\nhere?\n\nThis will prevent timeouts with the bot (as seem in this CL).\nI\u0027m going to remove it from the CQ for a while anyway.",
+      "revId": "7c36f26c8d9f9b902e70da2adefd7b4b7a63670a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
