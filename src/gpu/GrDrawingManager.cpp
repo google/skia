@@ -264,6 +264,14 @@ static void end_oplist_flush_if_not_unique(const sk_sp<GrOpList>& opList) {
 bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState) {
     SkASSERT(startIndex <= stopIndex && stopIndex <= fOpLists.count());
 
+#if GR_FLUSH_TIME_OP_SPEW
+    SkDebugf("Flushing opLists: %d to %d out of [%d, %d]\n",
+                            startIndex, stopIndex, 0, fOpLists.count());
+    for (int i = startIndex; i < stopIndex; ++i) {
+        fOpLists[i]->dump(false);
+    }
+#endif
+
     GrResourceProvider* resourceProvider = fContext->contextPriv().resourceProvider();
     bool anyOpListsExecuted = false;
 

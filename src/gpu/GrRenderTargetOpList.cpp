@@ -38,8 +38,8 @@ GrRenderTargetOpList::~GrRenderTargetOpList() {
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
-void GrRenderTargetOpList::dump() const {
-    INHERITED::dump();
+void GrRenderTargetOpList::dump(bool printDependencies) const {
+    INHERITED::dump(printDependencies);
 
     SkDebugf("ops (%d):\n", fRecordedOps.count());
     for (int i = 0; i < fRecordedOps.count(); ++i) {
