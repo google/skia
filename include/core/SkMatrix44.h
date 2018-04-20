@@ -328,11 +328,11 @@ public:
 #endif
 
     /* This sets the top-left of the matrix and clears the translation and
-     * perspective components (with [3][3] set to 1).  mXY is interpreted
-     * as the matrix entry at col = X, row = Y. */
-    void set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
-                SkMScalar m10, SkMScalar m11, SkMScalar m12,
-                SkMScalar m20, SkMScalar m21, SkMScalar m22);
+     * perspective components (with [3][3] set to 1).  m_ij is interpreted
+     * as the matrix entry at row = i, col = j. */
+    void set3x3(SkMScalar m_00, SkMScalar m_10, SkMScalar m_20,
+                SkMScalar m_01, SkMScalar m_11, SkMScalar m_21,
+                SkMScalar m_02, SkMScalar m_12, SkMScalar m_22);
     void set3x3RowMajorf(const float[]);
 
     void setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
