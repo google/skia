@@ -64,10 +64,7 @@ bool SkColorSpaceXform_skcms::apply(ColorFormat dstFormat, void* dst,
 
 static bool cs_to_profile(const SkColorSpace* cs, skcms_ICCProfile* profile) {
     if (cs->profileData()) {
-        bool result = skcms_Parse(cs->profileData()->data(), cs->profileData()->size(), profile);
-        // We shouldn't encounter color spaces that were constructed from invalid profiles!
-        SkASSERT(result);
-        return result;
+        return skcms_Parse(cs->profileData()->data(), cs->profileData()->size(), profile);
     }
 
     SkMatrix44 toXYZ;
