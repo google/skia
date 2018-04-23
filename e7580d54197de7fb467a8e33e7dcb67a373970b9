@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "dc5ca5d1_74313aae",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3356,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-23T22:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7f2d8e0_16d979fd",
+      "revId": "e7580d54197de7fb467a8e33e7dcb67a373970b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74951c26_3c6f7713",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "f7e355ad_a60b4b7a",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3361,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-23T22:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74951c26_3c6f7713",
+      "revId": "e7580d54197de7fb467a8e33e7dcb67a373970b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8a3917c_ba734338",
         "filename": "src/gpu/GrShape.h",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2018-04-23T18:57:59Z",
       "side": 1,
       "message": "Can\u0027t we also get line segments in this case?",
+      "revId": "e7580d54197de7fb467a8e33e7dcb67a373970b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c33ee6f2_6bb00243",
+        "filename": "src/gpu/GrShape.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-23T22:16:50Z",
+      "side": 1,
+      "message": "At least experimentally the changes I made to arcTo to check whether the previous point is close to the new starting point avoids lines.",
+      "parentUuid": "b8a3917c_ba734338",
       "revId": "e7580d54197de7fb467a8e33e7dcb67a373970b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
