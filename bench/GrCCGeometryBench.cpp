@@ -22,6 +22,7 @@ public:
         fPoints[1].set(x1, y1);
         fPoints[2].set(x2, y2);
         fPoints[3].set(x3, y3);
+        fPoints[4].set(x0, y0); // Flat closing edge.
 
         fName = "ccprgeometry";
         switch (SkClassifyCubic(fPoints)) {
@@ -52,7 +53,7 @@ public:
             fGeometry.beginContour(fPoints[0]);
             for (int i = 0; i < kNumBaseLoops; ++i) {
                 fGeometry.cubicTo(fPoints);
-                fGeometry.lineTo(fPoints[0]);
+                fGeometry.lineTo(fPoints+3);
             }
             fGeometry.endContour();
             fGeometry.reset();
@@ -60,7 +61,7 @@ public:
     }
 
 private:
-    SkPoint fPoints[4];
+    SkPoint fPoints[5];
     SkString fName;
     GrCCGeometry fGeometry{4*100*kNumBaseLoops, 2*100*kNumBaseLoops};
 

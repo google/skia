@@ -206,6 +206,7 @@ gm_sources = [
   "$_gm/lumafilter.cpp",
   "$_gm/makecolorspace.cpp",
   "$_gm/makeRasterImage.cpp",
+  "$_gm/mandoline.cpp",
   "$_gm/manypaths.cpp",
   "$_gm/matrixconvolution.cpp",
   "$_gm/matriximagefilter.cpp",
