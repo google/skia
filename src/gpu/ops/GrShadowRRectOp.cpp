@@ -460,11 +460,11 @@ private:
         // we also skew the vectors we send to the shader that help define the circle.
         // By doing so, we end up with a quarter circle in the corner rather than the
         // elliptical curve.
-        SkVector outerVec = SkVector::Make(0.5f*(outerRadius - umbraInset), -umbraInset);
+        SkVector outerVec = SkVector::Make(outerRadius - umbraInset, -outerRadius - umbraInset);
         outerVec.normalize();
-        SkVector diagVec = SkVector::Make(outerVec.fX + outerVec.fY,
-                                          outerVec.fX + outerVec.fY);
-        diagVec *= umbraInset / (2 * umbraInset - outerRadius);
+        SkScalar diagVal = umbraInset / (SK_ScalarSqrt2*(outerRadius - umbraInset) - outerRadius);
+        SkVector diagVec = SkVector::Make(diagVal, diagVal);
+
         SkScalar distanceCorrection = umbraInset / blurRadius;
         SkScalar clampValue = args.fClampValue;
 

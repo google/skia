@@ -13,13 +13,14 @@ enum class Mode {
 layout(key) in Mode mode;
 
 void main() {
-    half factor = 1.0 - sk_InColor.a;
+    half x = sk_InColor.a;
+	half factor;
     @switch (mode) {
         case Mode::kGaussian:
-            factor = exp(-factor * factor * 4.0) - 0.018;
+            factor = x*x*x*mix(sk_InColor.r, 1, 4.0 - 3.0*x);
             break;
         case Mode::kSmoothStep:
-            factor = smoothstep(1.0, 0.0, factor);
+            factor = smoothstep(0.0, 1.0, x);
             break;
     }
     sk_OutColor = half4(factor);
