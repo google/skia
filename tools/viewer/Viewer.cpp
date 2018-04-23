@@ -1342,10 +1342,6 @@ void Viewer::drawImGui() {
                 }
             }
 
-            if (fShowSlidePicker) {
-                ImGui::SetNextTreeNodeOpen(true);
-            }
-
             if (ImGui::CollapsingHeader("Paint")) {
                 int hintingIdx = 0;
                 if (fPaintOverrides.fHinting) {
@@ -1445,6 +1441,9 @@ void Viewer::drawImGui() {
                 }
             }
 
+            if (fShowSlidePicker) {
+                ImGui::SetNextTreeNodeOpen(true);
+            }
             if (ImGui::CollapsingHeader("Slide")) {
                 static ImGuiTextFilter filter;
                 static ImVector<const char*> filteredSlideNames;
