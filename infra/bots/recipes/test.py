@@ -710,6 +710,10 @@ def dm_flags(api, bot):
     # skia:7096
     match.append('~PinnedImageTest')
 
+  if 'ANGLE' in bot:
+    # skia:7835
+    match.append('~BlurMaskBiggerThanDest')
+
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     for config in ['angle_d3d9_es2', 'angle_d3d11_es2', 'angle_gl_es2']:
       # skia:6103
