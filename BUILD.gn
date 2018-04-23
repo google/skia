@@ -30,7 +30,7 @@ declare_args() {
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
-  skia_use_skcms = is_skia_dev_build
+  skia_use_skcms = true
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true

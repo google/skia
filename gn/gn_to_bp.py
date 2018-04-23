@@ -233,6 +233,9 @@ local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
 export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
 defines      = [str(d) for d in js['targets']['//:skia']['defines']]
 
+# We need to add skcms.c, which lives in third_party
+srcs.add("third_party/skcms/skcms.c")
+
 dm_srcs         = strip_slashes(js['targets']['//:dm']['sources'])
 dm_includes     = strip_slashes(js['targets']['//:dm']['include_dirs'])
 
