@@ -67,7 +67,7 @@ static bool cs_to_profile(const SkColorSpace* cs, skcms_ICCProfile* profile) {
         return skcms_Parse(cs->profileData()->data(), cs->profileData()->size(), profile);
     }
 
-    SkMatrix44 toXYZ;
+    SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
     SkColorSpaceTransferFn tf;
     if (cs->toXYZD50(&toXYZ) && cs->isNumericalTransferFn(&tf)) {
         memset(profile, 0, sizeof(*profile));
