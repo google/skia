@@ -22,6 +22,30 @@
       "revId": "f885ca0656d3f89b89dd34884641dca2c0f791c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a24f31a_bf16969b",
+        "filename": "src/gpu/GrPaint.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-23T12:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34b2008e_32550687",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 5
+      },
+      "revId": "f885ca0656d3f89b89dd34884641dca2c0f791c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
