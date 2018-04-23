@@ -344,22 +344,10 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "cp",
-      "gs://skia-buildbots/artifacts/server/.gitcookies_update-skps",
-      "[START_DIR]/update_skps.git_cookies"
-    ],
-    "infra_step": true,
-    "name": "download gitcookies"
-  },
-  {
-    "cmd": [
       "python",
       "[CUSTOM_/_B_WORK]/skia/infra/bots/upload_skps.py",
       "--target_dir",
-      "[START_DIR]/skp_output",
-      "--gitcookies",
-      "[START_DIR]/update_skps.git_cookies"
+      "[START_DIR]/skp_output"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
