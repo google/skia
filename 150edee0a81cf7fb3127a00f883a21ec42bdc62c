@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e7d861f_7b8193ee",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-23T16:02:55Z",
+      "side": 1,
+      "message": "This might read more clearly without giving 1 the name \"inset\", given that it\u0027s an outset.\n\n(Same deal in the CL description.)",
+      "range": {
+        "startLine": 1581,
+        "startChar": 4,
+        "endLine": 1584,
+        "endChar": 62
+      },
+      "revId": "150edee0a81cf7fb3127a00f883a21ec42bdc62c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
