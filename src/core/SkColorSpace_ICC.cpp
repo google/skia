@@ -1326,93 +1326,81 @@ static sk_sp<SkColorSpace> make_xyz(const ICCProfileHeader& header, ICCTag* tags
     r = ICCTag::Find(tags, tagCount, kTAG_rTRC);
     g = ICCTag::Find(tags, tagCount, kTAG_gTRC);
     b = ICCTag::Find(tags, tagCount, kTAG_bTRC);
-    if ((!r || !g || !b)) {
-        if (!r) {
-            r = g ? g : b;
-        }
-        if (!g) {
-            g = r ? r : b;
-        }
-        if (!b) {
-            b = r ? r : g;
-        }
+    if (!r || !g || !b) {
+        return_null("Need valid TRC tags for XYZ space");
     }
 
     SkGammaNamed gammaNamed = kNonStandard_SkGammaNamed;
     sk_sp<SkGammas> gammas = nullptr;
     size_t tagBytes;
-    if (r && g && b) {
-        if (tag_equals(r, g, base) && tag_equals(g, b, base)) {
-            SkGammas::Data data;
-            SkColorSpaceTransferFn params;
-            SkGammas::Type type =
-                    parse_gamma(&data, &params, &tagBytes, r->addr(base), r->fLength);
-            handle_invalid_gamma(&type, &data);
+    if (tag_equals(r, g, base) && tag_equals(g, b, base)) {
+        SkGammas::Data data;
+        SkColorSpaceTransferFn params;
+        SkGammas::Type type =
+                parse_gamma(&data, &params, &tagBytes, r->addr(base), r->fLength);
+        handle_invalid_gamma(&type, &data);
 
-            if (SkGammas::Type::kNamed_Type == type) {
-                gammaNamed = data.fNamed;
-            } else {
-                size_t allocSize = sizeof(SkGammas);
-                if (!safe_add(allocSize, gamma_alloc_size(type, data), &allocSize)) {
-                    return_null("SkGammas struct is too large to allocate");
-                }
-                void* memory = sk_malloc_throw(allocSize);
-                gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
-                load_gammas(memory, 0, type, &data, params, r->addr(base));
-
-                for (int i = 0; i < 3; ++i) {
-                    gammas->fType[i] = type;
-                    gammas->fData[i] = data;
-                }
-            }
+        if (SkGammas::Type::kNamed_Type == type) {
+            gammaNamed = data.fNamed;
         } else {
-            SkGammas::Data rData;
-            SkColorSpaceTransferFn rParams;
-            SkGammas::Type rType =
-                    parse_gamma(&rData, &rParams, &tagBytes, r->addr(base), r->fLength);
-            handle_invalid_gamma(&rType, &rData);
-
-            SkGammas::Data gData;
-            SkColorSpaceTransferFn gParams;
-            SkGammas::Type gType =
-                    parse_gamma(&gData, &gParams, &tagBytes, g->addr(base), g->fLength);
-            handle_invalid_gamma(&gType, &gData);
-
-            SkGammas::Data bData;
-            SkColorSpaceTransferFn bParams;
-            SkGammas::Type bType =
-                    parse_gamma(&bData, &bParams, &tagBytes, b->addr(base), b->fLength);
-            handle_invalid_gamma(&bType, &bData);
-
             size_t allocSize = sizeof(SkGammas);
-            if (!safe_add(allocSize, gamma_alloc_size(rType, rData), &allocSize) ||
-                !safe_add(allocSize, gamma_alloc_size(gType, gData), &allocSize) ||
-                !safe_add(allocSize, gamma_alloc_size(bType, bData), &allocSize)) {
+            if (!safe_add(allocSize, gamma_alloc_size(type, data), &allocSize)) {
                 return_null("SkGammas struct is too large to allocate");
             }
             void* memory = sk_malloc_throw(allocSize);
             gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
+            load_gammas(memory, 0, type, &data, params, r->addr(base));
 
-            uint32_t offset = 0;
-            gammas->fType[0] = rType;
-            offset += load_gammas(memory, offset, rType, &rData, rParams,
-                                  r->addr(base));
-
-            gammas->fType[1] = gType;
-            offset += load_gammas(memory, offset, gType, &gData, gParams,
-                                  g->addr(base));
-
-            gammas->fType[2] = bType;
-            load_gammas(memory, offset, bType, &bData, bParams, b->addr(base));
-
-            gammas->fData[0] = rData;
-            gammas->fData[1] = gData;
-            gammas->fData[2] = bData;
+            for (int i = 0; i < 3; ++i) {
+                gammas->fType[i] = type;
+                gammas->fData[i] = data;
+            }
         }
     } else {
-        // Guess sRGB if the profile is missing transfer functions.
-        gammaNamed = kSRGB_SkGammaNamed;
+        SkGammas::Data rData;
+        SkColorSpaceTransferFn rParams;
+        SkGammas::Type rType =
+                parse_gamma(&rData, &rParams, &tagBytes, r->addr(base), r->fLength);
+        handle_invalid_gamma(&rType, &rData);
+
+        SkGammas::Data gData;
+        SkColorSpaceTransferFn gParams;
+        SkGammas::Type gType =
+                parse_gamma(&gData, &gParams, &tagBytes, g->addr(base), g->fLength);
+        handle_invalid_gamma(&gType, &gData);
+
+        SkGammas::Data bData;
+        SkColorSpaceTransferFn bParams;
+        SkGammas::Type bType =
+                parse_gamma(&bData, &bParams, &tagBytes, b->addr(base), b->fLength);
+        handle_invalid_gamma(&bType, &bData);
+
+        size_t allocSize = sizeof(SkGammas);
+        if (!safe_add(allocSize, gamma_alloc_size(rType, rData), &allocSize) ||
+            !safe_add(allocSize, gamma_alloc_size(gType, gData), &allocSize) ||
+            !safe_add(allocSize, gamma_alloc_size(bType, bData), &allocSize)) {
+            return_null("SkGammas struct is too large to allocate");
+        }
+        void* memory = sk_malloc_throw(allocSize);
+        gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
+
+        uint32_t offset = 0;
+        gammas->fType[0] = rType;
+        offset += load_gammas(memory, offset, rType, &rData, rParams,
+                                r->addr(base));
+
+        gammas->fType[1] = gType;
+        offset += load_gammas(memory, offset, gType, &gData, gParams,
+                                g->addr(base));
+
+        gammas->fType[2] = bType;
+        load_gammas(memory, offset, bType, &bData, bParams, b->addr(base));
+
+        gammas->fData[0] = rData;
+        gammas->fData[1] = gData;
+        gammas->fData[2] = bData;
     }
+
 
     if (kNonStandard_SkGammaNamed == gammaNamed) {
         // It's possible that we'll initially detect non-matching gammas, only for
