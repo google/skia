@@ -13,6 +13,7 @@
 
 class SkBitSet {
 public:
+    SkBitSet() {}
     explicit SkBitSet(int numberOfBits) {
         SkASSERT(numberOfBits >= 0);
         fDwordCount = (numberOfBits + 31) / 32;  // Round up size to 32-bit boundary.
@@ -20,9 +21,6 @@ public:
             fBitData.reset((uint32_t*)sk_calloc_throw(fDwordCount * sizeof(uint32_t)));
         }
     }
-
-    SkBitSet(const SkBitSet&) = delete;
-    SkBitSet& operator=(const SkBitSet&) = delete;
 
     /** Set the value of the index-th bit to true.  */
     void set(int index) {
@@ -67,7 +65,7 @@ public:
 
 private:
     std::unique_ptr<uint32_t, SkFunctionWrapper<void, void, sk_free>> fBitData;
-    size_t fDwordCount;  // Dword (32-bit) count of the bitset.
+    size_t fDwordCount = 0;  // Dword (32-bit) count of the bitset.
 
     uint32_t* internalGet(int index) const {
         size_t internalIndex = index / 32;
