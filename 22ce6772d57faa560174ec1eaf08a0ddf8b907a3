@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "3d7dfc21_cd27fd6f",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 2555,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "Pull this out into its own CL.",
+      "range": {
+        "startLine": 2555,
+        "startChar": 25,
+        "endLine": 2555,
+        "endChar": 35
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "52344cb4_2f9728a4",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 21
@@ -18,6 +41,259 @@
         "startChar": 4,
         "endLine": 385,
         "endChar": 53
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f1f120e_229d544d",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "I think we don\u0027t need a typeface for the GPU. We would have to check all the details, but I don\u0027t think we even need to push it. The typeface was only needed in the pull strategy to deserialize the the text blobs.",
+      "range": {
+        "startLine": 540,
+        "startChar": 10,
+        "endLine": 540,
+        "endChar": 22
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c2379e4_13d713e3",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "I don\u0027t think we do need to deserialize them. At this point the descriptor is just a key into the cache.",
+      "range": {
+        "startLine": 580,
+        "startChar": 32,
+        "endLine": 580,
+        "endChar": 34
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27d09b9e_fcdd5629",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "You are exposing Serializer to the global namespace. Is there anyway you can keep it contained in the .cpp?",
+      "range": {
+        "startLine": 27,
+        "startChar": 6,
+        "endLine": 27,
+        "endChar": 16
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "985b5464_d7cea51f",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "Same with this.",
+      "range": {
+        "startLine": 34,
+        "startChar": 7,
+        "endLine": 34,
+        "endChar": 19
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a92454bb_3cc7163c",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "I don\u0027t think these are needed anymore. Use SkDescriptorMap instead.",
+      "range": {
+        "startLine": 66,
+        "startChar": 7,
+        "endLine": 66,
+        "endChar": 15
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98a04e0b_9d07bfb1",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "Let\u0027s keep the pull server and client intact. Since we have no real fail over strategy, I would like to keep them as a fail over. How about you make two new classes SkCacheSender and SkCacheReceiver maybe?",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 29
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "151aa229_ba641efb",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "I don\u0027t think that Discardable HandleManager needs to be part of the interface. Can\u0027t it just live in the .cpp?",
+      "range": {
+        "startLine": 80,
+        "startChar": 17,
+        "endLine": 80,
+        "endChar": 41
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "322338e8_083c80c6",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "Can DiscardableHandleManger be moved out of the interface and into the implementation?",
+      "range": {
+        "startLine": 154,
+        "startChar": 10,
+        "endLine": 154,
+        "endChar": 34
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b2cef58_9d78de2d",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "Pull the dump change out into its own cl.",
+      "range": {
+        "startLine": 139,
+        "startChar": 38,
+        "endLine": 139,
+        "endChar": 51
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "462241e8_c544ae84",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "I don\u0027t think this should be added to the API. It will have to live as a patch until we figure this out.",
+      "range": {
+        "startLine": 314,
+        "startChar": 39,
+        "endLine": 314,
+        "endChar": 61
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "586d893a_5ad33444",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-23T21:26:42Z",
+      "side": 1,
+      "message": "This is specific to your implementation. Move to SkRemoteGlyphCache.cpp?",
+      "range": {
+        "startLine": 324,
+        "startChar": 25,
+        "endLine": 324,
+        "endChar": 47
       },
       "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
