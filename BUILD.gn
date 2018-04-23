@@ -743,7 +743,7 @@ optional("skcms") {
 
   public_defines = [ "SK_USE_SKCMS" ]
   deps = [
-    "//third_party/skcms",
+    "third_party/skcms",
   ]
   sources = [
     "src/core/SkColorSpaceXform_skcms.cpp",
