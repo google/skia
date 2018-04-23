@@ -9,6 +9,7 @@
 #define SkStrikeCache_DEFINED
 
 #include <unordered_map>
+#include <unordered_set>
 
 #include "SkDescriptor.h"
 #include "SkSpinlock.h"
@@ -48,6 +49,9 @@ using SkDescriptorMap =
                 T,
                 SkDescriptorMapOperators,
                 SkDescriptorMapOperators>;
+
+using SkDescriptorSet =
+        std::unordered_set<const SkDescriptor*, SkDescriptorMapOperators, SkDescriptorMapOperators>;
 
 class SkStrikePinner {
 public:
@@ -115,6 +119,9 @@ public:
     // Dump memory usage statistics of all the attaches caches in the process using the
     // SkTraceMemoryDump interface.
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
+
+    // Counts the number of caches for the given typeface.
+    static int CountCachesForTesting(const SkTypeface*);
 
     // call when a glyphcache is available for caching (i.e. not in use)
     void attachNode(Node* node);
