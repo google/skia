@@ -239,6 +239,12 @@ SI ATTR F NS(apply_transfer_function_)(const skcms_TransferFunction* tf, F x) {
 }
 #define apply_transfer_function NS(apply_transfer_function_)
 
+SI ATTR F NS(apply_tf13_)(const skcms_TF13* tf, F x) {
+    F sign = (F)if_then_else(x < 0, -F1, F1);
+    return x*(x*(x*tf->A + sign*tf->B) + (1 - tf->A - tf->B) );
+}
+#define apply_tf13 NS(apply_tf13_)
+
 // Strided loads and stores of N values, starting from p.
 #if N == 1
     #define LOAD_3(T, p) (T)(p)[0]
@@ -839,6 +845,10 @@ static void NS(exec_ops)(const Op* ops, const void** args,
             case Op_tf_g:{ g = apply_transfer_function(*args++, g); } break;
             case Op_tf_b:{ b = apply_transfer_function(*args++, b); } break;
             case Op_tf_a:{ a = apply_transfer_function(*args++, a); } break;
+
+            case Op_tf13_r:{ r = apply_tf13(*args++, r); } break;
+            case Op_tf13_g:{ g = apply_tf13(*args++, g); } break;
+            case Op_tf13_b:{ b = apply_tf13(*args++, b); } break;
 
             case Op_table_8_r: { r = NS(table_8_ )(*args++, r); } break;
             case Op_table_8_g: { g = NS(table_8_ )(*args++, g); } break;

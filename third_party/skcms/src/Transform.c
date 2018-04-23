@@ -314,6 +314,11 @@ typedef struct {
     const void* arg;
 } OpAndArg;
 
+static OpAndArg select_tf13_op(const skcms_TF13* tf, int channel) {
+    static const Op ops[] = { Op_tf13_r, Op_tf13_g, Op_tf13_b };
+    return (OpAndArg){ ops[channel], tf };
+}
+
 static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
     static const struct { Op parametric, table_8, table_16; } ops[] = {
         { Op_tf_r, Op_table_8_r, Op_table_16_r },
@@ -513,8 +518,13 @@ bool skcms_Transform(const void*             src,
 
         } else if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
             for (int i = 0; i < 3; i++) {
+                // Favor Op_noop (identity curve) over anything else,
+                // and select_tf_op() over over select_curve_op() when possible.
                 OpAndArg oa = select_curve_op(&srcProfile->trc[i], i);
                 if (oa.op != Op_noop) {
+                    if (srcProfile->has_tf13[i]) {
+                        oa = select_tf13_op(&srcProfile->tf13[i], i);
+                    }
                     *ops++  = oa.op;
                     *args++ = oa.arg;
                 }
