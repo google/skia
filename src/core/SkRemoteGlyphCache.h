@@ -21,6 +21,7 @@
 #include "SkNoDrawCanvas.h"
 #include "SkRefCnt.h"
 #include "SkSerialProcs.h"
+#include "SkStrikeCache.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
@@ -102,20 +103,7 @@ public:
     void iterateDifferences(PerStrike perStrike, PerGlyph perGlyph) const;
 
 private:
-    struct DescHash {
-        size_t operator()(const SkDescriptor* key) const {
-            return key->getChecksum();
-        }
-    };
-
-    struct DescEq {
-        bool operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
-            return lhs->getChecksum() == rhs->getChecksum();
-        }
-    };
-
-    using DescMap = std::unordered_map<const SkDescriptor*, SkStrikeDifferences, DescHash, DescEq>;
-    DescMap fDescriptorToDifferencesMap{16, DescHash(), DescEq()};
+    SkDescriptorMap<SkStrikeDifferences> fDescriptorToDifferencesMap{16};
 };
 
 class SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
