@@ -22,17 +22,7 @@ class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     with self.m.context(cwd=flutter_dir):
       # Runhook to generate the gn binary in buildtools.
-      # TODO(borenet): Remove this hack and replace with
-      # 'self.m.gclient.runhooks()' after the transition to Kitchen:
-      # https://bugs.chromium.org/p/skia/issues/detail?id=7050
-      depot_tools = self.m.vars.checkout_root.join('depot_tools')
-      self.m.git.checkout(
-          'https://chromium.googlesource.com/chromium/tools/depot_tools.git',
-          dir_path=depot_tools, ref='06493714339009216197d59c5413da2a1efdf4a2')
-      self.m.run(
-          self.m.step,
-          'runhook',
-          cmd=[depot_tools.join('gclient'), 'runhooks'])
+      self.m.gclient.runhooks()
 
       # Setup GN args.
       gn_args = [
