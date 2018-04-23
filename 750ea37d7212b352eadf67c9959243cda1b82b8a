@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b32383f8_016734bd",
+        "filename": "tests/GrShapeTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-23T18:36:02Z",
+      "side": 1,
+      "message": "SW draws ever so slightly outside the left side of the theoretical bounds when stroking an oval.",
+      "revId": "750ea37d7212b352eadf67c9959243cda1b82b8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
