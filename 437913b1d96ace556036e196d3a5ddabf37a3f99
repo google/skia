@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fa72090_0808c027",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-23T22:12:15Z",
+      "side": 1,
+      "message": "Funny, I almost uploaded the exact same CL yesterday :)\n\nThen I noticed that we do update fIsScaleTranslate, right here (need to recompute anyway due to the restore, regardless of whether there was a layer or not).",
+      "revId": "437913b1d96ace556036e196d3a5ddabf37a3f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
