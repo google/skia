@@ -42,6 +42,13 @@
     #endif
 #endif
 
+// These -Wvector-conversion warnings seem to trigger in very bogus situations,
+// like vst3q_f32() expecting a 16x char rather than a 4x float vector.  :/
+#if defined(USING_NEON) && defined(__clang__)
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wvector-conversion"
+#endif
+
 // We tag most helper functions as SI, to enforce good code generation
 // but also work around what we think is a bug in GCC: when targeting 32-bit
 // x86, GCC tends to pass U16 (4x uint16_t vector) function arguments in the
@@ -87,8 +94,8 @@ SI ATTR I32 NS(to_fixed_)(F f) {  return CAST(I32, f + 0.5f); }
 #endif
 
 #if defined(USING_NEON_F16C)
-    SI ATTR F   NS(F_from_Half_(U16 half)) { return vcvt_f32_f16(half); }
-    SI ATTR U16 NS(Half_from_F_(F      f)) { return vcvt_f16_f32(   f); }
+    SI ATTR F   NS(F_from_Half_(U16 half)) { return      vcvt_f32_f16((float16x4_t)half); }
+    SI ATTR U16 NS(Half_from_F_(F      f)) { return (U16)vcvt_f16_f32(                f); }
 #elif defined(__AVX512F__)
     SI ATTR F   NS(F_from_Half_)(U16 half) { return (F)_mm512_cvtph_ps((__m256i)half); }
     SI ATTR U16 NS(Half_from_F_)(F f) {
@@ -151,8 +158,8 @@ SI ATTR void NS(swap_endian_16x4_)(U64* rgba) {
 #define swap_endian_16x4 NS(swap_endian_16x4_)
 
 #if defined(USING_NEON)
-    SI ATTR F NS(min__)(F x, F y) { return vminq_f32(x,y); }
-    SI ATTR F NS(max__)(F x, F y) { return vmaxq_f32(x,y); }
+    SI ATTR F NS(min__)(F x, F y) { return (F)vminq_f32((float32x4_t)x, (float32x4_t)y); }
+    SI ATTR F NS(max__)(F x, F y) { return (F)vmaxq_f32((float32x4_t)x, (float32x4_t)y); }
 #else
     SI ATTR F NS(min__)(F x, F y) { return (F)if_then_else(x > y, y, x); }
     SI ATTR F NS(max__)(F x, F y) { return (F)if_then_else(x < y, y, x); }
@@ -641,9 +648,9 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                 const uint16_t* rgb = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
             #if defined(USING_NEON)
                 uint16x4x3_t v = vld3_u16(rgb);
-                r = CAST(F, swap_endian_16(v.val[0])) * (1/65535.0f);
-                g = CAST(F, swap_endian_16(v.val[1])) * (1/65535.0f);
-                b = CAST(F, swap_endian_16(v.val[2])) * (1/65535.0f);
+                r = CAST(F, swap_endian_16((U16)v.val[0])) * (1/65535.0f);
+                g = CAST(F, swap_endian_16((U16)v.val[1])) * (1/65535.0f);
+                b = CAST(F, swap_endian_16((U16)v.val[2])) * (1/65535.0f);
             #else
                 U32 R = LOAD_3(U32, rgb+0),
                     G = LOAD_3(U32, rgb+1),
@@ -662,10 +669,10 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                 const uint16_t* rgba = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
             #if defined(USING_NEON)
                 uint16x4x4_t v = vld4_u16(rgba);
-                r = CAST(F, swap_endian_16(v.val[0])) * (1/65535.0f);
-                g = CAST(F, swap_endian_16(v.val[1])) * (1/65535.0f);
-                b = CAST(F, swap_endian_16(v.val[2])) * (1/65535.0f);
-                a = CAST(F, swap_endian_16(v.val[3])) * (1/65535.0f);
+                r = CAST(F, swap_endian_16((U16)v.val[0])) * (1/65535.0f);
+                g = CAST(F, swap_endian_16((U16)v.val[1])) * (1/65535.0f);
+                b = CAST(F, swap_endian_16((U16)v.val[2])) * (1/65535.0f);
+                a = CAST(F, swap_endian_16((U16)v.val[3])) * (1/65535.0f);
             #else
                 U64 px;
                 small_memcpy(&px, rgba, 8*N);
@@ -684,9 +691,9 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                 const uint16_t* rgb = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
             #if defined(USING_NEON)
                 uint16x4x3_t v = vld3_u16(rgb);
-                U16 R = v.val[0],
-                    G = v.val[1],
-                    B = v.val[2];
+                U16 R = (U16)v.val[0],
+                    G = (U16)v.val[1],
+                    B = (U16)v.val[2];
             #else
                 U16 R = LOAD_3(U16, rgb+0),
                     G = LOAD_3(U16, rgb+1),
@@ -704,10 +711,10 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                 const uint16_t* rgba = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
             #if defined(USING_NEON)
                 uint16x4x4_t v = vld4_u16(rgba);
-                U16 R = v.val[0],
-                    G = v.val[1],
-                    B = v.val[2],
-                    A = v.val[3];
+                U16 R = (U16)v.val[0],
+                    G = (U16)v.val[1],
+                    B = (U16)v.val[2],
+                    A = (U16)v.val[3];
             #else
                 U64 px;
                 small_memcpy(&px, rgba, 8*N);
@@ -728,9 +735,9 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                 const float* rgb = (const float*)ptr;       // cast to const float* to be safe.
             #if defined(USING_NEON)
                 float32x4x3_t v = vld3q_f32(rgb);
-                r = v.val[0];
-                g = v.val[1];
-                b = v.val[2];
+                r = (F)v.val[0];
+                g = (F)v.val[1];
+                b = (F)v.val[2];
             #else
                 r = LOAD_3(F, rgb+0);
                 g = LOAD_3(F, rgb+1);
@@ -745,10 +752,10 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                 const float* rgba = (const float*)ptr;      // cast to const float* to be safe.
             #if defined(USING_NEON)
                 float32x4x4_t v = vld4q_f32(rgba);
-                r = v.val[0];
-                g = v.val[1];
-                b = v.val[2];
-                a = v.val[3];
+                r = (F)v.val[0];
+                g = (F)v.val[1];
+                b = (F)v.val[2];
+                a = (F)v.val[3];
             #else
                 r = LOAD_4(F, rgba+0);
                 g = LOAD_4(F, rgba+1);
@@ -1084,6 +1091,10 @@ static void NS(run_program)(const Op* program, const void** arguments,
         memcpy((char*)dst + (size_t)i*dst_bpp, tmp_dst, (size_t)n*dst_bpp);
     }
 }
+
+#if defined(USING_NEON) && defined(__clang__)
+    #pragma clang diagnostic pop
+#endif
 
 // Clean up any #defines we may have set so that we can be #included again.
 
