@@ -216,6 +216,7 @@ gn_args = {
   'skia_enable_tools':  'true',
   'skia_use_libheif':   'true',
   'skia_use_vulkan':    'true',
+  'skia_use_skcms':     'true',
   'target_cpu':         '"none"',
   'target_os':          '"android"',
   'skia_vulkan_header': '"Skia_Vulkan_Android.h"',
