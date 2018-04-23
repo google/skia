@@ -762,16 +762,6 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
-// updateMetaConfig generates a UpdateMetaConfig task. Returns the name of the
-// last task in the generated chain of tasks, which the Job should add as a
-// dependency.
-func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "update_meta_config", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPDATE_META_CONFIG, linuxGceDimensions(), nil, OUTPUT_NONE)
-	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
-	b.MustAddTask(name, task)
-	return name
-}
-
 // ctSKPs generates a CT SKPs task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
@@ -1081,11 +1071,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, recreateSKPs(b, name))
 	}
 
-	// UpdateMetaConfig bot.
-	if strings.Contains(name, "UpdateMetaConfig") {
-		deps = append(deps, updateMetaConfig(b, name))
-	}
-
 	// CT bots.
 	if strings.Contains(name, "-CT_") {
 		deps = append(deps, ctSKPs(b, name))
@@ -1125,7 +1110,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
 		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
-		!strings.Contains(name, "UpdateMetaConfig") &&
 		!strings.Contains(name, "-CT_") &&
 		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") {
 		compile(b, compileTaskName, compileTaskParts)
