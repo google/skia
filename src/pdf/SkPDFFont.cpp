@@ -211,7 +211,7 @@ sk_sp<SkPDFFont> SkPDFFont::GetFontResource(SkPDFCanon* canon,
     SkAdvancedTypefaceMetrics::FontType type = SkPDFFont::FontType(metrics);
     bool multibyte = SkPDFFont::IsMultiByte(type);
     SkGlyphID subsetCode = multibyte ? 0 : first_nonzero_glyph_for_single_byte_encoding(glyphID);
-    uint64_t fontID = (SkTypeface::UniqueID(face) << 16) | subsetCode;
+    uint64_t fontID = (static_cast<uint64_t>(SkTypeface::UniqueID(face)) << 16) | subsetCode;
 
     if (sk_sp<SkPDFFont>* found = canon->fFontMap.find(fontID)) {
         SkDEBUGCODE(SkPDFFont* foundFont = found->get());
