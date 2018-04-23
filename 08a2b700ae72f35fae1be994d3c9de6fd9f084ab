@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3292f56_954bb637",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-23T15:33:14Z",
+      "side": 1,
+      "message": "Is there a way we can write this as,\n\n  if (!type) {\n     type \u003d auto_detect_type(path, bytes);\n  }\n  if (!type) {\n     SkDebugf(\"could not autodetect type of %s\\n\", path);\n     return 1;\n  }\n  ...\n\n?",
+      "revId": "08a2b700ae72f35fae1be994d3c9de6fd9f084ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
