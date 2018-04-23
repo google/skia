@@ -781,6 +781,14 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     return usable_as_src(profile);
 }
 
+void skcms_OptimizeForSpeed(skcms_ICCProfile* profile) {
+    // If we can approximate any of the TRC curves with a skcms_TF13, do so.
+    for (int i = 0; profile->has_trc && i < 3; i++) {
+        float err;
+        profile->has_tf13[i] = skcms_ApproximateCurve13(&profile->trc[i], &profile->tf13[i], &err);
+    }
+}
+
 const skcms_ICCProfile skcms_sRGB_profile = {
     // These fields are moot when not a skcms_Parse()'d profile.
     .buffer    = NULL,
