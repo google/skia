@@ -45,7 +45,7 @@ public:
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
         fragBuilder->codeAppend("half distance = shadowParams.z * (1.0 - d);");
 
-        fragBuilder->codeAppend("half factor = 1.0 - clamp(distance, 0.0, 1.0);");
+        fragBuilder->codeAppend("half factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
         fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
         fragBuilder->codeAppendf("%s = half4(factor);",
                                  args.fOutputCoverage);

@@ -206,8 +206,8 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         this->drawBG(canvas);
         const SkScalar kLightWidth = 800;
-        const SkScalar kAmbientAlpha = 0.039f;
-        const SkScalar kSpotAlpha = 0.19f;
+        const SkScalar kAmbientAlpha = 0.1f;
+        const SkScalar kSpotAlpha = 0.25f;
 
         SkPaint paint;
         paint.setAntiAlias(true);
