@@ -1130,7 +1130,7 @@ void SkCanvas::internalRestore() {
                                      layer->fPaint.get(),
                                      layer->fClipImage.get(), layer->fClipMatrix);
             // restore what we smashed in internalSaveLayer
-            fMCRec->fMatrix = layer->fStashedMatrix;
+            this->internalSetMatrix(layer->fStashedMatrix);
             // reset this, since internalDrawDevice will have set it to true
             delete layer;
         } else {
