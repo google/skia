@@ -181,7 +181,7 @@ static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
                              proxy, direction, radius, sigma, mode, bounds);
         convolve_gaussian_1d(renderTargetContext, clip, midRect, srcOffset,
                              std::move(proxy), direction, radius, sigma,
-                             GrTextureDomain::kIgnore_Mode, bounds);
+                             mode, bounds);
     }
 }
 

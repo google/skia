@@ -10,6 +10,26 @@
 #include "SkSurface.h"
 #include "SkBlurImageFilter.h"
 
+void dang(SkImage* img) {
+
+    SkImageInfo ii = SkImageInfo::Make(img->width(), img->height(),
+                                       img->colorType(), img->alphaType());
+    SkBitmap bm;
+    SkAssertResult(bm.tryAllocPixels(ii));
+
+    SkAssertResult(img->readPixels(ii, bm.getPixels(), bm.rowBytes(), 0, 0));
+
+    int sID = 0;
+    char filename[256];
+    _snprintf(filename, 256, "D:\\src\\bugs\\output%d.png", sID++);
+    filename[255] = '\0';
+
+    SkFILEWStream file(filename);
+    SkAssertResult(file.isValid());
+
+    SkAssertResult(SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100));
+}
+
 static sk_sp<SkImage> make_image(SkCanvas* canvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(250, 200);
     auto surface = sk_tool_utils::makeSurface(canvas, info);
@@ -24,7 +44,11 @@ static sk_sp<SkImage> make_image(SkCanvas* canvas) {
     paint.setColor(SK_ColorRED);
     c->drawRect(SkRect::MakeIWH(80, 80), paint);
 
-    return surface->makeImageSnapshot();
+    sk_sp<SkImage> result = surface->makeImageSnapshot();
+
+    dang(result.get());
+
+    return result;
 }
 
 static void draw_image(SkCanvas* canvas, const sk_sp<SkImage> image, sk_sp<SkImageFilter> filter) {
@@ -61,29 +85,40 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkImage> image(make_image(canvas));
+        sk_sp<SkImageFilter> filter;
 
         canvas->translate(0, 30);
         // Test different kernel size, including the one to launch 2d Gaussian
         // blur.
         for (auto sigma: { 0.6f, 3.0f, 8.0f, 20.0f }) {
-            canvas->save();
-            sk_sp<SkImageFilter> filter(
-                  SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
-                                          SkBlurImageFilter::kClamp_TileMode));
-            draw_image(canvas, image, std::move(filter));
-            canvas->translate(image->width() + 20, 0);
+            if (3.0f == sigma) {
+                canvas->save();
 
-            filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kClamp_TileMode);
-            draw_image(canvas, image, std::move(filter));
-            canvas->translate(image->width() + 20, 0);
+                // x-only blur
+#if 0
+                filter =  SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
+                                                  SkBlurImageFilter::kClamp_TileMode));
+                draw_image(canvas, image, std::move(filter));
+#endif
+                canvas->translate(image->width() + 20, 0);
 
-            filter = SkBlurImageFilter::Make(sigma, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kClamp_TileMode);
-            draw_image(canvas, image, std::move(filter));
-            canvas->translate(image->width() + 20, 0);
+                // y-only blur
+                filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr, nullptr,
+                                                 SkBlurImageFilter::kClamp_TileMode);
+                draw_image(canvas, image, std::move(filter));
+                canvas->translate(image->width() + 20, 0);
 
-            canvas->restore();
+                // both directions
+#if 0
+                filter = SkBlurImageFilter::Make(sigma, sigma, nullptr, nullptr,
+                                                 SkBlurImageFilter::kClamp_TileMode);
+                draw_image(canvas, image, std::move(filter));
+#endif
+                canvas->translate(image->width() + 20, 0);
+
+                canvas->restore();
+            }
+
             canvas->translate(0, image->height() + 20);
         }
     }
