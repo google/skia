@@ -19,15 +19,13 @@
 
 static float eval_13(float x, const void* ctx, const float P[4]) {
     (void)ctx;
-    return P[0]*x*x*x
-         + P[1]*x*x
-         + (1 - P[0] - P[1])*x;
+    return x*(x*(x*P[0] + P[1]) + (1 - P[0] - P[1]));
 }
 static void grad_13(float x, const void* ctx, const float P[4], float dfdP[4]) {
     (void)ctx;
     (void)P;
-    dfdP[0] = x*x*x - x;
-    dfdP[1] = x*x   - x;
+    dfdP[0] = x*(x*x - 1);
+    dfdP[1] = x*(x   - 1);
 }
 
 bool skcms_ApproximateCurve13(const skcms_Curve* curve, skcms_TF13* approx, float* max_error) {
