@@ -118,6 +118,8 @@ protected:
             return;
         }
 
+        context->flush();
+        gpu->testingOnly_flushGpuAndSync();
         for (int i = 0; i < 3; ++i) {
             if (yuvTextures[i].isValid()) {
                 gpu->deleteTestingOnlyBackendTexture(yuvTextures[i]);

@@ -1070,6 +1070,8 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
         if (canvas2DFastPath) {
             tempCtx = this->drawingManager()->makeRenderTargetContext(std::move(tempProxy), nullptr,
                                                                       nullptr);
+            SkASSERT(tempCtx->asRenderTargetContext());
+            tempCtx->asRenderTargetContext()->discard();
         } else {
             tempCtx = this->drawingManager()->makeTextureContext(
                     std::move(tempProxy), src->colorSpaceInfo().refColorSpace());
