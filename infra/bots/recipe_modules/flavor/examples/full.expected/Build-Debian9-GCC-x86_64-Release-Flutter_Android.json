@@ -3,102 +3,14 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[depot_tools::git]/resources/git_setup.py",
-      "--path",
-      "[CUSTOM_/_B_WORK]/flutter/depot_tools",
-      "--url",
-      "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
-    "name": "git setup"
-  },
-  {
-    "cmd": [
-      "git",
-      "retry",
-      "fetch",
-      "origin",
-      "--progress"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
-    "env": {
-      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
-    },
-    "infra_step": true,
-    "name": "git fetch"
-  },
-  {
-    "cmd": [
-      "git",
-      "checkout",
-      "-f",
-      "06493714339009216197d59c5413da2a1efdf4a2"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
-    "infra_step": true,
-    "name": "git checkout"
-  },
-  {
-    "cmd": [
-      "git",
-      "rev-parse",
-      "HEAD"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
-    "infra_step": true,
-    "name": "read revision",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_TEXT@<br/>checked out 'deadbeef'<br/>@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "git",
-      "clean",
-      "-f",
-      "-d",
-      "-x"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
-    "infra_step": true,
-    "name": "git clean"
-  },
-  {
-    "cmd": [
-      "git",
-      "submodule",
-      "sync"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
-    "infra_step": true,
-    "name": "submodule sync"
-  },
-  {
-    "cmd": [
-      "git",
-      "submodule",
-      "update",
-      "--init",
-      "--recursive"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
-    "infra_step": true,
-    "name": "submodule update"
-  },
-  {
-    "cmd": [
-      "[CUSTOM_/_B_WORK]/flutter/depot_tools/gclient",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
       "runhooks"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
     "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-Flutter_Android"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
-    "name": "runhook"
+    "name": "gclient runhooks"
   },
   {
     "cmd": [
