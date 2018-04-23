@@ -21,9 +21,6 @@ public:
         }
     }
 
-    SkBitSet(const SkBitSet&) = delete;
-    SkBitSet& operator=(const SkBitSet&) = delete;
-
     /** Set the value of the index-th bit to true.  */
     void set(int index) {
         uint32_t mask = 1 << (index & 31);
