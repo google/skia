@@ -15,8 +15,6 @@ import urllib2
 import git_utils
 
 
-SKIA_COMMITTER_EMAIL = 'update-meta-config@skia.org'
-SKIA_COMMITTER_NAME = 'Update Meta Config'
 SKIA_REPO_TEMPLATE = 'https://skia.googlesource.com/%s.git'
 
 CQ_INCLUDE_CHROMIUM_TRYBOTS = [
@@ -72,7 +70,6 @@ def addChromiumTrybots(f):
 
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument("--gitcookies")
   parser.add_argument("--repo_name")
   parser.add_argument("--tasks_json")
   args = parser.parse_args()
@@ -104,22 +101,15 @@ def main():
       for job in tryjobs:
         f.write('\tbuilder = ' + job + '\n')
 
-    # Push the change as the update-meta-config user.
-    config_dict = {
-      'user.name': SKIA_COMMITTER_NAME,
-      'user.email': SKIA_COMMITTER_EMAIL,
-      'http.cookiefile': args.gitcookies,
-    }
-    with git_utils.GitLocalConfig(config_dict):
-      subprocess.check_call(['git', 'add', 'buildbucket.config'])
-      try:
-        subprocess.check_call(
-            ['git', 'commit', '-m', 'Update builders in buildbucket.config'])
-      except subprocess.CalledProcessError:
-        print 'No changes to buildbucket.config'
-        return
+    subprocess.check_call(['git', 'add', 'buildbucket.config'])
+    try:
+      subprocess.check_call(
+          ['git', 'commit', '-m', 'Update builders in buildbucket.config'])
+    except subprocess.CalledProcessError:
+      print 'No changes to buildbucket.config'
+      return
 
-      subprocess.check_call(['git', 'push', skia_repo, 'cfg:refs/meta/config'])
+    subprocess.check_call(['git', 'push', skia_repo, 'cfg:refs/meta/config'])
 
 
 if '__main__' == __name__:
