@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1055bb70_4a73d1f6",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-04-23T18:08:21Z",
+      "side": 1,
+      "message": "why is this necessary?  Shouldn\u0027t it be picked up as a dependency of the \u0027skia\u0027 target?",
+      "revId": "670a290163a7de3766a7fab9c3b2dc21b3ee143e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
