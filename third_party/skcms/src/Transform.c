@@ -22,17 +22,26 @@
     #include <stdio.h>
     #include <stdlib.h>
 
+    #if defined(__arm__)
+        #include <time.h>
+        static const char* now_units = "ticks";
+        static uint64_t now() { return (uint64_t)clock(); }
+    #else
+        static const char* now_units = "cycles";
+        static uint64_t now() { return __builtin_readcyclecounter(); }
+    #endif
+
     #define M(op) +1
-    static uint64_t cycles[FOREACH_Op(M)];
+    static uint64_t counts[FOREACH_Op(M)];
     #undef M
 
     static void profile_dump_stats() {
     #define M(op) #op,
         static const char* names[] = { FOREACH_Op(M) };
     #undef M
-        for (int i = 0; i < ARRAY_COUNT(cycles); i++) {
-            if (cycles[i]) {
-                fprintf(stderr, "%16s: %12llu cycles\n", names[i], cycles[i]);
+        for (int i = 0; i < ARRAY_COUNT(counts); i++) {
+            if (counts[i]) {
+                fprintf(stderr, "%16s: %12llu %s\n", names[i], counts[i], now_units);
             }
         }
     }
@@ -44,11 +53,11 @@
         if (!current) {
             atexit(profile_dump_stats);
         } else {
-            *current += __builtin_readcyclecounter() - start;
+            *current += now() - start;
         }
 
-        current = &cycles[op];
-        start   = __builtin_readcyclecounter();
+        current = &counts[op];
+        start   = now();
         return op;
     }
 #else
