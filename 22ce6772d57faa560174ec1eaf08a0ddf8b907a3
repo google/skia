@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52344cb4_2f9728a4",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T19:39:19Z",
+      "side": 1,
+      "message": "In the previous patchset, I was adding an ordering limitation where serializeTypeface adds typefaces to send in the next batch of font data. And this data must be deserialized before the typefaces are used. This was an unnecessary constraint which would have made it difficult to do text blob caching that I am planning to add in chrome going forward.\n\nI have kept things simpler and avoided any such dependency. SerializeTypeface always serializes WireTypeface which can be used to create the client-side proxy. When batching the set of glyphs to send, we also make note of any new typefaces we need to serialize, to create their client-side proxies, when these are deserialized. The font data is independent of serializing/deserializing typefaces embedded in text blobs.",
+      "range": {
+        "startLine": 383,
+        "startChar": 4,
+        "endLine": 385,
+        "endChar": 53
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
