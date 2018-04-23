@@ -641,6 +641,8 @@ def dm_flags(api, bot):
                   '~^SpecialImage_DeferredGpu$',
                   '~^SpecialImage_Gpu$',
                   '~^SurfaceSemaphores$'])
+    # skia:7837
+    match.append('~BlurMaskBiggerThanDest')
 
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
