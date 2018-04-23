@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec8a90ea_09bb384a",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-23T15:39:28Z",
+      "side": 1,
+      "message": "I think it\u0027d be worth trying inverting the logic in CHECK_INTERSECT(), from\n\n   do { if (L \u003e\u003d R || T \u003e\u003d B) return false; } while (0)\n\nto \n\n   do { if (!(L \u003c R \u0026\u0026 T \u003c B)) return false; } while (0)\n\ntaking advantage that all comparisons with NaN return false.",
+      "revId": "624cec6c5cf19fa09312ca7d6ee73c24df1ec979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
