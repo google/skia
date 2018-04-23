@@ -13,6 +13,7 @@
 #include "ccpr/GrCCConicShader.h"
 #include "ccpr/GrCCCubicShader.h"
 #include "ccpr/GrCCQuadraticShader.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
@@ -43,6 +44,36 @@ class GrCCCoverageProcessor::TriangleShader : public GrCCCoverageProcessor::Shad
 
     GrGLSLVarying fCoverages;
 };
+
+void GrCCCoverageProcessor::Shader::CalcWind(const GrCCCoverageProcessor& proc,
+                                             GrGLSLVertexGeoBuilder* s, const char* pts,
+                                             const char* outputWind) {
+    if (3 == proc.numInputPoints()) {
+        s->codeAppendf("float2 a = %s[0] - %s[1], "
+                              "b = %s[0] - %s[2];", pts, pts, pts, pts);
+    } else {
+        // All inputs are convex, so it's sufficient to just average the middle two input points.
+        SkASSERT(4 == proc.numInputPoints());
+        s->codeAppendf("float2 p12 = (%s[1] + %s[2]) * .5;", pts, pts);
+        s->codeAppendf("float2 a = %s[0] - p12, "
+                              "b = %s[0] - %s[3];", pts, pts, pts);
+    }
+
+    s->codeAppend ("float area_x2 = determinant(float2x2(a, b));");
+    if (proc.isTriangles()) {
+        // Cull extremely thin triangles by zeroing wind. When triangles get too thin it's possible
+        // for FP round-off error to actually give us the wrong winding direction, causing rendering
+        // artifacts. The criteria we choose is "height <~ 1/1024". So we drop a triangle if the
+        // maximum effect it can have on any single pixel is <~ 1/1024, or 1/4 of a bit in 8888.
+        s->codeAppend ("float2 bbox_size = max(abs(a), abs(b));");
+        s->codeAppend ("float base = max(bbox_size.x + bbox_size.y, 1);");
+        s->codeAppendf("%s = (abs(area_x2 * 1024) > base) ? sign(area_x2) : 0;", outputWind);
+    } else {
+        // We already converted nearly-flat curves to lines on the CPU, so no need to worry about
+        // thin hulls at this point.
+        s->codeAppendf("%s = sign(area_x2);", outputWind);
+    }
+}
 
 void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder* s,
                                                              const char* leftPt,
