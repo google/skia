@@ -22,7 +22,7 @@
     #include <stdio.h>
     #include <stdlib.h>
 
-    #if defined(__arm__)
+    #if defined(__arm__) || defined(__aarch64__)
         #include <time.h>
         static const char* now_units = "ticks";
         static uint64_t now() { return (uint64_t)clock(); }
@@ -41,7 +41,8 @@
     #undef M
         for (int i = 0; i < ARRAY_COUNT(counts); i++) {
             if (counts[i]) {
-                fprintf(stderr, "%16s: %12llu %s\n", names[i], counts[i], now_units);
+                fprintf(stderr, "%16s: %12llu %s\n",
+                        names[i], (unsigned long long)counts[i], now_units);
             }
         }
     }
