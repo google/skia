@@ -16,10 +16,6 @@ source_set("skcms") {
       "-w",
       "-std=c11",
     ]
-    if (!is_clang) {
-      # This seems to be the default in newer GCCs, but of course we test with older GCCs.
-      cflags += [ "-flax-vector-conversions" ]
-    }
   }
 
   defines = []
