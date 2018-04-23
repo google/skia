@@ -123,15 +123,15 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
             int topOverClip = clip.fTop - antiRect.fY;
             int botOverClip = antiRect.fY + antiRect.fHeight - clip.fBottom;
 
-            int x = antiRect.fX;
-            int y = antiRect.fY;
+            int rectX = antiRect.fX;
+            int rectY = antiRect.fY;
             int width = antiRect.fWidth;
             int height = antiRect.fHeight;
             SkAlpha leftAlpha = antiRect.fLeftAlpha;
             SkAlpha rightAlpha = antiRect.fRightAlpha;
 
             if (leftOverClip > 0) {
-                x = clip.fLeft;
+                rectX = clip.fLeft;
                 width -= leftOverClip;
                 leftAlpha = 0xFF;
             }
@@ -140,14 +140,14 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
                 rightAlpha = 0xFF;
             }
             if (topOverClip > 0) {
-                y = clip.fTop;
+                rectY = clip.fTop;
                 height -= topOverClip;
             }
             if (botOverClip > 0) {
                 height -= botOverClip;
             }
 
-            this->blitAntiRect(x, y, width, height, leftAlpha, rightAlpha);
+            this->blitAntiRect(rectX, rectY, width, height, leftAlpha, rightAlpha);
             y += antiRect.fHeight - 1; // -1 because ++y in the for loop
             continue;
         }
