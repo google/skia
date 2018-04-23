@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58c96cd1_535ac245",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-23T17:33:34Z",
+      "side": 1,
+      "message": "Doesn\u0027t seem we really need this, SkBitSet(0) does the same?",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 17
+      },
+      "revId": "4fa80f2069ef885e7afff2eff5e2ef9bf7335277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
