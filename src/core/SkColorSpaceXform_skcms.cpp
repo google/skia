@@ -19,6 +19,14 @@ public:
         , fDstProfile(dstProfile)
         , fPremulFormat(premulFormat) {
         skcms_EnsureUsableAsDestination(&fDstProfile, &skcms_sRGB_profile);
+
+    #ifndef SK_DONT_OPTIMIZE_SRC_PROFILES_FOR_SPEED
+        skcms_OptimizeForSpeed(&fSrcProfile);
+    #endif
+    #ifndef SK_DONT_OPTIMIZE_DST_PROFILES_FOR_SPEED
+        // (This doesn't do anything yet, but we'd sure like it to.)
+        skcms_OptimizeForSpeed(&fDstProfile);
+    #endif
     }
 
     bool apply(ColorFormat, void*, ColorFormat, const void*, int, SkAlphaType) const override;
