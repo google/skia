@@ -176,6 +176,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     // Our UI can only tweak gamma (currently), so start out gamma-only
     , fColorSpaceTransferFn(g2Dot2_TransferFn)
     , fZoomLevel(0.0f)
+    , fRotation(0.0f)
     , fGestureDevice(GestureDevice::kNone)
     , fTileCnt(0)
     , fThreadCnt(0)
@@ -861,8 +862,11 @@ void Viewer::setupCurrentSlide() {
 void Viewer::changeZoomLevel(float delta) {
     fZoomLevel += delta;
     fZoomLevel = SkScalarPin(fZoomLevel, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
+    this->preTouchMatrixChanged();
+}
 
-    // Update the trans limit as the zoom level changes.
+void Viewer::preTouchMatrixChanged() {
+    // Update the trans limit as the transform changes.
     const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
     const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
     const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
@@ -874,6 +878,7 @@ SkMatrix Viewer::computePreTouchMatrix() {
     SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
                                           : SK_Scalar1 + fZoomLevel;
     m.preScale(zoomScale, zoomScale);
+    m.preRotate(fRotation);
     return m;
 }
 
@@ -1339,6 +1344,21 @@ void Viewer::drawImGui() {
                         prButton(GpuPathRenderers::kNone);
                     }
                     ImGui::TreePop();
+                }
+            }
+
+            if (ImGui::CollapsingHeader("Transform")) {
+                float zoom = fZoomLevel;
+                if (ImGui::SliderFloat("Zoom", &zoom, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
+                    fZoomLevel = zoom;
+                    this->preTouchMatrixChanged();
+                    paramsChanged = true;
+                }
+                float deg = fRotation;
+                if (ImGui::SliderFloat("Rotate", &deg, -30, 360, "%.0f deg")) {
+                    fRotation = deg;
+                    this->preTouchMatrixChanged();
+                    paramsChanged = true;
                 }
             }
 
