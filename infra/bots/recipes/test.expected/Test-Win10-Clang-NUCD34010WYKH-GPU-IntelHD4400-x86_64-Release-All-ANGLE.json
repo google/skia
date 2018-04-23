@@ -413,6 +413,8 @@
       "gm",
       "_",
       "lighting",
+      "--match",
+      "~BlurMaskBiggerThanDest",
       "--nonativeFonts",
       "--verbose"
     ],

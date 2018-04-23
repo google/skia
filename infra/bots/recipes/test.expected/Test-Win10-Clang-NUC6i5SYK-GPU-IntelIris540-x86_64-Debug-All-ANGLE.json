@@ -481,6 +481,8 @@
       "gm",
       "_",
       "discard",
+      "--match",
+      "~BlurMaskBiggerThanDest",
       "--nonativeFonts",
       "--verbose"
     ],
