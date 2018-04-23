@@ -155,6 +155,15 @@ void SkStrikeCache::PurgeAll() {
     get_globals().purgeAll();
 }
 
+int SkStrikeCache::CountCachesForTesting(const SkTypeface* tf) {
+    int count = 0;
+    auto visitor = [&count, &tf](const SkGlyphCache& cache) {
+        if (cache.getScalerContext()->getTypeface() == tf) count++;
+    };
+    get_globals().forEachStrike(visitor);
+    return count;
+}
+
 void SkStrikeCache::Dump() {
     SkDebugf("GlyphCache [     used    budget ]\n");
     SkDebugf("    bytes  [ %8zu  %8zu ]\n",
