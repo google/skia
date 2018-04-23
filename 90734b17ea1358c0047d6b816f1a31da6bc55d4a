@@ -16,6 +16,24 @@
       "revId": "90734b17ea1358c0047d6b816f1a31da6bc55d4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9478226f_90cc7378",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-04-23T17:16:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06158bd3_9fe01962",
+      "revId": "90734b17ea1358c0047d6b816f1a31da6bc55d4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
