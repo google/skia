@@ -1578,12 +1578,10 @@ SkRect SkCanvas::getLocalClipBounds() const {
     }
 
     SkRect bounds;
-    SkRect r;
     // adjust it outwards in case we are antialiasing
     const int inset = 1;
 
-    r.iset(ibounds.fLeft - inset, ibounds.fTop - inset,
-           ibounds.fRight + inset, ibounds.fBottom + inset);
+    SkRect r = SkRect::Make(ibounds.makeOutset(inset, inset));
     inverse.mapRect(&bounds, r);
     return bounds;
 }
