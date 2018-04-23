@@ -1110,7 +1110,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                 maxOffset = SkScalarSqrt(SkTMax(SkPointPriv::LengthSqd(upperLeftOffset),
                                                 SkPointPriv::LengthSqd(lowerRightOffset))) + dr;
             }
-            insetWidth += maxOffset;
+            insetWidth += SkTMax(blurOutset, maxOffset);
         }
 
         // Outset the shadow rrect to the border of the penumbra
