@@ -503,7 +503,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     const SkStrokeRec& stroke = style->strokeRec();
-    if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
+    if (stroke.getStyle() == SkStrokeRec::kFill_Style && !paint.numCoverageFragmentProcessors()) {
         // Check if this is a full RT draw and can be replaced with a clear. We don't bother
         // checking cases where the RT is fully inside a stroke.
         SkRect rtRect = fRenderTargetProxy->getBoundsRect();
