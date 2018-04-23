@@ -651,6 +651,11 @@ bool skcms_GetTagBySignature(const skcms_ICCProfile* profile, uint32_t sig, skcm
     return false;
 }
 
+static bool usable_as_src(const skcms_ICCProfile* profile) {
+    return profile->has_A2B
+       || (profile->has_trc && profile->has_toXYZD50);
+}
+
 bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     assert(SAFE_SIZEOF(header_Layout) == 132);
 
@@ -773,7 +778,7 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     }
 
-    return true;
+    return usable_as_src(profile);
 }
 
 const skcms_ICCProfile skcms_sRGB_profile = {
