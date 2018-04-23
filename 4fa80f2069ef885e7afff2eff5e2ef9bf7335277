@@ -22,6 +22,30 @@
       "revId": "4fa80f2069ef885e7afff2eff5e2ef9bf7335277",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a484e3d_4b407a4b",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-04-23T19:07:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58c96cd1_535ac245",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 17
+      },
+      "revId": "4fa80f2069ef885e7afff2eff5e2ef9bf7335277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
