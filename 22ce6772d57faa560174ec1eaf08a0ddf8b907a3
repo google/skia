@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6ebb681d_18fad8c7",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 2555,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d7dfc21_cd27fd6f",
+      "range": {
+        "startLine": 2555,
+        "startChar": 25,
+        "endLine": 2555,
+        "endChar": 35
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52344cb4_2f9728a4",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 21
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "2cabe1cd_84ae2f06",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "The encoding of the typeface in text blobs is still going to be there. When we deserialize a text blob, the service-side typeface has to be replaced with a client-side proxy so it has to be encoded in some way.\n\nAnd here, we need to set up the typeface proxy that maps to the server-side typeface since the id that is assigned to that proxy is used to generate the client-side descriptor that gets added to the glyph cache (#576 below).",
+      "parentUuid": "9f1f120e_229d544d",
+      "range": {
+        "startLine": 540,
+        "startChar": 10,
+        "endLine": 540,
+        "endChar": 22
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1c2379e4_13d713e3",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 21
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "8e11016d_3f6fb3db",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "I thought so too. Just wanted to confirm. :)",
+      "parentUuid": "1c2379e4_13d713e3",
+      "range": {
+        "startLine": 580,
+        "startChar": 32,
+        "endLine": 580,
+        "endChar": 34
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "27d09b9e_fcdd5629",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 21
@@ -105,6 +177,30 @@
       "writtenOn": "2018-04-23T21:26:42Z",
       "side": 1,
       "message": "You are exposing Serializer to the global namespace. Is there anyway you can keep it contained in the .cpp?",
+      "range": {
+        "startLine": 27,
+        "startChar": 6,
+        "endLine": 27,
+        "endChar": 16
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ea7c950_bc39b962",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "I can make it an inner class of SkStrikeServer? Only needed to declare this for passing it in SkGlyphCacheState::writePendingGlyphs.",
+      "parentUuid": "27d09b9e_fcdd5629",
       "range": {
         "startLine": 27,
         "startChar": 6,
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "14708367_d5f6511f",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "Could do the same with this.",
+      "parentUuid": "985b5464_d7cea51f",
+      "range": {
+        "startLine": 34,
+        "startChar": 7,
+        "endLine": 34,
+        "endChar": 19
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a92454bb_3cc7163c",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 21
@@ -151,6 +271,30 @@
       "writtenOn": "2018-04-23T21:26:42Z",
       "side": 1,
       "message": "I don\u0027t think these are needed anymore. Use SkDescriptorMap instead.",
+      "range": {
+        "startLine": 66,
+        "startChar": 7,
+        "endLine": 66,
+        "endChar": 15
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81686e80_f06b1220",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "I\u0027ve switched to using SkDescriptorMap but SkStrikeCache has a lot of private includes which break the chromium build. Is there an alternate place this could be moved to?",
+      "parentUuid": "a92454bb_3cc7163c",
       "range": {
         "startLine": 66,
         "startChar": 7,
@@ -186,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "657ae3f9_745919f5",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "Hmmm, it will be extremely difficult to integrate something which needs on-demand sync IPCs from gpu main thread -\u003e renderer in chrome. And this is exactly what we\u0027ll need to pull fonts for such fall-back cases that are discovered mid-raster. \n\nEven if we were to support something like this, I think the default would still be that the renderer pushes fonts. And the gpu has a fallback channel through which it can request data for these fallback cases. So we\u0027d still want to use the push server/client, and have the side-channel functionality added to it. The PrepopulateCache op, and prime strike cache stuff won\u0027t be needed. If you\u0027d like, I can add the fallback path within this new framework now or we can add it back if we need it in the future, but I don\u0027t see the point in keeping the old path alive.",
+      "parentUuid": "98a04e0b_9d07bfb1",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 29
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "151aa229_ba641efb",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 21
@@ -197,6 +365,30 @@
       "writtenOn": "2018-04-23T21:26:42Z",
       "side": 1,
       "message": "I don\u0027t think that Discardable HandleManager needs to be part of the interface. Can\u0027t it just live in the .cpp?",
+      "range": {
+        "startLine": 80,
+        "startChar": 17,
+        "endLine": 80,
+        "endChar": 41
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dee8eb23_2407941a",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "We need the embedder to expose an interface for exposing this functionality. I\u0027m not sure what you mean by having it only in the .cpp?",
+      "parentUuid": "151aa229_ba641efb",
       "range": {
         "startLine": 80,
         "startChar": 17,
@@ -232,6 +424,30 @@
     },
     {
       "key": {
+        "uuid": "8a5b4464_5d37eed0",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "I\u0027m not sure what you mean. This is the interface that needs to be implemented by the embedder.",
+      "parentUuid": "322338e8_083c80c6",
+      "range": {
+        "startLine": 154,
+        "startChar": 10,
+        "endLine": 154,
+        "endChar": 34
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b2cef58_9d78de2d",
         "filename": "src/core/SkScalerContext.h",
         "patchSetId": 21
@@ -252,6 +468,30 @@
       "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18f1b720_e29191be",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b2cef58_9d78de2d",
+      "range": {
+        "startLine": 139,
+        "startChar": 38,
+        "endLine": 139,
+        "endChar": 51
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -278,6 +518,30 @@
     },
     {
       "key": {
+        "uuid": "9d7bd8c1_db383219",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "Do you mean you\u0027d prefer to fix this before this patch lands?",
+      "parentUuid": "462241e8_c544ae84",
+      "range": {
+        "startLine": 314,
+        "startChar": 39,
+        "endLine": 314,
+        "endChar": 61
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "586d893a_5ad33444",
         "filename": "src/core/SkScalerContext.h",
         "patchSetId": 21
@@ -289,6 +553,30 @@
       "writtenOn": "2018-04-23T21:26:42Z",
       "side": 1,
       "message": "This is specific to your implementation. Move to SkRemoteGlyphCache.cpp?",
+      "range": {
+        "startLine": 324,
+        "startChar": 25,
+        "endLine": 324,
+        "endChar": 47
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6449b030_d4dc1f74",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-23T23:59:05Z",
+      "side": 1,
+      "message": "The implementation is quite intertwined with other cases of desc generation, w.r.t the entries that may be present in it. I figured keeping it in the same file helps make sure it remains in sync. Do you think it should still remain with the other remote glyph cache stuff?",
+      "parentUuid": "586d893a_5ad33444",
       "range": {
         "startLine": 324,
         "startChar": 25,
