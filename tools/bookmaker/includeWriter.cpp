@@ -202,7 +202,25 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     return this->reportError<void>("missing phrase definition");
                 }
                 Definition* phraseDef = iter->second;
-                this->rewriteBlock(phraseDef->length(), phraseDef->fContentStart, Phrase::kYes);
+                // TODO: given TextParser(commentStart, prop->fStart + up to #) return if
+                // it ends with two of more linefeeds, ignoring other whitespace
+                Phrase defIsPhrase = '\n' == prop->fStart[0] && '\n' == prop->fStart[-1] ?
+                        Phrase::kNo : Phrase::kYes;
+                const char* start = phraseDef->fContentStart;
+                int length = phraseDef->length();
+                for (auto child : phraseDef->fChildren) {
+                    int localLength = child->fStart - start;
+                    this->rewriteBlock(localLength, start, defIsPhrase);
+                    start += localLength;
+                    length -= localLength;
+                    // start here
+                    // build map of phrase refs to input params
+                    // can this share code or logic with mdout somehow?
+                    defIsPhrase = Phrase::kYes;
+                }
+                if (length > 0) {
+                    this->rewriteBlock(length, start, defIsPhrase);
+                }
                 commentStart = prop->fContentStart;
                 commentLen = (int) (def->fContentEnd - commentStart);
                 } break;

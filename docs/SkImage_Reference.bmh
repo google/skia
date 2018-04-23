@@ -735,7 +735,7 @@ with default Paint. colorSpace may be nullptr.
 #Param dimensions  width and height ##
 #Param matrix  Matrix to rotate, scale, translate, and so on; may be nullptr ##
 #Param paint  Paint to apply transparency, filtering, and so on; may be nullptr ##
-#Param bitDepth  8 bit integer or 16 bit float: per component ##
+#Param bitDepth  8-bit integer or 16-bit float: per component ##
 #Param colorSpace  range of colors; may be nullptr ##
 
 #Return created Image, or nullptr ##

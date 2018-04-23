@@ -45,10 +45,14 @@ SkColor Reference
 
 <a href="undocumented#Types">Types</a> and macros for colors
 8-bit type for an alpha value. 0xFF is 100% opaque, 0x00 is 100% transparent.
-32 bit <a href="#ARGB">ARGB</a> color value, not premultiplied. The color components are always in
+32-bit <a href="#ARGB">ARGB</a> color value, not premultiplied. The color components are always in
 a known order. This is different from <a href="#SkPMColor">SkPMColor</a>, which has its bytes in a configuration
 dependent order, to match the format of <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a> bitmaps. <a href="#SkColor">SkColor</a>
 is the type used to specify colors in <a href="SkPaint_Reference#SkPaint">SkPaint</a> and in gradients.
+
+### See Also
+
+<a href="#SkPMColor">SkPMColor</a>
 
 <a name="SkColorSetARGB"></a>
 ## SkColorSetARGB
@@ -57,28 +61,30 @@ is the type used to specify colors in <a href="SkPaint_Reference#SkPaint">SkPain
 static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 </pre>
 
-Return <a href="#SkColorSetARGB_a">a</a> <a href="#SkColor">SkColor</a> value from 8 bit component values
+Returns <a href="#Color">Color</a> value from 8-bit component values. Asserts if SK_DEBUG is defined
+if <a href="#SkColorSetARGB_a">a</a>, <a href="#SkColorSetARGB_r">r</a>, <a href="#SkColorSetARGB_g">g</a>, or <a href="#SkColorSetARGB_b">b</a> exceed 255. Since <a href="#Color">Color</a> is not premultiplied, <a href="#SkColorSetARGB_a">a</a> may be smaller
+than the largest of <a href="#SkColorSetARGB_r">r</a>, <a href="#SkColorSetARGB_g">g</a>, and <a href="#SkColorSetARGB_b">b</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkColorSetARGB_a"> <code><strong>a </strong></code> </a></td> <td>
-incomplete</td>
+amount of <a href="#Alpha">Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
   </tr>  <tr>    <td><a name="SkColorSetARGB_r"> <code><strong>r </strong></code> </a></td> <td>
-incomplete</td>
+amount of <a href="#RGB_Red">RGB Red</a>, from no red (0) to full red (255)</td>
   </tr>  <tr>    <td><a name="SkColorSetARGB_g"> <code><strong>g </strong></code> </a></td> <td>
-incomplete</td>
+amount of <a href="#RGB_Green">RGB Green</a>, from no green (0) to full green (255)</td>
   </tr>  <tr>    <td><a name="SkColorSetARGB_b"> <code><strong>b </strong></code> </a></td> <td>
-incomplete</td>
+amount of <a href="#RGB_Blue">RGB Blue</a>, from no blue (0) to full blue (255)</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+color and alpha, not premultiplied
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="35888f0869e01a6e03b5b93bba563734"></fiddle-embed></div>
 
 ### See Also
 
@@ -90,25 +96,27 @@ incomplete
     #define <a href="#SkColorSetARGBInline">SkColorSetARGBInline</a> <a href="#SkColorSetARGB">SkColorSetARGB</a>
 </pre>
 
-Legacy aliases.
+Legacy alias.
 
 ### See Also
 
-incomplete
+<a href="#SkColorSetARGB">SkColorSetARGB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href="#SkColorSetARGBMacro">SkColorSetARGBMacro</a>  <a href="#SkColorSetARGB">SkColorSetARGB</a>
 </pre>
 
+Legacy alias.
+
 ### See Also
 
-incomplete
+<a href="#SkColorSetARGB">SkColorSetARGB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define SkColorSetRGB(r, g, b)  <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, r, g, b)</a>
 </pre>
 
-Return a <a href="#SkColor">SkColor</a> value from 8 bit component values, with an implied value
+Returns <a href="#Color">Color</a> value from 8-bit component values, with an implied value
 of 0xFF for alpha (fully opaque)
 
 ### Parameters
@@ -139,7 +147,7 @@ return the alpha byte from a <a href="#SkColor">SkColor</a> value
 ### Parameters
 
 <table>  <tr>    <td><a name="SkColorGetA_color"> <code><strong>color </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#SkColor">SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
   </tr>
 </table>
 
@@ -155,14 +163,18 @@ incomplete
     #define SkColorGetR(color)      (((color) >> 16) & 0xFF)
 </pre>
 
-return the red byte from a <a href="#SkColor">SkColor</a> value
+Returns red component of <a href="#Color">Color</a>, from zero to 255.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkColorGetR_color"> <code><strong>color </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#SkColor">SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
   </tr>
 </table>
+
+### Return Value
+
+red byte
 
 ### Example
 
@@ -176,14 +188,18 @@ incomplete
     #define SkColorGetG(color)      (((color) >>  8) & 0xFF)
 </pre>
 
-return the green byte from a <a href="#SkColor">SkColor</a> value
+Returns green component of <a href="#Color">Color</a>, from zero to 255.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkColorGetG_color"> <code><strong>color </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#SkColor">SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
   </tr>
 </table>
+
+### Return Value
+
+green byte
 
 ### Example
 
@@ -197,14 +213,18 @@ incomplete
     #define SkColorGetB(color)      (((color) >>  0) & 0xFF)
 </pre>
 
-return the blue byte from a <a href="#SkColor">SkColor</a> value
+Returns blue component of <a href="#Color">Color</a>, from zero to 255.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkColorGetB_color"> <code><strong>color </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#SkColor">SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
   </tr>
 </table>
+
+### Return Value
+
+blue byte
 
 ### Example
 
@@ -221,10 +241,12 @@ incomplete
 static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a)
 </pre>
 
+Returns <a href="#Color">Color</a> with red, blue, and green set from <a href="#SkColorSetA_c">c</a>; and alpha set from <a href="#SkColorSetA_a">a</a>.
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkColorSetA_c"> <code><strong>c </strong></code> </a></td> <td>
-incomplete</td>
+<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="#ARGB">Color ARGB</a></td>
   </tr>  <tr>    <td><a name="SkColorSetA_a"> <code><strong>a </strong></code> </a></td> <td>
 incomplete</td>
   </tr>
@@ -244,202 +266,330 @@ incomplete
 
 ---
 
+## <a name="Names"></a> Names
+
+<a href="#Color">Color</a> constants can be helpful to write code, documenting the meaning of values
+the represent transparency and color values. The use of <a href="#Color">Color</a> constants is not
+required.
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_AlphaTRANSPARENT"> <code><strong>SK_AlphaTRANSPARENT </strong></code> </a></td><td>0x00</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_AlphaTRANSPARENT">SK AlphaTRANSPARENT</a> static_cast<<a href="#SkAlpha">SkAlpha</a>>(0x00)
+    constexpr <a href="#SkAlpha">SkAlpha</a> <a href="#SK_AlphaTRANSPARENT">SK AlphaTRANSPARENT</a> = 0x00;
 </pre>
 
-common colors
-transparent <a href="#SkAlpha">SkAlpha</a> value
+Represents fully transparent <a href="#SkAlpha">SkAlpha</a> value. <a href="#SkAlpha">SkAlpha</a> ranges from zero,
+fully transparent; to 255, fully opaque.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="bc9c7ea424d10bbcd1e5a88770d4794e"></table>
+
+<div><a href="#Color">Color</a> the parts of the bitmap red if they mostly contain transparent pixels.
+</div></fiddle-embed></div>
+
+### See Also
+
+<a href="#SkAlpha">SkAlpha</a> <a href="#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a> <a href="#SK_AlphaOPAQUE">SK AlphaOPAQUE</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_AlphaOPAQUE"> <code><strong>SK_AlphaOPAQUE </strong></code> </a></td><td>0xFF</td><td>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    constexpr <a href="#SkAlpha">SkAlpha</a> <a href="#SK_AlphaOPAQUE">SK AlphaOPAQUE</a>      = 0xFF;
+</pre>
+
+Represents fully opaque <a href="#SkAlpha">SkAlpha</a> value. <a href="#SkAlpha">SkAlpha</a> ranges from zero,
+fully transparent; to 255, fully opaque.
+
+### Example
+
+<div><fiddle-embed name="0424f67ebc2858e8fd04ae3367b115ff"></table>
+
+</fiddle-embed></div>
+
+### See Also
+
+<a href="#SkAlpha">SkAlpha</a> <a href="#SK_AlphaTRANSPARENT">SK AlphaTRANSPARENT</a>
+
+</td>
+  </tr>
+</table>
+
+<a href="#Color">Color</a> names are provided as conveniences, but are not otherwise special.
+The values chosen for names may not be the same as values used by
+<a href="undocumented#SVG">SVG</a>, HTML, CSS, or colors named by a platform.
+
+### Example
+
+<div><fiddle-embed name="1c2e38321464818847f953ddd45cb5a1"></fiddle-embed></div>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorTRANSPARENT"> <code><strong>SK_ColorTRANSPARENT </strong></code> </a></td><td>0x00000000</td><td>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a> = <a href="#SkColorSetARGB">SkColorSetARGB(0x00, 0x00, 0x00, 0x00)</a>;
+</pre>
+
+Represents fully transparent <a href="#SkColor">SkColor</a>. May be used to initialize a destination
+containing a mask or a non-rectangular image.
+
+### Example
+
+<div><fiddle-embed name="cfda8cd3b435bb28e2f4b9c7f15603a6"></fiddle-embed></div>
+
+### See Also
+
+<a href="#SK_AlphaTRANSPARENT">SK AlphaTRANSPARENT</a> <a href="SkCanvas_Reference#SkCanvas_clear">SkCanvas::clear</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorBLACK"> <code><strong>SK_ColorBLACK </strong></code> </a></td><td>0xFF000000</td><td>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorBLACK">SK ColorBLACK</a>       = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x00, 0x00, 0x00)</a>;
+</pre>
+
+Represents fully opaque black.
+
+### Example
+
+<div><fiddle-embed name="6971489f28291f08e429cc6ccc73b09b"></fiddle-embed></div>
+
+### See Also
+
+<a href="#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorDKGRAY"> <code><strong>SK_ColorDKGRAY </strong></code> </a></td><td>0xFF444444</td><td>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorDKGRAY">SK ColorDKGRAY</a>      = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x44, 0x44, 0x44)</a>;
+</pre>
+
+Represents fully opaque dark gray.
+Note that SVG_darkgray is equivalent to 0xFFA9A9A9.
+
+### See Also
+
+<a href="#SK_ColorGRAY">SK ColorGRAY</a> <a href="#SK_ColorLTGRAY">SK ColorLTGRAY</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorGRAY"> <code><strong>SK_ColorGRAY </strong></code> </a></td><td>0xFF888888</td><td>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorGRAY">SK ColorGRAY</a>        = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x88, 0x88, 0x88)</a>;
+</pre>
+
+Represents fully opaque gray.
+Note that HTML_Gray is equivalent to 0xFF808080.
+
+### See Also
+
+<a href="#SK_ColorDKGRAY">SK ColorDKGRAY</a> <a href="#SK_ColorLTGRAY">SK ColorLTGRAY</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorLTGRAY"> <code><strong>SK_ColorLTGRAY </strong></code> </a></td><td>0xFFCCCCCC</td><td>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorLTGRAY">SK ColorLTGRAY</a>      = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xCC, 0xCC, 0xCC)</a>;
+</pre>
+
+Represents fully opaque light gray. HTML_Silver is equivalent to 0xFFC0C0C0.
+Note that SVG_lightgray is equivalent to 0xFFD3D3D3.
+
+### See Also
+
+<a href="#SK_ColorDKGRAY">SK ColorDKGRAY</a> <a href="#SK_ColorGRAY">SK ColorGRAY</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorWHITE"> <code><strong>SK_ColorWHITE </strong></code> </a></td><td>0xFFFFFFFF</td><td>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorWHITE">SK ColorWHITE</a>       = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF)</a>;
+</pre>
+
+Represents fully opaque white.
+
+### Example
+
+<div><fiddle-embed name="fce650f997e802d4e55edf62b8437a2d"></fiddle-embed></div>
 
 ### See Also
 
 incomplete
 
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorRED"> <code><strong>SK_ColorRED </strong></code> </a></td><td>0xFFFF0000</td><td>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_AlphaOPAQUE">SK AlphaOPAQUE</a>      static_cast<<a href="#SkAlpha">SkAlpha</a>>(0xFF)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorRED">SK ColorRED</a>         = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00)</a>;
 </pre>
 
-opaque <a href="#SkAlpha">SkAlpha</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+Represents fully opaque red.
 
 ### See Also
 
-incomplete
+<a href="#SK_ColorGREEN">SK ColorGREEN</a> <a href="#SK_ColorBLUE">SK ColorBLUE</a> <a href="#SK_ColorYELLOW">SK ColorYELLOW</a> <a href="#SK_ColorCYAN">SK ColorCYAN</a> <a href="#SK_ColorMAGENTA">SK ColorMAGENTA</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorGREEN"> <code><strong>SK_ColorGREEN </strong></code> </a></td><td>0xFF00FF00</td><td>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a> static_cast<<a href="#SkColor">SkColor</a>>(0x00000000)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorGREEN">SK ColorGREEN</a>       = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00)</a>;
 </pre>
 
-transparent <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+Represents fully opaque green. HTML_Lime is equivalent.
+Note that HTML_Green is equivalent to 0xFF008000.
 
 ### See Also
 
-incomplete
+<a href="#SK_ColorRED">SK ColorRED</a> <a href="#SK_ColorBLUE">SK ColorBLUE</a> <a href="#SK_ColorYELLOW">SK ColorYELLOW</a> <a href="#SK_ColorCYAN">SK ColorCYAN</a> <a href="#SK_ColorMAGENTA">SK ColorMAGENTA</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorBLUE"> <code><strong>SK_ColorBLUE </strong></code> </a></td><td>0xFF0000FF</td><td>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorBLACK">SK ColorBLACK</a>       static_cast<<a href="#SkColor">SkColor</a>>(0xFF000000)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorBLUE">SK ColorBLUE</a>        = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF)</a>;
 </pre>
 
-black <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+Represents fully opaque blue.
 
 ### See Also
 
-incomplete
+<a href="#SK_ColorRED">SK ColorRED</a> <a href="#SK_ColorGREEN">SK ColorGREEN</a> <a href="#SK_ColorYELLOW">SK ColorYELLOW</a> <a href="#SK_ColorCYAN">SK ColorCYAN</a> <a href="#SK_ColorMAGENTA">SK ColorMAGENTA</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorYELLOW"> <code><strong>SK_ColorYELLOW </strong></code> </a></td><td>0xFFFFFF00</td><td>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorDKGRAY">SK ColorDKGRAY</a>      static_cast<<a href="#SkColor">SkColor</a>>(0xFF444444)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorYELLOW">SK ColorYELLOW</a>      = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xFF, 0xFF, 0x00)</a>;
 </pre>
 
-dark gray <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+Represents fully opaque yellow.
 
 ### See Also
 
-incomplete
+<a href="#SK_ColorRED">SK ColorRED</a> <a href="#SK_ColorGREEN">SK ColorGREEN</a> <a href="#SK_ColorBLUE">SK ColorBLUE</a> <a href="#SK_ColorCYAN">SK ColorCYAN</a> <a href="#SK_ColorMAGENTA">SK ColorMAGENTA</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorCYAN"> <code><strong>SK_ColorCYAN </strong></code> </a></td><td>0xFF00FFFF</td><td>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorGRAY">SK ColorGRAY</a>        static_cast<<a href="#SkColor">SkColor</a>>(0xFF888888)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorCYAN">SK ColorCYAN</a>        = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0x00, 0xFF, 0xFF)</a>;
 </pre>
 
-gray <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+Represents fully opaque cyan. HTML_Aqua is equivalent.
 
 ### See Also
 
-incomplete
+<a href="#SK_ColorRED">SK ColorRED</a> <a href="#SK_ColorGREEN">SK ColorGREEN</a> <a href="#SK_ColorBLUE">SK ColorBLUE</a> <a href="#SK_ColorYELLOW">SK ColorYELLOW</a> <a href="#SK_ColorMAGENTA">SK ColorMAGENTA</a>
+
+</td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SK_ColorMAGENTA"> <code><strong>SK_ColorMAGENTA </strong></code> </a></td><td>0xFFFF00FF</td><td>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorLTGRAY">SK ColorLTGRAY</a>      static_cast<<a href="#SkColor">SkColor</a>>(0xFFCCCCCC)
+    constexpr <a href="#SkColor">SkColor</a> <a href="#SK_ColorMAGENTA">SK ColorMAGENTA</a>     = <a href="#SkColorSetARGB">SkColorSetARGB(0xFF, 0xFF, 0x00, 0xFF)</a>;
 </pre>
 
-light gray <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+Represents fully opaque magenta. HTML_Fuchsia is equivalent.
 
 ### See Also
 
-incomplete
+<a href="#SK_ColorRED">SK ColorRED</a> <a href="#SK_ColorGREEN">SK ColorGREEN</a> <a href="#SK_ColorBLUE">SK ColorBLUE</a> <a href="#SK_ColorYELLOW">SK ColorYELLOW</a> <a href="#SK_ColorCYAN">SK ColorCYAN</a>
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorWHITE">SK ColorWHITE</a>       static_cast<<a href="#SkColor">SkColor</a>>(0xFFFFFFFF)
-</pre>
-
-white <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorRED">SK ColorRED</a>         static_cast<<a href="#SkColor">SkColor</a>>(0xFFFF0000)
-</pre>
-
-red <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorGREEN">SK ColorGREEN</a>       static_cast<<a href="#SkColor">SkColor</a>>(0xFF00FF00)
-</pre>
-
-green <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorBLUE">SK ColorBLUE</a>        static_cast<<a href="#SkColor">SkColor</a>>(0xFF0000FF)
-</pre>
-
-blue <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorYELLOW">SK ColorYELLOW</a>      static_cast<<a href="#SkColor">SkColor</a>>(0xFFFFFF00)
-</pre>
-
-yellow <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorCYAN">SK ColorCYAN</a>        static_cast<<a href="#SkColor">SkColor</a>>(0xFF00FFFF)
-</pre>
-
-cyan <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href="#SK_ColorMAGENTA">SK ColorMAGENTA</a>     static_cast<<a href="#SkColor">SkColor</a>>(0xFFFF00FF)
-</pre>
-
-magenta <a href="#SkColor">SkColor</a> value
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
+</td>
+  </tr>
 
 ## <a name="HSV"></a> HSV
 
@@ -606,7 +756,7 @@ incomplete
 
 ---
 
-32 bit <a href="#ARGB">ARGB</a> color value, premultiplied. The byte order for this value is
+32-bit <a href="#ARGB">ARGB</a> color value, premultiplied. The byte order for this value is
 configuration dependent, matching the format of <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a> bitmaps.
 This is different from <a href="#SkColor">SkColor</a>, which is nonpremultiplied, and is always in the
 same byte order.
@@ -618,7 +768,7 @@ same byte order.
 SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 </pre>
 
-Return <a href="#SkPreMultiplyARGB_a">a</a> <a href="#SkPMColor">SkPMColor</a> value from unpremultiplied 8 bit component values
+Return <a href="#SkPreMultiplyARGB_a">a</a> <a href="#SkPMColor">SkPMColor</a> value from unpremultiplied 8-bit component values
 
 ### Parameters
 
