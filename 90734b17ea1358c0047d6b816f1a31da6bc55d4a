@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06158bd3_9fe01962",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-04-23T16:34:11Z",
+      "side": 1,
+      "message": "can this be rewritten as:\n\nif (y \u003e\u003d antiRect.fY \u0026\u0026 y \u003c antiRect.fY + antiRect.fHeight) {",
+      "revId": "90734b17ea1358c0047d6b816f1a31da6bc55d4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
