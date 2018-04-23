@@ -115,10 +115,39 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
     int top = SkTMax(deltas->top(), clip.fTop);
     int bottom = SkTMin(deltas->bottom(), clip.fBottom);
     for(int y = top; y < bottom; ++y) {
-        // If antiRect is non-empty and we're at its top row, blit it and skip to the bottom
-        if (antiRect.fHeight && y == antiRect.fY) {
-            this->blitAntiRect(antiRect.fX, antiRect.fY, antiRect.fWidth, antiRect.fHeight,
-                               antiRect.fLeftAlpha, antiRect.fRightAlpha);
+        // If antiRect is non-empty and we're in it, blit it and skip to the bottom
+        if (y >= antiRect.fY && y < antiRect.fY + antiRect.fHeight) {
+            // Clip the antiRect because of possible tilings (e.g., the threaded backend)
+            int leftOverClip = clip.fLeft - antiRect.fX;
+            int rightOverClip = antiRect.fX + antiRect.fWidth - clip.fRight;
+            int topOverClip = clip.fTop - antiRect.fY;
+            int botOverClip = antiRect.fY + antiRect.fHeight - clip.fBottom;
+
+            int x = antiRect.fX;
+            int y = antiRect.fY;
+            int width = antiRect.fWidth;
+            int height = antiRect.fHeight;
+            SkAlpha leftAlpha = antiRect.fLeftAlpha;
+            SkAlpha rightAlpha = antiRect.fRightAlpha;
+
+            if (leftOverClip > 0) {
+                x = clip.fLeft;
+                width -= leftOverClip;
+                leftAlpha = 0xFF;
+            }
+            if (rightOverClip > 0) {
+                width -= rightOverClip;
+                rightAlpha = 0xFF;
+            }
+            if (topOverClip > 0) {
+                y = clip.fTop;
+                height -= topOverClip;
+            }
+            if (botOverClip > 0) {
+                height -= botOverClip;
+            }
+
+            this->blitAntiRect(x, y, width, height, leftAlpha, rightAlpha);
             y += antiRect.fHeight - 1; // -1 because ++y in the for loop
             continue;
         }
