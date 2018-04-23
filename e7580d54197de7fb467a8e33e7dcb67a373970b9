@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7f2d8e0_16d979fd",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3356,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-23T18:57:59Z",
+      "side": 1,
+      "message": "-360 ?",
+      "revId": "e7580d54197de7fb467a8e33e7dcb67a373970b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74951c26_3c6f7713",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3361,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-23T18:57:59Z",
+      "side": 1,
+      "message": "or equal to ?",
+      "revId": "e7580d54197de7fb467a8e33e7dcb67a373970b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8a3917c_ba734338",
+        "filename": "src/gpu/GrShape.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-23T18:57:59Z",
+      "side": 1,
+      "message": "Can\u0027t we also get line segments in this case?",
+      "revId": "e7580d54197de7fb467a8e33e7dcb67a373970b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
