@@ -24,10 +24,6 @@ DEPS = [
   'vars',
 ]
 
-UPDATE_DOCS_GITCOOKIES_FILE = 'update_docs.git_cookies'
-UPDATE_DOCS_GITCOOKIES_GS_PATH = (
-    'gs://skia-buildbots/artifacts/server/.gitcookies_update-docs')
-
 
 def go_get_fiddlecli(api):
   env = api.context.env
@@ -128,17 +124,12 @@ def RunSteps(api):
 
       # Step 4: Update docs in site/user/api/ with the output of fiddlecli.
       #         If there are any new changes then upload and commit the changes.
-      update_docs_gitcookies = api.path['start_dir'].join(
-          UPDATE_DOCS_GITCOOKIES_FILE)
       cmd = ['python',
              api.vars.skia_dir.join('infra', 'bots', 'upload_md.py'),
             '--bookmaker_binary', bookmaker_binary,
-             '--fiddlecli_output', fiddlecli_output,
-            '--gitcookies', str(update_docs_gitcookies)]
-      with api.infra.DownloadGitCookies(
-         UPDATE_DOCS_GITCOOKIES_GS_PATH, update_docs_gitcookies, api):
-        with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
-          api.run(api.step, 'Generate and Upload Markdown files', cmd=cmd)
+             '--fiddlecli_output', fiddlecli_output]
+      with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
+        api.run(api.step, 'Generate and Upload Markdown files', cmd=cmd)
 
 
 def GenTests(api):
@@ -285,8 +276,7 @@ def GenTests(api):
                      path_config='kitchen',
                      fiddleout_test_data=fiddleout_no_errors_test_data,
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['start_dir'].join('fiddleout.json'),
-                      api.path['start_dir'].join(UPDATE_DOCS_GITCOOKIES_FILE))
+      api.path.exists(api.path['start_dir'].join('fiddleout.json'))
   )
 
   yield (

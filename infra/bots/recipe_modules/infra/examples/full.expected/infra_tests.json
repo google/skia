@@ -49,29 +49,6 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "cp",
-      "/test/gspath",
-      "[START_DIR]/localpath"
-    ],
-    "infra_step": true,
-    "name": "download gitcookies"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "remove",
-      "[START_DIR]/localpath"
-    ],
-    "infra_step": true,
-    "name": "remove [START_DIR]/localpath"
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "\nimport os\nimport urllib2\n\nTOKEN_FILE = 'file'\nTOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/key'\n\nreq = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})\ncontents = urllib2.urlopen(req).read()\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\n\nwith open(token_file, 'w') as f:\n  f.write(contents)\n"
