@@ -380,6 +380,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			// ChOps-owned machines have Windows 10 v1709, but a slightly different version than Skolo.
 			d["os"] = "Windows-10-16299.309"
 		}
+		if d["os"] == DEFAULT_OS_WIN {
+			// TODO(dogben): Temporarily add image dimension during upgrade.
+			d["image"] = "windows-server-2016-dc-v20171114"
+		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
