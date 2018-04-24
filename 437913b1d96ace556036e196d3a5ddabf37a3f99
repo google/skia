@@ -34,6 +34,24 @@
       "revId": "437913b1d96ace556036e196d3a5ddabf37a3f99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "521b82e9_5c291730",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-04-24T14:13:36Z",
+      "side": 1,
+      "message": "Ah, I was thinking strictly of fIsScaleTranslate.",
+      "parentUuid": "881783f3_882b6e2f",
+      "revId": "437913b1d96ace556036e196d3a5ddabf37a3f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
