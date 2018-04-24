@@ -1126,6 +1126,10 @@ static sk_sp<SkImage> create_picture_image(sk_sp<SkColorSpace> space) {
                                     nullptr, nullptr, SkImage::BitDepth::kU8, std::move(space));
 };
 
+static inline bool almost_equal(int a, int b) {
+    return SkTAbs(a - b) <= 1;
+}
+
 DEF_TEST(Image_ColorSpace, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
     sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_512_q075.jpg");
@@ -1173,9 +1177,6 @@ DEF_TEST(Image_makeColorSpace, r) {
     sk_sp<SkImage> p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
     SkBitmap p3Bitmap;
     bool success = p3Image->asLegacyBitmap(&p3Bitmap);
-
-    auto almost_equal = [](int a, int b) { return SkTAbs(a - b) <= 2; };
-
     REPORTER_ASSERT(r, success);
     REPORTER_ASSERT(r, almost_equal(0x28, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x40, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));
