@@ -236,6 +236,8 @@ defines      = [str(d) for d in js['targets']['//:skia']['defines']]
 # We need to add skcms.c, which lives in third_party
 srcs.add("third_party/skcms/skcms.c")
 local_includes.add("third_party/skcms")
+# TODO: re-enable after relaxing CTS tests
+defines.remove('SK_USE_SKCMS')
 
 dm_srcs         = strip_slashes(js['targets']['//:dm']['sources'])
 dm_includes     = strip_slashes(js['targets']['//:dm']['include_dirs'])
