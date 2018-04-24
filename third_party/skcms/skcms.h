@@ -130,10 +130,6 @@ void skcms_OptimizeForSpeed(skcms_ICCProfile*);
 bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* approx,
                             float* max_error);
 
-// What is the best single transfer function to use for the given profile? Note that there is
-// no real upper bound on the error of this transfer function.
-skcms_TransferFunction skcms_BestSingleCurve(const skcms_ICCProfile*);
-
 typedef struct skcms_ICCTag {
     uint32_t       signature;
     uint32_t       type;
