@@ -921,7 +921,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
 }
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
-    return this->saveLayer(SaveLayerRec(bounds, paint, 0));
+    return this->saveLayer(SaveLayerRec(bounds, paint, kNo_SaveLayerFlag));
 }
 
 int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint) {
