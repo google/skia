@@ -161,7 +161,7 @@ static void grad_nonlinear(float x, const void* ctx, const float P[4], float dfd
             -   g*powf_(D, g-1);
 }
 
-int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, skcms_TransferFunction* tf) {
+int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float* d, float* f) {
     assert(N > 1);
     // We iteratively fit the first points to the TF's linear piece.
     // We want the cx + f line to pass through the first and last points we fit exactly.
@@ -176,7 +176,7 @@ int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, skcms_TransferF
     const float x_scale = 1.0f / (N - 1);
 
     int lin_points = 1;
-    tf->f = skcms_eval_curve(0, curve);
+    *f = skcms_eval_curve(0, curve);
 
     float slope_min = -INFINITY_;
     float slope_max = +INFINITY_;
@@ -184,8 +184,8 @@ int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, skcms_TransferF
         float x = i * x_scale;
         float y = skcms_eval_curve(x, curve);
 
-        float slope_max_i = (y + tol - tf->f) / x,
-              slope_min_i = (y - tol - tf->f) / x;
+        float slope_max_i = (y + tol - *f) / x,
+              slope_min_i = (y - tol - *f) / x;
         if (slope_max_i < slope_min || slope_max < slope_min_i) {
             // Slope intervals would no longer overlap.
             break;
@@ -193,15 +193,15 @@ int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, skcms_TransferF
         slope_max = fminf_(slope_max, slope_max_i);
         slope_min = fmaxf_(slope_min, slope_min_i);
 
-        float cur_slope = (y - tf->f) / x;
+        float cur_slope = (y - *f) / x;
         if (slope_min <= cur_slope && cur_slope <= slope_max) {
             lin_points = i + 1;
-            tf->c = cur_slope;
+            *c = cur_slope;
         }
     }
 
     // Set D to the last point that met our tolerance.
-    tf->d = (lin_points - 1) * x_scale;
+    *d = (lin_points - 1) * x_scale;
     return lin_points;
 }
 
@@ -267,7 +267,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     const float kTolerances[] = { 1.5f / 65535.0f, 1.0f / 512.0f };
     for (int t = 0; t < ARRAY_COUNT(kTolerances); t++) {
         skcms_TransferFunction tf;
-        int L = skcms_fit_linear(curve, N, kTolerances[t], &tf);
+        int L = skcms_fit_linear(curve, N, kTolerances[t], &tf.c, &tf.d, &tf.f);
 
         if (L == N) {
             // If the entire data set was linear, move the coefficients to the nonlinear portion
