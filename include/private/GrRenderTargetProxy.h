@@ -84,7 +84,7 @@ protected:
 
 private:
     size_t onUninstantiatedGpuMemorySize() const override;
-    SkDEBUGCODE(void validateLazySurface(const GrSurface*) override;)
+    SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)
 
     int                 fSampleCnt;
     bool                fNeedsStencil;
