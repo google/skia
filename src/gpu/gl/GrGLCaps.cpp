@@ -2271,7 +2271,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = true;
     }
 
-    if (kIntelSkylake_GrGLRenderer == ctxInfo.renderer()) {
+    if (kIntelSkylake_GrGLRenderer == ctxInfo.renderer() ||
+        (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
+         GrGLANGLERenderer::kSkylake == ctxInfo.angleRenderer())) {
         fRequiresFlushBetweenNonAndInstancedDraws = true;
     }
 
@@ -2319,21 +2321,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDrawArraysBaseVertexIsBroken = true;
     }
 
-    // Blacklisting CCPR on ANGLE while we investigate http://skbug.com/7805.
-    if (kANGLE_GrGLRenderer == ctxInfo.renderer()) {
-        fBlacklistCoverageCounting = true;
-    }
-
-    // The ccpr vertex-shader implementation does not work on this platform. Only allow CCPR with
-    // GS.
-    if (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
-        GrGLANGLERenderer::kSkylake == ctxInfo.angleRenderer()) {
-        bool gsSupport = fShaderCaps->geometryShaderSupport();
-#if GR_TEST_UTILS
-        gsSupport &= !contextOptions.fSuppressGeometryShaders;
-#endif
-        fBlacklistCoverageCounting = !gsSupport;
-    }
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
     // Galaxy S7.
     // TODO: Once this is fixed we can update the check here to look at a driver version number too.

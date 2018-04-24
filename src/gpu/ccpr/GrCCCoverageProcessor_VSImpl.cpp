@@ -263,18 +263,12 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
                    inputWidth, inputWidth, proc.getAttrib(kAttribIdx_X).fName, swizzle,
                    proc.getAttrib(kAttribIdx_Y).fName, swizzle);
 
-    if (PrimitiveType::kWeightedTriangles != proc.fPrimitiveType) {
-        v->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], "
-                                                            "pts[0] - pts[2]));");
-        if (4 == numInputPoints) {
-            v->codeAppend ("area_x2 += determinant(float2x2(pts[0] - pts[2], "
-                                                           "pts[0] - pts[3]));");
-        }
-        v->codeAppend ("half wind = sign(area_x2);");
-    } else {
+    v->codeAppend ("half wind;");
+    Shader::CalcWind(proc, v, "pts", "wind");
+    if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
         SkASSERT(3 == numInputPoints);
         SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(kAttribIdx_X).fType);
-        v->codeAppendf("half wind = %s.w;", proc.getAttrib(kAttribIdx_X).fName);
+        v->codeAppendf("wind *= %s.w;", proc.getAttrib(kAttribIdx_X).fName);
     }
 
     float bloat = kAABloatRadius;

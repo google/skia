@@ -133,6 +133,11 @@ public:
         void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
                               const char* skOutputColor, const char* skOutputCoverage) const;
 
+        // Calculates the winding direction of the input points (+1, -1, or 0). Wind for extremely
+        // thin triangles gets rounded to zero.
+        static void CalcWind(const GrCCCoverageProcessor&, GrGLSLVertexGeoBuilder*, const char* pts,
+                             const char* outputWind);
+
         // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
         // border of a conservative raster edge and 0 on the inside. 'leftPt' and 'rightPt' must be
         // ordered clockwise.
@@ -206,6 +211,11 @@ private:
 
     // Number of bezier points for curves, or 3 for triangles.
     int numInputPoints() const { return PrimitiveType::kCubics == fPrimitiveType ? 4 : 3; }
+
+    bool isTriangles() const {
+        return PrimitiveType::kTriangles == fPrimitiveType ||
+               PrimitiveType::kWeightedTriangles == fPrimitiveType;
+    }
 
     int hasInputWeight() const {
         return PrimitiveType::kWeightedTriangles == fPrimitiveType ||

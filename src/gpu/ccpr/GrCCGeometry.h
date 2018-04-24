@@ -76,7 +76,7 @@ public:
 
     void beginPath();
     void beginContour(const SkPoint&);
-    void lineTo(const SkPoint&);
+    void lineTo(const SkPoint P[2]);
     void quadraticTo(const SkPoint[3]);
 
     // We pass through inflection points and loop intersections using a line and quadratic(s)
@@ -97,7 +97,7 @@ public:
     PrimitiveTallies endContour(); // Returns the numbers of primitives needed to draw the contour.
 
 private:
-    inline void appendLine(const Sk2f& endpt);
+    inline void appendLine(const Sk2f& p0, const Sk2f& p1);
 
     inline void appendQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
     inline void appendMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
