@@ -101,6 +101,49 @@ struct Program {
         }
     };
 
+    class Iterator {
+    public:
+        ProgramElement& operator*() {
+            if (fIter1 != fEnd1) {
+                return **fIter1;
+            }
+            return **fIter2;
+        }
+
+        Iterator& operator++() {
+            if (fIter1 != fEnd1) {
+                ++fIter1;
+                return *this;
+            }
+            ++fIter2;
+            return *this;
+        }
+
+        bool operator==(const Iterator& other) const {
+            return fIter1 == other.fIter1 && fIter2 == other.fIter2;
+        }
+
+        bool operator!=(const Iterator& other) const {
+            return !(*this == other);
+        }
+
+    private:
+        using inner = std::vector<const std::unique_ptr<ProgramElement>>::iterator;
+
+        Iterator(inner begin1, inner end1, inner begin2, inner end2)
+        : fIter1(begin1)
+        , fEnd1(end1)
+        , fIter2(begin2)
+        , fEnd2(end2) {}
+
+        inner fIter1;
+        inner fEnd1;
+        inner fIter2;
+        inner fEnd2;
+
+        friend struct Program;
+    };
+
     enum Kind {
         kFragment_Kind,
         kVertex_Kind,
@@ -113,6 +156,7 @@ struct Program {
             std::unique_ptr<String> source,
             Settings settings,
             std::shared_ptr<Context> context,
+            std::vector<std::unique_ptr<ProgramElement>>* inheritedElements,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::shared_ptr<SymbolTable> symbols,
             Inputs inputs)
@@ -121,8 +165,25 @@ struct Program {
     , fSettings(settings)
     , fContext(context)
     , fSymbols(symbols)
-    , fElements(std::move(elements))
-    , fInputs(inputs) {}
+    , fInputs(inputs)
+    , fInheritedElements(inheritedElements)
+    , fElements(std::move(elements)) {}
+
+    Iterator begin() const {
+        if (fInheritedElements) {
+            return Iterator(fInheritedElements->begin(), fInheritedElements->end(),
+                            fElements.begin(), fElements.end());
+        }
+        return Iterator(fElements.begin(), fElements.end(), fElements.end(), fElements.end());
+    }
+
+    Iterator end() const {
+        if (fInheritedElements) {
+            return Iterator(fInheritedElements->end(), fInheritedElements->end(),
+                            fElements.end(), fElements.end());
+        }
+        return Iterator(fElements.end(), fElements.end(), fElements.end(), fElements.end());
+    }
 
     Kind fKind;
     std::unique_ptr<String> fSource;
@@ -131,8 +192,11 @@ struct Program {
     // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols
     std::shared_ptr<SymbolTable> fSymbols;
-    std::vector<std::unique_ptr<ProgramElement>> fElements;
     Inputs fInputs;
+
+private:
+    std::vector<std::unique_ptr<ProgramElement>>* fInheritedElements;
+    std::vector<std::unique_ptr<ProgramElement>> fElements;
 };
 
 } // namespace

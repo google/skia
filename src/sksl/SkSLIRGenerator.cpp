@@ -142,7 +142,8 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
 #undef CAP
 }
 
-void IRGenerator::start(const Program::Settings* settings) {
+void IRGenerator::start(const Program::Settings* settings,
+                        std::vector<std::unique_ptr<ProgramElement>>* inherited) {
     fSettings = settings;
     fCapsMap.clear();
     if (settings->fCaps) {
@@ -154,6 +155,17 @@ void IRGenerator::start(const Program::Settings* settings) {
     fSkPerVertex = nullptr;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
+    if (inherited) {
+        for (const auto& e : *inherited) {
+            if (e->fKind == ProgramElement::kInterfaceBlock_Kind) {
+                InterfaceBlock& intf = (InterfaceBlock&) *e;
+                if (intf.fVariable.fName == Compiler::PERVERTEX_NAME) {
+                    ASSERT(!fSkPerVertex);
+                    fSkPerVertex = &intf.fVariable;
+                }
+            }
+        }
+    }
 }
 
 void IRGenerator::finish() {
@@ -860,10 +872,6 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             old->add(fields[i].fName, std::unique_ptr<Field>(new Field(intf.fOffset, *var,
                                                                        (int) i)));
         }
-    }
-    if (var->fName == Compiler::PERVERTEX_NAME) {
-        ASSERT(!fSkPerVertex);
-        fSkPerVertex = var;
     }
     return std::unique_ptr<InterfaceBlock>(new InterfaceBlock(intf.fOffset,
                                                               var,

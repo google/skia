@@ -283,9 +283,9 @@ bool HCodeGenerator::generateCode() {
     this->writef("class %s : public GrFragmentProcessor {\n"
                  "public:\n",
                  fFullName.c_str());
-    for (const auto& p : fProgram.fElements) {
-        if (ProgramElement::kEnum_Kind == p->fKind && !((Enum&) *p).fBuiltin) {
-            this->writef("%s\n", p->description().c_str());
+    for (const auto& p : fProgram) {
+        if (ProgramElement::kEnum_Kind == p.fKind && !((Enum&) p).fBuiltin) {
+            this->writef("%s\n", p.description().c_str());
         }
     }
     this->writeSection(CLASS_SECTION);
