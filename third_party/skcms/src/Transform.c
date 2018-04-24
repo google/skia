@@ -50,8 +50,8 @@ bool g_skcms_dump_profile = false;
         }
     }
 
-    static Op profile_next_op(Op op) {
-        if (g_skcms_dump_profile) {
+    static inline Op profile_next_op(Op op) {
+        if (__builtin_expect(g_skcms_dump_profile, false)) {
             static uint64_t start    = 0;
             static uint64_t* current = NULL;
 
