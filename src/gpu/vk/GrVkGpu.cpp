@@ -838,7 +838,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
                             VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
         this->currentCommandBuffer()->clearColorImage(this, tex.get(), &zeroClearColor, 1, &range);
     }
-    return tex;
+    return std::move(tex);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -960,7 +960,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         SkASSERT(tgt->canAttemptStencilAttachment());
     }
 
-    return tgt;
+    return std::move(tgt);
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
@@ -987,9 +987,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     sk_sp<GrVkImageLayout> layout = tex.getGrVkImageLayout();
     SkASSERT(layout);
 
-    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, imageInfo,
-                                                                            std::move(layout));
-    return tgt;
+    return GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, imageInfo, std::move(layout));
 }
 
 void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {

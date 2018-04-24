@@ -125,7 +125,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, invalidTexture.isValid());
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, backendTex));
 
-    invalidTexture = invalidTexture;
+    invalidTexture = static_cast<decltype(invalidTexture)&>(invalidTexture);
     REPORTER_ASSERT(reporter, invalidTexture.isValid());
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, invalidTexture));
 
