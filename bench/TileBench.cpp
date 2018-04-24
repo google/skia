@@ -83,7 +83,7 @@ protected:
         paint.setFilterQuality(fDoFilter ? kLow_SkFilterQuality
                                          : kNone_SkFilterQuality);
         if (fDoTrans) {
-            paint.setColor(SkColorSetARGBMacro(0x80, 0xFF, 0xFF, 0xFF));
+            paint.setColor(SkColorSetARGB(0x80, 0xFF, 0xFF, 0xFF));
         }
 
         SkRect r;

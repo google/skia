@@ -824,10 +824,9 @@ class GrGLLight;
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkColor xform_color(const SkPoint3& color, SkColorSpaceXformer* xformer) {
-    SkColor origColor = SkColorSetARGBInline(0xFF,
-                                             SkScalarRoundToInt(color.fX),
-                                             SkScalarRoundToInt(color.fY),
-                                             SkScalarRoundToInt(color.fZ));
+    SkColor origColor = SkColorSetRGB(SkScalarRoundToInt(color.fX),
+                                      SkScalarRoundToInt(color.fY),
+                                      SkScalarRoundToInt(color.fZ));
     return xformer->apply(origColor);
 }
 
