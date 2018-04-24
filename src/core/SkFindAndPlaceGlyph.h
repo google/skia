@@ -72,6 +72,21 @@ public:
         return {0, 0};
     }
 
+    // The SubpixelPositionRounding function returns a point suitable for rounding a sub-pixel
+    // positioned glyph.
+    static SkPoint SubpixelPositionRounding(SkAxisAlignment axisAlignment) {
+        switch (axisAlignment) {
+            case kX_SkAxisAlignment:
+                return {kSubpixelRounding, SK_ScalarHalf};
+            case kY_SkAxisAlignment:
+                return {SK_ScalarHalf, kSubpixelRounding};
+            case kNone_SkAxisAlignment:
+                return {kSubpixelRounding, kSubpixelRounding};
+        }
+        SK_ABORT("Should not get here.");
+        return {0.0f, 0.0f};
+    }
+
 private:
     // GlyphFinderInterface is the polymorphic base for classes that parse a stream of chars into
     // the right UniChar (or GlyphID) and lookup up the glyph on the cache. The concrete
@@ -294,21 +309,6 @@ private:
     // The "call" to SkFixedToScalar is actually a macro. It's macros all the way down.
     // Needs to be a macro because you can't have a const float unless you make it constexpr.
     static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
-
-    // The SubpixelPositionRounding function returns a point suitable for rounding a sub-pixel
-    // positioned glyph.
-    static SkPoint SubpixelPositionRounding(SkAxisAlignment axisAlignment) {
-        switch (axisAlignment) {
-            case kX_SkAxisAlignment:
-                return {kSubpixelRounding, SK_ScalarHalf};
-            case kY_SkAxisAlignment:
-                return {SK_ScalarHalf, kSubpixelRounding};
-            case kNone_SkAxisAlignment:
-                return {kSubpixelRounding, kSubpixelRounding};
-        }
-        SK_ABORT("Should not get here.");
-        return {0.0f, 0.0f};
-    }
 
     // GlyphFindAndPlaceInterface given the text and position finds the correct glyph and does
     // glyph specific position adjustment. The findAndPositionGlyph method takes text and

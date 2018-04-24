@@ -139,6 +139,28 @@ private:
     SkStrikeCacheDifferenceSpec* const fStrikeCacheDiff;
 };
 
+class SkGlyphManager {
+public:
+    virtual ~SkGlyphManager() = default;
+    virtual void newRun(
+            const SkDescriptor&, const SkPaint::FontMetrics&, const SkPaint&) = 0;
+    virtual void addGlyph(const SkRSXform&, SkPackedGlyphID, SkISize, uint8_t*) = 0;
+    virtual void endRun() = 0;
+};
+
+class SkTextBlobToDrawAtlasAndPaths {
+public:
+    SkTextBlobToDrawAtlasAndPaths(const SkSurfaceProps& props, SkScalerContextFlags flags);
+    ~SkTextBlobToDrawAtlasAndPaths();
+    void drawTextBlob(
+        const SkMatrix& ctm, const SkTextBlob&, SkPoint, const SkPaint&, SkGlyphManager*);
+
+private:
+    class Canvas;
+    std::unique_ptr<Canvas> fCanvas;
+};
+
+
 class SkStrikeServer {
 public:
     SkStrikeServer();
