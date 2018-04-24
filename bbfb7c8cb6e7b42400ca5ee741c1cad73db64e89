@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a8637bd_22a2c285",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-24T18:23:45Z",
+      "side": 1,
+      "message": "line up the masks w/ the others ?",
+      "revId": "bbfb7c8cb6e7b42400ca5ee741c1cad73db64e89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
