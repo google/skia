@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bc002027_c8b7c0f0",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-24T14:27:01Z",
+      "side": 1,
+      "message": "Oh so right now it will only be triggered by the RecreateSKPs bot. The name is a little misleading but if it\u0027s ok with you it\u0027s ok with me.",
+      "parentUuid": "fdc60dbf_86586b0e",
+      "range": {
+        "startLine": 757,
+        "startChar": 27,
+        "endLine": 757,
+        "endChar": 36
+      },
+      "revId": "e1fdee2a7725b13317c422f3edaa3bc3f3a89564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d68a347e_645f3b21",
         "filename": "infra/bots/recipes/recreate_skps.py",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-24T13:22:39Z",
       "side": 1,
       "message": "It\u0027s unfortunate that we have to take the time to check out Chrome here, just to obtain the page sets.",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "e1fdee2a7725b13317c422f3edaa3bc3f3a89564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "039ab910_115e7943",
+        "filename": "infra/bots/recipes/recreate_skps.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-04-24T14:27:01Z",
+      "side": 1,
+      "message": "That\u0027s true. Maybe webpage_replay.py should instead download them via gitiles.",
+      "parentUuid": "d68a347e_645f3b21",
       "range": {
         "startLine": 24,
         "startChar": 2,
