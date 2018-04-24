@@ -29,6 +29,7 @@
 #endif
 
 #include <iostream>
+#include <map>
 #include <regex>
 #include <signal.h>
 #include "sk_tool_utils.h"
