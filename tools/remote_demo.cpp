@@ -16,8 +16,12 @@
 #include <thread>
 #include <unistd.h>
 
-#include "SkRemoteGlyphCache.h"
+#include "SkCanvas.h"
 #include "SkGraphics.h"
+#include "SkImageInfo.h"
+#include "SkNWayCanvas.h"
+#include "SkRemoteGlyphCache.h"
+#include "SkRSXform.h"
 #include "SkSurface.h"
 
 static std::string gSkpName;
@@ -92,6 +96,7 @@ private:
     std::chrono::duration<double>                       fElapsedSeconds{0.0};
 };
 
+
 static void build_prime_cache_spec(const SkIRect &bounds,
                                    const SkSurfaceProps &props,
                                    const SkPicture &pic,
@@ -105,6 +110,89 @@ static void build_prime_cache_spec(const SkIRect &bounds,
 
     pic.playback(&filter);
 }
+
+class AtlasTextCanvas : public SkNWayCanvas {
+public:
+    AtlasTextCanvas(int width, int height)
+    : SkNWayCanvas{width, height}
+    , fTranslate{SkSurfaceProps{0, SkPixelGeometry::kUnknown_SkPixelGeometry},
+            SkScalerContextFlags::kFakeGammaAndBoostContrast}
+    , fGlyphManger{this} { }
+
+protected:
+    void onDrawTextBlob(
+            const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) override {
+        SkPoint pt = SkPoint::Make(x, y);
+        fTranslate.drawTextBlob(this->getTotalMatrix(), *blob, pt, paint, &fGlyphManger);
+    }
+
+private:
+    class BoxGlyphManager : public SkGlyphManager {
+    public:
+        BoxGlyphManager(AtlasTextCanvas* c) : fCanvas{c} {}
+        void newRun(
+                const SkDescriptor&, const SkPaint::FontMetrics&, const SkPaint& paint) override {
+            fPaint = paint;
+        }
+
+        void addGlyph(const SkRSXform& xform, SkPackedGlyphID, SkISize size, uint8_t*) override {
+            SkRect r = SkRect::MakeXYWH(xform.fTx, xform.fTy, size.width(), size.height());
+            fCanvas->drawRect(r, fPaint);
+        }
+
+        void endRun() override {}
+        SkPaint fPaint;
+        AtlasTextCanvas* const fCanvas;
+    };
+
+    class AtlasGlyphManager : public SkGlyphManager {
+    public:
+        AtlasGlyphManager(AtlasTextCanvas* c) : fCanvas{c} {}
+        void newRun(
+                const SkDescriptor& desc,
+                const SkPaint::FontMetrics& fontMetrics,
+                const SkPaint& paint) override {
+            fPaint = paint;
+
+            // +1 for subpixel positioning slop.
+            auto atlasWidth = SkScalarRoundToInt(fontMetrics.fXMax - fontMetrics.fXMin + 1);
+            SkImageInfo imageInfo = SkImageInfo::MakeA8(atlasWidth, 4096);
+            fAtlasSurface = SkSurface::MakeRaster(imageInfo);
+            fDstXform.clear();
+            fSrcRect.clear();
+            fNextGlyph = 0;
+        }
+
+        void addGlyph(
+                const SkRSXform& xform, SkPackedGlyphID, SkISize size, uint8_t* image) override {
+            SkImageInfo glyphImageInfo = SkImageInfo::MakeA8(size.width(), size.height());
+            SkPixmap glyphPix{glyphImageInfo, image, (size_t)size.width()};
+            fAtlasSurface->writePixels(glyphPix, 0, fNextGlyph);
+            fDstXform.push_back(xform);
+            fSrcRect.push_back(SkRect::MakeXYWH(0, fNextGlyph, size.width(), size.height()));
+            fNextGlyph += size.height();
+        }
+
+        void endRun() override {
+            auto image = fAtlasSurface->makeImageSnapshot();
+            SkASSERT(image);
+            fCanvas->drawAtlas(image, fDstXform.data(), fSrcRect.data(), fSrcRect.size(),
+                               nullptr, &fPaint);
+        }
+
+        int fNextGlyph{0};
+        sk_sp<SkSurface> fAtlasSurface;
+        SkPaint fPaint;
+        AtlasTextCanvas* const fCanvas;
+        std::vector<SkRSXform> fDstXform;
+        std::vector<SkRect> fSrcRect;
+    };
+
+
+
+    SkTextBlobToDrawAtlasAndPaths fTranslate;
+    AtlasGlyphManager fGlyphManger;
+};
 
 static void final_draw(std::string outFilename,
                        SkDeserialProcs* procs,
@@ -120,8 +208,11 @@ static void final_draw(std::string outFilename,
     auto c = s->getCanvas();
     auto picUnderTest = SkPicture::MakeFromData(picData, procs);
 
+    AtlasTextCanvas cc{r.width(), r.height()};
+    cc.addCanvas(c);
+
     Timer drawTime;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1; i++) {
         if (gPurgeFontCaches) {
             SkGraphics::PurgeFontCache();
         }
@@ -131,7 +222,8 @@ static void final_draw(std::string outFilename,
             build_prime_cache_spec(r, s->props(), *picUnderTest, &strikeDifference);
             client->primeStrikeCache(strikeDifference);
         }
-        c->drawPicture(picUnderTest);
+        picUnderTest->playback(&cc);
+        //cc.drawPicture(picUnderTest);
         drawTime.stop();
     }
 
