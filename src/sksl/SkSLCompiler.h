@@ -133,9 +133,15 @@ private:
 
     Position position(int offset);
 
+    std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
+    std::shared_ptr<SymbolTable> fVertexSymbolTable;
+    std::vector<std::unique_ptr<ProgramElement>> fFragmentInclude;
+    std::shared_ptr<SymbolTable> fFragmentSymbolTable;
+    std::vector<std::unique_ptr<ProgramElement>> fGeometryInclude;
+    std::shared_ptr<SymbolTable> fGeometrySymbolTable;
+
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
-    String fSkiaVertText; // FIXME store parsed version instead
     int fFlags;
 
     const String* fSource;
