@@ -133,12 +133,23 @@ sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile* profile) {
         return nullptr;
     }
 
-    skcms_TransferFunction tf = skcms_BestSingleCurve(profile);
-    SkColorSpaceTransferFn skia_tf;
-    memcpy(&skia_tf, &tf, sizeof(skia_tf));
-
     SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
     toXYZD50.set3x3RowMajorf(&profile->toXYZD50.vals[0][0]);
+    if (!toXYZD50.invert(nullptr)) {
+        return nullptr;
+    }
+
+    const skcms_Curve* trc = profile->trc;
+    if (trc[0].table_entries ||
+        trc[1].table_entries ||
+        trc[2].table_entries ||
+        memcmp(&trc[0].parametric, &trc[1].parametric, sizeof(trc[0].parametric)) ||
+        memcmp(&trc[0].parametric, &trc[2].parametric, sizeof(trc[0].parametric))) {
+        return nullptr;
+    }
+
+    SkColorSpaceTransferFn skia_tf;
+    memcpy(&skia_tf, &profile->trc[0].parametric, sizeof(skia_tf));
 
     return SkColorSpace::MakeRGB(skia_tf, toXYZD50);
 }
