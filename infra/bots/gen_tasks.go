@@ -754,10 +754,17 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 // task in the generated chain of tasks, which the Job should add as a
 // dependency.
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
+	buildName := "Housekeeper-PerCommit-BuildChrome"
+	buildTask := kitchenTask(buildName, "build_chrome", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(), nil, OUTPUT_BUILD)
+	buildTask.ExecutionTimeout = 4 * time.Hour
+	buildTask.IoTimeout = 4 * time.Hour // With kitchen, step logs don't count toward IoTimeout.
+	b.MustAddTask(buildName, buildTask)
+
 	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, linuxGceDimensions(), nil, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
-	task.ExecutionTimeout = 4 * time.Hour
-	task.IoTimeout = 4 * time.Hour // With kitchen, step logs don't count toward IoTimeout.
+	task.Dependencies = append(task.Dependencies, buildName)
+	task.ExecutionTimeout = 1 * time.Hour
+	task.IoTimeout = 1 * time.Hour // With kitchen, step logs don't count toward IoTimeout.
 	b.MustAddTask(name, task)
 	return name
 }

@@ -166,11 +166,14 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "rmtree",
-      "[START_DIR]/skp_output"
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/build"
     ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
     "infra_step": true,
-    "name": "rmtree skp_output"
+    "name": "makedirs build_dir"
   },
   {
     "cmd": [
@@ -179,108 +182,17 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/skp_output"
-    ],
-    "infra_step": true,
-    "name": "makedirs skp_output"
-  },
-  {
-    "cmd": [
-      "python",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/skp/create.py",
-      "--chrome_src_path",
-      "[CUSTOM_/_B_WORK]/src",
-      "--browser_executable",
+      "copy",
       "[CUSTOM_/_B_WORK]/src/out/Release/chrome",
-      "--target_dir",
-      "[START_DIR]/skp_output"
+      "[START_DIR]/build/chrome"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "Recreate SKPs"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/go/go/bin/go",
-      "version"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "go version"
-  },
-  {
-    "cmd": [
-      "go",
-      "version"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "env go version"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/go/go/bin/go",
-      "get",
-      "-u",
-      "-t",
-      "go.skia.org/infra/..."
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "update go pkgs"
-  },
-  {
-    "cmd": [
-      "python",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/upload_skps.py",
-      "--target_dir",
-      "[START_DIR]/skp_output"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "Upload SKPs",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "infra_step": true,
+    "name": "copy out/Release/chrome"
   },
   {
     "name": "$result",
-    "reason": "Step('Upload SKPs') failed with return_code 1",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]
