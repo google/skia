@@ -203,6 +203,12 @@ bool skcms_Transform(const void*             src,
 // (e.g. skcms_sRGB_profile) where not.
 void skcms_EnsureUsableAsDestination(skcms_ICCProfile* profile, const skcms_ICCProfile* fallback);
 
+// If profile cannot be used as a destination profile with a single parametric transfer function,
+// (ie for rasterization), rewrite it with approximations where reasonable or by pulling from
+// fallback (e.g. skcms_sRGB_profile) where not.
+void skcms_EnsureUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile,
+                                                    const skcms_ICCProfile* fallback);
+
 #ifdef __cplusplus
 }
 #endif
