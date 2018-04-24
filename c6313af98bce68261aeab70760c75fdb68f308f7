@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1c7c5fd_094355c6",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-24T20:01:06Z",
+      "side": 1,
+      "message": "isRenderable, isTextureable ?",
+      "revId": "c6313af98bce68261aeab70760c75fdb68f308f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c9bd2eb_9a4c7c55",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-24T20:01:06Z",
+      "side": 1,
+      "message": "for querying for ?",
+      "revId": "c6313af98bce68261aeab70760c75fdb68f308f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b71ed27e_9923ab35",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1906,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-24T20:01:06Z",
+      "side": 1,
+      "message": "helper function for this ?",
+      "revId": "c6313af98bce68261aeab70760c75fdb68f308f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
