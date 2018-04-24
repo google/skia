@@ -7347,6 +7347,14 @@
     "file": "SkSurface_Reference",
     "name": "SkSurface::getCanvas"
 },
+    "SkSurface_getRenderTargetHandle": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));\n    GrBackendObject backendObject;\n    if (gpuSurface->getRenderTargetHandle(&backendObject, \n            SkSurface::kFlushRead_BackendHandleAccess)) {\n        SkString str;\n        str.printf(\"backendObject=%ld\", backendObject);\n        paint.setTextSize(16);\n        canvas->drawString(str, 20, 40, paint);\n    }\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "dbc6c0e01a177ba03c87c00c32a43148",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::getRenderTargetHandle"
+},
     "SkSurface_getTextureHandle": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));\n    GrBackendObject backendObject = gpuSurface->getTextureHandle(\n            SkSurface::kFlushRead_BackendHandleAccess);\n    if (backendObject) {\n        SkString str;\n        str.printf(\"backendObject=%08lx\", backendObject);\n        paint.setTextSize(16);\n        canvas->drawString(str, 20, 40, paint);\n    }\n}",
     "width": 256,

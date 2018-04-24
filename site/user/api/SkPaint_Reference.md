@@ -760,7 +760,6 @@ paint1 == paint2
         <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a> = 0x400,
         <a href="#SkPaint_kAutoHinting_Flag">kAutoHinting Flag</a>     = 0x800,
         <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a>    = 0x1000,
-        <a href="#SkPaint_kGenA8FromLCD_Flag">kGenA8FromLCD Flag</a>    = 0x2000,
 
         <a href="#SkPaint_kAllFlags">kAllFlags</a> = 0xFFFF,
     };
@@ -805,9 +804,6 @@ multiple settings at once.
   </tr>
   <tr>
     <td><a name="SkPaint_kVerticalText_Flag"> <code><strong>SkPaint::kVerticalText_Flag </strong></code> </a></td><td>0x1000</td><td>mask for setting <a href="#Vertical_Text">Vertical Text</a></td>
-  </tr>
-  <tr>
-    <td><a name="SkPaint_kGenA8FromLCD_Flag"> <code><strong>SkPaint::kGenA8FromLCD_Flag </strong></code> </a></td><td>0x2000</td><td>not intended for public use</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kAllFlags"> <code><strong>SkPaint::kAllFlags </strong></code> </a></td><td>0xFFFF</td><td>mask of all <a href="#Flags">Flags</a>, including private flags and flags reserved for future use</td>

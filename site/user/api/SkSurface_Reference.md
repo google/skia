@@ -52,6 +52,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_getBackendRenderTarget">getBackendRenderTarget</a> | returns the GPU reference to render target |
 | <a href="#SkSurface_getBackendTexture">getBackendTexture</a> | returns the GPU reference to texture |
 | <a href="#SkSurface_getCanvas">getCanvas</a> | returns <a href="SkCanvas_Reference#Canvas">Canvas</a> that draws into <a href="#Surface">Surface</a> |
+| <a href="#SkSurface_getRenderTargetHandle">getRenderTargetHandle</a> | returns the GPU reference to render target |
 | <a href="#SkSurface_getTextureHandle">getTextureHandle</a> | returns the GPU reference to texture |
 | <a href="#SkSurface_height">height</a> | returns pixel row count |
 | <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a> | creates <a href="SkImage_Reference#Image">Image</a> capturing <a href="#Surface">Surface</a> contents |
@@ -807,6 +808,7 @@ surf->makeImageSnapshot() == nullptr
 | <a href="#SkSurface_getBackendRenderTarget">getBackendRenderTarget</a> | returns the GPU reference to render target |
 | <a href="#SkSurface_getBackendTexture">getBackendTexture</a> | returns the GPU reference to texture |
 | <a href="#SkSurface_getCanvas">getCanvas</a> | returns <a href="SkCanvas_Reference#Canvas">Canvas</a> that draws into <a href="#Surface">Surface</a> |
+| <a href="#SkSurface_getRenderTargetHandle">getRenderTargetHandle</a> | returns the GPU reference to render target |
 | <a href="#SkSurface_getTextureHandle">getTextureHandle</a> | returns the GPU reference to texture |
 | <a href="#SkSurface_height">height</a> | returns pixel row count |
 | <a href="#SkSurface_props">props</a> | returns <a href="undocumented#Surface_Properties">Surface Properties</a> |
@@ -1023,7 +1025,7 @@ one of: <a href="#SkSurface_kDiscard_ContentChangeMode">kDiscard ContentChangeMo
 
 ### See Also
 
-<a href="#SkSurface_getTextureHandle">getTextureHandle</a>
+<a href="#SkSurface_getTextureHandle">getTextureHandle</a> <a href="#SkSurface_getRenderTargetHandle">getRenderTargetHandle</a>
 
 
 
@@ -1058,7 +1060,49 @@ GPU texture reference
 
 ### See Also
 
-<a href="undocumented#GrBackendObject">GrBackendObject</a> <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a>
+<a href="#SkSurface_getRenderTargetHandle">getRenderTargetHandle</a> <a href="undocumented#GrBackendObject">GrBackendObject</a> <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a>
+
+---
+
+<a name="SkSurface_getRenderTargetHandle"></a>
+## getRenderTargetHandle
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool getRenderTargetHandle(GrBackendObject* backendObject, BackendHandleAccess backendHandleAccess)
+</pre>
+
+Returns true and stores the GPU back-end reference of the render target used
+by <a href="#Surface">Surface</a> in <a href="#SkSurface_getRenderTargetHandle_backendObject">backendObject</a>.
+
+Return false if <a href="#Surface">Surface</a> is not backed by a GPU render target, and leaves
+<a href="#SkSurface_getRenderTargetHandle_backendObject">backendObject</a> unchanged.
+
+The returned render target handle is only valid until the next draw into <a href="#Surface">Surface</a>,
+or when <a href="#Surface">Surface</a> is deleted.
+
+In OpenGL this returns the frame buffer object ID.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkSurface_getRenderTargetHandle_backendObject"> <code><strong>backendObject </strong></code> </a></td> <td>
+GPU intermediate memory buffer</td>
+  </tr>  <tr>    <td><a name="SkSurface_getRenderTargetHandle_backendHandleAccess"> <code><strong>backendHandleAccess </strong></code> </a></td> <td>
+one of:  <a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>,
+<a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>, <a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+true if <a href="#Surface">Surface</a> is backed by GPU texture
+
+### Example
+
+<div><fiddle-embed name="dbc6c0e01a177ba03c87c00c32a43148" gpu="true"></fiddle-embed></div>
+
+### See Also
+
+<a href="#SkSurface_getTextureHandle">getTextureHandle</a> <a href="undocumented#GrBackendObject">GrBackendObject</a> <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a>
 
 ---
 
