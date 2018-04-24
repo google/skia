@@ -38,14 +38,20 @@ void GrCCGeometry::beginContour(const SkPoint& pt) {
     SkDEBUGCODE(fBuildingContour = true);
 }
 
-void GrCCGeometry::lineTo(const SkPoint& pt) {
+void GrCCGeometry::lineTo(const SkPoint P[2]) {
     SkASSERT(fBuildingContour);
-    fPoints.push_back(pt);
-    fVerbs.push_back(Verb::kLineTo);
+    SkASSERT(P[0] == fPoints.back());
+    Sk2f p0 = Sk2f::Load(P);
+    Sk2f p1 = Sk2f::Load(P+1);
+    this->appendLine(p0, p1);
 }
 
-void GrCCGeometry::appendLine(const Sk2f& endpt) {
-    endpt.store(&fPoints.push_back());
+inline void GrCCGeometry::appendLine(const Sk2f& p0, const Sk2f& p1) {
+    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+    if ((p0 == p1).allTrue()) {
+        return;
+    }
+    p1.store(&fPoints.push_back());
     fVerbs.push_back(Verb::kLineTo);
 }
 
@@ -142,7 +148,7 @@ void GrCCGeometry::quadraticTo(const SkPoint P[3]) {
     // Don't crunch on the curve if it is nearly flat (or just very small). Flat curves can break
     // The monotonic chopping math.
     if (are_collinear(p0, p1, p2)) {
-        this->appendLine(p2);
+        this->appendLine(p0, p2);
         return;
     }
 
@@ -190,12 +196,12 @@ inline void GrCCGeometry::appendQuadratics(const Sk2f& p0, const Sk2f& p1, const
 inline void GrCCGeometry::appendMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
     // Don't send curves to the GPU if we know they are nearly flat (or just very small).
     if (are_collinear(p0, p1, p2)) {
-        SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
-        this->appendLine(p2);
+        this->appendLine(p0, p2);
         return;
     }
 
     SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+    SkASSERT((p0 != p2).anyTrue());
     p1.store(&fPoints.push_back());
     p2.store(&fPoints.push_back());
     fVerbs.push_back(Verb::kMonotonicQuadraticTo);
@@ -466,7 +472,9 @@ void GrCCGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopInter
     // Don't crunch on the curve or inflate geometry if it is nearly flat (or just very small).
     // Flat curves can break the math below.
     if (are_collinear(P)) {
-        this->lineTo(P[3]);
+        Sk2f p0 = Sk2f::Load(P);
+        Sk2f p3 = Sk2f::Load(P+3);
+        this->appendLine(p0, p3);
         return;
     }
 
@@ -570,10 +578,6 @@ void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f
 
 void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f& p1,
                                 const Sk2f& p2, const Sk2f& p3, int maxSubdivisions) {
-    if ((p0 == p3).allTrue()) {
-        return;
-    }
-
     if (SkCubicType::kLoop != fCurrCubicType) {
         // Serpentines and cusps are always monotonic after chopping around inflection points.
         SkASSERT(!SkCubicIsDegenerate(fCurrCubicType));
@@ -583,8 +587,7 @@ void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f
             // This can cause some curves to feel slightly more flat when inspected rigorously back
             // and forth against another renderer, but for now this seems acceptable given the
             // simplicity.
-            SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
-            this->appendLine(p3);
+            this->appendLine(p0, p3);
             return;
         }
     } else {
@@ -613,12 +616,12 @@ void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f
     // Don't send curves to the GPU if we know they are nearly flat (or just very small).
     // Since the cubic segment is known to be convex at this point, our flatness check is simple.
     if (are_collinear(p0, (p1 + p2) * .5f, p3)) {
-        SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
-        this->appendLine(p3);
+        this->appendLine(p0, p3);
         return;
     }
 
     SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+    SkASSERT((p0 != p3).anyTrue());
     p1.store(&fPoints.push_back());
     p2.store(&fPoints.push_back());
     p3.store(&fPoints.push_back());
@@ -686,7 +689,7 @@ inline void GrCCGeometry::chopAndAppendCubicAtMidTangent(AppendCubicMode mode, c
     // near-flat cubics in cubicTo().)
     if (!(midT > 0 && midT < 1)) {
         // The cubic is flat. Otherwise there would be a real midtangent inside T=0..1.
-        this->appendLine(p3);
+        this->appendLine(p0, p3);
         return;
     }
 
@@ -720,7 +723,7 @@ void GrCCGeometry::conicTo(const SkPoint P[3], float w) {
         // midtangents.)
         if (!(midT > 0 && midT < 1)) {
             // The conic is flat. Otherwise there would be a real midtangent inside T=0..1.
-            this->appendLine(p2);
+            this->appendLine(p0, p2);
             return;
         }
 
@@ -747,7 +750,6 @@ void GrCCGeometry::conicTo(const SkPoint P[3], float w) {
 
 void GrCCGeometry::appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, float w) {
     SkASSERT(w >= 0);
-    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
 
     Sk2f base = p2 - p0;
     Sk2f baseAbs = base.abs();
@@ -758,24 +760,28 @@ void GrCCGeometry::appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk
     float h1 = std::abs(d[1] - d[0]); // Height of p1 above the base.
     float ht = h1*w, hs = 1 + w; // Height of the conic = ht/hs.
 
-    if (ht < (baseWidth*hs) * kFlatnessThreshold) { // i.e. ht/hs < baseWidth * kFlatnessThreshold
+    // i.e. (ht/hs <= baseWidth * kFlatnessThreshold). Use "<=" in case base == 0.
+    if (ht <= (baseWidth*hs) * kFlatnessThreshold) {
         // We are flat. (See rationale in are_collinear.)
-        this->appendLine(p2);
+        this->appendLine(p0, p2);
         return;
     }
 
-    if (w > 1 && h1*hs - ht < baseWidth*hs) { // i.e. w > 1 && h1 - ht/hs < baseWidth
+    // i.e. (w > 1 && h1 - ht/hs < baseWidth).
+    if (w > 1 && h1*hs - ht < baseWidth*hs) {
         // If we get within 1px of p1 when w > 1, we will pick up artifacts from the implicit
         // function's reflection. Chop at max height (T=.5) and draw a triangle instead.
         Sk2f p1w = p1*w;
         Sk2f ab = p0 + p1w;
         Sk2f bc = p1w + p2;
         Sk2f highpoint = (ab + bc) / (2*(1 + w));
-        this->appendLine(highpoint);
-        this->appendLine(p2);
+        this->appendLine(p0, highpoint);
+        this->appendLine(highpoint, p2);
         return;
     }
 
+    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+    SkASSERT((p0 != p2).anyTrue());
     p1.store(&fPoints.push_back());
     p2.store(&fPoints.push_back());
     fConicWeights.push_back(w);
