@@ -16,6 +16,24 @@
       "revId": "437913b1d96ace556036e196d3a5ddabf37a3f99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "881783f3_882b6e2f",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-24T14:03:21Z",
+      "side": 1,
+      "message": "But we\u0027re also not un-smashing the device matrices, which was the cause of the bug I was seeing (rotating the coloremoji gm leads to very interesting behavior). In theory internalSetMatrix might be a bit overkill, but internalSetMatrix is what internalSaveLayer is calling in this case, so at least it\u0027s correct. I\u0027m not too concerned about potentially copying a bool twice when we just did a full save layer with an image filter.",
+      "parentUuid": "3fa72090_0808c027",
+      "revId": "437913b1d96ace556036e196d3a5ddabf37a3f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
