@@ -867,6 +867,8 @@ enum class GrInternalSurfaceFlags {
     // Surface-level
     kNoPendingIO           = 1 << 0,
 
+    kSurfaceMask           = kNoPendingIO,
+
     // Texture-only flags
 
     // This flag is set when the internal texture target doesn't support mipmaps (e.g.,
@@ -880,6 +882,8 @@ enum class GrInternalSurfaceFlags {
     // create resources with this limitation - this flag will only appear on resources passed
     // into Ganesh.
     kIsClampOnly           = 1 << 2,
+
+    kTextureMask           = kDoesNotSupportMipMaps | kIsClampOnly,
 
     // RT-only
 
@@ -896,7 +900,9 @@ enum class GrInternalSurfaceFlags {
     // For wrapped resources1
     //    this is disabled for FBO0
     //    but, otherwise, is enabled whenever GrCaps reports window rect support
-    kWindowRectsSupport    = 1 << 4
+    kWindowRectsSupport    = 1 << 4,
+
+    kRenderTargetMask      = kMixedSampled | kWindowRectsSupport,
 };
 GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
 

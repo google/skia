@@ -12,6 +12,7 @@
 #include "GrTexturePriv.h"
 #include "GrTextureProxyPriv.h"
 #include "GrRenderTarget.h"
+#include "GrSurfacePriv.h"
 #include "GrSurfaceProxyPriv.h"
 
 // Deferred version
@@ -110,7 +111,7 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
 }
 
 #ifdef SK_DEBUG
-void GrTextureRenderTargetProxy::validateLazySurface(const GrSurface* surface) {
+void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrTextureProxy version
     SkASSERT(surface->asTexture());
     SkASSERT(GrMipMapped::kNo == this->texPriv().proxyMipMapped() ||
@@ -119,6 +120,15 @@ void GrTextureRenderTargetProxy::validateLazySurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrRenderTargetProxy version
     SkASSERT(surface->asRenderTarget());
     SkASSERT(surface->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
+
+    GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
+    GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
+    SkASSERT((proxyFlags & GrInternalSurfaceFlags::kTextureMask) ==
+             (surfaceFlags & GrInternalSurfaceFlags::kTextureMask));
+    // DDL TODO: re-enable this after skbug.com/7748 (Add FBO-0-ness to SkSurfaceCharacterization)
+    // is fixed.
+    // SkASSERT((proxyFlags & GrInternalSurfaceFlags::kRenderTargetMask) ==
+    //          (surfaceFlags & GrInternalSurfaceFlags::kRenderTargetMask));
 }
 #endif
 

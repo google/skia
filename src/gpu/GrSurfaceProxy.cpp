@@ -180,11 +180,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
     SkASSERT(!fTarget && surface);
 
-    // Check that our a priori computation matched the ultimate reality
-    // DDL TODO: re-enable this after skbug.com/7748 (Add FBO-0-ness to SkSurfaceCharacterization)
-    // is fixed.
-//    SkASSERT((fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO) ==
-//             surface->surfacePriv().flags());
+    SkDEBUGCODE(this->validateSurface(surface.get());)
 
     fTarget = surface.release();
 
@@ -424,13 +420,19 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 
     GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(), needsStencil);
 
-    SkASSERT(surface->config() == fProxy->fConfig);
-    // Assert the flags are the same except for kNoPendingIO which is not passed onto the GrSurface.
-    SkDEBUGCODE(GrInternalSurfaceFlags proxyFlags =
-            fProxy->fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO);
-    SkASSERT(surface->surfacePriv().flags() == proxyFlags);
-    SkDEBUGCODE(fProxy->validateLazySurface(surface.get());)
     this->assign(std::move(surface));
     return true;
 }
 
+#ifdef SK_DEBUG
+void GrSurfaceProxy::validateSurface(const GrSurface* surface) {
+    SkASSERT(surface->config() == fConfig);
+
+    // Assert the flags are the same except for kNoPendingIO which is not passed onto the GrSurface.
+    GrInternalSurfaceFlags proxyFlags = fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO;
+    GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
+    SkASSERT((proxyFlags & GrInternalSurfaceFlags::kSurfaceMask) ==
+             (surfaceFlags & GrInternalSurfaceFlags::kSurfaceMask));
+    this->onValidateSurface(surface);
+}
+#endif
