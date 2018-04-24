@@ -8,6 +8,7 @@
 #include "../skcms.h"
 #include "GaussNewton.h"
 #include "PortableMath.h"
+#include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
 
@@ -60,6 +61,11 @@ bool skcms_ApproximateCurve13(const skcms_Curve* curve, skcms_TF13* approx, floa
         const float err = fabsf_(got - want);
         if (err > *max_error) {
             *max_error = err;
+        }
+
+        assert( isfinitef_(want) );
+        if (!isfinitef_(got)) {
+            return false;
         }
 
         // Compare what bytes we'd choose for these floats, rounded, and scaled by 255,
