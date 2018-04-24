@@ -1092,7 +1092,7 @@ In OpenGL this returns the frame buffer object ID.
 #Method GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess)
 #In Property
 #Line # returns the GPU reference to texture ##
-Retrieves the backend texture. If Surface has no backend texture, an invalid
+Retrieves the back-end texture. If Surface has no back-end texture, an invalid
 object is returned. Call GrBackendTexture::isValid to determine if the result
 is valid.
 
@@ -1117,7 +1117,7 @@ The returned GrBackendTexture should be discarded if the Surface is drawn to or 
 #In Property
 #Line # returns the GPU reference to render target ##
 
-Retrieves the backend render target. If Surface has no backend render target, an invalid
+Retrieves the back-end render target. If Surface has no back-end render target, an invalid
 object is returned. Call GrBackendRenderTarget::isValid to determine if the result
 is valid.
 

@@ -5257,10 +5257,10 @@ peek Done == verb Done
 
 </fiddle-embed></div>
 
-StdOut isn't really volatile, it just produces the wrong result.
+StdOut is not really volatile, it just produces the wrong result.
 A simple fix changes the output of hairlines and needs to be
 investigated to see if the change is correct or not.
-https://skia-review.googlesource.com/c/21340/
+see change 21340 (abandoned for now)
 
 ### See Also
 

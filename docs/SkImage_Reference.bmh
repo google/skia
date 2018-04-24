@@ -735,7 +735,7 @@ with default Paint. colorSpace may be nullptr.
 #Param dimensions  width and height ##
 #Param matrix  Matrix to rotate, scale, translate, and so on; may be nullptr ##
 #Param paint  Paint to apply transparency, filtering, and so on; may be nullptr ##
-#Param bitDepth  8 bit integer or 16 bit float: per component ##
+#Param bitDepth  8-bit integer or 16-bit float: per component ##
 #Param colorSpace  range of colors; may be nullptr ##
 
 #Return created Image, or nullptr ##
@@ -1399,7 +1399,7 @@ for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
 #In Property
 #Line # returns GPU reference to Image as texture ##
 
-Retrieves the backend texture. If Image has no backend texture, an invalid
+Retrieves the back-end texture. If Image has no back-end texture, an invalid
 object is returned. Call GrBackendTexture::isValid to determine if the result
 is valid.
 
@@ -2093,10 +2093,10 @@ If Image is not texture backed, returns texture with Image contents.
 
 #Param context  GPU_Context ##
 #Param image  Image used for texture ##
-#Param backendTexture  storage for backend texture ##
+#Param backendTexture  storage for back-end texture ##
 #Param backendTextureReleaseProc  storage for clean up function ##
 
-#Return true if backend texture was created ##
+#Return true if back-end texture was created ##
 
 #Example
 #Platform gpu

@@ -69,12 +69,12 @@ Pixels are opaque. The Color_Type must have no explicit alpha
 component, or all alpha components must be set to their maximum value.
 ##
 #Const kPremul_SkAlphaType 2
-Pixels have alpha premultiplied into color components.
-Surface pixels must be premultiplied.
+Pixels have alpha Premultiplied into color components.
+Surface pixels must be Premultiplied.
 ##
 #Const kUnpremul_SkAlphaType 3
 Pixel color component values are independent of alpha value.
-Images generated from encoded data like PNG do not premultiply pixel color
+Images generated from encoded data like PNG do not Premultiply pixel color
 components. kUnpremul_SkAlphaType is supported for Image pixels, but not for
 Surface pixels.
 ##
@@ -170,7 +170,7 @@ Some drawing destinations may not support Unpremul.
 #Height 64
 #Description
 SkColorSetARGB parameter a is set to 150, less than its maximum value, and is
-interpreted as Color_Alpha of about 0.6. color is not premultiplied;
+interpreted as Color_Alpha of about 0.6. color is not Premultiplied;
 color components may have values greater than color alpha.
 The four displayed values are the original component values, though not necessarily
 in the same order.
@@ -387,11 +387,11 @@ four bits of blue, four bits of green, and four bits of red.
 #Illustration
 
 If paired with kPremul_SkAlphaType: blue, green, and red components are
-premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+Premultiplied by the alpha value. If blue, green, or red is greater than alpha,
 the drawn result is undefined.
 
 If paired with kUnpremul_SkAlphaType: alpha, blue, green, and red components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with Unpremultipled
 pixels.
 
 If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
@@ -435,11 +435,11 @@ eight bits of green, eight bits of blue, and eight bits of alpha.
 #Illustration
 
 If paired with kPremul_SkAlphaType: red, green, and blue components are
-premultiplied by the alpha value. If red, green, or blue is greater than alpha,
+Premultiplied by the alpha value. If red, green, or blue is greater than alpha,
 the drawn result is undefined.
 
 If paired with kUnpremul_SkAlphaType: alpha, red, green, and blue components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with Unpremultipled
 pixels.
 
 If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum; 
@@ -521,11 +521,11 @@ eight bits of green, eight bits of red, and eight bits of alpha.
 #Illustration
 
 If paired with kPremul_SkAlphaType: blue, green, and red components are
-premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+Premultiplied by the alpha value. If blue, green, or red is greater than alpha,
 the drawn result is undefined.
 
 If paired with kUnpremul_SkAlphaType: blue, green, red, and alpha components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with Unpremultiplied
 pixels.
 
 If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum; 
@@ -573,11 +573,11 @@ three: fully opaque.
 #Illustration
 
 If paired with kPremul_SkAlphaType: red, green, and blue components are
-premultiplied by the alpha value. If red, green, or blue is greater than the
+Premultiplied by the alpha value. If red, green, or blue is greater than the
 alpha replicated to ten bits, the drawn result is undefined.
 
 If paired with kUnpremul_SkAlphaType: alpha, red, green, and blue components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with Unpremultiplied
 pixels.
 
 If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum; 
@@ -656,7 +656,7 @@ kOpaque_SkAlphaType.
 #Subtopic Gray_8
 
 Gray_8 is an 8-bit byte pixel encoding that represents equal values for red,
-blue, and green, reprsenting colors from black to white.  Gray_8 is fully
+blue, and green, representing colors from black to white.  Gray_8 is fully
 opaque as if its Color_Alpha was set to one, and should always be paired with
 kOpaque_SkAlphaType.
 
@@ -679,8 +679,8 @@ kOpaque_SkAlphaType.
 
 #Subtopic RGBA_F16
 
-RGBA_F16 is a 64-bit word pixel encoding that contains sixteen bits of blue,
-sixteen bits of green, sixteen bits of red, and sixteen bits of alpha.
+RGBA_F16 is a 64-bit word pixel encoding that contains 16 bits of blue,
+16 bits of green, 16 bits of red, and 16 bits of alpha.
 
 Each component encodes a floating point value using
 #A Half floats # https://www.khronos.org/opengl/wiki/Small_Float_Formats ##
@@ -690,11 +690,11 @@ and larger values may be useful when used in combination with Transfer_Mode.
 #Illustration
 
 If paired with kPremul_SkAlphaType: blue, green, and red components are
-premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+Premultiplied by the alpha value. If blue, green, or red is greater than alpha,
 the drawn result is undefined.
 
 If paired with kUnpremul_SkAlphaType: blue, green, red, and alpha components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with Unpremultiplied
 pixels.
 
 If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
@@ -1104,8 +1104,8 @@ combination is supported.
 #Set sRGB
 #Height 128
 #Description
-Top gradient is drawn to offscreen without Color_Space. It is darker than middle
-gradient, drawn to offscreen with sRGB Color_Space. Bottom gradient shares bits
+Top gradient is drawn to offScreen without Color_Space. It is darker than middle
+gradient, drawn to offScreen with sRGB Color_Space. Bottom gradient shares bits
 with middle, but does not specify the Color_Space in noColorSpaceBitmap. A source
 without Color_Space is treated as sRGB; the bottom gradient is identical to the
 middle gradient.
@@ -1120,8 +1120,8 @@ middle gradient.
                     SK_ARRAY_COUNT(gradColors), SkShader::kClamp_TileMode));
     SkBitmap bitmap;
     bitmap.allocPixels(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType));
-    SkCanvas offscreen(bitmap);
-    offscreen.drawRect(SkRect::MakeWH(width, height), gradPaint);
+    SkCanvas offScreen(bitmap);
+    offScreen.drawRect(SkRect::MakeWH(width, height), gradPaint);
     canvas->drawBitmap(bitmap, 0, 0);
     bitmap.allocPixels(SkImageInfo::MakeS32(width, height, kPremul_SkAlphaType));
     SkCanvas sRGBOffscreen(bitmap);
@@ -1905,8 +1905,8 @@ color: kRGBA_F16_SkColorType      shiftPerPixel: 3
 #Line # returns width() times bytesPerPixel in 64 bits ##
 
 Returns minimum bytes per row, computed from pixel width() and Color_Type, which
-specifies bytesPerPixel(). Bitmap maximum value for row bytes must be representable
-as a positive value in a 32-bit signed integer.
+specifies bytesPerPixel(). Bitmap maximum value for row bytes must fit
+in 31 bits.
 
 #Return width() times bytesPerPixel as unsigned 64-bit integer ##
 
@@ -1943,8 +1943,8 @@ RGBA_F16 width -2147483648 (0x80000000) too large
 #Line # returns width() times bytesPerPixel in 32 bits ##
 
 Returns minimum bytes per row, computed from pixel width() and Color_Type, which
-specifies bytesPerPixel(). Bitmap maximum value for row bytes must be representable
-as a positive value in a 32-bit signed integer.
+specifies bytesPerPixel(). Bitmap maximum value for row bytes must fit
+in 31 bits.
 
 #Return width() times bytesPerPixel as signed 32-bit integer ##
 

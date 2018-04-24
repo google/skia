@@ -283,7 +283,7 @@ interval from one <a href="SkSurface_Reference#Surface">Surface</a> row to the n
 
 ### Example
 
-<div><fiddle-embed name="a9b116a7ebd1708237ce81ef532e9cb4"><div>Allocates a three by three bitmap, clears it to white, and draws a black pixel
+<div><fiddle-embed name="4cacf302830e644234d522f6e2f8f580"><div>Allocates a three by three bitmap, clears it to white, and draws a black pixel
 in the center.
 </div>
 
@@ -4211,11 +4211,11 @@ the <a href="#SkCanvas_drawImageNine_center">center</a>. Corners are unmodified 
 are larger than <a href="#SkCanvas_drawImageNine_dst">dst</a>; <a href="#SkCanvas_drawImageNine_center">center</a> and four sides are scaled to fit remaining space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageNine_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawImageNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageNine_image">image</a> bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If image is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawImageNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from image bounds. If <a href="#SkCanvas_drawImageNine_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawImageNine_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond <a href="#SkCanvas_drawImageNine_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageNine_image">image</a> edge colors, just
 as <a href="undocumented#Shader">Shader</a> made from <a href="SkImage_Reference#SkImage_makeShader">SkImage::makeShader</a> with <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set
 replicates the <a href="#SkCanvas_drawImageNine_image">image</a> edge color when it samples outside of its bounds.
@@ -4506,11 +4506,11 @@ sides are larger than <a href="#SkCanvas_drawBitmapNine_dst">dst</a>; <a href="#
 space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawBitmapNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawBitmapNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds. If <a href="#SkCanvas_drawBitmapNine_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawBitmapNine_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> edge colors,
 just as <a href="undocumented#Shader">Shader</a> made from <a href="undocumented#SkShader_MakeBitmapShader">SkShader::MakeBitmapShader</a> with
 <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> edge color when it samples
@@ -4669,11 +4669,11 @@ size and shrink proportionately when all fixed elements exceed the <a href="#SkC
 dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds. If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> edge colors,
 just as <a href="undocumented#Shader">Shader</a> made from <a href="undocumented#SkShader_MakeBitmapShader">SkShader::MakeBitmapShader</a> with
 <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> edge color when it samples
@@ -4726,11 +4726,11 @@ size and shrink proportionately when all fixed elements exceed the bitmap
 dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawImageLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If image is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawImageLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from image bounds. If <a href="#SkCanvas_drawImageLattice_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawImageLattice_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as <a href="undocumented#Shader">Shader</a> made from <a href="undocumented#SkShader_MakeBitmapShader">SkShader::MakeBitmapShader</a> with
 <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the bitmap edge color when it samples
@@ -4835,9 +4835,8 @@ start of <a href="#SkCanvas_drawText_text">text</a> on <a href="#SkCanvas_drawTe
 void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint)
 </pre>
 
-<a href="#Draw">Draw</a> null terminated <a href="#SkCanvas_drawString_string">string</a>, with origin at (<a href="#SkCanvas_drawString_x">x</a>, <a href="#SkCanvas_drawString_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
-<a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawString_paint">paint</a>. Note that this per-glyph xform does not affect the shader (if present)
-on the <a href="#SkCanvas_drawString_paint">paint</a>, just the glyph's geometry.
+Draws null terminated <a href="#SkCanvas_drawString_string">string</a>, with origin at (<a href="#SkCanvas_drawString_x">x</a>, <a href="#SkCanvas_drawString_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
+<a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawString_paint">paint</a>.
 
 <a href="#SkCanvas_drawString_string">string</a> meaning depends on <a href="SkPaint_Reference#Text_Encoding">Paint Text Encoding</a>; by default, strings are encoded
 as UTF-8. Other values of <a href="SkPaint_Reference#Text_Encoding">Paint Text Encoding</a> are unlikely to produce the desired
@@ -5080,20 +5079,22 @@ void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path, con
 
 <a href="#Draw">Draw</a> <a href="#SkCanvas_drawTextOnPath_text">text</a> on <a href="SkPath_Reference#Path">Path</a> <a href="#SkCanvas_drawTextOnPath_path">path</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextOnPath_paint">paint</a>.
 
-Origin of <a href="#SkCanvas_drawTextOnPath_text">text</a> is at beginning of <a href="#SkCanvas_drawTextOnPath_path">path</a> offset by <a href="#SkCanvas_drawTextOnPath_matrix">matrix</a>, if provided, before it
-is mapped to <a href="#SkCanvas_drawTextOnPath_path">path</a>. If the <a href="#SkCanvas_drawTextOnPath_path">path</a> section corresponding the glyph advance is
-curved, the glyph is drawn curved to match; control points in the glyph are
-mapped to projected points parallel to the <a href="#SkCanvas_drawTextOnPath_path">path</a>. If the <a href="#SkCanvas_drawTextOnPath_text">text</a> advance is larger
-than the <a href="#SkCanvas_drawTextOnPath_path">path</a> length, the excess <a href="#SkCanvas_drawTextOnPath_text">text</a> is clipped.
+Origin of <a href="#SkCanvas_drawTextOnPath_text">text</a> is at beginning of <a href="#SkCanvas_drawTextOnPath_path">path</a> offset by <a href="#SkCanvas_drawTextOnPath_matrix">matrix</a>, if not nullptr.
+<a href="#SkCanvas_drawTextOnPath_matrix">matrix</a> also transforms <a href="#SkCanvas_drawTextOnPath_text">text</a> before <a href="#SkCanvas_drawTextOnPath_text">text</a> is mapped to <a href="#SkCanvas_drawTextOnPath_path">path</a>. If the <a href="#SkCanvas_drawTextOnPath_path">path</a> section
+corresponding the glyph advance is curved, the glyph is drawn curved to match;
+control points in the glyph are mapped to projected points parallel to the <a href="#SkCanvas_drawTextOnPath_path">path</a>.
+If the <a href="#SkCanvas_drawTextOnPath_text">text</a> advance is larger than the <a href="#SkCanvas_drawTextOnPath_path">path</a> length, the excess <a href="#SkCanvas_drawTextOnPath_text">text</a> is clipped.
 
 <a href="#SkCanvas_drawTextOnPath_text">text</a> meaning depends on <a href="SkPaint_Reference#Text_Encoding">Paint Text Encoding</a>; by default, <a href="#SkCanvas_drawTextOnPath_text">text</a> is encoded as
 UTF-8. Origin meaning depends on <a href="SkPaint_Reference#Text_Align">Paint Text Align</a> and <a href="SkPaint_Reference#Vertical_Text">Paint Vertical Text</a>; by
 default <a href="#SkCanvas_drawTextOnPath_text">text</a> positions the first glyph left side bearing at origin x and its
-baseline at origin y. <a href="undocumented#Text">Text</a> size is affected by <a href="#Matrix">Matrix</a> and <a href="SkPaint_Reference#Text_Size">Paint Text Size</a>.
+baseline at origin y. <a href="undocumented#Text">Text</a> size is affected by <a href="#SkCanvas_drawTextOnPath_matrix">matrix</a> parameter, <a href="#Canvas">Canvas</a> <a href="#Matrix">Matrix</a>,
+and <a href="SkPaint_Reference#Text_Size">Paint Text Size</a>.
 
 All elements of <a href="#SkCanvas_drawTextOnPath_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawTextOnPath_text">text</a>. By default, draws
-filled 12 point black <a href="undocumented#Glyph">Glyphs</a>.
+filled 12 point black <a href="undocumented#Glyph">Glyphs</a>. <a href="#Canvas">Canvas</a> <a href="#Matrix">Matrix</a> does effect <a href="#SkCanvas_drawTextOnPath_paint">paint</a> <a href="undocumented#Shader">Shader</a>, but
+<a href="#SkCanvas_drawTextOnPath_matrix">matrix</a> parameter does not.
 
 ### Parameters
 
