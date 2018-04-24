@@ -54,6 +54,8 @@ declare_args() {
 
   skia_llvm_path = ""
   skia_llvm_lib = "LLVM"
+
+  skia_tools_require_resources = false
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -1343,6 +1345,10 @@ if (skia_enable_tools) {
     if (is_ios) {
       sources += [ "tools/ios_utils.m" ]
       libs += [ "Foundation.framework" ]
+    }
+    defines = []
+    if (skia_tools_require_resources) {
+      defines += [ "SK_TOOLS_REQUIRE_RESOURCES" ]
     }
     deps = [
       ":common_flags",
