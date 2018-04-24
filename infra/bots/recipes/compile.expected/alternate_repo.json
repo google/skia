@@ -45,7 +45,8 @@
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "other_repo@abc123"
+      "other_repo@abc123",
+      "--apply-patch-on-gclient"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]",
     "env_prefixes": {

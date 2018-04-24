@@ -51,7 +51,8 @@
       "--revision",
       "pdfium@origin/master",
       "--revision",
-      "pdfium/third_party/skia@abc123"
+      "pdfium/third_party/skia@abc123",
+      "--apply-patch-on-gclient"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env_prefixes": {

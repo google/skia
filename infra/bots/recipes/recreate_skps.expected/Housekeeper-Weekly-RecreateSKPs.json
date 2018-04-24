@@ -47,7 +47,8 @@
       "--revision",
       "skia@abc123",
       "--revision",
-      "src@origin/lkcr"
+      "src@origin/lkcr",
+      "--apply-patch-on-gclient"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env_prefixes": {
