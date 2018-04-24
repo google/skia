@@ -13,6 +13,7 @@
 
 #include "SkDevice.h"
 #include "SkFindAndPlaceGlyph.h"
+#include "SkRSXform.h"
 #include "SkStrikeCache.h"
 #include "SkTypeface_remote.h"
 
@@ -730,4 +731,195 @@ sk_sp<SkTypeface> SkStrikeClient::decodeTypeface(const void* buf, size_t len) {
         typeFace = fMapIdToTypeface.set(wire.typefaceID, newTypeface);
     }
     return *typeFace;
+}
+
+
+// -- SkTextBlobToDrawAtlasAndPaths ----------------------------------------------------------------
+class SkTextBlobToDrawAtlasAndPaths::Canvas : public SkNoDrawCanvas {
+public:
+    Canvas(const SkSurfaceProps& props, SkScalerContextFlags flags)
+    : SkNoDrawCanvas(new TrackLayerDevice{SkIRect::MakeWH(10000, 10000), props})
+    , fSurfaceProps{props}
+    , fScalerContextFlags{flags} {}
+
+    void setGlyphManager(SkGlyphManager* glyphManager) { fGlyphManager = glyphManager; }
+
+protected:
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
+        return kFullLayer_SaveLayerStrategy;
+    }
+
+    void onDrawTextBlob(
+            const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) override {
+        SkPoint position{x, y};
+
+        SkPaint runPaint{paint};
+        SkTextBlobRunIterator it(blob);
+        for (;!it.done(); it.next()) {
+            // applyFontToPaint() always overwrites the exact same attributes,
+            // so it is safe to not re-seed the paint for this reason.
+            it.applyFontToPaint(&runPaint);
+            if (auto looper = runPaint.getLooper()) {
+                this->processLooper(position, it, runPaint, looper);
+            } else {
+                this->processGlyphRun(position, it, runPaint);
+            }
+        }
+    }
+
+private:
+    void processLooper(
+            const SkPoint& position,
+            const SkTextBlobRunIterator& it,
+            const SkPaint& origPaint,
+            SkDrawLooper* looper) {
+        SkSTArenaAlloc<48> alloc;
+        auto context = looper->makeContext(this, &alloc);
+        SkPaint runPaint = origPaint;
+        while (context->next(this, &runPaint)) {
+            this->save();
+            this->processGlyphRun(position, it, runPaint);
+            this->restore();
+            runPaint = origPaint;
+        }
+    }
+
+    void processGlyphRun(
+            const SkPoint& position,
+            const SkTextBlobRunIterator& it,
+            const SkPaint& runPaint) {
+        if (runPaint.getTextEncoding() != SkPaint::TextEncoding::kGlyphID_TextEncoding) {
+            return;
+        }
+
+        // All other alignment modes need the glyph advances. Use the slow drawing mode.
+        if (runPaint.getTextAlign() != SkPaint::kLeft_Align) {
+            return;
+        }
+
+        using PosFn = SkPoint(*)(int index, const SkScalar* pos);
+        PosFn posFn;
+        switch (it.positioning()) {
+            case SkTextBlob::kDefault_Positioning:
+                // Default positioning needs advances. Can't do that.
+                return;
+
+            case SkTextBlob::kHorizontal_Positioning:
+                posFn = [](int index, const SkScalar* pos) {
+                    return SkPoint{pos[index], 0};
+                };
+
+                break;
+
+            case SkTextBlob::kFull_Positioning:
+                posFn = [](int index, const SkScalar* pos) {
+                    return SkPoint{pos[2 * index], pos[2 * index + 1]};
+                };
+                break;
+
+            default:
+                posFn = nullptr;
+                SK_ABORT("unhandled positioning mode");
+        }
+
+        auto blobMatrix = this->getTotalMatrix();
+        if (blobMatrix.hasPerspective() || runPaint.getTextSize() > 128) {
+            // TODO: output paths
+            return;
+        }
+        blobMatrix.preTranslate(position.x(), position.y());
+
+        SkMatrix runMatrix{blobMatrix};
+        runMatrix.preTranslate(it.offset().x(), it.offset().y());
+
+        using MapFn = SkPoint(*)(const SkMatrix& m, SkPoint pt);
+        MapFn mapFn;
+        switch ((int)runMatrix.getType()) {
+            case SkMatrix::kIdentity_Mask:
+            case SkMatrix::kTranslate_Mask:
+                mapFn = [](const SkMatrix& m, SkPoint pt) {
+                    pt.offset(m.getTranslateX(), m.getTranslateY());
+                    return pt;
+                };
+                break;
+            case SkMatrix::kScale_Mask:
+            case SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask:
+                mapFn = [](const SkMatrix& m, SkPoint pt) {
+                    return SkPoint{pt.x() * m.getScaleX() + m.getTranslateX(),
+                                   pt.y() * m.getScaleY() + m.getTranslateY()};
+                };
+                break;
+            case SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask:
+            case SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask:
+                mapFn = [](const SkMatrix& m, SkPoint pt) {
+                    return SkPoint{
+                            pt.x() * m.getScaleX() + pt.y() * m.getSkewX() + m.getTranslateX(),
+                            pt.x() * m.getSkewY() + pt.y() * m.getScaleY() + m.getTranslateY()};
+                };
+                break;
+            default:
+                mapFn = nullptr;
+                SK_ABORT("Bad matrix.");
+        }
+
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+
+        SkScalerContext::MakeRecAndEffects(runPaint, &fSurfaceProps, &runMatrix,
+                                           fScalerContextFlags, &rec, &effects);
+
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+
+        bool isSubpixel = SkToBool(rec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
+        SkAxisAlignment axisAlignment = SkAxisAlignment::kNone_SkAxisAlignment;
+        if (it.positioning() == SkTextBlob::kHorizontal_Positioning) {
+            axisAlignment = rec.computeAxisAlignmentForHText();
+        }
+        auto rounding = SkFindAndPlaceGlyph::SubpixelPositionRounding(axisAlignment);
+        auto pos = it.pos();
+        const uint16_t* glyphs = it.glyphs();
+        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                *desc, effects, *runPaint.getTypeface());
+
+        // TODO: modify runPaint to reflect that effects are not needed if they are cached.
+        auto run = fGlyphManager->newRun(*desc, cache->getFontMetrics(), runPaint);
+
+        for (uint32_t index = 0; index < it.glyphCount(); index++) {
+            SkIPoint subPixelPos{0, 0};
+            SkPoint glyphPos = mapFn(runMatrix, posFn(index, pos));
+            if (isSubpixel) {
+                subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
+            }
+
+            SkPackedGlyphID glyphID{glyphs[index], subPixelPos.x(), subPixelPos.y()};
+            auto glyph = cache->getRawGlyphByID(glyphID);
+
+            // Round to get pixel position
+            glyphPos += rounding;
+            SkPoint pixelPos = SkPoint::Make(SkScalarFloorToScalar(glyphPos.x()),
+                                             SkScalarFloorToScalar(glyphPos.y()));
+            pixelPos.offset(glyph->fLeft, glyph->fTop);
+            auto dst = SkRSXform::Make(1.0f, 0.0f, pixelPos.x(), pixelPos.y());
+            SkISize glyphSize = SkISize::Make(glyph->fWidth, glyph->fHeight);
+            run->addGlyph(dst, glyphID, glyphSize, (uint8_t*)glyph->fImage);
+        }
+    }
+
+    const SkSurfaceProps       fSurfaceProps;
+    const SkScalerContextFlags fScalerContextFlags;
+    SkGlyphManager*            fGlyphManager{nullptr};
+};
+
+SkTextBlobToDrawAtlasAndPaths::SkTextBlobToDrawAtlasAndPaths(
+    const SkSurfaceProps& props, SkScalerContextFlags flags)
+: fCanvas{new Canvas{props, flags}} { }
+
+void SkTextBlobToDrawAtlasAndPaths::drawTextBlob(const SkMatrix& ctm,
+    const SkTextBlob& blob, SkPoint pos, const SkPaint& paint, SkGlyphManager* glyphManager) {
+    fCanvas->save();
+    fCanvas->concat(ctm);
+    fCanvas->setGlyphManager(glyphManager);
+    fCanvas->drawTextBlob(&blob, pos.x(), pos.y(), paint);
+    fCanvas->restore();
 }

@@ -139,6 +139,32 @@ private:
     SkStrikeCacheDifferenceSpec* const fStrikeCacheDiff;
 };
 
+class SkGlyphRun {
+public:
+    virtual ~SkGlyphRun() = default;
+    // TODO: this is only A8, but will need to be adjusted for lcd, b/w, rgb32.
+    virtual SkRect addGlyph(const SkRSXform&, SkPackedGlyphID, SkISize, uint8_t*) = 0;
+};
+
+class SkGlyphManager {
+public:
+    virtual ~SkGlyphManager() = default;
+    virtual SkGlyphRun* newRun(
+            const SkDescriptor&, const SkPaint::FontMetrics&, const SkPaint&) = 0;
+};
+
+class SkTextBlobToDrawAtlasAndPaths {
+public:
+    SkTextBlobToDrawAtlasAndPaths(const SkSurfaceProps& props, SkScalerContextFlags flags);
+    void drawTextBlob(
+        const SkMatrix& ctm, const SkTextBlob&, SkPoint, const SkPaint&, SkGlyphManager*);
+
+private:
+    class Canvas;
+    std::unique_ptr<Canvas> fCanvas;
+};
+
+
 class SkStrikeServer {
 public:
     SkStrikeServer();

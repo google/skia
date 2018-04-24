@@ -16,8 +16,10 @@
 #include <thread>
 #include <unistd.h>
 
-#include "SkRemoteGlyphCache.h"
+#include "SkCanvas.h"
 #include "SkGraphics.h"
+#include "SkNWayCanvas.h"
+#include "SkRemoteGlyphCache.h"
 #include "SkSurface.h"
 
 static std::string gSkpName;
@@ -92,6 +94,7 @@ private:
     std::chrono::duration<double>                       fElapsedSeconds{0.0};
 };
 
+
 static void build_prime_cache_spec(const SkIRect &bounds,
                                    const SkSurfaceProps &props,
                                    const SkPicture &pic,
@@ -105,6 +108,15 @@ static void build_prime_cache_spec(const SkIRect &bounds,
 
     pic.playback(&filter);
 }
+
+class AtlasTextCanvas : public SkNWayCanvas {
+public:
+    using SkNWayCanvas::SkNWayCanvas;
+protected:
+    void onDrawTextBlob(
+            const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) override {
+    }
+};
 
 static void final_draw(std::string outFilename,
                        SkDeserialProcs* procs,
@@ -120,8 +132,11 @@ static void final_draw(std::string outFilename,
     auto c = s->getCanvas();
     auto picUnderTest = SkPicture::MakeFromData(picData, procs);
 
+    AtlasTextCanvas cc{r.width(), r.height()};
+    cc.addCanvas(c);
+
     Timer drawTime;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1; i++) {
         if (gPurgeFontCaches) {
             SkGraphics::PurgeFontCache();
         }
@@ -131,7 +146,7 @@ static void final_draw(std::string outFilename,
             build_prime_cache_spec(r, s->props(), *picUnderTest, &strikeDifference);
             client->primeStrikeCache(strikeDifference);
         }
-        c->drawPicture(picUnderTest);
+        cc.drawPicture(picUnderTest);
         drawTime.stop();
     }
 
