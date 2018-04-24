@@ -503,6 +503,7 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
         SkASSERT(dst->asTexture());
         dstImage = static_cast<GrVkTexture*>(dst->asTexture());
     }
+    SkASSERT(1 == dstImage->mipLevels());
     dstImage->setImageLayout(this,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                              VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -1706,7 +1707,19 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                      GrVkImage* srcImage,
                                      const SkIRect& srcRect,
                                      const SkIPoint& dstPoint) {
-    SkASSERT(can_copy_image(dst, dstOrigin, src, srcOrigin, this));
+#ifdef SK_DEBUG
+    int dstSampleCnt = 0;
+    int srcSampleCnt = 0;
+    if (const GrRenderTarget* rt = dst->asRenderTarget()) {
+        dstSampleCnt = rt->numColorSamples();
+    }
+    if (const GrRenderTarget* rt = src->asRenderTarget()) {
+        srcSampleCnt = rt->numColorSamples();
+    }
+    SkASSERT(this->vkCaps().canCopyImage(dst->config(), dstSampleCnt, dstOrigin,
+                                         src->config(), srcSampleCnt, srcOrigin));
+
+#endif
 
     // These flags are for flushing/invalidating caches and for the dst image it doesn't matter if
     // the cache is flushed since it is only being written to.
@@ -1887,7 +1900,22 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                             GrSurface* src, GrSurfaceOrigin srcOrigin,
                             const SkIRect& srcRect, const SkIPoint& dstPoint,
                             bool canDiscardOutsideDstRect) {
-    if (can_copy_as_resolve(dst, dstOrigin, src, srcOrigin, this)) {
+    GrPixelConfig dstConfig = dst->config();
+    GrPixelConfig srcConfig = src->config();
+
+    int dstSampleCnt = 0;
+    int srcSampleCnt = 0;
+    if (const GrRenderTarget* rt = dst->asRenderTarget()) {
+        dstSampleCnt = rt->numColorSamples();
+    }
+    if (const GrRenderTarget* rt = src->asRenderTarget()) {
+        srcSampleCnt = rt->numColorSamples();
+    }
+    SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTarget()));
+    SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTarget()));
+
+    if (this->vkCaps().canCopyAsResolve(dstConfig, dstSampleCnt, dstOrigin,
+                                        srcConfig, srcSampleCnt, srcOrigin)) {
         this->copySurfaceAsResolve(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
         return true;
     }
@@ -1896,8 +1924,10 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         this->submitCommandBuffer(GrVkGpu::kSkip_SyncQueue);
     }
 
-    if (fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
-                                       canDiscardOutsideDstRect)) {
+    if (this->vkCaps().canCopyAsDraw(dstConfig, SkToBool(dst->asRenderTarget()),
+                                     srcConfig, SkToBool(src->asTexture()))) {
+        SkAssertResult(fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect,
+                                                      dstPoint, canDiscardOutsideDstRect));
         auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
         this->didWriteToSurface(dst, dstOrigin, &dstRect);
         return true;
@@ -1922,13 +1952,15 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         srcImage = static_cast<GrVkTexture*>(src->asTexture());
     }
 
-    if (can_copy_image(dst, dstOrigin, src, srcOrigin, this)) {
+    if (this->vkCaps().canCopyImage(dstConfig, dstSampleCnt, dstOrigin,
+                                    srcConfig, srcSampleCnt, srcOrigin)) {
         this->copySurfaceAsCopyImage(dst, dstOrigin, src, srcOrigin, dstImage, srcImage,
                                      srcRect, dstPoint);
         return true;
     }
 
-    if (can_copy_as_blit(dst, src, dstImage, srcImage, this)) {
+    if (this->vkCaps().canCopyAsBlit(dstConfig, dstSampleCnt, dstImage->isLinearTiled(),
+                                     srcConfig, srcSampleCnt, srcImage->isLinearTiled())) {
         this->copySurfaceAsBlit(dst, dstOrigin, src, srcOrigin, dstImage, srcImage,
                                 srcRect, dstPoint);
         return true;
