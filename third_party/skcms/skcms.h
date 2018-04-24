@@ -38,6 +38,11 @@ typedef struct skcms_TransferFunction {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
+// A transfer function that's cheaper to evaluate than skcms_TransferFunction.
+typedef struct skcms_PolyTF {
+    float A,B,C,D;
+} skcms_PolyTF;
+
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef union skcms_Curve {
     struct {
@@ -97,6 +102,10 @@ typedef struct skcms_ICCProfile {
     // and has_A2B to true.
     bool                   has_A2B;
     skcms_A2B              A2B;
+
+    // If the profile has_trc, we may be able to approximate those curves with skcms_PolyTF.
+    bool     has_poly_tf[3];
+    skcms_PolyTF poly_tf[3];
 } skcms_ICCProfile;
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.

@@ -246,6 +246,13 @@ SI ATTR F NS(apply_transfer_function_)(const skcms_TransferFunction* tf, F x) {
 }
 #define apply_transfer_function NS(apply_transfer_function_)
 
+SI ATTR F NS(apply_poly_tf_)(const skcms_PolyTF* tf, F x) {
+    // TODO: handle x<0
+    return (F)if_then_else(x < tf->D, tf->C*x
+                                    , tf->A*x*x*x + tf->B*x*x + (1 - tf->A - tf->B));
+}
+#define apply_poly_tf NS(apply_poly_tf_)
+
 // Strided loads and stores of N values, starting from p.
 #if N == 1
     #define LOAD_3(T, p) (T)(p)[0]
@@ -846,6 +853,10 @@ static void NS(exec_ops)(const Op* ops, const void** args,
             case Op_tf_g:{ g = apply_transfer_function(*args++, g); } break;
             case Op_tf_b:{ b = apply_transfer_function(*args++, b); } break;
             case Op_tf_a:{ a = apply_transfer_function(*args++, a); } break;
+
+            case Op_poly_tf_r:{ r = apply_poly_tf(*args++, r); } break;
+            case Op_poly_tf_g:{ g = apply_poly_tf(*args++, g); } break;
+            case Op_poly_tf_b:{ b = apply_poly_tf(*args++, b); } break;
 
             case Op_table_8_r: { r = NS(table_8_ )(*args++, r); } break;
             case Op_table_8_g: { g = NS(table_8_ )(*args++, g); } break;

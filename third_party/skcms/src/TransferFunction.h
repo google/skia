@@ -17,4 +17,4 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction*, skcms_Transfer
 
 // Fit c,d,f parameters of an skcms_TransferFunction to the first 2 < L ≤ N
 // evenly-spaced points on an skcms_Curve within a given tolerance, returning L.
-int skcms_fit_linear(const skcms_Curve*, int N, float tol, skcms_TransferFunction*);
+int skcms_fit_linear(const skcms_Curve*, int N, float tol, float* c, float* d, float* f);

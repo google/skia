@@ -611,10 +611,10 @@ static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
         if (curve && curve->table_entries && curve->table_entries <= (uint32_t)INT_MAX) {
             int N = (int)curve->table_entries;
 
-            skcms_TransferFunction tf;
-            if (N == skcms_fit_linear(curve, N, 1.0f/(2*N), &tf)
-                && tf.c == 1.0f
-                && tf.f == 0.0f) {
+            float c,d,f;
+            if (N == skcms_fit_linear(curve, N, 1.0f/(2*N), &c,&d,&f)
+                && c == 1.0f
+                && f == 0.0f) {
                 curve->table_entries = 0;
                 curve->table_8       = NULL;
                 curve->table_16      = NULL;
@@ -779,11 +779,6 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     }
 
     return usable_as_src(profile);
-}
-
-void skcms_OptimizeForSpeed(skcms_ICCProfile* profile) {
-    (void)profile;
-    // TODO
 }
 
 const skcms_ICCProfile skcms_sRGB_profile = {
