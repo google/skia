@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdc60dbf_86586b0e",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-24T13:22:39Z",
+      "side": 1,
+      "message": "This doesn\u0027t actually run at every commit, but it could (should we add a job?).  I\u0027m open to renaming it as well; it could be a Build- task.",
+      "range": {
+        "startLine": 757,
+        "startChar": 27,
+        "endLine": 757,
+        "endChar": 36
+      },
+      "revId": "e1fdee2a7725b13317c422f3edaa3bc3f3a89564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d68a347e_645f3b21",
+        "filename": "infra/bots/recipes/recreate_skps.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-24T13:22:39Z",
+      "side": 1,
+      "message": "It\u0027s unfortunate that we have to take the time to check out Chrome here, just to obtain the page sets.",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "e1fdee2a7725b13317c422f3edaa3bc3f3a89564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
