@@ -16,7 +16,10 @@
 #include <stdint.h>
 #include <string.h>
 
-#if defined(SKCMS_PROFILE)
+extern bool g_skcms_dump_profile;
+bool g_skcms_dump_profile = false;
+
+#if !defined(NDEBUG) && defined(__clang__)
     // Basic profiling tools to time each Op.  Not at all thread safe.
 
     #include <stdio.h>
@@ -48,21 +51,24 @@
     }
 
     static Op profile_next_op(Op op) {
-        static uint64_t start    = 0;
-        static uint64_t* current = NULL;
+        if (g_skcms_dump_profile) {
+            static uint64_t start    = 0;
+            static uint64_t* current = NULL;
 
-        if (!current) {
-            atexit(profile_dump_stats);
-        } else {
-            *current += now() - start;
+            if (!current) {
+                atexit(profile_dump_stats);
+            } else {
+                *current += now() - start;
+            }
+
+            current = &counts[op];
+            start   = now();
         }
-
-        current = &counts[op];
-        start   = now();
         return op;
     }
 #else
     static inline Op profile_next_op(Op op) {
+        (void)g_skcms_dump_profile;
         return op;
     }
 #endif
