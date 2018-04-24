@@ -214,6 +214,28 @@ Compiler::Compiler(Flags flags)
         printf("Unexpected errors: %s\n", fErrorText.c_str());
     }
     ASSERT(!fErrorCount);
+
+    Program::Settings settings;
+    fIRGenerator->start(&settings, nullptr);
+    fIRGenerator->convertProgram(Program::kFragment_Kind, SKSL_VERT_INCLUDE,
+                                 strlen(SKSL_VERT_INCLUDE), *fTypes, &fVertexInclude);
+    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+    fVertexSymbolTable = fIRGenerator->fSymbolTable;
+    fIRGenerator->finish();
+
+    fIRGenerator->start(&settings, nullptr);
+    fIRGenerator->convertProgram(Program::kVertex_Kind, SKSL_FRAG_INCLUDE,
+                                 strlen(SKSL_FRAG_INCLUDE), *fTypes, &fFragmentInclude);
+    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+    fFragmentSymbolTable = fIRGenerator->fSymbolTable;
+    fIRGenerator->finish();
+
+    fIRGenerator->start(&settings, nullptr);
+    fIRGenerator->convertProgram(Program::kGeometry_Kind, SKSL_GEOM_INCLUDE,
+                                 strlen(SKSL_GEOM_INCLUDE), *fTypes, &fGeometryInclude);
+    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+    fGeometrySymbolTable = fIRGenerator->fSymbolTable;
+    fIRGenerator->finish();
 }
 
 Compiler::~Compiler() {
@@ -1186,31 +1208,39 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                                   const Program::Settings& settings) {
     fErrorText = "";
     fErrorCount = 0;
-    fIRGenerator->start(&settings);
+    std::vector<std::unique_ptr<ProgramElement>>* inherited;
     std::vector<std::unique_ptr<ProgramElement>> elements;
     switch (kind) {
         case Program::kVertex_Kind:
-            fIRGenerator->convertProgram(kind, SKSL_VERT_INCLUDE, strlen(SKSL_VERT_INCLUDE),
-                                         *fTypes, &elements);
+            inherited = &fVertexInclude;
+            fIRGenerator->fSymbolTable = fVertexSymbolTable;
+            fIRGenerator->start(&settings, inherited);
             break;
         case Program::kFragment_Kind:
-            fIRGenerator->convertProgram(kind, SKSL_FRAG_INCLUDE, strlen(SKSL_FRAG_INCLUDE),
-                                         *fTypes, &elements);
+            inherited = &fFragmentInclude;
+            fIRGenerator->fSymbolTable = fFragmentSymbolTable;
+            fIRGenerator->start(&settings, inherited);
             break;
         case Program::kGeometry_Kind:
-            fIRGenerator->convertProgram(kind, SKSL_GEOM_INCLUDE, strlen(SKSL_GEOM_INCLUDE),
-                                         *fTypes, &elements);
+            inherited = &fGeometryInclude;
+            fIRGenerator->fSymbolTable = fGeometrySymbolTable;
+            fIRGenerator->start(&settings, inherited);
             break;
         case Program::kFragmentProcessor_Kind:
+            inherited = nullptr;
+            fIRGenerator->start(&settings, nullptr);
             fIRGenerator->convertProgram(kind, SKSL_FP_INCLUDE, strlen(SKSL_FP_INCLUDE), *fTypes,
                                          &elements);
+            fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
         case Program::kCPU_Kind:
+            inherited = nullptr;
+            fIRGenerator->start(&settings, nullptr);
             fIRGenerator->convertProgram(kind, SKSL_CPU_INCLUDE, strlen(SKSL_CPU_INCLUDE),
                                          *fTypes, &elements);
+            fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
     }
-    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     for (auto& element : elements) {
         if (element->fKind == ProgramElement::kEnum_Kind) {
             ((Enum&) *element).fBuiltin = true;
@@ -1230,6 +1260,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                                        std::move(textPtr),
                                                        settings,
                                                        fContext,
+                                                       inherited,
                                                        std::move(elements),
                                                        fIRGenerator->fSymbolTable,
                                                        fIRGenerator->fInputs));
