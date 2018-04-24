@@ -10,7 +10,7 @@
 
 #Struct SkPoint
 
-SkPoint holds two 32 bit floating point coordinates.
+SkPoint holds two 32-bit floating point coordinates.
 
 #Subtopic Related_Function
 #Populate

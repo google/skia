@@ -4211,11 +4211,11 @@ the <a href="#SkCanvas_drawImageNine_center">center</a>. Corners are unmodified 
 are larger than <a href="#SkCanvas_drawImageNine_dst">dst</a>; <a href="#SkCanvas_drawImageNine_center">center</a> and four sides are scaled to fit remaining space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageNine_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawImageNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageNine_image">image</a> bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If image is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawImageNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from image bounds. If <a href="#SkCanvas_drawImageNine_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawImageNine_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond <a href="#SkCanvas_drawImageNine_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageNine_image">image</a> edge colors, just
 as <a href="undocumented#Shader">Shader</a> made from <a href="SkImage_Reference#SkImage_makeShader">SkImage::makeShader</a> with <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set
 replicates the <a href="#SkCanvas_drawImageNine_image">image</a> edge color when it samples outside of its bounds.
@@ -4506,11 +4506,11 @@ sides are larger than <a href="#SkCanvas_drawBitmapNine_dst">dst</a>; <a href="#
 space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawBitmapNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawBitmapNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds. If <a href="#SkCanvas_drawBitmapNine_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawBitmapNine_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> edge colors,
 just as <a href="undocumented#Shader">Shader</a> made from <a href="undocumented#SkShader_MakeBitmapShader">SkShader::MakeBitmapShader</a> with
 <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> edge color when it samples
@@ -4669,11 +4669,11 @@ size and shrink proportionately when all fixed elements exceed the <a href="#SkC
 dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds. If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> edge colors,
 just as <a href="undocumented#Shader">Shader</a> made from <a href="undocumented#SkShader_MakeBitmapShader">SkShader::MakeBitmapShader</a> with
 <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> edge color when it samples
@@ -4726,11 +4726,11 @@ size and shrink proportionately when all fixed elements exceed the bitmap
 dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawImageLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If image is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawImageLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from image bounds. If <a href="#SkCanvas_drawImageLattice_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawImageLattice_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as <a href="undocumented#Shader">Shader</a> made from <a href="undocumented#SkShader_MakeBitmapShader">SkShader::MakeBitmapShader</a> with
 <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the bitmap edge color when it samples

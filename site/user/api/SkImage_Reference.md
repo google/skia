@@ -535,7 +535,8 @@ created <a href="#Image">Image</a>, or nullptr
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static sk_sp&lt;SkImage&gt; MakeCrossContextFromEncoded(GrContext* context, sk_sp&lt;SkData&gt; data,
-                                                  bool buildMips, SkColorSpace* dstColorSpace)
+                                                  bool buildMips, SkColorSpace* dstColorSpace,
+                                                  bool limitToMaxTextureSize = false)
 </pre>
 
 Creates <a href="#Image">Image</a> from encoded <a href="#SkImage_MakeCrossContextFromEncoded_data">data</a>. <a href="#Image">Image</a> is uploaded to GPU back-end using <a href="#SkImage_MakeCrossContextFromEncoded_context">context</a>.
@@ -566,6 +567,8 @@ moving resources between contexts.
 create <a href="#Image">Image</a> as Mip_Map if true</td>
   </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
 range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
+  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_limitToMaxTextureSize"> <code><strong>limitToMaxTextureSize </strong></code> </a></td> <td>
+downscale image to GPU maximum texture size, if necessary</td>
   </tr>
 </table>
 
@@ -588,7 +591,8 @@ created <a href="#Image">Image</a>, or nullptr
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static sk_sp&lt;SkImage&gt; MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
-                                                 bool buildMips, SkColorSpace* dstColorSpace)
+                                                 bool buildMips, SkColorSpace* dstColorSpace,
+                                                 bool limitToMaxTextureSize = false)
 </pre>
 
 Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeCrossContextFromPixmap_pixmap">pixmap</a>. <a href="#Image">Image</a> is uploaded to GPU back-end using <a href="#SkImage_MakeCrossContextFromPixmap_context">context</a>.
@@ -619,6 +623,8 @@ Recognized GPU formats vary by platform and GPU back-end.
 create <a href="#Image">Image</a> as Mip_Map if true</td>
   </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
 range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
+  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_limitToMaxTextureSize"> <code><strong>limitToMaxTextureSize </strong></code> </a></td> <td>
+downscale image to GPU maximum texture size, if necessary</td>
   </tr>
 </table>
 
@@ -825,7 +831,7 @@ width and height</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_paint"> <code><strong>paint </strong></code> </a></td> <td>
 <a href="SkPaint_Reference#Paint">Paint</a> to apply transparency, filtering, and so on; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_bitDepth"> <code><strong>bitDepth </strong></code> </a></td> <td>
-8 bit integer or 16 bit float: per component</td>
+8-bit integer or 16-bit float: per component</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
   </tr>
@@ -1035,7 +1041,9 @@ SkAlphaType alphaType() const
 </pre>
 
 Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
+
+<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
 or was parsed from encoded data.
 
 ### Return Value

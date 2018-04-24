@@ -16,7 +16,7 @@ SkIRect Reference
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkIRect"></a> Struct SkIRect
-<a href="#SkIRect">SkIRect</a> holds four 32 bit integer coordinates describing the upper and
+<a href="#SkIRect">SkIRect</a> holds four 32-bit integer coordinates describing the upper and
 lower bounds of a rectangle. <a href="#SkIRect">SkIRect</a> may be created from outer bounds or
 from position, width, and height. <a href="#SkIRect">SkIRect</a> describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to

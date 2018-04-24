@@ -4305,9 +4305,7 @@ are larger than dst; center and four sides are scaled to fit remaining space, if
 
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper. If image is kAlpha_8_SkColorType, apply Shader.
-If paint contains Mask_Filter, generate mask from image bounds.
+#paint_as_used_by_draw_lattice_or_draw_nine(image)#
 
 If generated mask extends beyond image bounds, replicate image edge colors, just
 as Shader made from SkImage::makeShader with SkShader::kClamp_TileMode set
@@ -4655,6 +4653,14 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
+#PhraseDef paint_as_used_by_draw_lattice_or_draw_nine(bitmap_or_image)
+If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
+Blend_Mode, and Draw_Looper. If #bitmap_or_image# is kAlpha_8_SkColorType, apply Shader.
+If paint contains Mask_Filter, generate mask from #bitmap_or_image# bounds. If paint
+Filter_Quality set to kNone_SkFilterQuality, disable pixel filtering. For all
+other values of paint Filter_Quality, use kLow_SkFilterQuality to filter pixels.
+##
+
 #Method void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                         const SkPaint* paint = nullptr)
 #In Draw_Image
@@ -4669,9 +4675,7 @@ space, if any.
 
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper. If bitmap is kAlpha_8_SkColorType, apply Shader.
-If paint contains Mask_Filter, generate mask from bitmap bounds.
+#paint_as_used_by_draw_lattice_or_draw_nine(bitmap)#
 
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as Shader made from SkShader::MakeBitmapShader with
@@ -4849,9 +4853,7 @@ dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper. If bitmap is kAlpha_8_SkColorType, apply Shader.
-If paint contains Mask_Filter, generate mask from bitmap bounds.
+#paint_as_used_by_draw_lattice_or_draw_nine(bitmap)#
 
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as Shader made from SkShader::MakeBitmapShader with
@@ -4930,9 +4932,7 @@ dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper. If bitmap is kAlpha_8_SkColorType, apply Shader.
-If paint contains Mask_Filter, generate mask from bitmap bounds.
+#paint_as_used_by_draw_lattice_or_draw_nine(image)#
 
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as Shader made from SkShader::MakeBitmapShader with
