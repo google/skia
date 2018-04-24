@@ -319,7 +319,7 @@ public:
 
     void swapAnimationBuffers() override {
         this->INHERITED::swapAnimationBuffers();
-        fFrontPaths.swap(fBackPaths);
+        std::swap(fFrontPaths, fBackPaths);
     }
 
     void drawGlyphs(SkCanvas* canvas) override {
