@@ -41,6 +41,8 @@ protected:
 
     void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                     const SkPaint&) override;
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                        const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) override;
 
     sk_sp<SkSpecialImage> snapSpecial() override;
 
