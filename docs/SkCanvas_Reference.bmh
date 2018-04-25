@@ -1684,6 +1684,7 @@ documentation purposes, this enum is named rather than anonymous
     enum {
         kPreserveLCDText_SaveLayerFlag = 1 << 1,
         kInitWithPrevious_SaveLayerFlag = 1 << 2,
+        kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag = 1 << 3,
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
     };
 ##
@@ -1698,6 +1699,10 @@ defining how Layer allocated by saveLayer operates.
 
 #Const kInitWithPrevious_SaveLayerFlag 4
   Initializes Layer with the contents of the previous Layer.
+##
+
+#Const kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag 8
+  Experimental -- don't use
 ##
 
 #Const kDontClipToLayer_Legacy_SaveLayerFlag 0x80000000
