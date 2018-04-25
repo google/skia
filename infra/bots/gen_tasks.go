@@ -1051,6 +1051,38 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	return name
 }
 
+// Run the presubmit.
+func presubmit(b *specs.TasksCfgBuilder, name string) string {
+	extraProps := map[string]string{
+		"category":         "cq",
+		"patch_gerrit_url": "https://skia-review.googlesource.com",
+		"patch_project":    "skia",
+		"patch_ref":        fmt.Sprintf("refs/changes/%s/%s/%s", specs.PLACEHOLDER_ISSUE_SHORT, specs.PLACEHOLDER_ISSUE, specs.PLACEHOLDER_PATCHSET),
+		"reason":           "CQ",
+		"repo_name":        "skia",
+	}
+	task := kitchenTask(name, "run_presubmit", "empty.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(), extraProps, OUTPUT_NONE)
+
+	replaceArg := func(key, value string) {
+		found := false
+		for idx, arg := range task.Command {
+			if arg == key {
+				task.Command[idx+1] = value
+				found = true
+			}
+		}
+		if !found {
+			task.Command = append(task.Command, key, value)
+		}
+	}
+	replaceArg("-repository", "https://chromium.googlesource.com/chromium/tools/build")
+	replaceArg("-revision", "HEAD")
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
+	task.Dependencies = []string{} // No bundled recipes for this one.
+	b.MustAddTask(name, task)
+	return name
+}
+
 // process generates tasks and jobs for the given job name.
 func process(b *specs.TasksCfgBuilder, name string) {
 	deps := []string{}
@@ -1112,6 +1144,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
+		name != "Housekeeper-OnDemand-Presubmit" &&
 		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "-CT_") &&
@@ -1128,6 +1161,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	if name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
 		deps = append(deps, checkGeneratedFiles(b, name))
+	}
+	if name == "Housekeeper-OnDemand-Presubmit" {
+		deps = append(deps, presubmit(b, name))
 	}
 	if strings.Contains(name, "Bookmaker") {
 		deps = append(deps, bookmaker(b, name, compileTaskName))
@@ -1196,6 +1232,8 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		j.Trigger = specs.TRIGGER_WEEKLY
 	} else if strings.Contains(name, "Flutter") || strings.Contains(name, "PDFium") || strings.Contains(name, "CommandBuffer") {
 		j.Trigger = specs.TRIGGER_MASTER_ONLY
+	} else if strings.Contains(name, "-OnDemand-") {
+		j.Trigger = specs.TRIGGER_ON_DEMAND
 	}
 	b.MustAddJob(name, j)
 }

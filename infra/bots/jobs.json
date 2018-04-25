@@ -105,6 +105,7 @@
   "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
   "Housekeeper-Nightly-Bookmaker",
   "Housekeeper-Nightly-RecreateSKPs_Canary",
+  "Housekeeper-OnDemand-Presubmit",
   "Housekeeper-PerCommit",
   "Housekeeper-PerCommit-Bookmaker",
   "Housekeeper-PerCommit-BundleRecipes",
