@@ -220,7 +220,28 @@ void SkThreadedBMPDevice::drawText(const void* text, size_t len, SkScalar x, SkS
 void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
         int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
     char* clonedText = this->cloneArray((const char*)text, len);
-    SkScalar* clonedXpos = this->cloneArray(xpos, len * scalarsPerPos);
+
+    // TODO(liyuqian): the following calculation and clone is hacky an probably inefficient.
+    // I'll revise it later when SkThreadedBMPDevice can pass all the ASAN/MSAN tests.
+    int posCount = 0;
+    switch (paint.getTextEncoding()) {
+        case SkPaint::kUTF8_TextEncoding:
+            posCount = SkUTF8_CountUnichars(text, len);
+            break;
+        case SkPaint::kUTF16_TextEncoding:
+            posCount = SkUTF16_CountUnichars(text, len);
+            break;
+        case SkPaint::kUTF32_TextEncoding:
+            posCount = SkUTF32_CountUnichars(text, len);
+            break;
+        case SkPaint::kGlyphID_TextEncoding:
+            posCount = len / 2; // 16-bit per glyph
+            break;
+        default:
+            SkDEBUGFAIL("Unknown encoding.");
+    }
+    SkScalar* clonedXpos = this->cloneArray(xpos, posCount * scalarsPerPos);
+
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
         TileDraw(ds, tileBounds).drawPosText(clonedText, len, clonedXpos, scalarsPerPos, offset,
