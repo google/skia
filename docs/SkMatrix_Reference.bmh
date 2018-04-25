@@ -619,10 +619,10 @@ for (SkScalar sx : { 1, 2 } ) {
 
 # ------------------------------------------------------------------------------
 
-#Enum
+#Enum MemberIndex
 
 #Code
-    enum {
+    enum MemberIndex {
         kMScaleX,
         kMSkewX,
         kMTransX,
@@ -693,10 +693,10 @@ for (int i : { SkMatrix::kMScaleX, SkMatrix::kMSkewX,  SkMatrix::kMTransX,
 
 # ------------------------------------------------------------------------------
 
-#Enum
+#Enum AffineIndex
 
 #Code
-    enum {
+    enum AffineIndex {
         kAScaleX,
         kASkewY,
         kASkewX,

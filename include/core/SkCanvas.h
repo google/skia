@@ -600,7 +600,8 @@ public:
         SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
         defining how layer allocated by saveLayer() operates.
     */
-    enum {
+    enum SaveLayerFlags : uint32_t {
+        kNo_SaveLayerFlag                     = 0,
         /** Creates layer for LCD text. Flag is ignored if layer SkPaint contains
             SkImageFilter or SkColorFilter.
         */
@@ -614,8 +615,6 @@ public:
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
 #endif
     };
-
-    typedef uint32_t SaveLayerFlags;
 
     /** \struct SkCanvas::SaveLayerRec
         SaveLayerRec contains the state used to create the layer.
@@ -635,7 +634,8 @@ public:
             @param saveLayerFlags  SaveLayerRec options to modify layer
             @return                SaveLayerRec with empty backdrop
         */
-        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint,
+                SaveLayerFlags saveLayerFlags = kNo_SaveLayerFlag)
             : fBounds(bounds)
             , fPaint(paint)
             , fSaveLayerFlags(saveLayerFlags)
@@ -720,7 +720,7 @@ public:
             create layer for LCD text, and to create layer with the
             contents of the previous layer.
         */
-        SaveLayerFlags       fSaveLayerFlags = 0;
+        SaveLayerFlags       fSaveLayerFlags = kNo_SaveLayerFlag;
 
     };
 
@@ -2637,12 +2637,12 @@ private:
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;
+
     // the first N recs that can fit here mean we won't call malloc
-    enum {
-        kMCRecSize      = 128,  // most recent measurement
-        kMCRecCount     = 32,   // common depth for save/restores
-        kDeviceCMSize   = 224,  // most recent measurement
-    };
+    static constexpr int kMCRecSize      = 128;  // most recent measurement
+    static constexpr int kMCRecCount     = 32;   // common depth for save/restores
+    static constexpr int kDeviceCMSize   = 224;  // most recent measurement
+
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
     intptr_t fDeviceCMStorage[kDeviceCMSize / sizeof(intptr_t)];
 

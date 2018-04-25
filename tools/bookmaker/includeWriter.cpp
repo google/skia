@@ -1435,7 +1435,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 default:
                     SkASSERT(0);
             }
-            if (KeyWord::kUint8_t == child.fKeyWord) {
+            if (KeyWord::kUint8_t == child.fKeyWord || KeyWord::kUint32_t == child.fKeyWord) {
                 continue;
             } else {
                 if (fInEnum && KeyWord::kClass == child.fChildren[0]->fKeyWord) {

@@ -792,10 +792,10 @@ Skews are not similar and do not preserve right angles.
 
 ---
 
-## <a name="SkMatrix__anonymous"></a> Enum SkMatrix::_anonymous
+## <a name="SkMatrix_MemberIndex"></a> Enum SkMatrix::MemberIndex
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum {
+    enum <a href="#SkMatrix_MemberIndex">MemberIndex</a> {
         <a href="#SkMatrix_kMScaleX">kMScaleX</a>,
         <a href="#SkMatrix_kMSkewX">kMSkewX</a>,
         <a href="#SkMatrix_kMTransX">kMTransX</a>,
@@ -853,10 +853,10 @@ each value in <a href="#Matrix">Matrix</a>.
 
 
 
-## <a name="SkMatrix__anonymous_2"></a> Enum SkMatrix::_anonymous_2
+## <a name="SkMatrix_AffineIndex"></a> Enum SkMatrix::AffineIndex
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum {
+    enum <a href="#SkMatrix_AffineIndex">AffineIndex</a> {
         <a href="#SkMatrix_kAScaleX">kAScaleX</a>,
         <a href="#SkMatrix_kASkewY">kASkewY</a>,
         <a href="#SkMatrix_kASkewX">kASkewX</a>,
