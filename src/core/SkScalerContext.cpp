@@ -130,7 +130,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
     }
 
     // If we are going to create the mask, then we cannot keep the color
-    if ((generatingImageFromPath || fMaskFilter) && SkMask::kARGB32_Format == glyph->fMaskFormat) {
+    if (generatingImageFromPath && SkMask::kARGB32_Format == glyph->fMaskFormat) {
         glyph->fMaskFormat = SkMask::kA8_Format;
     }
 
@@ -456,19 +456,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         // the src glyph image shouldn't be 3D
         SkASSERT(SkMask::k3D_Format != glyph->fMaskFormat);
 
-        SkAutoSMalloc<32*32> a8storage;
         glyph->toMask(&srcM);
-        if (SkMask::kARGB32_Format == srcM.fFormat) {
-            // now we need to extract the alpha-channel from the glyph's image
-            // and copy it into a temp buffer, and then point srcM at that temp.
-            srcM.fFormat = SkMask::kA8_Format;
-            srcM.fRowBytes = SkAlign4(srcM.fBounds.width());
-            size_t size = srcM.computeImageSize();
-            a8storage.reset(size);
-            srcM.fImage = (uint8_t*)a8storage.get();
-            extract_alpha(srcM,
-                          (const SkPMColor*)glyph->fImage, glyph->rowBytes());
-        }
 
         fRec.getMatrixFrom2x2(&matrix);
 
