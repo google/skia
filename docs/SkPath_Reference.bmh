@@ -312,7 +312,7 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 # ------------------------------------------------------------------------------
 #Subtopic Direction
-#Line # Path contour orientation ##
+#Line # contour orientation, clockwise or counterclockwise ##
 #Alias Directions
 
 #Enum Direction
@@ -697,7 +697,7 @@ Only valid for Android framework.
 
 # ------------------------------------------------------------------------------
 #Subtopic Fill_Type
-#Line # Path fill rule, normal and inverted ##
+#Line # fill rule, normal and inverted ##
 
 #Enum FillType
 #Line # sets winding rule and inverse fill ##
@@ -2307,7 +2307,7 @@ void draw(SkCanvas* canvas) {
 #Alias Quads
 #Alias Quadratic_Bezier
 #Alias Quadratic_Beziers
-#Line # Bezier_Curve described by second-order polynomial ##
+#Line # curve described by second-order polynomial ##
 
 Quad describes a quadratic Bezier, a second-order curve identical to a section
 of a parabola. Quad begins at a start Point, curves towards a control Point,
@@ -2776,7 +2776,7 @@ void draw(SkCanvas* canvas) {
 #Alias Cubics
 #Alias Cubic_Bezier
 #Alias Cubic_Beziers
-#Line # Bezier_Curve described by third-order polynomial ##
+#Line # curve described by third-order polynomial ##
 
 Cubic describes a Bezier_Curve segment described by a third-order polynomial. 
 Cubic begins at a start Point, curving towards the first control Point;
@@ -5202,7 +5202,7 @@ path is equal to copy
 
 #Method size_t readFromMemory(const void* buffer, size_t length)
 #In Utility
-#Line # Initializes from buffer ##
+#Line # initializes from buffer ##
 Initializes Path from buffer of size length. Returns zero if the buffer is
 data is inconsistent, or the length is too small. 
 
@@ -5315,7 +5315,7 @@ empty genID = 1
 # ------------------------------------------------------------------------------
 
 #Class Iter
-#Line # Path data iterator ##
+#Line # data iterator ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Provides options to treat open Contours as closed, and to ignore
@@ -5709,7 +5709,7 @@ with close(),    forceClose is true : isClosedContour returns true
 #Class Iter ##
 
 #Class RawIter
-#Line # Path raw data iterator ##
+#Line # raw data iterator ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Verb_Array, Point_Array, and Conic_Weight are returned unaltered. 
@@ -5845,10 +5845,10 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
         ##
 
         #Bug 6832
-        StdOut isn't really volatile, it just produces the wrong result.
+        StdOut is not really volatile, it just produces the wrong result.
         A simple fix changes the output of hairlines and needs to be
         investigated to see if the change is correct or not.
-        https://skia-review.googlesource.com/c/21340/
+        see change 21340 (abandoned for now)
 
         #SeeAlso next()
 
