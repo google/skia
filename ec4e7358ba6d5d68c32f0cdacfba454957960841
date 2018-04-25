@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04dc5a9f_8159643f",
+        "filename": "infra/bots/recipes/test.expected/Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-25T14:23:22Z",
+      "side": 1,
+      "message": "Do you mind updating the test builders from Ubuntu16 to Debian9? (Or maybe you\u0027re waiting until all are migrated?)",
+      "revId": "ec4e7358ba6d5d68c32f0cdacfba454957960841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
