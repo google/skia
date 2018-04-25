@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbb389c3_7f2a9daa",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2434,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-25T20:38:47Z",
+      "side": 0,
+      "message": "I think we can alternatively do\n\n    // Sometimes we think we need to calculate convexity but another thread already did.\n    for (auto c \u003d (Convexity)fConvexity; c !\u003d kUnknown_Convexity; ) {\n        return c;\n    }\n    ...\n\nwhich will avoid the redundant calculation in situations where today\u0027s assert would fail.",
+      "revId": "6078776ee58384be3a3cf953cefba9df2892e34d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
