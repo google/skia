@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6980c625_e699c483",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-25T14:28:00Z",
+      "side": 1,
+      "message": "why move this outside the scope of the for loop?",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "e49ac32b81f6d932ac69f5aa6e06436f6b1fbd14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ffa1d76_1ea7b3b0",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-04-25T14:28:00Z",
+      "side": 1,
+      "message": "would it be better to pass this config into the helper functions instead of recomputing it everything. That way we limit the calc of this config to one place if we change how we want to do it later",
+      "range": {
+        "startLine": 349,
+        "startChar": 27,
+        "endLine": 349,
+        "endChar": 79
+      },
+      "revId": "e49ac32b81f6d932ac69f5aa6e06436f6b1fbd14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
