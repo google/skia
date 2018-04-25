@@ -93,8 +93,8 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     // In the future, we might also test the clipped case by allowing i = 0
     for(int i = 1; i < 2; ++i) {
         canvas->translate(100 * i, 0);
-        auto flag = i ?
-                (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag : 0;
+        auto flag = i ? (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag :
+                SkCanvas::kNo_SaveLayerFlag;
         canvas->saveLayer({ &rect1, &paint1, nullptr, nullptr, nullptr, flag});
         canvas->saveLayer({ &rect2, &paint2, nullptr, nullptr, nullptr, flag});
         canvas->drawRect(rect3, paint3);
