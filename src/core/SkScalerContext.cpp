@@ -130,7 +130,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
     }
 
     // If we are going to create the mask, then we cannot keep the color
-    if ((generatingImageFromPath || fMaskFilter) && SkMask::kARGB32_Format == glyph->fMaskFormat) {
+    if (generatingImageFromPath && SkMask::kARGB32_Format == glyph->fMaskFormat) {
         glyph->fMaskFormat = SkMask::kA8_Format;
     }
 
@@ -382,26 +382,6 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     }
 }
 
-static void extract_alpha(const SkMask& dst,
-                          const SkPMColor* srcRow, size_t srcRB) {
-    int width = dst.fBounds.width();
-    int height = dst.fBounds.height();
-    int dstRB = dst.fRowBytes;
-    uint8_t* dstRow = dst.fImage;
-
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            dstRow[x] = SkGetPackedA32(srcRow[x]);
-        }
-        // zero any padding on each row
-        for (int x = width; x < dstRB; ++x) {
-            dstRow[x] = 0;
-        }
-        dstRow += dstRB;
-        srcRow = (const SkPMColor*)((const char*)srcRow + srcRB);
-    }
-}
-
 void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     const SkGlyph*  glyph = &origGlyph;
     SkGlyph         tmpGlyph;
@@ -456,19 +436,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         // the src glyph image shouldn't be 3D
         SkASSERT(SkMask::k3D_Format != glyph->fMaskFormat);
 
-        SkAutoSMalloc<32*32> a8storage;
         glyph->toMask(&srcM);
-        if (SkMask::kARGB32_Format == srcM.fFormat) {
-            // now we need to extract the alpha-channel from the glyph's image
-            // and copy it into a temp buffer, and then point srcM at that temp.
-            srcM.fFormat = SkMask::kA8_Format;
-            srcM.fRowBytes = SkAlign4(srcM.fBounds.width());
-            size_t size = srcM.computeImageSize();
-            a8storage.reset(size);
-            srcM.fImage = (uint8_t*)a8storage.get();
-            extract_alpha(srcM,
-                          (const SkPMColor*)glyph->fImage, glyph->rowBytes());
-        }
 
         fRec.getMatrixFrom2x2(&matrix);
 
@@ -496,7 +464,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             }
             SkMask::FreeImage(dstM.fImage);
 
-            if (fPreBlendForFilter.isApplicable()) {
+            if (SkMask::kA8_Format == dstM.fFormat && fPreBlendForFilter.isApplicable()) {
                 applyLUTToA8Mask(srcM, fPreBlendForFilter.fG);
             }
         }
