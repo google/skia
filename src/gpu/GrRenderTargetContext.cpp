@@ -1353,9 +1353,10 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
             return;
         }
     }
-    this->drawShapeUsingPathRenderer(
-            clip, std::move(paint), aa, viewMatrix,
-            GrShape::MakeArc(oval, startAngle, sweepAngle, useCenter, style));
+    SkPath path;
+    SkPathPriv::CreateDrawArcPath(&path, oval, startAngle, sweepAngle, useCenter,
+                                  style.isSimpleFill());
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(path, style));
 }
 
 void GrRenderTargetContext::drawImageLattice(const GrClip& clip,

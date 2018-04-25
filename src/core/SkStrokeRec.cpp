@@ -136,7 +136,6 @@ void SkStrokeRec::applyToPaint(SkPaint* paint) const {
 }
 
 static inline SkScalar get_inflation_bounds(SkPaint::Join join,
-                                            SkPaint::Cap cap,
                                             SkScalar strokeWidth,
                                             SkScalar miterLimit) {
     if (strokeWidth < 0) {  // fill
@@ -146,25 +145,20 @@ static inline SkScalar get_inflation_bounds(SkPaint::Join join,
     }
     // since we're stroked, outset the rect by the radius (and join type)
     SkScalar radius = SkScalarHalf(strokeWidth);
-    SkScalar inflation = radius;
     if (SkPaint::kMiter_Join == join) {
         if (miterLimit > SK_Scalar1) {
-            inflation *= miterLimit;
+            radius *= miterLimit;
         }
     }
-    // A square cap at a 45 degree angle can add sqrt(2)*radius.
-    if (SkPaint::kSquare_Cap == cap) {
-        inflation = SkTMax(inflation, radius * SK_ScalarSqrt2);
-    }
-    return inflation;
+    return radius;
 }
 
 SkScalar SkStrokeRec::getInflationRadius() const {
-    return get_inflation_bounds((SkPaint::Join)fJoin, (SkPaint::Cap)fCap, fWidth, fMiterLimit);
+    return get_inflation_bounds((SkPaint::Join)fJoin, fWidth, fMiterLimit);
 }
 
 SkScalar SkStrokeRec::GetInflationRadius(const SkPaint& paint, SkPaint::Style style) {
     SkScalar width = SkPaint::kFill_Style == style ? -SK_Scalar1 : paint.getStrokeWidth();
-    return get_inflation_bounds(paint.getStrokeJoin(), paint.getStrokeCap(), width,
-                                paint.getStrokeMiter());
+    return get_inflation_bounds(paint.getStrokeJoin(), width, paint.getStrokeMiter());
+
 }
