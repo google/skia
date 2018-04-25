@@ -14,19 +14,17 @@
 #include <stdlib.h>
 
 // f(x) = skcms_PolyTF{A,B,C,D}(x) =
-//     Cx                     x < D
-//     Ax^3 + Bx^2 + (1-A-B)  x ≥ D
+//     Cx                       x < D
+//     A(x^3-1) + B(x^2-1) + 1  x ≥ D
 //
 // We'll fit C and D directly, and then hold them constant
 // and fit the other part using Gauss-Newton, subject to
 // the constraint that both parts meet at x=D:
 //
-//     CD = AD^3 + BD^2 + (1-A-B)
+//     CD = A(D^3-1) + B(D^2-1) + 1
 //
 // This lets us solve for B, reducing the optimization problem
 // for that part down to just a single parameter A:
-//
-//     CD = A(D^3-1) + B(D^2-1) + 1
 //
 //         CD - A(D^3-1) - 1
 //     B = -----------------
@@ -39,6 +37,9 @@
 //                  (x^2-1) (D^3-1)
 //  ∂f/∂A = x^3-1 - ---------------
 //                       D^2-1
+//
+// It's important to evaluate as f(x) as A(x^3-1) + B(x^2-1) + 1
+// and not Ax^3 + Bx^2 + (1-A-B) to ensure that f(1.0f) == 1.0f.
 
 static float eval_poly_tf(float x, const void* ctx, const float P[4]) {
     const skcms_PolyTF* tf = (const skcms_PolyTF*)ctx;
@@ -49,7 +50,7 @@ static float eval_poly_tf(float x, const void* ctx, const float P[4]) {
     float B = (C*D - A*(D*D*D - 1) - 1) / (D*D - 1);
 
     return x < D ? C*x
-                 : A*x*x*x + B*x*x + (1-A-B);
+                 : A*(x*x*x-1) + B*(x*x-1) + 1;
 }
 
 static void grad_poly_tf(float x, const void* ctx, const float P[4], float dfdP[4]) {
