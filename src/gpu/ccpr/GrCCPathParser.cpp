@@ -114,9 +114,9 @@ void GrCCPathParser::parsePath(const SkPath& path, const SkPoint* deviceSpacePts
         return;
     }
 
-    const float* conicWeights = SkPathPriv::ConicWeightData(path);
+    // const float* conicWeights = SkPathPriv::ConicWeightData(path);
     int ptsIdx = 0;
-    int conicWeightsIdx = 0;
+    // int conicWeightsIdx = 0;
     bool insideContour = false;
 
     for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
@@ -136,6 +136,7 @@ void GrCCPathParser::parsePath(const SkPath& path, const SkPoint* deviceSpacePts
                 ++ptsIdx;
                 continue;
             case SkPath::kQuad_Verb:
+            case SkPath::kConic_Verb:
                 fGeometry.quadraticTo(&deviceSpacePts[ptsIdx - 1]);
                 ptsIdx += 2;
                 continue;
@@ -143,17 +144,17 @@ void GrCCPathParser::parsePath(const SkPath& path, const SkPoint* deviceSpacePts
                 fGeometry.cubicTo(&deviceSpacePts[ptsIdx - 1]);
                 ptsIdx += 3;
                 continue;
-            case SkPath::kConic_Verb:
-                fGeometry.conicTo(&deviceSpacePts[ptsIdx - 1], conicWeights[conicWeightsIdx]);
-                ptsIdx += 2;
-                ++conicWeightsIdx;
-                continue;
+            // case SkPath::kConic_Verb:
+            //     fGeometry.conicTo(&deviceSpacePts[ptsIdx - 1], conicWeights[conicWeightsIdx]);
+            //     ptsIdx += 2;
+            //     ++conicWeightsIdx;
+            //     continue;
             default:
                 SK_ABORT("Unexpected path verb.");
         }
     }
     SkASSERT(ptsIdx == path.countPoints());
-    SkASSERT(conicWeightsIdx == SkPathPriv::ConicWeightCnt(path));
+    // SkASSERT(conicWeightsIdx == SkPathPriv::ConicWeightCnt(path));
 
     this->endContourIfNeeded(insideContour);
 }
