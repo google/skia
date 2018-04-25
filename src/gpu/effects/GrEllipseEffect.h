@@ -12,7 +12,7 @@
 #define GrEllipseEffect_DEFINED
 #include "SkTypes.h"
 
-#include "GrShaderCaps.h"
+    #include "GrShaderCaps.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrEllipseEffect : public GrFragmentProcessor {
@@ -32,16 +32,15 @@ public:
     GrEllipseEffect(const GrEllipseEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "EllipseEffect"; }
-
 private:
     GrEllipseEffect(GrClipEdgeType edgeType, SkPoint center, SkPoint radii)
-            : INHERITED(kGrEllipseEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-            , fEdgeType(edgeType)
-            , fCenter(center)
-            , fRadii(radii) {}
+    : INHERITED(kGrEllipseEffect_ClassID, (OptimizationFlags)  kCompatibleWithCoverageAsAlpha_OptimizationFlag )
+    , fEdgeType(edgeType)
+    , fCenter(center)
+    , fRadii(radii) {
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     GrClipEdgeType fEdgeType;
