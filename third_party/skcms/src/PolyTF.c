@@ -66,7 +66,7 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
     }
 
     const int N = curve->table_entries == 0 ? 256
-                                            : (int)curve->table_entries;
+                                            :(int)curve->table_entries;
 
     // We'll test the quality of our fit by roundtripping through a skcms_TransferFunction,
     // either the inverse of the curve itself if it is parametric, or of its approximation if not.
@@ -77,74 +77,64 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
     } else if (!skcms_ApproximateCurve(curve, &baseline, &err)) {
         return false;
     }
-
-    // We'll borrow the linear section from baseline, which is either
-    // exactly correct, or already the approximation we'd use anyway.
-    tf->C = baseline.c;
-    tf->D = baseline.d;
-    if (baseline.f != 0) {
-        return false;  // Can't fit this (rare) kind of curve here.
-    }
-
-    // Detect linear baseline: (ax + b)^g + e --> ax ~~> Cx
-    if (baseline.g == 1 && baseline.d == 0 && baseline.b + baseline.e == 0) {
-        tf->A = 0;
-        tf->B = 0;
-        tf->C = baseline.a;
-        tf->D = INFINITY_;   // Always use Cx, never Ax^3+Bx^2+(1-A-B)
-        return true;
-    }
-    // This case is less likely, but also guards against divide by zero below.
-    if (tf->D == 1) {
-        tf->A = 0;
-        tf->B = 0;
-        return true;
-    }
-
-    // Number of points already fit in the linear section.
-    // If the curve isn't parametric and we approximated instead, this should be exact.
-    const int L = (int)(tf->D * (N-1)) + 1;
-
-    // TODO: handle special case of L == N-1 to avoid /0 in Gauss-Newton.
-
     skcms_TransferFunction inv;
     if (!skcms_TransferFunction_invert(&baseline, &inv)) {
         return false;
     }
 
-    // Start with guess A = 0, i.e. f(x) ≈ x^2.
-    float P[4] = {0, 0,0,0};
-    for (int i = 0; i < 3; i++) {
-        if (!skcms_gauss_newton_step(skcms_eval_curve, curve,
-                                     eval_poly_tf, tf,
-                                     grad_poly_tf, tf,
-                                     P,
-                                     tf->D, 1, N-L)) {
+    const float kTolerances[] = { 1.5f / 65535.0f, 1.0f / 512.0f };
+    for (int t = 0; t < ARRAY_COUNT(kTolerances); t++) {
+        float f;
+        const int L = skcms_fit_linear(curve, N, kTolerances[t], &tf->C, &tf->D, &f);
+        if (f != 0) {
             return false;
         }
+
+        if (tf->D == 1) {
+            tf->A = 0;
+            tf->B = 0;
+            return true;
+        }
+
+        // Start with guess A = 0, i.e. f(x) = x^2, gamma = 2.
+        float P[4] = {0, 0,0,0};
+
+        for (int i = 0; i < 3; i++) {
+            if (!skcms_gauss_newton_step(skcms_eval_curve, curve,
+                                         eval_poly_tf, tf,
+                                         grad_poly_tf, tf,
+                                         P,
+                                         tf->D, 1, N-L)) {
+                goto NEXT;
+            }
+        }
+
+        float A = tf->A = P[0],
+              C = tf->C,
+              D = tf->D;
+        tf->B = (C*D - A*(D*D*D - 1) - 1) / (D*D - 1);
+
+        for (int i = 0; i < N; i++) {
+            float x = i * (1.0f/(N-1));
+
+            float rt = skcms_TransferFunction_eval(&inv, eval_poly_tf(x, tf, P));
+            if (!isfinitef_(rt)) {
+                goto NEXT;
+            }
+
+            const int tol = (i == 0 || i == N-1) ? 0
+                                                 : N/256;
+            int ix = (int)((N-1) * rt + 0.5f);
+            if (abs(i - ix) > tol) {
+                goto NEXT;
+            }
+        }
+        return true;
+
+    NEXT: ;
     }
 
-    float A = tf->A = P[0],
-          C = tf->C,
-          D = tf->D;
-    tf->B = (C*D - A*(D*D*D - 1) - 1) / (D*D - 1);
-
-    for (int i = 0; i < N; i++) {
-        float x = i * (1.0f/(N-1));
-
-        float rt = skcms_TransferFunction_eval(&inv, eval_poly_tf(x, tf, P));
-        if (!isfinitef_(rt)) {
-            return false;
-        }
-
-        const int tol = (i == 0 || i == N-1) ? 0
-                                             : N/256;
-        int ix = (int)((N-1) * rt + 0.5f);
-        if (abs(i - ix) > tol) {
-            return false;
-        }
-    }
-    return true;
+    return false;
 }
 
 void skcms_OptimizeForSpeed(skcms_ICCProfile* profile) {
