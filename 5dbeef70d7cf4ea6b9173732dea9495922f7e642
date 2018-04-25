@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a89cdea8_e3043485",
+        "filename": "include/core/SkMatrix.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-25T13:08:22Z",
+      "side": 1,
+      "message": "I\u0027m wondering if we should make these ints since the type is never used.",
+      "range": {
+        "startLine": 270,
+        "startChar": 3,
+        "endLine": 293,
+        "endChar": 6
+      },
+      "revId": "5dbeef70d7cf4ea6b9173732dea9495922f7e642",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7756e50b_b3d04652",
+        "filename": "include/core/SkRRect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-25T13:08:22Z",
+      "side": 1,
+      "message": "size_t?",
+      "range": {
+        "startLine": 273,
+        "startChar": 21,
+        "endLine": 273,
+        "endChar": 24
+      },
+      "revId": "5dbeef70d7cf4ea6b9173732dea9495922f7e642",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
