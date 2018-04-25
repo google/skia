@@ -23,6 +23,20 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
                              : powf_(tf->a * x + tf->b, tf->g) + tf->e);
 }
 
+bool skcms_TransferFunction_isValid(const skcms_TransferFunction* tf) {
+    // Reject obviously malformed inputs
+    if (!isfinitef_(tf->a + tf->b + tf->c + tf->d + tf->e + tf->f + tf->g)) {
+        return false;
+    }
+
+    // All of these parameters should be non-negative
+    if (tf->a < 0 || tf->c < 0 || tf->d < 0 || tf->g < 0) {
+        return false;
+    }
+
+    return true;
+}
+
 // TODO: Adjust logic here? This still assumes that purely linear inputs will have D > 1, which
 // we never generate. It also emits inverted linear using the same formulation. Standardize on
 // G == 1 here, too?
@@ -44,21 +58,22 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // original - parameters are enclosed in square brackets.
     skcms_TransferFunction tf_inv = { 0, 0, 0, 0, 0, 0, 0 };
 
-    // Reject obviously malformed inputs
-    if (!isfinitef_(src->a + src->b + src->c + src->d + src->e + src->f + src->g)) {
+    // This rejects obviously malformed inputs, as well as decreasing functions
+    if (!skcms_TransferFunction_isValid(src)) {
         return false;
     }
 
+    // There are additional constraints to be invertible
     bool has_nonlinear = (src->d <= 1);
     bool has_linear = (src->d > 0);
 
-    // Is the linear section decreasing or not invertible?
-    if (has_linear && src->c <= 0) {
+    // Is the linear section not invertible?
+    if (has_linear && src->c == 0) {
         return false;
     }
 
-    // Is the nonlinear section decreasing or not invertible?
-    if (has_nonlinear && (src->a <= 0 || src->g <= 0)) {
+    // Is the nonlinear section not invertible?
+    if (has_nonlinear && (src->a == 0 || src->g == 0)) {
         return false;
     }
 

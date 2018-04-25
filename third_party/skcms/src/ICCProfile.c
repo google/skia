@@ -188,7 +188,7 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
             curve->parametric.f = read_big_fixed(paraTag->parameters + 24);
             break;
     }
-    return true;
+    return skcms_TransferFunction_isValid(&curve->parametric);
 }
 
 typedef struct {
