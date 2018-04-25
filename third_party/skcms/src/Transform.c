@@ -312,8 +312,8 @@ bool g_skcms_dump_profile = false;
 #endif
 
 static bool is_identity_tf(const skcms_TransferFunction* tf) {
-    static const skcms_TransferFunction I = {1,1,0,0,0,0,0};
-    return 0 == memcmp(&I, tf, sizeof(I));
+    return tf->g == 1 && tf->a == 1
+        && tf->b == 0 && tf->c == 0 && tf->d == 0 && tf->e == 0 && tf->f == 0;
 }
 
 typedef struct {
