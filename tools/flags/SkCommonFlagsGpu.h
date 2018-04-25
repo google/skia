@@ -28,8 +28,6 @@ inline GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kDashLine;
     } else if (!strcmp(name, "nvpr")) {
         return GpuPathRenderers::kStencilAndCover;
-    } else if (!strcmp(name, "msaa")) {
-        return GpuPathRenderers::kMSAA;
     } else if (!strcmp(name, "aaconvex")) {
         return GpuPathRenderers::kAAConvex;
     } else if (!strcmp(name, "aalinearizing")) {

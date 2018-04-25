@@ -163,7 +163,7 @@ DEFINE_bool(noGS, false, "Disables support for geometry shaders.");
 
 DEFINE_string(pr, "default",
               "Set of enabled gpu path renderers. Defined as a list of: "
-              "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
+              "[~]all [~]default [~]dashline [~]nvpr [~]aaconvex "
               "[~]aalinearizing [~]small [~]tess]");
 
 void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
