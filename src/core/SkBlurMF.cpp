@@ -954,7 +954,8 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
                                            SkIRect::EmptyIRect(),
                                            xformedSigma,
                                            xformedSigma,
-                                           GrTextureDomain::kIgnore_Mode));
+                                           GrTextureDomain::kIgnore_Mode,
+                                           kPremul_SkAlphaType));
     if (!renderTargetContext) {
         return nullptr;
     }

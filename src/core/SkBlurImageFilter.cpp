@@ -650,14 +650,15 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     // Then, when we create the output image later, we tag it with the input's color space, so
     // it will be tagged correctly, regardless of how we created the intermediate RTCs.
     sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
-        context,
-        std::move(inputTexture),
-        outProps.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
-        dstBounds,
-        inputBounds,
-        sigma.x(),
-        sigma.y(),
-        to_texture_domain_mode(fTileMode)));
+                            context,
+                            std::move(inputTexture),
+                            outProps.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
+                            dstBounds,
+                            inputBounds,
+                            sigma.x(),
+                            sigma.y(),
+                            to_texture_domain_mode(fTileMode),
+                            input->alphaType()));
     if (!renderTargetContext) {
         return nullptr;
     }
