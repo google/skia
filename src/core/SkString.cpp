@@ -5,48 +5,60 @@
  * found in the LICENSE file.
  */
 
+#include "SkString.h"
+#include <stdarg.h>
+#include <cstdio>
 #include "SkAtomics.h"
 #include "SkSafeMath.h"
-#include "SkString.h"
 #include "SkUtils.h"
-#include <stdarg.h>
-#include <stdio.h>
 
 // number of bytes (on the stack) to receive the printf result
 static const size_t kBufferSize = 1024;
 
-#define ARGS_TO_BUFFER(format, buffer, size, written)      \
-    do {                                                   \
-        va_list args;                                      \
-        va_start(args, format);                            \
-        written = vsnprintf(buffer, size, format, args);   \
-        SkASSERT(written >= 0 && written < SkToInt(size)); \
-        va_end(args);                                      \
+static const char* apply_format_string(const char* format, va_list args, char* stackBuffer,
+                                       size_t stackBufferSize, int* length, SkString* heapBuffer) {
+    va_list argsCopy;
+    va_copy(argsCopy, args);
+    *length = std::vsnprintf(stackBuffer, stackBufferSize, format, args);
+    if (*length < 0) {
+        SkDebugf("SkString: vsnprintf reported error.");
+        va_end(argsCopy);
+        *length = 0;
+        return stackBuffer;
+    }
+    if (*length < SkToInt(stackBufferSize)) {
+        va_end(argsCopy);
+        return stackBuffer;
+    }
+    heapBuffer->resize(*length);
+    SkDEBUGCODE(int check =)
+            std::vsnprintf(heapBuffer->writable_str(), *length + 1, format, argsCopy);
+    SkASSERT(check == *length);
+    va_end(argsCopy);
+    return heapBuffer->c_str();
+}
+
+#define ARGS_TO_BUFFER(format, buffer, size, written, result)                          \
+    SkString overflow;                                                                 \
+    do {                                                                               \
+        va_list args;                                                                  \
+        va_start(args, format);                                                        \
+        result = apply_format_string(format, args, buffer, size, &written, &overflow); \
+        va_end(args);                                                                  \
     } while (0)
 
-#define V_SKSTRING_PRINTF(output, format)                               \
-    do {                                                                \
-        va_list args;                                                   \
-        va_start(args, format);                                         \
-        char buffer[kBufferSize];                                       \
-        int length = vsnprintf(buffer, sizeof(buffer), format, args);   \
-        va_end(args);                                                   \
-        if (length < 0) {                                               \
-            break;                                                      \
-        }                                                               \
-        if (length < (int)sizeof(buffer)) {                             \
-            output.set(buffer, length);                                 \
-            break;                                                      \
-        }                                                               \
-        SkString tmp((size_t)length);                                   \
-        va_start(args, format);                                         \
-        SkDEBUGCODE(int check = ) vsnprintf(tmp.writable_str(),         \
-                                            length + 1, format, args);  \
-        va_end(args);                                                   \
-        SkASSERT(check == length);                                      \
-        output = std::move(tmp);                                        \
-        SkASSERT(output[length] == '\0');                               \
-    } while (false)
+#define V_SKSTRING_PRINTF(output, format)                                                       \
+    do {                                                                                        \
+        char buffer[kBufferSize];                                                               \
+        va_list args;                                                                           \
+        va_start(args, format);                                                                 \
+        int length;                                                                             \
+        auto result = apply_format_string(format, args, buffer, kBufferSize, &length, &output); \
+        SkASSERT(result == output.c_str() || result == buffer);                                 \
+        if (result == buffer) {                                                                 \
+            output.set(buffer, length);                                                         \
+        }                                                                                       \
+    } while (0)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -491,15 +503,16 @@ void SkString::printf(const char format[], ...) {
 }
 
 void SkString::appendf(const char format[], ...) {
-    char    buffer[kBufferSize];
+    char buffer[kBufferSize];
     int length;
-    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
+    const char* result;
+    ARGS_TO_BUFFER(format, buffer, kBufferSize, length, result);
 
-    this->append(buffer, length);
+    this->append(result, length);
 }
 
 void SkString::appendVAList(const char format[], va_list args) {
-    char    buffer[kBufferSize];
+    char buffer[kBufferSize];
     int length = vsnprintf(buffer, kBufferSize, format, args);
     SkASSERT(length >= 0 && length < SkToInt(kBufferSize));
 
@@ -507,15 +520,16 @@ void SkString::appendVAList(const char format[], va_list args) {
 }
 
 void SkString::prependf(const char format[], ...) {
-    char    buffer[kBufferSize];
+    char buffer[kBufferSize];
     int length;
-    ARGS_TO_BUFFER(format, buffer, kBufferSize, length);
+    const char* result;
+    ARGS_TO_BUFFER(format, buffer, kBufferSize, length, result);
 
-    this->prepend(buffer, length);
+    this->prepend(result, length);
 }
 
 void SkString::prependVAList(const char format[], va_list args) {
-    char    buffer[kBufferSize];
+    char buffer[kBufferSize];
     int length = vsnprintf(buffer, kBufferSize, format, args);
     SkASSERT(length >= 0 && length < SkToInt(kBufferSize));
 
