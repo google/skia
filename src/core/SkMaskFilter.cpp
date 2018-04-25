@@ -34,11 +34,6 @@ SkMaskFilterBase::NinePatch::~NinePatch() {
     }
 }
 
-bool SkMaskFilterBase::filterMask(SkMask*, const SkMask&, const SkMatrix&,
-                              SkIPoint*) const {
-    return false;
-}
-
 bool SkMaskFilterBase::asABlur(BlurRec*) const {
     return false;
 }

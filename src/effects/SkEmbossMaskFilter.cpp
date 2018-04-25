@@ -72,6 +72,10 @@ SkMask::Format SkEmbossMaskFilter::getFormat() const {
 
 bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
                                     const SkMatrix& matrix, SkIPoint* margin) const {
+    if (src.fFormat != SkMask::kA8_Format) {
+        return false;
+    }
+
     SkScalar sigma = matrix.mapRadius(fBlurSigma);
 
     if (!SkBlurMask::BoxBlur(dst, src, sigma, kInner_SkBlurStyle)) {

@@ -17,43 +17,7 @@
 
 static const double kPi = 3.14159265358979323846264338327950288;
 
-class BlurScanInterface {
-public:
-    virtual ~BlurScanInterface() = default;
-    virtual void blur(const uint8_t* src, int srcStride, const uint8_t* srcEnd,
-                            uint8_t* dst, int dstStride,       uint8_t* dstEnd) const = 0;
-    virtual bool canBlur4() { return false; }
-    virtual void blur4Transpose(
-        const uint8_t* src, int srcStride, const uint8_t* srcEnd,
-              uint8_t* dst, int dstStride,       uint8_t* dstEnd) const {
-        SK_ABORT("This should not be called.");
-    }
-};
-
-class PlanningInterface {
-public:
-    virtual ~PlanningInterface() = default;
-    virtual size_t bufferSize() const = 0;
-    virtual int    border() const = 0;
-    virtual bool   needsBlur() const = 0;
-    virtual BlurScanInterface* makeBlurScan(
-        SkArenaAlloc* alloc, int width, uint32_t* buffer) const = 0;
-};
-
-class None final : public PlanningInterface {
-public:
-    None() = default;
-    size_t bufferSize() const override { return 0; }
-    int    border()     const override { return 0; }
-    bool   needsBlur()  const override { return false; }
-    BlurScanInterface* makeBlurScan(
-        SkArenaAlloc* alloc, int width, uint32_t* buffer) const override {
-        SK_ABORT("Should never be called.");
-        return nullptr;
-    }
-};
-
-class PlanGauss final : public PlanningInterface {
+class PlanGauss final {
 public:
     explicit PlanGauss(double sigma) {
         auto possibleWindow = static_cast<int>(floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5));
@@ -117,36 +81,17 @@ public:
         fWeight = static_cast<uint64_t>(round(1.0 / divisor * (1ull << 32)));
     }
 
-    size_t bufferSize() const override { return fPass0Size + fPass1Size + fPass2Size; }
+    size_t bufferSize() const { return fPass0Size + fPass1Size + fPass2Size; }
 
-    int    border()     const override { return fBorder; }
-
-    bool needsBlur()    const override { return true; }
-
-    BlurScanInterface* makeBlurScan(
-        SkArenaAlloc* alloc, int width, uint32_t* buffer) const override
-    {
-        uint32_t* buffer0, *buffer0End, *buffer1, *buffer1End, *buffer2, *buffer2End;
-        buffer0 = buffer;
-        buffer0End = buffer1 = buffer0 + fPass0Size;
-        buffer1End = buffer2 = buffer1 + fPass1Size;
-        buffer2End = buffer2 + fPass2Size;
-        int noChangeCount = fSlidingWindow > width ? fSlidingWindow - width : 0;
-
-        return alloc->make<Gauss>(
-            fWeight, noChangeCount,
-            buffer0, buffer0End,
-            buffer1, buffer1End,
-            buffer2, buffer2End);
-    }
+    int    border()     const { return fBorder; }
 
 public:
-    class Gauss final : public BlurScanInterface {
+    class Scan {
     public:
-        Gauss(uint64_t weight, int noChangeCount,
-              uint32_t* buffer0, uint32_t* buffer0End,
-              uint32_t* buffer1, uint32_t* buffer1End,
-              uint32_t* buffer2, uint32_t* buffer2End)
+        Scan(uint64_t weight, int noChangeCount,
+             uint32_t* buffer0, uint32_t* buffer0End,
+             uint32_t* buffer1, uint32_t* buffer1End,
+             uint32_t* buffer2, uint32_t* buffer2End)
             : fWeight{weight}
             , fNoChangeCount{noChangeCount}
             , fBuffer0{buffer0}
@@ -158,7 +103,7 @@ public:
         { }
 
         void blur(const uint8_t* src, int srcStride, const uint8_t* srcEnd,
-                        uint8_t* dst, int dstStride, uint8_t* dstEnd) const override {
+                        uint8_t* dst, int dstStride, uint8_t* dstEnd) const {
             auto buffer0Cursor = fBuffer0;
             auto buffer1Cursor = fBuffer1;
             auto buffer2Cursor = fBuffer2;
@@ -264,6 +209,21 @@ public:
         uint32_t* fBuffer2End;
     };
 
+    Scan makeBlurScan(int width, uint32_t* buffer) const {
+        uint32_t* buffer0, *buffer0End, *buffer1, *buffer1End, *buffer2, *buffer2End;
+        buffer0 = buffer;
+        buffer0End = buffer1 = buffer0 + fPass0Size;
+        buffer1End = buffer2 = buffer1 + fPass1Size;
+        buffer2End = buffer2 + fPass2Size;
+        int noChangeCount = fSlidingWindow > width ? fSlidingWindow - width : 0;
+
+        return Scan(
+            fWeight, noChangeCount,
+            buffer0, buffer0End,
+            buffer1, buffer1End,
+            buffer2, buffer2End);
+    }
+
     uint64_t fWeight;
     int      fBorder;
     int      fSlidingWindow;
@@ -325,12 +285,13 @@ static SkMask prepare_destination(int radiusX, int radiusY, const SkMask& src) {
 static constexpr uint16_t _____ = 0u;
 static constexpr uint16_t kHalf = 0x80u;
 
-static SK_ALWAYS_INLINE Sk8h load(const uint8_t* from, int width) {
+static SK_ALWAYS_INLINE Sk8h load(const uint8_t* from, int width, int stride) {
+    SkASSERT(0 < width && width <= 8);
     uint8_t buffer[8];
-    if (width < 8) {
+    if (width < 8 || stride != 1) {
         sk_bzero(buffer, sizeof(buffer));
         for (int i = 0; i < width; i++) {
-            buffer[i] = from[i];
+            buffer[i] = from[i * stride];
         }
         from = buffer;
     }
@@ -580,7 +541,7 @@ static SK_ALWAYS_INLINE void blur_row(
     // Go by multiples of 8 in src.
     int x = 0;
     for (; x <= srcW - 8; x += 8) {
-        blur(load(src, 8), g0, g1, g2, g3, g4, &d0, &d8);
+        blur(load(src, 8, 1), g0, g1, g2, g3, g4, &d0, &d8);
 
         store(dst, d0, 8);
 
@@ -595,7 +556,7 @@ static SK_ALWAYS_INLINE void blur_row(
     int srcTail = srcW - x;
     if (srcTail > 0) {
 
-        blur(load(src, srcTail), g0, g1, g2, g3, g4, &d0, &d8);
+        blur(load(src, srcTail, 1), g0, g1, g2, g3, g4, &d0, &d8);
 
         int dstTail = std::min(8, dstW - x);
         store(dst, d0, dstTail);
@@ -790,26 +751,26 @@ using BlurY = decltype(blur_y_radius_1);
 static SK_ALWAYS_INLINE void blur_column(
         BlurY blur, int radius, int width,
         const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h& g3, const Sk8h& g4,
-        const uint8_t* src, size_t srcStride, int srcH,
-        uint8_t* dst, size_t dstStride) {
+        const uint8_t* src, size_t srcRB, int srcStride, int srcH,
+        uint8_t* dst, size_t dstRB) {
     Sk8h d01{kHalf}, d12{kHalf}, d23{kHalf}, d34{kHalf},
          d45{kHalf}, d56{kHalf}, d67{kHalf}, d78{kHalf};
 
     auto flush = [&](uint8_t* to, const Sk8h& v0, const Sk8h& v1) {
         store(to, v0, width);
-        to += dstStride;
+        to += dstRB;
         store(to, v1, width);
-        return to + dstStride;
+        return to + dstRB;
     };
 
     for (int y = 0; y < srcH; y += 1) {
-        auto s = load(src, width);
+        auto s = load(src, width, srcStride);
         auto b = blur(s,
                       g0, g1, g2, g3, g4,
                       &d01, &d12, &d23, &d34, &d45, &d56, &d67, &d78);
         store(dst, b, width);
-        src += srcStride;
-        dst += dstStride;
+        src += srcRB;
+        dst += dstRB;
     }
 
     if (radius >= 1) {
@@ -829,8 +790,8 @@ static SK_ALWAYS_INLINE void blur_column(
 // BlurY will be one of blur_y_radius_(1|2|3|4).
 static SK_ALWAYS_INLINE void blur_y_rect(
         BlurY blur, int radius, uint16_t *gauss,
-        const uint8_t *src, size_t srcStride, int srcW, int srcH,
-        uint8_t *dst, size_t dstStride) {
+        const uint8_t *src, size_t srcRB, int srcStride, int srcW, int srcH,
+        uint8_t *dst, size_t dstRB) {
 
     Sk8h g0{gauss[0]},
          g1{gauss[1]},
@@ -842,9 +803,9 @@ static SK_ALWAYS_INLINE void blur_y_rect(
     for (; x <= srcW - 8; x += 8) {
         blur_column(blur, radius, 8,
                     g0, g1, g2, g3, g4,
-                    src, srcStride, srcH,
-                    dst, dstStride);
-        src += 8;
+                    src, srcRB, srcStride, srcH,
+                    dst, dstRB);
+        src += 8 * srcStride;
         dst += 8;
     }
 
@@ -852,39 +813,39 @@ static SK_ALWAYS_INLINE void blur_y_rect(
     if (xTail > 0) {
         blur_column(blur, radius, xTail,
                     g0, g1, g2, g3, g4,
-                    src, srcStride, srcH,
-                    dst, dstStride);
+                    src, srcRB, srcStride, srcH,
+                    dst, dstRB);
     }
 }
 
 SK_ATTRIBUTE(noinline) static void direct_blur_y(
         int radius, uint16_t* gauss,
-        const uint8_t* src, size_t srcStride, int srcW, int srcH,
-              uint8_t* dst, size_t dstStride) {
+        const uint8_t* src, size_t srcRB, int srcStride, int srcW, int srcH,
+              uint8_t* dst, size_t dstRB) {
 
     switch (radius) {
         case 1:
             blur_y_rect(blur_y_radius_1, 1, gauss,
-                        src, srcStride, srcW, srcH,
-                        dst, dstStride);
+                        src, srcRB, srcStride, srcW, srcH,
+                        dst, dstRB);
             break;
 
         case 2:
             blur_y_rect(blur_y_radius_2, 2, gauss,
-                        src, srcStride, srcW, srcH,
-                        dst, dstStride);
+                        src, srcRB, srcStride, srcW, srcH,
+                        dst, dstRB);
             break;
 
         case 3:
             blur_y_rect(blur_y_radius_3, 3, gauss,
-                        src, srcStride, srcW, srcH,
-                        dst, dstStride);
+                        src, srcRB, srcStride, srcW, srcH,
+                        dst, dstRB);
             break;
 
         case 4:
             blur_y_rect(blur_y_radius_4, 4, gauss,
-                        src, srcStride, srcW, srcH,
-                        dst, dstStride);
+                        src, srcRB, srcStride, srcW, srcH,
+                        dst, dstRB);
             break;
 
         default:
@@ -932,20 +893,27 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
     int dstW = dst->fBounds.width(),
         dstH = dst->fBounds.height();
 
-    size_t srcStride = src.fRowBytes,
-           dstStride = dst->fRowBytes;
+    size_t srcRB = src.fRowBytes,
+           dstRB = dst->fRowBytes;
 
     //TODO: handle bluring in only one direction.
 
+    int srcStride = 1;
+    int srcAlphaOffset = 0;
+    if (src.fFormat == SkMask::kARGB32_Format) {
+        srcStride = 4;
+        srcAlphaOffset = SK_A32_SHIFT / 8;
+    }
+
     // Blur vertically and copy to destination.
     direct_blur_y(radiusY, gaussFactorsY,
-                  src.fImage,  srcStride, srcW, srcH,
-                  dst->fImage + radiusX, dstStride);
+                  src.fImage + srcAlphaOffset, srcRB, srcStride, srcW, srcH,
+                  dst->fImage + radiusX, dstRB);
 
     // Blur horizontally in place.
     direct_blur_x(radiusX, gaussFactorsX,
-                  dst->fImage + radiusX,  dstStride, srcW,
-                  dst->fImage,            dstStride, dstW, dstH);
+                  dst->fImage + radiusX,  dstRB, srcW,
+                  dst->fImage,            dstRB, dstW, dstH);
 
     return {radiusX, radiusY};
 }
@@ -961,11 +929,11 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
     // 1024 is a place holder guess until more analysis can be done.
     SkSTArenaAlloc<1024> alloc;
 
-    PlanningInterface* planW = alloc.make<PlanGauss>(fSigmaW);
-    PlanningInterface* planH = alloc.make<PlanGauss>(fSigmaH);
+    PlanGauss planW(fSigmaW);
+    PlanGauss planH(fSigmaH);
 
-    int borderW = planW->border(),
-        borderH = planH->border();
+    int borderW = planW.border(),
+        borderH = planH.border();
     SkASSERT(borderH >= 0 && borderW >= 0);
 
     *dst = prepare_destination(borderW, borderH, src);
@@ -983,41 +951,40 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         dstH = dst->fBounds.height();
     SkASSERT(srcW >= 0 && srcH >= 0 && dstW >= 0 && dstH >= 0);
 
-    auto bufferSize = std::max(planW->bufferSize(), planH->bufferSize());
+    auto bufferSize = std::max(planW.bufferSize(), planH.bufferSize());
     auto buffer = alloc.makeArrayDefault<uint32_t>(bufferSize);
 
-    if (planW->needsBlur() && planH->needsBlur()) {
-        // Blur both directions.
-        int tmpW = srcH,
-            tmpH = dstW;
+    // Blur both directions.
+    int tmpW = srcH,
+        tmpH = dstW;
 
-        auto tmp = alloc.makeArrayDefault<uint8_t>(tmpW * tmpH);
+    auto tmp = alloc.makeArrayDefault<uint8_t>(tmpW * tmpH);
 
-        // Blur horizontally, and transpose.
-        auto scanW = planW->makeBlurScan(&alloc, srcW, buffer);
-        for (int y = 0; y < srcH; y++) {
-            auto srcStart = &src.fImage[y * src.fRowBytes];
-            auto tmpStart = &tmp[y];
-            scanW->blur(srcStart,    1, srcStart + srcW,
-                        tmpStart, tmpW, tmpStart + tmpW * tmpH);
-        }
+    int srcStride = 1;
+    int srcAlphaOffset = 0;
+    if (src.fFormat == SkMask::kARGB32_Format) {
+        srcStride = 4;
+        srcAlphaOffset = SK_A32_SHIFT / 8;
+    }
 
-        // Blur vertically (scan in memory order because of the transposition),
-        // and transpose back to the original orientation.
-        auto scanH = planH->makeBlurScan(&alloc, tmpW, buffer);
-        for (int y = 0; y < tmpH; y++) {
-            auto tmpStart = &tmp[y * tmpW];
-            auto dstStart = &dst->fImage[y];
+    // Blur horizontally, and transpose.
+    const PlanGauss::Scan& scanW = planW.makeBlurScan(srcW, buffer);
+    for (int y = 0; y < srcH; y++) {
+        auto srcStart = &src.fImage[y * src.fRowBytes] + srcAlphaOffset;
+        auto tmpStart = &tmp[y];
+        scanW.blur(srcStart, srcStride, srcStart + srcW * srcStride,
+                   tmpStart, tmpW, tmpStart + tmpW * tmpH);
+    }
 
-            scanH->blur(tmpStart, 1, tmpStart + tmpW,
-                        dstStart, dst->fRowBytes, dstStart + dst->fRowBytes * dstH);
-        }
-    } else {
-        // Copy to dst. No Blur.
-        SkASSERT(false);    // should not get here
-        for (int y = 0; y < srcH; y++) {
-            std::memcpy(&dst->fImage[y * dst->fRowBytes], &src.fImage[y * src.fRowBytes], dstW);
-        }
+    // Blur vertically (scan in memory order because of the transposition),
+    // and transpose back to the original orientation.
+    const PlanGauss::Scan& scanH = planH.makeBlurScan(tmpW, buffer);
+    for (int y = 0; y < tmpH; y++) {
+        auto tmpStart = &tmp[y * tmpW];
+        auto dstStart = &dst->fImage[y];
+
+        scanH.blur(tmpStart, 1, tmpStart + tmpW,
+                   dstStart, dst->fRowBytes, dstStart + dst->fRowBytes * dstH);
     }
 
     return {SkTo<int32_t>(borderW), SkTo<int32_t>(borderH)};

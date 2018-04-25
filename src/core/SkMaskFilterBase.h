@@ -54,7 +54,7 @@ public:
         @return true if the dst mask was correctly created.
     */
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
-                            SkIPoint* margin) const;
+                            SkIPoint* margin) const = 0;
 
 #if SK_SUPPORT_GPU
     /**
