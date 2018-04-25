@@ -74,6 +74,128 @@ bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     return true;
 }
 
+bool GrVkCaps::canCopyImage(GrPixelConfig dstConfig, int dstSampleCnt, GrSurfaceOrigin dstOrigin,
+                            GrPixelConfig srcConfig, int srcSampleCnt,
+                            GrSurfaceOrigin srcOrigin) const {
+    if ((dstSampleCnt > 1 || srcSampleCnt > 1) && dstSampleCnt != srcSampleCnt) {
+        return false;
+    }
+
+    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
+    // as image usage flags.
+    if (srcOrigin != dstOrigin || GrBytesPerPixel(srcConfig) != GrBytesPerPixel(dstConfig)) {
+        return false;
+    }
+
+    if (this->shaderCaps()->configOutputSwizzle(srcConfig) !=
+        this->shaderCaps()->configOutputSwizzle(dstConfig)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool GrVkCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt, bool dstIsLinear,
+                             GrPixelConfig srcConfig, int srcSampleCnt, bool srcIsLinear) const {
+    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
+    // as image usage flags.
+    if (!this->configCanBeDstofBlit(dstConfig, dstIsLinear) ||
+        !this->configCanBeSrcofBlit(srcConfig, srcIsLinear)) {
+        return false;
+    }
+
+    if (this->shaderCaps()->configOutputSwizzle(srcConfig) !=
+        this->shaderCaps()->configOutputSwizzle(dstConfig)) {
+        return false;
+    }
+
+    // We cannot blit images that are multisampled. Will need to figure out if we can blit the
+    // resolved msaa though.
+    if (dstSampleCnt > 1 || srcSampleCnt > 1) {
+        return false;
+    }
+
+    return true;
+}
+
+bool GrVkCaps::canCopyAsResolve(GrPixelConfig dstConfig, int dstSampleCnt,
+                                GrSurfaceOrigin dstOrigin, GrPixelConfig srcConfig,
+                                int srcSampleCnt, GrSurfaceOrigin srcOrigin) const {
+    // The src surface must be multisampled.
+    if (srcSampleCnt <= 1) {
+        return false;
+    }
+
+    // The dst must not be multisampled.
+    if (dstSampleCnt > 1) {
+        return false;
+    }
+
+    // Surfaces must have the same format.
+    if (dstConfig != srcConfig) {
+        return false;
+    }
+
+    // Surfaces must have the same origin.
+    if (srcOrigin != dstOrigin) {
+        return false;
+    }
+
+    return true;
+}
+
+bool GrVkCaps::canCopyAsDraw(GrPixelConfig dstConfig, bool dstIsRenderable,
+                             GrPixelConfig srcConfig, bool srcIsTextureable) const {
+    // TODO: Make copySurfaceAsDraw handle the swizzle
+    if (this->shaderCaps()->configOutputSwizzle(srcConfig) !=
+        this->shaderCaps()->configOutputSwizzle(dstConfig)) {
+        return false;
+    }
+
+    // Make sure the dst is a render target and the src is a texture.
+    if (!dstIsRenderable || !srcIsTextureable) {
+        return false;
+    }
+
+    return true;
+}
+
+bool GrVkCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+                              const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+    GrSurfaceOrigin dstOrigin = dst->origin();
+    GrSurfaceOrigin srcOrigin = src->origin();
+
+    GrPixelConfig dstConfig = dst->config();
+    GrPixelConfig srcConfig = src->config();
+
+    // TODO: Figure out a way to track if we've wrapped a linear texture in a proxy (e.g.
+    // PromiseImage which won't get instantiated right away. Does this need a similar thing like the
+    // tracking of external or rectangle textures in GL? For now we don't create linear textures
+    // internally, and I don't believe anyone is wrapping them.
+    bool srcIsLinear = false;
+    bool dstIsLinear = false;
+
+    int dstSampleCnt = 0;
+    int srcSampleCnt = 0;
+    if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
+        dstSampleCnt = rtProxy->numColorSamples();
+    }
+    if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
+        srcSampleCnt = rtProxy->numColorSamples();
+    }
+    SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
+    SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
+
+    return this->canCopyImage(dstConfig, dstSampleCnt, dstOrigin,
+                              srcConfig, srcSampleCnt, srcOrigin) ||
+           this->canCopyAsBlit(dstConfig, dstSampleCnt, dstIsLinear,
+                               srcConfig, srcSampleCnt, srcIsLinear) ||
+           this->canCopyAsResolve(dstConfig, dstSampleCnt, dstOrigin,
+                                  srcConfig, srcSampleCnt, srcOrigin) ||
+           this->canCopyAsDraw(dstConfig, dstSampleCnt > 0,
+                               srcConfig, SkToBool(src->asTextureProxy()));
+}
+
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                     VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags) {
 
