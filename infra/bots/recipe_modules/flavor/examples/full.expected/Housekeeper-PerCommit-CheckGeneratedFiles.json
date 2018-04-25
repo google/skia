@@ -36,7 +36,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[START_DIR]/build/out/Release",
-      "--args=is_debug=false skia_compile_processors=true"
+      "--args=is_debug=false skia_compile_processors=true skia_generate_workarounds=true"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

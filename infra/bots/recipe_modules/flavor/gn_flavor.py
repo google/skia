@@ -215,6 +215,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_ios_profile'] = '"Upstream Testing Provisioning Profile"'
     if 'CheckGeneratedFiles' in extra_tokens:
       args['skia_compile_processors'] = 'true'
+      args['skia_generate_workarounds'] = 'true'
     if compiler == 'Clang' and 'Win' in os:
       args['clang_win'] = '"%s"' % self.m.vars.slave_dir.join('clang_win')
       extra_cflags.append('-DDUMMY_clang_win_version=%s' %
