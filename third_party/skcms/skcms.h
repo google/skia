@@ -9,6 +9,10 @@
 
 // skcms.h contains the entire public API for skcms.
 
+#ifndef SKCMS_API
+    #define SKCMS_API
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -109,26 +113,28 @@ typedef struct skcms_ICCProfile {
 } skcms_ICCProfile;
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.
-extern const skcms_ICCProfile skcms_sRGB_profile;
+SKCMS_API extern const skcms_ICCProfile skcms_sRGB_profile;
 // Ditto for XYZD50, the most common profile connection space.
-extern const skcms_ICCProfile skcms_XYZD50_profile;
+SKCMS_API extern const skcms_ICCProfile skcms_XYZD50_profile;
 
 // Practical equality test for two skcms_ICCProfiles.
 // The implementation is subject to change, but it will always try to answer
 // "can I substitute A for B?" and "can I skip transforming from A to B?".
-bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICCProfile* B);
+SKCMS_API bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A,
+                                                const skcms_ICCProfile* B);
 
 // Parse an ICC profile and return true if possible, otherwise return false.
 // The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
 // will be used.
-bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
+SKCMS_API bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
 
 // skcms_Parse() creates a profile that directs skcms_Transform() to favor accuracy.
 // If you want to trade a little accuracy for a big speedup, call skcms_OptimizeForSpeed().
-void skcms_OptimizeForSpeed(skcms_ICCProfile*);
+SKCMS_API void skcms_OptimizeForSpeed(skcms_ICCProfile*);
 
-bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* approx,
-                            float* max_error);
+SKCMS_API bool skcms_ApproximateCurve(const skcms_Curve* curve,
+                                      skcms_TransferFunction* approx,
+                                      float* max_error);
 
 typedef struct skcms_ICCTag {
     uint32_t       signature;
@@ -137,8 +143,8 @@ typedef struct skcms_ICCTag {
     const uint8_t* buf;
 } skcms_ICCTag;
 
-void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
-bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
+SKCMS_API void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
+SKCMS_API bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 
 typedef enum skcms_PixelFormat {
     skcms_PixelFormat_RGB_565,
@@ -193,26 +199,27 @@ typedef enum skcms_AlphaFormat {
 
 // Convert npixels pixels from src format and color profile to dst format and color profile
 // and return true, otherwise return false.  It is safe to alias dst == src if dstFmt == srcFmt.
-bool skcms_Transform(const void*             src,
-                     skcms_PixelFormat       srcFmt,
-                     skcms_AlphaFormat       srcAlpha,
-                     const skcms_ICCProfile* srcProfile,
-                     void*                   dst,
-                     skcms_PixelFormat       dstFmt,
-                     skcms_AlphaFormat       dstAlpha,
-                     const skcms_ICCProfile* dstProfile,
-                     size_t                  npixels);
+SKCMS_API bool skcms_Transform(const void*             src,
+                               skcms_PixelFormat       srcFmt,
+                               skcms_AlphaFormat       srcAlpha,
+                               const skcms_ICCProfile* srcProfile,
+                               void*                   dst,
+                               skcms_PixelFormat       dstFmt,
+                               skcms_AlphaFormat       dstAlpha,
+                               const skcms_ICCProfile* dstProfile,
+                               size_t                  npixels);
 
 // If profile cannot be used as a destination profile in skcms_Transform(),
 // rewrite it with approximations where reasonable or by pulling from fallback
 // (e.g. skcms_sRGB_profile) where not.
-void skcms_EnsureUsableAsDestination(skcms_ICCProfile* profile, const skcms_ICCProfile* fallback);
+SKCMS_API void skcms_EnsureUsableAsDestination(skcms_ICCProfile* profile,
+                                               const skcms_ICCProfile* fallback);
 
 // If profile cannot be used as a destination profile with a single parametric transfer function,
 // (ie for rasterization), rewrite it with approximations where reasonable or by pulling from
 // fallback (e.g. skcms_sRGB_profile) where not.
-void skcms_EnsureUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile,
-                                                    const skcms_ICCProfile* fallback);
+SKCMS_API void skcms_EnsureUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile,
+                                                              const skcms_ICCProfile* fallback);
 
 #ifdef __cplusplus
 }
