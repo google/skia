@@ -46,6 +46,30 @@
       "revId": "9666a3723899db06a2b4b38b0bf5a623c810fce0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e6f5452_a66ca22e",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-25T15:16:10Z",
+      "side": 1,
+      "message": "Yep.",
+      "parentUuid": "ffaec4c4_71dd26c1",
+      "range": {
+        "startLine": 198,
+        "startChar": 22,
+        "endLine": 198,
+        "endChar": 31
+      },
+      "revId": "9666a3723899db06a2b4b38b0bf5a623c810fce0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
