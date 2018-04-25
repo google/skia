@@ -409,6 +409,7 @@
       ".SRW",
       "--match",
       "~VkHeapTests",
+      "~GLPrograms",
       "--nonativeFonts",
       "--verbose"
     ],

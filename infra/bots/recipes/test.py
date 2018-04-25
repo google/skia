@@ -647,6 +647,9 @@ def dm_flags(api, bot):
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
 
+  if api.vars.is_linux and 'IntelIris640' in bot:
+    match.extend(['~GLPrograms']) # skia:7849
+
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelHD405' in bot:
     # skia:7322
     blacklist(['vk', 'gm', '_', 'skbug_257'])
