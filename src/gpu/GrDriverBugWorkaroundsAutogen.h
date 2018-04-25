@@ -2,8 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// This file is auto-generated from
-//    ../../tools/build_workaround_header.py
+// This file is auto-generated from build_workaround_header.py
 // DO NOT EDIT!
 
 #define GPU_DRIVER_BUG_WORKAROUNDS(GPU_OP)\

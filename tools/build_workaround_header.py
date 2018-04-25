@@ -15,9 +15,9 @@ _LICENSE = """// Copyright 2018 The Chromium Authors. All rights reserved.
 
 """
 
-_DO_NOT_EDIT_WARNING = ("// This file is auto-generated from\n" +
-  "//    " + __file__ + "\n" +
-  "// DO NOT EDIT!\n\n")
+_DO_NOT_EDIT_WARNING = ("// This file is auto-generated from " +
+                        os.path.basename(__file__) + "\n" +
+                        "// DO NOT EDIT!\n\n")
 
 def merge_files_into_workarounds(files):
   workarounds = set()
