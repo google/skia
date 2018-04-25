@@ -503,6 +503,7 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
         SkASSERT(dst->asTexture());
         dstImage = static_cast<GrVkTexture*>(dst->asTexture());
     }
+    SkASSERT(1 == dstImage->mipLevels());
     dstImage->setImageLayout(this,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                              VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -1669,33 +1670,11 @@ void GrVkGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     fCurrentCmdBuffer->clearDepthStencilImage(this, vkStencil, &vkStencilColor, 1, &subRange);
 }
 
-inline bool can_copy_image(const GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                           const GrSurface* src, GrSurfaceOrigin srcOrigin,
-                           const GrVkGpu* gpu) {
-    const GrRenderTarget* dstRT = dst->asRenderTarget();
-    const GrRenderTarget* srcRT = src->asRenderTarget();
-    if (dstRT && srcRT) {
-        if (srcRT->numColorSamples() != dstRT->numColorSamples()) {
-            return false;
-        }
-    } else if (dstRT) {
-        if (dstRT->numColorSamples() > 1) {
-            return false;
-        }
-    } else if (srcRT) {
-        if (srcRT->numColorSamples() > 1) {
-            return false;
-        }
+static int get_surface_sample_cnt(GrSurface* surf) {
+    if (const GrRenderTarget* rt = surf->asRenderTarget()) {
+        return rt->numColorSamples();
     }
-
-    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
-    // as image usage flags.
-    if (srcOrigin == dstOrigin &&
-        GrBytesPerPixel(src->config()) == GrBytesPerPixel(dst->config())) {
-        return true;
-    }
-
-    return false;
+    return 0;
 }
 
 void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
@@ -1704,7 +1683,13 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                      GrVkImage* srcImage,
                                      const SkIRect& srcRect,
                                      const SkIPoint& dstPoint) {
-    SkASSERT(can_copy_image(dst, dstOrigin, src, srcOrigin, this));
+#ifdef SK_DEBUG
+    int dstSampleCnt = get_surface_sample_cnt(dst);
+    int srcSampleCnt = get_surface_sample_cnt(src);
+    SkASSERT(this->vkCaps().canCopyImage(dst->config(), dstSampleCnt, dstOrigin,
+                                         src->config(), srcSampleCnt, srcOrigin));
+
+#endif
 
     // These flags are for flushing/invalidating caches and for the dst image it doesn't matter if
     // the cache is flushed since it is only being written to.
@@ -1752,37 +1737,19 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     this->didWriteToSurface(dst, dstOrigin, &dstRect);
 }
 
-inline bool can_copy_as_blit(const GrSurface* dst,
-                             const GrSurface* src,
-                             const GrVkImage* dstImage,
-                             const GrVkImage* srcImage,
-                             const GrVkGpu* gpu) {
-    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
-    // as image usage flags.
-    const GrVkCaps& caps = gpu->vkCaps();
-    if (!caps.configCanBeDstofBlit(dst->config(), dstImage->isLinearTiled()) ||
-        !caps.configCanBeSrcofBlit(src->config(), srcImage->isLinearTiled())) {
-        return false;
-    }
-
-    // We cannot blit images that are multisampled. Will need to figure out if we can blit the
-    // resolved msaa though.
-    if ((dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1) ||
-        (src->asRenderTarget() && src->asRenderTarget()->numColorSamples() > 1)) {
-        return false;
-    }
-
-    return true;
-}
-
 void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                 GrSurface* src, GrSurfaceOrigin srcOrigin,
                                 GrVkImage* dstImage,
                                 GrVkImage* srcImage,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) {
-    SkASSERT(can_copy_as_blit(dst, src, dstImage, srcImage, this));
+#ifdef SK_DEBUG
+    int dstSampleCnt = get_surface_sample_cnt(dst);
+    int srcSampleCnt = get_surface_sample_cnt(src);
+    SkASSERT(this->vkCaps().canCopyAsBlit(dst->config(), dstSampleCnt, dstImage->isLinearTiled(),
+                                          src->config(), srcSampleCnt, srcImage->isLinearTiled()));
 
+#endif
     dstImage->setImageLayout(this,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                              VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -1843,29 +1810,6 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     this->didWriteToSurface(dst, dstOrigin, &dstRect);
 }
 
-inline bool can_copy_as_resolve(const GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                                const GrSurface* src, GrSurfaceOrigin srcOrigin,
-                                const GrVkGpu* gpu) {
-    // Our src must be a multisampled render target
-    if (!src->asRenderTarget() || 1 == src->asRenderTarget()->numColorSamples()) {
-        return false;
-    }
-
-    // The dst must not be a multisampled render target, expect in the case where the dst is the
-    // resolve texture connected to the msaa src. We check for this in case we are copying a part of
-    // a surface to a different region in the same surface.
-    if (dst->asRenderTarget() && dst->asRenderTarget()->numColorSamples() > 1 && dst != src) {
-        return false;
-    }
-
-    // Surfaces must have the same origin.
-    if (srcOrigin != dstOrigin) {
-        return false;
-    }
-
-    return true;
-}
-
 void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
                                    GrSurfaceOrigin srcOrigin, const SkIRect& origSrcRect,
                                    const SkIPoint& origDstPoint) {
@@ -1885,7 +1829,14 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                             GrSurface* src, GrSurfaceOrigin srcOrigin,
                             const SkIRect& srcRect, const SkIPoint& dstPoint,
                             bool canDiscardOutsideDstRect) {
-    if (can_copy_as_resolve(dst, dstOrigin, src, srcOrigin, this)) {
+    GrPixelConfig dstConfig = dst->config();
+    GrPixelConfig srcConfig = src->config();
+
+    int dstSampleCnt = get_surface_sample_cnt(dst);
+    int srcSampleCnt = get_surface_sample_cnt(src);
+
+    if (this->vkCaps().canCopyAsResolve(dstConfig, dstSampleCnt, dstOrigin,
+                                        srcConfig, srcSampleCnt, srcOrigin)) {
         this->copySurfaceAsResolve(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
         return true;
     }
@@ -1894,8 +1845,10 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         this->submitCommandBuffer(GrVkGpu::kSkip_SyncQueue);
     }
 
-    if (fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
-                                       canDiscardOutsideDstRect)) {
+    if (this->vkCaps().canCopyAsDraw(dstConfig, SkToBool(dst->asRenderTarget()),
+                                     srcConfig, SkToBool(src->asTexture()))) {
+        SkAssertResult(fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect,
+                                                      dstPoint, canDiscardOutsideDstRect));
         auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
         this->didWriteToSurface(dst, dstOrigin, &dstRect);
         return true;
@@ -1920,13 +1873,15 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         srcImage = static_cast<GrVkTexture*>(src->asTexture());
     }
 
-    if (can_copy_image(dst, dstOrigin, src, srcOrigin, this)) {
+    if (this->vkCaps().canCopyImage(dstConfig, dstSampleCnt, dstOrigin,
+                                    srcConfig, srcSampleCnt, srcOrigin)) {
         this->copySurfaceAsCopyImage(dst, dstOrigin, src, srcOrigin, dstImage, srcImage,
                                      srcRect, dstPoint);
         return true;
     }
 
-    if (can_copy_as_blit(dst, src, dstImage, srcImage, this)) {
+    if (this->vkCaps().canCopyAsBlit(dstConfig, dstSampleCnt, dstImage->isLinearTiled(),
+                                     srcConfig, srcSampleCnt, srcImage->isLinearTiled())) {
         this->copySurfaceAsBlit(dst, dstOrigin, src, srcOrigin, dstImage, srcImage,
                                 srcRect, dstPoint);
         return true;
