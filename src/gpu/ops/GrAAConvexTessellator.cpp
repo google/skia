@@ -634,7 +634,7 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
 // Something went wrong in the creation of the next ring. If we're filling the shape, just go ahead
 // and fan it.
 void GrAAConvexTessellator::terminate(const Ring& ring) {
-    if (fStyle != SkStrokeRec::kStroke_Style) {
+    if (fStyle != SkStrokeRec::kStroke_Style && ring.numPts() > 0) {
         this->fanRing(ring);
     }
 }
