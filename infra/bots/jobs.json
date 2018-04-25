@@ -113,6 +113,7 @@
   "Housekeeper-PerCommit-IsolateSKP",
   "Housekeeper-PerCommit-IsolateSVG",
   "Housekeeper-PerCommit-IsolateSkImage",
+  "Housekeeper-PerCommit-Presubmit",
   "Housekeeper-Weekly-RecreateSKPs",
   "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android",
   "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android",
