@@ -11,6 +11,8 @@
 
 #include <stdbool.h>
 
+bool skcms_TransferFunction_isValid(const skcms_TransferFunction*);
+
 float skcms_TransferFunction_eval(const skcms_TransferFunction*, float);
 
 bool skcms_TransferFunction_invert(const skcms_TransferFunction*, skcms_TransferFunction*);
