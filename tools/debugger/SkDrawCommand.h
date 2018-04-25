@@ -743,11 +743,11 @@ public:
     const SkPaint* paint() const { return fPaintPtr; }
 
 private:
-    SkRect               fBounds;
-    SkPaint              fPaint;
-    SkPaint*             fPaintPtr;
-    const SkImageFilter* fBackdrop;
-    uint32_t       fSaveLayerFlags;
+    SkRect                   fBounds;
+    SkPaint                  fPaint;
+    SkPaint*                 fPaintPtr;
+    const SkImageFilter*     fBackdrop;
+    SkCanvas::SaveLayerFlags fSaveLayerFlags;
 
     typedef SkDrawCommand INHERITED;
 };

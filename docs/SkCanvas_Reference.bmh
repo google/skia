@@ -1678,18 +1678,23 @@ add new markup to associate typedef SaveLayerFlags with Enum so that, for
 documentation purposes, this enum is named rather than anonymous
 ##
 
-#Enum
+#Enum SaveLayerFlags
 #Line # sets SaveLayerRec options ##
 #Code
-    enum {
-        kPreserveLCDText_SaveLayerFlag = 1 << 1,
-        kInitWithPrevious_SaveLayerFlag = 1 << 2,
+    enum SaveLayerFlags : uint32_t {
+        kNo_SaveLayerFlag                     = 0,
+        kPreserveLCDText_SaveLayerFlag        = 1 << 1,
+        kInitWithPrevious_SaveLayerFlag       = 1 << 2,
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
     };
 ##
 
 SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
 defining how Layer allocated by saveLayer operates.
+
+#Const kNo_SaveLayerFlag 0
+  Creates Layer with no additional attributes.
+##
 
 #Const kPreserveLCDText_SaveLayerFlag 2
   Creates Layer for LCD text. Flag is ignored if Layer Paint contains
@@ -1731,10 +1736,6 @@ void draw(SkCanvas* canvas) {
 #SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 #Enum ##
-
-#Typedef uint32_t SaveLayerFlags
-
-##
 
 #Struct SaveLayerRec
 #Line # contains the state used to create the Layer ##
@@ -1833,7 +1834,8 @@ Sets fBounds, fPaint, and fBackdrop to nullptr. Clears fSaveLayerFlags.
 
 ##
 
-#Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
+#Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint,
+        SaveLayerFlags saveLayerFlags = kNo_SaveLayerFlag)
 
 Sets fBounds, fPaint, and fSaveLayerFlags; sets fBackdrop to nullptr.
 

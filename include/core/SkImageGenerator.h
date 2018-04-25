@@ -170,9 +170,7 @@ public:
                                                              sk_sp<SkColorSpace>);
 
 protected:
-    enum {
-        kNeedNewImageUniqueID = 0
-    };
+    static constexpr int kNeedNewImageUniqueID = 0;
 
     SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
 
