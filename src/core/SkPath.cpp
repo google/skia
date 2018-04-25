@@ -2431,7 +2431,6 @@ private:
 };
 
 SkPath::Convexity SkPath::internalGetConvexity() const {
-    SkASSERT(kUnknown_Convexity == fConvexity);
     SkPoint         pts[4];
     SkPath::Verb    verb;
     SkPath::Iter    iter(*this, true);
