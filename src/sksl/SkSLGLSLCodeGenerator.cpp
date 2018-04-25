@@ -1087,12 +1087,12 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             if (fProgram.fSettings.fCaps->externalTextureExtensionString()) {
                 fHeader.writeText("#extension ");
                 fHeader.writeText(fProgram.fSettings.fCaps->externalTextureExtensionString());
-                fHeader.writeText(" : require\n");
+                fHeader.writeText(" : enable\n");
             }
             if (fProgram.fSettings.fCaps->secondExternalTextureExtensionString()) {
                 fHeader.writeText("#extension ");
                 fHeader.writeText(fProgram.fSettings.fCaps->secondExternalTextureExtensionString());
-                fHeader.writeText(" : require\n");
+                fHeader.writeText(" : enable\n");
             }
             fFoundExternalSamplerDecl = true;
         }
