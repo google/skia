@@ -114,7 +114,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     if 'CommandBuffer' in self.builder_name:
       self.need_chromium_checkout = True
       self.gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
-    if 'RecreateSKPs' in self.builder_name:
+    if ('RecreateSKPs' in self.builder_name or
+        'BuildChrome' in self.builder_name):
       self.need_chromium_checkout = True
       self.gclient_env['CPPFLAGS'] = (
           '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
