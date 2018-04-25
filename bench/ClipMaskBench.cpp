@@ -30,7 +30,8 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkCanvas::SaveLayerRec rec(nullptr, nullptr, nullptr, fClip.get(), nullptr, 0);
+        SkCanvas::SaveLayerRec rec(nullptr, nullptr, nullptr, fClip.get(), nullptr,
+                SkCanvas::kNo_SaveLayerFlag);
 
         for (int i = 0; i < loops; ++i) {
             canvas->saveLayer(rec);
