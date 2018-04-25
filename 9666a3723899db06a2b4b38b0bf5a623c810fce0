@@ -22,6 +22,30 @@
       "revId": "9666a3723899db06a2b4b38b0bf5a623c810fce0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffaec4c4_71dd26c1",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-04-25T15:15:01Z",
+      "side": 1,
+      "message": "You sure?  I bet we can cram the innards of a ShuttleA into a Nuc.",
+      "parentUuid": "c17c584e_76973490",
+      "range": {
+        "startLine": 198,
+        "startChar": 22,
+        "endLine": 198,
+        "endChar": 31
+      },
+      "revId": "9666a3723899db06a2b4b38b0bf5a623c810fce0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
