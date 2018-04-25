@@ -249,7 +249,7 @@ SI ATTR F NS(apply_transfer_function_)(const skcms_TransferFunction* tf, F x) {
 SI ATTR F NS(apply_poly_tf_)(const skcms_PolyTF* tf, F x) {
     // TODO: handle x<0
     return (F)if_then_else(x < tf->D, tf->C*x
-                                    , tf->A*x*x*x + tf->B*x*x + (1 - tf->A - tf->B));
+                                    , tf->A*(x*x*x-1) + tf->B*(x*x-1) + 1);
 }
 #define apply_poly_tf NS(apply_poly_tf_)
 
