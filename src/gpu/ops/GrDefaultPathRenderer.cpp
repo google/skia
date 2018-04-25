@@ -400,8 +400,8 @@ private:
 
         int instanceCount = fPaths.count();
 
-        // We will use index buffers if we have multiple paths or one path with multiple contours
-        bool isIndexed = instanceCount > 1;
+        // We avoid indices when we have a single hairline contour across all paths.
+        bool isIndexed = instanceCount > 1 || this->isHairline();
         for (int i = 0; !isIndexed && i < instanceCount; i++) {
             const PathData& args = fPaths[i];
             isIndexed = isIndexed || PathGeoBuilder::PathHasMultipleSubpaths(args.fPath);
@@ -412,7 +412,7 @@ private:
         if (this->isHairline()) {
             primitiveType = isIndexed ? GrPrimitiveType::kLines : GrPrimitiveType::kLineStrip;
         } else {
-            primitiveType = isIndexed ? GrPrimitiveType::kTriangles : GrPrimitiveType::kTriangleFan;
+            primitiveType = GrPrimitiveType::kTriangles;
         }
 
         PathGeoBuilder pathGeoBuilder(primitiveType, target, gp.get(),
