@@ -10,6 +10,7 @@
 
 #include "SkArenaAlloc.h"
 #include "SkBlitter.h"
+#include "SkDraw.h"
 
 class SkMatrix;
 class SkPaint;
@@ -17,27 +18,35 @@ class SkPixmap;
 
 class SkAutoBlitterChoose : SkNoncopyable {
 public:
-    SkAutoBlitterChoose() {
-        fBlitter = nullptr;
-    }
-    SkAutoBlitterChoose(const SkPixmap& dst, const SkMatrix& matrix,
-                        const SkPaint& paint, bool drawCoverage = false) {
-        fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAlloc, drawCoverage);
+    SkAutoBlitterChoose() {}
+    SkAutoBlitterChoose(const SkDraw& draw, const SkMatrix* matrix, const SkPaint& paint,
+                        bool drawCoverage = false) {
+        this->choose(draw, matrix, paint, drawCoverage);
     }
 
     SkBlitter*  operator->() { return fBlitter; }
     SkBlitter*  get() const { return fBlitter; }
 
-    SkBlitter* choose(const SkPixmap& dst, const SkMatrix& matrix,
-                const SkPaint& paint, bool drawCoverage = false) {
+    SkBlitter* choose(const SkDraw& draw, const SkMatrix* matrix, const SkPaint& paint,
+                      bool drawCoverage = false) {
         SkASSERT(!fBlitter);
-        fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAlloc, drawCoverage);
+        if (!matrix) {
+            matrix = draw.fMatrix;
+        }
+        fBlitter = SkBlitter::Choose(draw.fDst, *matrix, paint, &fAlloc, drawCoverage);
+
+        if (draw.fCoverage) {
+            // hmm, why can't choose ignore the paint if drawCoverage is true?
+            SkBlitter* coverageBlitter = SkBlitter::Choose(*draw.fCoverage, *matrix, SkPaint(),
+                                                           &fAlloc, true);
+            fBlitter = fAlloc.make<SkPairBlitter>(fBlitter, coverageBlitter);
+        }
         return fBlitter;
     }
 
 private:
     // Owned by fAlloc, which will handle the delete.
-    SkBlitter*          fBlitter;
+    SkBlitter* fBlitter = nullptr;
 
     SkSTArenaAlloc<kSkBlitterContextSize> fAlloc;
 };

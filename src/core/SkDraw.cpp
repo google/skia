@@ -220,7 +220,7 @@ void SkDraw::drawPaint(const SkPaint& paint) const {
     }
 
     // normal case: use a blitter
-    SkAutoBlitterChoose blitter(fDst, *fMatrix, paint);
+    SkAutoBlitterChoose blitter(*this, nullptr, paint);
     SkScan::FillIRect(devRect, *fRC, blitter.get());
 }
 
@@ -497,7 +497,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
 
     PtProcRec rec;
     if (!device && rec.init(mode, paint, fMatrix, fRC)) {
-        SkAutoBlitterChoose blitter(fDst, *fMatrix, paint);
+        SkAutoBlitterChoose blitter(*this, nullptr, paint);
 
         SkPoint             devPts[MAX_DEV_PTS];
         const SkMatrix*     matrix = fMatrix;
@@ -798,7 +798,7 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
         return;
     }
 
-    SkAutoBlitterChoose blitterStorage(fDst, *matrix, paint);
+    SkAutoBlitterChoose blitterStorage(*this, matrix, paint);
     const SkRasterClip& clip = *fRC;
     SkBlitter*          blitter = blitterStorage.get();
 
@@ -846,7 +846,7 @@ void SkDraw::drawDevMask(const SkMask& srcM, const SkPaint& paint) const {
     }
     SkAutoMaskFreeImage ami(dstM.fImage);
 
-    SkAutoBlitterChoose blitterChooser(fDst, *fMatrix, paint);
+    SkAutoBlitterChoose blitterChooser(*this, nullptr, paint);
     SkBlitter* blitter = blitterChooser.get();
 
     SkAAClipBlitterWrapper wrapper;
@@ -920,7 +920,7 @@ void SkDraw::drawRRect(const SkRRect& rrect, const SkPaint& paint) const {
         // Transform the rrect into device space.
         SkRRect devRRect;
         if (rrect.transform(*fMatrix, &devRRect)) {
-            SkAutoBlitterChoose blitter(fDst, *fMatrix, paint);
+            SkAutoBlitterChoose blitter(*this, nullptr, paint);
             if (as_MFB(paint.getMaskFilter())->filterRRect(devRRect, *fMatrix,
                                                            *fRC, blitter.get())) {
                 return; // filterRRect() called the blitter, so we're done
@@ -954,7 +954,7 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
     SkBlitter* blitter = nullptr;
     SkAutoBlitterChoose blitterStorage;
     if (nullptr == customBlitter) {
-        blitter = blitterStorage.choose(fDst, *fMatrix, paint, drawCoverage);
+        blitter = blitterStorage.choose(*this, nullptr, paint, drawCoverage);
     } else {
         blitter = customBlitter;
     }
@@ -1022,9 +1022,8 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
         iData->fElement->setDrawFn([proc, devPath, paint, drawCoverage](SkArenaAlloc* alloc,
                 const SkThreadedBMPDevice::DrawState& ds, const SkIRect& tileBounds) {
             SkThreadedBMPDevice::TileDraw tileDraw(ds, tileBounds);
-            SkAutoBlitterChoose blitterStorage;
-            proc(devPath, *tileDraw.fRC, blitterStorage.choose(tileDraw.fDst, *tileDraw.fMatrix,
-                                                               paint, drawCoverage));
+            SkAutoBlitterChoose blitterStorage(tileDraw, nullptr, paint, drawCoverage);
+            proc(devPath, *tileDraw.fRC, blitterStorage.get());
         });
     } else {
         // We can use DAA to do scan conversion in the init-once phase.
@@ -1036,10 +1035,8 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
                     const SkThreadedBMPDevice::DrawState& ds, const SkIRect& tileBounds) {
             SkASSERT(record->fType != SkDAARecord::Type::kToBeComputed);
             SkThreadedBMPDevice::TileDraw tileDraw(ds, tileBounds);
-            SkAutoBlitterChoose blitterStorage;
-            SkBlitter* blitter = blitterStorage.choose(tileDraw.fDst, *tileDraw.fMatrix,
-                                                       paint, drawCoverage);
-            SkScan::AntiFillPath(devPath, *tileDraw.fRC, blitter, record);
+            SkAutoBlitterChoose blitterStorage(tileDraw, nullptr, paint, drawCoverage);
+            SkScan::AntiFillPath(devPath, *tileDraw.fRC, blitterStorage.get(), record);
         });
     }
 }
@@ -1547,7 +1544,7 @@ void SkDraw::drawText(const char text[], size_t byteLength, SkScalar x, SkScalar
             paint, props, this->scalerContextFlags(), fMatrix);
 
     // The Blitter Choose needs to be live while using the blitter below.
-    SkAutoBlitterChoose    blitterChooser(fDst, *fMatrix, paint);
+    SkAutoBlitterChoose    blitterChooser(*this, nullptr, paint);
     SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
     DrawOneGlyph           drawOneGlyph(*this, paint, cache.get(), wrapper.getBlitter());
 
@@ -1627,7 +1624,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
             paint, props, this->scalerContextFlags(), fMatrix);
 
     // The Blitter Choose needs to be live while using the blitter below.
-    SkAutoBlitterChoose    blitterChooser(fDst, *fMatrix, paint);
+    SkAutoBlitterChoose    blitterChooser(*this, nullptr, paint);
     SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
     DrawOneGlyph           drawOneGlyph(*this, paint, cache.get(), wrapper.getBlitter());
     SkPaint::Align         textAlignment = paint.getTextAlign();
