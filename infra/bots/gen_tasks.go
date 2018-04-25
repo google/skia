@@ -1047,6 +1047,25 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	return name
 }
 
+// Run the presubmit.
+func presubmit(b *specs.TasksCfgBuilder, name string) string {
+	extraProps := map[string]string{
+		"category":         "cq",
+		"patch_gerrit_url": "https://skia-review.googlesource.com",
+		"patch_project":    "skia",
+		"patch_ref":        fmt.Sprintf("refs/changes/%s/%s/%s", specs.PLACEHOLDER_ISSUE_SHORT, specs.PLACEHOLDER_ISSUE, specs.PLACEHOLDER_PATCHSET),
+		//"patch_repository_url": "???",
+		"reason":    "CQ",
+		"repo_name": "skia",
+	}
+	task := kitchenTask(name, "infra", "empty.isolate", "", linuxGceDimensions(), extraProps, OUTPUT_NONE)
+	task.Command = append(task.Command, "-repository", "https://chromium.googlesource.com/chromium/tools/build", "-revision", "HEAD", "-recipe", "run_presubmit")
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
+	task.Dependencies = []string{} // No bundled recipes for this one.
+	b.MustAddTask(name, task)
+	return name
+}
+
 // process generates tasks and jobs for the given job name.
 func process(b *specs.TasksCfgBuilder, name string) {
 	deps := []string{}
@@ -1108,6 +1127,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
+		name != "Housekeeper-PerCommit-Presubmit" &&
 		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "-CT_") &&
@@ -1124,6 +1144,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	if name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
 		deps = append(deps, checkGeneratedFiles(b, name))
+	}
+	if name == "Housekeeper-PerCommit-Presubmit" {
+		deps = append(deps, presubmit(b, name))
 	}
 	if strings.Contains(name, "Bookmaker") {
 		deps = append(deps, bookmaker(b, name, compileTaskName))
