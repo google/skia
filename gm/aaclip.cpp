@@ -105,7 +105,7 @@ DEF_SIMPLE_GM(dont_clip_to_layer, canvas, 120, 120) {
     rec.fPaint = nullptr;
     rec.fBounds = &r0;
     rec.fBackdrop = nullptr;
-    rec.fSaveLayerFlags = SkCanvasPriv::kDontClipToLayer_SaveLayerFlag;
+    rec.fSaveLayerFlags = (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag;
     canvas->saveLayer(rec);
     rec.fBounds = &r1;
     canvas->saveLayer(rec);
