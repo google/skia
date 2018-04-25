@@ -403,7 +403,6 @@ private:
     friend class GrAALinearizingConvexPathRenderer;  // for access to add[Mesh]DrawOp
     friend class GrSmallPathRenderer;                // for access to add[Mesh]DrawOp
     friend class GrDefaultPathRenderer;              // for access to add[Mesh]DrawOp
-    friend class GrMSAAPathRenderer;                 // for access to add[Mesh]DrawOp
     friend class GrStencilAndCoverPathRenderer;      // for access to add[Mesh]DrawOp
     friend class GrTessellatingPathRenderer;         // for access to add[Mesh]DrawOp
     friend class GrCCAtlas;                          // for access to addDrawOp

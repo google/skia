@@ -187,7 +187,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     gPathRendererNames[GpuPathRenderers::kDefault] =
             "Default Ganesh Behavior (best path renderer, not including CCPR)";
     gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
-    gPathRendererNames[GpuPathRenderers::kMSAA] = "Sample shading";
     gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
     gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "Coverage counting";
     gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
@@ -1328,9 +1327,6 @@ void Viewer::drawImGui() {
                         if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
                             prButton(GpuPathRenderers::kStencilAndCover);
                         }
-                        if (ctx->caps()->sampleShadingSupport()) {
-                            prButton(GpuPathRenderers::kMSAA);
-                        }
                         prButton(GpuPathRenderers::kTessellating);
                         prButton(GpuPathRenderers::kNone);
                     } else {
@@ -1666,9 +1662,6 @@ void Viewer::updateUIState() {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
         if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
             prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kStencilAndCover]);
-        }
-        if (ctx->caps()->sampleShadingSupport()) {
-            prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kMSAA]);
         }
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);

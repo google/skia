@@ -16,10 +16,6 @@
 
 #include "effects/GrConstColorProcessor.h"
 
-static void allow_default_and_msaa(GrContextOptions* options) {
-    options->fGpuPathRenderers = GpuPathRenderers::kMSAA;
-}
-
 static void only_allow_default(GrContextOptions* options) {
     options->fGpuPathRenderers = GpuPathRenderers::kNone;
 }
@@ -122,18 +118,6 @@ DEF_GPUTEST_FOR_CONTEXTS(GrDefaultPathRendererTest,
                          sk_gpu_test::GrContextFactory::IsRenderingContext,
                          reporter, ctxInfo, only_allow_default) {
     GrContext* ctx = ctxInfo.grContext();
-
-    run_test(ctx, reporter);
-}
-
-DEF_GPUTEST_FOR_CONTEXTS(GrMSAAPathRendererTest,
-                         sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         reporter, ctxInfo, allow_default_and_msaa) {
-    GrContext* ctx = ctxInfo.grContext();
-
-    if (!ctx->caps()->sampleShadingSupport()) {   // The MSAAPathRenderer requires this
-        return;
-    }
 
     run_test(ctx, reporter);
 }
