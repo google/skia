@@ -806,6 +806,13 @@ const skcms_ICCProfile skcms_sRGB_profile = {
         { 0.222488403f, 0.716873169f, 0.060607910f },
         { 0.013916016f, 0.097076416f, 0.714096069f },
     }},
+
+    .has_poly_tf = { true, true, true },
+    .poly_tf = {
+       {0.293833881617f, 0.704207003117f, (float)(1/12.92), 0.04045f},
+       {0.293833881617f, 0.704207003117f, (float)(1/12.92), 0.04045f},
+       {0.293833881617f, 0.704207003117f, (float)(1/12.92), 0.04045f},
+    },
 };
 
 const skcms_ICCProfile skcms_XYZD50_profile = {
