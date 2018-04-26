@@ -433,9 +433,6 @@ class ThreadedSink : public RasterSink {
 public:
     explicit ThreadedSink(SkColorType, sk_sp<SkColorSpace> = nullptr);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    SinkFlags flags() const override {
-        return SinkFlags{ SinkFlags::kRaster, SinkFlags::kIndirect };
-    }
 
 private:
     std::unique_ptr<SkExecutor> fExecutor;
