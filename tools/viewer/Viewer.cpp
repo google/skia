@@ -882,7 +882,9 @@ SkMatrix Viewer::computePreTouchMatrix() {
     SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
                                           : SK_Scalar1 + fZoomLevel;
     m.preScale(zoomScale, zoomScale);
-    m.preRotate(fRotation);
+
+    const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+    m.preRotate(fRotation, slideSize.width() * 0.5f, slideSize.height() * 0.5f);
 
     if (fPerspective) {
         SkScalar w = fWindow->width(), h = fWindow->height();
@@ -895,7 +897,7 @@ SkMatrix Viewer::computePreTouchMatrix() {
         };
         SkMatrix persp;
         persp.setPolyToPoly(orthoPts, perspPts, 4);
-        m.preConcat(persp);
+        m.postConcat(persp);
     }
 
     return m;
