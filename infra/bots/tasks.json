@@ -16722,10 +16722,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -17208,10 +17204,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
