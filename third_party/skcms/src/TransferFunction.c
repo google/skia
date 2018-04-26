@@ -143,7 +143,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 //    ∂tf/∂b =  g(ax + b)^(g-1)
 //           -  g(ad + b)^(g-1)
 
-static float eval_nonlinear(float x, const void* ctx, const float P[4]) {
+static float eval_nonlinear(float x, const void* ctx, const float P[3]) {
     const skcms_TransferFunction* tf = (const skcms_TransferFunction*)ctx;
 
     const float g = P[0],  a = P[1],  b = P[2],
@@ -158,7 +158,7 @@ static float eval_nonlinear(float x, const void* ctx, const float P[4]) {
          - powf_(D, g)
          + c*d + f;
 }
-static void grad_nonlinear(float x, const void* ctx, const float P[4], float dfdP[4]) {
+static void grad_nonlinear(float x, const void* ctx, const float P[3], float dfdP[3]) {
     const skcms_TransferFunction* tf = (const skcms_TransferFunction*)ctx;
 
     const float g = P[0], a = P[1], b = P[2],
@@ -222,7 +222,7 @@ int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float
 
 // Fit the points in [start,N) to the non-linear piece of tf, or return false if we can't.
 static bool fit_nonlinear(const skcms_Curve* curve, int start, int N, skcms_TransferFunction* tf) {
-    float P[4] = { tf->g, tf->a, tf->b, 0 };
+    float P[3] = { tf->g, tf->a, tf->b };
 
     // No matter where we start, x_scale should always represent N even steps from 0 to 1.
     const float x_scale = 1.0f / (N-1);
