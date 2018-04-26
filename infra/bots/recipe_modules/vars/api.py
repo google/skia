@@ -15,6 +15,12 @@ CONFIG_RELEASE = 'Release'
 
 class SkiaVarsApi(recipe_api.RecipeApi):
 
+  def make_path(self, *path):
+    """Return a Path object for the given path."""
+    key  = 'custom_%s' % '_'.join(path)
+    self.m.path.c.base_paths[key] = tuple(path)
+    return self.m.path[key]
+
   def setup(self):
     """Prepare the variables."""
     # Setup
@@ -53,10 +59,13 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     if 'Coverage' in self.builder_name and 'Upload' in self.builder_name:
       self.persistent_checkout = True
 
-    self.cache_dir = self.slave_dir.join('cache')
     if self.persistent_checkout:
-      self.checkout_root = self.cache_dir.join('work')
-      self.gclient_cache = self.cache_dir.join('git')
+      if 'Win' in self.builder_name:
+        self.checkout_root = self.make_path('C:\\', 'b', 'work')
+        self.gclient_cache = self.make_path('C:\\', 'b', 'cache')
+      else:
+        self.checkout_root = self.make_path('/', 'b', 'work')
+        self.gclient_cache = self.make_path('/', 'b', 'cache')
 
       # got_revision is filled in after checkout steps.
       self.got_revision = None

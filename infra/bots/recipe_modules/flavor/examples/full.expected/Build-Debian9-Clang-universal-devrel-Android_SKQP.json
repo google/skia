@@ -7,7 +7,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/android_ndk_linux/VERSION",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/android_ndk_linux/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -17,14 +17,14 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -40,7 +40,7 @@
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
     "name": "go version"
   },
@@ -55,7 +55,7 @@
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
     "name": "env go version"
   },
@@ -73,7 +73,7 @@
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
     "name": "update go pkgs"
   },
@@ -82,8 +82,8 @@
       "go",
       "build",
       "-o",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel/run_testlab",
-      "[START_DIR]/cache/work/skia/infra/cts/run_testlab.go"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel/run_testlab",
+      "[CUSTOM_/_B_WORK]/skia/infra/cts/run_testlab.go"
     ],
     "env": {
       "BUILDTYPE": "devrel",
@@ -91,23 +91,23 @@
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
     "name": "build firebase runner"
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/skia/tools/skqp/make_universal_apk"
+      "[CUSTOM_/_B_WORK]/skia/tools/skqp/make_universal_apk"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "ANDROID_HOME": "[START_DIR]/android_sdk_linux/android-sdk",
       "ANDROID_NDK": "[START_DIR]/android_ndk_linux",
-      "APK_OUTPUT_DIR": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel",
+      "APK_OUTPUT_DIR": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel",
       "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
     },
     "name": "make_universal"
   },
@@ -119,7 +119,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/cts/whitelist_devices.json",
+      "[CUSTOM_/_B_WORK]/skia/infra/cts/whitelist_devices.json",
       "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
