@@ -105,8 +105,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_Join">Join</a> | corner geometry on stroked shapes |
 | <a href="#SkPaint_Style">Style</a> | stroke, fill, or both |
 | <a href="#SkPaint_TextEncoding">TextEncoding</a> | character or glyph encoded size |
-| _anonymous | number of <a href="#SkPaint_Style">Style</a> defines |
-| _anonymous_2 | number of <a href="#Text_Align">Text Align</a> values |
 
 ## <a name="Class_or_Struct"></a> Class or Struct
 
@@ -2075,6 +2073,8 @@ while stroking.
         <a href="#SkPaint_kStroke_Style">kStroke Style</a>,
         <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a>,
     };
+
+    static constexpr int <a href="#SkPaint_kStyleCount">kStyleCount</a> = <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a> + 1;
 </pre>
 
 Set <a href="#SkPaint_Style">Style</a> to fill, stroke, or both fill and stroke geometry.
@@ -2112,20 +2112,6 @@ Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Regio
 and the set <a href="SkPath_Reference#Fill_Type">Path Fill Type</a> is ignored.
 </td>
   </tr>
-
-
-
-## <a name="SkPaint__anonymous"></a> Enum SkPaint::_anonymous
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum {
-        <a href="#SkPaint_kStyleCount">kStyleCount</a> = <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a> + 1,
-    };
-</pre>
-
-### Constants
-
-<table>
   <tr>
     <td><a name="SkPaint_kStyleCount"> <code><strong>SkPaint::kStyleCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#SkPaint_Style">Style</a> values defined.
 May be used to verify that <a href="#SkPaint_Style">Style</a> is a legal value.
@@ -3582,6 +3568,8 @@ void setLooper(sk_sp&lt;SkDrawLooper&gt; drawLooper)
         <a href="#SkPaint_kCenter_Align">kCenter Align</a>,
         <a href="#SkPaint_kRight_Align">kRight Align</a>,
     };
+
+    static constexpr int <a href="#SkPaint_kAlignCount">kAlignCount</a> = 3;
 </pre>
 
 <a href="#SkPaint_Align">Align</a> adjusts the text relative to the text position.
@@ -3618,20 +3606,6 @@ half its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVer
 and by its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> set.
 </td>
   </tr>
-
-
-
-## <a name="SkPaint__anonymous_2"></a> Enum SkPaint::_anonymous_2
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum {
-        <a href="#SkPaint_kAlignCount">kAlignCount</a> = 3,
-    };
-</pre>
-
-### Constants
-
-<table>
   <tr>
     <td><a name="SkPaint_kAlignCount"> <code><strong>SkPaint::kAlignCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#Text_Align">Text Align</a> values defined.
 </td>
