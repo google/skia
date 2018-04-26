@@ -12698,7 +12698,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -12812,7 +12812,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -12926,7 +12926,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -13040,7 +13040,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -13154,7 +13154,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -13268,7 +13268,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -13382,7 +13382,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -13497,7 +13497,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -13611,7 +13611,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -13725,7 +13725,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -13839,7 +13839,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -13954,7 +13954,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -14063,7 +14063,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -14172,7 +14172,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -14281,7 +14281,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -14391,7 +14391,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -14500,7 +14500,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -14610,7 +14610,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-highcpu-64",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -34328,7 +34328,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -34438,7 +34438,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -34548,7 +34548,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -34658,7 +34658,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -34768,7 +34768,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -34878,7 +34878,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -34988,7 +34988,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -35098,7 +35098,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -60915,7 +60915,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -61025,7 +61025,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -61135,7 +61135,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -61245,7 +61245,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -61355,7 +61355,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -61465,7 +61465,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -61575,7 +61575,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -61685,7 +61685,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -61795,7 +61795,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -61905,7 +61905,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -62015,7 +62015,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -62125,7 +62125,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -62235,7 +62235,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -62345,7 +62345,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -62455,7 +62455,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
@@ -62565,7 +62565,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "image:windows-server-2016-dc-v20171114",
+        "image:windows-server-2016-dc-v20180410",
         "machine_type:n1-standard-16",
         "os:Windows-2016Server-14393",
         "pool:Skia"
