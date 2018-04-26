@@ -59,8 +59,8 @@ This approach may be deprecated in the future.
 | --- | --- |
 | <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> | Android framework only |
 | <a href="#SkCanvas_PointMode">PointMode</a> | sets <a href="#SkCanvas_drawPoints">drawPoints</a> options |
+| <a href="#SkCanvas_SaveLayerFlagsSet">SaveLayerFlagsSet</a> | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
 | <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> | sets <a href="#SkCanvas_drawImageRect">drawImageRect</a> options |
-| _anonymous | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
 
 ## <a name="Class_or_Struct"></a> Class or Struct
 
@@ -1708,14 +1708,17 @@ depth of saved stack
 
 ---
 
-## <a name="SkCanvas__anonymous"></a> Enum SkCanvas::_anonymous
+## <a name="SkCanvas_SaveLayerFlagsSet"></a> Enum SkCanvas::SaveLayerFlagsSet
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum {
+    enum <a href="#SkCanvas_SaveLayerFlagsSet">SaveLayerFlagsSet</a> {
         <a href="#SkCanvas_kPreserveLCDText_SaveLayerFlag">kPreserveLCDText SaveLayerFlag</a> = 1 << 1,
         <a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a> = 1 << 2,
+        <a href="#SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag">kMaskAgainstCoverage EXPERIMENTAL DONT USE SaveLayerFlag</a> = 1 << 3,
         <a href="#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag">kDontClipToLayer Legacy SaveLayerFlag</a> = kDontClipToLayer_PrivateSaveLayerFlag,
     };
+
+    typedef uint32_t <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a>;
 </pre>
 
 <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a> provides options that may be used in any combination in <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a>,
@@ -1732,6 +1735,9 @@ defining how <a href="#Layer">Layer</a> allocated by <a href="#SkCanvas_saveLaye
   <tr>
     <td><a name="SkCanvas_kInitWithPrevious_SaveLayerFlag"> <code><strong>SkCanvas::kInitWithPrevious_SaveLayerFlag </strong></code> </a></td><td>4</td><td>Initializes <a href="#Layer">Layer</a> with the contents of the previous <a href="#Layer">Layer</a>.
 </td>
+  </tr>
+  <tr>
+    <td><a name="SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag"> <code><strong>SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag </strong></code> </a></td><td>8</td><td>Experimental -- don't use</td>
   </tr>
   <tr>
     <td><a name="SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag"> <code><strong>SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag </strong></code> </a></td><td>0x80000000</td><td>soon</td>
