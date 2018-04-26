@@ -30,6 +30,11 @@ void SkThreadedBMPDevice::DrawQueue::reset() {
     }
 
     fThreadAllocs.reset(fDevice->fThreadCnt);
+    for(int i = 0; i < fSize; ++i) {
+        // Similar to SkTArray::reset
+        fElements[i].~DrawElement();
+        new (&fElements[i]) DrawElement();
+    }
     fSize = 0;
 
     // using TaskGroup2D = SkSpinningTaskGroup2D;
