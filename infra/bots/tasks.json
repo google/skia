@@ -94,7 +94,8 @@
       "priority": 0.8,
       "tasks": [
         "Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework"
-      ]
+      ],
+      "trigger": "on demand"
     },
     "Build-Debian9-Clang-x64-Debug-Android": {
       "priority": 0.8,
