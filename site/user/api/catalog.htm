@@ -5475,22 +5475,6 @@
     "file": "SkImage_Reference",
     "name": "SkImage::getBackendTexture"
 },
-    "SkImage_getTextureHandle": {
-    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkString str;\n    int y = -10;\n    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,\n                backEndTexture, origin, kN32_SkColorType, kPremul_SkAlphaType, nullptr));\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);\n        str.printf(\"readBackHandle: 0x%lx\", readBackHandle);\n        canvas->drawString(str, 5, y += 30, paint);\n        canvas->drawImage(srcImage, 80, y += 10);\n        str.printf(\"origin: k%s_GrSurfaceOrigin\", readBackOrigin ? \"BottomLeft\" : \"TopLeft\");\n        canvas->drawString(str, 5, y += srcImage->height() + 10, paint);\n    }\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "c321079049b0363c3b53bb76991768d4",
-    "file": "SkImage_Reference",
-    "name": "SkImage::getTextureHandle"
-},
-    "SkImage_getTextureHandle_a": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, image->height() / 4);\n        canvas->drawString(label, image->width() / 2, image->height() / 8, paint);\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = image->getTextureHandle(false, &readBackOrigin);\n        canvas->drawString(readBackHandle ? \"has readBackHandle\" : \"no readBackHandle\",\n                           image->width() / 2, image->height() * 11 / 8, paint);\n    };\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,\n                                nullptr));\n    drawImage(textureImage, \"backEndTexture\");\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "7161810a96a75540c55af0021a1e5bb9",
-    "file": "SkImage_Reference",
-    "name": "SkImage::getTextureHandle_2"
-},
     "SkImage_height": {
     "code": "void draw(SkCanvas* canvas) {\n    canvas->translate(10, 10);\n    canvas->drawImage(image, 0, 0);\n    canvas->translate(image->width(), 0);\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    paint.setVerticalText(true);\n    canvas->drawLine(10, 0, 10, image->height(), paint);\n    canvas->drawString(\"height\", 25, image->height() / 2, paint);\n}",
     "width": 256,
@@ -7267,14 +7251,6 @@
     "file": "SkColor_Reference",
     "name": "SkRGBToHSV"
 },
-    "SkSurface_BackendHandleAccess": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));\n    int y = 20;\n    SkString str;\n    paint.setTextSize(16);\n    for (auto access : { SkSurface::kFlushRead_BackendHandleAccess, \n                         SkSurface::kFlushWrite_BackendHandleAccess,\n                         SkSurface::kDiscardWrite_BackendHandleAccess } ) {\n        sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n        str.printf(\"uniqueID=%d\", image->uniqueID());\n        canvas->drawString(str, 20, y += 20, paint);\n        GrBackendObject backendObject = gpuSurface->getTextureHandle(access);\n        str.printf(\"backendObject %c= 0\", backendObject != 0 ? '!' : '=');\n        canvas->drawString(str, 20, y += 20, paint);\n    }\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    str.printf(\"final image uniqueID=%d\", image->uniqueID());\n    canvas->drawString(str, 20, y += 20, paint);\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "260a5ba014b00eeb5a74b3c6b8d31be4",
-    "file": "SkSurface_Reference",
-    "name": "SkSurface::BackendHandleAccess"
-},
     "SkSurface_MakeFromBackendTexture": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTexture(context,\n            backEndTexture, kTopLeft_GrSurfaceOrigin, 0,\n            kRGBA_8888_SkColorType, nullptr, nullptr);\n    auto surfaceCanvas = gpuSurface->getCanvas();\n    surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    canvas->drawImage(image, 0, 0);\n}",
     "width": 256,
@@ -7346,22 +7322,6 @@
     "hash": "33d0c5ad5a4810e533ae1010e29f8b75",
     "file": "SkSurface_Reference",
     "name": "SkSurface::getCanvas"
-},
-    "SkSurface_getRenderTargetHandle": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));\n    GrBackendObject backendObject;\n    if (gpuSurface->getRenderTargetHandle(&backendObject, \n            SkSurface::kFlushRead_BackendHandleAccess)) {\n        SkString str;\n        str.printf(\"backendObject=%ld\", backendObject);\n        paint.setTextSize(16);\n        canvas->drawString(str, 20, 40, paint);\n    }\n}",
-    "width": 256,
-    "height": 64,
-    "hash": "dbc6c0e01a177ba03c87c00c32a43148",
-    "file": "SkSurface_Reference",
-    "name": "SkSurface::getRenderTargetHandle"
-},
-    "SkSurface_getTextureHandle": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));\n    GrBackendObject backendObject = gpuSurface->getTextureHandle(\n            SkSurface::kFlushRead_BackendHandleAccess);\n    if (backendObject) {\n        SkString str;\n        str.printf(\"backendObject=%08lx\", backendObject);\n        paint.setTextSize(16);\n        canvas->drawString(str, 20, 40, paint);\n    }\n}",
-    "width": 256,
-    "height": 64,
-    "hash": "f7558a62985f70f2286307993db4b3bc",
-    "file": "SkSurface_Reference",
-    "name": "SkSurface::getTextureHandle"
 },
     "SkSurface_makeImageSnapshot": {
     "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> big(SkSurface::MakeRasterN32Premul(64, 64));\n    sk_sp<SkSurface> lil(big->makeSurface(SkImageInfo::MakeN32(32, 32, kPremul_SkAlphaType)));\n    big->getCanvas()->clear(SK_ColorRED);\n    lil->getCanvas()->clear(SK_ColorBLACK);\n    sk_sp<SkImage> early(big->makeImageSnapshot());\n    lil->draw(big->getCanvas(), 16, 16, nullptr);\n    sk_sp<SkImage> later(big->makeImageSnapshot());\n    canvas->drawImage(early, 0, 0);\n    canvas->drawImage(later, 128, 0);\n}",

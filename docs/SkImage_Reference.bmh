@@ -1324,72 +1324,7 @@ drawImage(textureImage, "backEndTexture");
 
 #Method GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
                                      GrSurfaceOrigin* origin = nullptr) const
-#In Property
-#Line # returns GPU reference to Image as texture ##
-
-Retrieves the back-end API handle of texture. If flushPendingGrContextIO is true,
-complete deferred I/O operations.
-
-If origin is not nullptr, copies location of content drawn into Image.
-
-#Param flushPendingGrContextIO  flag to flush outstanding requests ##
-#Param origin  storage for one of: kTopLeft_GrSurfaceOrigin,
-               kBottomLeft_GrSurfaceOrigin; or nullptr 
-##
-
-#Return back-end API texture handle, or nullptr ##
-
-#Example
-#Image 4
-#Platform gpu
-GrContext* context = canvas->getGrContext();
-if (!context) {
-   return;
-}
-SkPaint paint;
-paint.setAntiAlias(true);
-SkString str;
-int y = -10;
-for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
-    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,
-            backEndTexture, origin, kN32_SkColorType, kPremul_SkAlphaType, nullptr));
-    GrSurfaceOrigin readBackOrigin;
-    GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
-    str.printf("readBackHandle: 0x%lx", readBackHandle);
-    canvas->drawString(str, 5, y += 30, paint);
-    canvas->drawImage(srcImage, 80, y += 10);
-    str.printf("origin: k%s_GrSurfaceOrigin", readBackOrigin ? "BottomLeft" : "TopLeft");
-    canvas->drawString(str, 5, y += srcImage->height() + 10, paint);
-}
-##
-
-#Example
-#Image 5
-#Platform gpu
-    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
-        if (nullptr == image) {
-            return;
-        }
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setTextAlign(SkPaint::kCenter_Align);
-        canvas->drawImage(image, 0, image->height() / 4);
-        canvas->drawString(label, image->width() / 2, image->height() / 8, paint);
-        GrSurfaceOrigin readBackOrigin;
-        GrBackendObject readBackHandle = image->getTextureHandle(false, &readBackOrigin);
-        canvas->drawString(readBackHandle ? "has readBackHandle" : "no readBackHandle",
-                           image->width() / 2, image->height() * 11 / 8, paint);
-    };
-    drawImage(image, "image");
-    canvas->translate(image->width(), 0);
-    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
-                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,
-                                nullptr));
-    drawImage(textureImage, "backEndTexture");
-##
-
-#SeeAlso MakeFromTexture isTextureBacked
-
+#Deprecated
 #Method ##
 
 # ------------------------------------------------------------------------------
