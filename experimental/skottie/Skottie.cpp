@@ -943,7 +943,14 @@ sk_sp<sksg::RenderNode> AttachMask(const Json::Value& jmask,
     if (!jmask.isArray())
         return childNode;
 
-    auto mask_group = sksg::Group::Make();
+    struct MaskRecord {
+        sk_sp<sksg::Path>  mask_path;
+        sk_sp<sksg::Color> mask_paint;
+    };
+
+    SkSTArray<4, MaskRecord, true> mask_stack;
+
+    bool opaque_mask = true;
 
     for (const auto& m : jmask) {
         if (!m.isObject())
@@ -969,15 +976,34 @@ sk_sp<sksg::RenderNode> AttachMask(const Json::Value& jmask,
         auto mask_paint = sksg::Color::Make(SK_ColorBLACK);
         mask_paint->setAntiAlias(true);
         mask_paint->setBlendMode(MaskBlendMode(mode.c_str()[0]));
+
+        const auto animator_count = ctx->fAnimators.size();
         BindProperty<ScalarValue>(m["o"], &ctx->fAnimators,
             [mask_paint](const ScalarValue& o) { mask_paint->setOpacity(o * 0.01f); });
 
-        mask_group->addChild(sksg::Draw::Make(std::move(mask_path), std::move(mask_paint)));
+        opaque_mask &= (animator_count == ctx->fAnimators.size() && mask_paint->getOpacity() >= 1);
+
+        mask_stack.push_back({mask_path, mask_paint});
     }
 
-    return mask_group->empty()
-        ? childNode
-        : sksg::MaskEffect::Make(std::move(childNode), std::move(mask_group));
+    if (mask_stack.empty())
+        return childNode;
+
+    if (mask_stack.count() == 1 && opaque_mask) {
+        // Single opaque mask => clip path.
+        return sksg::ClipEffect::Make(std::move(childNode),
+                                      std::move(mask_stack.front().mask_path),
+                                      true);
+    }
+
+    auto mask_group = sksg::Group::Make();
+    for (const auto& rec : mask_stack) {
+        mask_group->addChild(sksg::Draw::Make(std::move(rec.mask_path),
+                                              std::move(rec.mask_paint)));
+
+    }
+
+    return sksg::MaskEffect::Make(std::move(childNode), std::move(mask_group));
 }
 
 sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
