@@ -118,6 +118,7 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
 SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit)
     : INHERITED(desc.fLocalMatrix)
     , fPtsToUnit(ptsToUnit)
+    , fColorSpace(desc.fColorSpace ? desc.fColorSpace : SkColorSpace::MakeSRGBLinear())
     , fColorsAreOpaque(true)
 {
     fPtsToUnit.getType();  // Precache so reads are threadsafe.
@@ -166,16 +167,6 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     if (dummyLast) {
         origColors += desc.fCount;
         *origColors = desc.fColors[desc.fCount - 1];
-    }
-
-    if (!desc.fColorSpace) {
-        // This happens if we were constructed from SkColors, so our colors are really sRGB
-        fColorSpace = SkColorSpace::MakeSRGBLinear();
-    } else {
-        // The color space refers to the float colors, so it must be linear gamma
-        // TODO: GPU code no longer requires this (see GrGradientEffect). Remove this restriction?
-        SkASSERT(desc.fColorSpace->gammaIsLinear());
-        fColorSpace = desc.fColorSpace;
     }
 
     if (desc.fPos) {
