@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79d5deec_abc64664",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-26T19:21:34Z",
+      "side": 1,
+      "message": "Just realized that \"bookmaker\" is not a subset of \"housekeeper.\" I think this one needs CACHES_WORKDIR also.",
+      "revId": "e8615f969e92009551b70c85d1913202390e0b0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
