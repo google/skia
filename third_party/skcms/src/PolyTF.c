@@ -150,6 +150,8 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
 
 void skcms_OptimizeForSpeed(skcms_ICCProfile* profile) {
     for (int i = 0; profile->has_trc && i < 3; i++) {
-        profile->has_poly_tf[i] = fit_poly_tf(&profile->trc[i], &profile->poly_tf[i]);
+        if (!profile->has_poly_tf[i]) {
+             profile->has_poly_tf[i] = fit_poly_tf(&profile->trc[i], &profile->poly_tf[i]);
+        }
     }
 }
