@@ -18,6 +18,9 @@ GrShape& GrShape::operator=(const GrShape& that) {
         case Type::kRRect:
             fRRectData = that.fRRectData;
             break;
+        case Type::kArc:
+            fArcData = that.fArcData;
+            break;
         case Type::kLine:
             fLineData = that.fLineData;
             break;
@@ -82,6 +85,14 @@ GrShape GrShape::MakeFilled(const GrShape& original, FillInversion inversion) {
             result.fRRectData.fStart = kDefaultRRectStart;
             result.fRRectData.fInverted = is_inverted(original.fRRectData.fInverted, inversion);
             break;
+        case Type::kArc:
+            result.fType = original.fType;
+            result.fArcData.fOval = original.fArcData.fOval;
+            result.fArcData.fStartAngleDegrees = original.fArcData.fStartAngleDegrees;
+            result.fArcData.fSweepAngleDegrees = original.fArcData.fSweepAngleDegrees;
+            result.fArcData.fUseCenter = original.fArcData.fUseCenter;
+            result.fArcData.fInverted = is_inverted(original.fArcData.fInverted, inversion);
+            break;
         case Type::kLine:
             // Lines don't fill.
             if (is_inverted(original.fLineData.fInverted, inversion)) {
@@ -144,6 +155,9 @@ SkRect GrShape::bounds() const {
         }
         case Type::kRRect:
             return fRRectData.fRRect.getBounds();
+        case Type::kArc:
+            // Could make this less conservative by looking at angles.
+            return fArcData.fOval;
         case Type::kPath:
             return this->path().getBounds();
     }
@@ -215,9 +229,13 @@ int GrShape::unstyledKeySize() const {
             return 1;
         case Type::kRRect:
             SkASSERT(!fInheritedKey.count());
-            SkASSERT(0 == SkRRect::kSizeInMemory % sizeof(uint32_t));
+            GR_STATIC_ASSERT(0 == SkRRect::kSizeInMemory % sizeof(uint32_t));
             // + 1 for the direction, start index, and inverseness.
             return SkRRect::kSizeInMemory / sizeof(uint32_t) + 1;
+        case Type::kArc:
+            SkASSERT(!fInheritedKey.count());
+            GR_STATIC_ASSERT(0 == sizeof(fArcData) % sizeof(uint32_t));
+            return sizeof(fArcData) / sizeof(uint32_t);
         case Type::kLine:
             GR_STATIC_ASSERT(2 * sizeof(uint32_t) == sizeof(SkPoint));
             // 4 for the end points and 1 for the inverseness
@@ -259,6 +277,10 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
                 *key |= fRRectData.fInverted ? (1 << 30) : 0;
                 *key++ |= fRRectData.fStart;
                 SkASSERT(fRRectData.fStart < 8);
+                break;
+            case Type::kArc:
+                memcpy(key, &fArcData, sizeof(fArcData));
+                key += sizeof(fArcData) / sizeof(uint32_t);
                 break;
             case Type::kLine:
                 memcpy(key, fLineData.fPts, 2 * sizeof(SkPoint));
@@ -349,6 +371,29 @@ void GrShape::addGenIDChangeListener(SkPathRef::GenIDChangeListener* listener) c
     }
 }
 
+GrShape GrShape::MakeArc(const SkRect& oval, SkScalar startAngleDegrees, SkScalar sweepAngleDegrees,
+                         bool useCenter, const GrStyle& style) {
+#ifdef SK_DISABLE_ARC_TO_LINE_TO_CHECK
+    // When this flag is set the segment mask of the path won't match GrShape's segment mask for
+    // paths. Represent this shape as a path.
+    SkPath path;
+    SkPathPriv::CreateDrawArcPath(&path, oval, startAngleDegrees, sweepAngleDegrees, useCenter,
+                                  style.isSimpleFill());
+    return GrShape(path, style);
+#else
+    GrShape result;
+    result.changeType(Type::kArc);
+    result.fArcData.fOval = oval;
+    result.fArcData.fStartAngleDegrees = startAngleDegrees;
+    result.fArcData.fSweepAngleDegrees = sweepAngleDegrees;
+    result.fArcData.fUseCenter = useCenter;
+    result.fArcData.fInverted = false;
+    result.fStyle = style;
+    result.attemptToSimplifyArc();
+    return result;
+#endif
+}
+
 GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle) {
     const SkPath* thatPath = Type::kPath == that.fType ? &that.fPathData.fPath : nullptr;
     this->initType(that.fType, thatPath);
@@ -359,6 +404,9 @@ GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle) {
             break;
         case Type::kRRect:
             fRRectData = that.fRRectData;
+            break;
+        case Type::kArc:
+            fArcData = that.fArcData;
             break;
         case Type::kLine:
             fLineData = that.fLineData;
@@ -588,6 +636,7 @@ void GrShape::attemptToSimplifyRRect() {
     } else if (fStyle.isDashed()) {
         // Dashing ignores the inverseness (currently). skbug.com/5421
         fRRectData.fInverted = false;
+        // Possible TODO here: Check whether the dash results in a single arc or line.
     }
     // Turn a stroke-and-filled miter rect into a filled rect. TODO: more rrect stroke shortcuts.
     if (!fStyle.hasPathEffect() &&
@@ -638,6 +687,46 @@ void GrShape::attemptToSimplifyLine() {
     if (pts[1].fY < pts[0].fY || (pts[1].fY == pts[0].fY && pts[1].fX < pts[0].fX)) {
         SkTSwap(pts[0], pts[1]);
     }
+}
+
+void GrShape::attemptToSimplifyArc() {
+    SkASSERT(fType == Type::kArc);
+    SkASSERT(!fArcData.fInverted);
+    if (fArcData.fOval.isEmpty() || !fArcData.fSweepAngleDegrees) {
+        this->changeType(Type::kEmpty);
+        return;
+    }
+
+    // Assuming no path effect, a filled, stroked, hairline, or stroke-and-filled arc that traverses
+    // the full circle and doesn't use the center point is an oval. Unless it has square or round
+    // caps. They may protrude out of the oval. Round caps can't protrude out of a circle but we're
+    // ignoring that for now.
+    if (fStyle.isSimpleFill() || (!fStyle.pathEffect() && !fArcData.fUseCenter &&
+                                  fStyle.strokeRec().getCap() == SkPaint::kButt_Cap)) {
+        if (fArcData.fSweepAngleDegrees >= 360.f || fArcData.fSweepAngleDegrees <= -360.f) {
+            auto oval = fArcData.fOval;
+            this->changeType(Type::kRRect);
+            this->fRRectData.fRRect.setOval(oval);
+            this->fRRectData.fDir = kDefaultRRectDir;
+            this->fRRectData.fStart = kDefaultRRectStart;
+            this->fRRectData.fInverted = false;
+            return;
+        }
+    }
+    if (!fStyle.pathEffect()) {
+        // Canonicalize the arc such that the start is always in [0, 360) and the sweep is always
+        // positive.
+        if (fArcData.fSweepAngleDegrees < 0) {
+            fArcData.fStartAngleDegrees = fArcData.fStartAngleDegrees + fArcData.fSweepAngleDegrees;
+            fArcData.fSweepAngleDegrees = -fArcData.fSweepAngleDegrees;
+        }
+    }
+    if (this->fArcData.fStartAngleDegrees < 0 || this->fArcData.fStartAngleDegrees >= 360.f) {
+        this->fArcData.fStartAngleDegrees = SkScalarMod(this->fArcData.fStartAngleDegrees, 360.f);
+    }
+    // Possible TODOs here: Look at whether dash pattern results in a single dash and convert to
+    // non-dashed stroke. Stroke and fill can be fill if circular and no path effect. Just stroke
+    // could as well if the stroke fills the center.
 }
 
 bool GrShape::attemptToSimplifyStrokedLineToRRect() {
