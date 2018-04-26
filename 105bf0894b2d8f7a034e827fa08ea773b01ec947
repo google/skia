@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e44baa45_e0e5e5fa",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1429,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-04-26T17:00:50Z",
+      "side": 1,
+      "message": "Haven\u0027t used this on android, but do we need to do this when things change?",
+      "range": {
+        "startLine": 1429,
+        "startChar": 20,
+        "endLine": 1429,
+        "endChar": 50
+      },
+      "revId": "105bf0894b2d8f7a034e827fa08ea773b01ec947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
