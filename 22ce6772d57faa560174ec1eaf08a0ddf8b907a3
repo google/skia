@@ -307,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "638a5da1_ba018390",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-26T22:00:38Z",
+      "side": 1,
+      "message": "Moved these back to SkRemoteGlyphCache. Including SkStrikeCache.h here was transitively bringing a lot of private includes. Let me know if there is a better spot you had in mind.",
+      "parentUuid": "81686e80_f06b1220",
+      "range": {
+        "startLine": 66,
+        "startChar": 7,
+        "endLine": 66,
+        "endChar": 15
+      },
+      "revId": "22ce6772d57faa560174ec1eaf08a0ddf8b907a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "98a04e0b_9d07bfb1",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 21

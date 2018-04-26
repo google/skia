@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2f04b3a_f0e0b372",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-26T22:00:38Z",
+      "side": 1,
+      "message": "I changed the deserialization code to guard against TOCTOU violations. This came up during the chromium review.",
+      "range": {
+        "startLine": 148,
+        "startChar": 4,
+        "endLine": 148,
+        "endChar": 33
+      },
+      "revId": "b241feefa4eecb96a8b811d0ad88441d312af878",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7fbe396_3ad0caff",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-04-26T22:00:38Z",
+      "side": 1,
+      "message": "Removed the flag to ignore typeface filtering. Since we are going to have the server drive the desc that is used on the client, that won\u0027t be necessary.",
+      "range": {
+        "startLine": 320,
+        "startChar": 4,
+        "endLine": 321,
+        "endChar": 52
+      },
+      "revId": "b241feefa4eecb96a8b811d0ad88441d312af878",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
