@@ -125,10 +125,8 @@ void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
     SkASSERT((proxyFlags & GrInternalSurfaceFlags::kTextureMask) ==
              (surfaceFlags & GrInternalSurfaceFlags::kTextureMask));
-    // DDL TODO: re-enable this after skbug.com/7748 (Add FBO-0-ness to SkSurfaceCharacterization)
-    // is fixed.
-    // SkASSERT((proxyFlags & GrInternalSurfaceFlags::kRenderTargetMask) ==
-    //          (surfaceFlags & GrInternalSurfaceFlags::kRenderTargetMask));
+    SkASSERT((proxyFlags & GrInternalSurfaceFlags::kRenderTargetMask) ==
+             (surfaceFlags & GrInternalSurfaceFlags::kRenderTargetMask));
 }
 #endif
 
