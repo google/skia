@@ -26,6 +26,7 @@ public:
     static sk_sp<Path> Make(const SkPath& r) { return sk_sp<Path>(new Path(r)); }
 
     SG_ATTRIBUTE(Path, SkPath, fPath)
+    SG_MAPPED_ATTRIBUTE(FillType, SkPath::FillType, fPath)
 
 protected:
     void onClip(SkCanvas*, bool antiAlias) const override;
