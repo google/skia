@@ -22,6 +22,30 @@
       "revId": "dc900ce2c43622610e720337e70a11c9cfbdb3b8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4352aee0_49bc150a",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-26T18:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a2092b5_086ea27a",
+      "range": {
+        "startLine": 408,
+        "startChar": 0,
+        "endLine": 408,
+        "endChar": 4
+      },
+      "revId": "dc900ce2c43622610e720337e70a11c9cfbdb3b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
