@@ -73,6 +73,11 @@ static bool cs_to_profile(const SkColorSpace* cs, skcms_ICCProfile* profile) {
         return skcms_Parse(cs->profileData()->data(), cs->profileData()->size(), profile);
     }
 
+    if (cs->isSRGB()) {
+        *profile = skcms_sRGB_profile;
+        return true;
+    }
+
     SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
     SkColorSpaceTransferFn tf;
     if (cs->toXYZD50(&toXYZ) && cs->isNumericalTransferFn(&tf)) {
