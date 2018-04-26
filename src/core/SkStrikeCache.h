@@ -144,7 +144,7 @@ private:
 
     // The following methods can only be called when mutex is already held.
     Node* internalGetHead() const { return fHead; }
-    Node* internalGetTail() const;
+    Node* internalGetTail() const { return fTail; }
     void internalDetachCache(Node*);
     void internalAttachToHead(Node*);
 
@@ -157,6 +157,7 @@ private:
 
     mutable SkSpinlock fLock;
     Node*              fHead{nullptr};
+    Node*              fTail{nullptr};
     size_t             fTotalMemoryUsed{0};
     size_t             fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
     int32_t            fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};

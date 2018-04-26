@@ -342,16 +342,6 @@ void SkStrikeCache::forEachStrike(std::function<void(const SkGlyphCache&)> visit
     }
 }
 
-SkStrikeCache::Node* SkStrikeCache::internalGetTail() const {
-    Node* node = fHead;
-    if (node) {
-        while (node->fNext) {
-            node = node->fNext;
-        }
-    }
-    return node;
-}
-
 size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
     this->validate();
 
@@ -416,6 +406,10 @@ void SkStrikeCache::internalAttachToHead(Node* node) {
     }
     fHead = node;
 
+    if (fTail == nullptr) {
+        fTail = node;
+    }
+
     fCacheCount += 1;
     fTotalMemoryUsed += node->fCache.getMemoryUsed();
 }
@@ -432,6 +426,8 @@ void SkStrikeCache::internalDetachCache(Node* node) {
     }
     if (node->fNext) {
         node->fNext->fPrev = node->fPrev;
+    } else {
+        fTail = node->fPrev;
     }
     node->fPrev = node->fNext = nullptr;
 }
