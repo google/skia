@@ -1201,6 +1201,41 @@ SkDescriptor* SkScalerContext::AutoDescriptorGivenRecAndEffects(
     return ad->getDesc();
 }
 
+SkDescriptor* SkScalerContext::AutoDescriptorFromDesc(const SkDescriptor* source_desc,
+                                                      SkFontID font_id,
+                                                      SkAutoDescriptor* ad) {
+    ad->reset(source_desc->getLength());
+    auto* desc = ad->getDesc();
+    desc->init();
+
+    // Rec.
+    {
+        uint32_t size;
+        auto ptr = source_desc->findEntry(kRec_SkDescriptorTag, &size);
+        SkScalerContextRec rec;
+        std::memcpy(&rec, ptr, size);
+        rec.fFontID = font_id;
+        desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+    }
+
+    // Path effect.
+    {
+        uint32_t size;
+        auto ptr = source_desc->findEntry(kPathEffect_SkDescriptorTag, &size);
+        if (ptr) desc->addEntry(kPathEffect_SkDescriptorTag, size, ptr);
+    }
+
+    // Mask filter.
+    {
+        uint32_t size;
+        auto ptr = source_desc->findEntry(kMaskFilter_SkDescriptorTag, &size);
+        if (ptr) desc->addEntry(kMaskFilter_SkDescriptorTag, size, ptr);
+    }
+
+    desc->computeChecksum();
+    return desc;
+}
+
 std::unique_ptr<SkDescriptor> SkScalerContext::DescriptorGivenRecAndEffects(
     const SkScalerContextRec& rec,
     const SkScalerContextEffects& effects)
