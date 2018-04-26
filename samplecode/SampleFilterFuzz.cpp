@@ -36,6 +36,7 @@
 #include "SkPoint3.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
+#include "SkSDFMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkTypeface.h"
@@ -455,7 +456,7 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
 
 static sk_sp<SkMaskFilter> make_mask_filter() {
     sk_sp<SkMaskFilter> maskFilter;
-    switch (R(3)) {
+    switch (R(4)) {
         case 0:
             maskFilter = SkMaskFilter::MakeBlur(make_blur_style(), make_scalar(),
                                                 make_blur_mask_filter_respectctm());
@@ -470,6 +471,8 @@ static sk_sp<SkMaskFilter> make_mask_filter() {
             maskFilter = SkEmbossMaskFilter::Make(make_scalar(), light);
         }
         case 2:
+            maskFilter = SkSDFMaskFilter::Make();
+        case 3:
         default:
             break;
     }
