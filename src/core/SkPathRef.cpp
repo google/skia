@@ -58,15 +58,16 @@ SkPathRef::~SkPathRef() {
     SkDEBUGCODE(fEditorsAttached = 0x7777777;)
 }
 
-static SkPathRef* gEmpty = nullptr;
+static std::unique_ptr<SkPathRef> gEmpty;
 
 SkPathRef* SkPathRef::CreateEmpty() {
     static SkOnce once;
     once([]{
-        gEmpty = new SkPathRef;
+        gEmpty.reset(new SkPathRef);
         gEmpty->computeBounds();   // Avoids races later to be the first to do this.
     });
-    return SkRef(gEmpty);
+
+    return SkRef(gEmpty.get());
 }
 
 static void transform_dir_and_start(const SkMatrix& matrix, bool isRRect, bool* isCCW,
@@ -670,7 +671,7 @@ uint32_t SkPathRef::genID() const {
 }
 
 void SkPathRef::addGenIDChangeListener(GenIDChangeListener* listener) {
-    if (nullptr == listener || this == gEmpty) {
+    if (nullptr == listener || this == gEmpty.get()) {
         delete listener;
         return;
     }
