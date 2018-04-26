@@ -9,6 +9,7 @@
 
 #include "SkCanvas.h"
 #include "SkPaint.h"
+#include "SkRectPriv.h"
 
 namespace sksg {
 
@@ -25,7 +26,16 @@ void Path::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
 SkRect Path::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->hasInval());
 
-    return fPath.computeTightBounds();
+    switch (fPath.getFillType()) {
+    case SkPath::kWinding_FillType:
+        // Fallthrough
+    case SkPath::kEvenOdd_FillType:
+        return fPath.computeTightBounds();
+    case SkPath::kInverseWinding_FillType:
+        // Fallthrough
+    case SkPath::kInverseEvenOdd_FillType:
+        return SkRectPriv::MakeLargeS32();
+    }
 }
 
 SkPath Path::onAsPath() const {
