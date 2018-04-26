@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df09e8fc_7ed65ef9",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-26T14:36:22Z",
+      "side": 1,
+      "message": "any need to do this when width \u003d\u003d 0?",
+      "range": {
+        "startLine": 150,
+        "startChar": 23,
+        "endLine": 150,
+        "endChar": 24
+      },
+      "revId": "9fdb0327366dfd24705c0f91f6ec80e46f152afb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
