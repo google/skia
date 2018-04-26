@@ -106,6 +106,12 @@ public:
                                   SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
 
     /**
+     * Determines whether an arc produced by CreateDrawArcPath will be convex. Assumes a non-empty
+     * oval.
+     */
+    static bool DrawArcIsConvex(SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
+
+    /**
      * Returns a C++11-iterable object that traverses a path's verbs in order. e.g:
      *
      *   for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {

@@ -1310,6 +1310,25 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
 
     SkPoint singlePt;
 
+    // Adds a move-to to 'pt' if forceMoveTo is true. Otherwise a lineTo unless we're sufficiently
+    // close to 'pt' currently. This prevents spurious lineTos when adding a series of contiguous
+    // arcs from the same oval.
+    auto addPt = [&forceMoveTo, this](const SkPoint& pt) {
+        SkPoint lastPt;
+#ifdef SK_DISABLE_ARC_TO_LINE_TO_CHECK
+        static constexpr bool kSkipLineToCheck = true;
+#else
+        static constexpr bool kSkipLineToCheck = false;
+#endif
+        if (forceMoveTo) {
+            this->moveTo(pt);
+        } else if (kSkipLineToCheck || !this->getLastPt(&lastPt) ||
+                   !SkScalarNearlyEqual(lastPt.fX, pt.fX) ||
+                   !SkScalarNearlyEqual(lastPt.fY, pt.fY)) {
+            this->lineTo(pt);
+        }
+    };
+
     // At this point, we know that the arc is not a lone point, but startV == stopV
     // indicates that the sweepAngle is too small such that angles_to_unit_vectors
     // cannot handle it.
@@ -1324,7 +1343,7 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
         // make sin(endAngle) to be 0 which will then draw a dot.
         singlePt.set(oval.centerX() + radiusX * sk_float_cos(endAngle),
             oval.centerY() + radiusY * sk_float_sin(endAngle));
-        forceMoveTo ? this->moveTo(singlePt) : this->lineTo(singlePt);
+        addPt(singlePt);
         return;
     }
 
@@ -1333,12 +1352,12 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     if (count) {
         this->incReserve(count * 2 + 1);
         const SkPoint& pt = conics[0].fPts[0];
-        forceMoveTo ? this->moveTo(pt) : this->lineTo(pt);
+        addPt(pt);
         for (int i = 0; i < count; ++i) {
             this->conicTo(conics[i].fPts[1], conics[i].fPts[2], conics[i].fW);
         }
     } else {
-        forceMoveTo ? this->moveTo(singlePt) : this->lineTo(singlePt);
+        addPt(singlePt);
     }
 }
 
@@ -3345,6 +3364,20 @@ bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Di
     return true;
 }
 
+bool SkPathPriv::DrawArcIsConvex(SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect) {
+    if (isFillNoPathEffect && SkScalarAbs(sweepAngle) >= 360.f) {
+        // This gets converted to an oval.
+        return true;
+    }
+    if (useCenter) {
+        // This is a pie wedge. It's convex if the angle is <= 180.
+        return SkScalarAbs(sweepAngle) <= 180.f;
+    }
+    // When the angle exceeds 360 this wraps back on top of itself. Otherwise it is a circle clipped
+    // to a secant, i.e. convex.
+    return SkScalarAbs(sweepAngle) <= 360.f;
+}
+
 void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar startAngle,
                                    SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect) {
     SkASSERT(!oval.isEmpty());
@@ -3355,11 +3388,15 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
     path->setFillType(SkPath::kWinding_FillType);
     if (isFillNoPathEffect && SkScalarAbs(sweepAngle) >= 360.f) {
         path->addOval(oval);
+        SkASSERT(path->isConvex() && DrawArcIsConvex(sweepAngle, false, isFillNoPathEffect));
         return;
     }
     if (useCenter) {
         path->moveTo(oval.centerX(), oval.centerY());
     }
+    auto firstDir =
+            sweepAngle > 0 ? SkPathPriv::kCW_FirstDirection : SkPathPriv::kCCW_FirstDirection;
+    bool convex = DrawArcIsConvex(sweepAngle, useCenter, isFillNoPathEffect);
     // Arc to mods at 360 and drawArc is not supposed to.
     bool forceMoveTo = !useCenter;
     while (sweepAngle <= -360.f) {
@@ -3382,6 +3419,8 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
     if (useCenter) {
         path->close();
     }
+    path->setConvexity(convex ? SkPath::kConvex_Convexity : SkPath::kConcave_Convexity);
+    path->fFirstDirection.store(firstDir);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
