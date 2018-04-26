@@ -26,10 +26,10 @@ enum LegacySaveFlags {
 };
 
 SkCanvas::SaveLayerFlags SkCanvasPriv::LegacySaveFlagsToSaveLayerFlags(uint32_t flags) {
-    uint32_t layerFlags = 0;
+    SkCanvas::SaveLayerFlags layerFlags = 0;
 
     if (0 == (flags & kClipToLayer_LegacySaveFlags)) {
-        layerFlags |= kDontClipToLayer_SaveLayerFlag;
+        layerFlags = (SkCanvas::SaveLayerFlags) (layerFlags | kDontClipToLayer_SaveLayerFlag);
     }
     return layerFlags;
 }
@@ -695,7 +695,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             canvas->saveLayer(SkCanvas::SaveLayerRec(boundsPtr, paint, flags));
         } break;
         case SAVE_LAYER_SAVELAYERREC: {
-            SkCanvas::SaveLayerRec rec(nullptr, nullptr, nullptr, nullptr, nullptr, 0);
+            SkCanvas::SaveLayerRec rec(nullptr, nullptr, nullptr, nullptr, nullptr,
+                    0);
             SkMatrix clipMatrix;
             const uint32_t flatFlags = reader->readInt();
             SkRect bounds;
@@ -712,7 +713,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 }
             }
             if (flatFlags & SAVELAYERREC_HAS_FLAGS) {
-                rec.fSaveLayerFlags = reader->readInt();
+                rec.fSaveLayerFlags = (SkCanvas::SaveLayerFlags) reader->readInt();
             }
             if (flatFlags & SAVELAYERREC_HAS_CLIPMASK) {
                 rec.fClipMask = fPictureData->getImage(reader);

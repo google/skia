@@ -190,7 +190,8 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
 
     // saveLayer w/ backdrop should NOT go away
     sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(3, 3, nullptr));
-    recorder.saveLayer({ nullptr, nullptr, filter.get(), nullptr, nullptr, 0});
+    recorder.saveLayer({ nullptr, nullptr, filter.get(), nullptr, nullptr,
+            0});
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_draw_restore(r, &record, 18, false);

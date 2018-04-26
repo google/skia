@@ -3435,6 +3435,14 @@
     "file": "SkImageInfo_Reference",
     "name": "Color_Type_RGB_888x"
 },
+    "Matrix_MemberIndex": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint black;\n    black.setAntiAlias(true);\n    black.setTextSize(48);\n    SkPaint gray = black;\n    gray.setColor(0xFF9f9f9f);\n    SkScalar offset[] = { 1.5f, 1.5f, 20,   1.5f, 1.5f, 20,   .03f, .01f, 2 };\n    for (int i : { SkMatrix::kMScaleX, SkMatrix::kMSkewX,  SkMatrix::kMTransX,\n                   SkMatrix::kMSkewY,  SkMatrix::kMScaleY, SkMatrix::kMTransY,\n                   SkMatrix::kMPersp0, SkMatrix::kMPersp1, SkMatrix::kMPersp2 } ) {\n        SkMatrix m;\n        m.setIdentity();\n        m.set(i, offset[i]);\n        SkAutoCanvasRestore autoRestore(canvas, true);\n        canvas->translate(22 + (i % 3) * 88, 44 + (i / 3) * 88);\n        canvas->drawString(\"&\", 0, 0, gray);\n        canvas->concat(m);\n        canvas->drawString(\"&\", 0, 0, black);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "3bbf75f4748420810aa2586e3c8548d9",
+    "file": "SkMatrix_Reference",
+    "name": "MemberIndex"
+},
     "Paint_Anti_alias": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.allocN32Pixels(50, 50);\n    SkCanvas offscreen(bitmap);\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(10);\n    for (bool antialias : { false, true }) {\n        paint.setColor(antialias ? SK_ColorRED : SK_ColorBLUE);\n        paint.setAntiAlias(antialias);\n        bitmap.eraseColor(0);\n        offscreen.drawLine(5, 5, 15, 30, paint);\n        canvas->drawLine(5, 5, 15, 30, paint);\n        canvas->save();\n        canvas->scale(10, 10);\n        canvas->drawBitmap(bitmap, antialias ? 12 : 0, 0);\n        canvas->restore();\n        canvas->translate(15, 0);\n    }\n}\n",
     "width": 512,
@@ -4147,6 +4155,14 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::PointMode"
 },
+    "SkCanvas_SaveLayerFlagsSet": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint redPaint, bluePaint, scalePaint;\n    redPaint.setColor(SK_ColorRED);\n    canvas->drawCircle(21, 21, 8, redPaint);\n    bluePaint.setColor(SK_ColorBLUE);\n    canvas->drawCircle(31, 21, 8, bluePaint);\n    SkMatrix matrix;\n    matrix.setScale(4, 4);\n    scalePaint.setAlpha(0x40);\n    scalePaint.setImageFilter(\n            SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr));\n    SkCanvas::SaveLayerRec saveLayerRec(nullptr, &scalePaint,\n            SkCanvas::kInitWithPrevious_SaveLayerFlag); \n    canvas->saveLayer(saveLayerRec);\n    canvas->restore();\n}\n",
+    "width": 256,
+    "height": 160,
+    "hash": "d314c688925d2c549d4762f5cc6e6a1a",
+    "file": "SkCanvas_Reference",
+    "name": "SkCanvas::SaveLayerFlagsSet"
+},
     "SkCanvas_SaveLayerRec": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint redPaint, bluePaint;\n    redPaint.setAntiAlias(true);\n    redPaint.setColor(SK_ColorRED);\n    canvas->drawCircle(21, 21, 8, redPaint);\n    bluePaint.setColor(SK_ColorBLUE);\n    canvas->drawCircle(31, 21, 8, bluePaint);\n    SkMatrix matrix;\n    matrix.setScale(4, 4);\n    auto scaler = SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr);\n    SkCanvas::SaveLayerRec saveLayerRec(nullptr, nullptr, scaler.get(), 0); \n    canvas->saveLayer(saveLayerRec);\n    canvas->drawCircle(125, 85, 8, redPaint);\n    canvas->restore();\n}\n",
     "width": 256,
@@ -4162,14 +4178,6 @@
     "hash": "5df49d1f4da37275a1f10ef7f1a749f0",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::SrcRectConstraint"
-},
-    "SkCanvas__anonymous": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint redPaint, bluePaint, scalePaint;\n    redPaint.setColor(SK_ColorRED);\n    canvas->drawCircle(21, 21, 8, redPaint);\n    bluePaint.setColor(SK_ColorBLUE);\n    canvas->drawCircle(31, 21, 8, bluePaint);\n    SkMatrix matrix;\n    matrix.setScale(4, 4);\n    scalePaint.setAlpha(0x40);\n    scalePaint.setImageFilter(\n            SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr));\n    SkCanvas::SaveLayerRec saveLayerRec(nullptr, &scalePaint,\n            SkCanvas::kInitWithPrevious_SaveLayerFlag); \n    canvas->saveLayer(saveLayerRec);\n    canvas->restore();\n}\n",
-    "width": 256,
-    "height": 160,
-    "hash": "d314c688925d2c549d4762f5cc6e6a1a",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::_anonymous"
 },
     "SkCanvas_accessTopLayerPixels": {
     "code": "void draw(SkCanvas* canvas) {\n    if (canvas->accessTopLayerPixels(nullptr, nullptr)) {\n         canvas->clear(SK_ColorRED);\n    } else {\n         canvas->clear(SK_ColorBLUE);\n    }\n}\n",
@@ -5698,14 +5706,6 @@
     "hash": "17c3070b31b700ea8f52e48af9a66b6e",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::ScaleToFit"
-},
-    "SkMatrix__anonymous": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint black;\n    black.setAntiAlias(true);\n    black.setTextSize(48);\n    SkPaint gray = black;\n    gray.setColor(0xFF9f9f9f);\n    SkScalar offset[] = { 1.5f, 1.5f, 20,   1.5f, 1.5f, 20,   .03f, .01f, 2 };\n    for (int i : { SkMatrix::kMScaleX, SkMatrix::kMSkewX,  SkMatrix::kMTransX,\n                   SkMatrix::kMSkewY,  SkMatrix::kMScaleY, SkMatrix::kMTransY,\n                   SkMatrix::kMPersp0, SkMatrix::kMPersp1, SkMatrix::kMPersp2 } ) {\n        SkMatrix m;\n        m.setIdentity();\n        m.set(i, offset[i]);\n        SkAutoCanvasRestore autoRestore(canvas, true);\n        canvas->translate(22 + (i % 3) * 88, 44 + (i / 3) * 88);\n        canvas->drawString(\"&\", 0, 0, gray);\n        canvas->concat(m);\n        canvas->drawString(\"&\", 0, 0, black);\n    }\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "3bbf75f4748420810aa2586e3c8548d9",
-    "file": "SkMatrix_Reference",
-    "name": "SkMatrix::_anonymous"
 },
     "SkMatrix_fixedStepInX": {
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    const SkPoint center = { 128, 128 };\n    matrix.setScale(20, 25, center.fX, center.fY);\n    matrix.postRotate(75, center.fX, center.fY);\n    {\n       SkAutoCanvasRestore acr(canvas, true);\n       canvas->concat(matrix);\n       canvas->drawBitmap(source, 0, 0);\n    }\n    if (matrix.isFixedStepInX()) {\n       SkPaint paint;\n       paint.setAntiAlias(true);\n       SkVector step = matrix.fixedStepInX(128);\n       SkVector end = center + step;\n       canvas->drawLine(center, end, paint);\n       SkVector arrow = { step.fX + step.fY, step.fY - step.fX};\n       arrow = arrow * .25f;\n       canvas->drawLine(end, end - arrow, paint);\n       canvas->drawLine(end, {end.fX + arrow.fY, end.fY - arrow.fX}, paint);\n    }\n}",
