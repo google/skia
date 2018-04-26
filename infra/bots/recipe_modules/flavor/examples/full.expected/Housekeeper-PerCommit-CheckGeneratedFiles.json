@@ -3,9 +3,9 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -19,9 +19,9 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cache/work/skia/bin/fetch-clang-format"
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-clang-format"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -33,16 +33,16 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/skia/bin/gn",
+      "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[START_DIR]/build/out/Release",
       "--args=is_debug=false skia_compile_processors=true skia_generate_workarounds=true"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "[CUSTOM_/_B_WORK]/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "gn gen"
@@ -55,11 +55,11 @@
       "-C",
       "[START_DIR]/build/out/Release"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "[CUSTOM_/_B_WORK]/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/build/out"
     },
     "name": "ninja"
@@ -128,7 +128,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/skp/VERSION",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -156,7 +156,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/skimage/VERSION",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/skimage/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -184,7 +184,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/svg/VERSION",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,

@@ -108,24 +108,6 @@ var (
 	// Defines the structure of job names.
 	jobNameSchema *JobNameSchema
 
-	// Named caches used by tasks.
-	CACHES_GIT = []*specs.Cache{
-		&specs.Cache{
-			Name: "git",
-			Path: "cache/git",
-		},
-		&specs.Cache{
-			Name: "git_cache",
-			Path: "cache/git_cache",
-		},
-	}
-	CACHES_WORKDIR = []*specs.Cache{
-		&specs.Cache{
-			Name: "work",
-			Path: "cache/work",
-		},
-	}
-
 	// TODO(borenet): Roll these versions automatically!
 	CIPD_PKGS_PYTHON = []*specs.CipdPackage{
 		&specs.CipdPackage{
@@ -240,12 +222,6 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		outputs = []string{outputDir}
 	}
 	return &specs.TaskSpec{
-		Caches: []*specs.Cache{
-			&specs.Cache{
-				Name: "vpython",
-				Path: "cache/vpython",
-			},
-		},
 		CipdPackages: cipd,
 		Command: []string{
 			"./kitchen${EXECUTABLE_SUFFIX}", "cook",
@@ -687,20 +663,11 @@ func getIsolatedCIPDDeps(parts map[string]string) []string {
 	return deps
 }
 
-// usesGit adds attributes to tasks which use git.
-func usesGit(t *specs.TaskSpec, name string) {
-	t.Caches = append(t.Caches, CACHES_GIT...)
-	if !strings.Contains(name, "NoDEPS") {
-		t.Caches = append(t.Caches, CACHES_WORKDIR...)
-	}
-	t.CipdPackages = append(t.CipdPackages, CIPD_PKGS_GIT...)
-}
-
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	task := kitchenTask(name, "compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), nil, OUTPUT_BUILD)
-	usesGit(task, name)
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
@@ -810,7 +777,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 	}
 	task := kitchenTask(name, "ct_skps", "skia_repo.isolate", SERVICE_ACCOUNT_CT_SKPS, dims, nil, OUTPUT_NONE)
-	usesGit(task, name)
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
 	task.ExecutionTimeout = 24 * time.Hour
 	task.IoTimeout = 24 * time.Hour
@@ -823,7 +790,6 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 // by hand.
 func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(), nil, OUTPUT_NONE)
-	task.Caches = append(task.Caches, CACHES_WORKDIR...)
 	b.MustAddTask(name, task)
 	return name
 }
@@ -832,7 +798,7 @@ func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 // in the generated chain of tasks, which the Job should add as a dependency.
 func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	task := kitchenTask(name, "housekeeper", "swarm_recipe.isolate", SERVICE_ACCOUNT_HOUSEKEEPER, linuxGceDimensions(), nil, OUTPUT_NONE)
-	usesGit(task, name)
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName)
 	b.MustAddTask(name, task)
@@ -843,7 +809,6 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 // in the generated chain of tasks, which the Job should add as a dependency.
 func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	task := kitchenTask(name, "bookmaker", "swarm_recipe.isolate", SERVICE_ACCOUNT_BOOKMAKER, linuxGceDimensions(), nil, OUTPUT_NONE)
-	task.Caches = append(task.Caches, CACHES_WORKDIR...)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName)
@@ -869,7 +834,7 @@ func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "infra", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(), nil, OUTPUT_NONE)
-	usesGit(task, name)
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	b.MustAddTask(name, task)
 	return name
@@ -887,7 +852,7 @@ func getParentRevisionName(compileTaskName string, parts map[string]string) stri
 // generated chain of tasks, which the Job should add as a dependency.
 func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName, compileParentName string) string {
 	task := kitchenTask(name, "calmbench", "calmbench.isolate", "", swarmDimensions(parts), nil, OUTPUT_PERF)
-	usesGit(task, name)
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
 	task.MaxAttempts = 1
@@ -1019,7 +984,7 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 		"gs_bucket": CONFIG.GsBucketCoverage,
 	}
 	uploadTask := kitchenTask(uploadName, "upload_coverage_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_COVERAGE, linuxGceDimensions(), extraProps, OUTPUT_NONE)
-	usesGit(uploadTask, uploadName)
+	uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GIT...)
 	uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 	// We need clang_linux to get access to the llvm-profdata and llvm-cov binaries
 	// which are used to deal with the raw coverage data output by the Test step.
@@ -1116,7 +1081,7 @@ func presubmit(b *specs.TasksCfgBuilder, name string) string {
 	}
 	replaceArg("-repository", "https://chromium.googlesource.com/chromium/tools/build")
 	replaceArg("-revision", "HEAD")
-	usesGit(task, name)
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.Dependencies = []string{} // No bundled recipes for this one.
 	b.MustAddTask(name, task)
 	return name
