@@ -949,18 +949,15 @@ sk_sp<sksg::RenderNode> AttachMask(const Json::Value& jmask,
         if (!m.isObject())
             continue;
 
-        const auto inverted = ParseDefault(m["inv"], false);
-        // TODO
-        if (inverted) {
-            LogFail(m, "Unsupported inverse mask");
-            continue;
-        }
-
         auto mask_path = AttachPath(m["pt"], ctx);
         if (!mask_path) {
             LogFail(m, "Could not parse mask path");
             continue;
         }
+
+        mask_path->setFillType(ParseDefault(m["inv"], false)
+            ? SkPath::kInverseWinding_FillType
+            : SkPath::kWinding_FillType);
 
         SkString mode;
         if (!Parse(m["mode"], &mode) ||
