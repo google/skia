@@ -843,6 +843,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 // in the generated chain of tasks, which the Job should add as a dependency.
 func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	task := kitchenTask(name, "bookmaker", "swarm_recipe.isolate", SERVICE_ACCOUNT_BOOKMAKER, linuxGceDimensions(), nil, OUTPUT_NONE)
+	task.Caches = append(task.Caches, CACHES_WORKDIR...)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName)
