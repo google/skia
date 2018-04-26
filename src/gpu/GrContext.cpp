@@ -172,8 +172,13 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      const SkImageInfo& ii, const GrBackendFormat& backendFormat,
                                      int sampleCnt, GrSurfaceOrigin origin,
                                      const SkSurfaceProps& surfaceProps,
-                                     bool isMipMapped) {
+                                     bool isMipMapped, bool willUseGLFBO0) {
     if (!backendFormat.isValid()) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    if (kOpenGL_GrBackend != backendFormat.backend() && willUseGLFBO0) {
+        // The willUseGLFBO0 flags can only be used for a GL backend.
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
@@ -211,6 +216,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      origin, config, FSAAType, sampleCnt,
                                      SkSurfaceCharacterization::Textureable(true),
                                      SkSurfaceCharacterization::MipMapped(isMipMapped),
+                                     SkSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),
                                      surfaceProps);
 }
 

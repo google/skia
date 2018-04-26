@@ -113,11 +113,9 @@ void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     SkASSERT(surface->asRenderTarget());
     SkASSERT(surface->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
 
-    // DDL TODO: re-enable this after skbug.com/7748 (Add FBO-0-ness to SkSurfaceCharacterization)
-    // is fixed.
-    // GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
-    // GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
-    // SkASSERT((proxyFlags & GrInternalSurfaceFlags::kRenderTargetMask) ==
-    //          (surfaceFlags & GrInternalSurfaceFlags::kRenderTargetMask));
+    GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
+    GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
+    SkASSERT((proxyFlags & GrInternalSurfaceFlags::kRenderTargetMask) ==
+             (surfaceFlags & GrInternalSurfaceFlags::kRenderTargetMask));
 }
 #endif

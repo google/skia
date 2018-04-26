@@ -156,6 +156,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrRenderTarget.cpp",
   "$_src/gpu/GrRenderTargetPriv.h",
   "$_src/gpu/GrRenderTargetProxy.cpp",
+  "$_src/gpu/GrRenderTargetProxyPriv.h",
   "$_src/gpu/GrReducedClip.cpp",
   "$_src/gpu/GrReducedClip.h",
   "$_src/gpu/GrRenderTargetContext.cpp",
