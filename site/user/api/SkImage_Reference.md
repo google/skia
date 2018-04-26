@@ -125,7 +125,6 @@ drawing.
 | <a href="#SkImage_dimensions">dimensions</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> |
 | <a href="#SkImage_encodeToData">encodeToData</a> | returns encoded <a href="#Image">Image</a> as <a href="undocumented#SkData">SkData</a> |
 | <a href="#SkImage_getBackendTexture">getBackendTexture</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
-| <a href="#SkImage_getTextureHandle">getTextureHandle</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
 | <a href="#SkImage_height">height</a> | returns pixel row count |
 | <a href="#SkImage_isAlphaOnly">isAlphaOnly</a> | returns if pixels represent a transparency mask |
 | <a href="#SkImage_isLazyGenerated">isLazyGenerated</a> | returns if <a href="#Image">Image</a> is created as needed |
@@ -897,7 +896,6 @@ created <a href="#Image">Image</a>, or nullptr
 | <a href="#SkImage_colorType">colorType</a> | returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
 | <a href="#SkImage_dimensions">dimensions</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> |
 | <a href="#SkImage_getBackendTexture">getBackendTexture</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
-| <a href="#SkImage_getTextureHandle">getTextureHandle</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
 | <a href="#SkImage_height">height</a> | returns pixel row count |
 | <a href="#SkImage_isAlphaOnly">isAlphaOnly</a> | returns if pixels represent a transparency mask |
 | <a href="#SkImage_isLazyGenerated">isLazyGenerated</a> | returns if <a href="#Image">Image</a> is created as needed |
@@ -1410,37 +1408,6 @@ true if <a href="#Image">Image</a> can be drawn
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 GrBackendObject getTextureHandle(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const
 </pre>
-
-Retrieves the back-end API handle of texture. If <a href="#SkImage_getTextureHandle_flushPendingGrContextIO">flushPendingGrContextIO</a> is true,
-complete deferred I/O operations.
-
-If <a href="#SkImage_getTextureHandle_origin">origin</a> is not nullptr, copies location of content drawn into <a href="#Image">Image</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkImage_getTextureHandle_flushPendingGrContextIO"> <code><strong>flushPendingGrContextIO </strong></code> </a></td> <td>
-flag to flush outstanding requests</td>
-  </tr>  <tr>    <td><a name="SkImage_getTextureHandle_origin"> <code><strong>origin </strong></code> </a></td> <td>
-storage for one of: <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a>,
-<a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>; or nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-back-end API texture handle, or nullptr
-
-### Example
-
-<div><fiddle-embed name="c321079049b0363c3b53bb76991768d4" gpu="true"></fiddle-embed></div>
-
-### Example
-
-<div><fiddle-embed name="7161810a96a75540c55af0021a1e5bb9" gpu="true"></fiddle-embed></div>
-
-### See Also
-
-<a href="#SkImage_MakeFromTexture">MakeFromTexture</a><sup><a href="#SkImage_MakeFromTexture_2">[2]</a></sup> <a href="#SkImage_isTextureBacked">isTextureBacked</a>
 
 ---
 

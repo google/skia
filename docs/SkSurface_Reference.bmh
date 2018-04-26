@@ -960,7 +960,8 @@ Caller must overwrite the entire back-end object.
 #Deprecated 
 ##
 
-#Example
+#NoExample
+// todo: need to update example to use GrBackendTexture instead of GrBackendObject
 #Platform gpu
     SkPaint paint;
     paint.setTextSize(32);
@@ -989,102 +990,21 @@ Caller must overwrite the entire back-end object.
     canvas->drawString(str, 20, y += 20, paint);
 ##
 
-#SeeAlso getTextureHandle getRenderTargetHandle
+#SeeAlso getBackendTexture getBackendRenderTarget
 
 #Enum ##
 
 # ------------------------------------------------------------------------------
 
 #Method GrBackendObject getTextureHandle(BackendHandleAccess backendHandleAccess)
-#In Property
-#Line # returns the GPU reference to texture ##
-Returns the GPU back-end reference of the texture used by Surface, or zero
-if Surface is not backed by a GPU texture.
-
-The returned texture handle is only valid until the next draw into Surface,
-or when Surface is deleted.
-
-#Param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-        kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
-##
-
-#Return GPU texture reference ##
-
-#Example
-#Platform gpu
-#Height 64
-    SkPaint paint;
-    paint.setTextSize(32);
-    GrContext* context = canvas->getGrContext();
-    if (!context) {
-         canvas->drawString("GPU only!", 20, 40, paint);
-         return;
-    }
-    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(
-            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));
-    GrBackendObject backendObject = gpuSurface->getTextureHandle(
-            SkSurface::kFlushRead_BackendHandleAccess);
-    if (backendObject) {
-        SkString str;
-        str.printf("backendObject=%08lx", backendObject);
-        paint.setTextSize(16);
-        canvas->drawString(str, 20, 40, paint);
-    }
-##
-
-#SeeAlso getRenderTargetHandle GrBackendObject BackendHandleAccess
-
+#Deprecated
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess)
-#In Property
-#Line # returns the GPU reference to render target ##
-
-Returns true and stores the GPU back-end reference of the render target used
-by Surface in backendObject.
-
-Return false if Surface is not backed by a GPU render target, and leaves
-backendObject unchanged.
-
-The returned render target handle is only valid until the next draw into Surface,
-or when Surface is deleted.
-
-In OpenGL this returns the frame buffer object ID.
-
-#Param backendObject  GPU intermediate memory buffer ##
-#Param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-        kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
-##
-
-#Return true if Surface is backed by GPU texture ##
-
-#Example
-#Platform gpu
-#Height 64
-    SkPaint paint;
-    paint.setTextSize(32);
-    GrContext* context = canvas->getGrContext();
-    if (!context) {
-         canvas->drawString("GPU only!", 20, 40, paint);
-         return;
-    }
-    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(
-            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));
-    GrBackendObject backendObject;
-    if (gpuSurface->getRenderTargetHandle(&backendObject, 
-            SkSurface::kFlushRead_BackendHandleAccess)) {
-        SkString str;
-        str.printf("backendObject=%ld", backendObject);
-        paint.setTextSize(16);
-        canvas->drawString(str, 20, 40, paint);
-    }
-##
-
-#SeeAlso getTextureHandle GrBackendObject BackendHandleAccess
-
+#Deprecated
 #Method ##
 
 # ------------------------------------------------------------------------------
@@ -1656,6 +1576,7 @@ and the client will still own the semaphores.
 #NoExample
 #ToDo this is copy and paste silliness masquerading as an example. Probably need gpu
       globals and definitely need gpu expertise to make a real example out of this
+      also, note need to replace GrBackendObject with GrBackendTexture
  ##
 #Platform gpu
 #Height 64
