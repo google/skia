@@ -728,6 +728,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 	}
 
 	task.MaxAttempts = 1
+	if strings.Contains(name, "Win") {
+		task.MaxAttempts = 2
+	}
 
 	// Add the task.
 	b.MustAddTask(name, task)
