@@ -455,6 +455,9 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     }
     BmhParser::Resolvable resolvable = this->resolvable(def);
     for (auto& child : def->fChildren) {
+        if (MarkType::kPhraseParam == child->fMarkType) {
+            continue;
+        }
         end = child->fStart;
         if (BmhParser::Resolvable::kNo != resolvable) {
             this->resolveOut(start, end, resolvable);
@@ -1043,6 +1046,65 @@ void MdOut::markTypeOut(Definition* def) {
                     "    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td> <td>",
                     refNameStr.c_str(), paramNameStr.c_str());
         } break;
+        case MarkType::kPhraseDef:
+            // skip text and children
+            return;
+        case MarkType::kPhraseParam:
+            SkDebugf("");
+            break;
+        case MarkType::kPhraseRef:
+            if (fPhraseParams.end() != fPhraseParams.find(def->fName)) {
+                if (fColumn > 0) {
+                    this->writeSpace();
+                }
+                this->writeString(fPhraseParams[def->fName]);
+                if (isspace(def->fContentStart[0])) {
+                    this->writeSpace();
+                }
+            } else if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
+                def->reportError<void>("missing phrase definition");
+                fAddRefFailed = true;
+            } else {
+                if (fColumn) {
+                    SkASSERT(' ' >= def->fStart[0]);
+                    this->writeSpace();
+                }
+                Definition* phraseRef = fBmhParser.fPhraseMap.find(def->fName)->second;
+                // def->fChildren are parameters to substitute phraseRef->fChildren,
+                // phraseRef->fChildren has both param defines and references
+                // def->fChildren must have the same number of entries as phaseRef->fChildren
+                // which are kPhraseParam, and substitute one for one
+                // Then, each kPhraseRef in phaseRef looks up the key and value
+                fPhraseParams.clear();
+                auto refKidsIter = phraseRef->fChildren.begin();
+                for (auto child : def->fChildren) {
+                    if (MarkType::kPhraseParam != child->fMarkType) {
+                        // more work to do to support other types
+                        this->reportError("phrase ref child must be param");
+                    }
+                    do {
+                        if (refKidsIter == phraseRef->fChildren.end()) {
+                            this->reportError("phrase def missing param");
+                            break;
+                        }
+                        if (MarkType::kPhraseRef == (*refKidsIter)->fMarkType) {
+                            continue;
+                        }
+                        if (MarkType::kPhraseParam != (*refKidsIter)->fMarkType) {
+                            this->reportError("unexpected type in phrase def children");
+                            break;
+                        }
+                        fPhraseParams[(*refKidsIter)->fName] = child->fName;
+                        break;
+                    } while (true);
+                }
+                this->childrenOut(phraseRef, phraseRef->fContentStart);
+                fPhraseParams.clear();
+                if (' ' >= def->fContentStart[0] && !fPendingLF) {
+                    this->writeSpace();
+                }
+            }
+            break;
         case MarkType::kPlatform:
             break;
         case MarkType::kPopulate: {
@@ -1135,24 +1197,6 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kWidth:
             break;
-        case MarkType::kPhraseDef:
-            // skip text and children
-            return;
-        case MarkType::kPhraseRef:
-            if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
-                def->reportError<void>("missing phrase definition");
-                fAddRefFailed = true;
-            } else {
-                if (fColumn && ' ' >= def->fStart[0]) {
-                    this->writeSpace();
-                }
-                Definition* phraseRef = fBmhParser.fPhraseMap.find(def->fName)->second;
-                this->childrenOut(phraseRef, phraseRef->fContentStart);
-                if (' ' >= def->fContentStart[0]) {
-                    this->writeSpace();
-                }
-            }
-            break;
         default:
             SkDebugf("fatal error: MarkType::k%s unhandled in %s()\n",
                     BmhParser::kMarkProps[(int) def->fMarkType].fName, __func__);
@@ -1239,6 +1283,7 @@ void MdOut::markTypeOut(Definition* def) {
             this->lf(2);
             break;
         case MarkType::kConst:
+            SkDebugf("");
         case MarkType::kParam:
             SkASSERT(TableState::kColumn == fTableState);
             fTableState = TableState::kRow;

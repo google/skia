@@ -1044,7 +1044,7 @@ after dirty cache:    x = 66
 # ------------------------------------------------------------------------------
 #Subtopic Set
 #Populate
-#Line # set one or more matrix values ##
+#Line # sets one or more matrix values ##
 ##
 
 #Method void set(int index, SkScalar value)
