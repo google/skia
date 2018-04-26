@@ -12,6 +12,7 @@
 #include "GrTypesPriv.h"
 
 class GrResourceProvider;
+class GrRenderTargetProxyPriv;
 
 // This class delays the acquisition of RenderTargets until they are actually
 // required
@@ -56,8 +57,13 @@ public:
     // TODO: move this to a priv class!
     bool refsWrappedObjects() const;
 
+    // Provides access to special purpose functions.
+    GrRenderTargetProxyPriv rtPriv();
+    const GrRenderTargetProxyPriv rtPriv() const;
+
 protected:
     friend class GrProxyProvider;  // for ctors
+    friend class GrRenderTargetProxyPriv;
 
     // Deferred version
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, GrSurfaceOrigin, SkBackingFit,
@@ -83,6 +89,26 @@ protected:
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
+    void setHasMixedSamples() {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
+    }
+    bool hasMixedSamples() const { return fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled; }
+
+    void setSupportsWindowRects() {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
+    }
+    bool supportsWindowRects() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport;
+    }
+
+    void setGLRTFBOIDIs0() {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    }
+    bool glRTFBOIDIs0() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    }
+
+
     size_t onUninstantiatedGpuMemorySize() const override;
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)
 

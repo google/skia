@@ -388,13 +388,15 @@ public:
      *                               with this characterization will be replayed into
      *  @param isMipMapped           Will the surface the DDL will be replayed into have space
      *                               allocated for mipmaps?
+     *  @param willUseGLFBO0         Will the surface the DDL will be replayed into be backed by GL
+     *                               FBO 0. This flag is only valid if using an GL backend.
      */
     SkSurfaceCharacterization createCharacterization(
                                   size_t cacheMaxResourceBytes,
                                   const SkImageInfo& ii, const GrBackendFormat& backendFormat,
                                   int sampleCount, GrSurfaceOrigin origin,
                                   const SkSurfaceProps& surfaceProps,
-                                  bool isMipMapped);
+                                  bool isMipMapped, bool willUseGLFBO0 = false);
 
     const GrCaps* caps() const { return fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fCaps; }

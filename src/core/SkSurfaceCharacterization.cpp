@@ -25,6 +25,7 @@ bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& othe
            fStencilCnt == other.fStencilCnt &&
            fIsTextureable == other.fIsTextureable &&
            fIsMipMapped == other.fIsMipMapped &&
+           fUsesGLFBO0 == other.fUsesGLFBO0 &&
            fSurfaceProps == other.fSurfaceProps;
 }
 
