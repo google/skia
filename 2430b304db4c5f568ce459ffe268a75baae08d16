@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7f80ad43_d6e77335",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-26T18:24:02Z",
+      "side": 1,
+      "message": "Unfortunately, TaskSpec doesn\u0027t have a Name field, to save bytes since the name is specified as a key in the JSON.",
+      "parentUuid": "5c0789ff_44d7f120",
+      "range": {
+        "startLine": 692,
+        "startChar": 32,
+        "endLine": 692,
+        "endChar": 43
+      },
+      "revId": "2430b304db4c5f568ce459ffe268a75baae08d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7dd3ba5a_d504212f",
         "filename": "infra/bots/recipes/bookmaker.expected/nightly_bookmaker.json",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2018-04-26T17:30:31Z",
       "side": 1,
       "message": "It seems that Housekeeper tasks aren\u0027t getting this cache in tasks.json, but they are using it in recipes.",
+      "revId": "2430b304db4c5f568ce459ffe268a75baae08d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "140635a6_6a601952",
+        "filename": "infra/bots/recipes/bookmaker.expected/nightly_bookmaker.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-26T18:24:02Z",
+      "side": 1,
+      "message": "Good catch. Fixed.",
+      "parentUuid": "7dd3ba5a_d504212f",
       "revId": "2430b304db4c5f568ce459ffe268a75baae08d16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
