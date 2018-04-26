@@ -146,6 +146,7 @@ private:
             }
             SkASSERT(fSize < MAX_QUEUE_SIZE);
             SkIRect drawBounds = fDevice->transformDrawBounds<useCTM>(rawDrawBounds);
+            fElements[fSize].~DrawElement(); // release previous resources to prevent memory leak
             new (&fElements[fSize++]) DrawElement(fDevice, std::move(fn), drawBounds);
             fTasks->addColumn();
         }
