@@ -648,6 +648,7 @@ def dm_flags(api, bot):
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelHD405' in bot:
     # skia:7322
     blacklist(['vk', 'gm', '_', 'skbug_257'])
+    blacklist(['vk', 'gm', '_', 'filltypespersp'])
     match.append('~^ClearOp$')
     match.append('~^CopySurface$')
     match.append('~^ImageNewShader_GPU$')
