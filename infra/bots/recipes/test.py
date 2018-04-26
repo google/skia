@@ -105,6 +105,9 @@ def dm_flags(api, bot):
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
 
+      if '64' in bot:
+        configs.extend(['t8888'])
+
     configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
 
     # This bot only differs from vanilla CPU bots in 8888 config.
