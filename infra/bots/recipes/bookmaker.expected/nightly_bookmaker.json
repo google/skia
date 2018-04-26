@@ -9,7 +9,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/cache/work"
+      "[CUSTOM_/_B_WORK]"
     ],
     "infra_step": true,
     "name": "makedirs checkout_path"
@@ -22,10 +22,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[START_DIR]/cache/work/.gclient_entries"
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [START_DIR]/cache/work/.gclient_entries"
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
   },
   {
     "cmd": [
@@ -33,13 +33,13 @@
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
-      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
       "skia",
       "--revision_mapping_file",
       "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
-      "[START_DIR]/cache/git",
+      "[CUSTOM_/_B_CACHE]",
       "--cleanup-dir",
       "[CLEANUP]/bot_update",
       "--output_json",
@@ -47,7 +47,7 @@
       "--revision",
       "skia@abc123"
     ],
-    "cwd": "[START_DIR]/cache/work",
+    "cwd": "[CUSTOM_/_B_WORK]",
     "env_prefixes": {
       "PATH": [
         "RECIPE_PACKAGE_REPO[depot_tools]"
@@ -149,7 +149,7 @@
       "-e",
       "[START_DIR]/fiddle.json"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -170,7 +170,7 @@
       "--logtostderr",
       "--force"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -192,7 +192,7 @@
       "[START_DIR]/fiddleout.json",
       "/path/to/tmp/"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
@@ -206,7 +206,7 @@
       "cat",
       "[START_DIR]/fiddleout.json"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -220,13 +220,13 @@
   {
     "cmd": [
       "python",
-      "[START_DIR]/cache/work/skia/infra/bots/upload_md.py",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/upload_md.py",
       "--bookmaker_binary",
       "[START_DIR]/build/out/Release/bookmaker",
       "--fiddlecli_output",
       "[START_DIR]/fiddleout.json"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
