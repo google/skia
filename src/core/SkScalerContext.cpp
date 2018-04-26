@@ -1094,12 +1094,12 @@ static size_t calculate_size_and_flatten(
     int entryCount = 1;
 
     if (effects.fPathEffect) {
-        effects.fPathEffect->flatten(*pathEffectBuffer);
+        pathEffectBuffer->writeFlattenable(effects.fPathEffect);
         descSize += pathEffectBuffer->bytesWritten();
         entryCount += 1;
     }
     if (effects.fMaskFilter) {
-        effects.fMaskFilter->flatten(*maskFilterBuffer);
+        maskFilterBuffer->writeFlattenable(effects.fMaskFilter);
         descSize += maskFilterBuffer->bytesWritten();
         entryCount += 1;
     }
