@@ -35,7 +35,7 @@ def main(target_dir):
          'gen_tasks.go failed, not uploading SKP update:\n\n%s' % e.output)
       sys.exit(1)
 
-    # Upload the new version, land the update CL as the update-skps user.
+    # Upload the new version, land the update CL as the recreate-skps user.
     with git_utils.GitBranch(branch_name='update_skp_version',
                              commit_msg=COMMIT_MSG,
                              commit_queue=True):
