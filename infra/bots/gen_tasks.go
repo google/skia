@@ -277,6 +277,8 @@ func linuxGceDimensions() []string {
 		// Specify CPU to avoid running builds on bots with a more unique CPU.
 		"cpu:x86-64-Haswell_GCE",
 		"gpu:none",
+		// Currently all Linux GCE tasks run on 16-CPU machines.
+		"machine_type:n1-standard-16",
 		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
 	}
@@ -446,6 +448,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			d["cpu"] = cpu
 			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_DEBIAN {
 				d["os"] = DEFAULT_OS_LINUX_GCE
+				// Currently all Linux GCE tasks run on 16-CPU machines.
+				d["machine_type"] = "n1-standard-16"
 			}
 			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_WIN {
 				// Use normal-size machines for Test and Perf tasks on Win GCE.
