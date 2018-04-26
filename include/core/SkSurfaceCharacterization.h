@@ -30,6 +30,7 @@ class SK_API SkSurfaceCharacterization {
 public:
     enum class Textureable : bool { kNo = false, kYes = true };
     enum class MipMapped : bool { kNo = false, kYes = true };
+    enum class UsesGLFBO0 : bool { kNo = false, kYes = true };
 
     SkSurfaceCharacterization()
             : fCacheMaxResourceBytes(0)
@@ -39,6 +40,7 @@ public:
             , fStencilCnt(0)
             , fIsTextureable(Textureable::kYes)
             , fIsMipMapped(MipMapped::kYes)
+            , fUsesGLFBO0(UsesGLFBO0::kNo)
             , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
     }
 
@@ -67,7 +69,7 @@ public:
                                          fCacheMaxResourceBytes,
                                          fImageInfo.makeWH(width, height),
                                          fOrigin, fConfig, fFSAAType, fStencilCnt,
-                                         fIsTextureable, fIsMipMapped,
+                                         fIsTextureable, fIsMipMapped, fUsesGLFBO0,
                                          fSurfaceProps);
     }
 
@@ -86,6 +88,7 @@ public:
     int stencilCount() const { return fStencilCnt; }
     bool isTextureable() const { return Textureable::kYes == fIsTextureable; }
     bool isMipMapped() const { return MipMapped::kYes == fIsMipMapped; }
+    bool usesGLFBO0() const { return UsesGLFBO0::kYes == fUsesGLFBO0; }
     SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fImageInfo.refColorSpace(); }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
@@ -105,6 +108,7 @@ private:
                               GrPixelConfig config,
                               GrFSAAType FSAAType, int stencilCnt,
                               Textureable isTextureable, MipMapped isMipMapped,
+                              UsesGLFBO0 usesGLFBO0,
                               const SkSurfaceProps& surfaceProps)
             : fContextInfo(std::move(contextInfo))
             , fCacheMaxResourceBytes(cacheMaxResourceBytes)
@@ -115,6 +119,7 @@ private:
             , fStencilCnt(stencilCnt)
             , fIsTextureable(isTextureable)
             , fIsMipMapped(isMipMapped)
+            , fUsesGLFBO0(usesGLFBO0)
             , fSurfaceProps(surfaceProps) {
     }
 
@@ -127,8 +132,10 @@ private:
              int stencilCnt,
              Textureable isTextureable,
              MipMapped isMipMapped,
+             UsesGLFBO0 usesGLFBO0,
              const SkSurfaceProps& surfaceProps) {
         SkASSERT(MipMapped::kNo == isMipMapped || Textureable::kYes == isTextureable);
+        SkASSERT(Textureable::kNo == isTextureable || UsesGLFBO0::kNo == usesGLFBO0);
 
         fContextInfo = contextInfo;
         fCacheMaxResourceBytes = cacheMaxResourceBytes;
@@ -140,6 +147,7 @@ private:
         fStencilCnt = stencilCnt;
         fIsTextureable = isTextureable;
         fIsMipMapped = isMipMapped;
+        fUsesGLFBO0 = usesGLFBO0;
         fSurfaceProps = surfaceProps;
     }
 
@@ -153,6 +161,7 @@ private:
     int                             fStencilCnt;
     Textureable                     fIsTextureable;
     MipMapped                       fIsMipMapped;
+    UsesGLFBO0                      fUsesGLFBO0;
     SkSurfaceProps                  fSurfaceProps;
 };
 
@@ -180,6 +189,7 @@ public:
     int stencilCount() const { return 0; }
     bool isTextureable() const { return false; }
     bool isMipMapped() const { return false; }
+    bool usesGLFBO0() const { return false; }
     SkColorSpace* colorSpace() const { return nullptr; }
     sk_sp<SkColorSpace> refColorSpace() const { return nullptr; }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }

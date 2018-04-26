@@ -46,6 +46,9 @@ inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDDesc& idD
     if (glCaps.maxWindowRectangles() > 0 && idDesc.fRTFBOID) {
         this->setSupportsWindowRects();
     }
+    if (!idDesc.fRTFBOID) {
+        this->setGLRTFBOIDIs0();
+    }
 }
 
 void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {

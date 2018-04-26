@@ -80,6 +80,14 @@ bool SkDeferredDisplayListRecorder::init() {
 
     auto proxyProvider = fContext->contextPriv().proxyProvider();
 
+    bool usesGLFBO0 = fCharacterization.usesGLFBO0();
+    if (usesGLFBO0) {
+        if (kOpenGL_GrBackend != fContext->contextPriv().getBackend() ||
+            fCharacterization.isTextureable()) {
+            return false;
+        }
+    }
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = fCharacterization.width();
@@ -94,11 +102,16 @@ bool SkDeferredDisplayListRecorder::init() {
     // DDL is being replayed into.
 
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
-    if (fContext->caps()->usesMixedSamples() && desc.fSampleCnt > 1) {
+    if (fContext->caps()->usesMixedSamples() && desc.fSampleCnt > 1 && !usesGLFBO0) {
+        // In GL, FBO 0 never supports mixed samples
         surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
     }
-    if (fContext->caps()->maxWindowRectangles() > 0) {
+    if (fContext->caps()->maxWindowRectangles() > 0 && !usesGLFBO0) {
+        // In GL, FBO 0 never supports window rectangles
         surfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
+    }
+    if (usesGLFBO0) {
+        surfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(

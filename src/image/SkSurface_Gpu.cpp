@@ -11,6 +11,7 @@
 #include "GrContextPriv.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
+#include "GrRenderTargetProxyPriv.h"
 #include "GrTexture.h"
 
 #include "SkCanvas.h"
@@ -203,13 +204,19 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
         return false;
     }
 
+    bool usesGLFBO0 = rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0();
+    // We should never get in the situation where we have a texture render target that is also
+    // backend by FBO 0.
+    SkASSERT(!usesGLFBO0 || !SkToBool(rtc->asTextureProxy()));
+
     SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
                                        rtc->colorSpaceInfo().refColorSpace());
 
     characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(),
                           rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
                           SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
-                          SkSurfaceCharacterization::MipMapped(mipmapped), this->props());
+                          SkSurfaceCharacterization::MipMapped(mipmapped),
+                          SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0), this->props());
 
     return true;
 }
@@ -243,6 +250,10 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterizati
             // Allow drawing to proceed if the DDL was not mipmapped but the replay surface is.
             return false;
         }
+    }
+
+    if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
+        return false;
     }
 
     // TODO: the addition of colorType to the surfaceContext should remove this calculation
@@ -315,6 +326,11 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context,
                                              const SkSurfaceCharacterization& c,
                                              SkBudgeted budgeted) {
     if (!context || !c.isValid()) {
+        return nullptr;
+    }
+
+    if (c.usesGLFBO0()) {
+        // If we are making the surface we will never use FBO0.
         return nullptr;
     }
 
