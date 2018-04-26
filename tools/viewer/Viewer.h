@@ -158,6 +158,9 @@ private:
     // identity unless the window initially scales the content to fit the screen.
     SkMatrix               fDefaultMatrix;
 
+    bool                   fPerspective;
+    SkPoint                fPerspectivePoints[4];
+
     SkTArray<std::function<void(void)>> fDeferredActions;
 
     Json::Value            fAllSlideNames; // cache all slide names for fast updateUIState
