@@ -145,9 +145,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     }
 
     SkASSERT(fTarget.get()->priv().peekRenderTarget());
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia", TRACE_FUNC);
-#endif
 
     // TODO: at the very least, we want the stencil store op to always be discard (at this
     // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.

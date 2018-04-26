@@ -11,6 +11,7 @@
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
+#include "GrTracing.h"
 #include "GrXferProcessor.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
@@ -151,7 +152,10 @@ public:
     void prepare(GrOpFlushState* state) { this->onPrepare(state); }
 
     /** Issues the op's commands to GrGpu. */
-    void execute(GrOpFlushState* state) { this->onExecute(state); }
+    void execute(GrOpFlushState* state) {
+        TRACE_EVENT0("skia", name());
+        this->onExecute(state);
+    }
 
     /** Used for spewing information about ops when debugging. */
     virtual SkString dumpInfo() const {
