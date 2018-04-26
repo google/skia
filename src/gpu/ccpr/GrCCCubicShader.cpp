@@ -102,11 +102,11 @@ void GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
     code->appendf("%s.w = dot(float3(%s, 1), %s);", // Flat edge opposite the curve.
                   OutName(fKLM_fEdge), position, fEdgeDistanceEquation.c_str());
 
-    fGradMatrix.reset(kFloat2x2_GrSLType, scope);
+    fGradMatrix.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("grad_matrix", &fGradMatrix);
-    code->appendf("%s[0] = 2*bloat * 3 * klm[0] * %s[0].xy;",
+    code->appendf("%s.xy = 2*bloat * 3 * klm[0] * %s[0].xy;",
                   OutName(fGradMatrix), fKLMMatrix.c_str());
-    code->appendf("%s[1] = -2*bloat * (klm[1] * %s[2].xy + klm[2] * %s[1].xy);",
+    code->appendf("%s.zw = -2*bloat * (klm[1] * %s[2].xy + klm[2] * %s[1].xy);",
                     OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
 
     if (cornerCoverage) {
@@ -142,7 +142,7 @@ void GrCCCubicShader::calcHullCoverage(SkString* code, const char* klmAndEdge,
                                        const char* gradMatrix, const char* outputCoverage) const {
     code->appendf("float k = %s.x, l = %s.y, m = %s.z;", klmAndEdge, klmAndEdge, klmAndEdge);
     code->append ("float f = k*k*k - l*m;");
-    code->appendf("float2 grad = %s * float2(k, 1);", gradMatrix);
+    code->appendf("float2 grad = %s.xy * k + %s.zw;", gradMatrix, gradMatrix);
     code->append ("float fwidth = abs(grad.x) + abs(grad.y);");
     code->appendf("%s = min(0.5 - f/fwidth, 1);", outputCoverage); // Curve coverage.
     code->appendf("half d = min(%s.w, 0);", klmAndEdge); // Flat edge opposite the curve.
