@@ -518,12 +518,10 @@ public:
         kStrokeAndFill_Style,
     };
 
-    enum {
-        /** The number of different Style values defined.
-            May be used to verify that Style is a legal value.
-        */
-        kStyleCount = kStrokeAndFill_Style + 1,
-    };
+    /** The number of different Style values defined.
+        May be used to verify that Style is a legal value.
+    */
+    static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
 
     /** Whether the geometry is filled, stroked, or filled and stroked.
 
@@ -949,9 +947,7 @@ public:
         kRight_Align,
     };
 
-    enum {
-        kAlignCount = 3, //!< The number of different Align values defined.
-    };
+    static constexpr int kAlignCount = 3; //!< The number of different Align values defined.
 
     /** Returns SkPaint::Align.
         Returns kLeft_Align if SkPaint::Align has not been set.
@@ -1662,23 +1658,21 @@ private:
      */
     SkColor computeLuminanceColor() const;
 
-    enum {
-        /*  This is the size we use when we ask for a glyph's path. We then
-         *  post-transform it as we draw to match the request.
-         *  This is done to try to re-use cache entries for the path.
-         *
-         *  This value is somewhat arbitrary. In theory, it could be 1, since
-         *  we store paths as floats. However, we get the path from the font
-         *  scaler, and it may represent its paths as fixed-point (or 26.6),
-         *  so we shouldn't ask for something too big (might overflow 16.16)
-         *  or too small (underflow 26.6).
-         *
-         *  This value could track kMaxSizeForGlyphCache, assuming the above
-         *  constraints, but since we ask for unhinted paths, the two values
-         *  need not match per-se.
-         */
-        kCanonicalTextSizeForPaths  = 64,
-    };
+    /*  This is the size we use when we ask for a glyph's path. We then
+     *  post-transform it as we draw to match the request.
+     *  This is done to try to re-use cache entries for the path.
+     *
+     *  This value is somewhat arbitrary. In theory, it could be 1, since
+     *  we store paths as floats. However, we get the path from the font
+     *  scaler, and it may represent its paths as fixed-point (or 26.6),
+     *  so we shouldn't ask for something too big (might overflow 16.16)
+     *  or too small (underflow 26.6).
+     *
+     *  This value could track kMaxSizeForGlyphCache, assuming the above
+     *  constraints, but since we ask for unhinted paths, the two values
+     *  need not match per-se.
+     */
+    static constexpr int kCanonicalTextSizeForPaths  = 64;
 
     static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM, SkScalar maxLimit);
 

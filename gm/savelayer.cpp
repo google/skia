@@ -93,8 +93,8 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     // In the future, we might also test the clipped case by allowing i = 0
     for(int i = 1; i < 2; ++i) {
         canvas->translate(100 * i, 0);
-        auto flag = i ?
-                (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag : 0;
+        auto flag = i ? (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag :
+                0;
         canvas->saveLayer({ &rect1, &paint1, nullptr, nullptr, nullptr, flag});
         canvas->saveLayer({ &rect2, &paint2, nullptr, nullptr, nullptr, flag});
         canvas->drawRect(rect3, paint3);
@@ -259,9 +259,10 @@ DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
         canvas->restore();
     };
 
-    const int yflags[] = { 0, SkCanvas::kInitWithPrevious_SaveLayerFlag };
+    const SkCanvas::SaveLayerFlags yflags[] = { 0, SkCanvas::kInitWithPrevious_SaveLayerFlag };
     for (int y = 0; y <= 1; ++y) {
-        const int xflags[] = { 0, SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag };
+        const SkCanvas::SaveLayerFlags xflags[] = { 0,
+                               SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag };
         for (int x = 0; x <= 1; ++x) {
             canvas->save();
             canvas->translate(x * 200.f, y * 200.f);
