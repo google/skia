@@ -126,6 +126,11 @@ struct SkMask {
         kJustRenderImage_CreateMode,        //!< render into preallocate mask
         kComputeBoundsAndRenderImage_CreateMode  //!< compute bounds, alloc image and render into it
     };
+
+    /**
+     *  Returns initial destination mask data padded by radiusX and radiusY
+     */
+    static SkMask PrepareDestination(int radiusX, int radiusY, const SkMask& src);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
