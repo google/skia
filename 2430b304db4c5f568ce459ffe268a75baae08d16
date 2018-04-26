@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c0789ff_44d7f120",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-26T17:30:31Z",
+      "side": 1,
+      "message": "nit: maybe just use t.Name?",
+      "range": {
+        "startLine": 692,
+        "startChar": 32,
+        "endLine": 692,
+        "endChar": 43
+      },
+      "revId": "2430b304db4c5f568ce459ffe268a75baae08d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dd3ba5a_d504212f",
+        "filename": "infra/bots/recipes/bookmaker.expected/nightly_bookmaker.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-04-26T17:30:31Z",
+      "side": 1,
+      "message": "It seems that Housekeeper tasks aren\u0027t getting this cache in tasks.json, but they are using it in recipes.",
+      "revId": "2430b304db4c5f568ce459ffe268a75baae08d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
