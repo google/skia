@@ -35,6 +35,7 @@
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
 #include "SkShaderMaskFilter.h"
+#include "SkSDFMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkToSRGBColorFilter.h"

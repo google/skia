@@ -18,6 +18,7 @@
 #include "SkMakeUnique.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
+#include "SkSDFMaskFilter.h"
 #include "SkTextMapStateProc.h"
 
 #include "ops/GrMeshDrawOp.h"
@@ -662,6 +663,8 @@ void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
     skPaint->setAutohinted(false);
     skPaint->setHinting(SkPaint::kNormal_Hinting);
     skPaint->setSubpixelText(true);
+
+    skPaint->setMaskFilter(SkSDFMaskFilter::Make());
 }
 
 void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
