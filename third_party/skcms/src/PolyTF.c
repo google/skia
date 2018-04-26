@@ -41,7 +41,7 @@
 // It's important to evaluate as f(x) as A(x^3-1) + B(x^2-1) + 1
 // and not Ax^3 + Bx^2 + (1-A-B) to ensure that f(1.0f) == 1.0f.
 
-static float eval_poly_tf(float x, const void* ctx, const float P[4]) {
+static float eval_poly_tf(float x, const void* ctx, const float P[3]) {
     const skcms_PolyTF* tf = (const skcms_PolyTF*)ctx;
 
     float A = P[0],
@@ -53,7 +53,7 @@ static float eval_poly_tf(float x, const void* ctx, const float P[4]) {
                  : A*(x*x*x-1) + B*(x*x-1) + 1;
 }
 
-static void grad_poly_tf(float x, const void* ctx, const float P[4], float dfdP[4]) {
+static void grad_poly_tf(float x, const void* ctx, const float P[3], float dfdP[3]) {
     const skcms_PolyTF* tf = (const skcms_PolyTF*)ctx;
     (void)P;
     float D = tf->D;
@@ -114,7 +114,7 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
     }
 
     // Start with guess A = 0, i.e. f(x) ≈ x^2.
-    float P[4] = {0, 0,0,0};
+    float P[3] = {0, 0,0};
     for (int i = 0; i < 3; i++) {
         if (!skcms_gauss_newton_step(skcms_eval_curve, curve,
                                      eval_poly_tf, tf,
