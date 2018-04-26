@@ -147,7 +147,9 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
                 height -= botOverClip;
             }
 
-            this->blitAntiRect(rectX, rectY, width, height, leftAlpha, rightAlpha);
+            if (width >= 0) {
+                this->blitAntiRect(rectX, rectY, width, height, leftAlpha, rightAlpha);
+            }
             y += antiRect.fHeight - 1; // -1 because ++y in the for loop
             continue;
         }
