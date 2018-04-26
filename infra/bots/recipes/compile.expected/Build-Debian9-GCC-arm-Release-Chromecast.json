@@ -9,7 +9,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]"
+      "[START_DIR]/cache/work"
     ],
     "infra_step": true,
     "name": "makedirs checkout_path"
@@ -22,10 +22,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[CUSTOM_/_B_WORK]/.gclient_entries"
+      "[START_DIR]/cache/work/.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
+    "name": "remove [START_DIR]/cache/work/.gclient_entries"
   },
   {
     "cmd": [
@@ -33,13 +33,13 @@
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
-      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
       "skia",
       "--revision_mapping_file",
       "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
-      "[CUSTOM_/_B_CACHE]",
+      "[START_DIR]/cache/git",
       "--cleanup-dir",
       "[CLEANUP]/bot_update",
       "--output_json",
@@ -47,7 +47,7 @@
       "--revision",
       "skia@abc123"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]",
+    "cwd": "[START_DIR]/cache/work",
     "env_prefixes": {
       "PATH": [
         "RECIPE_PACKAGE_REPO[depot_tools]"
@@ -101,7 +101,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/cast_toolchain/VERSION",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/cast_toolchain/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -111,31 +111,31 @@
     "cmd": [
       "python",
       "-u",
-      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+      "[START_DIR]/cache/work/skia/bin/fetch-gn"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-arm-Release-Chromecast"
+      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-arm-Release-Chromecast"
     },
     "infra_step": true,
     "name": "fetch-gn"
   },
   {
     "cmd": [
-      "[CUSTOM_/_B_WORK]/skia/bin/gn",
+      "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-arm-Release-Chromecast/Release",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-arm-Release-Chromecast/Release",
       "--args=ar=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-ar\" cc=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-gcc\" cxx=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-g++\" extra_cflags=[\"-I[START_DIR]/chromebook_arm_gles/include\", \"-DMESA_EGL_NO_X11_HEADERS\", \"-DSK_NO_COMMAND_BUFFER\", \"-Wno-error=unused-function\", \"-g0\", \"-DDUMMY_cast_toolchain_version=42\"] extra_ldflags=[\"-static-libstdc++\", \"-static-libgcc\", \"-L[START_DIR]/cast_toolchain/armv7a/lib\"] is_debug=false skia_enable_gpu=true skia_use_egl=true skia_use_fontconfig=false skia_use_icu=false skia_use_system_freetype2=false target_cpu=\"arm\""
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-arm-Release-Chromecast"
+      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-arm-Release-Chromecast"
     },
     "name": "gn gen"
   },
@@ -145,16 +145,16 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-arm-Release-Chromecast/Release",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-arm-Release-Chromecast/Release",
       "nanobench",
       "dm"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-arm-Release-Chromecast"
+      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-arm-Release-Chromecast"
     },
     "name": "ninja"
   },
@@ -163,7 +163,7 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-arm-Release-Chromecast/Release",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-arm-Release-Chromecast/Release",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Release"
     ],
     "infra_step": true,

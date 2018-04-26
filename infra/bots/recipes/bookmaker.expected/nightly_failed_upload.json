@@ -9,7 +9,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]"
+      "[START_DIR]/cache/work"
     ],
     "infra_step": true,
     "name": "makedirs checkout_path"
@@ -22,10 +22,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[CUSTOM_/_B_WORK]/.gclient_entries"
+      "[START_DIR]/cache/work/.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
+    "name": "remove [START_DIR]/cache/work/.gclient_entries"
   },
   {
     "cmd": [
@@ -33,13 +33,13 @@
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
-      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
       "skia",
       "--revision_mapping_file",
       "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
-      "[CUSTOM_/_B_CACHE]",
+      "[START_DIR]/cache/git",
       "--cleanup-dir",
       "[CLEANUP]/bot_update",
       "--output_json",
@@ -47,7 +47,7 @@
       "--revision",
       "skia@abc123"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]",
+    "cwd": "[START_DIR]/cache/work",
     "env_prefixes": {
       "PATH": [
         "RECIPE_PACKAGE_REPO[depot_tools]"
@@ -149,7 +149,7 @@
       "-e",
       "[START_DIR]/fiddle.json"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -170,7 +170,7 @@
       "--logtostderr",
       "--force"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -184,13 +184,13 @@
   {
     "cmd": [
       "python",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/upload_md.py",
+      "[START_DIR]/cache/work/skia/infra/bots/upload_md.py",
       "--bookmaker_binary",
       "[START_DIR]/build/out/Release/bookmaker",
       "--fiddlecli_output",
       "[START_DIR]/fiddleout.json"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",

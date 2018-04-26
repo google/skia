@@ -7,7 +7,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/clang_linux/VERSION",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_linux/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -17,9 +17,9 @@
     "cmd": [
       "python",
       "-u",
-      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+      "[START_DIR]/cache/work/skia/bin/fetch-gn"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -31,12 +31,12 @@
   },
   {
     "cmd": [
-      "[CUSTOM_/_B_WORK]/skia/bin/gn",
+      "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/build/out/Release",
       "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-static-libstdc++\", \"-static-libgcc\"] is_debug=false"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -53,7 +53,7 @@
       "-C",
       "[START_DIR]/build/out/Release"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -126,7 +126,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -154,7 +154,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/skimage/VERSION",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/skimage/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -182,7 +182,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/svg/VERSION",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -212,7 +212,7 @@
       "[START_DIR]/build/out/Release/nanobench",
       "--some-flag"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
