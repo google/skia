@@ -121,7 +121,8 @@ static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count
         canvas->save();
         SkRRect rr = SkRRect::MakeRectXY(r.makeOffset(dx, dy), 20, 20);
         canvas->clipRRect(rr, true);
-        canvas->saveLayer({ &rr.getBounds(), nullptr, filters[i].get(), nullptr, nullptr, 0 });
+        canvas->saveLayer({ &rr.getBounds(), nullptr, filters[i].get(), nullptr, nullptr,
+                SkCanvas::kNo_SaveLayerFlag});
         canvas->drawColor(0x40FFFFFF);
         canvas->restore();
         canvas->restore();

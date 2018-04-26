@@ -14,7 +14,6 @@ SkCanvas Reference
 | <a href="#Constructor">Constructor</a> | functions that construct <a href="#SkCanvas">SkCanvas</a> |
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
-| Typedef | types defined by other types |
 
 # <a name="SkCanvas"></a> Class SkCanvas
 <a href="#Canvas">Canvas</a> provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -59,8 +58,8 @@ This approach may be deprecated in the future.
 | --- | --- |
 | <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> | Android framework only |
 | <a href="#SkCanvas_PointMode">PointMode</a> | sets <a href="#SkCanvas_drawPoints">drawPoints</a> options |
+| <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a> | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
 | <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> | sets <a href="#SkCanvas_drawImageRect">drawImageRect</a> options |
-| _anonymous | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
 
 ## <a name="Class_or_Struct"></a> Class or Struct
 
@@ -1708,12 +1707,14 @@ depth of saved stack
 
 ---
 
-## <a name="SkCanvas__anonymous"></a> Enum SkCanvas::_anonymous
+## <a name="SkCanvas_SaveLayerFlags"></a> Enum SkCanvas::SaveLayerFlags
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum {
+        <a href="#SkCanvas_kNo_SaveLayerFlag">kNo SaveLayerFlag</a> = 0,
         <a href="#SkCanvas_kPreserveLCDText_SaveLayerFlag">kPreserveLCDText SaveLayerFlag</a> = 1 << 1,
         <a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a> = 1 << 2,
+        <a href="#SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag">kMaskAgainstCoverage EXPERIMENTAL DONT USE SaveLayerFlag</a> = 1 << 3,
         <a href="#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag">kDontClipToLayer Legacy SaveLayerFlag</a> = kDontClipToLayer_PrivateSaveLayerFlag,
     };
 </pre>
@@ -1725,6 +1726,10 @@ defining how <a href="#Layer">Layer</a> allocated by <a href="#SkCanvas_saveLaye
 
 <table>
   <tr>
+    <td><a name="SkCanvas_kNo_SaveLayerFlag"> <code><strong>SkCanvas::kNo_SaveLayerFlag </strong></code> </a></td><td>0</td><td>Creates <a href="#Layer">Layer</a> with no additional attributes.
+</td>
+  </tr>
+  <tr>
     <td><a name="SkCanvas_kPreserveLCDText_SaveLayerFlag"> <code><strong>SkCanvas::kPreserveLCDText_SaveLayerFlag </strong></code> </a></td><td>2</td><td>Creates <a href="#Layer">Layer</a> for LCD text. Flag is ignored if <a href="#Layer">Layer</a> <a href="SkPaint_Reference#Paint">Paint</a> contains
 <a href="undocumented#Image_Filter">Image Filter</a> or <a href="undocumented#Color_Filter">Color Filter</a>.
 </td>
@@ -1732,6 +1737,9 @@ defining how <a href="#Layer">Layer</a> allocated by <a href="#SkCanvas_saveLaye
   <tr>
     <td><a name="SkCanvas_kInitWithPrevious_SaveLayerFlag"> <code><strong>SkCanvas::kInitWithPrevious_SaveLayerFlag </strong></code> </a></td><td>4</td><td>Initializes <a href="#Layer">Layer</a> with the contents of the previous <a href="#Layer">Layer</a>.
 </td>
+  </tr>
+  <tr>
+    <td><a name="SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag"> <code><strong>SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag </strong></code> </a></td><td>8</td><td>Experimental -- don't use</td>
   </tr>
   <tr>
     <td><a name="SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag"> <code><strong>SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag </strong></code> </a></td><td>0x80000000</td><td>soon</td>
@@ -1841,7 +1849,8 @@ rec1 == rec2
 <a name="SkCanvas_SaveLayerRec_SaveLayerRec_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
+SaveLayerRec(const SkRect* bounds, const SkPaint* paint,
+             SaveLayerFlags saveLayerFlags = kNo_SaveLayerFlag)
 </pre>
 
 Sets <a href="#SkCanvas_SaveLayerRec_fBounds">fBounds</a>, <a href="#SkCanvas_SaveLayerRec_fPaint">fPaint</a>, and <a href="#SkCanvas_SaveLayerRec_fSaveLayerFlags">fSaveLayerFlags</a>; sets <a href="#SkCanvas_SaveLayerRec_fBackdrop">fBackdrop</a> to nullptr.

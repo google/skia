@@ -1897,6 +1897,8 @@ while stroking.
         kStroke_Style,
         kStrokeAndFill_Style,
     };
+
+    static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
 ##
 
 Set Style to fill, stroke, or both fill and stroke geometry.
@@ -1931,22 +1933,12 @@ a fill draw.
     and the set Path_Fill_Type is ignored. 
 ##
 
-#Enum Style ##
-
-#Enum
-#Line # number of Style defines ##
-#Code
-    enum {
-        kStyleCount = kStrokeAndFill_Style + 1,
-    };
-##
-
 #Const kStyleCount 3
 The number of different Style values defined.
 May be used to verify that Style is a legal value.
 ##
 
-#Enum ##
+#Enum Style ##
 
 #Method Style getStyle() const
 
@@ -3493,6 +3485,8 @@ Increments drawLooper Reference_Count by one.
         kCenter_Align,
         kRight_Align,
     };
+
+    static constexpr int kAlignCount = 3;
 ##
 
 Align adjusts the text relative to the text position.
@@ -3524,17 +3518,6 @@ Align defaults to kLeft_Align.
 #Const kRight_Align 2
     Moves the glyph by its width if Flags has kVerticalText_Flag clear,
     and by its height if Flags has kVerticalText_Flag set.
-##
-
-#Enum ##
-
-#Enum
-#Line # number of Text_Align values ##
-
-#Code
-    enum {
-        kAlignCount = 3,
-    };
 ##
 
 #Const kAlignCount 3
