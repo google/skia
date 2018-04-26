@@ -12716,7 +12716,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -12830,7 +12830,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -12944,7 +12944,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -13058,7 +13058,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -13172,7 +13172,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -13286,7 +13286,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -13400,7 +13400,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -13515,7 +13515,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -13629,7 +13629,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -13743,7 +13743,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -13857,7 +13857,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -13972,7 +13972,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -14081,7 +14081,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -14190,7 +14190,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -14299,7 +14299,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -14409,7 +14409,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -14518,7 +14518,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
@@ -14628,7 +14628,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 1,
+      "max_attempts": 2,
       "outputs": [
         "build"
       ],
