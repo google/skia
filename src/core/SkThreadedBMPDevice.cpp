@@ -220,7 +220,7 @@ void SkThreadedBMPDevice::drawText(const void* text, size_t len, SkScalar x, SkS
 void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
         int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
     char* clonedText = this->cloneArray((const char*)text, len);
-    SkScalar* clonedXpos = this->cloneArray(xpos, len * scalarsPerPos);
+    SkScalar* clonedXpos = this->cloneArray(xpos, paint.countText(text, len) * scalarsPerPos);
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
         TileDraw(ds, tileBounds).drawPosText(clonedText, len, clonedXpos, scalarsPerPos, offset,
