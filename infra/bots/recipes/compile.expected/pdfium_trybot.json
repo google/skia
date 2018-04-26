@@ -9,7 +9,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/cache/work"
+      "[CUSTOM_/_B_WORK]"
     ],
     "infra_step": true,
     "name": "makedirs checkout_path"
@@ -22,10 +22,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[START_DIR]/cache/work/.gclient_entries"
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [START_DIR]/cache/work/.gclient_entries"
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
   },
   {
     "cmd": [
@@ -33,13 +33,13 @@
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
-      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': True, 'name': 'pdfium', 'url': 'https://pdfium.googlesource.com/pdfium.git'}]",
+      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': True, 'name': 'pdfium', 'url': 'https://pdfium.googlesource.com/pdfium.git'}]",
       "--patch_root",
       "pdfium/third_party/skia",
       "--revision_mapping_file",
       "{\"got_pdfium_revision\": \"pdfium\", \"got_revision\": \"pdfium/third_party/skia\"}",
       "--git-cache-dir",
-      "[START_DIR]/cache/git",
+      "[CUSTOM_/_B_CACHE]",
       "--cleanup-dir",
       "[CLEANUP]/bot_update",
       "--gerrit_repo",
@@ -53,7 +53,7 @@
       "--revision",
       "pdfium/third_party/skia@abc123"
     ],
-    "cwd": "[START_DIR]/cache/work",
+    "cwd": "[CUSTOM_/_B_WORK]",
     "env_prefixes": {
       "PATH": [
         "RECIPE_PACKAGE_REPO[depot_tools]"
@@ -121,7 +121,7 @@
       "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
       "runhooks"
     ],
-    "cwd": "[START_DIR]/cache/work/pdfium",
+    "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {
       "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
@@ -134,13 +134,13 @@
       "build/linux/sysroot_scripts/install-sysroot.py",
       "--arch=amd64"
     ],
-    "cwd": "[START_DIR]/cache/work/pdfium",
+    "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
     "name": "sysroot"
   },
@@ -151,14 +151,14 @@
       "out/skia",
       "--args=pdf_is_standalone=true clang_use_chrome_plugins=false is_component_build=false is_debug=false pdf_use_skia=true"
     ],
-    "cwd": "[START_DIR]/cache/work/pdfium",
+    "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "CHROMIUM_BUILDTOOLS_PATH": "[START_DIR]/cache/work/pdfium/buildtools",
+      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
       "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
     "name": "gn_gen"
   },
@@ -169,14 +169,14 @@
       "out/skia",
       "-j100"
     ],
-    "cwd": "[START_DIR]/cache/work/pdfium",
+    "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "CHROMIUM_BUILDTOOLS_PATH": "[START_DIR]/cache/work/pdfium/buildtools",
+      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
       "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
     "name": "build_pdfium"
   },
@@ -185,7 +185,7 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[START_DIR]/cache/work/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium/Release",
+      "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium/Release",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Release"
     ],
     "infra_step": true,
