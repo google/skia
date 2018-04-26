@@ -466,6 +466,14 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         fFailed = true;
                     }
                     break;
+                case MarkType::kConst:
+                    if (def) {
+                        def->fVisited = true;
+                    } else if (!root->fDeprecated) {
+                        SkDebugf("const missing from bmh: %s\n", fullName.c_str());
+                        fFailed = true;
+                    }
+                    break;
                 default:
                     SkASSERT(0);  // unhandled
                     break;
@@ -1420,6 +1428,50 @@ bool IncludeParser::parseComment(string filename, const char* start, const char*
     return true;
 }
 
+bool IncludeParser::parseConst(Definition* child, Definition* markupDef) {
+    // todo: hard code to constexpr for now
+    TextParser constParser(child);
+    if (!constParser.skipExact("static")) {
+        return false;
+    }
+    constParser.skipWhiteSpace();
+    if (!constParser.skipExact("constexpr")) {
+        return false;
+    }
+    constParser.skipWhiteSpace();
+    const char* typeStart = constParser.fChar;
+    constParser.skipToSpace();
+    KeyWord constType = FindKey(typeStart, constParser.fChar);
+    if (KeyWord::kNone == constType) {
+        // todo: this could be a non-keyword, ... do we need to look for type?
+        return false;
+    }
+    constParser.skipWhiteSpace();
+    const char* nameStart = constParser.fChar;
+    constParser.skipToSpace();
+    string nameStr = string(nameStart, constParser.fChar - nameStart);
+    if (!markupDef) {
+        fGlobals.emplace_back(MarkType::kConst, child->fContentStart, child->fContentEnd,
+                child->fLineCount, fParent, '\0');
+        Definition* globalMarkupChild = &fGlobals.back();
+        string globalUniqueName = this->uniqueName(fIConstMap, nameStr);
+        globalMarkupChild->fName = globalUniqueName;
+        if (!this->findComments(*child, globalMarkupChild)) {
+            return false;
+        }
+        fIConstMap[globalUniqueName] = globalMarkupChild;
+        return true;
+    }
+    markupDef->fTokens.emplace_back(MarkType::kConst, child->fContentStart, child->fContentEnd,
+        child->fLineCount, markupDef, '\0');
+    Definition* markupChild = &markupDef->fTokens.back();
+    markupChild->fName = nameStr;
+    markupChild->fTerminator = markupChild->fContentEnd;
+    IClassDefinition& classDef = fIClassMap[markupDef->fName];
+    classDef.fConsts[nameStr] = markupChild;
+    return true;
+}
+
 bool IncludeParser::parseDefine(Definition* child, Definition* markupDef) {
     TextParser parser(child);
     if (!parser.skipExact("#define")) {
@@ -1900,6 +1952,11 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                 case KeyWord::kClass:
                     if (!this->parseClass(child, IsStruct::kNo)) {
                         return false;
+                    }
+                    break;
+                case KeyWord::kStatic:
+                    if (!this->parseConst(child, markupDef)) {
+                        return child->reportError<bool>("failed to parse const or constexpr");
                     }
                     break;
                 case KeyWord::kEnum:
@@ -2467,6 +2524,43 @@ bool IncludeParser::parseChar() {
                             priorEnum->fChildren.emplace_back(start);
                             fPriorEnum = priorEnum;
                         }
+                    }
+                } else {  // check for static constexpr not following an enum
+                    // find first token on line
+                    auto backTokenWalker = fParent->fTokens.end();
+                    while (fParent->fTokens.begin() != backTokenWalker
+                            && (fParent->fTokens.end() == backTokenWalker
+                            || backTokenWalker->fStart > fLine)) {
+                        std::advance(backTokenWalker, -1);
+                    }
+                    if (fParent->fTokens.end() != backTokenWalker
+                            && backTokenWalker->fStart < fLine) {
+                        std::advance(backTokenWalker, 1);
+                    }
+                    // look for static constexpr
+                    Definition* start = &*backTokenWalker;
+                    bool foundExpected = true;
+                    for (KeyWord expected : {KeyWord::kStatic, KeyWord::kConstExpr}){
+                        const Definition* test = &*backTokenWalker;
+                        if (expected != test->fKeyWord) {
+                            foundExpected = false;
+                            break;
+                        }
+                        if (backTokenWalker == fParent->fTokens.end()) {
+                            break;
+                        }
+                        std::advance(backTokenWalker, 1);
+                    }
+                    if (foundExpected) {
+                        std::advance(backTokenWalker, 1);
+                        const char* nameStart = backTokenWalker->fStart;
+                        std::advance(backTokenWalker, 1);
+                        TextParser parser(fFileName, nameStart, backTokenWalker->fStart, fLineCount);
+                        parser.skipToNonAlphaNum();
+                        start->fMarkType = MarkType::kConst;
+                        start->fName = string(nameStart, parser.fChar - nameStart);
+                        start->fContentEnd = backTokenWalker->fContentEnd;
+                        fParent->fChildren.emplace_back(start);
                     }
                 }
             }

@@ -121,6 +121,8 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 
 | name | description |
 | --- | --- |
+| <a href="#AffineIndex">AffineIndex</a> | affine member indices |
+| <a href="#MemberIndex">MemberIndex</a> | member indices |
 | <a href="#Property">Property</a> | values and attributes |
 | <a href="#Set">Set</a> | set one or more matrix values |
 | <a href="#Transform">Transform</a> | map points with <a href="#Matrix">Matrix</a> |
@@ -792,20 +794,18 @@ Skews are not similar and do not preserve right angles.
 
 ---
 
-## <a name="SkMatrix__anonymous"></a> Enum SkMatrix::_anonymous
+## <a name="MemberIndex"></a> MemberIndex
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum {
-        <a href="#SkMatrix_kMScaleX">kMScaleX</a>,
-        <a href="#SkMatrix_kMSkewX">kMSkewX</a>,
-        <a href="#SkMatrix_kMTransX">kMTransX</a>,
-        <a href="#SkMatrix_kMSkewY">kMSkewY</a>,
-        <a href="#SkMatrix_kMScaleY">kMScaleY</a>,
-        <a href="#SkMatrix_kMTransY">kMTransY</a>,
-        <a href="#SkMatrix_kMPersp0">kMPersp0</a>,
-        <a href="#SkMatrix_kMPersp1">kMPersp1</a>,
-        <a href="#SkMatrix_kMPersp2">kMPersp2</a>,
-    };
+    static constexpr int <a href="#SkMatrix_kMScaleX">kMScaleX</a> = 0;
+    static constexpr int <a href="#SkMatrix_kMSkewX">kMSkewX</a>  = 1;
+    static constexpr int <a href="#SkMatrix_kMTransX">kMTransX</a> = 2;
+    static constexpr int <a href="#SkMatrix_kMSkewY">kMSkewY</a>  = 3;
+    static constexpr int <a href="#SkMatrix_kMScaleY">kMScaleY</a> = 4;
+    static constexpr int <a href="#SkMatrix_kMTransY">kMTransY</a> = 5;
+    static constexpr int <a href="#SkMatrix_kMPersp0">kMPersp0</a> = 6;
+    static constexpr int <a href="#SkMatrix_kMPersp1">kMPersp1</a> = 7;
+    static constexpr int <a href="#SkMatrix_kMPersp2">kMPersp2</a> = 8;
 </pre>
 
 <a href="#Matrix">Matrix</a> organizes its values in row order. These members correspond to
@@ -851,19 +851,15 @@ each value in <a href="#Matrix">Matrix</a>.
 
 <a href="#SkMatrix_get">get</a> <a href="#SkMatrix_set">set</a>
 
-
-
-## <a name="SkMatrix__anonymous_2"></a> Enum SkMatrix::_anonymous_2
+## <a name="AffineIndex"></a> AffineIndex
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum {
-        <a href="#SkMatrix_kAScaleX">kAScaleX</a>,
-        <a href="#SkMatrix_kASkewY">kASkewY</a>,
-        <a href="#SkMatrix_kASkewX">kASkewX</a>,
-        <a href="#SkMatrix_kAScaleY">kAScaleY</a>,
-        <a href="#SkMatrix_kATransX">kATransX</a>,
-        <a href="#SkMatrix_kATransY">kATransY</a>,
-    };
+    static constexpr int <a href="#SkMatrix_kAScaleX">kAScaleX</a> = 0;
+    static constexpr int <a href="#SkMatrix_kASkewY">kASkewY</a>  = 1;
+    static constexpr int <a href="#SkMatrix_kASkewX">kASkewX</a>  = 2;
+    static constexpr int <a href="#SkMatrix_kAScaleY">kAScaleY</a> = 3;
+    static constexpr int <a href="#SkMatrix_kATransX">kATransX</a> = 4;
+    static constexpr int <a href="#SkMatrix_kATransY">kATransY</a> = 5;
 </pre>
 
 Affine arrays are in column major order to match the matrix used by
@@ -895,8 +891,6 @@ PDF and XPS.
 ### See Also
 
 <a href="#SkMatrix_SetAffineIdentity">SetAffineIdentity</a> <a href="#SkMatrix_asAffine">asAffine</a> <a href="#SkMatrix_setAffine">setAffine</a>
-
-
 
 ## <a name="Operator"></a> Operator
 

@@ -30,9 +30,7 @@ namespace android {
 class SK_API SkRegion {
 public:
     typedef int32_t RunType;
-    enum {
-        kRunTypeSentinel = 0x7FFFFFFF
-    };
+    static constexpr int kRunTypeSentinel = 0x7FFFFFFF;
 
     SkRegion();
     SkRegion(const SkRegion&);
@@ -399,16 +397,12 @@ public:
     SkDEBUGCODE(bool debugSetRuns(const RunType runs[], int count);)
 
 private:
-    enum {
-        kOpCount = kReplace_Op + 1
-    };
+    static constexpr int kOpCount = kReplace_Op + 1;
 
-    enum {
-        // T
-        // [B N L R S]
-        // S
-        kRectRegionRuns = 7
-    };
+    // T
+    // [B N L R S]
+    // S
+    static constexpr int kRectRegionRuns = 7;
 
     friend class android::Region;    // needed for marshalling efficiently
 

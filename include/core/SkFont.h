@@ -155,9 +155,7 @@ public:
     static sk_sp<SkFont> Testing_CreateFromPaint(const SkPaint&);
 
 private:
-    enum {
-        kAllFlags = 0xFF,
-    };
+    static constexpr int kAllFlags = 0xFF;
 
     SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType,
            uint32_t flags);

@@ -1678,15 +1678,17 @@ add new markup to associate typedef SaveLayerFlags with Enum so that, for
 documentation purposes, this enum is named rather than anonymous
 ##
 
-#Enum
+#Enum SaveLayerFlagsSet
 #Line # sets SaveLayerRec options ##
 #Code
-    enum {
+    enum SaveLayerFlagsSet {
         kPreserveLCDText_SaveLayerFlag = 1 << 1,
         kInitWithPrevious_SaveLayerFlag = 1 << 2,
         kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag = 1 << 3,
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
     };
+
+    typedef uint32_t SaveLayerFlags;
 ##
 
 SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
@@ -1838,7 +1840,8 @@ Sets fBounds, fPaint, and fBackdrop to nullptr. Clears fSaveLayerFlags.
 
 ##
 
-#Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
+#Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint,
+        SaveLayerFlags saveLayerFlags = 0)
 
 Sets fBounds, fPaint, and fSaveLayerFlags; sets fBackdrop to nullptr.
 

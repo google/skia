@@ -1010,6 +1010,7 @@ private:
 };
 
 struct IClassDefinition : public Definition {
+    unordered_map<string, Definition*> fConsts;
     unordered_map<string, Definition*> fDefines;
     unordered_map<string, Definition*> fEnums;
     unordered_map<string, Definition*> fMembers;
@@ -1478,7 +1479,7 @@ public:
         , { nullptr,        MarkType::kCode }
         , { nullptr,        MarkType::kColumn }
         , { nullptr,        MarkType::kComment }
-        , { nullptr,        MarkType::kConst }
+        , { &fIConstMap,    MarkType::kConst }
         , { &fIDefineMap,   MarkType::kDefine }
         , { nullptr,        MarkType::kDefinedBy }
         , { nullptr,        MarkType::kDeprecated }
@@ -1603,6 +1604,7 @@ public:
     bool parseComment(string filename, const char* start, const char* end, int lineCount,
             Definition* markupDef);
     bool parseClass(Definition* def, IsStruct);
+    bool parseConst(Definition* child, Definition* markupDef);
     bool parseDefine(Definition* child, Definition* markupDef);
     bool parseEnum(Definition* child, Definition* markupDef);
 
@@ -1830,6 +1832,7 @@ protected:
     unordered_map<string, Definition> fIncludeMap;
     list<Definition> fGlobals;
     unordered_map<string, IClassDefinition> fIClassMap;
+    unordered_map<string, Definition*> fIConstMap;
     unordered_map<string, Definition*> fIDefineMap;
     unordered_map<string, Definition*> fIEnumMap;
     unordered_map<string, Definition*> fIFunctionMap;
@@ -2326,3 +2329,4 @@ private:
 bool SelfCheck(const BmhParser& );
 
 #endif
+

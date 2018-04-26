@@ -619,20 +619,20 @@ for (SkScalar sx : { 1, 2 } ) {
 
 # ------------------------------------------------------------------------------
 
-#Enum
+#Subtopic MemberIndex
+#In Constant
+#Line # member indices ##
 
 #Code
-    enum {
-        kMScaleX,
-        kMSkewX,
-        kMTransX,
-        kMSkewY,
-        kMScaleY,
-        kMTransY,
-        kMPersp0,
-        kMPersp1,
-        kMPersp2,
-    };
+    static constexpr int kMScaleX = 0;
+    static constexpr int kMSkewX  = 1;
+    static constexpr int kMTransX = 2;
+    static constexpr int kMSkewY  = 3;
+    static constexpr int kMScaleY = 4;
+    static constexpr int kMTransY = 5;
+    static constexpr int kMPersp0 = 6;
+    static constexpr int kMPersp1 = 7;
+    static constexpr int kMPersp2 = 8;
 ##
 
 Matrix organizes its values in row order. These members correspond to
@@ -693,17 +693,17 @@ for (int i : { SkMatrix::kMScaleX, SkMatrix::kMSkewX,  SkMatrix::kMTransX,
 
 # ------------------------------------------------------------------------------
 
-#Enum
+#Subtopic AffineIndex
+#In Constant
+#Line # affine member indices ##
 
 #Code
-    enum {
-        kAScaleX,
-        kASkewY,
-        kASkewX,
-        kAScaleY,
-        kATransX,
-        kATransY,
-    };
+    static constexpr int kAScaleX = 0;
+    static constexpr int kASkewY  = 1;
+    static constexpr int kASkewX  = 2;
+    static constexpr int kAScaleY = 3;
+    static constexpr int kATransX = 4;
+    static constexpr int kATransY = 5;
 ##
 
 Affine arrays are in column major order to match the matrix used by

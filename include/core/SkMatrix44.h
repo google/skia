@@ -457,11 +457,9 @@ private:
     SkMScalar           fMat[4][4];
     mutable unsigned    fTypeMask;
 
-    enum {
-        kUnknown_Mask = 0x80,
+    static constexpr int kUnknown_Mask = 0x80;
 
-        kAllPublic_Masks = 0xF
-    };
+    static constexpr int kAllPublic_Masks = 0xF;
 
     void as3x4RowMajorf(float[]) const;
     void set3x4RowMajorf(const float[]);
