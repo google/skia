@@ -356,17 +356,17 @@ TEST_BUILDERS = [
   'Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All',
+  'Perf-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
+  'Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
+  'Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
   'Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All',
   'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All',
   ('Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
-   'CommandBuffer'),
-  'Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
-  'Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
-  'Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
+    'CommandBuffer'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
-   'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+    'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
-   'Valgrind_SK_CPU_LIMIT_SSE41'),
+    'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan',
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',

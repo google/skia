@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -189,7 +189,7 @@
       "~inc1.webp",
       "--verbose",
       "--outResultsFile",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -209,7 +209,7 @@
       "model",
       "NUC7i5BNK",
       "os",
-      "Ubuntu16"
+      "Debian9"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -233,7 +233,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

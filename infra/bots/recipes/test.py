@@ -519,11 +519,6 @@ def dm_flags(api, bot):
     for raw_ext in r:
       blacklist('_ image _ .%s' % raw_ext)
 
-  if 'IntelHD405' in bot and 'Ubuntu16' in bot:
-    # skia:6331
-    blacklist(['glmsaa8',   'image', 'gen_codec_gpu', 'abnormal.wbmp'])
-    blacklist(['glesmsaa4', 'image', 'gen_codec_gpu', 'abnormal.wbmp'])
-
   if 'Nexus5' in bot and 'GPU' in bot:
     # skia:5876
     blacklist(['_', 'gm', '_', 'encode-platform'])
@@ -981,6 +976,10 @@ TEST_BUILDERS = [
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
+  'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All',
+  'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
+  'Test-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug-All',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug-All',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All',
   'Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All',
@@ -988,10 +987,6 @@ TEST_BUILDERS = [
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All',
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer',
   'Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts',
-  'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All',
-  'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan',
-  'Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
-  'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug-All',
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
