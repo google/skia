@@ -405,7 +405,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		}
 		if d["os"] == DEFAULT_OS_WIN {
 			// TODO(dogben): Temporarily add image dimension during upgrade.
-			d["image"] = "windows-server-2016-dc-v20171114"
+			d["image"] = "windows-server-2016-dc-v20180410"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
