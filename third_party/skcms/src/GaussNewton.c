@@ -12,18 +12,14 @@
 #include <assert.h>
 #include <string.h>
 
-bool skcms_gauss_newton_step(float (*     t)(float x, const void*),
-                             const void* t_ctx,
-                             float (*     f)(float x, const void*, const float P[3]),
-                             const void* f_ctx,
-                             void  (*grad_f)(float x, const void*, const float P[3], float dfdP[3]),
-                             const void* g_ctx,
+bool skcms_gauss_newton_step(float (*rg)(float x, const void*, const float P[3], float dfdP[3]),
+                             const void* ctx,
                              float P[3],
                              float x0, float x1, int N) {
     // We'll sample x from the range [x0,x1] (both inclusive) N times with even spacing.
     //
     // We want to do P' = P + (Jf^T Jf)^-1 Jf^T r(P),
-    //   where r(P) is the residual vector t(x) - f(x,P)
+    //   where r(P) is the residual vector
     //   and Jf is the Jacobian matrix of f(), ∂r/∂P.
     //
     // Let's review the shape of each of these expressions:
@@ -63,10 +59,8 @@ bool skcms_gauss_newton_step(float (*     t)(float x, const void*),
     for (int i = 0; i < N; i++) {
         float x = x0 + i*dx;
 
-        float resid = t(x,t_ctx) - f(x,f_ctx,P);
-
         float dfdP[3] = {0,0,0};
-        grad_f(x,g_ctx,P, dfdP);
+        float resid = rg(x,ctx,P, dfdP);
 
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
@@ -99,9 +93,7 @@ bool skcms_gauss_newton_step(float (*     t)(float x, const void*),
     return true;
 }
 
-float skcms_eval_curve(float x, const void* vctx) {
-    const skcms_Curve* curve = (const skcms_Curve*)vctx;
-
+float skcms_eval_curve(float x, const skcms_Curve* curve) {
     if (curve->table_entries == 0) {
         return skcms_TransferFunction_eval(&curve->parametric, x);
     }

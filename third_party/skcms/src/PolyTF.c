@@ -41,24 +41,30 @@
 // It's important to evaluate as f(x) as A(x^3-1) + B(x^2-1) + 1
 // and not Ax^3 + Bx^2 + (1-A-B) to ensure that f(1.0f) == 1.0f.
 
-static float eval_poly_tf(float x, const void* ctx, const float P[3]) {
-    const skcms_PolyTF* tf = (const skcms_PolyTF*)ctx;
+
+static float eval_poly_tf(float x, float A, float B, float C, float D) {
+    return x < D ? C*x
+                 : A*(x*x*x-1) + B*(x*x-1) + 1;
+}
+
+typedef struct {
+    const skcms_Curve*  curve;
+    const skcms_PolyTF* tf;
+} rg_poly_tf_arg;
+
+static float rg_poly_tf(float x, const void* ctx, const float P[3], float dfdP[3]) {
+    const rg_poly_tf_arg* arg = (const rg_poly_tf_arg*)ctx;
+    const skcms_PolyTF* tf = arg->tf;
 
     float A = P[0],
           C = tf->C,
           D = tf->D;
     float B = (C*D - A*(D*D*D - 1) - 1) / (D*D - 1);
 
-    return x < D ? C*x
-                 : A*(x*x*x-1) + B*(x*x-1) + 1;
-}
-
-static void grad_poly_tf(float x, const void* ctx, const float P[3], float dfdP[3]) {
-    const skcms_PolyTF* tf = (const skcms_PolyTF*)ctx;
-    (void)P;
-    float D = tf->D;
-
     dfdP[0] = (x*x*x - 1) - (x*x-1)*(D*D*D-1)/(D*D-1);
+
+    return skcms_eval_curve(x, arg->curve)
+         -     eval_poly_tf(x, A,B,C,D);
 }
 
 static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
@@ -116,9 +122,8 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
     // Start with guess A = 0, i.e. f(x) ≈ x^2.
     float P[3] = {0, 0,0};
     for (int i = 0; i < 3; i++) {
-        if (!skcms_gauss_newton_step(skcms_eval_curve, curve,
-                                     eval_poly_tf, tf,
-                                     grad_poly_tf, tf,
+        rg_poly_tf_arg arg = { curve, tf };
+        if (!skcms_gauss_newton_step(rg_poly_tf, &arg,
                                      P,
                                      tf->D, 1, N-L)) {
             return false;
@@ -127,13 +132,13 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
 
     float A = tf->A = P[0],
           C = tf->C,
-          D = tf->D;
-    tf->B = (C*D - A*(D*D*D - 1) - 1) / (D*D - 1);
+          D = tf->D,
+          B = tf->B = (C*D - A*(D*D*D - 1) - 1) / (D*D - 1);
 
     for (int i = 0; i < N; i++) {
         float x = i * (1.0f/(N-1));
 
-        float rt = skcms_TransferFunction_eval(&inv, eval_poly_tf(x, tf, P));
+        float rt = skcms_TransferFunction_eval(&inv, eval_poly_tf(x, A,B,C,D));
         if (!isfinitef_(rt)) {
             return false;
         }
