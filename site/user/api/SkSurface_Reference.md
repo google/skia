@@ -46,8 +46,8 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> | creates <a href="#Surface">Surface</a> pointing to new GPU memory buffer |
 | <a href="#SkSurface_characterize">characterize</a> | sets <a href="undocumented#Surface_Characterization">Surface Characterization</a> for threaded GPU processing |
 | <a href="#SkSurface_draw">draw</a> | draws <a href="#Surface">Surface</a> contents to canvas |
-| <a href="#SkSurface_flush">flush</a> | resolve pending I/O |
-| <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolve pending I/O, and signal |
+| <a href="#SkSurface_flush">flush</a> | resolves pending I/O |
+| <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolves pending I/O, and signal |
 | <a href="#SkSurface_generationID">generationID</a> | returns unique ID |
 | <a href="#SkSurface_getBackendRenderTarget">getBackendRenderTarget</a> | returns the GPU reference to render target |
 | <a href="#SkSurface_getBackendTexture">getBackendTexture</a> | returns the GPU reference to texture |
@@ -61,7 +61,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_peekPixels">peekPixels</a> | copies <a href="#Surface">Surface</a> parameters to <a href="SkPixmap_Reference#Pixmap">Pixmap</a> |
 | <a href="#SkSurface_props">props</a> | returns <a href="undocumented#Surface_Properties">Surface Properties</a> |
 | <a href="#SkSurface_readPixels">readPixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
-| <a href="#SkSurface_wait">wait</a> | rause commands until signaled |
+| <a href="#SkSurface_wait">wait</a> | pauses commands until signaled |
 | <a href="#SkSurface_width">width</a> | returns pixel column count |
 | <a href="#SkSurface_writePixels">writePixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
 
@@ -1113,7 +1113,7 @@ true if <a href="#Surface">Surface</a> is backed by GPU texture
 GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess)
 </pre>
 
-Retrieves the backend texture. If <a href="#Surface">Surface</a> has no backend texture, an invalid
+Retrieves the back-end texture. If <a href="#Surface">Surface</a> has no back-end texture, an invalid
 object is returned. Call <a href="undocumented#GrBackendTexture_isValid">GrBackendTexture::isValid</a> to determine if the result
 is valid.
 
@@ -1144,7 +1144,7 @@ GPU texture reference; invalid on failure
 GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess)
 </pre>
 
-Retrieves the backend render target. If <a href="#Surface">Surface</a> has no backend render target, an invalid
+Retrieves the back-end render target. If <a href="#Surface">Surface</a> has no back-end render target, an invalid
 object is returned. Call <a href="undocumented#GrBackendRenderTarget_isValid">GrBackendRenderTarget::isValid</a> to determine if the result
 is valid.
 
@@ -1638,9 +1638,9 @@ soon
 | name | description |
 | --- | --- |
 | <a href="#SkSurface_characterize">characterize</a> | sets <a href="undocumented#Surface_Characterization">Surface Characterization</a> for threaded GPU processing |
-| <a href="#SkSurface_flush">flush</a> | resolve pending I/O |
-| <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolve pending I/O, and signal |
-| <a href="#SkSurface_wait">wait</a> | rause commands until signaled |
+| <a href="#SkSurface_flush">flush</a> | resolves pending I/O |
+| <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolves pending I/O, and signal |
+| <a href="#SkSurface_wait">wait</a> | pauses commands until signaled |
 
 <a name="SkSurface_flush"></a>
 ## flush

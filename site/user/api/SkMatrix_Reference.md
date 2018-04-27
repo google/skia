@@ -124,7 +124,7 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#AffineIndex">AffineIndex</a> | affine member indices |
 | <a href="#MemberIndex">MemberIndex</a> | member indices |
 | <a href="#Property">Property</a> | values and attributes |
-| <a href="#Set">Set</a> | set one or more matrix values |
+| <a href="#Set">Set</a> | sets one or more matrix values |
 | <a href="#Transform">Transform</a> | map points with <a href="#Matrix">Matrix</a> |
 | <a href="#Utility">Utility</a> | rarely called management functions |
 

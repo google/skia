@@ -1092,7 +1092,7 @@ In OpenGL this returns the frame buffer object ID.
 #Method GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess)
 #In Property
 #Line # returns the GPU reference to texture ##
-Retrieves the backend texture. If Surface has no backend texture, an invalid
+Retrieves the back-end texture. If Surface has no back-end texture, an invalid
 object is returned. Call GrBackendTexture::isValid to determine if the result
 is valid.
 
@@ -1117,7 +1117,7 @@ The returned GrBackendTexture should be discarded if the Surface is drawn to or 
 #In Property
 #Line # returns the GPU reference to render target ##
 
-Retrieves the backend render target. If Surface has no backend render target, an invalid
+Retrieves the back-end render target. If Surface has no back-end render target, an invalid
 object is returned. Call GrBackendRenderTarget::isValid to determine if the result
 is valid.
 
@@ -1581,7 +1581,7 @@ surf.props(): kRGB_H_SkPixelGeometry
 
 #Method void flush()
 #In Utility
-#Line # resolve pending I/O ##
+#Line # resolves pending I/O ##
 Issues pending Surface commands to the GPU-backed API and resolves any Surface MSAA.
 
 Skia flushes as needed, so it is not necessary to call this if Skia manages
@@ -1600,7 +1600,7 @@ GPU calls.
 #Method GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[])
 #In Utility
-#Line # resolve pending I/O, and signal ##
+#Line # resolves pending I/O, and signal ##
 
 Issues pending Surface commands to the GPU-backed API and resolves any Surface MSAA.
 After issuing all commands, signalSemaphores of count numSemaphores semaphores
@@ -1641,7 +1641,7 @@ Pending surface commands are flushed regardless of the return result.
 
 #Method bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores)
 #In Utility
-#Line # rause commands until signaled ##
+#Line # pauses commands until signaled ##
 Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
 executing any more commands on the GPU for this surface. Skia will take ownership of the
 underlying semaphores and delete them once they have been signaled and waited on.

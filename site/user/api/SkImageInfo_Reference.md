@@ -68,13 +68,13 @@ component, or all alpha components must be set to their maximum value.
 </td>
   </tr>
   <tr>
-    <td><a name="kPremul_SkAlphaType"> <code><strong>kPremul_SkAlphaType </strong></code> </a></td><td>2</td><td>Pixels have alpha premultiplied into color components.
-<a href="SkSurface_Reference#Surface">Surface</a> pixels must be premultiplied.
+    <td><a name="kPremul_SkAlphaType"> <code><strong>kPremul_SkAlphaType </strong></code> </a></td><td>2</td><td>Pixels have alpha <a href="undocumented#Premultiply">Premultiplied</a> into color components.
+<a href="SkSurface_Reference#Surface">Surface</a> pixels must be <a href="undocumented#Premultiply">Premultiplied</a>.
 </td>
   </tr>
   <tr>
     <td><a name="kUnpremul_SkAlphaType"> <code><strong>kUnpremul_SkAlphaType </strong></code> </a></td><td>3</td><td><a href="undocumented#Pixel">Pixel</a> color component values are independent of alpha value.
-Images generated from encoded data like PNG do not premultiply pixel color
+Images generated from encoded data like PNG do not <a href="undocumented#Premultiply">Premultiply</a> pixel color
 components. <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> is supported for <a href="SkImage_Reference#Image">Image</a> pixels, but not for
 <a href="SkSurface_Reference#Surface">Surface</a> pixels.
 </td>
@@ -131,7 +131,7 @@ Some drawing destinations may not support <a href="#Alpha_Type_Unpremul">Unpremu
 ### Example
 
 <div><fiddle-embed name="b8216a9e5ff5bc61a0e46eba7d36307b"><div><a href="SkColor_Reference#SkColorSetARGB">SkColorSetARGB</a> parameter a is set to 150, less than its maximum value, and is
-interpreted as <a href="SkColor_Reference#Alpha">Color Alpha</a> of about 0.6. color is not premultiplied;
+interpreted as <a href="SkColor_Reference#Alpha">Color Alpha</a> of about 0.6. color is not <a href="undocumented#Premultiply">Premultiplied</a>;
 color components may have values greater than color alpha.
 The four displayed values are the original component values, though not necessarily
 in the same order.
@@ -301,11 +301,11 @@ four bits of blue, four bits of green, and four bits of red.
 ![Color_Type_ABGR_4444](https://fiddle.skia.org/i/0441bdba65a19aa72b75b7fa62d22121_raster.png "")
 
 If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: blue, green, and red components are
-premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+<a href="undocumented#Premultiply">Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
 the drawn result is undefined.
 
 If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: alpha, blue, green, and red components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with Unpremultipled
 pixels.
 
 If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
@@ -324,11 +324,11 @@ eight bits of green, eight bits of blue, and eight bits of alpha.
 ![Color_Type_RGBA_8888](https://fiddle.skia.org/i/4ccd35f27fe73dce8cce8c75e18df23c_raster.png "")
 
 If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: red, green, and blue components are
-premultiplied by the alpha value. If red, green, or blue is greater than alpha,
+<a href="undocumented#Premultiply">Premultiplied</a> by the alpha value. If red, green, or blue is greater than alpha,
 the drawn result is undefined.
 
 If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: alpha, red, green, and blue components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with Unpremultipled
 pixels.
 
 If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
@@ -364,11 +364,11 @@ eight bits of green, eight bits of red, and eight bits of alpha.
 ![Color_Type_BGRA_8888](https://fiddle.skia.org/i/babd0e12db21a88c74d4e88aa40268ab_raster.png "")
 
 If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: blue, green, and red components are
-premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+<a href="undocumented#Premultiply">Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
 the drawn result is undefined.
 
 If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: blue, green, red, and alpha components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with <a href="undocumented#Unpremultiply">Unpremultiplied</a>
 pixels.
 
 If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
@@ -393,11 +393,11 @@ three: fully opaque.
 ![Color_Type_RGBA_1010102](https://fiddle.skia.org/i/6c470410001ad8f1ee9f58204c66f1bb_raster.png "")
 
 If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: red, green, and blue components are
-premultiplied by the alpha value. If red, green, or blue is greater than the
+<a href="undocumented#Premultiply">Premultiplied</a> by the alpha value. If red, green, or blue is greater than the
 alpha replicated to ten bits, the drawn result is undefined.
 
 If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: alpha, red, green, and blue components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with <a href="undocumented#Unpremultiply">Unpremultiplied</a>
 pixels.
 
 If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
@@ -424,7 +424,7 @@ opaque as if its <a href="SkColor_Reference#Alpha">Color Alpha</a> was set to on
 ## <a name="Color_Type_Gray_8"></a> Color Type Gray 8
 
 <a href="#Color_Type_Gray_8">Gray 8</a> is an 8-bit byte pixel encoding that represents equal values for red,
-blue, and green, reprsenting colors from black to white.  <a href="#Color_Type_Gray_8">Gray 8</a> is fully
+blue, and green, representing colors from black to white.  <a href="#Color_Type_Gray_8">Gray 8</a> is fully
 opaque as if its <a href="SkColor_Reference#Alpha">Color Alpha</a> was set to one, and should always be paired with
 <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>.
 
@@ -434,8 +434,8 @@ opaque as if its <a href="SkColor_Reference#Alpha">Color Alpha</a> was set to on
 
 ## <a name="Color_Type_RGBA_F16"></a> Color Type RGBA F16
 
-<a href="#Color_Type_RGBA_F16">RGBA F16</a> is a 64-bit word pixel encoding that contains sixteen bits of blue,
-sixteen bits of green, sixteen bits of red, and sixteen bits of alpha.
+<a href="#Color_Type_RGBA_F16">RGBA F16</a> is a 64-bit word pixel encoding that contains 16 bits of blue,
+16 bits of green, 16 bits of red, and 16 bits of alpha.
 
 Each component encodes a floating point value using <a href="https://www.khronos.org/opengl/wiki/Small_Float_Formats">Half floats</a> .
 Meaningful colors are represented by the range 0.0 to 1.0, although smaller
@@ -444,11 +444,11 @@ and larger values may be useful when used in combination with <a href="undocumen
 ![Color_Type_RGBA_F16](https://fiddle.skia.org/i/9344796c059ff5e4f057595e781905b3_raster.png "")
 
 If paired with <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a>: blue, green, and red components are
-premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+<a href="undocumented#Premultiply">Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
 the drawn result is undefined.
 
 If paired with <a href="#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>: blue, green, red, and alpha components
-may have any value. There may be a performance penalty with unpremultipled
+may have any value. There may be a performance penalty with <a href="undocumented#Unpremultiply">Unpremultiplied</a>
 pixels.
 
 If paired with <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
@@ -666,16 +666,16 @@ and green; and <a href="undocumented#Color_Space">Color Space</a>, the range and
 | <a href="#SkImageInfo_MakeN32Premul">MakeN32Premul</a> | creates <a href="#Image_Info">Image Info</a> with <a href="#Color_Type_Native">Native Color Type</a>, <a href="#kPremul_SkAlphaType">kPremul_SkAlphaType</a> |
 | <a href="#SkImageInfo_MakeS32">MakeS32</a> | creates <a href="#Image_Info">Image Info</a> with <a href="#Color_Type_Native">Native Color Type</a>, sRGB <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_MakeUnknown">MakeUnknown</a> | creates <a href="#Image_Info">Image Info</a> with <a href="#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a> |
-| <a href="#SkImageInfo_alphaType">alphaType</a> | Returns <a href="#Alpha_Type">Alpha Type</a> |
+| <a href="#SkImageInfo_alphaType">alphaType</a> | returns <a href="#Alpha_Type">Alpha Type</a> |
 | <a href="#SkImageInfo_bounds">bounds</a> | returns <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a> as Rectangle |
 | <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a> | returns number of bytes in pixel based on <a href="#Color_Type">Color Type</a> |
 | <a href="#SkImageInfo_colorSpace">colorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_colorType">colorType</a> | returns <a href="#Color_Type">Color Type</a> |
-| <a href="#SkImageInfo_computeByteSize">computeByteSize</a> | memory required by pixel buffer with given row bytes |
-| <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a> | least memory required by pixel buffer |
+| <a href="#SkImageInfo_computeByteSize">computeByteSize</a> | returns memory required by pixel buffer with given row bytes |
+| <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a> | returns least memory required by pixel buffer |
 | <a href="#SkImageInfo_computeOffset">computeOffset</a> | returns byte offset within pixel array |
 | <a href="#SkImageInfo_dimensions">dimensions</a> | returns <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a> |
-| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | Returns if <a href="undocumented#Color_Space">Color Space</a> gamma is approximately the same as sRGB |
+| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | returns if <a href="undocumented#Color_Space">Color Space</a> gamma is approximately the same as sRGB |
 | <a href="#SkImageInfo_height">height</a> | returns pixel row count |
 | <a href="#SkImageInfo_isEmpty">isEmpty</a> | returns if dimensions contain pixels |
 | <a href="#SkImageInfo_isOpaque">isOpaque</a> | returns if <a href="#Alpha_Type">Alpha Type</a> is <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a> |
@@ -872,8 +872,8 @@ created <a href="#Image_Info">Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="bb85fc8a82fe772e1d611f3ab8770a1d"><div>Top gradient is drawn to offscreen without <a href="undocumented#Color_Space">Color Space</a>. It is darker than middle
-gradient, drawn to offscreen with sRGB <a href="undocumented#Color_Space">Color Space</a>. Bottom gradient shares bits
+<div><fiddle-embed name="de418ccb42471d1589508ef3955f8c53"><div>Top gradient is drawn to offScreen without <a href="undocumented#Color_Space">Color Space</a>. It is darker than middle
+gradient, drawn to offScreen with sRGB <a href="undocumented#Color_Space">Color Space</a>. Bottom gradient shares bits
 with middle, but does not specify the <a href="undocumented#Color_Space">Color Space</a> in noColorSpaceBitmap. A source
 without <a href="undocumented#Color_Space">Color Space</a> is treated as sRGB; the bottom gradient is identical to the
 middle gradient.
@@ -1061,13 +1061,13 @@ created <a href="#Image_Info">Image Info</a>
 
 | name | description |
 | --- | --- |
-| <a href="#SkImageInfo_alphaType">alphaType</a> | Returns <a href="#Alpha_Type">Alpha Type</a> |
+| <a href="#SkImageInfo_alphaType">alphaType</a> | returns <a href="#Alpha_Type">Alpha Type</a> |
 | <a href="#SkImageInfo_bounds">bounds</a> | returns <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a> as Rectangle |
 | <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a> | returns number of bytes in pixel based on <a href="#Color_Type">Color Type</a> |
 | <a href="#SkImageInfo_colorSpace">colorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_colorType">colorType</a> | returns <a href="#Color_Type">Color Type</a> |
 | <a href="#SkImageInfo_dimensions">dimensions</a> | returns <a href="#SkImageInfo_width">width</a> and <a href="#SkImageInfo_height">height</a> |
-| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | Returns if <a href="undocumented#Color_Space">Color Space</a> gamma is approximately the same as sRGB |
+| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | returns if <a href="undocumented#Color_Space">Color Space</a> gamma is approximately the same as sRGB |
 | <a href="#SkImageInfo_height">height</a> | returns pixel row count |
 | <a href="#SkImageInfo_isEmpty">isEmpty</a> | returns if dimensions contain pixels |
 | <a href="#SkImageInfo_isOpaque">isOpaque</a> | returns if <a href="#Alpha_Type">Alpha Type</a> is <a href="#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a> |
@@ -1634,8 +1634,8 @@ uint64_t minRowBytes64() const
 </pre>
 
 Returns minimum bytes per row, computed from pixel <a href="#SkImageInfo_width">width</a> and <a href="#Color_Type">Color Type</a>, which
-specifies <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a>. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> maximum value for row bytes must be representable
-as a positive value in a 32-bit signed integer.
+specifies <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a>. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> maximum value for row bytes must fit
+in 31 bits.
 
 ### Return Value
 
@@ -1674,8 +1674,8 @@ size_t minRowBytes() const
 </pre>
 
 Returns minimum bytes per row, computed from pixel <a href="#SkImageInfo_width">width</a> and <a href="#Color_Type">Color Type</a>, which
-specifies <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a>. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> maximum value for row bytes must be representable
-as a positive value in a 32-bit signed integer.
+specifies <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a>. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> maximum value for row bytes must fit
+in 31 bits.
 
 ### Return Value
 
@@ -2013,8 +2013,8 @@ SkImageInfo() == reset copy
 | name | description |
 | --- | --- |
 | <a href="#SkImageInfo_ByteSizeOverflowed">ByteSizeOverflowed</a> | checks result of <a href="#SkImageInfo_computeByteSize">computeByteSize</a> and <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a> |
-| <a href="#SkImageInfo_computeByteSize">computeByteSize</a> | memory required by pixel buffer with given row bytes |
-| <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a> | least memory required by pixel buffer |
+| <a href="#SkImageInfo_computeByteSize">computeByteSize</a> | returns memory required by pixel buffer with given row bytes |
+| <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a> | returns least memory required by pixel buffer |
 | <a href="#SkImageInfo_computeOffset">computeOffset</a> | returns byte offset within pixel array |
 | <a href="#SkImageInfo_validRowBytes">validRowBytes</a> | checks if row bytes is large enough to contain pixel row |
 | <a href="#SkImageInfo_validate">validate</a> | asserts if <a href="#Image_Info">Image Info</a> is invalid (debug only) |

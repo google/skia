@@ -3848,7 +3848,7 @@ Uses two byte words to represent glyph indices.
 First line is encoded in UTF-8.
 Second line is encoded in UTF-16.
 Third line is encoded in UTF-32.
-Fourth line has 16 bit glyph indices.
+Fourth line has 16-bit glyph indices.
 ##
 void draw(SkCanvas* canvas) {
     SkPaint paint;
