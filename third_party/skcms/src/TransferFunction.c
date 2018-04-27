@@ -143,8 +143,17 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 //    ∂tf/∂b =  g(ax + b)^(g-1)
 //           -  g(ad + b)^(g-1)
 
-static float eval_nonlinear(float x, const void* ctx, const float P[3]) {
-    const skcms_TransferFunction* tf = (const skcms_TransferFunction*)ctx;
+typedef struct {
+    const skcms_Curve*            curve;
+    const skcms_TransferFunction* tf;
+} rg_nonlinear_arg;
+
+// Return the residual of the skcms_Curve and skcms_TransferFunction with parameters P,
+// and fill out the gradient of the residual into dfdP.
+static float rg_nonlinear(float x, const void* ctx, const float P[3], float dfdP[3]) {
+    const rg_nonlinear_arg* arg = (const rg_nonlinear_arg*)ctx;
+
+    const skcms_TransferFunction* tf = arg->tf;
 
     const float g = P[0],  a = P[1],  b = P[2],
                 c = tf->c, d = tf->d, f = tf->f;
@@ -153,27 +162,19 @@ static float eval_nonlinear(float x, const void* ctx, const float P[3]) {
                 D = a*d+b;
     assert (X >= 0 && D >= 0);
 
-    // (Notice how a large amount of this work is independent of x.)
-    return powf_(X, g)
-         - powf_(D, g)
-         + c*d + f;
-}
-static void grad_nonlinear(float x, const void* ctx, const float P[3], float dfdP[3]) {
-    const skcms_TransferFunction* tf = (const skcms_TransferFunction*)ctx;
-
-    const float g = P[0], a = P[1], b = P[2],
-                d = tf->d;
-
-    const float X = a*x+b,
-                D = a*d+b;
-    assert (X >= 0 && D >= 0);
-
+    // The gradient.
     dfdP[0] = 0.69314718f*log2f_(X)*powf_(X, g)
             - 0.69314718f*log2f_(D)*powf_(D, g);
     dfdP[1] = x*g*powf_(X, g-1)
             - d*g*powf_(D, g-1);
     dfdP[2] =   g*powf_(X, g-1)
             -   g*powf_(D, g-1);
+
+    // The residual.
+     const float t = powf_(X, g)
+                   - powf_(D, g)
+                   + c*d + f;
+    return skcms_eval_curve(x, arg->curve) - t;
 }
 
 int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float* d, float* f) {
@@ -232,9 +233,8 @@ static bool fit_nonlinear(const skcms_Curve* curve, int start, int N, skcms_Tran
         assert (P[1] >= 0 &&
                 P[1] * tf->d + P[2] >= 0);
 
-        if (!skcms_gauss_newton_step(skcms_eval_curve, curve,
-                                     eval_nonlinear, tf,
-                                     grad_nonlinear, tf,
+        rg_nonlinear_arg arg = { curve, tf};
+        if (!skcms_gauss_newton_step(rg_nonlinear, &arg,
                                      P,
                                      start*x_scale, 1, N-start)) {
             return false;
