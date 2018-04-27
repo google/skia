@@ -3,26 +3,15 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from _hardware import HardwareException, Expectation
+from _hardware import Expectation
 from _hardware_android import HardwareAndroid
-from collections import namedtuple
-import itertools
 
 CPU_CLOCK_RATE = 1670400
 GPU_CLOCK_RATE = 315000000
 
-DEVFREQ_DIRNAME = '/sys/class/devfreq'
-DEVFREQ_THROTTLE = 0.74
-DEVFREQ_BLACKLIST = ('b00000.qcom,kgsl-3d0', 'soc:qcom,kgsl-busmon',
-                     'soc:qcom,m4m')
-DevfreqKnobs = namedtuple('knobs',
-                          ('available_governors', 'available_frequencies',
-                           'governor', 'min_freq', 'max_freq', 'cur_freq'))
-
 class HardwarePixel(HardwareAndroid):
   def __init__(self, adb):
     HardwareAndroid.__init__(self, adb)
-    self._discover_devfreqs()
 
   def __enter__(self):
     HardwareAndroid.__enter__(self)
@@ -99,54 +88,3 @@ class HardwarePixel(HardwareAndroid):
        Expectation(int, max_value=40, name='msm_therm temperature')]
 
     Expectation.check_all(expectations, result.splitlines())
-
-  def _discover_devfreqs(self):
-    self._devfreq_lock_cmds = list()
-    self._devfreq_sanity_knobs = list()
-    self._devfreq_sanity_expectations = list()
-
-    results = iter(self._adb.check('''\
-      KNOBS='%s'
-      for DEVICE in %s/*; do
-        if cd $DEVICE && ls $KNOBS >/dev/null; then
-          basename $DEVICE
-          cat $KNOBS
-        fi
-      done 2>/dev/null''' %
-      (' '.join(DevfreqKnobs._fields), DEVFREQ_DIRNAME)).splitlines())
-
-    while True:
-      batch = tuple(itertools.islice(results, 1 + len(DevfreqKnobs._fields)))
-      if not batch:
-        break
-
-      devfreq = batch[0]
-      if devfreq in DEVFREQ_BLACKLIST:
-        continue
-
-      path = '%s/%s' % (DEVFREQ_DIRNAME, devfreq)
-
-      knobs = DevfreqKnobs(*batch[1:])
-      if not 'performance' in knobs.available_governors.split():
-        print('WARNING: devfreq %s does not have performance governor' % path)
-        continue
-
-      self._devfreq_lock_cmds.append('echo performance > %s/governor' % path)
-
-      frequencies = map(int, knobs.available_frequencies.split())
-      if frequencies:
-        # choose the lowest frequency that is >= DEVFREQ_THROTTLE * max.
-        frequencies.sort()
-        target = DEVFREQ_THROTTLE * frequencies[-1]
-        idx = len(frequencies) - 1
-        while idx > 0 and frequencies[idx - 1] >= target:
-          idx -= 1
-        bench_frequency = frequencies[idx]
-        self._devfreq_lock_cmds.append('echo %i > %s/min_freq' %
-                                      (bench_frequency, path))
-        self._devfreq_lock_cmds.append('echo %i > %s/max_freq' %
-                                      (bench_frequency, path))
-        self._devfreq_sanity_knobs.append('%s/cur_freq' % path)
-        self._devfreq_sanity_expectations.append(
-          Expectation(int, exact_value=bench_frequency,
-                      name='%s/cur_freq' % path))
