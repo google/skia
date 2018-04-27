@@ -109,7 +109,7 @@ public:
 
     RunHead* ensureWritable() {
         RunHead* writable = this;
-        if (fRefCnt > 1) {
+        if (sk_atomic_load(&fRefCnt) > 1) {
             // We need to alloc & copy the current region before we call
             // sk_atomic_dec because it could be freed in the meantime,
             // otherwise.
