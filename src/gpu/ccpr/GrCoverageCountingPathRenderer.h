@@ -183,8 +183,6 @@ public:
         SkDEBUGCODE(bool fHasAtlasTransform = false);
     };
 
-    bool canMakeClipProcessor(const SkPath& deviceSpacePath) const;
-
     std::unique_ptr<GrFragmentProcessor> makeClipProcessor(GrProxyProvider*, uint32_t oplistID,
                                                            const SkPath& deviceSpacePath,
                                                            const SkIRect& accessRect,

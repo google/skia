@@ -185,13 +185,6 @@ void CCPR::DrawPathsOp::wasRecorded(GrRenderTargetOpList* opList) {
     fOwningRTPendingPaths->fDrawOps.addToTail(this);
 }
 
-bool GrCoverageCountingPathRenderer::canMakeClipProcessor(const SkPath& deviceSpacePath) const {
-    if (!fDrawCachablePaths && !deviceSpacePath.isVolatile()) {
-        return false;
-    }
-    return true;
-}
-
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
         GrProxyProvider* proxyProvider,
         uint32_t opListID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
@@ -199,7 +192,6 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
     using MustCheckBounds = GrCCClipProcessor::MustCheckBounds;
 
     SkASSERT(!fFlushing);
-    SkASSERT(this->canMakeClipProcessor(deviceSpacePath));
 
     ClipPath& clipPath = fRTPendingPathsMap[opListID].fClipPaths[deviceSpacePath.getGenerationID()];
     if (clipPath.isUninitialized()) {
