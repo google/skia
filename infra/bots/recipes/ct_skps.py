@@ -40,6 +40,13 @@ TOOL_TO_DEFAULT_SKPS_PER_SLAVE = {
 DEFAULT_SKPS_CHROMIUM_BUILD = '2b7e85eb251dc7-a3cf3659ed2c08'
 
 
+def make_path(api, *path):
+  """Return a Path object for the given path."""
+  key  = 'custom_%s' % '_'.join(path)
+  api.path.c.base_paths[key] = tuple(path)
+  return api.path[key]
+
+
 def RunSteps(api):
   # Figure out which repository to use.
   buildername = api.properties['buildername']
@@ -70,6 +77,9 @@ def RunSteps(api):
     build_target = 'tools'
   else:
     raise Exception('Do not recognise the buildername %s.' % buildername)
+
+  api.vars.override_checkout_root = make_path(api, '/', 'b', 'work')
+  api.vars.override_gclient_cache = make_path(api, '/', 'b', 'cache')
 
   api.core.setup()
   api.flavor.compile(build_target)

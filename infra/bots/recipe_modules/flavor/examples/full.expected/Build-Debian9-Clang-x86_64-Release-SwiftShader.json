@@ -7,7 +7,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/clang_linux/VERSION",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_linux/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -23,7 +23,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out"
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out"
     ],
     "infra_step": true,
     "name": "makedirs swiftshader_out"
@@ -31,17 +31,17 @@
   {
     "cmd": [
       "cmake",
-      "[CUSTOM_/_B_WORK]/skia/third_party/externals/swiftshader",
+      "[START_DIR]/cache/work/skia/third_party/externals/swiftshader",
       "-GNinja"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
+    "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
     "env": {
       "BUILDTYPE": "Release",
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
     },
     "name": "swiftshader cmake"
   },
@@ -49,18 +49,18 @@
     "cmd": [
       "ninja",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
       "libEGL.so",
       "libGLESv2.so"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
+    "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
     "env": {
       "BUILDTYPE": "Release",
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
     },
     "name": "swiftshader ninja"
   },
@@ -68,31 +68,31 @@
     "cmd": [
       "python",
       "-u",
-      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+      "[START_DIR]/cache/work/skia/bin/fetch-gn"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
     },
     "infra_step": true,
     "name": "fetch-gn"
   },
   {
     "cmd": [
-      "[CUSTOM_/_B_WORK]/skia/bin/gn",
+      "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\", \"-DGR_EGL_TRY_GLES3_THEN_GLES2\", \"-I[CUSTOM_/_B_WORK]/skia/third_party/externals/swiftshader/include\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out\"] is_debug=false skia_use_egl=true target_cpu=\"x86_64\""
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release",
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\", \"-DGR_EGL_TRY_GLES3_THEN_GLES2\", \"-I[START_DIR]/cache/work/skia/third_party/externals/swiftshader/include\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out\"] is_debug=false skia_use_egl=true target_cpu=\"x86_64\""
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
     },
     "name": "gn gen"
   },
@@ -102,14 +102,14 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release"
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
     },
     "name": "ninja"
   },
@@ -118,7 +118,7 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
       "[START_DIR]/[SWARM_OUT_DIR]/out/swiftshader_out"
     ],
     "infra_step": true,
