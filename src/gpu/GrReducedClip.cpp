@@ -35,13 +35,14 @@
  */
 GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
                              const GrShaderCaps* caps, int maxWindowRectangles, int maxAnalyticFPs,
-                             GrCoverageCountingPathRenderer* ccpr)
+                             int maxCCPRClipPaths)
         : fCaps(caps)
         , fMaxWindowRectangles(maxWindowRectangles)
         , fMaxAnalyticFPs(maxAnalyticFPs)
-        , fCCPR(fMaxAnalyticFPs ? ccpr : nullptr) {
+        , fMaxCCPRClipPaths(maxCCPRClipPaths) {
     SkASSERT(!queryBounds.isEmpty());
     SkASSERT(fMaxWindowRectangles <= GrWindowRectangles::kMaxWindows);
+    SkASSERT(fMaxCCPRClipPaths <= fMaxAnalyticFPs);
     fHasScissor = false;
     fAAClipRectGenID = SK_InvalidGenID;
 
@@ -651,7 +652,7 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkPath& deviceSpace
         return ClipResult::kClipped;
     }
 
-    if (fCCPR && GrAA::kYes == aa && fCCPR->canMakeClipProcessor(deviceSpacePath)) {
+    if (fCCPRClipPaths.count() < fMaxCCPRClipPaths && GrAA::kYes == aa) {
         // Set aside CCPR paths for later. We will create their clip FPs once we know the ID of the
         // opList they will operate in.
         SkPath& ccprClipPath = fCCPRClipPaths.push_back(deviceSpacePath);
@@ -955,17 +956,18 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
 }
 
 std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
-                                    GrProxyProvider* proxyProvider, uint32_t opListID,
-                                    int rtWidth, int rtHeight) {
+        GrCoverageCountingPathRenderer* ccpr, GrProxyProvider* proxyProvider, uint32_t opListID,
+        int rtWidth, int rtHeight) {
     // Make sure finishAndDetachAnalyticFPs hasn't been called already.
     SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
 
     if (!fCCPRClipPaths.empty()) {
         fAnalyticFPs.reserve(fAnalyticFPs.count() + fCCPRClipPaths.count());
         for (const SkPath& ccprClipPath : fCCPRClipPaths) {
+            SkASSERT(ccpr);
             SkASSERT(fHasScissor);
-            auto fp = fCCPR->makeClipProcessor(proxyProvider, opListID, ccprClipPath, fScissor,
-                                               rtWidth, rtHeight);
+            auto fp = ccpr->makeClipProcessor(proxyProvider, opListID, ccprClipPath, fScissor,
+                                              rtWidth, rtHeight);
             fAnalyticFPs.push_back(std::move(fp));
         }
         fCCPRClipPaths.reset();
