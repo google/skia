@@ -40,6 +40,13 @@ TOOL_TO_DEFAULT_SKPS_PER_SLAVE = {
 DEFAULT_SKPS_CHROMIUM_BUILD = '2b7e85eb251dc7-a3cf3659ed2c08'
 
 
+def make_path(api, *path):
+  """Return a Path object for the given path."""
+  key  = 'custom_%s' % '_'.join(path)
+  api.path.c.base_paths[key] = tuple(path)
+  return api.path[key]
+
+
 def RunSteps(api):
   # Figure out which repository to use.
   buildername = api.properties['buildername']
@@ -123,8 +130,9 @@ def RunSteps(api):
   # referenced also needs to change. As of 8/8/17 the other places are:
   # * infra/bots/ct/ct_skps.isolate
   # * infra/bots/ct/run_ct_skps.py
-  skps_dir = api.vars.checkout_root.join('skps', skps_chromium_build,
-                                         ct_page_type, str(ct_num_slaves))
+  work_dir = make_path(api, '/', 'b', 'work')
+  skps_dir = work_dir.join('skps', skps_chromium_build,
+                           ct_page_type, str(ct_num_slaves))
   version_file = skps_dir.join(SKPS_VERSION_FILE)
   if api.path.exists(version_file):  # pragma: nocover
     version_file_contents = api.file.read_text(
@@ -162,15 +170,18 @@ def RunSteps(api):
           num_skps=num_per_slave)
 
     # Create this slave's isolated.gen.json file to use for batcharchiving.
+    skps_rel_path = '../../../../../../../../../../../b/work/skps/%s/%s/%d' % (
+        skps_chromium_build, ct_page_type, ct_num_slaves)
     extra_variables = {
-        'SLAVE_NUM': str(slave_num),
-        'TOOL_NAME': skia_tool,
-        'GIT_HASH': api.vars.got_revision,
-        'CONFIGURATION': api.vars.configuration,
         'BUILDER': buildername,
         'CHROMIUM_BUILD': skps_chromium_build,
-        'PAGE_TYPE': ct_page_type,
+        'CONFIGURATION': api.vars.configuration,
+        'GIT_HASH': api.vars.got_revision,
         'NUM_SLAVES': str(ct_num_slaves),
+        'PAGE_TYPE': ct_page_type,
+        'SKPS_PATH': skps_rel_path,
+        'SLAVE_NUM': str(slave_num),
+        'TOOL_NAME': skia_tool,
     }
     api.skia_swarming.create_isolated_gen_json(
         isolate_path, isolate_dir, 'linux', 'ct-%s-%s' % (skia_tool, slave_num),
