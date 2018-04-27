@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "523f72e7_415c73db",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-27T22:01:55Z",
+      "side": 1,
+      "message": "max(numFanTris, 0) ?",
+      "range": {
+        "startLine": 44,
+        "startChar": 30,
+        "endLine": 44,
+        "endChar": 40
+      },
+      "revId": "96d49bcc225794a3db68ef2b2f7125b03777df01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8306e707_4cb23b09",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-27T22:01:55Z",
+      "side": 1,
+      "message": "max(indexCnt - 2, 0) ?",
+      "range": {
+        "startLine": 125,
+        "startChar": 39,
+        "endLine": 125,
+        "endChar": 69
+      },
+      "revId": "96d49bcc225794a3db68ef2b2f7125b03777df01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aada1a37_b1d5cf51",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-04-27T22:01:55Z",
+      "side": 1,
+      "message": "max(vertexCnt - 2, 0) ?",
+      "range": {
+        "startLine": 133,
+        "startChar": 39,
+        "endLine": 133,
+        "endChar": 70
+      },
+      "revId": "96d49bcc225794a3db68ef2b2f7125b03777df01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
