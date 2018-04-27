@@ -3897,7 +3897,7 @@ A glyph index is a 16-bit word.
 <div><fiddle-embed name="b29294e7f29d160a1b46abf2dcec9d2a"><div>First line is encoded in UTF-8.
 Second line is encoded in UTF-16.
 Third line is encoded in UTF-32.
-Fourth line has 16 bit glyph indices.
+Fourth line has 16-bit glyph indices.
 </div></fiddle-embed></div>
 
 <a name="SkPaint_getTextEncoding"></a>

@@ -121,6 +121,7 @@ enum class MarkType {
     kOutdent,
     kParam,
     kPhraseDef,
+    kPhraseParam,
     kPhraseRef,
     kPlatform,
     kPopulate,
@@ -474,6 +475,12 @@ public:
             return this->skipWhiteSpace();
         }
         return true;
+    }
+
+    void skipLower() {
+        while (fChar < fEnd && (islower(fChar[0]) || '_' == fChar[0])) {
+            fChar++;
+        }
     }
 
     void skipToNonAlphaNum() {
@@ -1309,6 +1316,7 @@ public:
         , { nullptr,       MarkType::kOutdent }
         , { nullptr,       MarkType::kParam }
         , { nullptr,       MarkType::kPhraseDef }
+        , { nullptr,       MarkType::kPhraseParam }
         , { nullptr,       MarkType::kPhraseRef }
         , { nullptr,       MarkType::kPlatform }
         , { nullptr,       MarkType::kPopulate }
@@ -1510,6 +1518,7 @@ public:
         , { nullptr,        MarkType::kOutdent }
         , { nullptr,        MarkType::kParam }
         , { nullptr,        MarkType::kPhraseDef }
+        , { nullptr,        MarkType::kPhraseParam }
         , { nullptr,        MarkType::kPhraseRef }
         , { nullptr,        MarkType::kPlatform }
         , { nullptr,        MarkType::kPopulate }
@@ -2175,6 +2184,7 @@ private:
     bool buildRefFromFile(const char* fileName, const char* outDir);
     bool checkParamReturnBody(const Definition* def);
     void childrenOut(const Definition* def, const char* contentStart);
+    void constOut(const Definition* def);
     const Definition* csParent() const;
     const Definition* findParamType();
     const Definition* isDefined(const TextParser& , string ref, BmhParser::Resolvable );
@@ -2228,6 +2238,7 @@ private:
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
     void rowOut(const char * name, string description);
+
     void subtopicOut(const TableContents& tableContents);
     void subtopicsOut();
 
@@ -2240,6 +2251,7 @@ private:
     const RootDefinition* fRoot;
     const Definition* fLastParam;
     TableState fTableState;
+    unordered_map<string, string> fPhraseParams;
     bool fAddRefFailed;
     bool fHasFiddle;
     bool fInDescription;   // FIXME: for now, ignore unfound camelCase in description since it may

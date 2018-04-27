@@ -202,7 +202,41 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     return this->reportError<void>("missing phrase definition");
                 }
                 Definition* phraseDef = iter->second;
-                this->rewriteBlock(phraseDef->length(), phraseDef->fContentStart, Phrase::kYes);
+                // TODO: given TextParser(commentStart, prop->fStart + up to #) return if
+                // it ends with two of more linefeeds, ignoring other whitespace
+                Phrase defIsPhrase = '\n' == prop->fStart[0] && '\n' == prop->fStart[-1] ?
+                        Phrase::kNo : Phrase::kYes;
+                if (Phrase::kNo == defIsPhrase) {
+                    this->lf(2);
+                }
+                const char* start = phraseDef->fContentStart;
+                int length = phraseDef->length();
+                auto propParams = prop->fChildren.begin();
+                // can this share code or logic with mdout somehow?
+                for (auto child : phraseDef->fChildren) {
+                    if (MarkType::kPhraseParam == child->fMarkType) {
+                        continue;
+                    }
+                    int localLength = child->fStart - start;
+                    this->rewriteBlock(localLength, start, defIsPhrase);
+                    start += localLength;
+                    length -= localLength;
+                    SkASSERT(propParams != prop->fChildren.end());
+                    if (fColumn > 0) {
+                        this->writeSpace();
+                    }
+                    this->writeString((*propParams)->fName);
+                    localLength = child->fContentEnd - child->fStart;
+                    start += localLength;
+                    length -= localLength;
+                    if (isspace(start[0])) {
+                        this->writeSpace();
+                    }
+                    defIsPhrase = Phrase::kYes;
+                }
+                if (length > 0) {
+                    this->rewriteBlock(length, start, defIsPhrase);
+                }
                 commentStart = prop->fContentStart;
                 commentLen = (int) (def->fContentEnd - commentStart);
                 } break;
@@ -459,7 +493,7 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
             }
         }
         itemName += string(token->fContentStart, (int) (token->fContentEnd - token->fContentStart));
-        for (auto& enumItem : fEnumDef->fChildren) {
+        for (auto enumItem : fEnumDef->fChildren) {
             if (MarkType::kConst != enumItem->fMarkType) {
                 continue;
             }
@@ -470,8 +504,8 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
             break;
         }
         SkASSERT(currentEnumItem);
-        // if description fits, it goes after item
         commentStart = currentEnumItem->fContentStart;
+        // if description fits, it goes after item
         const char* commentEnd;
         if (currentEnumItem->fChildren.size() > 0) {
             commentEnd = currentEnumItem->fChildren[0]->fStart;
@@ -484,16 +518,24 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
             commentStart = enumComment.fChar;
             commentLen = (int) (commentEnd - commentStart);
         } else {
-            const Definition* childDef = currentEnumItem->fChildren[0];
-            isDeprecated = MarkType::kDeprecated == childDef->fMarkType;
-            if (MarkType::kPrivate == childDef->fMarkType || isDeprecated) {
-                commentStart = childDef->fContentStart;
-                if (currentEnumItem->fToBeDeprecated) {
-                    SkASSERT(isDeprecated);
-                    commentStart += 4; // skip over "soon" // FIXME: this is awkward
-                }
-                commentLen = (int) (childDef->fContentEnd - commentStart);
+            commentStart = commentEnd;
+            commentLen = 0;
+        }
+        // #Const should always be followed by #Line, so description follows that
+        // todo: need general routine that finds first comment block contained by definition
+        for (auto constItem : currentEnumItem->fChildren) {
+            TextParser parser(currentEnumItem->fFileName, commentStart, constItem->fStart,
+                    constItem->fLineCount);
+            if (MarkType::kDeprecated == currentEnumItem->fMarkType) {
+                parser.skipExact("soon");   // skip over "soon" // FIXME: this is awkward
             }
+            if (!parser.eof() && parser.skipWhiteSpace()) {
+                commentStart = parser.fChar;
+                commentLen = (int) (constItem->fStart - commentStart);
+                break;
+            }
+            commentStart = constItem->fTerminator;
+            commentLen = (int) (currentEnumItem->fContentEnd - commentStart);
         }
         // FIXME: may assert here if there's no const value
         // should have detected and errored on that earlier when enum fContentStart was set
@@ -788,6 +830,93 @@ Definition* IncludeWriter::findMemberCommentBlock(const vector<Definition*>& bmh
         }
     }
     return nullptr;
+}
+
+// start here
+// abstract measuring and writing comments from enum const members
+// into one so that common exceptions apply to both
+void IncludeWriter::enumItemsCommon(const Definition& child) {
+        string itemName;
+        if (!fEnumDef->isRoot()) {
+            itemName = root->fName + "::";
+            if (KeyWord::kClass == child.fParent->fKeyWord) {
+                itemName += child.fParent->fName + "::";
+            }
+        }
+        itemName += string(token->fContentStart, (int) (token->fContentEnd - token->fContentStart));
+        for (auto enumItem : fEnumDef->fChildren) {
+            if (MarkType::kConst != enumItem->fMarkType) {
+                continue;
+            }
+            if (itemName != enumItem->fName) {
+                continue;
+            }
+            currentEnumItem = enumItem;
+            break;
+        }
+        SkASSERT(currentEnumItem);
+        commentStart = currentEnumItem->fContentStart;
+        // if description fits, it goes after item
+        const char* commentEnd;
+        if (currentEnumItem->fChildren.size() > 0) {
+            commentEnd = currentEnumItem->fChildren[0]->fStart;
+        } else {
+            commentEnd = currentEnumItem->fContentEnd;
+        }
+        TextParser enumComment(fFileName, commentStart, commentEnd, currentEnumItem->fLineCount);
+        bool isDeprecated = false;
+        if (enumComment.skipToLineStart()) {  // skip const value
+            commentStart = enumComment.fChar;
+            commentLen = (int) (commentEnd - commentStart);
+        } else {
+            commentStart = commentEnd;
+            commentLen = 0;
+        }
+        // #Const should always be followed by #Line, so description follows that
+        // todo: need general routine that finds first comment block contained by definition
+        for (auto constItem : currentEnumItem->fChildren) {
+            TextParser parser(currentEnumItem->fFileName, commentStart, constItem->fStart,
+                    constItem->fLineCount);
+            if (MarkType::kDeprecated == currentEnumItem->fMarkType) {
+                parser.skipExact("soon");   // skip over "soon" // FIXME: this is awkward
+            }
+            if (!parser.eof() && parser.skipWhiteSpace()) {
+                commentStart = parser.fChar;
+                commentLen = (int) (constItem->fStart - commentStart);
+                break;
+            }
+            commentStart = constItem->fTerminator;
+            commentLen = (int) (currentEnumItem->fContentEnd - commentStart);
+        }
+        // FIXME: may assert here if there's no const value
+        // should have detected and errored on that earlier when enum fContentStart was set
+        SkASSERT((commentLen > 0 && commentLen < 1000) || isDeprecated);
+        if (!currentEnumItem->fShort) {
+            this->writeCommentHeader();
+            fIndent += 4;
+            bool wroteLineFeed = false;
+            if (isDeprecated) {
+                this->writeString(currentEnumItem->fToBeDeprecated
+                        ? "To be deprecated soon." : "Deprecated.");
+            }
+            TextParserSave save(this);
+            this->setForErrorReporting(currentEnumItem, commentStart);
+            wroteLineFeed  = Wrote::kLF ==
+                this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
+            save.restore();
+            fIndent -= 4;
+            if (wroteLineFeed || fColumn > 100 - 3 /* space * / */ ) {
+                this->lfcr();
+            } else {
+                this->writeSpace();
+            }
+            this->writeCommentTrailer();
+        }
+        lastEnd = token->fContentEnd;
+        this->lfcr();
+        if (',' == fStart[0]) {
+            ++fStart;
+        }
 }
 
 Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const Definition& child) {
