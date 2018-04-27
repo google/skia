@@ -197,6 +197,26 @@ struct SkAndroidFrameworkTraceUtil {
                            static_cast<int>(value1_val), value2_name,       \
                            static_cast<int>(value2_val))
 
+#define TRACE_EVENT_ASYNC_BEGIN0(category, name, id)                                           \
+    INTERNAL_TRACE_EVENT_ADD_WITH_ID(                                                          \
+        TRACE_EVENT_PHASE_ASYNC_BEGIN, category, name, id, TRACE_EVENT_FLAG_NONE)
+#define TRACE_EVENT_ASYNC_BEGIN1(category, name, id, arg1_name, arg1_val)                      \
+    INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_BEGIN,                            \
+        category, name, id, TRACE_EVENT_FLAG_NONE, arg1_name, arg1_val)
+#define TRACE_EVENT_ASYNC_BEGIN2(category, name, id, arg1_name, arg1_val, arg2_name, arg2_val) \
+    INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_BEGIN,                            \
+        category, name, id, TRACE_EVENT_FLAG_NONE, arg1_name, arg1_val, arg2_name, arg2_val)
+
+#define TRACE_EVENT_ASYNC_END0(category, name, id)                                           \
+    INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_END,                            \
+        category, name, id, TRACE_EVENT_FLAG_NONE)
+#define TRACE_EVENT_ASYNC_END1(category, name, id, arg1_name, arg1_val)                      \
+    INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_END,                            \
+        category, name, id, TRACE_EVENT_FLAG_NONE, arg1_name, arg1_val)
+#define TRACE_EVENT_ASYNC_END2(category, name, id, arg1_name, arg1_val, arg2_name, arg2_val) \
+    INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_END,                            \
+        category, name, id, TRACE_EVENT_FLAG_NONE, arg1_name, arg1_val, arg2_name, arg2_val)
+
 // Macros to track the life time and value of arbitrary client objects.
 #define TRACE_EVENT_OBJECT_CREATED_WITH_ID(category_group, name, id) \
   INTERNAL_TRACE_EVENT_ADD_WITH_ID(                                  \
