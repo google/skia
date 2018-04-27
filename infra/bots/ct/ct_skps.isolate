@@ -12,7 +12,7 @@
         'files': [
           '<(TOOL_NAME)',
           'run_ct_skps.py',
-          '../../../../skps/<(CHROMIUM_BUILD)/<(PAGE_TYPE)/<(NUM_SLAVES)/slave<(SLAVE_NUM)/',
+          '<(SKPS_PATH)',
         ],
         'command': [
           'python',
