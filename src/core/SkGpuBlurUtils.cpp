@@ -245,34 +245,41 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
 
 static sk_sp<GrTextureProxy> decimate(GrContext* context,
                                       sk_sp<GrTextureProxy> src,
-                                      SkIRect* srcRect, SkIPoint* srcOffset,
-                                      const SkIRect& localSrcBounds,
+                                      SkIPoint* srcOffset,
+                                      SkIRect* contentRect,
                                       int scaleFactorX, int scaleFactorY,
                                       bool willBeXFiltering, bool willBeYFiltering,
                                       int radiusX, int radiusY,
                                       GrTextureDomain::Mode mode,
-                                      const SkImageInfo& dstII,
-                                      SkBackingFit fit) {
+                                      const SkImageInfo& dstII) {
     SkASSERT(SkIsPow2(scaleFactorX) && SkIsPow2(scaleFactorY));
-    SkASSERT(scaleFactorX > 1 ||scaleFactorY > 1);
+    SkASSERT(scaleFactorX > 1 || scaleFactorY > 1);
 
     GrPixelConfig config = get_blur_config(src.get(), dstII.colorSpace());
 
-    // GrTextureDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
-    GrTextureDomain::Mode modeForScaling = GrTextureDomain::kRepeat_Mode == mode
-                                                        ? GrTextureDomain::kDecal_Mode
-                                                        : mode;
+    SkIRect srcRect;
+    if (GrTextureDomain::kIgnore_Mode == mode) {
+        srcRect = dstII.bounds();
+    } else {
+        srcRect = *contentRect;
+        srcRect.offset(*srcOffset);
+    }
+
+    scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
+    scale_irect(&srcRect, scaleFactorX, scaleFactorY);
+
+    SkIRect dstRect(srcRect);
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
-        SkIRect dstRect(*srcRect);
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
 
+        // We know this will not be the final draw so we are free to make it an approx match.
         dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
-                                                    fit,
-                                                    SkTMin(dstRect.fRight, dstII.width()),
-                                                    SkTMin(dstRect.fBottom, dstII.height()),
+                                                    SkBackingFit::kApprox,
+                                                    dstRect.fRight,
+                                                    dstRect.fBottom,
                                                     config, dstII.refColorSpace());
         if (!dstRenderTargetContext) {
             return nullptr;
@@ -282,7 +289,12 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
         paint.setGammaCorrect(dstRenderTargetContext->colorSpaceInfo().isGammaCorrect());
 
         if (GrTextureDomain::kIgnore_Mode != mode && i == 1) {
-            SkRect domain = SkRect::Make(localSrcBounds);
+            // GrTextureDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
+            GrTextureDomain::Mode modeForScaling = GrTextureDomain::kRepeat_Mode == mode
+                                                                ? GrTextureDomain::kDecal_Mode
+                                                                : mode;
+
+            SkRect domain = SkRect::Make(*contentRect);
             domain.inset((i < scaleFactorX) ? SK_ScalarHalf : 0.0f,
                          (i < scaleFactorY) ? SK_ScalarHalf : 0.0f);
             auto fp = GrTextureDomainEffect::Make(std::move(src),
@@ -291,7 +303,9 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
                                                   modeForScaling,
                                                   GrSamplerState::Filter::kBilerp);
             paint.addColorFragmentProcessor(std::move(fp));
-            srcRect->offset(-(*srcOffset));
+            srcRect.offset(-(*srcOffset));
+            // TODO: consume the srcOffset in both first draws and always set it to zero
+            // back in GaussianBlur
             srcOffset->set(0, 0);
         } else {
             paint.addColorTextureProcessor(std::move(src), SkMatrix::I(),
@@ -299,33 +313,36 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        dstRenderTargetContext->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo,
+        GrFixedClip clip(dstRect);
+        dstRenderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo,
                                                SkMatrix::I(), SkRect::Make(dstRect),
-                                               SkRect::Make(*srcRect));
+                                               SkRect::Make(srcRect));
 
         src = dstRenderTargetContext->asTextureProxyRef();
         if (!src) {
             return nullptr;
         }
-        *srcRect = dstRect;
+        srcRect = dstRect;
     }
+
+    *contentRect = dstRect;
 
     SkASSERT(dstRenderTargetContext);
 
     if (willBeXFiltering) {
         if (scaleFactorX > 1) {
-            // Clear out a radius to the right of the srcRect to prevent the
+            // Clear out a radius to the right of the contentRect to prevent the
             // X convolution from reading garbage.
-            SkIRect clearRect = SkIRect::MakeXYWH(srcRect->fRight, srcRect->fTop,
-                                                  radiusX, srcRect->height());
+            SkIRect clearRect = SkIRect::MakeXYWH(contentRect->fRight, contentRect->fTop,
+                                                  radiusX, contentRect->height());
             dstRenderTargetContext->priv().absClear(&clearRect, 0x0);
         }
     } else {
         if (scaleFactorY > 1) {
-            // Clear out a radius below the srcRect to prevent the Y
+            // Clear out a radius below the contentRect to prevent the Y
             // convolution from reading garbage.
-            SkIRect clearRect = SkIRect::MakeXYWH(srcRect->fLeft, srcRect->fBottom,
-                                                  srcRect->width(), radiusY);
+            SkIRect clearRect = SkIRect::MakeXYWH(contentRect->fLeft, contentRect->fBottom,
+                                                  contentRect->width(), radiusY);
             dstRenderTargetContext->priv().absClear(&clearRect, 0x0);
         }
     }
@@ -347,11 +364,6 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
     }
 
     GrPixelConfig config = get_blur_config(srcProxy.get(), dstII.colorSpace());
-
-    // GrTextureDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
-    GrTextureDomain::Mode modeForScaling = GrTextureDomain::kRepeat_Mode == mode
-                                                        ? GrTextureDomain::kDecal_Mode
-                                                        : mode;
 
     // Clear one pixel to the right and below, to accommodate bilinear upsampling.
     // TODO: it seems like we should actually be clamping here rather than darkening
@@ -377,6 +389,11 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
     paint.setGammaCorrect(dstRenderTargetContext->colorSpaceInfo().isGammaCorrect());
 
     if (GrTextureDomain::kIgnore_Mode != mode) {
+        // GrTextureDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
+        GrTextureDomain::Mode modeForScaling = GrTextureDomain::kRepeat_Mode == mode
+                                                            ? GrTextureDomain::kDecal_Mode
+                                                            : mode;
+
         SkRect domain = SkRect::Make(localSrcBounds);
         auto fp = GrTextureDomainEffect::Make(std::move(srcProxy),
                                                 SkMatrix::I(),
@@ -430,17 +447,6 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     SkASSERT(sigmaX || sigmaY);
 
     SkIPoint srcOffset = SkIPoint::Make(-dstBounds.x(), -dstBounds.y());
-    SkIRect localSrcBounds;
-    SkIRect srcRect;
-    if (GrTextureDomain::kIgnore_Mode == mode) {
-        srcRect = finalDestII.bounds();
-    } else {
-        srcRect = localSrcBounds = srcBounds;
-        srcRect.offset(srcOffset);
-    }
-
-    scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
-    scale_irect(&srcRect, scaleFactorX, scaleFactorY);
 
     // For really small blurs (certainly no wider than 5x5 on desktop gpus) it is faster to just
     // launch a single non separable kernel vs two launches
@@ -454,21 +460,20 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                     mode, finalDestII, fit);
     }
 
+    SkIRect localSrcBounds = srcBounds;
+
     if (scaleFactorX > 1 || scaleFactorY > 1) {
-        srcProxy = decimate(context, std::move(srcProxy), &srcRect, &srcOffset, localSrcBounds,
-                            scaleFactorX, scaleFactorY,
-                            sigmaX > 0.0f, sigmaY > 0.0f, radiusX, radiusY,
-                            mode, finalDestII, fit);
+        srcProxy = decimate(context, std::move(srcProxy), &srcOffset, &localSrcBounds,
+                            scaleFactorX, scaleFactorY, sigmaX > 0.0f, sigmaY > 0.0f,
+                            radiusX, radiusY, mode, finalDestII);
         if (!srcProxy) {
             return nullptr;
         }
-
-        localSrcBounds = srcRect;
     }
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
 
-    srcRect = finalDestII.bounds();
+    SkIRect srcRect = finalDestII.bounds();
     scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
     if (sigmaX > 0.0f) {
         dstRenderTargetContext = convolve_gaussian(context, std::move(srcProxy), srcRect, srcOffset,
