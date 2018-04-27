@@ -129,7 +129,7 @@ SkRegion::~SkRegion() {
 void SkRegion::freeRuns() {
     if (this->isComplex()) {
         SkASSERT(fRunHead->fRefCnt >= 1);
-        if (sk_atomic_dec(&fRunHead->fRefCnt) == 1) {
+        if (--fRunHead->fRefCnt == 0) {
             //SkASSERT(gRgnAllocCounter > 0);
             //SkDEBUGCODE(sk_atomic_dec(&gRgnAllocCounter));
             //SkDEBUGF(("************** gRgnAllocCounter::free %d\n", gRgnAllocCounter));
@@ -199,7 +199,7 @@ bool SkRegion::setRegion(const SkRegion& src) {
         fBounds = src.fBounds;
         fRunHead = src.fRunHead;
         if (this->isComplex()) {
-            sk_atomic_inc(&fRunHead->fRefCnt);
+            fRunHead->fRefCnt++;
         }
     }
     return fRunHead != SkRegion_gEmptyRunHeadPtr;
