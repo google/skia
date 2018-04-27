@@ -16,6 +16,24 @@
       "revId": "3057506fa60c1b8f258de7f928603ef18c18bb36",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "445d7b4d_690f681a",
+        "filename": "infra/bots/ct/ct_skps.isolate",
+        "patchSetId": 9
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-04-27T17:15:27Z",
+      "side": 1,
+      "message": "No, I forgot to change this back.",
+      "parentUuid": "262b52e9_dd8bfe66",
+      "revId": "3057506fa60c1b8f258de7f928603ef18c18bb36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
