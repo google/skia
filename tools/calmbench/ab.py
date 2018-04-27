@@ -29,6 +29,7 @@ import json
 import subprocess
 import shlex
 import multiprocessing
+import traceback
 from argparse import ArgumentParser
 from multiprocessing import Process
 from threading import Thread
@@ -39,7 +40,7 @@ from pdb import set_trace
 HELP = """
 \033[31mPlease call calmbench.py to drive this script if you're not doing so.
 This script is not supposed to be used by itself. (At least, it's not easy to
-use by itself.)
+use by itself. The calmbench bots may use this script directly.)
 \033[0m
 """
 
@@ -124,6 +125,21 @@ def append_times_from_file(args, name, filename):
       add_time(args, name, bench, float(time_num), time_unit)
 
 
+class ThreadWithException(Thread):
+  def __init__(self, target):
+    super(ThreadWithException, self).__init__(target = target)
+    self.exception = None
+
+  def run(self):
+    try:
+      self._Thread__target(*self._Thread__args, **self._Thread__kwargs)
+    except BaseException as e:
+      self.exception = e
+
+  def join(self, timeout=None):
+    super(ThreadWithException, self).join(timeout)
+
+
 class ThreadRunner:
   """Simplest and stupidiest threaded executer."""
   def __init__(self, args):
@@ -133,7 +149,7 @@ class ThreadRunner:
   def add(self, args, fn):
     if len(self.threads) >= args.threads:
       self.wait()
-    t = Thread(target = fn)
+    t = ThreadWithException(target = fn)
     t.daemon = True
     self.threads.append(t)
     t.start()
@@ -158,11 +174,22 @@ class ThreadRunner:
       ts.start()
 
     for t in self.threads:
-        t.join()
+      t.join()
+
+    exceptions = []
+    for t in self.threads:
+      if t.exception:
+        exceptions.append(t.exception)
+
     self.threads = []
 
     if not self.concise:
       ts.join()
+
+    if len(exceptions):
+      for exc in exceptions:
+        print exc
+      raise exceptions[0]
 
 
 def split_arg(arg):
@@ -365,4 +392,5 @@ if __name__ == "__main__":
   except Exception as e:
     print e
     print HELP
-    raise
+    traceback.print_exc()
+    raise e
