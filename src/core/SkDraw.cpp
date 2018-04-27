@@ -1019,6 +1019,7 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
         // existing drawXXX commands: simply send in SkInitOnceData, do as much init work as
         // possible, and finally wrap the remaining work into iData->fElement->fDrawFn.
         SkASSERT(customBlitter == nullptr);
+        devPath.updateBoundsCache(); // make it thread safe
         iData->fElement->setDrawFn([proc, devPath, paint, drawCoverage](SkArenaAlloc* alloc,
                 const SkThreadedBMPDevice::DrawState& ds, const SkIRect& tileBounds) {
             SkThreadedBMPDevice::TileDraw tileDraw(ds, tileBounds);
