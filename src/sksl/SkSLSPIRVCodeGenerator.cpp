@@ -1247,7 +1247,17 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
                 ASSERT(currentCount == 0);
                 columnIds.push_back(arguments[i]);
             } else {
-                currentColumn.push_back(arguments[i]);
+                if (c.fArguments[i]->fType.columns() == 1) {
+                    currentColumn.push_back(arguments[i]);
+                } else {
+                    SpvId componentType = this->getType(c.fArguments[i]->fType.componentType());
+                    for (int j = 0; j < c.fArguments[j]->fType.columns(); ++j) {
+                        SpvId swizzle = this->nextId();
+                        this->writeInstruction(SpvOpCompositeExtract, componentType, swizzle,
+                                               arguments[i], j, out);
+                        currentColumn.push_back(swizzle);
+                    }
+                }
                 currentCount += c.fArguments[i]->fType.columns();
                 if (currentCount == rows) {
                     currentCount = 0;
