@@ -1388,6 +1388,7 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
       "//third_party/libpng",
+      "//third_party/skcms",
       "//third_party/zlib",
     ]
     public_deps = [
