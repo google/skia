@@ -18,6 +18,7 @@
 #include "SkTypes.h"
 #include "Test.h"
 #include "png.h"
+#include "skcms.h"
 
 #include <memory>
 #include <utility>
@@ -430,4 +431,9 @@ DEF_TEST(ColorSpace_IsSRGB, r) {
 
     REPORTER_ASSERT(r, srgb0->isSRGB());
     REPORTER_ASSERT(r, !twoDotTwo->isSRGB());
+}
+
+DEF_TEST(ColorSpace_skcms_IsSRGB, r) {
+    sk_sp<SkColorSpace> srgb = SkColorSpace::Make(&skcms_sRGB_profile);
+    REPORTER_ASSERT(r, srgb->isSRGB());
 }
