@@ -50,7 +50,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | name | description |
 | --- | --- |
 | <a href="#Allocate">Allocate</a> | allocates storage for pixels |
-| <a href="#Draw">Draw</a> | set pixels to <a href="SkColor_Reference#Color">Color</a> |
+| <a href="#Draw">Draw</a> | sets pixels to <a href="SkColor_Reference#Color">Color</a> |
 | <a href="#Pixels">Pixels</a> | read and write pixel values |
 | <a href="#Property">Property</a> | metrics and attributes |
 | <a href="#Row_Bytes">Row Bytes</a> | interval from one row to the next |
@@ -2330,7 +2330,7 @@ true if custom <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a> repo
 
 <div><fiddle-embed name="eb6f861ca1839146d26e40d56c2a001c"><div><a href="#SkBitmap_HeapAllocator">HeapAllocator</a> limits the maximum size of <a href="#Bitmap">Bitmap</a> to two gigabytes. Using
 a custom <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a>, this limitation may be relaxed. This example can be
-modified to allocate an eight gigabyte <a href="#Bitmap">Bitmap</a> on a 64 bit platform with
+modified to allocate an eight gigabyte <a href="#Bitmap">Bitmap</a> on a 64-bit platform with
 sufficient memory.
 </div></fiddle-embed></div>
 
@@ -2475,7 +2475,7 @@ row offset in <a href="undocumented#Pixel_Ref">Pixel Ref</a> for bitmap origin</
 
 ### Example
 
-<div><fiddle-embed name="13df9e5b1adcec33d11e4b0f8a91ecb8"><div>Treating 32 bit data as 8 bit data is unlikely to produce useful results.
+<div><fiddle-embed name="13df9e5b1adcec33d11e4b0f8a91ecb8"><div>Treating 32-bit data as 8-bit data is unlikely to produce useful results.
 </div></fiddle-embed></div>
 
 ### See Also

@@ -116,15 +116,15 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#Conic">Conic</a> | conic section defined by three points and a weight |
 | <a href="#Conic_Weight">Conic Weight</a> | strength of <a href="#Conic">Conic</a> control <a href="SkPoint_Reference#Point">Point</a> |
 | <a href="#SkPath_Convexity">Convexity</a> | if <a href="#Path">Path</a> is concave or convex |
-| <a href="#Cubic">Cubic</a> | Bezier_Curve described by third-order polynomial |
-| <a href="#SkPath_Direction">Direction</a> | <a href="#Path">Path</a> contour orientation |
-| <a href="#Fill_Type">Fill Type</a> | <a href="#Path">Path</a> fill rule, normal and inverted |
+| <a href="#Cubic">Cubic</a> | curve described by third-order polynomial |
+| <a href="#SkPath_Direction">Direction</a> | contour orientation, clockwise or counterclockwise |
+| <a href="#Fill_Type">Fill Type</a> | fill rule, normal and inverted |
 | <a href="#Generation_ID">Generation ID</a> | value reflecting contents change |
 | <a href="#Interpolate">Interpolate</a> | weighted average of <a href="#Path">Path</a> pair |
 | <a href="#Last_Point">Last Point</a> | final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Contour">Contour</a> |
 | <a href="#Point_Array">Point Array</a> | end points and control points for lines and curves |
 | <a href="#Property">Property</a> | metrics and attributes |
-| <a href="#Quad">Quad</a> | Bezier_Curve described by second-order polynomial |
+| <a href="#Quad">Quad</a> | curve described by second-order polynomial |
 | <a href="#Transform">Transform</a> | modify all points |
 | <a href="#Utility">Utility</a> | rarely called management functions |
 | <a href="#SkPath_Verb">Verb</a> | line and curve type |
@@ -147,8 +147,8 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_Iter">Iter</a> | <a href="#Path">Path</a> data iterator |
-| <a href="#SkPath_RawIter">RawIter</a> | <a href="#Path">Path</a> raw data iterator |
+| <a href="#SkPath_Iter">Iter</a> | data iterator |
+| <a href="#SkPath_RawIter">RawIter</a> | raw data iterator |
 
 ## <a name="Constructor"></a> Constructor
 
@@ -233,7 +233,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_rLineTo">rLineTo</a> | appends <a href="undocumented#Line">Line</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_rMoveTo">rMoveTo</a> | starts <a href="#Contour">Contour</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_rQuadTo">rQuadTo</a> | appends <a href="#Quad">Quad</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_readFromMemory">readFromMemory</a> | Initializes from buffer |
+| <a href="#SkPath_readFromMemory">readFromMemory</a> | initializes from buffer |
 | <a href="#SkPath_reset">reset</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>; frees memory |
 | <a href="#SkPath_reverseAddPath">reverseAddPath</a> | adds contents of <a href="#Path">Path</a> back to front |
 | <a href="#SkPath_rewind">rewind</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>, keeping memory |
@@ -1896,7 +1896,7 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 | <a href="#SkPath_dumpHex">dumpHex</a> | sends text representation using hexadecimal to standard output |
 | <a href="#SkPath_getSegmentMasks">getSegmentMasks</a> | returns types in <a href="#Verb_Array">Verb Array</a> |
 | <a href="#SkPath_incReserve">incReserve</a> | reserves space for additional data |
-| <a href="#SkPath_readFromMemory">readFromMemory</a> | Initializes from buffer |
+| <a href="#SkPath_readFromMemory">readFromMemory</a> | initializes from buffer |
 | <a href="#SkPath_serialize">serialize</a> | copies data to buffer |
 | <a href="#SkPath_setLastPt">setLastPt</a> | replaces <a href="#Last_Point">Last Point</a> |
 |  | <a href="#SkPath_setLastPt">setLastPt(SkScalar x, SkScalar y)</a> |
@@ -5257,10 +5257,10 @@ peek Done == verb Done
 
 </fiddle-embed></div>
 
-StdOut isn't really volatile, it just produces the wrong result.
+StdOut is not really volatile, it just produces the wrong result.
 A simple fix changes the output of hairlines and needs to be
 investigated to see if the change is correct or not.
-https://skia-review.googlesource.com/c/21340/
+see change 21340 (abandoned for now)
 
 ### See Also
 
