@@ -4,12 +4,16 @@
 
 
 DEPS = [
+  'recipe_engine/path',
   'recipe_engine/properties',
   'vars',
 ]
 
 
 def RunSteps(api):
+  if 'Override' in api.properties['buildername']:
+    api.vars.override_checkout_root = api.path['start_dir']
+    api.vars.override_gclient_cache = api.path['start_dir']
   api.vars.setup()
   info = [
     api.vars.upload_dm_results,
@@ -23,6 +27,7 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-NoDEPS',
+  'Build-Debian9-Clang-x86_64-Release-Override',
   'Build-Debian9-Clang-x86_64-Release-ParentRevision',
   'Build-Debian9-Clang-x86_64-Release-SKNX_NO_SIMD',
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
