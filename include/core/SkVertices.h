@@ -75,6 +75,7 @@ public:
 
         // holds a partially complete object. only completed in detach()
         sk_sp<SkVertices> fVertices;
+        std::unique_ptr<uint8_t> fIntermediateIndices;
 
         friend class SkVertices;
     };
