@@ -42,7 +42,7 @@ struct SkRegion::RunHead {
 private:
 
 public:
-    int32_t fRefCnt;
+    std::atomic<int32_t> fRefCnt;
     int32_t fRunCount;
 
     /**
@@ -120,7 +120,7 @@ public:
             // fRefCount might have changed since we last checked.
             // If we own the last reference at this point, we need to
             // free the memory.
-            if (sk_atomic_dec(&fRefCnt) == 1) {
+            if (--fRefCnt == 0) {
                 sk_free(this);
             }
         }
