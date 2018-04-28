@@ -77,6 +77,7 @@ SkThreadedBMPDevice::DrawState::DrawState(SkThreadedBMPDevice* dev) {
         fDst.reset(dev->imageInfo(), nullptr, 0);
     }
     fMatrix = dev->ctm();
+    fMatrix.getType(); // make it thread safe
     fRC = dev->fRCStack.rc();
 }
 
