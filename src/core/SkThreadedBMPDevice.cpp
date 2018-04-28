@@ -185,7 +185,8 @@ void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& mat
 
     SkBitmap snap = this->snapBitmap(bitmap);
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawBitmap(snap, matrix, clonedDstOrNull, paint);
+        SkBitmap local = snap; // bitmap is not thread safe; copy a local one.
+        TileDraw(ds, tileBounds).drawBitmap(local, matrix, clonedDstOrNull, paint);
     });
 }
 
@@ -203,7 +204,8 @@ void SkThreadedBMPDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const
     SkBitmap snap = this->snapBitmap(bitmap);
     fQueue.push<false>(drawBounds, [=](SkArenaAlloc*, const DrawState& ds,
                                        const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawSprite(snap, x, y, paint);
+        SkBitmap local = snap; // bitmap is not thread safe; copy a local one.
+        TileDraw(ds, tileBounds).drawSprite(local, x, y, paint);
     });
 }
 
