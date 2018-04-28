@@ -23,13 +23,37 @@ static int32_t next_id() {
 }
 
 struct SkVertices::Sizes {
-    Sizes(int vertexCount, int indexCount, bool hasTexs, bool hasColors) {
+    Sizes(SkVertices::VertexMode mode, int vertexCount, int indexCount, bool hasTexs,
+          bool hasColors) {
         SkSafeMath safe;
 
         fVSize = safe.mul(vertexCount, sizeof(SkPoint));
         fTSize = hasTexs ? safe.mul(vertexCount, sizeof(SkPoint)) : 0;
         fCSize = hasColors ? safe.mul(vertexCount, sizeof(SkColor)) : 0;
+
+        fBuilderTriFanISize = 0;
         fISize = safe.mul(indexCount, sizeof(uint16_t));
+        if (kTriangleFan_VertexMode == mode) {
+            int numFanTris = 0;
+            if (indexCount) {
+                fBuilderTriFanISize = fISize;
+                numFanTris = indexCount - 2;
+            } else {
+                numFanTris = vertexCount - 2;
+                // By forcing this to become indexed we are adding a constraint to the maximum
+                // number of vertices.
+                if (3 * numFanTris > (SK_MaxU16 + 1)) {
+                    sk_bzero(this, sizeof(*this));
+                    return;
+                }
+            }
+            if (numFanTris <= 0) {
+                sk_bzero(this, sizeof(*this));
+                return;
+            }
+            fISize = safe.mul(numFanTris, 3 * sizeof(uint16_t));
+        }
+
         fTotal = safe.add(sizeof(SkVertices),
                  safe.add(fVSize,
                  safe.add(fTSize,
@@ -51,6 +75,10 @@ struct SkVertices::Sizes {
     size_t fTSize;
     size_t fCSize;
     size_t fISize;
+
+    // For indexed tri-fans this is the number of amount of space fo indices needed in the builder
+    // before conversion to indexed triangles (or zero if not indexed or not a triangle fan).
+    size_t fBuilderTriFanISize;
 };
 
 SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
@@ -58,7 +86,7 @@ SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
     bool hasTexs = SkToBool(builderFlags & SkVertices::kHasTexCoords_BuilderFlag);
     bool hasColors = SkToBool(builderFlags & SkVertices::kHasColors_BuilderFlag);
     this->init(mode, vertexCount, indexCount,
-               SkVertices::Sizes(vertexCount, indexCount, hasTexs, hasColors));
+               SkVertices::Sizes(mode, vertexCount, indexCount, hasTexs, hasColors));
 }
 
 SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
@@ -73,6 +101,10 @@ void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
     }
 
     void* storage = ::operator new (sizes.fTotal);
+    if (sizes.fBuilderTriFanISize) {
+        fIntermediateFanIndices.reset(new uint8_t[sizes.fBuilderTriFanISize]);
+    }
+
     fVertices.reset(new (storage) SkVertices);
 
     // need to point past the object to store the arrays
@@ -91,6 +123,27 @@ void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
 sk_sp<SkVertices> SkVertices::Builder::detach() {
     if (fVertices) {
         fVertices->fBounds.set(fVertices->fPositions, fVertices->fVertexCnt);
+        if (fVertices->fMode == kTriangleFan_VertexMode) {
+            if (fIntermediateFanIndices.get()) {
+                SkASSERT(fVertices->fIndexCnt);
+                auto tempIndices = this->indices();
+                for (int t = 0; t < fVertices->fIndexCnt - 2; ++t) {
+                    fVertices->fIndices[3 * t + 0] = tempIndices[0];
+                    fVertices->fIndices[3 * t + 1] = tempIndices[t + 1];
+                    fVertices->fIndices[3 * t + 2] = tempIndices[t + 2];
+                }
+                fVertices->fIndexCnt = 3 * (fVertices->fIndexCnt - 2);
+            } else {
+                SkASSERT(!fVertices->fIndexCnt);
+                for (int t = 0; t < fVertices->fVertexCnt - 2; ++t) {
+                    fVertices->fIndices[3 * t + 0] = 0;
+                    fVertices->fIndices[3 * t + 1] = SkToU16(t + 1);
+                    fVertices->fIndices[3 * t + 2] = SkToU16(t + 2);
+                }
+                fVertices->fIndexCnt = 3 * (fVertices->fVertexCnt - 2);
+            }
+            fVertices->fMode = kTriangles_VertexMode;
+        }
         fVertices->fUniqueID = next_id();
         return std::move(fVertices);        // this will null fVertices after the return
     }
@@ -118,7 +171,13 @@ SkColor* SkVertices::Builder::colors() {
 }
 
 uint16_t* SkVertices::Builder::indices() {
-    return fVertices ? const_cast<uint16_t*>(fVertices->indices()) : nullptr;
+    if (!fVertices) {
+        return nullptr;
+    }
+    if (fIntermediateFanIndices) {
+        return reinterpret_cast<uint16_t*>(fIntermediateFanIndices.get());
+    }
+    return const_cast<uint16_t*>(fVertices->indices());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +186,7 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
                                        const SkPoint pos[], const SkPoint texs[],
                                        const SkColor colors[], int indexCount,
                                        const uint16_t indices[]) {
-    Sizes sizes(vertexCount, indexCount, texs != nullptr, colors != nullptr);
+    Sizes sizes(mode, vertexCount, indexCount, texs != nullptr, colors != nullptr);
     if (!sizes.isValid()) {
         return nullptr;
     }
@@ -138,13 +197,14 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
     sk_careful_memcpy(builder.positions(), pos, sizes.fVSize);
     sk_careful_memcpy(builder.texCoords(), texs, sizes.fTSize);
     sk_careful_memcpy(builder.colors(), colors, sizes.fCSize);
-    sk_careful_memcpy(builder.indices(), indices, sizes.fISize);
+    size_t isize = (mode == kTriangleFan_VertexMode) ? sizes.fBuilderTriFanISize : sizes.fISize;
+    sk_careful_memcpy(builder.indices(), indices, isize);
 
     return builder.detach();
 }
 
 size_t SkVertices::approximateSize() const {
-    Sizes sizes(fVertexCnt, fIndexCnt, this->hasTexCoords(), this->hasColors());
+    Sizes sizes(fMode, fVertexCnt, fIndexCnt, this->hasTexCoords(), this->hasColors());
     SkASSERT(sizes.isValid());
     return sizeof(SkVertices) + sizes.fArrays;
 }
@@ -170,8 +230,9 @@ sk_sp<SkData> SkVertices::encode() const {
         packed |= kHasColors_Mask;
     }
 
-    Sizes sizes(fVertexCnt, fIndexCnt, this->hasTexCoords(), this->hasColors());
+    Sizes sizes(fMode, fVertexCnt, fIndexCnt, this->hasTexCoords(), this->hasColors());
     SkASSERT(sizes.isValid());
+    SkASSERT(!sizes.fBuilderTriFanISize);
     // need to force alignment to 4 for SkWriter32 -- will pad w/ 0s as needed
     const size_t size = SkAlign4(kHeaderSize + sizes.fArrays);
 
@@ -208,7 +269,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     }
     const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
     const bool hasColors = SkToBool(packed & kHasColors_Mask);
-    Sizes sizes(vertexCount, indexCount, hasTexs, hasColors);
+    Sizes sizes(mode, vertexCount, indexCount, hasTexs, hasColors);
     if (!sizes.isValid()) {
         return nullptr;
     }
@@ -222,7 +283,8 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     reader.read(builder.positions(), sizes.fVSize);
     reader.read(builder.texCoords(), sizes.fTSize);
     reader.read(builder.colors(), sizes.fCSize);
-    reader.read(builder.indices(), sizes.fISize);
+    size_t isize = (mode == kTriangleFan_VertexMode) ? sizes.fBuilderTriFanISize : sizes.fISize;
+    reader.read(builder.indices(), isize);
     if (indexCount > 0) {
         // validate that the indicies are in range
         SkASSERT(indexCount == builder.indexCount());

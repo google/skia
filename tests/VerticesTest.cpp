@@ -88,6 +88,37 @@ DEF_TEST(Vertices, reporter) {
             REPORTER_ASSERT(reporter, equal(v0.get(), v1.get()));
         }
     }
+    {
+        // This has the maximum number of vertices to be rewritten as indexed triangles without
+        // overflowing a 16bit index.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 21847, 0,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, builder.isValid());
+    }
+    {
+        // This has too many to be rewritten.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 21848, 0,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, !builder.isValid());
+    }
+    {
+        // Only two vertices - can't be rewritten.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 2, 0,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, !builder.isValid());
+    }
+    {
+        // Minimum number of indices to be rewritten.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 3,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, builder.isValid());
+    }
+    {
+        // Too few indices to be rewritten.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 2,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, !builder.isValid());
+    }
 }
 
 static void fill_triangle(SkCanvas* canvas, const SkPoint pts[], SkColor c) {

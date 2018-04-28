@@ -1675,6 +1675,8 @@ void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
+    // We expect fans to be converted to triangles when building or deserializing SkVertices.
+    SkASSERT(vertices->mode() != SkVertices::kTriangleFan_VertexMode);
     this->onDrawVerticesObject(vertices.get(), mode, paint);
 }
 
