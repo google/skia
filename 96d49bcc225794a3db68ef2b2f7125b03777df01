@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "eb2042e1_ccefb2c0",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-04-28T02:53:20Z",
+      "side": 1,
+      "message": "Good point.\n\nIt seems that there are two more concerns:\n\nOne is your two comments below: that 3 * numFanTris overflows an int (SkVertices::fIndexCount).\n\nThe other is that we convert a non-indexed vertices with \u003e 64K vertices into an indexed draw, since our indices are always 16 bit. Fixing this one is a behavior change, but one I\u0027m not concerned about as drawing such a large fan seems unlikely.\n\nWill fix.",
+      "parentUuid": "523f72e7_415c73db",
+      "range": {
+        "startLine": 44,
+        "startChar": 30,
+        "endLine": 44,
+        "endChar": 40
+      },
+      "revId": "96d49bcc225794a3db68ef2b2f7125b03777df01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8306e707_4cb23b09",
         "filename": "src/core/SkVertices.cpp",
         "patchSetId": 5
