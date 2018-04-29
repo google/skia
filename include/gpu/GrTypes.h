@@ -186,6 +186,7 @@ static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
  */
 enum GrBackend {
     kMetal_GrBackend,
+    kNXT_GrBackend,
     kOpenGL_GrBackend,
     kVulkan_GrBackend,
     /**

@@ -170,6 +170,10 @@ public:
     bool incompleteShortIntPrecision() const {
         return false;
     }
+
+    bool combinedTextureShaderSupport() const {
+        return true;
+    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
