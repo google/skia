@@ -7,6 +7,7 @@
 #include "GrAtlasTextContext.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrSDFMaskFilter.h"
 #include "GrTextBlobCache.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
@@ -661,6 +662,8 @@ void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
     skPaint->setAutohinted(false);
     skPaint->setHinting(SkPaint::kNormal_Hinting);
     skPaint->setSubpixelText(true);
+
+    skPaint->setMaskFilter(GrSDFMaskFilter::Make());
 }
 
 void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
