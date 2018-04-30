@@ -94,13 +94,18 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
     }
 
     // Detect linear baseline: (ax + b)^g + e --> ax ~~> Cx
-    if (baseline.g == 1 && baseline.d == 0 && baseline.b + baseline.e == 0) {
-        tf->A = 0;
-        tf->B = 0;
-        tf->C = baseline.a;
-        tf->D = INFINITY_;   // Always use Cx, never Ax^3+Bx^2+(1-A-B)
-        return true;
+    if (baseline.g == 1 && baseline.d == 0) {
+        if (baseline.b + baseline.e == 0) {
+            tf->A = 0;
+            tf->B = 0;
+            tf->C = baseline.a;
+            tf->D = INFINITY_;   // Always use Cx, never Ax^3+Bx^2+(1-A-B)
+            return true;
+        } else {
+            return false;  // Just like baseline.f != 0 above, can't represent this offset.
+        }
     }
+
     // This case is less likely, but also guards against divide by zero below.
     if (tf->D == 1) {
         tf->A = 0;
@@ -112,7 +117,11 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
     // If the curve isn't parametric and we approximated instead, this should be exact.
     const int L = (int)(tf->D * (N-1)) + 1;
 
-    // TODO: handle special case of L == N-1 to avoid /0 in Gauss-Newton.
+    if (L == N-1) {
+        // All points but one fit the linear section.
+        // We could connect the last point with a quadratic, but let's just be lazy.
+        return false;
+    }
 
     skcms_TransferFunction inv;
     if (!skcms_TransferFunction_invert(&baseline, &inv)) {

@@ -295,9 +295,9 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             // Degenerate case with only two points in the nonlinear segment. Solve directly.
             tf.g = 1;
             tf.a = (skcms_eval_curve((N-1)*x_scale, curve) - skcms_eval_curve((N-2)*x_scale, curve))
-                 * (N-1);
-            tf.b = skcms_eval_curve((N-1)*x_scale, curve)
-                 - tf.a * (N-2) * x_scale;
+                 / x_scale;
+            tf.b = skcms_eval_curve((N-2)*x_scale, curve)
+                 - tf.a * (N-2)*x_scale;
             tf.e = 0;
         } else {
             // Start by guessing a gamma-only curve through the midpoint.
