@@ -85,17 +85,19 @@ SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
                              uint32_t builderFlags) {
     bool hasTexs = SkToBool(builderFlags & SkVertices::kHasTexCoords_BuilderFlag);
     bool hasColors = SkToBool(builderFlags & SkVertices::kHasColors_BuilderFlag);
+    bool dontPremul = SkToBool(builderFlags & SkVertices::kDontPremulColors_BuilderFlag);
+    PremulColorMode premulMode = dontPremul ? kDont_PremulColorMode : kDo_PremulColorMode;
     this->init(mode, vertexCount, indexCount,
-               SkVertices::Sizes(mode, vertexCount, indexCount, hasTexs, hasColors));
+               SkVertices::Sizes(mode, vertexCount, indexCount, hasTexs, hasColors), premulMode);
 }
 
 SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
-                             const SkVertices::Sizes& sizes) {
-    this->init(mode, vertexCount, indexCount, sizes);
+                             const SkVertices::Sizes& sizes, PremulColorMode premulMode) {
+    this->init(mode, vertexCount, indexCount, sizes, premulMode);
 }
 
 void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
-                               const SkVertices::Sizes& sizes) {
+                               const SkVertices::Sizes& sizes, PremulColorMode premulMode) {
     if (!sizes.isValid()) {
         return; // fVertices will already be null
     }
@@ -117,6 +119,7 @@ void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
     fVertices->fVertexCnt = vertexCount;
     fVertices->fIndexCnt = indexCount;
     fVertices->fMode = mode;
+    fVertices->fPremulColorMode = premulMode;
     // We defer assigning fBounds and fUniqueID until detach() is called
 }
 
@@ -185,13 +188,13 @@ uint16_t* SkVertices::Builder::indices() {
 sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
                                        const SkPoint pos[], const SkPoint texs[],
                                        const SkColor colors[], int indexCount,
-                                       const uint16_t indices[]) {
+                                       const uint16_t indices[], PremulColorMode premulMode) {
     Sizes sizes(mode, vertexCount, indexCount, texs != nullptr, colors != nullptr);
     if (!sizes.isValid()) {
         return nullptr;
     }
 
-    Builder builder(mode, vertexCount, indexCount, sizes);
+    Builder builder(mode, vertexCount, indexCount, sizes, premulMode);
     SkASSERT(builder.isValid());
 
     sk_careful_memcpy(builder.positions(), pos, sizes.fVSize);
@@ -214,9 +217,10 @@ size_t SkVertices::approximateSize() const {
 // storage = packed | vertex_count | index_count | pos[] | texs[] | colors[] | indices[]
 //         = header + arrays
 
-#define kMode_Mask          0x0FF
-#define kHasTexs_Mask       0x100
-#define kHasColors_Mask     0x200
+#define kMode_Mask              0x0FF
+#define kHasTexs_Mask           0x100
+#define kHasColors_Mask         0x200
+#define kDontPremulColors_Mask  0x400
 #define kHeaderSize         (3 * sizeof(uint32_t))
 
 sk_sp<SkData> SkVertices::encode() const {
@@ -228,6 +232,9 @@ sk_sp<SkData> SkVertices::encode() const {
     }
     if (this->hasColors()) {
         packed |= kHasColors_Mask;
+    }
+    if (this->dontPremulColors()) {
+        packed |= kDontPremulColors_Mask;
     }
 
     Sizes sizes(fMode, fVertexCnt, fIndexCnt, this->hasTexCoords(), this->hasColors());
@@ -269,6 +276,10 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     }
     const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
     const bool hasColors = SkToBool(packed & kHasColors_Mask);
+    const bool dontPremulColors = SkToBool(packed & kDontPremulColors_Mask);
+    const PremulColorMode premulMode = dontPremulColors ? kDont_PremulColorMode
+                                                        : kDo_PremulColorMode;
+
     Sizes sizes(mode, vertexCount, indexCount, hasTexs, hasColors);
     if (!sizes.isValid()) {
         return nullptr;
@@ -278,7 +289,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
         return nullptr;
     }
 
-    Builder builder(mode, vertexCount, indexCount, sizes);
+    Builder builder(mode, vertexCount, indexCount, sizes, premulMode);
 
     reader.read(builder.positions(), sizes.fVSize);
     reader.read(builder.texCoords(), sizes.fTSize);
@@ -286,7 +297,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     size_t isize = (mode == kTriangleFan_VertexMode) ? sizes.fBuilderTriFanISize : sizes.fISize;
     reader.read(builder.indices(), isize);
     if (indexCount > 0) {
-        // validate that the indicies are in range
+        // validate that the indices are in range
         SkASSERT(indexCount == builder.indexCount());
         const uint16_t* indices = builder.indices();
         for (int i = 0; i < indexCount; ++i) {
