@@ -312,7 +312,6 @@ static uint32_t seed_vertices(GrPrimitiveType type) {
     switch (type) {
         case GrPrimitiveType::kTriangles:
         case GrPrimitiveType::kTriangleStrip:
-        case GrPrimitiveType::kTriangleFan:
             return 3;
         case GrPrimitiveType::kPoints:
             return 1;
