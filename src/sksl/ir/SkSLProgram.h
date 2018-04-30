@@ -106,7 +106,7 @@ struct Program {
         kVertex_Kind,
         kGeometry_Kind,
         kFragmentProcessor_Kind,
-        kCPU_Kind
+        kPipelineStage_Kind
     };
 
     Program(Kind kind,
