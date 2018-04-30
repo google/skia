@@ -1444,6 +1444,7 @@ canvas->drawBitmap(bitmap, 0, 0);
 AllocFlags provides the option to zero pixel memory when allocated.
 
 #Const kZeroPixels_AllocFlag 1
+#Line # zero pixel memory ##
     Instructs tryAllocPixelsFlags and allocPixelsFlags to zero pixel memory.  
 ##
 
@@ -2071,7 +2072,7 @@ Returns false if Allocator::allocPixelRef return false.
 #Description
 HeapAllocator limits the maximum size of Bitmap to two gigabytes. Using
 a custom allocator, this limitation may be relaxed. This example can be
-modified to allocate an eight gigabyte Bitmap on a 64 bit platform with
+modified to allocate an eight gigabyte Bitmap on a 64-bit platform with
 sufficient memory.
 ##
 #Function
@@ -2261,7 +2262,7 @@ Color_Type and Alpha_Type in Image_Info.
 #Height 140
 #Image 5
 #Description
-Treating 32 bit data as 8 bit data is unlikely to produce useful results.
+Treating 32-bit data as 8-bit data is unlikely to produce useful results.
 ##
     SkBitmap bitmap;
     bitmap.setInfo(SkImageInfo::Make(source.width() - 5, source.height() - 5, 
@@ -2357,7 +2358,7 @@ getGenerationID() return a different value.
 # ------------------------------------------------------------------------------
 #Subtopic Draw
 #Populate
-#Line # set pixels to Color ##
+#Line # sets pixels to Color ##
 ##
 
 #Method void eraseColor(SkColor c) const

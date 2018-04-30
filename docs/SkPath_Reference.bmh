@@ -237,18 +237,28 @@ Verb instructs Path how to interpret one or more Point and optional Conic_Weight
 manage Contour, and terminate Path.
 
 #Const kMove_Verb 0
-    Starts new Contour at next Point.
+#Line # starts new Contour at next Point ##
+    Consecutive kMove_Verb are preserved but all but the last kMove_Verb is
+    ignored. kMove_Verb after other Verbs implicitly closes the previous Contour
+    if SkPaint::kFill_Style is set when drawn; otherwise, stroke is drawn open.
+    kMove_Verb as the last Verb is preserved but ignored.
 ##
 #Const kLine_Verb 1
-    Adds Line from Last_Point to next Point.
-    Line is a straight segment from Point to Point.
+#Line # adds Line from Last_Point to next Point ##
+    Line is a straight segment from Point to Point. Consecutive kLine_Verb
+    extend Contour. kLine_Verb at same position as prior kMove_Verb is
+    preserved, and draws Point if SkPaint::kStroke_Style is set, and
+    SkPaint::Cap is SkPaint::kSquare_Cap or SkPaint::kRound_Cap. kLine_Verb
+    at same position as prior line or curve Verb is preserved but is ignored.
 ##
 #Const kQuad_Verb 2
+#Line # adds Quad from Last_Point ##
     Adds Quad from Last_Point, using control Point, and end Point. 
     Quad is a parabolic section within tangents from Last_Point to control Point,
     and control Point to end Point.
 ##
 #Const kConic_Verb 3
+#Line # adds Conic from Last_Point ##
     Adds Conic from Last_Point, using control Point, end Point, and Conic_Weight.
     Conic is a elliptical, parabolic, or hyperbolic section within tangents 
     from Last_Point to control Point, and control Point to end Point, constrained
@@ -256,15 +266,20 @@ manage Contour, and terminate Path.
     parabolic (and identical to Quad); greater than one hyperbolic.
 ##
 #Const kCubic_Verb 4
+#Line # adds Cubic from Last_Point ##
     Adds Cubic from Last_Point, using two control Points, and end Point. 
     Cubic is a third-order Bezier_Curve section within tangents from Last_Point
     to first control Point, and from second control Point to end Point.
 ##
 #Const kClose_Verb 5
-    Closes Contour, connecting Last_Point to kMove_Verb Point.
+#Line # closes Contour ##
+    Closes Contour, connecting Last_Point to kMove_Verb Point. Consecutive
+    kClose_Verb are preserved but only first has an effect. kClose_Verb after
+    kMove_Verb has no effect.
 ##
 #Const kDone_Verb 6
-    Terminates Path. Not in Verb_Array, but returned by Path iterator.
+#Line # terminates Path ## 
+    Not in Verb_Array, but returned by Path iterator.
 ##
 
 Each Verb has zero or more Points stored in Path.
@@ -312,7 +327,7 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 # ------------------------------------------------------------------------------
 #Subtopic Direction
-#Line # Path contour orientation ##
+#Line # contour orientation, clockwise or counterclockwise ##
 #Alias Directions
 
 #Enum Direction
@@ -338,10 +353,10 @@ kCW_Direction travel clockwise; the same added with kCCW_Direction
 travel counterclockwise.
 
 #Const kCW_Direction 0
-    Contour travels in a clockwise direction
+#Line # contour travels clockwise ##
 ##
 #Const kCCW_Direction 1
-    Contour travels in a counterclockwise direction
+#Line # contour travels counterclockwise ##
 ##
 
 
@@ -697,7 +712,7 @@ Only valid for Android framework.
 
 # ------------------------------------------------------------------------------
 #Subtopic Fill_Type
-#Line # Path fill rule, normal and inverted ##
+#Line # fill rule, normal and inverted ##
 
 #Enum FillType
 #Line # sets winding rule and inverse fill ##
@@ -751,16 +766,16 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Const kWinding_FillType 0
-Specifies fill as area is enclosed by a non-zero sum of Contour Directions.
+#Line # is enclosed by a non-zero sum of Contour Directions ##
 ##
 #Const kEvenOdd_FillType 1
-Specifies fill as area enclosed by an odd number of Contours.
+#Line # is enclosed by an odd number of Contours ##
 ##
 #Const kInverseWinding_FillType 2
-Specifies fill as area is enclosed by a zero sum of Contour Directions.
+#Line # is enclosed by a zero sum of Contour Directions ##
 ##
 #Const kInverseEvenOdd_FillType 3
-Specifies fill as area enclosed by an even number of Contours.
+#Line # is enclosed by an even number of Contours ##
 ##
 
 #Example
@@ -952,13 +967,13 @@ Initially Path Convexity is kUnknown_Convexity. Path Convexity is computed
 if needed by destination Surface.
 
 #Const kUnknown_Convexity 0
-    Indicates Convexity has not been determined.
+#Line # indicates Convexity has not been determined ##
 ##
 #Const kConvex_Convexity 1
-    Path has one Contour made of a simple geometry without indentations.
+#Line # one Contour made of a simple geometry without indentations ##
 ##
 #Const kConcave_Convexity 2
-    Path has more than one Contour, or a geometry with indentations.
+#Line # more than one Contour, or a geometry with indentations ##
 ##
 
 #Example
@@ -2307,7 +2322,7 @@ void draw(SkCanvas* canvas) {
 #Alias Quads
 #Alias Quadratic_Bezier
 #Alias Quadratic_Beziers
-#Line # Bezier_Curve described by second-order polynomial ##
+#Line # curve described by second-order polynomial ##
 
 Quad describes a quadratic Bezier, a second-order curve identical to a section
 of a parabola. Quad begins at a start Point, curves towards a control Point,
@@ -2776,7 +2791,7 @@ void draw(SkCanvas* canvas) {
 #Alias Cubics
 #Alias Cubic_Bezier
 #Alias Cubic_Beziers
-#Line # Bezier_Curve described by third-order polynomial ##
+#Line # curve described by third-order polynomial ##
 
 Cubic describes a Bezier_Curve segment described by a third-order polynomial. 
 Cubic begins at a start Point, curving towards the first control Point;
@@ -3398,10 +3413,10 @@ Four Oval parts with radii (rx, ry) start at last Path Point and ends at (x, y).
 ArcSize and Direction select one of the four Oval parts.
 
 #Const kSmall_ArcSize 0
-smaller of Arc pair
+#Line # smaller of Arc pair ##
 ##
 #Const kLarge_ArcSize 1
-larger of Arc pair
+#Line # larger of Arc pair ##
 ##
 
 #Example
@@ -4485,11 +4500,13 @@ AddPathMode chooses how addPath appends. Adding one Path to another can extend
 the last Contour or start a new Contour.
 
 #Const kAppend_AddPathMode
+#Line # appended to destination unaltered ##
     Path Verbs, Points, and Conic_Weights are appended to destination unaltered.
     Since Path Verb_Array begins with kMove_Verb if src is not empty, this
     starts a new Contour.
 ##
 #Const kExtend_AddPathMode
+#Line # add line if prior Contour is not closed ##
     If destination is closed or empty, start a new Contour. If destination
     is not empty, add Line from Last_Point to added Path first Point. Skip added
     Path initial kMove_Verb, then append remining Verbs, Points, and Conic_Weights.
@@ -4904,15 +4921,19 @@ instance, if Path only contains Lines, only the kLine_SegmentMask bit is set.
 
 #Bug 6785
 #Const kLine_SegmentMask 1
+#Line # contains one or more Lines ##
 Set if Verb_Array contains kLine_Verb.
 ##
 #Const kQuad_SegmentMask 2
+#Line # contains one or more Quads ##
 Set if Verb_Array contains kQuad_Verb. Note that conicTo may add a Quad.
 ##
 #Const kConic_SegmentMask 4
+#Line # contains one or more Conics ##
 Set if Verb_Array contains kConic_Verb.
 ##
 #Const kCubic_SegmentMask 8
+#Line # contains one or more Cubics ##
 Set if Verb_Array contains kCubic_Verb.
 ##
 
@@ -5202,7 +5223,7 @@ path is equal to copy
 
 #Method size_t readFromMemory(const void* buffer, size_t length)
 #In Utility
-#Line # Initializes from buffer ##
+#Line # initializes from buffer ##
 Initializes Path from buffer of size length. Returns zero if the buffer is
 data is inconsistent, or the length is too small. 
 
@@ -5315,7 +5336,7 @@ empty genID = 1
 # ------------------------------------------------------------------------------
 
 #Class Iter
-#Line # Path data iterator ##
+#Line # data iterator ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Provides options to treat open Contours as closed, and to ignore
@@ -5709,7 +5730,7 @@ with close(),    forceClose is true : isClosedContour returns true
 #Class Iter ##
 
 #Class RawIter
-#Line # Path raw data iterator ##
+#Line # raw data iterator ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Verb_Array, Point_Array, and Conic_Weight are returned unaltered. 
@@ -5845,10 +5866,10 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
         ##
 
         #Bug 6832
-        StdOut isn't really volatile, it just produces the wrong result.
+        StdOut is not really volatile, it just produces the wrong result.
         A simple fix changes the output of hairlines and needs to be
         investigated to see if the change is correct or not.
-        https://skia-review.googlesource.com/c/21340/
+        see change 21340 (abandoned for now)
 
         #SeeAlso next()
 
