@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d229905_a78bcbeb",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-30T19:59:39Z",
+      "side": 1,
+      "message": "If max is negative and |max| \u003c |offset|, won\u0027t this overflow?\n\nE.g. max \u003d -4, offset \u003d 2?\n\nMaybe,\n\n  SkASSERT(min \u003c\u003d max);\n  const int32_t lo \u003d -SK_MaxS32-1,\n                hi \u003d +SK_MaxS32;\n  if ((int64_t)min + offset \u003c lo) { offset \u003d lo - min; }\n  if ((int64_t)max + offset \u003e hi) { offset \u003d hi - max; }",
+      "range": {
+        "startLine": 584,
+        "startChar": 17,
+        "endLine": 584,
+        "endChar": 42
+      },
+      "revId": "fa0d5bcaab3909f20bb4349fd632c41b1f03487f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
