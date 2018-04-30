@@ -8,6 +8,8 @@
 #ifndef SkMatrix44_DEFINED
 #define SkMatrix44_DEFINED
 
+#include <atomic>
+
 #include "SkMatrix.h"
 #include "SkScalar.h"
 
@@ -157,7 +159,7 @@ public:
 
     SkMatrix44(const SkMatrix44& src) {
         memcpy(fMat, src.fMat, sizeof(fMat));
-        fTypeMask = src.fTypeMask;
+        fTypeMask.store(src.fTypeMask, std::memory_order_relaxed);
     }
 
     SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
@@ -167,7 +169,7 @@ public:
     SkMatrix44& operator=(const SkMatrix44& src) {
         if (&src != this) {
             memcpy(fMat, src.fMat, sizeof(fMat));
-            fTypeMask = src.fTypeMask;
+            fTypeMask.store(src.fTypeMask, std::memory_order_relaxed);
         }
         return *this;
     }
@@ -210,11 +212,11 @@ public:
      *  transform.
      */
     inline TypeMask getType() const {
-        if (fTypeMask & kUnknown_Mask) {
-            fTypeMask = this->computeTypeMask();
+        if (fTypeMask.load(std::memory_order_relaxed) & kUnknown_Mask) {
+            fTypeMask.store(this->computeTypeMask(), std::memory_order_relaxed);
         }
         SkASSERT(!(fTypeMask & kUnknown_Mask));
-        return (TypeMask)fTypeMask;
+        return (TypeMask)fTypeMask.load(std::memory_order_relaxed);
     }
 
     /**
@@ -454,8 +456,8 @@ public:
 
 private:
     /* This is indexed by [col][row]. */
-    SkMScalar           fMat[4][4];
-    mutable unsigned    fTypeMask;
+    SkMScalar                       fMat[4][4];
+    mutable std::atomic<unsigned>   fTypeMask;
 
     static constexpr int kUnknown_Mask = 0x80;
 
@@ -479,12 +481,12 @@ private:
     int computeTypeMask() const;
 
     inline void dirtyTypeMask() {
-        fTypeMask = kUnknown_Mask;
+        fTypeMask.store(kUnknown_Mask, std::memory_order_relaxed);
     }
 
     inline void setTypeMask(int mask) {
         SkASSERT(0 == (~(kAllPublic_Masks | kUnknown_Mask) & mask));
-        fTypeMask = mask;
+        fTypeMask.store(mask, std::memory_order_relaxed);
     }
 
     /**
@@ -492,7 +494,7 @@ private:
      *  we already know that this matrix is identity.
      */
     inline bool isTriviallyIdentity() const {
-        return 0 == fTypeMask;
+        return 0 == fTypeMask.load(std::memory_order_relaxed);
     }
 
     inline const SkMScalar* values() const { return &fMat[0][0]; }
