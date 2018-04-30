@@ -143,6 +143,10 @@ bool SkPoint::setLength(float x, float y, float length) {
         scale = (float)(length / sqrt(xx * xx + yy * yy));
     #endif
     }
+    if (scale == 0 || !sk_float_isfinite(scale)) {
+        this->set(0, 0);
+        return false;
+    }
     fX = x * scale;
     fY = y * scale;
     return true;
