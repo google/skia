@@ -225,8 +225,7 @@ public:
     SkAutoGlyphCacheNoGamma(const SkPaint& paint,
                             const SkSurfaceProps* surfaceProps,
                             const SkMatrix* matrix)
-        : SkExclusiveStrikePtr(SkStrikeCache::FindOrCreateStrikeExclusive(
-            paint, surfaceProps, SkScalerContextFlags::kNone, matrix)) {}
+        : SkExclusiveStrikePtr(nullptr) {}
 };
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
 #endif
