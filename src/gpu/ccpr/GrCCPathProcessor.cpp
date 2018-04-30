@@ -179,14 +179,14 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // N[0] is the normal for the edge we are intersecting from the regular bounding box, pointing
     // out of the octagon.
-    v->codeAppendf("float2 refpt = float2[2](%s.xy, %s.zw)[sk_VertexID >> 2];",
+    v->codeAppendf("float2 refpt = (0 == sk_VertexID >> 2) ? %s.xy : %s.zw;",
                    proc.getInstanceAttrib(InstanceAttribs::kDevBounds).fName,
                    proc.getInstanceAttrib(InstanceAttribs::kDevBounds).fName);
     v->codeAppendf("refpt += N[0] * %f;", kAABloatRadius); // bloat for AA.
 
     // N[1] is the normal for the edge we are intersecting from the 45-degree bounding box, pointing
     // out of the octagon.
-    v->codeAppendf("float2 refpt45 = float2[2](%s.xy, %s.zw)[((sk_VertexID + 1) >> 2) & 1];",
+    v->codeAppendf("float2 refpt45 = (0 == ((sk_VertexID + 1) & (1 << 2))) ? %s.xy : %s.zw;",
                    proc.getInstanceAttrib(InstanceAttribs::kDevBounds45).fName,
                    proc.getInstanceAttrib(InstanceAttribs::kDevBounds45).fName);
     v->codeAppendf("refpt45 *= float2x2(.5,.5,-.5,.5);"); // transform back to device space.
