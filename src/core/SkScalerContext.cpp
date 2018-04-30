@@ -76,13 +76,22 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
     bool generatingImageFromPath = fGenerateImageFromPath;
     if (!generatingImageFromPath) {
         generateMetrics(glyph);
+        if (glyph->fMaskFormat == MASK_FORMAT_UNKNOWN) {
+            glyph->fMaskFormat = fRec.fMaskFormat;
+        }
     } else {
         SkPath devPath;
         generatingImageFromPath = this->internalGetPath(glyph->getPackedID(), &devPath);
         if (!generatingImageFromPath) {
             generateMetrics(glyph);
+            if (glyph->fMaskFormat == MASK_FORMAT_UNKNOWN) {
+                glyph->fMaskFormat = fRec.fMaskFormat;
+            }
         } else {
             generateAdvance(glyph);
+            if (glyph->fMaskFormat == MASK_FORMAT_UNKNOWN) {
+                glyph->fMaskFormat = fRec.fMaskFormat;
+            }
 
             const SkIRect ir = devPath.getBounds().roundOut();
             if (ir.isEmpty() || !SkRectPriv::Is16Bit(ir)) {
@@ -94,7 +103,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             glyph->fHeight  = SkToU16(ir.height());
 
             if (glyph->fWidth > 0) {
-                switch (fRec.fMaskFormat) {
+                switch (glyph->fMaskFormat) {
                 case SkMask::kLCD16_Format:
                     glyph->fWidth += 2;
                     glyph->fLeft -= 1;
@@ -114,10 +123,6 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         glyph->fLeft    = 0;
         glyph->fMaskFormat = 0;
         return;
-    }
-
-    if (SkMask::kARGB32_Format != glyph->fMaskFormat) {
-        glyph->fMaskFormat = fRec.fMaskFormat;
     }
 
     // If we are going to create the mask, then we cannot keep the color
