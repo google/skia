@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "ee902a24_258f704e",
+        "filename": "src/core/SkPoint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-04-30T20:01:20Z",
+      "side": 1,
+      "message": "I\u0027m a bit baffled as to the difference between SkScalarIsFinite and sk_float_isfinite, especially in this context, where the argument to the former is a float. I was surprised to see that one is not defined in terms of the other.",
+      "revId": "da26aea826af2e33b3263443563e726de23008e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d95627e_47fde435",
         "filename": "src/core/SkPoint.cpp",
         "patchSetId": 2
