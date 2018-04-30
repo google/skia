@@ -79,7 +79,6 @@ static const GrPixelConfig kSkia8888_GrPixelConfig = kRGBA_8888_GrPixelConfig;
 enum class GrPrimitiveType {
     kTriangles,
     kTriangleStrip,
-    kTriangleFan,
     kPoints,
     kLines,          // 1 pix wide only
     kLineStrip,      // 1 pix wide only
@@ -94,9 +93,7 @@ static constexpr bool GrIsPrimTypeLines(GrPrimitiveType type) {
 }
 
 static constexpr bool GrIsPrimTypeTris(GrPrimitiveType type) {
-    return GrPrimitiveType::kTriangles == type     ||
-           GrPrimitiveType::kTriangleStrip == type ||
-           GrPrimitiveType::kTriangleFan == type;
+    return GrPrimitiveType::kTriangles == type || GrPrimitiveType::kTriangleStrip == type;
 }
 
 static constexpr bool GrPrimTypeRequiresGeometryShaderSupport(GrPrimitiveType type) {

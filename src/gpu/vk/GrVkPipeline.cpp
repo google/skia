@@ -108,8 +108,6 @@ static VkPrimitiveTopology gr_primitive_type_to_vk_topology(GrPrimitiveType prim
             return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         case GrPrimitiveType::kTriangleStrip:
             return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-        case GrPrimitiveType::kTriangleFan:
-            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
         case GrPrimitiveType::kPoints:
             return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
         case GrPrimitiveType::kLines:

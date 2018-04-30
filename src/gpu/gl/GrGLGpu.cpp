@@ -2599,8 +2599,6 @@ static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
             return GR_GL_TRIANGLES;
         case GrPrimitiveType::kTriangleStrip:
             return GR_GL_TRIANGLE_STRIP;
-        case GrPrimitiveType::kTriangleFan:
-            return GR_GL_TRIANGLE_FAN;
         case GrPrimitiveType::kPoints:
             return GR_GL_POINTS;
         case GrPrimitiveType::kLines:
