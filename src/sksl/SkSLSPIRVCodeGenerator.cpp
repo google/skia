@@ -1203,6 +1203,24 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
     }
 }
 
+SpvId SPIRVCodeGenerator::copyVector(SpvId vector, const Type& type, OutputStream& out) {
+    SpvId columnIds[4];
+    SpvId componentType = this->getType(type.componentType());
+    for (int i = 0; i < type.columns(); ++i) {
+        columnIds[i] = this->nextId();
+        this->writeInstruction(SpvOpCompositeExtract, componentType, columnIds[i], vector, i, out);
+    }
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(), out);
+    this->writeWord(this->getType(type.componentType().toCompound(fContext, type.columns(), 1)),
+                    out);
+    SpvId result = this->nextId();
+    this->writeWord(result, out);
+    for (int i = 0; i < type.columns(); ++i) {
+        this->writeWord(columnIds[i], out);
+    }
+    return result;
+}
+
 SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStream& out) {
     ASSERT(c.fType.kind() == Type::kMatrix_Kind);
     // go ahead and write the arguments so we don't try to write new instructions in the middle of
@@ -1245,7 +1263,7 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
                     c.fArguments[i]->fType.columns() == c.fType.rows()) {
                 // this is a complete column by itself
                 ASSERT(currentCount == 0);
-                columnIds.push_back(arguments[i]);
+                columnIds.push_back(this->copyVector(arguments[i], c.fArguments[i]->fType, out));
             } else {
                 if (c.fArguments[i]->fType.columns() == 1) {
                     currentColumn.push_back(arguments[i]);
