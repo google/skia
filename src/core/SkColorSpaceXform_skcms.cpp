@@ -133,6 +133,10 @@ sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile* profile) {
         return nullptr;
     }
 
+    if (skcms_ApproximatelyEqualProfiles(profile, &skcms_sRGB_profile)) {
+        return SkColorSpace::MakeSRGB();
+    }
+
     SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
     toXYZD50.set3x3RowMajorf(&profile->toXYZD50.vals[0][0]);
     if (!toXYZD50.invert(nullptr)) {
