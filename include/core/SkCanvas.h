@@ -1599,9 +1599,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, color alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint's
-        SkFilterQuality is higher than kLow_SkFilterQuality, it will be treated as if it
-        were kLow_SkFilterQuality.
+        If paint contains SkMaskFilter, generate mask from image bounds.
 
         If generated mask extends beyond image bounds, replicate image edge colors, just
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
@@ -1730,9 +1728,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, color alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper. If bitmap is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint's
-        SkFilterQuality is higher than kLow_SkFilterQuality, it will be treated as if it
-        were kLow_SkFilterQuality.
+        If paint contains SkMaskFilter, generate mask from bitmap bounds.
 
         If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
         just as SkShader made from SkShader::MakeBitmapShader with
@@ -1832,9 +1828,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, color alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper. If bitmap is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint's
-        SkFilterQuality is higher than kLow_SkFilterQuality, it will be treated as if it
-        were kLow_SkFilterQuality.
+        If paint contains SkMaskFilter, generate mask from bitmap bounds.
 
         If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
         just as SkShader made from SkShader::MakeBitmapShader with
@@ -1862,9 +1856,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, color alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper. If bitmap is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint's
-        SkFilterQuality is higher than kLow_SkFilterQuality, it will be treated as if it
-        were kLow_SkFilterQuality.
+        If paint contains SkMaskFilter, generate mask from bitmap bounds.
 
         If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
         just as SkShader made from SkShader::MakeBitmapShader with
