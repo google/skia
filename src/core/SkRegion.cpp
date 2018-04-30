@@ -574,6 +574,25 @@ bool SkRegion::operator==(const SkRegion& b) const {
                     ah->fRunCount * sizeof(SkRegion::RunType));
 }
 
+// Return a (new) offset such that when applied (+=) to min and max, we don't overflow/underflow
+static int32_t pin_offset_s32(int32_t min, int32_t max, int32_t offset) {
+    if (offset > 0) {
+        int64_t tmp = (int64_t)max + offset;
+        if (tmp > SK_MaxS32) {
+            tmp = SK_MaxS32;
+        }
+        offset = SkToS32(SK_MaxS32 - tmp);
+    } else {
+        int64_t tmp = (int64_t)min + offset;
+        int64_t limit = (int64_t)(-SK_MaxS32) - 1;
+        if (tmp < limit) {
+            tmp = limit;
+        }
+        offset = SkToS32(limit - tmp);
+    }
+    return offset;
+}
+
 void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
     SkDEBUGCODE(this->validate();)
 
@@ -582,9 +601,14 @@ void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
     }
     if (this->isEmpty()) {
         dst->setEmpty();
-    } else if (this->isRect()) {
-        dst->setRect(fBounds.fLeft + dx, fBounds.fTop + dy,
-                     fBounds.fRight + dx, fBounds.fBottom + dy);
+        return;
+    }
+    // pin dx and dy so we don't overflow our existing bounds
+    dx = pin_offset_s32(fBounds.fLeft, fBounds.fRight, dx);
+    dy = pin_offset_s32(fBounds.fTop, fBounds.fBottom, dy);
+
+    if (this->isRect()) {
+        dst->setRect(fBounds.makeOffset(dx, dy));
     } else {
         if (this == dst) {
             dst->fRunHead = dst->fRunHead->ensureWritable();
