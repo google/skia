@@ -44,7 +44,8 @@ SkRandomScalerContext::SkRandomScalerContext(sk_sp<SkRandomTypeface> face,
                                              bool fakeIt)
         : SkScalerContext(std::move(face), effects, desc)
         , fFakeIt(fakeIt) {
-    fProxy = this->getRandomTypeface()->proxy()->createScalerContext(effects, desc);
+    fProxy = this->getRandomTypeface()->proxy()->createScalerContext(SkScalerContextEffects(), desc);
+    fProxy->forceGenerateImageFromPath();
 }
 
 unsigned SkRandomScalerContext::generateGlyphCount() {
@@ -60,31 +61,22 @@ void SkRandomScalerContext::generateAdvance(SkGlyph* glyph) {
 }
 
 void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
-    // Here we will change the mask format of the glyph
-    // NOTE this is being overridden by the base class
-    SkMask::Format format = SkMask::kARGB32_Format; // init to handle defective compilers
-    switch (glyph->getGlyphID() % 4) {
-        case 0:
-            format = SkMask::kLCD16_Format;
-            break;
-        case 1:
-            format = SkMask::kA8_Format;
-            break;
-        case 2:
-            format = SkMask::kARGB32_Format;
-            break;
-        case 3:
-            format = SkMask::kBW_Format;
-            break;
-    }
-
     fProxy->getMetrics(glyph);
 
-    glyph->fMaskFormat = format;
+    // Here we will change the mask format of the glyph
+    // NOTE: this may be overridden by the base class (e.g. if a mask filter is applied).
+    switch (glyph->getGlyphID() % 4) {
+        case 0: glyph->fMaskFormat = SkMask::kLCD16_Format; break;
+        case 1: glyph->fMaskFormat = SkMask::kA8_Format; break;
+        case 2: glyph->fMaskFormat = SkMask::kARGB32_Format; break;
+        case 3: glyph->fMaskFormat = SkMask::kBW_Format; break;
+    }
+
     if (fFakeIt) {
         return;
     }
-    if (SkMask::kARGB32_Format == format) {
+
+    if (SkMask::kARGB32_Format == glyph->fMaskFormat) {
         SkPath path;
         sk_ignore_unused_variable(fProxy->getPath(glyph->getPackedID(), &path));
 
@@ -99,55 +91,21 @@ void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
         glyph->fTop = ibounds.fTop;
         glyph->fWidth = ibounds.width();
         glyph->fHeight = ibounds.height();
-    } else {
-        SkPath devPath;
-        this->internalGetPath(glyph->getPackedID(), &devPath);
-
-        // just use devPath
-        const SkIRect ir = devPath.getBounds().roundOut();
-
-        if (ir.isEmpty() || !SkRectPriv::Is16Bit(ir)) {
-            glyph->fLeft    = 0;
-            glyph->fTop     = 0;
-            glyph->fWidth   = 0;
-            glyph->fHeight  = 0;
-            return;
-        }
-        glyph->fLeft    = ir.fLeft;
-        glyph->fTop     = ir.fTop;
-        glyph->fWidth   = SkToU16(ir.width());
-        glyph->fHeight  = SkToU16(ir.height());
-
-        if (glyph->fWidth > 0) {
-            switch (glyph->fMaskFormat) {
-            case SkMask::kLCD16_Format:
-                glyph->fWidth += 2;
-                glyph->fLeft -= 1;
-                break;
-            default:
-                break;
-            }
-        }
     }
 }
 
 void SkRandomScalerContext::generateImage(const SkGlyph& glyph) {
+    // TODO: can force down but not up
+    /*
     SkMask::Format format = (SkMask::Format)glyph.fMaskFormat;
     switch (glyph.getGlyphID() % 4) {
-        case 0:
-            format = SkMask::kLCD16_Format;
-            break;
-        case 1:
-            format = SkMask::kA8_Format;
-            break;
-        case 2:
-            format = SkMask::kARGB32_Format;
-            break;
-        case 3:
-            format = SkMask::kBW_Format;
-            break;
+        case 0: format = SkMask::kLCD16_Format; break;
+        case 1: format = SkMask::kA8_Format; break;
+        case 2: format = SkMask::kARGB32_Format; break;
+        case 3: format = SkMask::kBW_Format; break;
     }
     const_cast<SkGlyph&>(glyph).fMaskFormat = format;
+    */
 
     // if the format is ARGB, we just draw the glyph from path ourselves.  Otherwise, we force
     // our proxy context to generate the image from paths.
@@ -166,9 +124,7 @@ void SkRandomScalerContext::generateImage(const SkGlyph& glyph) {
                              -SkIntToScalar(glyph.fTop));
             canvas.drawPath(path, this->getRandomTypeface()->paint());
         } else {
-            fProxy->forceGenerateImageFromPath();
             fProxy->getImage(glyph);
-            fProxy->forceOffGenerateImageFromPath();
         }
     } else {
         sk_bzero(glyph.fImage, glyph.computeImageSize());

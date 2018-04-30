@@ -125,7 +125,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         return;
     }
 
-    if (SkMask::kARGB32_Format != glyph->fMaskFormat) {
+    if (glyph->fMaskFormat == MASK_FORMAT_UNKNOWN) {
         glyph->fMaskFormat = fRec.fMaskFormat;
     }
 
