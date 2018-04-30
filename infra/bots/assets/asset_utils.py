@@ -30,7 +30,7 @@ SKIA_DIR = os.path.abspath(os.path.join(INFRA_BOTS_DIR, os.pardir, os.pardir))
 CIPD_PACKAGE_NAME_TMPL = 'skia/bots/%s'
 DEFAULT_CIPD_SERVICE_URL = 'https://chrome-infra-packages.appspot.com'
 
-DEFAULT_GS_BUCKET = 'skia-buildbots'
+DEFAULT_GS_BUCKET = 'skia-assets'
 GS_SUBDIR_TMPL = 'gs://%s/assets/%s'
 GS_PATH_TMPL = '%s/%s.zip'
 
