@@ -37,6 +37,7 @@ protected:
         // make textbloben
         SkPaint paint;
         paint.setTextSize(32);
+        paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
 
         // Setup our random scaler context
@@ -45,6 +46,7 @@ protected:
         if (nullptr == orig) {
             orig = SkTypeface::MakeDefault();
         }
+        paint.setColor(SK_ColorMAGENTA);
         paint.setTypeface(sk_make_sp<SkRandomTypeface>(orig, paint, false));
 
         SkRect bounds;
@@ -67,10 +69,10 @@ protected:
 
         // color emoji
         if (sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface()) {
+            paint.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
             const char* emojiText = sk_tool_utils::emoji_sample_text();
             paint.measureText(emojiText, strlen(emojiText), &bounds);
             offset += bounds.height();
-            paint.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
             sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, offset);
         }
 
@@ -87,12 +89,6 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        // This GM exists to test a specific feature of the GPU backend.
-        if (nullptr == canvas->getGrContext()) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
         canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorWHITE));
 
         SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, canvas->imageInfo().colorType(),
@@ -120,7 +116,9 @@ protected:
 
                 // free gpu resources and verify
                 yOffset += stride;
-                canvas->getGrContext()->freeGpuResources();
+                if (canvas->getGrContext()) {
+                    canvas->getGrContext()->freeGpuResources();
+                }
                 canvas->drawTextBlob(fBlob, 10, SkIntToScalar(yOffset), paint);
 
                 yOffset += stride;
