@@ -531,30 +531,30 @@ void GrCCPathParser::drawCoverageCount(GrOpFlushState* flushState, CoverageCount
     GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrPipeline::ScissorState::kEnabled,
                         SkBlendMode::kPlus);
 
-    if (batchTotalCounts.fTriangles) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kTriangles,
-                             &PrimitiveTallies::fTriangles, drawBounds);
-    }
-
-    if (batchTotalCounts.fWeightedTriangles) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kWeightedTriangles,
-                             &PrimitiveTallies::fWeightedTriangles, drawBounds);
-    }
+    // if (batchTotalCounts.fTriangles) {
+    //     this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kTriangles,
+    //                          &PrimitiveTallies::fTriangles, drawBounds);
+    // }
+    //
+    // if (batchTotalCounts.fWeightedTriangles) {
+    //     this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kWeightedTriangles,
+    //                          &PrimitiveTallies::fWeightedTriangles, drawBounds);
+    // }
 
     if (batchTotalCounts.fQuadratics) {
         this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kQuadratics,
                              &PrimitiveTallies::fQuadratics, drawBounds);
     }
 
-    if (batchTotalCounts.fCubics) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kCubics,
-                             &PrimitiveTallies::fCubics, drawBounds);
-    }
-
-    if (batchTotalCounts.fConics) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kConics,
-                             &PrimitiveTallies::fConics, drawBounds);
-    }
+    // if (batchTotalCounts.fCubics) {
+    //     this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kCubics,
+    //                          &PrimitiveTallies::fCubics, drawBounds);
+    // }
+    //
+    // if (batchTotalCounts.fConics) {
+    //     this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kConics,
+    //                          &PrimitiveTallies::fConics, drawBounds);
+    // }
 }
 
 void GrCCPathParser::drawPrimitives(GrOpFlushState* flushState, const GrPipeline& pipeline,
