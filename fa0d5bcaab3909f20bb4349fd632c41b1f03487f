@@ -22,6 +22,30 @@
       "revId": "fa0d5bcaab3909f20bb4349fd632c41b1f03487f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37a72ffc_81dbb7e4",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-30T20:00:04Z",
+      "side": 1,
+      "message": "Er, |max| \u003e |offset|.",
+      "parentUuid": "9d229905_a78bcbeb",
+      "range": {
+        "startLine": 584,
+        "startChar": 17,
+        "endLine": 584,
+        "endChar": 42
+      },
+      "revId": "fa0d5bcaab3909f20bb4349fd632c41b1f03487f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
