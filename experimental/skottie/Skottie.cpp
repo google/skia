@@ -38,6 +38,7 @@
 #include "SkSGTrimEffect.h"
 #include "SkStream.h"
 #include "SkTArray.h"
+#include "SkTime.h"
 #include "SkTHash.h"
 
 #include <cmath>
@@ -1170,12 +1171,19 @@ sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext
 
 } // namespace
 
-sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res) {
+sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res, Stats* stats) {
+    Stats stats_storage;
+    if (!stats)
+        stats = &stats_storage;
+    memset(stats, 0, sizeof(struct Stats));
+
     if (!stream->hasLength()) {
         // TODO: handle explicit buffering?
         LOG("!! cannot parse streaming content\n");
         return nullptr;
     }
+
+    const auto t0 = SkTime::GetMSecs();
 
     Json::Value json;
     {
@@ -1184,6 +1192,7 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res) 
             LOG("!! could not read stream\n");
             return nullptr;
         }
+        stats->fJsonSize = data->size();
 
         Json::Reader reader;
 
@@ -1193,6 +1202,9 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res) 
             return nullptr;
         }
     }
+
+    const auto t1 = SkTime::GetMSecs();
+    stats->fJsonParseTimeMS = t1 - t0;
 
     const auto version = ParseDefault(json["v"], SkString());
     const auto size    = SkSize::Make(ParseDefault(json["w"], 0.0f),
@@ -1205,10 +1217,17 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res) 
         return nullptr;
     }
 
-    return sk_sp<Animation>(new Animation(res, std::move(version), size, fps, json));
+    const auto anim =
+        sk_sp<Animation>(new Animation(res, std::move(version), size, fps, json, stats));
+    const auto t2 = SkTime::GetMSecs();
+    stats->fSceneParseTimeMS = t2 - t1;
+    stats->fTotalLoadTimeMS  = t2 - t0;
+
+    return anim;
 }
 
-sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvider* res) {
+sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvider* res,
+                                         Stats* stats) {
     class DirectoryResourceProvider final : public ResourceProvider {
     public:
         explicit DirectoryResourceProvider(SkString dir) : fDir(std::move(dir)) {}
@@ -1231,11 +1250,12 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvid
         defaultProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
     }
 
-    return Make(jsonStream.get(), res ? *res : *defaultProvider);
+    return Make(jsonStream.get(), res ? *res : *defaultProvider, stats);
 }
 
 Animation::Animation(const ResourceProvider& resources,
-                     SkString version, const SkSize& size, SkScalar fps, const Json::Value& json)
+                     SkString version, const SkSize& size, SkScalar fps, const Json::Value& json,
+                     Stats* stats)
     : fVersion(std::move(version))
     , fSize(size)
     , fFrameRate(fps)
@@ -1255,7 +1275,7 @@ Animation::Animation(const ResourceProvider& resources,
     AttachContext ctx = { resources, assets, fFrameRate, animators };
     auto root = AttachComposition(json, &ctx);
 
-    LOG("** Attached %d animators\n", animators.size());
+    stats->fAnimatorCount = animators.size();
 
     fScene = sksg::Scene::Make(std::move(root), std::move(animators));
 
