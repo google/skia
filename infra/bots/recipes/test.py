@@ -391,7 +391,8 @@ def dm_flags(api, bot):
     blacklist('_ image gen_platf rle8-height-negative.bmp')
     blacklist('_ image gen_platf rle4-height-negative.bmp')
 
-  if 'Android' in bot or 'iOS' in bot or 'Chromecast' in bot:
+  if 'Android' in bot or 'iOS' in bot or 'Chromecast' in bot or (
+      'Win' in bot and 'CPU' in bot and 'Debug' in bot):
     # This test crashes the N9 (perhaps because of large malloc/frees). It also
     # is fairly slow and not platform-specific. So we just disable it on all of
     # Android and iOS. skia:5438

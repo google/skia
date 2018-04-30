@@ -311,6 +311,10 @@
       "image",
       "gen_platf",
       "rle4-height-negative.bmp",
+      "_",
+      "test",
+      "_",
+      "GrShape",
       "--verbose"
     ],
     "env": {
