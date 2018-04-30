@@ -46,6 +46,30 @@
       "revId": "fa0d5bcaab3909f20bb4349fd632c41b1f03487f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5278d6f_eeba5599",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-04-30T21:06:24Z",
+      "side": 1,
+      "message": "Will definitely run with your proposed rewrite",
+      "parentUuid": "37a72ffc_81dbb7e4",
+      "range": {
+        "startLine": 584,
+        "startChar": 17,
+        "endLine": 584,
+        "endChar": 42
+      },
+      "revId": "fa0d5bcaab3909f20bb4349fd632c41b1f03487f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
