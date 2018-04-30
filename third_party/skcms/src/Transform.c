@@ -624,18 +624,16 @@ static void assert_usable_as_destination(const skcms_ICCProfile* profile) {
 
 void skcms_EnsureUsableAsDestination(skcms_ICCProfile* profile, const skcms_ICCProfile* fallback) {
     assert_usable_as_destination(fallback);
-    skcms_ICCProfile ok = *fallback;
 
     skcms_Matrix3x3 fromXYZD50;
-    if (profile->has_toXYZD50 && skcms_Matrix3x3_invert(&profile->toXYZD50, &fromXYZD50)) {
-        ok.toXYZD50 = profile->toXYZD50;
+    if (!profile->has_toXYZD50 || !skcms_Matrix3x3_invert(&profile->toXYZD50, &fromXYZD50)) {
+        profile->toXYZD50 = fallback->toXYZD50;
     }
 
-    for (int i = 0; profile->has_trc && i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
         skcms_TransferFunction inv;
-        if (profile->trc[i].table_entries == 0
+        if (profile->has_trc && profile->trc[i].table_entries == 0
                 && skcms_TransferFunction_invert(&profile->trc[i].parametric, &inv)) {
-            ok.trc[i] = profile->trc[i];
             continue;
         }
 
@@ -643,13 +641,17 @@ void skcms_EnsureUsableAsDestination(skcms_ICCProfile* profile, const skcms_ICCP
         // parametric curves to non-invertible parametric curves.
 
         float max_error;
-        if (skcms_ApproximateCurve(&profile->trc[i], &ok.trc[i].parametric, &max_error)) {
-            // Parametric curves from skcms_ApproximateCurve() are guaranteed to be invertible.
-            ok.trc[i].table_entries = 0;
-        }
+        skcms_TransferFunction tf = fallback->trc[i].parametric;
+        // Parametric curves from skcms_ApproximateCurve() are guaranteed to be invertible.
+        // If approximation fails, tf will still hold fallback's parametric TRC curve.
+        (void)skcms_ApproximateCurve(&profile->trc[i], &tf, &max_error);
+        profile->trc[i].table_entries = 0;
+        profile->trc[i].parametric = tf;
     }
 
-    *profile = ok;
+    profile->has_toXYZD50 = true;
+    profile->has_trc = true;
+
     assert_usable_as_destination(profile);
 }
 
