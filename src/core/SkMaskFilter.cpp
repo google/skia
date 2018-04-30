@@ -25,6 +25,8 @@
 #include "effects/GrXfermodeFragmentProcessor.h"
 #endif
 
+extern void sk_register_sdf_maskfilter_createproc();
+
 SkMaskFilterBase::NinePatch::~NinePatch() {
     if (fCache) {
         SkASSERT((const void*)fMask.fImage == fCache->data());
@@ -734,5 +736,6 @@ void SkMaskFilter::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeMF)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCombineMF)
     sk_register_blur_maskfilter_createproc();
+    sk_register_sdf_maskfilter_createproc();
 }
 
