@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "202a123c_180582a1",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-30T20:41:35Z",
+      "side": 1,
+      "message": "Move to SkRemoteGlyphCache.",
+      "range": {
+        "startLine": 323,
+        "startChar": 25,
+        "endLine": 323,
+        "endChar": 47
+      },
+      "revId": "a73dd265f3e42a38bc615d16af9cc40ad00f9ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57a0e01a_98518ce9",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-30T20:41:35Z",
+      "side": 1,
+      "message": "Can you use tf-\u003eunique() instead of adding to the API?",
+      "range": {
+        "startLine": 103,
+        "startChar": 15,
+        "endLine": 103,
+        "endChar": 36
+      },
+      "revId": "a73dd265f3e42a38bc615d16af9cc40ad00f9ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c268e29_edcac9c2",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-04-30T20:41:35Z",
+      "side": 1,
+      "message": "Instead of looking through the strikes, can you just check clientTf-\u003eunique()?",
+      "range": {
+        "startLine": 213,
+        "startChar": 45,
+        "endLine": 213,
+        "endChar": 66
+      },
+      "revId": "a73dd265f3e42a38bc615d16af9cc40ad00f9ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
