@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d95627e_47fde435",
+        "filename": "src/core/SkPoint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-04-30T19:03:47Z",
+      "side": 1,
+      "message": "Should we do something similar here? It looks like we\u0027ll get different results, particularly if the length is NaN.",
+      "range": {
+        "startLine": 155,
+        "startChar": 5,
+        "endLine": 155,
+        "endChar": 31
+      },
+      "revId": "da26aea826af2e33b3263443563e726de23008e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
