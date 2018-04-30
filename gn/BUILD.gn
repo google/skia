@@ -372,6 +372,7 @@ config("warnings") {
 
       cflags += [
         "-Wno-cast-align",
+        "-Wno-cast-qual",
         "-Wno-conditional-uninitialized",
         "-Wno-conversion",
         "-Wno-disabled-macro-expansion",
@@ -399,6 +400,8 @@ config("warnings") {
         "-Wno-unreachable-code-return",
         "-Wno-unused-macros",
         "-Wno-unused-member-function",
+        "-Wno-unused-template",
+        "-Wno-zero-as-null-pointer-constant",
       ]
       cflags_cc += [
         "-Wno-abstract-vbase-init",
