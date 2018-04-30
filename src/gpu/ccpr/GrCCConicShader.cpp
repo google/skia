@@ -37,10 +37,11 @@ void GrCCConicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts, 
         // De Casteljau's algorithm.
         s->codeAppendf("float2 p1w = %s[1]*w;", pts);
         s->codeAppend ("float r = 1 / (1 + w);");
-        s->codeAppendf("float2 conic_hull[4] = float2[4](%s[0], "
-                                                        "(%s[0] + p1w) * r, "
-                                                        "(p1w + %s[2]) * r, "
-                                                        "%s[2]);", pts, pts, pts, pts);
+        s->codeAppend ("float2 conic_hull[4];");
+        s->codeAppendf("conic_hull[0] = %s[0];", pts);
+        s->codeAppendf("conic_hull[1] = (%s[0] + p1w) * r;", pts);
+        s->codeAppendf("conic_hull[2] = (p1w + %s[2]) * r;", pts);
+        s->codeAppendf("conic_hull[3] = %s[2];", pts);
         *outHull4 = "conic_hull";
     }
 }
