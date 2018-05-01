@@ -32,9 +32,6 @@ static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU 
     return SkASSERT(a <= 255 && r <= 255 && g <= 255 && b <= 255),
            (a << 24) | (r << 16) | (g << 8) | (b << 0);
 }
-// Legacy aliases.
-#define SkColorSetARGBInline SkColorSetARGB
-#define SkColorSetARGBMacro  SkColorSetARGB
 
 /** Return a SkColor value from 8 bit component values, with an implied value
     of 0xFF for alpha (fully opaque)
