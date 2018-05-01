@@ -367,7 +367,7 @@ void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
         } else {
             record->fType = SkDAARecord::Type::kList;
             SkCoverageDeltaList* deltaList = alloc->make<SkCoverageDeltaList>(
-                    alloc, clippedIR, forceRLE);
+                    alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
             gen_alpha_deltas(path, clippedIR, clipBounds, *deltaList, blitter, skipRect,
                              containedInClip);
             record->fList = deltaList;
@@ -379,7 +379,8 @@ void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
         if (record->fType == SkDAARecord::Type::kMask) {
             blitter->blitMask(record->fMask, clippedIR);
         } else {
-            blitter->blitCoverageDeltas(record->fList, clipBounds, isEvenOdd, isInverse, isConvex);
+            blitter->blitCoverageDeltas(record->fList,
+                                        clipBounds, isEvenOdd, isInverse, isConvex, alloc);
         }
     }
 }

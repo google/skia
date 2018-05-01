@@ -95,6 +95,8 @@ void GrAHardwareBufferImageGenerator::deleteImageTexture(void* context) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
         GrContext* context, const SkImageInfo& info, const SkIPoint& origin,
         SkTransferFunctionBehavior, bool willNeedMipMaps) {
@@ -142,6 +144,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
     }
     return texProxy;
 }
+#endif
 
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
     if (context->contextPriv().abandoned() ||

@@ -100,6 +100,9 @@ public:
     virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return nullptr; }
 
 protected:
+    // default impl does nothing.
+    virtual void onNotifyPixelsChanged();
+
     void android_only_reset(int width, int height, size_t rowBytes);
 
 private:
@@ -121,7 +124,7 @@ private:
     // Set true by caches when they cache content that's derived from the current pixels.
     SkAtomic<bool> fAddedToCache;
 
-    enum Mutability {
+    enum {
         kMutable,               // PixelRefs begin mutable.
         kTemporarilyImmutable,  // Considered immutable, but can revert to mutable.
         kImmutable,             // Once set to this state, it never leaves.

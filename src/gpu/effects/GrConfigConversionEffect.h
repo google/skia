@@ -11,6 +11,7 @@
 #ifndef GrConfigConversionEffect_DEFINED
 #define GrConfigConversionEffect_DEFINED
 #include "SkTypes.h"
+#if SK_SUPPORT_GPU
 
 #include "GrClip.h"
 #include "GrContext.h"
@@ -41,8 +42,6 @@ public:
                 color[0] = SkTMin(x, y);
             }
         }
-        memset(firstRead, 0, kSize * kSize * sizeof(uint32_t));
-        memset(secondRead, 0, kSize * kSize * sizeof(uint32_t));
 
         const SkImageInfo ii =
                 SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -155,4 +154,5 @@ private:
     PMConversion fPmConversion;
     typedef GrFragmentProcessor INHERITED;
 };
+#endif
 #endif

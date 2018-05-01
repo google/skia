@@ -44,7 +44,6 @@ protected:
 
         y += 200;
 
-        canvas->save();
         canvas->translate(0, y);
         canvas->rotate(1);
         canvas->drawRect({ 20, 20, 20.2f, 200 }, p);
@@ -79,7 +78,6 @@ protected:
 
         // skbug.com/7573
         y += 200;
-        canvas->save();
         canvas->translate(0, y);
         p.setAntiAlias(true);
         path.reset();
@@ -89,15 +87,6 @@ protected:
         path.lineTo(1.93990216f, 10.5837256f);
         canvas->drawPath(path, p);
         canvas->restore();
-
-        // skbug.com/7813
-        // t8888 splits the 800-high canvas into 3 pieces; the boundary is close to 266 and 534
-        path.reset();
-        path.moveTo(700, 266);
-        path.lineTo(710, 266);
-        path.lineTo(710, 534);
-        path.lineTo(700, 534);
-        canvas->drawPath(path, p);
     }
 
 private:

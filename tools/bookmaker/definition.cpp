@@ -6,7 +6,6 @@
  */
 
 #include "bookmaker.h"
-#include "SkOSPath.h"
 
 #ifdef CONST
 #undef CONST
@@ -139,7 +138,7 @@ const struct OperatorParser {
                                     {{ CONST,  OpType::kThis,   OpMod::kReference, }}},
 };
 
-OpType lookup_type(string typeWord, string name) {
+OpType lookup_type(const string& typeWord, const string& name) {
     if (typeWord == name || (typeWord == "SkIVector" && name == "SkIPoint")
                          || (typeWord == "SkVector" && name == "SkPoint")) {
         return OpType::kThis;
@@ -192,7 +191,7 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
     SkASSERT(isStatic == false || returnsConst == false);
     iParser.skipWhiteSpace();
     const char* returnTypeStart = iParser.fChar;
-    iParser.skipToNonName();
+    iParser.skipToNonAlphaNum();
     SkASSERT(iParser.fChar > returnTypeStart);
     string returnType(returnTypeStart, iParser.fChar - returnTypeStart);
     OpType returnOpType = lookup_type(returnType, className);
@@ -201,7 +200,7 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
     SkAssertResult(iParser.skipExact("operator"));
     iParser.skipWhiteSpace();
     fMethodType = Definition::MethodType::kOperator;
-    TextParserSave save(&iParser);
+    TextParser::Save save(&iParser);
     for (auto parser : opData) {
         save.restore();
         if (!iParser.skipExact(parser.fSymbol)) {
@@ -242,7 +241,7 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
             }
             iParser.skipWhiteSpace();
             const char* paramStart = iParser.fChar;
-            iParser.skipToNonName();
+            iParser.skipToNonAlphaNum();
             SkASSERT(iParser.fChar > paramStart);
             string paramType(paramStart, iParser.fChar - paramStart);
             OpType paramOpType = lookup_type(paramType, className);
@@ -258,7 +257,7 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
                 countsMatch = false;
                 break;
             }
-            iParser.skipToNonName();
+            iParser.skipToNonAlphaNum();
             if ('[' == iParser.peek()) {
                 paramMod = OpMod::kArray;
                 SkAssertResult(iParser.skipExact("[]"));
@@ -325,7 +324,7 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
 #undef BLANK
 #undef DEFOP
 
-bool Definition::boilerplateIfDef() {
+bool Definition::boilerplateIfDef(Definition* parent) {
     const Definition& label = fTokens.front();
     if (Type::kWord != label.fType) {
         return false;
@@ -334,6 +333,32 @@ bool Definition::boilerplateIfDef() {
     return true;
 }
 
+// todo: this is matching #ifndef SkXXX_DEFINED for no particular reason
+// it doesn't do anything useful with arbitrary input, e.g. #ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
+// also doesn't know what to do with SK_REQUIRE_LOCAL_VAR()
+bool Definition::boilerplateDef(Definition* parent) {
+    if (!this->boilerplateIfDef(parent)) {
+        return false;
+    }
+    const char* s = fName.c_str();
+    const char* e = strchr(s, '_');
+    return true; // fixme: if this is trying to do something useful with define, do it here
+    if (!e) {
+        return false;
+    }
+    string prefix(s, e - s);
+    const char* inName = strstr(parent->fName.c_str(), prefix.c_str());
+    if (!inName) {
+        return false;
+    }
+    if ('/' != inName[-1] && '\\' != inName[-1]) {
+        return false;
+    }
+    if (strcmp(inName + prefix.size(), ".h")) {
+        return false;
+    }
+    return true;
+}
 
 // fixme: this will need to be more complicated to handle all of Skia
 // for now, just handle paint -- maybe fiddle will loosen naming restrictions
@@ -389,7 +414,7 @@ void Definition::setCanonicalFiddle() {
                     if (params.startsWith("const") || params.startsWith("int")
                             || params.startsWith("Sk")) {
                         const char* wordStart = params.fChar;
-                        params.skipToNonName();
+                        params.skipToNonAlphaNum();
                         if (underline) {
                             result += '_';
                         } else {
@@ -397,7 +422,7 @@ void Definition::setCanonicalFiddle() {
                         }
                         result += string(wordStart, params.fChar - wordStart);
                     } else {
-                        params.skipToNonName();
+                        params.skipToNonAlphaNum();
                     }
                     if (!params.eof() && '*' == params.peek()) {
                         if (underline) {
@@ -645,7 +670,7 @@ string Definition::formatFunction(Format format) const {
         indent = (size_t) (lastEnd - lastStart);
     }
     // trim indent so longest line doesn't exceed box width
-    TextParserSave savePlace(&methodParser);
+    TextParser::Save savePlace(&methodParser);
     const char* saveStart = lastStart;
     ptrdiff_t maxLine = 0;
     do {
@@ -741,18 +766,6 @@ string Definition::fiddleName() const {
     return fFiddle.substr(start, end - start);
 }
 
-string Definition::fileName() const {
-    size_t nameStart = fFileName.rfind(SkOSPath::SEPARATOR);
-    if (SkOSPath::SEPARATOR != '/') {
-        size_t altNameStart = fFileName.rfind('/');
-        nameStart = string::npos == nameStart ? altNameStart :
-                string::npos != altNameStart && altNameStart > nameStart ? altNameStart : nameStart;
-    }
-    SkASSERT(string::npos != nameStart);
-    string baseFile = fFileName.substr(nameStart + 1);
-    return baseFile;
-}
-
 const Definition* Definition::findClone(string match) const {
     for (auto child : fChildren) {
         if (!child->fClone) {
@@ -778,7 +791,7 @@ const Definition* Definition::hasChild(MarkType markType) const {
     return nullptr;
 }
 
-const Definition* Definition::hasParam(string ref) const {
+const Definition* Definition::hasParam(const string& ref) const {
     SkASSERT(MarkType::kMethod == fMarkType);
     for (auto iter : fChildren) {
         if (MarkType::kParam != iter->fMarkType) {
@@ -792,7 +805,7 @@ const Definition* Definition::hasParam(string ref) const {
     return nullptr;
 }
 
-bool Definition::hasMatch(string name) const {
+bool Definition::hasMatch(const string& name) const {
     for (auto child : fChildren) {
         if (name == child->fName) {
             return true;
@@ -814,7 +827,7 @@ bool Definition::isStructOrClass() const {
     return true;
 }
 
-bool Definition::methodHasReturn(string name, TextParser* methodParser) const {
+bool Definition::methodHasReturn(const string& name, TextParser* methodParser) const {
     if (methodParser->skipExact("static")) {
         methodParser->skipWhiteSpace();
     }
@@ -876,7 +889,7 @@ string Definition::methodName() const {
 bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndPtr,
         string* paramName) const {
     int parenCount = 0;
-    TextParserSave saveState(methodParser);
+    TextParser::Save saveState(methodParser);
     while (true) {
         if (methodParser->eof()) {
             return methodParser->reportError<bool>("#Method function missing close paren");
@@ -952,7 +965,7 @@ string Definition::NormalizedName(string name) {
     return normalizedName;
 }
 
-static string unpreformat(string orig) {
+static string unpreformat(const string& orig) {
     string result;
     int amp = 0;
     for (auto c : orig) {
@@ -1017,7 +1030,7 @@ static string unpreformat(string orig) {
     return result;
 }
 
-bool Definition::paramsMatch(string matchFormatted, string name) const {
+bool Definition::paramsMatch(const string& matchFormatted, const string& name) const {
     string match = unpreformat(matchFormatted);
     TextParser def(fFileName, fStart, fContentStart, fLineCount);
     const char* dName = def.strnstr(name.c_str(), fContentStart);
@@ -1084,7 +1097,7 @@ bool RootDefinition::dumpUnVisited() {
     return success;
 }
 
-const Definition* RootDefinition::find(string ref, AllowParens allowParens) const {
+const Definition* RootDefinition::find(const string& ref, AllowParens allowParens) const {
     const auto leafIter = fLeaves.find(ref);
     if (leafIter != fLeaves.end()) {
         return &leafIter->second;

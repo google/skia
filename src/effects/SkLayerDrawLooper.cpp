@@ -204,6 +204,9 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
         bsRec->fOffset = fRecs->fInfo.fOffset;
         bsRec->fColor = fRecs->fPaint.getColor();
         bsRec->fStyle = maskBlur.fStyle;
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
+        bsRec->fQuality = maskBlur.fQuality;
+#endif
     }
     return true;
 }
@@ -276,6 +279,7 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     return builder.detach();
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkLayerDrawLooper::toString(SkString* str) const {
     str->appendf("SkLayerDrawLooper (%d): ", fCount);
 
@@ -331,6 +335,7 @@ void SkLayerDrawLooper::toString(SkString* str) const {
         rec = rec->fNext;
     }
 }
+#endif
 
 SkLayerDrawLooper::Builder::Builder()
         : fRecs(nullptr),
