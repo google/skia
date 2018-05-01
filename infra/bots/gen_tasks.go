@@ -41,11 +41,14 @@ const (
 	ISOLATE_WIN_TOOLCHAIN_NAME  = "Housekeeper-PerCommit-IsolateWinToolchain"
 	ISOLATE_WIN_VULKAN_SDK_NAME = "Housekeeper-PerCommit-IsolateWinVulkanSDK"
 
-	DEFAULT_OS_DEBIAN    = "Debian-9.1"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.2"
+	DEFAULT_OS_DEBIAN    = "Debian-9.4"
+	DEFAULT_OS_LINUX_GCE = "Debian-9.4"
 	DEFAULT_OS_MAC       = "Mac-10.13.3"
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
+
+	MACHINE_TYPE_SMALL = "n1-highmem-2"
+	MACHINE_TYPE_LARGE = "n1-highcpu-64"
 
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
@@ -108,11 +111,12 @@ func internalHardwareLabel(parts map[string]string) *int {
 
 // linuxGceDimensions are the Swarming dimensions for Linux GCE
 // instances.
-func linuxGceDimensions() []string {
+func linuxGceDimensions(machineType string) []string {
 	return []string{
 		// Specify CPU to avoid running builds on bots with a more unique CPU.
 		"cpu:x86-64-Haswell_GCE",
 		"gpu:none",
+		fmt.Sprintf("machine_type:%s", machineType),
 		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
 	}
@@ -280,9 +284,18 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_DEBIAN {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
-			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_WIN {
-				// Use normal-size machines for Test and Perf tasks on Win GCE.
-				d["machine_type"] = "n1-standard-16"
+			if parts["model"] == "GCE" && d["cpu"] == "x86-64-Haswell_GCE" {
+				// nanobench runs single-threaded, so use a small machine.
+				// dm is multi-threaded for CPU, so use a large machine.
+				machineType, ok := map[string]string{
+					"Calmbench": MACHINE_TYPE_SMALL,
+					"Perf":      MACHINE_TYPE_SMALL,
+					"Test":      MACHINE_TYPE_LARGE,
+				}[parts["role"]]
+				if !ok {
+					glog.Fatalf("Entry %q not found in GCE machine type mapping.", parts["role"])
+				}
+				d["machine_type"] = machineType
 			}
 		} else {
 			if strings.Contains(parts["os"], "Win") {
@@ -361,12 +374,13 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_DEBIAN {
-			return linuxGceDimensions()
+			// Use many-core machines for Build tasks.
+			return linuxGceDimensions(MACHINE_TYPE_LARGE)
 		} else if d["os"] == DEFAULT_OS_WIN {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
-			// Use many-core machines for Build tasks on Win GCE.
-			d["machine_type"] = "n1-highcpu-64"
+			// Use many-core machines for Build tasks.
+			d["machine_type"] = MACHINE_TYPE_LARGE
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
@@ -400,7 +414,7 @@ func relpath(f string) string {
 func bundleRecipes(b *specs.TasksCfgBuilder) string {
 	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{cipdGit1, cipdGit2},
-		Dimensions:   linuxGceDimensions(),
+		Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "bundle_recipes",
 			fmt.Sprintf("buildername=%s", BUNDLE_RECIPES_NAME),
@@ -469,7 +483,7 @@ func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
 		CipdPackages: []*specs.CipdPackage{
 			b.MustGetCipdPackageFromAsset(ISOLATE_ASSET_MAPPING[name].cipdPkg),
 		},
-		Dimensions: linuxGceDimensions(),
+		Dimensions: linuxGceDimensions(MACHINE_TYPE_SMALL),
 		Isolate:    relpath(ISOLATE_ASSET_MAPPING[name].isolateFile),
 		Priority:   0.7,
 	})
@@ -592,7 +606,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
 			Dependencies: []string{name},
-			Dimensions:   linuxGceDimensions(),
+			Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 			ExtraArgs: []string{
 				"--workdir", "../../..", "upload_skiaserve",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -620,7 +634,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages:     []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
-		Dimensions:       linuxGceDimensions(),
+		Dimensions:       linuxGceDimensions(MACHINE_TYPE_LARGE),
 		ExecutionTimeout: 4 * time.Hour,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "recreate_skps",
@@ -646,7 +660,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{},
-		Dimensions:   linuxGceDimensions(),
+		Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "update_meta_config",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -697,7 +711,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{},
-		Dimensions:   linuxGceDimensions(),
+		Dimensions:   linuxGceDimensions(MACHINE_TYPE_LARGE),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "check_generated_files",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -721,7 +735,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
 		Dependencies: []string{compileTaskName},
-		Dimensions:   linuxGceDimensions(),
+		Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "housekeeper",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -745,7 +759,7 @@ func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
 		Dependencies: []string{compileTaskName},
-		Dimensions:   linuxGceDimensions(),
+		Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "bookmaker",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -770,7 +784,7 @@ func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 // should add as a dependency.
 func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		Dimensions: linuxGceDimensions(),
+		Dimensions: linuxGceDimensions(MACHINE_TYPE_SMALL),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "android_compile",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -793,7 +807,7 @@ func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 func infra(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
-		Dimensions:   linuxGceDimensions(),
+		Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "infra",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -850,7 +864,7 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
 			Dependencies: []string{name},
-			Dimensions:   linuxGceDimensions(),
+			Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 			ExtraArgs: []string{
 				"--workdir", "../../..", "upload_calmbench_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -959,7 +973,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
 			Dependencies: []string{name},
-			Dimensions:   linuxGceDimensions(),
+			Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 			ExtraArgs: []string{
 				"--workdir", "../../..", "upload_dm_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -1046,7 +1060,7 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 		// which gives us access to the instrumented binary. The binary is
 		// needed to figure out symbol names and line numbers.
 		Dependencies: deps,
-		Dimensions:   linuxGceDimensions(),
+		Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 		CipdPackages: pkgs,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "upload_coverage_results",
@@ -1140,7 +1154,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
 			Dependencies: []string{name},
-			Dimensions:   linuxGceDimensions(),
+			Dimensions:   linuxGceDimensions(MACHINE_TYPE_SMALL),
 			ExtraArgs: []string{
 				"--workdir", "../../..", "upload_nano_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
