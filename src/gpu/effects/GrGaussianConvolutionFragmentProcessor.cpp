@@ -147,15 +147,22 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
         }
         if (Direction::kX == conv.direction()) {
             SkScalar inv = SkScalarInvert(SkIntToScalar(texture.width()));
-            pdman.set2f(fBoundsUni, inv * bounds[0], inv * bounds[1]);
+            bounds[0] *= inv;
+            bounds[1] *= inv;
         } else {
             SkScalar inv = SkScalarInvert(SkIntToScalar(texture.height()));
             if (proxy->origin() != kTopLeft_GrSurfaceOrigin) {
-                pdman.set2f(fBoundsUni, 1.0f - (inv * bounds[1]), 1.0f - (inv * bounds[0]));
+                float tmp = bounds[0];
+                bounds[0] = 1.0f - (inv * bounds[1]);
+                bounds[1] = 1.0f - (inv * tmp);
             } else {
-                pdman.set2f(fBoundsUni, inv * bounds[1], inv * bounds[0]);
+                bounds[0] *= inv;
+                bounds[1] *= inv;
             }
         }
+
+        SkASSERT(bounds[0] < bounds[1]);
+        pdman.set2f(fBoundsUni, bounds[0], bounds[1]);
     }
     int width = conv.width();
 
