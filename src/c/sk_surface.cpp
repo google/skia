@@ -81,6 +81,7 @@ static bool from_c_alphatype(sk_alphatype_t cAT, SkAlphaType* skAT) {
 static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     SkColorType ct;
     SkAlphaType at;
+    sk_sp<SkColorSpace> cs = sk_ref_sp((SkColorSpace*)cinfo.colorSpace);
 
     if (!from_c_colortype(cinfo.colorType, &ct)) {
         // optionally report error to client?
@@ -91,7 +92,7 @@ static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
         return false;
     }
     if (info) {
-        *info = SkImageInfo::Make(cinfo.width, cinfo.height, ct, at);
+        *info = SkImageInfo::Make(cinfo.width, cinfo.height, ct, at, std::move(cs));
     }
     return true;
 }

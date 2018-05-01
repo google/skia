@@ -138,7 +138,7 @@ SK_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
 /**
  *  Set the paint's xfermode to the specified parameter.
  */
-SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
+SK_API void sk_paint_set_blend_mode(sk_paint_t*, sk_blend_mode_t);
 
 SK_C_PLUS_PLUS_END_GUARD
 
