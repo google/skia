@@ -316,9 +316,6 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform_Base::New(
         return nullptr;
     }
 
-#if defined(SK_USE_SKCMS)
-    return MakeSkcmsXform(src, dst, premulBehavior);
-#else
     if (src->toXYZD50()) {
         return skstd::make_unique<SkColorSpaceXform_XYZ>(static_cast<SkColorSpace_XYZ*>(src),
                                                          static_cast<SkColorSpace_XYZ*>(dst),
@@ -326,7 +323,6 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform_Base::New(
     }
     return skstd::make_unique<SkColorSpaceXform_A2B>(static_cast<SkColorSpace_A2B*>(src),
                                                      static_cast<SkColorSpace_XYZ*>(dst));
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

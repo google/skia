@@ -53,14 +53,14 @@ void SkAutoPixmapStorage::alloc(const SkImageInfo& info) {
     SkASSERT_RELEASE(this->tryAlloc(info));
 }
 
-sk_sp<SkData> SkAutoPixmapStorage::detachPixelsAsData() {
+const SkData* SkAutoPixmapStorage::detachPixelsAsData() {
     if (!fStorage) {
         return nullptr;
     }
 
-    sk_sp<SkData> data = SkData::MakeFromMalloc(fStorage, this->computeByteSize());
+    auto data = SkData::MakeFromMalloc(fStorage, this->computeByteSize());
     fStorage = nullptr;
     this->INHERITED::reset();
 
-    return data;
+    return data.release();
 }

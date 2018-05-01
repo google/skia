@@ -72,7 +72,9 @@ public:
     }
 #endif
 
+#ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override { fMatrixFilter->toString(str); }
+#endif
 
 private:
     SkColor              fMul, fAdd;

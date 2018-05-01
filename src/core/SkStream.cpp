@@ -472,9 +472,9 @@ SkDynamicMemoryWStream::~SkDynamicMemoryWStream() {
 }
 
 void SkDynamicMemoryWStream::reset() {
-    Block* block = fHead;
+    Block*  block = fHead;
     while (block != nullptr) {
-        Block* next = block->fNext;
+        Block*  next = block->fNext;
         sk_free(block);
         block = next;
     }
@@ -493,8 +493,7 @@ size_t SkDynamicMemoryWStream::bytesWritten() const {
 
 bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
     if (count > 0) {
-        SkASSERT(buffer);
-        size_t size;
+        size_t  size;
 
         if (fTail) {
             if (fTail->avail() > 0) {
@@ -517,11 +516,10 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
         block->init(size);
         block->append(buffer, count);
 
-        if (fTail != nullptr) {
+        if (fTail != nullptr)
             fTail->fNext = block;
-        } else {
+        else
             fHead = fTail = block;
-        }
         fTail = block;
         this->validate();
     }
@@ -538,9 +536,8 @@ bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count) {
         if (offset < size) {
             size_t part = offset + count > size ? size - offset : count;
             memcpy(buffer, block->start() + offset, part);
-            if (count <= part) {
+            if (count <= part)
                 return true;
-            }
             count -= part;
             buffer = (void*) ((char* ) buffer + part);
         }
@@ -551,7 +548,6 @@ bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count) {
 }
 
 void SkDynamicMemoryWStream::copyTo(void* dst) const {
-    SkASSERT(dst);
     Block* block = fHead;
     while (block != nullptr) {
         size_t size = block->written();
@@ -562,7 +558,6 @@ void SkDynamicMemoryWStream::copyTo(void* dst) const {
 }
 
 bool SkDynamicMemoryWStream::writeToStream(SkWStream* dst) const {
-    SkASSERT(dst);
     for (Block* block = fHead; block != nullptr; block = block->fNext) {
         if (!dst->write(block->start(), block->written())) {
             return false;
@@ -588,10 +583,6 @@ void SkDynamicMemoryWStream::padToAlign4() {
 
 
 void SkDynamicMemoryWStream::copyToAndReset(void* ptr) {
-    if (!ptr) {
-        this->reset();
-        return;
-    }
     // By looping through the source and freeing as we copy, we
     // can reduce real memory use with large streams.
     char* dst = reinterpret_cast<char*>(ptr);
@@ -609,7 +600,6 @@ void SkDynamicMemoryWStream::copyToAndReset(void* ptr) {
 }
 
 bool SkDynamicMemoryWStream::writeToAndReset(SkWStream* dst) {
-    SkASSERT(dst);
     // By looping through the source and freeing as we copy, we
     // can reduce real memory use with large streams.
     bool dstStreamGood = true;

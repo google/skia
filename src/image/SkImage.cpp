@@ -29,7 +29,6 @@
 #include "GrContext.h"
 #include "SkImage_Gpu.h"
 #endif
-#include "GrBackendSurface.h"
 
 SkImage::SkImage(int width, int height, uint32_t uniqueID)
     : fWidth(width)
@@ -163,16 +162,9 @@ GrTexture* SkImage::getTexture() const {
 
 bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekProxy()); }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
                                           GrSurfaceOrigin* origin) const {
     return as_IB(this)->onGetTextureHandle(flushPendingGrContextIO, origin);
-}
-#endif
-
-GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
-                                            GrSurfaceOrigin* origin) const {
-    return as_IB(this)->onGetBackendTexture(flushPendingGrContextIO, origin);
 }
 
 bool SkImage::isValid(GrContext* context) const {
@@ -188,14 +180,7 @@ GrTexture* SkImage::getTexture() const { return nullptr; }
 
 bool SkImage::isTextureBacked() const { return false; }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendObject SkImage::getTextureHandle(bool, GrSurfaceOrigin*) const { return 0; }
-#endif
-
-GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
-                                            GrSurfaceOrigin* origin) const {
-    return GrBackendTexture(); // invalid
-}
 
 bool SkImage::isValid(GrContext* context) const {
     if (context) {
@@ -217,11 +202,6 @@ SkImage_Base::~SkImage_Base() {
     if (fAddedToCache.load()) {
         SkNotifyBitmapGenIDIsStale(this->uniqueID());
     }
-}
-
-GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
-                                                   GrSurfaceOrigin* origin) const {
-    return GrBackendTexture(); // invalid
 }
 
 bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint chint) const {

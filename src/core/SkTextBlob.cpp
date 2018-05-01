@@ -71,7 +71,8 @@ private:
         SkPaint::kLCDRenderText_Flag      |
         SkPaint::kEmbeddedBitmapText_Flag |
         SkPaint::kAutoHinting_Flag        |
-        SkPaint::kVerticalText_Flag       ;
+        SkPaint::kVerticalText_Flag       |
+        SkPaint::kGenA8FromLCD_Flag;
 
     SkScalar                 fSize;
     SkScalar                 fScaleX;
@@ -909,13 +910,6 @@ sk_sp<SkData> SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx) con
     procs.fTypefaceProc = catalog_typeface_proc;
     procs.fTypefaceCtx  = &state;
     return this->serialize(procs);
-}
-
-size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const {
-    SkBinaryWriteBuffer buffer(memory, memory_size);
-    buffer.setSerialProcs(procs);
-    this->flatten(buffer);
-    return buffer.usingInitialStorage() ? buffer.bytesWritten() : 0u;
 }
 
 namespace {
