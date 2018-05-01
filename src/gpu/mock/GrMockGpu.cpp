@@ -38,6 +38,11 @@ int GrMockGpu::NextExternalRenderTargetID() {
     return sk_atomic_inc(&gID);
 }
 
+sk_sp<GrGpu> GrMockGpu::Make(GrBackendContext backendContext,
+                             const GrContextOptions& contextOptions, GrContext* context) {
+    return Make(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
+}
+
 sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
                              const GrContextOptions& contextOptions, GrContext* context) {
     static const GrMockOptions kDefaultOptions = GrMockOptions();
@@ -69,17 +74,12 @@ void GrMockGpu::submitCommandBuffer(const GrMockGpuRTCommandBuffer* cmdBuffer) {
 
 GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
                      const GrContextOptions& contextOptions)
-        : INHERITED(context)
-        , fMockOptions(options) {
+        : INHERITED(context) {
     fCaps.reset(new GrMockCaps(contextOptions, options));
 }
 
 sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                             const GrMipLevel texels[], int mipLevelCount) {
-    if (fMockOptions.fFailTextureAllocations) {
-        return nullptr;
-    }
-
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
     GrMockTextureInfo texInfo;
@@ -100,9 +100,8 @@ sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
     GrSurfaceDesc desc;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-
-    GrMockTextureInfo info;
-    SkAssertResult(tex.getMockTextureInfo(&info));
+    SkASSERT(tex.getMockTextureInfo());
+    GrMockTextureInfo info = *tex.getMockTextureInfo();
     desc.fConfig = info.fConfig;
 
     GrMipMapsStatus mipMapsStatus = tex.hasMipMaps() ? GrMipMapsStatus::kValid
@@ -119,9 +118,8 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-
-    GrMockTextureInfo texInfo;
-    SkAssertResult(tex.getMockTextureInfo(&texInfo));
+    SkASSERT(tex.getMockTextureInfo());
+    GrMockTextureInfo texInfo = *tex.getMockTextureInfo();
     desc.fConfig = texInfo.fConfig;
 
     GrMipMapsStatus mipMapsStatus =
@@ -141,9 +139,8 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendRenderTarget(const GrBackendRender
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = rt.width();
     desc.fHeight = rt.height();
-
-    GrMockRenderTargetInfo info;
-    SkAssertResult(rt.getMockRenderTargetInfo(&info));
+    SkASSERT(rt.getMockRenderTargetInfo());
+    const GrMockRenderTargetInfo info = *rt.getMockRenderTargetInfo();
     desc.fConfig = info.fConfig;
 
     return sk_sp<GrRenderTarget>(
@@ -156,9 +153,8 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-
-    GrMockTextureInfo texInfo;
-    SkAssertResult(tex.getMockTextureInfo(&texInfo));
+    SkASSERT(tex.getMockTextureInfo());
+    const GrMockTextureInfo texInfo = *tex.getMockTextureInfo();
     desc.fConfig = texInfo.fConfig;
     desc.fSampleCnt = sampleCnt;
 
@@ -198,20 +194,20 @@ GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(const void* pixels, 
 bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(kMock_GrBackend == tex.backend());
 
-    GrMockTextureInfo info;
-    if (!tex.getMockTextureInfo(&info)) {
+    const GrMockTextureInfo* info = tex.getMockTextureInfo();
+    if (!info) {
         return false;
     }
 
-    return fOutstandingTestingOnlyTextureIDs.contains(info.fID);
+    return fOutstandingTestingOnlyTextureIDs.contains(info->fID);
 }
 
 void GrMockGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(kMock_GrBackend == tex.backend());
 
-    GrMockTextureInfo info;
-    if (tex.getMockTextureInfo(&info)) {
-        fOutstandingTestingOnlyTextureIDs.remove(info.fID);
+    const GrMockTextureInfo* info = tex.getMockTextureInfo();
+    if (info) {
+        fOutstandingTestingOnlyTextureIDs.remove(info->fID);
     }
 }
 

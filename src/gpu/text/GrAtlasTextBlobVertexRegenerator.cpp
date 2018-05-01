@@ -195,7 +195,7 @@ Regenerator::VertexRegenerator(GrResourceProvider* resourceProvider, GrAtlasText
                                int runIdx, int subRunIdx,
                                const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                                GrDeferredUploadTarget* uploadTarget, GrGlyphCache* glyphCache,
-                               GrAtlasManager* fullAtlasManager, SkExclusiveStrikePtr* lazyCache)
+                               GrAtlasManager* fullAtlasManager, SkAutoGlyphCache* lazyCache)
         : fResourceProvider(resourceProvider)
         , fViewMatrix(viewMatrix)
         , fBlob(blob)
@@ -245,7 +245,7 @@ bool Regenerator::doRegen(Regenerator::Result* result) {
             effects.fPathEffect = fRun->fPathEffect.get();
             effects.fMaskFilter = fRun->fMaskFilter.get();
             *fLazyCache =
-                SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *fRun->fTypeface);
+                SkGlyphCache::FindOrCreateStrikeExclusive(*desc, effects, *fRun->fTypeface);
         }
 
         if (regenGlyphs) {

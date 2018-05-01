@@ -222,7 +222,7 @@ uniform half4 circleData;
 
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 1, "1-D Circular Blur");
+        GrUniqueKey::Builder builder(&key, kDomain, 1);
         builder[0] = sigmaToCircleRRatioFixed;
         builder.finish();
 

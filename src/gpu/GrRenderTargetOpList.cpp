@@ -24,8 +24,8 @@
 static const int kMaxOpLookback = 10;
 static const int kMaxOpLookahead = 10;
 
-GrRenderTargetOpList::GrRenderTargetOpList(GrResourceProvider* resourceProvider,
-                                           GrRenderTargetProxy* proxy,
+GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* proxy,
+                                           GrResourceProvider* resourceProvider,
                                            GrAuditTrail* auditTrail)
         : INHERITED(resourceProvider, proxy, auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
@@ -38,8 +38,8 @@ GrRenderTargetOpList::~GrRenderTargetOpList() {
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
-void GrRenderTargetOpList::dump(bool printDependencies) const {
-    INHERITED::dump(printDependencies);
+void GrRenderTargetOpList::dump() const {
+    INHERITED::dump();
 
     SkDebugf("ops (%d):\n", fRecordedOps.count());
     for (int i = 0; i < fRecordedOps.count(); ++i) {
@@ -133,19 +133,14 @@ static inline void finish_command_buffer(GrGpuRTCommandBuffer* buffer) {
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
 bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
-    // TODO: Forcing the execution of the discard here isn't ideal since it will cause us to do a
-    // discard and then store the data back in memory so that the load op on future draws doesn't
-    // think the memory is unitialized. Ideally we would want a system where we are tracking whether
-    // the proxy itself has valid data or not, and then use that as a signal on whether we should be
-    // loading or discarding. In that world we wouldni;t need to worry about executing oplists with
-    // no ops just to do a discard.
-    if (0 == fRecordedOps.count() && GrLoadOp::kClear != fColorLoadOp &&
-        GrLoadOp::kDiscard != fColorLoadOp) {
+    if (0 == fRecordedOps.count() && GrLoadOp::kClear != fColorLoadOp) {
         return false;
     }
 
     SkASSERT(fTarget.get()->priv().peekRenderTarget());
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia", TRACE_FUNC);
+#endif
 
     // TODO: at the very least, we want the stencil store op to always be discard (at this
     // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.

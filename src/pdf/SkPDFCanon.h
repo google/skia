@@ -26,9 +26,7 @@ class SkPDFCanon {
 public:
     ~SkPDFCanon();
     SkPDFCanon();
-    SkPDFCanon(SkPDFCanon&&);
     SkPDFCanon(const SkPDFCanon&) = delete;
-    SkPDFCanon& operator=(SkPDFCanon&&);
     SkPDFCanon& operator=(const SkPDFCanon&) = delete;
 
     SkTHashMap<SkPDFImageShaderKey, sk_sp<SkPDFObject>> fImageShaderMap;

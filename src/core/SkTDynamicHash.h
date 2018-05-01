@@ -242,16 +242,7 @@ private:
 
     void maybeGrow() {
         if (100 * (fCount + fDeleted + 1) > fCapacity * kGrowPercent) {
-            auto newCapacity = fCapacity > 0 ? fCapacity : 4;
-
-            // Only grow the storage when most non-empty entries are
-            // in active use.  Otherwise, just purge the tombstones.
-            if (fCount > fDeleted) {
-                newCapacity *= 2;
-            }
-            SkASSERT(newCapacity > fCount + 1);
-
-            this->resize(newCapacity);
+            this->resize(fCapacity > 0 ? fCapacity * 2 : 4);
         }
     }
 

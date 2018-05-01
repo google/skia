@@ -6,13 +6,11 @@
  */
 
 #include "SkAtomics.h"
-#include "SkCanvas.h"
-#include "SkFontLCDConfig.h"
-#include "SkImagePriv.h"
 #include "SkSurface_Base.h"
+#include "SkImagePriv.h"
+#include "SkCanvas.h"
 
-#include "GrBackendSurface.h"
-
+#include "SkFontLCDConfig.h"
 static SkPixelGeometry compute_default_geometry() {
     SkFontLCDConfig::LCDOrder order = SkFontLCDConfig::GetSubpixelOrder();
     if (SkFontLCDConfig::kNONE_LCDOrder == order) {
@@ -70,14 +68,6 @@ SkSurface_Base::~SkSurface_Base() {
     if (fCachedCanvas) {
         fCachedCanvas->setSurfaceBase(nullptr);
     }
-}
-
-GrBackendTexture SkSurface_Base::onGetBackendTexture(BackendHandleAccess) {
-    return GrBackendTexture(); // invalid
-}
-
-GrBackendRenderTarget SkSurface_Base::onGetBackendRenderTarget(BackendHandleAccess) {
-    return GrBackendRenderTarget(); // invalid
 }
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
@@ -218,22 +208,12 @@ void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendObject SkSurface::getTextureHandle(BackendHandleAccess access) {
     return asSB(this)->onGetTextureHandle(access);
 }
 
 bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess access) {
     return asSB(this)->onGetRenderTargetHandle(obj, access);
-}
-#endif
-
-GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
-    return asSB(this)->onGetBackendTexture(access);
-}
-
-GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess access) {
-    return asSB(this)->onGetBackendRenderTarget(access);
 }
 
 void SkSurface::prepareForExternalIO() {
@@ -297,15 +277,18 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkIma
     return nullptr;
 }
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, const SkSurfaceCharacterization&,
-                                             SkBudgeted) {
-    return nullptr;
-}
-
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    SkColorType, sk_sp<SkColorSpace>,
                                                    const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTarget&,
+                                                        GrSurfaceOrigin origin,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*) {
     return nullptr;
 }
 

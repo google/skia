@@ -409,11 +409,63 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 #Method static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
                                                 const GrBackendRenderTarget& backendRenderTarget,
                                                 GrSurfaceOrigin origin,
-                                                SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps)
 #In Constructor
-#Line # creates Surface from GPU render target ##
+#Line # creates Surface from GPU memory buffer ##
+
+Wraps a GPU-backed buffer into Surface. Caller must ensure render target is
+valid for the lifetime of returned Surface.
+
+Surface is returned if all parameters are valid. backendRenderTarget is valid if
+its pixel configuration agrees with colorSpace and context; for instance, if
+backendRenderTarget has an sRGB configuration, then context must support sRGB,
+and colorSpace must be present. Further, backendRenderTarget width and height must
+not exceed context capabilities, and the context must be able to support
+back-end render targets.
+
+If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
+
+#Param context  GPU_Context ##
+#Param backendRenderTarget  GPU intermediate memory buffer ##
+#Param origin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorSpace  range of colors ##
+#Param surfaceProps  LCD striping orientation and setting for device independent
+                     fonts; may be nullptr
+##
+
+#Return Surface if all parameters are valid; otherwise, nullptr ##
+
+#Example
+#ToDo  remove !fiddle below once backEndTextureRenderTarget is available ##
+#Platform !fiddle gpu
+    SkPaint paint;
+    paint.setTextSize(32);
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+         canvas->drawString("GPU only!", 20, 40, paint);
+         return;
+    }
+    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendRenderTarget(context,
+            backEndRenderTarget, kTopLeft_GrSurfaceOrigin, nullptr, nullptr);
+    auto surfaceCanvas = gpuSurface->getCanvas();
+    surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
+    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
+    canvas->drawImage(image, 0, 0);
+##
+
+#SeeAlso MakeFromBackendTexture MakeRenderTarget
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
+                                                const GrBackendRenderTarget& backendRenderTarget,
+                                                GrSurfaceOrigin origin,
+                                                SkColorType colorType,
+                                                sk_sp<SkColorSpace> colorSpace,
+                                                const SkSurfaceProps* surfaceProps)
 
 Wraps a GPU-backed buffer into Surface. Caller must ensure backendRenderTarget
 is valid for the lifetime of returned Surface.
@@ -713,29 +765,6 @@ Surface bottom-left corner is pinned to the origin.
 
 # ------------------------------------------------------------------------------
 
-#Method static sk_sp<SkSurface> MakeRenderTarget(GrContext* context,
-                                             const SkSurfaceCharacterization& characterization,
-                                             SkBudgeted budgeted)
-
-Returns SkSurface on GPU indicated by context that is compatible with the provided
-characterization. budgeted selects whether allocation for pixels is tracked by context.
-
-#Param context  GPU_Context ##
-#Param characterization  description of the desired SkSurface ##
-#Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
-
-#NoExample
-##
-
-#SeeAlso MakeFromBackendRenderTarget MakeFromBackendTextureAsRenderTarget
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
 #Method static sk_sp<SkSurface> MakeNull(int width, int height)
 
 #In Constructor
@@ -960,8 +989,7 @@ Caller must overwrite the entire back-end object.
 #Deprecated 
 ##
 
-#NoExample
-// todo: need to update example to use GrBackendTexture instead of GrBackendObject
+#Example
 #Platform gpu
     SkPaint paint;
     paint.setTextSize(32);
@@ -990,70 +1018,101 @@ Caller must overwrite the entire back-end object.
     canvas->drawString(str, 20, y += 20, paint);
 ##
 
-#SeeAlso getBackendTexture getBackendRenderTarget
+#SeeAlso getTextureHandle getRenderTargetHandle
 
 #Enum ##
 
 # ------------------------------------------------------------------------------
 
 #Method GrBackendObject getTextureHandle(BackendHandleAccess backendHandleAccess)
-#Deprecated
+#In Property
+#Line # returns the GPU reference to texture ##
+Returns the GPU back-end reference of the texture used by Surface, or zero
+if Surface is not backed by a GPU texture.
+
+The returned texture handle is only valid until the next draw into Surface,
+or when Surface is deleted.
+
+#Param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
+        kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
+##
+
+#Return GPU texture reference ##
+
+#Example
+#Platform gpu
+#Height 64
+    SkPaint paint;
+    paint.setTextSize(32);
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+         canvas->drawString("GPU only!", 20, 40, paint);
+         return;
+    }
+    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(
+            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));
+    GrBackendObject backendObject = gpuSurface->getTextureHandle(
+            SkSurface::kFlushRead_BackendHandleAccess);
+    if (backendObject) {
+        SkString str;
+        str.printf("backendObject=%08lx", backendObject);
+        paint.setTextSize(16);
+        canvas->drawString(str, 20, 40, paint);
+    }
+##
+
+#SeeAlso getRenderTargetHandle GrBackendObject BackendHandleAccess
+
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess)
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess)
-#In Property
-#Line # returns the GPU reference to texture ##
-Retrieves the backend texture. If Surface has no backend texture, an invalid
-object is returned. Call GrBackendTexture::isValid to determine if the result
-is valid.
-
-The returned GrBackendTexture should be discarded if the Surface is drawn to or deleted.
-
-#Param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-        kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
-##
-
-#Return GPU texture reference; invalid on failure ##
-
-#NoExample
-##
-
-#SeeAlso GrBackendTexture BackendHandleAccess getBackendRenderTarget
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess)
 #In Property
 #Line # returns the GPU reference to render target ##
 
-Retrieves the backend render target. If Surface has no backend render target, an invalid
-object is returned. Call GrBackendRenderTarget::isValid to determine if the result
-is valid.
+Returns true and stores the GPU back-end reference of the render target used
+by Surface in backendObject.
 
-The returned GrBackendRenderTarget should be discarded if the Surface is drawn to
-or deleted.
+Return false if Surface is not backed by a GPU render target, and leaves
+backendObject unchanged.
 
+The returned render target handle is only valid until the next draw into Surface,
+or when Surface is deleted.
+
+In OpenGL this returns the frame buffer object ID.
+
+#Param backendObject  GPU intermediate memory buffer ##
 #Param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
         kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
 ##
 
-#Return GPU render target reference; invalid on failure ##
+#Return true if Surface is backed by GPU texture ##
 
-#NoExample
+#Example
+#Platform gpu
+#Height 64
+    SkPaint paint;
+    paint.setTextSize(32);
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+         canvas->drawString("GPU only!", 20, 40, paint);
+         return;
+    }
+    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(
+            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));
+    GrBackendObject backendObject;
+    if (gpuSurface->getRenderTargetHandle(&backendObject, 
+            SkSurface::kFlushRead_BackendHandleAccess)) {
+        SkString str;
+        str.printf("backendObject=%ld", backendObject);
+        paint.setTextSize(16);
+        canvas->drawString(str, 20, 40, paint);
+    }
 ##
 
-#SeeAlso GrBackendRenderTarget BackendHandleAccess getBackendTexture
+#SeeAlso getTextureHandle GrBackendObject BackendHandleAccess
 
 #Method ##
 
@@ -1576,7 +1635,6 @@ and the client will still own the semaphores.
 #NoExample
 #ToDo this is copy and paste silliness masquerading as an example. Probably need gpu
       globals and definitely need gpu expertise to make a real example out of this
-      also, note need to replace GrBackendObject with GrBackendTexture
  ##
 #Platform gpu
 #Height 64

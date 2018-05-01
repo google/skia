@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+
 #include "SkGraphics.h"
 
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkCpu.h"
 #include "SkGeometry.h"
+#include "SkGlyphCache.h"
 #include "SkImageFilter.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
@@ -23,7 +25,6 @@
 #include "SkScalerContext.h"
 #include "SkShader.h"
 #include "SkStream.h"
-#include "SkStrikeCache.h"
 #include "SkTSearch.h"
 #include "SkTime.h"
 #include "SkUtils.h"
@@ -52,7 +53,7 @@ void SkGraphics::Init() {
 
 void SkGraphics::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
   SkResourceCache::DumpMemoryStatistics(dump);
-  SkStrikeCache::DumpMemoryStatistics(dump);
+  SkGlyphCache::DumpMemoryStatistics(dump);
 }
 
 void SkGraphics::PurgeAllCaches() {
