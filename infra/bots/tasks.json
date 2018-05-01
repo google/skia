@@ -24804,7 +24804,7 @@
         "gpu:MaliT604",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:9901.12.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -24907,7 +24907,7 @@
         "gpu:MaliT604",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:9901.12.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -47845,7 +47845,7 @@
         "gpu:MaliT604",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:9901.12.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -47948,7 +47948,7 @@
         "gpu:MaliT604",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:9901.12.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
