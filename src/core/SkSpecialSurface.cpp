@@ -133,7 +133,7 @@ public:
             return;
         }
 
-        fCanvas.reset(new SkCanvas(device.get()));
+        fCanvas.reset(new SkCanvas(device));
         fCanvas->clipRect(SkRect::Make(subset));
 #ifdef SK_IS_BOT
         fCanvas->clear(SK_ColorRED);  // catch any imageFilter sloppiness
