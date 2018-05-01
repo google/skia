@@ -8,7 +8,7 @@
 #include "SkThreadedBMPDevice.h"
 
 #include "SkPath.h"
-#include "SkSpecialImage.h"
+#include "SkRectPriv.h"
 #include "SkTaskGroup.h"
 #include "SkVertices.h"
 
@@ -77,8 +77,16 @@ SkThreadedBMPDevice::DrawState::DrawState(SkThreadedBMPDevice* dev) {
         fDst.reset(dev->imageInfo(), nullptr, 0);
     }
     fMatrix = dev->ctm();
-    fMatrix.getType(); // make it thread safe
     fRC = dev->fRCStack.rc();
+}
+
+SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
+    if (drawBounds == SkRectPriv::MakeLargest()) {
+        return SkRectPriv::MakeILarge();
+    }
+    SkRect transformedBounds;
+    this->ctm().mapRect(&transformedBounds, drawBounds);
+    return transformedBounds.roundOut();
 }
 
 SkDraw SkThreadedBMPDevice::DrawState::getDraw() const {
@@ -116,10 +124,9 @@ void SkThreadedBMPDevice::drawPaint(const SkPaint& paint) {
 
 void SkThreadedBMPDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
         const SkPoint pts[], const SkPaint& paint) {
-    SkPoint* clonedPts = this->cloneArray(pts, count);
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawPoints(mode, count, clonedPts, paint, nullptr);
+        TileDraw(ds, tileBounds).drawPoints(mode, count, pts, paint, nullptr);
     });
 }
 
@@ -150,8 +157,7 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
         const SkMatrix* prePathMatrix, bool pathIsMutable) {
     SkRect drawBounds = path.isInverseFillType() ? SkRectPriv::MakeLargest()
                                                  : get_fast_bounds(path.getBounds(), paint);
-    // when path is small, init-once has too much overhead; init-once also can't handle mask filter
-    if (path.countVerbs() < 4 || paint.getMaskFilter()) {
+    if (path.countVerbs() < 4) { // when path is small, init-once has too much overhead
         fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds) {
             TileDraw(ds, tileBounds).drawPath(path, paint, prePathMatrix, false);
         });
@@ -163,87 +169,59 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
     }
 }
 
-SkBitmap SkThreadedBMPDevice::snapBitmap(const SkBitmap& bitmap) {
-    // We can't use bitmap.isImmutable() because it could be temporarily immutable
-    // TODO(liyuqian): use genID to reduce the copy frequency
-    SkBitmap snap;
-    snap.allocPixels(bitmap.info());
-    bitmap.readPixels(snap.pixmap());
-    return snap;
-}
-
-void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
-                                     const SkRect* dstOrNull, const SkPaint& paint) {
-    SkRect drawBounds;
-    SkRect* clonedDstOrNull = nullptr;
-    if (dstOrNull == nullptr) {
-        drawBounds = SkRect::MakeWH(bitmap.width(), bitmap.height());
-        matrix.mapRect(&drawBounds);
-    } else {
-        drawBounds = *dstOrNull;
-        clonedDstOrNull = fAlloc.make<SkRect>(*dstOrNull);
-    }
-
-    SkBitmap snap = this->snapBitmap(bitmap);
+void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
+        const SkPaint& paint) {
+    SkMatrix matrix = SkMatrix::MakeTrans(x, y);
+    LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
+    SkRect drawBounds = SkRect::MakeWH(bitmap.width(), bitmap.height());
+    matrix.mapRect(&drawBounds);
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        SkBitmap local = snap; // bitmap is not thread safe; copy a local one.
-        TileDraw(ds, tileBounds).drawBitmap(local, matrix, clonedDstOrNull, paint);
+        TileDraw(ds, tileBounds).drawBitmap(bitmap, matrix, nullptr, paint);
     });
 }
 
-void SkThreadedBMPDevice::drawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-        const SkRect& dst, const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
-    // SkBitmapDevice::drawBitmapRect may use shader and drawRect. In that case, we need to snap
-    // the bitmap here because we won't go into SkThreadedBMPDevice::drawBitmap.
-    SkBitmap snap = this->snapBitmap(bitmap);
-    this->SkBitmapDevice::drawBitmapRect(snap, src, dst, paint, constraint);
-}
-
-
 void SkThreadedBMPDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
     SkRect drawBounds = SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height());
-    SkBitmap snap = this->snapBitmap(bitmap);
-    fQueue.push<false>(drawBounds, [=](SkArenaAlloc*, const DrawState& ds,
-                                       const SkIRect& tileBounds){
-        SkBitmap local = snap; // bitmap is not thread safe; copy a local one.
-        TileDraw(ds, tileBounds).drawSprite(local, x, y, paint);
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawSprite(bitmap, x, y, paint);
     });
 }
 
 void SkThreadedBMPDevice::drawText(const void* text, size_t len, SkScalar x, SkScalar y,
         const SkPaint& paint) {
-    char* clonedText = this->cloneArray((const char*)text, len);
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawText(clonedText, len, x, y, paint,
+        TileDraw(ds, tileBounds).drawText((const char*)text, len, x, y, paint,
                                           &this->surfaceProps());
     });
 }
 
 void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
         int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
-    char* clonedText = this->cloneArray((const char*)text, len);
-    SkScalar* clonedXpos = this->cloneArray(xpos, paint.countText(text, len) * scalarsPerPos);
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawPosText(clonedText, len, clonedXpos, scalarsPerPos, offset,
+        TileDraw(ds, tileBounds).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset,
                                              paint, &surfaceProps());
     });
 }
 
 void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         const SkPaint& paint) {
-    const sk_sp<SkVertices> verts = sk_ref_sp(vertices);  // retain vertices until flush
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawVertices(verts->mode(), verts->vertexCount(),
-                                              verts->positions(), verts->texCoords(),
-                                              verts->colors(), bmode, verts->indices(),
-                                              verts->indexCount(), paint);
+        TileDraw(ds, tileBounds).drawVertices(vertices->mode(), vertices->vertexCount(),
+                                              vertices->positions(), vertices->texCoords(),
+                                              vertices->colors(), bmode, vertices->indices(),
+                                              vertices->indexCount(), paint);
     });
 }
 
-sk_sp<SkSpecialImage> SkThreadedBMPDevice::snapSpecial() {
-    this->flush();
-    return this->makeSpecial(fBitmap);
+void SkThreadedBMPDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
+    SkASSERT(!paint.getImageFilter());
+    SkRect drawBounds = SkRect::MakeXYWH(x, y, device->width(), device->height());
+    // copy the bitmap because it may deleted after this call
+    SkBitmap* bitmap = fAlloc.make<SkBitmap>(static_cast<SkBitmapDevice*>(device)->fBitmap);
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawSprite(*bitmap, x, y, paint);
+    });
 }

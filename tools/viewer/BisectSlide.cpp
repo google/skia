@@ -7,14 +7,11 @@
 
 #include "BisectSlide.h"
 
+#include "SkDOM.h"
 #include "SkOSPath.h"
 #include "SkPicture.h"
 #include "SkStream.h"
-
-#ifdef SK_XML
-#include "SkDOM.h"
 #include "../experimental/svg/model/SkSVGDOM.h"
-#endif
 
 sk_sp<BisectSlide> BisectSlide::Create(const char filepath[]) {
     SkFILEStream stream(filepath);
@@ -25,7 +22,6 @@ sk_sp<BisectSlide> BisectSlide::Create(const char filepath[]) {
 
     sk_sp<BisectSlide> bisect(new BisectSlide(filepath));
     if (bisect->fFilePath.endsWith(".svg")) {
-#ifdef SK_XML
         SkDOM xml;
         if (!xml.build(stream)) {
             SkDebugf("BISECT: XML parsing failed: \"%s\"\n", filepath);
@@ -38,9 +34,6 @@ sk_sp<BisectSlide> BisectSlide::Create(const char filepath[]) {
         }
         svg->setContainerSize(SkSize::Make(bisect->getDimensions()));
         svg->render(bisect.get());
-#else
-        return nullptr;
-#endif
     } else {
         sk_sp<SkPicture> skp = SkPicture::MakeFromStream(&stream);
         if (!skp) {

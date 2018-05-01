@@ -116,9 +116,6 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    static GrShape MakeArc(const SkRect& oval, SkScalar startAngleDegrees,
-                           SkScalar sweepAngleDegrees, bool useCenter, const GrStyle& style);
-
     GrShape(const GrShape&);
     GrShape& operator=(const GrShape& that);
 
@@ -212,16 +209,6 @@ public:
                     out->setFillType(kDefaultPathFillType);
                 }
                 break;
-            case Type::kArc:
-                SkPathPriv::CreateDrawArcPath(out, fArcData.fOval, fArcData.fStartAngleDegrees,
-                                              fArcData.fSweepAngleDegrees, fArcData.fUseCenter,
-                                              fStyle.isSimpleFill());
-                if (fArcData.fInverted) {
-                    out->setFillType(kDefaultPathInverseFillType);
-                } else {
-                    out->setFillType(kDefaultPathFillType);
-                }
-                break;
             case Type::kLine:
                 out->reset();
                 out->moveTo(fLineData.fPts[0]);
@@ -269,10 +256,6 @@ public:
                 return true;
             case Type::kRRect:
                 return true;
-            case Type::kArc:
-                return SkPathPriv::DrawArcIsConvex(fArcData.fSweepAngleDegrees,
-                                                   SkToBool(fArcData.fUseCenter),
-                                                   fStyle.isSimpleFill());
             case Type::kLine:
                 return true;
             case Type::kPath:
@@ -298,9 +281,6 @@ public:
                 break;
             case Type::kRRect:
                 ret = fRRectData.fInverted;
-                break;
-            case Type::kArc:
-                ret = fArcData.fInverted;
                 break;
             case Type::kLine:
                 ret = fLineData.fInverted;
@@ -340,8 +320,6 @@ public:
                 return true;
             case Type::kRRect:
                 return true;
-            case Type::kArc:
-                return fArcData.fUseCenter;
             case Type::kLine:
                 return false;
             case Type::kPath:
@@ -365,11 +343,6 @@ public:
                     return SkPath::kLine_SegmentMask;
                 }
                 return SkPath::kLine_SegmentMask | SkPath::kConic_SegmentMask;
-            case Type::kArc:
-                if (fArcData.fUseCenter) {
-                    return SkPath::kConic_SegmentMask | SkPath::kLine_SegmentMask;
-                }
-                return SkPath::kConic_SegmentMask;
             case Type::kLine:
                 return SkPath::kLine_SegmentMask;
             case Type::kPath:
@@ -414,7 +387,6 @@ private:
         kEmpty,
         kInvertedEmpty,
         kRRect,
-        kArc,
         kLine,
         kPath,
     };
@@ -466,7 +438,6 @@ private:
     void attemptToSimplifyPath();
     void attemptToSimplifyRRect();
     void attemptToSimplifyLine();
-    void attemptToSimplifyArc();
 
     bool attemptToSimplifyStrokedLineToRRect();
 
@@ -523,33 +494,26 @@ private:
         return kPathRRectStartIdx;
     }
 
+    Type                        fType;
     union {
         struct {
-            SkRRect fRRect;
-            SkPath::Direction fDir;
-            unsigned fStart;
-            bool fInverted;
+            SkRRect                     fRRect;
+            SkPath::Direction           fDir;
+            unsigned                    fStart;
+            bool                        fInverted;
         } fRRectData;
         struct {
-            SkRect fOval;
-            SkScalar fStartAngleDegrees;
-            SkScalar fSweepAngleDegrees;
-            int16_t fUseCenter;
-            int16_t fInverted;
-        } fArcData;
-        struct {
-            SkPath fPath;
+            SkPath                      fPath;
             // Gen ID of the original path (fPath may be modified)
-            int32_t fGenID;
+            int32_t                     fGenID;
         } fPathData;
         struct {
-            SkPoint fPts[2];
-            bool fInverted;
+            SkPoint                     fPts[2];
+            bool                        fInverted;
         } fLineData;
     };
-    GrStyle fStyle;
-    SkTLazy<SkPath> fInheritedPathForListeners;
+    GrStyle                     fStyle;
+    SkTLazy<SkPath>             fInheritedPathForListeners;
     SkAutoSTArray<8, uint32_t>  fInheritedKey;
-    Type fType;
 };
 #endif

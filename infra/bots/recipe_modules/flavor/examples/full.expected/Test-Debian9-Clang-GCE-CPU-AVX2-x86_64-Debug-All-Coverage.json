@@ -24,7 +24,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -33,7 +33,7 @@
     "cmd": [
       "[START_DIR]/skia/bin/gn",
       "gen",
-      "[START_DIR]/build/out/Debug",
+      "[START_DIR]/out/Debug",
       "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\"]"
     ],
     "cwd": "[START_DIR]/skia",
@@ -41,7 +41,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "gn gen"
   },
@@ -51,14 +51,14 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/build/out/Debug"
+      "[START_DIR]/out/Debug"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "ninja"
   },
@@ -209,16 +209,16 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/build/out/Debug/dm",
+      "[START_DIR]/out/Debug/dm",
       "--some-flag"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "LLVM_PROFILE_FILE": "[START_DIR]/[SWARM_OUT_DIR]/All.profraw",
+      "LLVM_PROFILE_FILE": "[CUSTOM_[SWARM_OUT_DIR]]/All.profraw",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "symbolized dm"
   },

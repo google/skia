@@ -29,6 +29,7 @@ struct FunctionReference : public Expression {
     }
 
     String description() const override {
+        ASSERT(false);
         return String("<function>");
     }
 

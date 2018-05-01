@@ -157,16 +157,10 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
         }
 
         if (gles) {
-#ifdef GR_EGL_TRY_GLES3_THEN_GLES2
-            // Some older devices (Nexus7/Tegra3) crash when you try this.  So it is (for now)
-            // hidden behind this flag.
             fContext = create_gles_egl_context(fDisplay, surfaceConfig, eglShareContext, 3);
             if (EGL_NO_CONTEXT == fContext) {
                 fContext = create_gles_egl_context(fDisplay, surfaceConfig, eglShareContext, 2);
             }
-#else
-            fContext = create_gles_egl_context(fDisplay, surfaceConfig, eglShareContext, 2);
-#endif
         } else {
             fContext = create_gl_egl_context(fDisplay, surfaceConfig, eglShareContext);
         }

@@ -12,7 +12,6 @@
 #include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrProxyProvider.h"
-#include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 
 // Deferred version - with data
@@ -160,18 +159,13 @@ void GrTextureProxy::clearUniqueKey() {
 }
 
 #ifdef SK_DEBUG
-void GrTextureProxy::onValidateSurface(const GrSurface* surface) {
+void GrTextureProxy::validateLazySurface(const GrSurface* surface) {
     SkASSERT(!surface->asRenderTarget());
 
     // Anything that is checked here should be duplicated in GrTextureRenderTargetProxy's version
     SkASSERT(surface->asTexture());
     SkASSERT(GrMipMapped::kNo == this->texPriv().proxyMipMapped() ||
              GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
-
-    GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
-    GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
-    SkASSERT((proxyFlags & GrInternalSurfaceFlags::kTextureMask) ==
-             (surfaceFlags & GrInternalSurfaceFlags::kTextureMask));
 }
 #endif
 
