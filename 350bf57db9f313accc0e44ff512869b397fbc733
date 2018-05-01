@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b24194c_e1518d81",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-01T18:45:15Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem to be affecting my build commands",
+      "range": {
+        "startLine": 691,
+        "startChar": 0,
+        "endLine": 691,
+        "endChar": 20
+      },
+      "revId": "350bf57db9f313accc0e44ff512869b397fbc733",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
