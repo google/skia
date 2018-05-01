@@ -16,7 +16,7 @@ SkPoint Reference
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkPoint"></a> Struct SkPoint
-<a href="#SkPoint">SkPoint</a> holds two 32 bit floating point coordinates.
+<a href="#SkPoint">SkPoint</a> holds two 32-bit floating point coordinates.
 
 ## <a name="Related_Function"></a> Related Function
 

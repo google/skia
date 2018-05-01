@@ -10,7 +10,7 @@
 
 #Struct SkIRect
 
-SkIRect holds four 32 bit integer coordinates describing the upper and
+SkIRect holds four 32-bit integer coordinates describing the upper and
 lower bounds of a rectangle. SkIRect may be created from outer bounds or 
 from position, width, and height. SkIRect describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
@@ -1024,7 +1024,7 @@ rect: 5, 1, 55, 86
 #Subtopic Inset_Outset_Offset ##
 
 #Subtopic Intersection
-#Line # set to shared bounds ##
+#Line # sets to shared bounds ##
 
 IRects intersect when they enclose a common area. To intersect, each of the pair 
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
@@ -1461,7 +1461,7 @@ Asserts if either a or b is empty, and if SK_DEBUG is defined.
 # ------------------------------------------------------------------------------
 
 #Subtopic Join
-#Line # set to union of bounds ##
+#Line # sets to union of bounds ##
 #Populate
 ##
 
@@ -1555,7 +1555,7 @@ sorted: 20, 10, 30, 50
 
 #In Sorting
 #In Constructor
-#Line # constructs, ordering sides from smaller to larger ##
+#Line # constructs IRect, ordering sides from smaller to larger ##
 Returns IRect with fLeft and fRight swapped if fLeft is greater than fRight; and
 with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
 and width() and height() will be zero or positive.

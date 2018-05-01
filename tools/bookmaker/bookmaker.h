@@ -121,6 +121,7 @@ enum class MarkType {
     kOutdent,
     kParam,
     kPhraseDef,
+    kPhraseParam,
     kPhraseRef,
     kPlatform,
     kPopulate,
@@ -474,6 +475,12 @@ public:
             return this->skipWhiteSpace();
         }
         return true;
+    }
+
+    void skipLower() {
+        while (fChar < fEnd && (islower(fChar[0]) || '_' == fChar[0])) {
+            fChar++;
+        }
     }
 
     void skipToNonAlphaNum() {
@@ -962,7 +969,6 @@ public:
     bool fDeprecated = false;
     bool fOperatorConst = false;
     bool fPrivate = false;
-    bool fShort = false;
     bool fToBeDeprecated = false;
     bool fMemberStart = false;
     bool fAnonymous = false;
@@ -1309,6 +1315,7 @@ public:
         , { nullptr,       MarkType::kOutdent }
         , { nullptr,       MarkType::kParam }
         , { nullptr,       MarkType::kPhraseDef }
+        , { nullptr,       MarkType::kPhraseParam }
         , { nullptr,       MarkType::kPhraseRef }
         , { nullptr,       MarkType::kPlatform }
         , { nullptr,       MarkType::kPopulate }
@@ -1510,6 +1517,7 @@ public:
         , { nullptr,        MarkType::kOutdent }
         , { nullptr,        MarkType::kParam }
         , { nullptr,        MarkType::kPhraseDef }
+        , { nullptr,        MarkType::kPhraseParam }
         , { nullptr,        MarkType::kPhraseRef }
         , { nullptr,        MarkType::kPlatform }
         , { nullptr,        MarkType::kPopulate }
@@ -1905,6 +1913,13 @@ public:
         kOut,
     };
 
+    enum class ItemState {
+        kNone,
+        kName,
+        kValue,
+        kComment,
+    };
+
     struct IterState {
         IterState (list<Definition>::iterator tIter, list<Definition>::iterator tIterEnd)
             : fDefIter(tIter)
@@ -1954,6 +1969,7 @@ public:
         return 0 == size;
     }
 
+    bool checkChildCommentLength(const Definition* parent, MarkType childType) const;
 	void constOut(const Definition* memberStart, const Definition& child,
 		const Definition* bmhConst);
     void descriptionOut(const Definition* def, SkipFirstLine , Phrase );
@@ -1993,7 +2009,6 @@ public:
     Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
-    void structSetMembersShort(const vector<Definition*>& bmhChildren);
     void structSizeMembers(const Definition& child);
 private:
     BmhParser* fBmhParser;
@@ -2175,6 +2190,7 @@ private:
     bool buildRefFromFile(const char* fileName, const char* outDir);
     bool checkParamReturnBody(const Definition* def);
     void childrenOut(const Definition* def, const char* contentStart);
+    void constOut(const Definition* def);
     const Definition* csParent() const;
     const Definition* findParamType();
     const Definition* isDefined(const TextParser& , string ref, BmhParser::Resolvable );
@@ -2228,6 +2244,7 @@ private:
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
     void rowOut(const char * name, string description);
+
     void subtopicOut(const TableContents& tableContents);
     void subtopicsOut();
 
@@ -2240,6 +2257,7 @@ private:
     const RootDefinition* fRoot;
     const Definition* fLastParam;
     TableState fTableState;
+    unordered_map<string, string> fPhraseParams;
     bool fAddRefFailed;
     bool fHasFiddle;
     bool fInDescription;   // FIXME: for now, ignore unfound camelCase in description since it may

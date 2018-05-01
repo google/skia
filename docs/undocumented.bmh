@@ -15,6 +15,9 @@
  NaN NaNs
  Bezier_Curve Coons_Patch Cartesian_Coordinate Euclidean_Distance Euclidean_Space Mip_Map
  C C++ Destructor Subclasses
+ CSS HTML 
+ HTML_Gray HTML_DarkGray HTML_LightGray HTML_Silver HTML_Lime HTML_Green HTML_Aqua HTML_Fuchsia
+ SVG_lightgray SVG_darkgray
  SkUserConfig  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto
  SkXXX_Reference # ditto
