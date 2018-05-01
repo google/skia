@@ -145,6 +145,7 @@ bool SkColorFilterImageFilter::affectsTransparentBlack() const {
     return fColorFilter->affectsTransparentBlack();
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkColorFilterImageFilter::toString(SkString* str) const {
     str->appendf("SkColorFilterImageFilter: (");
 
@@ -159,3 +160,4 @@ void SkColorFilterImageFilter::toString(SkString* str) const {
 
     str->append(")");
 }
+#endif

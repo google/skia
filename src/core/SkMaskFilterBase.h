@@ -54,7 +54,7 @@ public:
         @return true if the dst mask was correctly created.
     */
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
-                            SkIPoint* margin) const = 0;
+                            SkIPoint* margin) const;
 
 #if SK_SUPPORT_GPU
     /**
@@ -155,6 +155,9 @@ public:
     struct BlurRec {
         SkScalar        fSigma;
         SkBlurStyle     fStyle;
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
+        SkBlurQuality   fQuality;
+#endif
     };
     /**
      *  If this filter can be represented by a BlurRec, return true and (if not null) fill in the

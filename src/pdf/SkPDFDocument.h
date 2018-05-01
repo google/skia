@@ -38,9 +38,6 @@ struct SkPDFObjectSerializer : SkNoncopyable {
 
     SkPDFObjectSerializer();
     ~SkPDFObjectSerializer();
-    SkPDFObjectSerializer(SkPDFObjectSerializer&&);
-    SkPDFObjectSerializer& operator=(SkPDFObjectSerializer&&);
-
     void addObjectRecursively(const sk_sp<SkPDFObject>&);
     void serializeHeader(SkWStream*, const SkDocument::PDFMetadata&);
     void serializeObjects(SkWStream*);

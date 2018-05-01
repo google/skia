@@ -19,7 +19,7 @@ void SkTaskGroup2D::addColumn() {
 }
 
 void SkTaskGroup2D::finish() {
-    fIsFinishing = true;
+    fIsFinishing.store(true, std::memory_order_relaxed);
     fThreadsGroup->wait();
 }
 

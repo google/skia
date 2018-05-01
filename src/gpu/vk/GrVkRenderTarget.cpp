@@ -26,18 +26,16 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    SkBudgeted budgeted,
                                    const GrSurfaceDesc& desc,
                                    const GrVkImageInfo& info,
-                                   sk_sp<GrVkImageLayout> layout,
                                    const GrVkImageInfo& msaaInfo,
-                                   sk_sp<GrVkImageLayout> msaaLayout,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView,
                                    GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
-    , GrVkImage(info, std::move(layout), ownership)
+    , GrVkImage(info, ownership)
     // for the moment we only support 1:1 color to stencil
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImage(new GrVkImage(msaaInfo, std::move(msaaLayout), GrBackendObjectOwnership::kOwned))
+    , fMSAAImage(new GrVkImage(msaaInfo, GrBackendObjectOwnership::kOwned))
     , fResolveAttachmentView(resolveAttachmentView)
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
@@ -51,18 +49,16 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrSurfaceDesc& desc,
                                    const GrVkImageInfo& info,
-                                   sk_sp<GrVkImageLayout> layout,
                                    const GrVkImageInfo& msaaInfo,
-                                   sk_sp<GrVkImageLayout> msaaLayout,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView,
                                    GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
-    , GrVkImage(info, std::move(layout), ownership)
+    , GrVkImage(info, ownership)
     // for the moment we only support 1:1 color to stencil
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImage(new GrVkImage(msaaInfo, std::move(msaaLayout), GrBackendObjectOwnership::kOwned))
+    , fMSAAImage(new GrVkImage(msaaInfo, GrBackendObjectOwnership::kOwned))
     , fResolveAttachmentView(resolveAttachmentView)
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
@@ -76,11 +72,10 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    SkBudgeted budgeted,
                                    const GrSurfaceDesc& desc,
                                    const GrVkImageInfo& info,
-                                   sk_sp<GrVkImageLayout> layout,
                                    const GrVkImageView* colorAttachmentView,
                                    GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
-    , GrVkImage(info, std::move(layout), ownership)
+    , GrVkImage(info, ownership)
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(nullptr)
@@ -97,11 +92,10 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrSurfaceDesc& desc,
                                    const GrVkImageInfo& info,
-                                   sk_sp<GrVkImageLayout> layout,
                                    const GrVkImageView* colorAttachmentView,
                                    GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
-    , GrVkImage(info, std::move(layout), ownership)
+    , GrVkImage(info, ownership)
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(nullptr)
@@ -117,7 +111,6 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
                          SkBudgeted budgeted,
                          const GrSurfaceDesc& desc,
                          const GrVkImageInfo& info,
-                         sk_sp<GrVkImageLayout> layout,
                          GrBackendObjectOwnership ownership) {
     SkASSERT(1 == info.fLevelCount);
     VkFormat pixelFormat;
@@ -127,7 +120,6 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
 
     // create msaa surface if necessary
     GrVkImageInfo msInfo;
-    sk_sp<GrVkImageLayout> msLayout;
     const GrVkImageView* resolveAttachmentView = nullptr;
     if (desc.fSampleCnt > 1) {
         GrVkImage::ImageDesc msImageDesc;
@@ -157,7 +149,6 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
             GrVkImage::DestroyImageInfo(gpu, &msInfo);
             return nullptr;
         }
-        msLayout.reset(new GrVkImageLayout(msInfo.fImageLayout));
     } else {
         // Set color attachment image
         colorImage = info.fImage;
@@ -176,12 +167,10 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
 
     GrVkRenderTarget* texRT;
     if (desc.fSampleCnt > 1) {
-        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, std::move(layout), msInfo,
-                                     std::move(msLayout), colorAttachmentView,
-                                     resolveAttachmentView, ownership);
+        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, msInfo,
+                                     colorAttachmentView, resolveAttachmentView, ownership);
     } else {
-        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, std::move(layout),
-                                     colorAttachmentView, ownership);
+        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, colorAttachmentView, ownership);
     }
 
     return texRT;
@@ -199,8 +188,7 @@ GrVkRenderTarget::CreateNewRenderTarget(GrVkGpu* gpu,
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout(new GrVkImageLayout(info.fImageLayout));
-    GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, budgeted, desc, info, std::move(layout),
+    GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, budgeted, desc, info,
                                                     GrBackendObjectOwnership::kOwned);
     if (!rt) {
         GrVkImage::DestroyImageInfo(gpu, &info);
@@ -211,12 +199,12 @@ GrVkRenderTarget::CreateNewRenderTarget(GrVkGpu* gpu,
 sk_sp<GrVkRenderTarget>
 GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
                                           const GrSurfaceDesc& desc,
-                                          const GrVkImageInfo& info,
-                                          sk_sp<GrVkImageLayout> layout) {
-    SkASSERT(VK_NULL_HANDLE != info.fImage);
+                                          const GrVkImageInfo* info) {
+    SkASSERT(info);
+    SkASSERT(VK_NULL_HANDLE != info->fImage);
 
     return sk_sp<GrVkRenderTarget>(
-        GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, info, std::move(layout),
+        GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, *info,
                                  GrBackendObjectOwnership::kBorrowed));
 }
 
@@ -352,18 +340,20 @@ void GrVkRenderTarget::onAbandon() {
 }
 
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendObject GrVkRenderTarget::getRenderTargetHandle() const {
     // If the render target is multisampled, we currently return the ImageInfo for the resolved
     // image. If we only wrap the msaa target (currently not implemented) we should return a handle
     // to that instead.
     return (GrBackendObject)&fInfo;
 }
-#endif
 
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
+    int numStencilBits = 0;
+    if (GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
+        numStencilBits = stencil->bits();
+    }
     return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
-                                 fInfo, this->grVkImageLayout());
+                                 numStencilBits, fInfo);
 }
 
 const GrVkResource* GrVkRenderTarget::stencilImageResource() const {

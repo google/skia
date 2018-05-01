@@ -31,7 +31,6 @@ public:
         kLineTo,
         kMonotonicQuadraticTo, // Monotonic relative to the vector between its endpoints [P2 - P0].
         kMonotonicCubicTo,
-        kMonotonicConicTo,
         kEndClosedContour, // endPt == startPt.
         kEndOpenContour // endPt != startPt.
     };
@@ -39,10 +38,9 @@ public:
     // These tallies track numbers of CCPR primitives that are required to draw a contour.
     struct PrimitiveTallies {
         int fTriangles; // Number of triangles in the contour's fan.
-        int fWeightedTriangles; // Triangles (from the tessellator) whose winding magnitude > 1.
+        int fWoundTriangles; // Triangles (from the tessellator) whose winding magnitude > 1.
         int fQuadratics;
         int fCubics;
-        int fConics;
 
         void operator+=(const PrimitiveTallies&);
         PrimitiveTallies operator-(const PrimitiveTallies&) const;
@@ -55,7 +53,6 @@ public:
 
     const SkTArray<SkPoint, true>& points() const { SkASSERT(!fBuildingContour); return fPoints; }
     const SkTArray<Verb, true>& verbs() const { SkASSERT(!fBuildingContour); return fVerbs; }
-    float getConicWeight(int idx) const { SkASSERT(!fBuildingContour); return fConicWeights[idx]; }
 
     void reset() {
         SkASSERT(!fBuildingContour);
@@ -75,9 +72,9 @@ public:
     }
 
     void beginPath();
-    void beginContour(const SkPoint&);
-    void lineTo(const SkPoint P[2]);
-    void quadraticTo(const SkPoint[3]);
+    void beginContour(const SkPoint& devPt);
+    void lineTo(const SkPoint& devPt);
+    void quadraticTo(const SkPoint& devP1, const SkPoint& devP2);
 
     // We pass through inflection points and loop intersections using a line and quadratic(s)
     // respectively. 'inflectPad' and 'loopIntersectPad' specify how close (in pixels) cubic
@@ -90,64 +87,64 @@ public:
     //       through the loop intersection can be approximated with a single quadratic anyway,
     //       regardless of whether we are use one pixel of pad or two (1.622 avg. quads per loop
     //       intersection vs. 1.489 on the tiger).
-    void cubicTo(const SkPoint[4], float inflectPad = 0.55f, float loopIntersectPad = 2);
-
-    void conicTo(const SkPoint[3], float w);
+    void cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3,
+                 float inflectPad = 0.55f, float loopIntersectPad = 2);
 
     PrimitiveTallies endContour(); // Returns the numbers of primitives needed to draw the contour.
 
 private:
-    inline void appendLine(const Sk2f& p0, const Sk2f& p1);
+    inline void appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
+    inline void appendSingleMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
 
-    inline void appendQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
-    inline void appendMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
+    using AppendCubicFn = void(GrCCGeometry::*)(const Sk2f& p0, const Sk2f& p1,
+                                                const Sk2f& p2, const Sk2f& p3,
+                                                int maxSubdivisions);
+    static constexpr int kMaxSubdivionsPerCubicSection = 2;
 
-    enum class AppendCubicMode : bool {
-        kLiteral,
-        kApproximate
-    };
-    void appendCubics(AppendCubicMode, const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                      const Sk2f& p3, const float chops[], int numChops, float localT0 = 0,
-                     float localT1 = 1);
-    void appendCubics(AppendCubicMode, const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                      const Sk2f& p3, int maxSubdivisions = 2);
-    void chopAndAppendCubicAtMidTangent(AppendCubicMode, const Sk2f& p0, const Sk2f& p1,
-                                        const Sk2f& p2, const Sk2f& p3, const Sk2f& tan0,
-                                        const Sk2f& tan1, int maxFutureSubdivisions);
+    template<AppendCubicFn AppendLeftRight>
+    inline void chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                      const Sk2f& p3, const Sk2f& tan0, const Sk2f& tan3,
+                                      int maxFutureSubdivisions = kMaxSubdivionsPerCubicSection);
 
-    void appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, float w);
+    template<AppendCubicFn AppendLeft, AppendCubicFn AppendRight>
+    inline void chopCubic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
+                          float T, int maxFutureSubdivisions = kMaxSubdivionsPerCubicSection);
+
+    void appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
+                               int maxSubdivisions = kMaxSubdivionsPerCubicSection);
+    void appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
+                                  int maxSubdivisions = kMaxSubdivionsPerCubicSection);
 
     // Transient state used while building a contour.
     SkPoint fCurrAnchorPoint;
+    SkPoint fCurrFanPoint;
     PrimitiveTallies fCurrContourTallies;
     SkCubicType fCurrCubicType;
     SkDEBUGCODE(bool fBuildingContour = false);
 
-    SkSTArray<128, SkPoint, true> fPoints;
-    SkSTArray<32, float, true> fConicWeights;
-    SkSTArray<128, Verb, true> fVerbs;
+    // TODO: These points could eventually be written directly to block-allocated GPU buffers.
+    SkSTArray<128, SkPoint, true>   fPoints;
+    SkSTArray<128, Verb, true>      fVerbs;
 };
 
 inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b) {
     fTriangles += b.fTriangles;
-    fWeightedTriangles += b.fWeightedTriangles;
+    fWoundTriangles += b.fWoundTriangles;
     fQuadratics += b.fQuadratics;
     fCubics += b.fCubics;
-    fConics += b.fConics;
 }
 
 GrCCGeometry::PrimitiveTallies
 inline GrCCGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) const {
     return {fTriangles - b.fTriangles,
-            fWeightedTriangles - b.fWeightedTriangles,
+            fWoundTriangles - b.fWoundTriangles,
             fQuadratics - b.fQuadratics,
-            fCubics - b.fCubics,
-            fConics - b.fConics};
+            fCubics - b.fCubics};
 }
 
 inline bool GrCCGeometry::PrimitiveTallies::operator==(const PrimitiveTallies& b) {
-    return fTriangles == b.fTriangles && fWeightedTriangles == b.fWeightedTriangles &&
-           fQuadratics == b.fQuadratics && fCubics == b.fCubics && fConics == b.fConics;
+    return fTriangles == b.fTriangles && fWoundTriangles == b.fWoundTriangles &&
+           fQuadratics == b.fQuadratics && fCubics == b.fCubics;
 }
 
 #endif

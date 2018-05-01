@@ -22,29 +22,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
           '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
           '--no-sync', '--no-hooks', '--make-output-dir'])
 
-  def compile_swiftshader(self, swiftshader_root, cc, cxx, out):
-    """Build SwiftShader with CMake.
-
-    Building SwiftShader works differently from any other Skia third_party lib.
-    See discussion in skia:7671 for more detail.
-
-    Args:
-      swiftshader_root: root of the SwiftShader checkout.
-      cc, cxx: compiler binaries to use
-      out: target directory for libEGL.so and libGLESv2.so
-    """
-    cmake_bin = str(self.m.vars.slave_dir.join('cmake_linux', 'bin'))
-    env = {
-        'CC': cc,
-        'CXX': cxx,
-        'PATH': '%%(PATH)s:%s' % cmake_bin
-    }
-    self.m.file.ensure_directory('makedirs swiftshader_out', out)
-    with self.m.context(cwd=out, env=env):
-      self._run('swiftshader cmake', ['cmake', swiftshader_root, '-GNinja'])
-      self._run('swiftshader ninja',
-                ['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
-
   def compile(self, unused_target):
     """Build Skia with GN."""
     compiler      = self.m.vars.builder_cfg.get('compiler',      '')
@@ -64,8 +41,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     cc, cxx = None, None
     extra_cflags = []
     extra_ldflags = []
-    args = {}
-    env = {}
 
     if compiler == 'Clang' and self.m.vars.is_linux:
       cc  = clang_linux + '/bin/clang'
@@ -75,37 +50,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_ldflags.append('-fuse-ld=lld')
       extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
                           self.m.run.asset_version('clang_linux'))
-      if os == 'Ubuntu14':
-        extra_ldflags.extend(['-static-libstdc++', '-static-libgcc'])
-
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
+    elif compiler == 'GCC' and os == "Ubuntu14":
+      cc, cxx = 'gcc-4.8', 'g++-4.8'
     elif compiler == 'GCC':
-      if target_arch in ['mips64el', 'loongson3a']:
-        mips64el_toolchain_linux = str(self.m.vars.slave_dir.join(
-            'mips64el_toolchain_linux'))
-        cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-7'
-        cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-7'
-        env['LD_LIBRARY_PATH'] = (
-            mips64el_toolchain_linux + '/lib/x86_64-linux-gnu/')
-        extra_ldflags.append('-L' + mips64el_toolchain_linux +
-                             '/mips64el-linux-gnuabi64/lib')
-        extra_cflags.extend([
-            '-Wno-format-truncation',
-            '-Wno-uninitialized',
-            ('-DDUMMY_mips64el_toolchain_linux_version=%s' %
-             self.m.run.asset_version('mips64el_toolchain_linux'))
-        ])
-        if configuration == 'Release':
-          # This warning is only triggered when fuzz_canvas is inlined.
-          extra_cflags.append('-Wno-strict-overflow')
-        args.update({
-          'skia_use_system_freetype2': 'false',
-          'skia_use_fontconfig':       'false',
-          'skia_enable_gpu':           'false',
-        })
-      else:
-        cc, cxx = 'gcc', 'g++'
+      cc, cxx = 'gcc', 'g++'
     elif compiler == 'EMCC':
       cc   = emscripten_sdk + '/emscripten/incoming/emcc'
       cxx  = emscripten_sdk + '/emscripten/incoming/em++'
@@ -130,35 +80,21 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3',
                            '-ffp-contract=off'])
 
+    # TODO(benjaminwagner): Same appears in compile.py to set CPPFLAGS. Are
+    # both needed?
     if len(extra_tokens) == 1 and extra_tokens[0].startswith('SK'):
       extra_cflags.append('-D' + extra_tokens[0])
-      # If we're limiting Skia at all, drop skcms to portable code.
-      if 'SK_CPU_LIMIT' in extra_tokens[0]:
-        extra_cflags.append('-DSKCMS_PORTABLE')
-
 
     if 'MSAN' in extra_tokens:
       extra_ldflags.append('-L' + clang_linux + '/msan')
+
+    args = {}
+    env = {}
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
     if 'ANGLE' in extra_tokens:
       args['skia_use_angle'] = 'true'
-    if 'SwiftShader' in extra_tokens:
-      swiftshader_root = self.m.vars.skia_dir.join('third_party', 'externals',
-                                                   'swiftshader')
-      swiftshader_out = self.m.vars.skia_out.join('swiftshader_out')
-      self.compile_swiftshader(swiftshader_root, cc, cxx, swiftshader_out)
-      args['skia_use_egl'] = 'true'
-      extra_cflags.extend([
-          '-DGR_EGL_TRY_GLES3_THEN_GLES2',
-          # TODO(dogben): Use headers from Khronos rather than SwiftShader's
-          # copy.
-          '-I%s' % swiftshader_root.join('include'),
-      ])
-      extra_ldflags.extend([
-          '-L%s' % swiftshader_out,
-      ])
     if 'CommandBuffer' in extra_tokens:
       self.m.run.run_once(self.build_command_buffer)
     if 'MSAN' in extra_tokens:
@@ -215,7 +151,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_ios_profile'] = '"Upstream Testing Provisioning Profile"'
     if 'CheckGeneratedFiles' in extra_tokens:
       args['skia_compile_processors'] = 'true'
-      args['skia_generate_workarounds'] = 'true'
     if compiler == 'Clang' and 'Win' in os:
       args['clang_win'] = '"%s"' % self.m.vars.slave_dir.join('clang_win')
       extra_cflags.append('-DDUMMY_clang_win_version=%s' %
@@ -274,12 +209,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
         self._run('ninja', [ninja, '-k', '0', '-C', self.out_dir])
 
-  def copy_extra_build_products(self, swarming_out_dir):
-    if 'SwiftShader' in self.m.vars.extra_tokens:
-      self.m.run.copy_build_products(
-          self.m.vars.skia_out.join('swiftshader_out'),
-          swarming_out_dir.join('out', 'swiftshader_out'))
-
   def step(self, name, cmd):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     cmd = [app] + cmd[1:]
@@ -306,9 +235,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       if 'Vulkan' in extra_tokens:
         path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
-
-    if 'SwiftShader' in extra_tokens:
-      ld_library_path.append(self.m.vars.skia_out.join('swiftshader_out'))
 
     if 'MSAN' in extra_tokens:
       # Find the MSAN-built libc++.
@@ -339,10 +265,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
              '-x', self.m.vars.dumps_dir] + cmd
 
     if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
-      if 'Mac' in self.m.vars.builder_cfg.get('os', ''):
-        env['ASAN_OPTIONS'] = 'symbolize=1'  # Mac doesn't support detect_leaks.
-      else:
-        env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
+      env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 

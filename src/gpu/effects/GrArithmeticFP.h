@@ -11,6 +11,7 @@
 #ifndef GrArithmeticFP_DEFINED
 #define GrArithmeticFP_DEFINED
 #include "SkTypes.h"
+#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrArithmeticFP : public GrFragmentProcessor {
@@ -52,4 +53,5 @@ private:
     bool fEnforcePMColor;
     typedef GrFragmentProcessor INHERITED;
 };
+#endif
 #endif

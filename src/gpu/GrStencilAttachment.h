@@ -45,7 +45,6 @@ protected:
     }
 
 private:
-    const char* getResourceType() const override { return "Stencil"; }
 
     int fWidth;
     int fHeight;
