@@ -135,8 +135,8 @@ public:
                    fPost2x2[0][1], fPost2x2[1][0], fPost2x2[1][1]);
         msg.appendf("  frame %g miter %g format %d join %d cap %d flags %#hx\n",
                    fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
-        msg.appendf("  lum bits %x, device gamma %d, paint gamma %d contrast %d\n",
-                    fLumBits, fDeviceGamma, fPaintGamma, fContrast);
+        msg.appendf("  lum bits %x, device gamma %d, paint gamma %d contrast %d\n", fLumBits,
+                    fDeviceGamma, fPaintGamma, fContrast);
         return msg;
     }
 
