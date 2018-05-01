@@ -155,7 +155,7 @@ public:
 
     /** To be deprecated soon.
     */
-    explicit SkCanvas(SkBaseDevice* device);
+    explicit SkCanvas(sk_sp<SkBaseDevice> device);
 
     /** Construct a canvas that draws into bitmap.
         Sets SkSurfaceProps::kLegacyFontHost_InitType in constructed SkSurface.
@@ -2689,7 +2689,7 @@ protected:
     // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
     SkCanvas(const SkIRect& bounds, InitFlags);
 private:
-    SkCanvas(SkBaseDevice* device, InitFlags);
+    SkCanvas(sk_sp<SkBaseDevice> device, InitFlags);
     SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
              SkRasterHandleAllocator::Handle);
 
@@ -2703,7 +2703,7 @@ private:
     //  - internalSaveLayer
     void setupDevice(SkBaseDevice*);
 
-    SkBaseDevice* init(SkBaseDevice*, InitFlags);
+    void init(sk_sp<SkBaseDevice>, InitFlags);
 
     /**
      * Gets the bounds of the top level layer in global canvas coordinates. We don't want this
