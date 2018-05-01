@@ -16,6 +16,24 @@
       "revId": "7e7369f7131d0b00f87cfb94e0fcbf91b02b4ee6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed3625d3_26b4d116",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-01T20:41:41Z",
+      "side": 1,
+      "message": "This is a cool utility, thanks for mentioning. I kinda assumed that\u0027s what mempcy would do anyway...",
+      "parentUuid": "f4416c19_e6764500",
+      "revId": "7e7369f7131d0b00f87cfb94e0fcbf91b02b4ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
