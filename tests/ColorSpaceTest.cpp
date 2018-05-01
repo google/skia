@@ -438,7 +438,7 @@ DEF_TEST(ColorSpace_IsSRGB, r) {
 
 #if defined(SK_USE_SKCMS)
 DEF_TEST(ColorSpace_skcms_IsSRGB, r) {
-    sk_sp<SkColorSpace> srgb = SkColorSpace::Make(&skcms_sRGB_profile);
+    sk_sp<SkColorSpace> srgb = SkColorSpace::Make(skcms_sRGB_profile());
     REPORTER_ASSERT(r, srgb->isSRGB());
 }
 #endif
