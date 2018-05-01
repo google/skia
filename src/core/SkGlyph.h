@@ -159,6 +159,8 @@ public:
     int16_t     fTop, fLeft;
 
     uint8_t     fMaskFormat;
+
+    // Side bearing values stored in fixed-point 2.6 encoding.
     int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
     int8_t      fForceBW;
 
