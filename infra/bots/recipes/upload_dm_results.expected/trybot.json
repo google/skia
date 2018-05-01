@@ -22,7 +22,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/test/dm/dm.json",
+      "[START_DIR]/dm/dm.json",
       "[START_DIR]/tmp_upload"
     ],
     "infra_step": true,
@@ -36,7 +36,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/test/dm/verbose.log",
+      "[START_DIR]/dm/verbose.log",
       "[START_DIR]/tmp_upload"
     ],
     "infra_step": true,
@@ -50,7 +50,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[START_DIR]/test/dm/dm.json"
+      "[START_DIR]/dm/dm.json"
     ],
     "infra_step": true,
     "name": "rm old dm.json"
@@ -63,7 +63,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[START_DIR]/test/dm/verbose.log"
+      "[START_DIR]/dm/verbose.log"
     ],
     "infra_step": true,
     "name": "rm old verbose.log"
@@ -76,14 +76,14 @@
       "--json-output",
       "/path/to/tmp/json",
       "glob",
-      "[START_DIR]/test/dm",
+      "[START_DIR]/dm",
       "*.png"
     ],
     "infra_step": true,
     "name": "find images",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/test/dm/someimage.png@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/dm/someimage.png@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -92,7 +92,7 @@
       "gsutil",
       "-m",
       "cp",
-      "[START_DIR]/test/dm/*.png",
+      "[START_DIR]/dm/*.png",
       "gs://skia-infra-gm/dm-images-v1"
     ],
     "name": "upload images"
@@ -105,14 +105,14 @@
       "--json-output",
       "/path/to/tmp/json",
       "glob",
-      "[START_DIR]/test/dm",
+      "[START_DIR]/dm",
       "*.pdf"
     ],
     "infra_step": true,
     "name": "find images (2)",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/test/dm/someimage.png@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/dm/someimage.png@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },

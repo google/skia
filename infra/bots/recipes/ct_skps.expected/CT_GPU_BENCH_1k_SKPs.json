@@ -112,20 +112,6 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/clang_linux/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get clang_linux VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
@@ -133,7 +119,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -142,15 +128,15 @@
     "cmd": [
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
-      "[START_DIR]/build/out/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-static-libstdc++\", \"-static-libgcc\"] is_debug=false"
+      "[START_DIR]/out/Release",
+      "--args=cc=\"gcc-4.8\" cxx=\"g++-4.8\" is_debug=false"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "gn gen"
   },
@@ -160,14 +146,14 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/build/out/Release"
+      "[START_DIR]/out/Release"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "ninja"
   },
@@ -176,7 +162,7 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[START_DIR]/build/out/Release",
+      "[START_DIR]/out/Release",
       "[CUSTOM_/_B_WORK]/skia/infra/bots/ct"
     ],
     "infra_step": true,
@@ -471,7 +457,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-1.isolated.gen.json"
     ],
     "infra_step": true,
@@ -547,7 +533,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-2.isolated.gen.json"
     ],
     "infra_step": true,
@@ -623,7 +609,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-3.isolated.gen.json"
     ],
     "infra_step": true,
@@ -699,7 +685,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-4.isolated.gen.json"
     ],
     "infra_step": true,
@@ -775,7 +761,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-5.isolated.gen.json"
     ],
     "infra_step": true,
@@ -841,7 +827,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
+      "ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -865,7 +851,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
+      "buildername:Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
       "--tag",
       "data:[dummy hash for ct-nanobench-1]",
       "--tag",
@@ -884,9 +870,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -912,7 +898,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
+      "ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -936,7 +922,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
+      "buildername:Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
       "--tag",
       "data:[dummy hash for ct-nanobench-2]",
       "--tag",
@@ -955,9 +941,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -983,7 +969,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
+      "ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -1007,7 +993,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
+      "buildername:Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
       "--tag",
       "data:[dummy hash for ct-nanobench-3]",
       "--tag",
@@ -1026,9 +1012,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1054,7 +1040,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
+      "ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -1078,7 +1064,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
+      "buildername:Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
       "--tag",
       "data:[dummy hash for ct-nanobench-4]",
       "--tag",
@@ -1097,9 +1083,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1125,7 +1111,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
+      "ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -1149,7 +1135,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
+      "buildername:Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
       "--tag",
       "data:[dummy hash for ct-nanobench-5]",
       "--tag",
@@ -1168,9 +1154,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1205,7 +1191,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-1/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
@@ -1331,7 +1317,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-2/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
@@ -1457,7 +1443,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-3/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
@@ -1583,7 +1569,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-4/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
@@ -1709,7 +1695,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\", \"tasks\": {\"ct-nanobench-5/Ubuntu-14.04/[dummy has/Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs/-1\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],

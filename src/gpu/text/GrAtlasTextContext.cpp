@@ -198,7 +198,7 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
 
     // Regenerate textblob
     SkTextBlobRunIterator it(blob);
-    GrTextUtils::RunPaint runPaint(&paint, drawFilter);
+    GrTextUtils::RunPaint runPaint(&paint, drawFilter, props);
     for (int run = 0; !it.done(); it.next(), run++) {
         int glyphCount = it.glyphCount();
         size_t textLen = glyphCount * sizeof(uint16_t);
@@ -500,7 +500,7 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
     SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(pathPaint.getTextEncoding(),
                                                                         pathPaint.isDevKernText(),
                                                                         true);
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
             pathPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 
     const char*        stop = text + byteLength;
@@ -703,7 +703,7 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
 
     {
         auto origPaintCache =
-            SkStrikeCache::FindOrCreateStrikeExclusive(*desc.getDesc(), effects, *typeface);
+            SkGlyphCache::FindOrCreateStrikeExclusive(*desc.getDesc(), effects, *typeface);
 
         SkAutoKern autokern;
         const char* stop = text + byteLength;
@@ -886,6 +886,7 @@ void GrAtlasTextContext::FallbackTextHelper::drawText(GrAtlasTextBlob* blob, int
                                        skPaint.isDevKernText(), true);
         SkColor textColor = paint.filteredPremulColor();
         SkScalar textRatio = SK_Scalar1;
+        fViewMatrix.mapPoints(fFallbackPos.begin(), fFallbackPos.count());
         if (fUseScaledFallback) {
             // Set up paint and matrix to scale glyphs
             SkPaint scaledPaint(skPaint);
@@ -909,11 +910,6 @@ void GrAtlasTextContext::FallbackTextHelper::drawText(GrAtlasTextBlob* blob, int
         SkPoint* glyphPos = fFallbackPos.begin();
         while (text < stop) {
             const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);
-            fViewMatrix.mapPoints(glyphPos, 1);
-            if (!fUseScaledFallback) {
-                glyphPos->fX = SkScalarFloorToScalar(glyphPos->fX);
-                glyphPos->fY = SkScalarFloorToScalar(glyphPos->fY);
-            }
             GrAtlasTextContext::BmpAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph,
                                                glyphPos->fX, glyphPos->fY, textColor,
                                                cache.get(), textRatio);

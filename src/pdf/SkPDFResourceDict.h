@@ -10,7 +10,6 @@
 
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
-#include "SkString.h"
 
 class SkPDFDict;
 class SkPDFObject;

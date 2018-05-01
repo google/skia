@@ -1,0 +1,6 @@
+{
+  'includes': [
+    'skpbench_skia_bundled.isolate',
+    'swarm_recipe_bundled_win.isolate',
+  ],
+}

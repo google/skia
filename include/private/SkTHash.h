@@ -173,8 +173,8 @@ private:
 
         fCount = 0;
         fCapacity = capacity;
-        SkAutoTArray<Slot> oldSlots = std::move(fSlots);
-        fSlots = SkAutoTArray<Slot>(capacity);
+        SkAutoTArray<Slot> oldSlots(capacity);
+        oldSlots.swap(fSlots);
 
         for (int i = 0; i < oldCapacity; i++) {
             Slot& s = oldSlots[i];

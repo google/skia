@@ -38,7 +38,6 @@ public:
 
 private:
     size_t onGpuMemorySize() const override { return 100; }
-    const char* getResourceType() const override { return "bench"; }
     typedef GrGpuResource INHERITED;
 };
 

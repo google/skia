@@ -10,6 +10,7 @@
 
 #include "GrCaps.h"
 #include "GrShaderCaps.h"
+#include "gl/GrGLCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -22,6 +23,7 @@
 #include "ops/GrSmallPathRenderer.h"
 #include "ops/GrDashLinePathRenderer.h"
 #include "ops/GrDefaultPathRenderer.h"
+#include "ops/GrMSAAPathRenderer.h"
 #include "ops/GrStencilAndCoverPathRenderer.h"
 #include "ops/GrTessellatingPathRenderer.h"
 
@@ -37,6 +39,13 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
             fChain.push_back(std::move(pr));
         }
     }
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    if (options.fGpuPathRenderers & GpuPathRenderers::kMSAA) {
+        if (caps.sampleShadingSupport()) {
+            fChain.push_back(sk_make_sp<GrMSAAPathRenderer>());
+        }
+    }
+#endif
 
     // AA hairline path renderer is very specialized - no other renderer can do this job well
     fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());

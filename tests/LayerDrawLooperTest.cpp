@@ -27,8 +27,7 @@ static SkBitmap make_bm(int w, int h) {
 // TODO: can this be derived from SkBaseDevice?
 class FakeDevice : public SkBitmapDevice {
 public:
-    FakeDevice() : INHERITED(make_bm(100, 100), SkSurfaceProps(0, kUnknown_SkPixelGeometry),
-                             nullptr, nullptr) {
+    FakeDevice() : INHERITED(make_bm(100, 100), SkSurfaceProps(0, kUnknown_SkPixelGeometry)) {
     }
 
     void drawRect(const SkRect& r, const SkPaint& paint) override {
