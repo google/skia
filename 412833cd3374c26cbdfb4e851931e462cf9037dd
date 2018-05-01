@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb3a30b7_d8b8b22b",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-01T19:55:54Z",
+      "side": 1,
+      "message": "This works... But I imagine it probably needs to preserve ldflags if it already existed? And propagating ldflags is probably to right",
+      "range": {
+        "startLine": 357,
+        "startChar": 8,
+        "endLine": 357,
+        "endChar": 33
+      },
+      "revId": "412833cd3374c26cbdfb4e851931e462cf9037dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
