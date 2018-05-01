@@ -100,19 +100,6 @@ protected:
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
-    void setDoesNotSupportMipMaps() {
-        fSurfaceFlags |= GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
-    }
-    bool doesNotSupportMipMaps() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
-    }
-
-    void setIsClampOnly() {
-        fSurfaceFlags |= GrInternalSurfaceFlags::kIsClampOnly;
-    }
-    bool isClampOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kIsClampOnly; }
-
-
 private:
     GrMipMapped      fMipMapped;
 
@@ -130,7 +117,7 @@ private:
     void setUniqueKey(GrProxyProvider*, const GrUniqueKey&);
     void clearUniqueKey();
 
-    SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)
+    SkDEBUGCODE(void validateLazySurface(const GrSurface*) override;)
 
     // For wrapped proxies the GrTexture pointer is stored in GrIORefProxy.
     // For deferred proxies that pointer will be filled in when we need to instantiate

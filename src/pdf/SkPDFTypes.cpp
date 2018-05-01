@@ -15,13 +15,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+SkString* pun(char* x) { return reinterpret_cast<SkString*>(x); }
+const SkString* pun(const char* x) {
+    return reinterpret_cast<const SkString*>(x);
+}
+
 SkPDFUnion::SkPDFUnion(Type t) : fType(t) {}
 
 SkPDFUnion::~SkPDFUnion() {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            fSkString.destroy();
+            pun(fSkString)->~SkString();
             return;
         case Type::kObjRef:
         case Type::kObject:
@@ -54,7 +59,7 @@ SkPDFUnion SkPDFUnion::copy() const {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            u.fSkString.init(fSkString.get());
+            new (pun(u.fSkString)) SkString(*pun(fSkString));
             return u;
         case Type::kObjRef:
         case Type::kObject:
@@ -135,10 +140,11 @@ void SkPDFUnion::emitObject(SkWStream* stream,
             return;
         case Type::kNameSkS:
             stream->writeText("/");
-            write_name_escaped(stream, fSkString.get().c_str());
+            write_name_escaped(stream, pun(fSkString)->c_str());
             return;
         case Type::kStringSkS:
-            SkPDFUtils::WriteString(stream, fSkString.get().c_str(), fSkString.get().size());
+            SkPDFUtils::WriteString(stream, pun(fSkString)->c_str(),
+                                    pun(fSkString)->size());
             return;
         case Type::kObjRef:
             stream->writeDecAsText(objNumMap.getObjectNumber(fObject));
@@ -215,13 +221,13 @@ SkPDFUnion SkPDFUnion::String(const char* value) {
 
 SkPDFUnion SkPDFUnion::Name(const SkString& s) {
     SkPDFUnion u(Type::kNameSkS);
-    u.fSkString.init(s);
+    new (pun(u.fSkString)) SkString(s);
     return u;
 }
 
 SkPDFUnion SkPDFUnion::String(const SkString& s) {
     SkPDFUnion u(Type::kStringSkS);
-    u.fSkString.init(s);
+    new (pun(u.fSkString)) SkString(s);
     return u;
 }
 

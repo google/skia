@@ -157,6 +157,7 @@ SkIRect SkImageSource::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ct
     return dstRect.roundOut();
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkImageSource::toString(SkString* str) const {
     str->appendf("SkImageSource: (");
     str->appendf("src: (%f,%f,%f,%f) dst: (%f,%f,%f,%f) ",
@@ -166,3 +167,4 @@ void SkImageSource::toString(SkString* str) const {
                  fImage->width(), fImage->height());
     str->append(")");
 }
+#endif

@@ -17,8 +17,13 @@
 #include "SkRect.h"
 
 void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
-    SkASSERT(fRenderTarget);
-
+#ifdef SK_DEBUG
+    GrRenderTarget* rt = fRenderTarget;
+    SkASSERT(rt);
+    SkASSERT(!clip.scissorEnabled() ||
+             (SkIRect::MakeWH(rt->width(), rt->height()).contains(clip.scissorRect()) &&
+              SkIRect::MakeWH(rt->width(), rt->height()) != clip.scissorRect()));
+#endif
     this->onClear(clip, color);
 }
 

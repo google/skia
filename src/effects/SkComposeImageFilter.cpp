@@ -86,6 +86,7 @@ sk_sp<SkFlattenable> SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
     return SkComposeImageFilter::Make(common.getInput(0), common.getInput(1));
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkComposeImageFilter::toString(SkString* str) const {
     SkImageFilter* outer = getInput(0);
     SkImageFilter* inner = getInput(1);
@@ -100,3 +101,4 @@ void SkComposeImageFilter::toString(SkString* str) const {
 
     str->appendf(")");
 }
+#endif
