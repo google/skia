@@ -11,6 +11,7 @@
 #ifndef GrRectBlurEffect_DEFINED
 #define GrRectBlurEffect_DEFINED
 #include "SkTypes.h"
+#if SK_SUPPORT_GPU
 
 #include "GrProxyProvider.h"
 #include "SkBlurMask.h"
@@ -24,7 +25,7 @@ public:
 
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
+        GrUniqueKey::Builder builder(&key, kDomain, 1);
         builder[0] = profileSize;
         builder.finish();
 
@@ -104,4 +105,5 @@ private:
     TextureSampler fBlurProfile;
     typedef GrFragmentProcessor INHERITED;
 };
+#endif
 #endif

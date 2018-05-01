@@ -419,6 +419,7 @@ bool SkMatrixConvolutionImageFilter::affectsTransparentBlack() const {
     return true;
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkMatrixConvolutionImageFilter::toString(SkString* str) const {
     str->appendf("SkMatrixConvolutionImageFilter: (");
     str->appendf("size: (%d,%d) kernel: (", fKernelSize.width(), fKernelSize.height());
@@ -433,3 +434,4 @@ void SkMatrixConvolutionImageFilter::toString(SkString* str) const {
     str->appendf("convolveAlpha: %s", fConvolveAlpha ? "true" : "false");
     str->append(")");
 }
+#endif

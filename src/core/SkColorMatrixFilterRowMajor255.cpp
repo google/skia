@@ -299,6 +299,7 @@ std::unique_ptr<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentP
 
 #endif
 
+#ifndef SK_IGNORE_TO_STRING
 void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
     str->append("SkColorMatrixFilterRowMajor255: ");
 
@@ -311,6 +312,7 @@ void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
     }
     str->append(")");
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -329,5 +331,5 @@ SkColorMatrixFilterRowMajor255::MakeSingleChannelOutput(const SkScalar row[5]) {
         memcpy(cf->fMatrix + 5 * i, row, sizeof(SkScalar) * 5);
     }
     cf->initState();
-    return std::move(cf);
+    return cf;
 }

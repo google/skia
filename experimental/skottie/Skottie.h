@@ -36,17 +36,8 @@ public:
 
 class Animation : public SkRefCnt {
 public:
-    struct Stats {
-        float  fTotalLoadTimeMS,
-               fJsonParseTimeMS,
-               fSceneParseTimeMS;
-        size_t fJsonSize,
-               fAnimatorCount;
-    };
-
-    static sk_sp<Animation> Make(SkStream*, const ResourceProvider&, Stats* = nullptr);
-    static sk_sp<Animation> MakeFromFile(const char path[], const ResourceProvider* = nullptr,
-                                         Stats* = nullptr);
+    static sk_sp<Animation> Make(SkStream*, const ResourceProvider&);
+    static sk_sp<Animation> MakeFromFile(const char path[], const ResourceProvider* = nullptr);
 
     ~Animation() override;
 
@@ -65,7 +56,7 @@ public:
 private:
     Animation(const ResourceProvider&,
               SkString ver, const SkSize& size, SkScalar fps,
-              const Json::Value&, Stats*);
+              const Json::Value&);
 
     SkString                     fVersion;
     SkSize                       fSize;
