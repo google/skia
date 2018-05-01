@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15f3f1e1_2691ff1f",
+        "filename": "include/c/sk_paint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-01T15:25:33Z",
+      "side": 1,
+      "message": "Update comment?",
+      "revId": "aec0b3986d78c01e1aab6f4f13319779a0fadf07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
