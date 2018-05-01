@@ -1155,7 +1155,7 @@ rect: -15, 0, 0, 25  isEmpty: false
 #Subtopic Set ##
 
 #Subtopic From_Integers
-#Line # set Scalar values from integer input ##
+#Line # sets Scalar values from integer input ##
 
 #Populate
 
@@ -1475,7 +1475,7 @@ rect: 5, 1, 55, 86
 #Subtopic Inset_Outset_Offset ##
 
 #Subtopic Intersection
-#Line # set to shared bounds ##
+#Line # sets to shared bounds ##
 
 Rects intersect when they enclose a common area. To intersect, each of the pair 
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
@@ -1780,7 +1780,7 @@ Returns false if either a or b is empty, or do not intersect.
 #Subtopic Intersection ##
 
 #Subtopic Join
-#Line # set to union of bounds ##
+#Line # sets to union of bounds ##
 
 #Populate
 
@@ -1882,7 +1882,7 @@ sorted: 10, 0, 55, 100
 #Method    void joinPossiblyEmptyRect(const SkRect& r)
 
 #In Join
-#Line # sets to union of bounds. Skips empty check for both ##
+#Line # sets to union of bounds; skips empty check for both ##
 Sets Rect to the union of itself and the construction.
 
 May produce incorrect results if Rect or r is empty.
@@ -2129,7 +2129,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 
 #In Sorting
 #In Constructor
-#Line # constructs, ordering sides from smaller to larger ##
+#Line # constructs Rect, ordering sides from smaller to larger ##
 Returns Rect with fLeft and fRight swapped if fLeft is greater than fRight; and
 with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
 and width() and height() will be zero or positive.
