@@ -20,7 +20,6 @@ skia_core_sources = [
   "$_src/core/SkAntiRun.h",
   "$_src/core/SkATrace.cpp",
   "$_src/core/SkATrace.h",
-  "$_src/core/SkAutoKern.h",
   "$_src/core/SkAutoPixmapStorage.h",
   "$_src/core/SkAutoPixmapStorage.cpp",
   "$_src/core/SkBBHFactory.cpp",
