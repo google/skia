@@ -27,41 +27,6 @@ bool LogFail(const Json::Value& json, const char* msg) {
     return false;
 }
 
-template <typename T>
-static inline T lerp(const T&, const T&, float);
-
-template <>
-ScalarValue lerp(const ScalarValue& v0, const ScalarValue& v1, float t) {
-    SkASSERT(t >= 0 && t <= 1);
-    return v0 + (v1 - v0) * t;
-}
-
-template <>
-VectorValue lerp(const VectorValue& v0, const VectorValue& v1, float t) {
-    SkASSERT(v0.size() == v1.size());
-
-    VectorValue v;
-    v.reserve(v0.size());
-
-    for (size_t i = 0; i < v0.size(); ++i) {
-        v.push_back(lerp(v0[i], v1[i], t));
-    }
-
-    return v;
-}
-
-template <>
-ShapeValue lerp(const ShapeValue& v0, const ShapeValue& v1, float t) {
-    SkASSERT(t >= 0 && t <= 1);
-    SkASSERT(v1.isInterpolatable(v0));
-
-    ShapeValue v;
-    SkAssertResult(v1.interpolate(v0, t, &v));
-    v.setIsVolatile(true);
-
-    return v;
-}
-
 class KeyframeAnimatorBase : public sksg::Animator {
 public:
     int count() const { return fRecs.count(); }
@@ -264,7 +229,7 @@ private:
             const auto lt = this->localT(rec, t);
             const auto& v0 = fVs[rec.vidx0];
             const auto& v1 = fVs[rec.vidx1];
-            *v = lerp(v0, v1, lt);
+            *v = ValueTraits<T>::Lerp(v0, v1, lt);
         }
     }
 
