@@ -44,6 +44,7 @@ declare_args() {
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_header = ""
   skia_vulkan_sdk = getenv("VULKAN_SDK")
+  skia_moltenvk_path = ""
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
   skia_generate_workarounds = false
@@ -69,7 +70,7 @@ declare_args() {
   } else if (is_fuchsia) {
     skia_use_vulkan = fuchsia_use_vulkan
   } else {
-    skia_use_vulkan = skia_vulkan_sdk != ""
+    skia_use_vulkan = skia_vulkan_sdk != "" || skia_moltenvk_path != ""
   }
 
   if (is_ios) {
@@ -687,6 +688,29 @@ optional("jpeg") {
   ]
 }
 
+optional("moltenvk") {
+  enabled = skia_moltenvk_path != ""
+  public_defines = [ "SK_MOLTENVK" ]
+
+  include_dirs = [ "$skia_moltenvk_path/MoltenVK/include" ]
+
+  libs = [
+    "MoltenVK.framework",
+    "Metal.framework",
+    "IOSurface.framework",
+    "QuartzCore.framework",
+    "Foundation.framework",
+  ]
+
+  if (is_ios) {
+    libs += [ "UIKit.framework" ]
+    ldflags = [ "-F$skia_moltenvk_path/MoltenVK/iOS" ]
+  } else {
+    libs += [ "IOKit.framework" ]
+    ldflags = [ "-F$skia_moltenvk_path/MoltenVK/macOS" ]
+  }
+}
+
 optional("pdf") {
   enabled = skia_use_zlib && skia_enable_pdf
   public_defines = [ "SK_SUPPORT_PDF" ]
@@ -839,6 +863,7 @@ component("skia") {
     ":heif",
     ":hsw",
     ":jpeg",
+    ":moltenvk",
     ":none",
     ":pdf",
     ":png",
