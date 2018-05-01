@@ -185,7 +185,6 @@ public:
     , fSkCaps_Type(new Type("$sk_Caps"))
     , fSkArgs_Type(new Type("$sk_Args"))
     , fFragmentProcessor_Type(new Type("fragmentProcessor"))
-    , fSkRasterPipeline_Type(new Type("SkRasterPipeline"))
     , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
@@ -334,7 +333,6 @@ public:
     const std::unique_ptr<Type> fSkCaps_Type;
     const std::unique_ptr<Type> fSkArgs_Type;
     const std::unique_ptr<Type> fFragmentProcessor_Type;
-    const std::unique_ptr<Type> fSkRasterPipeline_Type;
 
     // dummy expression used to mark that a variable has a value during dataflow analysis (when it
     // could have several different values, or the analyzer is otherwise unable to assign it a

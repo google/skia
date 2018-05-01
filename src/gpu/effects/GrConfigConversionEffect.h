@@ -11,6 +11,7 @@
 #ifndef GrConfigConversionEffect_DEFINED
 #define GrConfigConversionEffect_DEFINED
 #include "SkTypes.h"
+#if SK_SUPPORT_GPU
 
 #include "GrClip.h"
 #include "GrContext.h"
@@ -153,4 +154,5 @@ private:
     PMConversion fPmConversion;
     typedef GrFragmentProcessor INHERITED;
 };
+#endif
 #endif

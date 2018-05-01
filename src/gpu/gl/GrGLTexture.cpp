@@ -98,11 +98,9 @@ void GrGLTexture::onAbandon() {
     INHERITED::onAbandon();
 }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
 GrBackendObject GrGLTexture::getTextureHandle() const {
     return reinterpret_cast<GrBackendObject>(&fInfo);
 }
-#endif
 
 GrBackendTexture GrGLTexture::getBackendTexture() const {
     return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(), fInfo);
@@ -115,8 +113,7 @@ sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& d
 
 bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,
                                         SkImage::BackendTextureReleaseProc* releaseProc) {
-    *backendTexture = GrBackendTexture(this->width(), this->height(),
-                                       this->texturePriv().mipMapped(), fInfo);
+    *backendTexture = GrBackendTexture(width(), height(), config(), fInfo);
     // Set the release proc to a no-op function. GL doesn't require any special cleanup.
     *releaseProc = [](GrBackendTexture){};
 
@@ -140,16 +137,21 @@ void GrGLTexture::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const
     // Dump as skia/gpu_resources/resource_#/texture, to avoid conflicts in the
     // GrGLTextureRenderTarget case, where multiple things may dump to the same resource. This
     // has no downside in the normal case.
-    SkString resourceName = this->getResourceName();
-    resourceName.append("/texture");
+    SkString dumpName("skia/gpu_resources/resource_");
+    dumpName.appendU32(this->uniqueID().asUInt());
+    dumpName.append("/texture");
 
     // As we are only dumping our texture memory (not any additional memory tracked by classes
     // which may inherit from us), specifically call GrGLTexture::gpuMemorySize to avoid
     // hitting an override.
-    this->dumpMemoryStatisticsPriv(traceMemoryDump, resourceName, "Texture",
-                                   GrGLTexture::gpuMemorySize());
+    size_t size = GrGLTexture::gpuMemorySize();
+    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
+
+    if (this->isPurgeable()) {
+        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes", size);
+    }
 
     SkString texture_id;
     texture_id.appendU32(this->textureID());
-    traceMemoryDump->setMemoryBacking(resourceName.c_str(), "gl_texture", texture_id.c_str());
+    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_texture", texture_id.c_str());
 }

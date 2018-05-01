@@ -75,9 +75,6 @@ public:
 
         // holds a partially complete object. only completed in detach()
         sk_sp<SkVertices> fVertices;
-        // Extra storage for intermediate vertices in the case where the client specifies indexed
-        // triangle fans. These get converted to indexed triangles when the Builder is finalized.
-        std::unique_ptr<uint8_t[]> fIntermediateFanIndices;
 
         friend class SkVertices;
     };
@@ -118,7 +115,7 @@ private:
 
     // these are needed since we've manually sized our allocation (see Builder::init)
     friend class SkNVRefCnt<SkVertices>;
-    void operator delete(void* p);
+    void operator delete(void* p) { ::operator delete(p); }
 
     static sk_sp<SkVertices> Alloc(int vCount, int iCount, uint32_t builderFlags,
                                    size_t* arraySize);

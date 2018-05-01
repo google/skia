@@ -55,18 +55,12 @@ public:
     virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
         return nullptr;
     }
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     virtual GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
                                                GrSurfaceOrigin* origin) const {
         return 0;
     }
-#endif
-
     virtual GrTexture* onGetTexture() const { return nullptr; }
 #endif
-    virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
-                                                 GrSurfaceOrigin* origin) const;
-
     virtual SkImageCacherator* peekCacherator() const { return nullptr; }
 
     // return a read-only copy of the pixels. We promise to not modify them,

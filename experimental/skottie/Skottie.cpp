@@ -9,10 +9,9 @@
 
 #include "SkCanvas.h"
 #include "SkJSONCPP.h"
-#include "SkottieAdapter.h"
 #include "SkottieAnimator.h"
 #include "SkottieParser.h"
-#include "SkottieValue.h"
+#include "SkottieProperties.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkMakeUnique.h"
@@ -38,7 +37,6 @@
 #include "SkSGTrimEffect.h"
 #include "SkStream.h"
 #include "SkTArray.h"
-#include "SkTime.h"
 #include "SkTHash.h"
 
 #include <cmath>
@@ -73,18 +71,18 @@ sk_sp<sksg::Matrix> AttachMatrix(const Json::Value& t, AttachContext* ctx,
         return nullptr;
 
     auto matrix = sksg::Matrix::Make(SkMatrix::I(), std::move(parentMatrix));
-    auto adapter = sk_make_sp<TransformAdapter>(matrix);
+    auto composite = sk_make_sp<CompositeTransform>(matrix);
     auto anchor_attached = BindProperty<VectorValue>(t["a"], &ctx->fAnimators,
-            [adapter](const VectorValue& a) {
-                adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
+            [composite](const VectorValue& a) {
+                composite->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
             });
     auto position_attached = BindProperty<VectorValue>(t["p"], &ctx->fAnimators,
-            [adapter](const VectorValue& p) {
-                adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+            [composite](const VectorValue& p) {
+                composite->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
             });
     auto scale_attached = BindProperty<VectorValue>(t["s"], &ctx->fAnimators,
-            [adapter](const VectorValue& s) {
-                adapter->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
+            [composite](const VectorValue& s) {
+                composite->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
             });
 
     auto* jrotation = &t["r"];
@@ -94,16 +92,16 @@ sk_sp<sksg::Matrix> AttachMatrix(const Json::Value& t, AttachContext* ctx,
         jrotation = &t["rz"];
     }
     auto rotation_attached = BindProperty<ScalarValue>(*jrotation, &ctx->fAnimators,
-            [adapter](const ScalarValue& r) {
-                adapter->setRotation(r);
+            [composite](const ScalarValue& r) {
+                composite->setRotation(r);
             });
     auto skew_attached = BindProperty<ScalarValue>(t["sk"], &ctx->fAnimators,
-            [adapter](const ScalarValue& sk) {
-                adapter->setSkew(sk);
+            [composite](const ScalarValue& sk) {
+                composite->setSkew(sk);
             });
     auto skewaxis_attached = BindProperty<ScalarValue>(t["sa"], &ctx->fAnimators,
-            [adapter](const ScalarValue& sa) {
-                adapter->setSkewAxis(sa);
+            [composite](const ScalarValue& sa) {
+                composite->setSkewAxis(sa);
             });
 
     if (!anchor_attached &&
@@ -141,7 +139,7 @@ sk_sp<sksg::RenderNode> AttachOpacity(const Json::Value& jtransform, AttachConte
             opacityNode->setOpacity(o * 0.01f);
         });
 
-    return std::move(opacityNode);
+    return opacityNode;
 }
 
 sk_sp<sksg::RenderNode> AttachComposition(const Json::Value&, AttachContext* ctx);
@@ -164,58 +162,58 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const Json::Value& jrect, AttachCo
     SkASSERT(jrect.isObject());
 
     auto rect_node = sksg::RRect::Make();
-    auto adapter = sk_make_sp<RRectAdapter>(rect_node);
+    auto composite = sk_make_sp<CompositeRRect>(rect_node);
 
     auto p_attached = BindProperty<VectorValue>(jrect["p"], &ctx->fAnimators,
-        [adapter](const VectorValue& p) {
-                adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+        [composite](const VectorValue& p) {
+                composite->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
         });
     auto s_attached = BindProperty<VectorValue>(jrect["s"], &ctx->fAnimators,
-        [adapter](const VectorValue& s) {
-            adapter->setSize(ValueTraits<VectorValue>::As<SkSize>(s));
+        [composite](const VectorValue& s) {
+            composite->setSize(ValueTraits<VectorValue>::As<SkSize>(s));
         });
     auto r_attached = BindProperty<ScalarValue>(jrect["r"], &ctx->fAnimators,
-        [adapter](const ScalarValue& r) {
-            adapter->setRadius(SkSize::Make(r, r));
+        [composite](const ScalarValue& r) {
+            composite->setRadius(SkSize::Make(r, r));
         });
 
     if (!p_attached && !s_attached && !r_attached) {
         return nullptr;
     }
 
-    return std::move(rect_node);
+    return rect_node;
 }
 
 sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const Json::Value& jellipse, AttachContext* ctx) {
     SkASSERT(jellipse.isObject());
 
     auto rect_node = sksg::RRect::Make();
-    auto adapter = sk_make_sp<RRectAdapter>(rect_node);
+    auto composite = sk_make_sp<CompositeRRect>(rect_node);
 
     auto p_attached = BindProperty<VectorValue>(jellipse["p"], &ctx->fAnimators,
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+        [composite](const VectorValue& p) {
+            composite->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
         });
     auto s_attached = BindProperty<VectorValue>(jellipse["s"], &ctx->fAnimators,
-        [adapter](const VectorValue& s) {
+        [composite](const VectorValue& s) {
             const auto sz = ValueTraits<VectorValue>::As<SkSize>(s);
-            adapter->setSize(sz);
-            adapter->setRadius(SkSize::Make(sz.width() / 2, sz.height() / 2));
+            composite->setSize(sz);
+            composite->setRadius(SkSize::Make(sz.width() / 2, sz.height() / 2));
         });
 
     if (!p_attached && !s_attached) {
         return nullptr;
     }
 
-    return std::move(rect_node);
+    return rect_node;
 }
 
 sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const Json::Value& jstar, AttachContext* ctx) {
     SkASSERT(jstar.isObject());
 
-    static constexpr PolyStarAdapter::Type gTypes[] = {
-        PolyStarAdapter::Type::kStar, // "sy": 1
-        PolyStarAdapter::Type::kPoly, // "sy": 2
+    static constexpr CompositePolyStar::Type gTypes[] = {
+        CompositePolyStar::Type::kStar, // "sy": 1
+        CompositePolyStar::Type::kPoly, // "sy": 2
     };
 
     const auto type = ParseDefault(jstar["sy"], 0) - 1;
@@ -225,38 +223,38 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const Json::Value& jstar, Attac
     }
 
     auto path_node = sksg::Path::Make();
-    auto adapter = sk_make_sp<PolyStarAdapter>(path_node, gTypes[type]);
+    auto composite = sk_make_sp<CompositePolyStar>(path_node, gTypes[type]);
 
     BindProperty<VectorValue>(jstar["p"], &ctx->fAnimators,
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+        [composite](const VectorValue& p) {
+            composite->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
         });
     BindProperty<ScalarValue>(jstar["pt"], &ctx->fAnimators,
-        [adapter](const ScalarValue& pt) {
-            adapter->setPointCount(pt);
+        [composite](const ScalarValue& pt) {
+            composite->setPointCount(pt);
         });
     BindProperty<ScalarValue>(jstar["ir"], &ctx->fAnimators,
-        [adapter](const ScalarValue& ir) {
-            adapter->setInnerRadius(ir);
+        [composite](const ScalarValue& ir) {
+            composite->setInnerRadius(ir);
         });
     BindProperty<ScalarValue>(jstar["or"], &ctx->fAnimators,
-        [adapter](const ScalarValue& otr) {
-            adapter->setOuterRadius(otr);
+        [composite](const ScalarValue& otr) {
+            composite->setOuterRadius(otr);
         });
     BindProperty<ScalarValue>(jstar["is"], &ctx->fAnimators,
-        [adapter](const ScalarValue& is) {
-            adapter->setInnerRoundness(is);
+        [composite](const ScalarValue& is) {
+            composite->setInnerRoundness(is);
         });
     BindProperty<ScalarValue>(jstar["os"], &ctx->fAnimators,
-        [adapter](const ScalarValue& os) {
-            adapter->setOuterRoundness(os);
+        [composite](const ScalarValue& os) {
+            composite->setOuterRoundness(os);
         });
     BindProperty<ScalarValue>(jstar["r"], &ctx->fAnimators,
-        [adapter](const ScalarValue& r) {
-            adapter->setRotation(r);
+        [composite](const ScalarValue& r) {
+            composite->setRotation(r);
         });
 
-    return std::move(path_node);
+    return path_node;
 }
 
 sk_sp<sksg::Color> AttachColor(const Json::Value& obj, AttachContext* ctx) {
@@ -283,31 +281,31 @@ sk_sp<sksg::Gradient> AttachGradient(const Json::Value& obj, AttachContext* ctx)
         return nullptr;
 
     sk_sp<sksg::Gradient> gradient_node;
-    sk_sp<GradientAdapter> adapter;
+    sk_sp<CompositeGradient> composite;
 
     if (ParseDefault(obj["t"], 1) == 1) {
         auto linear_node = sksg::LinearGradient::Make();
-        adapter = sk_make_sp<LinearGradientAdapter>(linear_node, stopCount);
+        composite = sk_make_sp<CompositeLinearGradient>(linear_node, stopCount);
         gradient_node = std::move(linear_node);
     } else {
         auto radial_node = sksg::RadialGradient::Make();
-        adapter = sk_make_sp<RadialGradientAdapter>(radial_node, stopCount);
+        composite = sk_make_sp<CompositeRadialGradient>(radial_node, stopCount);
 
         // TODO: highlight, angle
         gradient_node = std::move(radial_node);
     }
 
     BindProperty<VectorValue>(stops["k"], &ctx->fAnimators,
-        [adapter](const VectorValue& stops) {
-            adapter->setColorStops(stops);
+        [composite](const VectorValue& stops) {
+            composite->setColorStops(stops);
         });
     BindProperty<VectorValue>(obj["s"], &ctx->fAnimators,
-        [adapter](const VectorValue& s) {
-            adapter->setStartPoint(ValueTraits<VectorValue>::As<SkPoint>(s));
+        [composite](const VectorValue& s) {
+            composite->setStartPoint(ValueTraits<VectorValue>::As<SkPoint>(s));
         });
     BindProperty<VectorValue>(obj["e"], &ctx->fAnimators,
-        [adapter](const VectorValue& e) {
-            adapter->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(e));
+        [composite](const VectorValue& e) {
+            composite->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(e));
         });
 
     return gradient_node;
@@ -432,18 +430,18 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
         const auto trimEffect = sksg::TrimEffect::Make(i);
         trimmed.push_back(trimEffect);
 
-        const auto adapter = sk_make_sp<TrimEffectAdapter>(std::move(trimEffect));
+        const auto trimComposite = sk_make_sp<CompositeTrimEffect>(std::move(trimEffect));
         BindProperty<ScalarValue>(jtrim["s"], &ctx->fAnimators,
-            [adapter](const ScalarValue& s) {
-                adapter->setStart(s);
+            [trimComposite](const ScalarValue& s) {
+                trimComposite->setStart(s);
             });
         BindProperty<ScalarValue>(jtrim["e"], &ctx->fAnimators,
-            [adapter](const ScalarValue& e) {
-                adapter->setEnd(e);
+            [trimComposite](const ScalarValue& e) {
+                trimComposite->setEnd(e);
             });
         BindProperty<ScalarValue>(jtrim["o"], &ctx->fAnimators,
-            [adapter](const ScalarValue& o) {
-                adapter->setOffset(o);
+            [trimComposite](const ScalarValue& o) {
+                trimComposite->setOffset(o);
             });
     }
 
@@ -944,28 +942,24 @@ sk_sp<sksg::RenderNode> AttachMask(const Json::Value& jmask,
     if (!jmask.isArray())
         return childNode;
 
-    struct MaskRecord {
-        sk_sp<sksg::Path>  mask_path;
-        sk_sp<sksg::Color> mask_paint;
-    };
-
-    SkSTArray<4, MaskRecord, true> mask_stack;
-
-    bool opaque_mask = true;
+    auto mask_group = sksg::Group::Make();
 
     for (const auto& m : jmask) {
         if (!m.isObject())
             continue;
+
+        const auto inverted = ParseDefault(m["inv"], false);
+        // TODO
+        if (inverted) {
+            LogFail(m, "Unsupported inverse mask");
+            continue;
+        }
 
         auto mask_path = AttachPath(m["pt"], ctx);
         if (!mask_path) {
             LogFail(m, "Could not parse mask path");
             continue;
         }
-
-        mask_path->setFillType(ParseDefault(m["inv"], false)
-            ? SkPath::kInverseWinding_FillType
-            : SkPath::kWinding_FillType);
 
         SkString mode;
         if (!Parse(m["mode"], &mode) ||
@@ -977,34 +971,15 @@ sk_sp<sksg::RenderNode> AttachMask(const Json::Value& jmask,
         auto mask_paint = sksg::Color::Make(SK_ColorBLACK);
         mask_paint->setAntiAlias(true);
         mask_paint->setBlendMode(MaskBlendMode(mode.c_str()[0]));
-
-        const auto animator_count = ctx->fAnimators.size();
         BindProperty<ScalarValue>(m["o"], &ctx->fAnimators,
             [mask_paint](const ScalarValue& o) { mask_paint->setOpacity(o * 0.01f); });
 
-        opaque_mask &= (animator_count == ctx->fAnimators.size() && mask_paint->getOpacity() >= 1);
-
-        mask_stack.push_back({mask_path, mask_paint});
+        mask_group->addChild(sksg::Draw::Make(std::move(mask_path), std::move(mask_paint)));
     }
 
-    if (mask_stack.empty())
-        return childNode;
-
-    if (mask_stack.count() == 1 && opaque_mask) {
-        // Single opaque mask => clip path.
-        return sksg::ClipEffect::Make(std::move(childNode),
-                                      std::move(mask_stack.front().mask_path),
-                                      true);
-    }
-
-    auto mask_group = sksg::Group::Make();
-    for (const auto& rec : mask_stack) {
-        mask_group->addChild(sksg::Draw::Make(std::move(rec.mask_path),
-                                              std::move(rec.mask_paint)));
-
-    }
-
-    return sksg::MaskEffect::Make(std::move(childNode), std::move(mask_group));
+    return mask_group->empty()
+        ? childNode
+        : sksg::MaskEffect::Make(std::move(childNode), std::move(mask_group));
 }
 
 sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
@@ -1136,7 +1111,7 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
         layerCtx->fCurrentMatte.reset();
     }
 
-    return std::move(controller_node);
+    return controller_node;
 }
 
 sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext* ctx) {
@@ -1166,24 +1141,17 @@ sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext
         comp_group->addChild(std::move(layers[i]));
     }
 
-    return std::move(comp_group);
+    return comp_group;
 }
 
 } // namespace
 
-sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res, Stats* stats) {
-    Stats stats_storage;
-    if (!stats)
-        stats = &stats_storage;
-    memset(stats, 0, sizeof(struct Stats));
-
+sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res) {
     if (!stream->hasLength()) {
         // TODO: handle explicit buffering?
         LOG("!! cannot parse streaming content\n");
         return nullptr;
     }
-
-    const auto t0 = SkTime::GetMSecs();
 
     Json::Value json;
     {
@@ -1192,7 +1160,6 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res, 
             LOG("!! could not read stream\n");
             return nullptr;
         }
-        stats->fJsonSize = data->size();
 
         Json::Reader reader;
 
@@ -1202,9 +1169,6 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res, 
             return nullptr;
         }
     }
-
-    const auto t1 = SkTime::GetMSecs();
-    stats->fJsonParseTimeMS = t1 - t0;
 
     const auto version = ParseDefault(json["v"], SkString());
     const auto size    = SkSize::Make(ParseDefault(json["w"], 0.0f),
@@ -1217,17 +1181,10 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res, 
         return nullptr;
     }
 
-    const auto anim =
-        sk_sp<Animation>(new Animation(res, std::move(version), size, fps, json, stats));
-    const auto t2 = SkTime::GetMSecs();
-    stats->fSceneParseTimeMS = t2 - t1;
-    stats->fTotalLoadTimeMS  = t2 - t0;
-
-    return anim;
+    return sk_sp<Animation>(new Animation(res, std::move(version), size, fps, json));
 }
 
-sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvider* res,
-                                         Stats* stats) {
+sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvider* res) {
     class DirectoryResourceProvider final : public ResourceProvider {
     public:
         explicit DirectoryResourceProvider(SkString dir) : fDir(std::move(dir)) {}
@@ -1250,12 +1207,11 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvid
         defaultProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
     }
 
-    return Make(jsonStream.get(), res ? *res : *defaultProvider, stats);
+    return Make(jsonStream.get(), res ? *res : *defaultProvider);
 }
 
 Animation::Animation(const ResourceProvider& resources,
-                     SkString version, const SkSize& size, SkScalar fps, const Json::Value& json,
-                     Stats* stats)
+                     SkString version, const SkSize& size, SkScalar fps, const Json::Value& json)
     : fVersion(std::move(version))
     , fSize(size)
     , fFrameRate(fps)
@@ -1275,7 +1231,7 @@ Animation::Animation(const ResourceProvider& resources,
     AttachContext ctx = { resources, assets, fFrameRate, animators };
     auto root = AttachComposition(json, &ctx);
 
-    stats->fAnimatorCount = animators.size();
+    LOG("** Attached %d animators\n", animators.size());
 
     fScene = sksg::Scene::Make(std::move(root), std::move(animators));
 

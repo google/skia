@@ -9,7 +9,7 @@
 
 #include "SkCubicMap.h"
 #include "SkJSONCPP.h"
-#include "SkottieValue.h"
+#include "SkottieProperties.h"
 #include "SkottieParser.h"
 #include "SkTArray.h"
 

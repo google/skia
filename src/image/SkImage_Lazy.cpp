@@ -679,7 +679,7 @@ void SkImage_Lazy::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, CachedFor
     SkASSERT(!cacheKey->isValid());
     if (origKey.isValid()) {
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(cacheKey, origKey, kDomain, 1, "Image");
+        GrUniqueKey::Builder builder(cacheKey, origKey, kDomain, 1);
         builder[0] = format;
     }
 }

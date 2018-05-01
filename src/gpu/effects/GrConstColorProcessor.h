@@ -11,6 +11,7 @@
 #ifndef GrConstColorProcessor_DEFINED
 #define GrConstColorProcessor_DEFINED
 #include "SkTypes.h"
+#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrConstColorProcessor : public GrFragmentProcessor {
@@ -64,4 +65,5 @@ private:
     InputMode fMode;
     typedef GrFragmentProcessor INHERITED;
 };
+#endif
 #endif

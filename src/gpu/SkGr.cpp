@@ -57,7 +57,7 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
     SkASSERT(imageID);
     SkASSERT(!imageBounds.isEmpty());
     static const GrUniqueKey::Domain kImageIDDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kImageIDDomain, 5, "Image");
+    GrUniqueKey::Builder builder(key, kImageIDDomain, 5);
     builder[0] = imageID;
     builder[1] = imageBounds.fLeft;
     builder[2] = imageBounds.fTop;
@@ -486,8 +486,9 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
                               const SkPaint& skPaint,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
-    std::unique_ptr<GrFragmentProcessor> nullShaderFP(nullptr);
-    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, SkMatrix::I(), &nullShaderFP,
+    static std::unique_ptr<GrFragmentProcessor> kNullShaderFP(nullptr);
+    static std::unique_ptr<GrFragmentProcessor>* kIgnoreShader = &kNullShaderFP;
+    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, SkMatrix::I(), kIgnoreShader,
                                    nullptr, grPaint);
 }
 
@@ -514,7 +515,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
     if (textureIsAlphaOnly) {
         if (const auto* shader = as_SB(paint.getShader())) {
             shaderFP = shader->asFragmentProcessor(GrFPArgs(
-                    context, &viewM, paint.getFilterQuality(), &colorSpaceInfo));
+                    context, &viewM, nullptr, paint.getFilterQuality(), &colorSpaceInfo));
             if (!shaderFP) {
                 return false;
             }

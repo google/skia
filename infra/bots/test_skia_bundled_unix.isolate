@@ -1,0 +1,6 @@
+{
+  'includes': [
+    'test_skia_bundled.isolate',
+    'swarm_recipe_bundled_unix.isolate',
+  ],
+}

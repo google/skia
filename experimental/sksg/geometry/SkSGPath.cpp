@@ -9,7 +9,6 @@
 
 #include "SkCanvas.h"
 #include "SkPaint.h"
-#include "SkRectPriv.h"
 
 namespace sksg {
 
@@ -26,12 +25,7 @@ void Path::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
 SkRect Path::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->hasInval());
 
-    const auto ft = fPath.getFillType();
-    return (ft == SkPath::kWinding_FillType || ft == SkPath::kEvenOdd_FillType)
-        // "Containing" fills have finite bounds.
-        ? fPath.computeTightBounds()
-        // Inverse fills are "infinite".
-        : SkRectPriv::MakeLargeS32();
+    return fPath.computeTightBounds();
 }
 
 SkPath Path::onAsPath() const {
