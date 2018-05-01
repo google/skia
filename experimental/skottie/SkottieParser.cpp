@@ -12,6 +12,7 @@
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkString.h"
+#include "SkottieValue.h"
 
 #include <vector>
 
@@ -113,8 +114,8 @@ bool ParsePointVec(const Json::Value& jv, std::vector<SkPoint>* pts) {
 } // namespace
 
 template <>
-bool Parse<SkPath>(const Json::Value& jv, SkPath* v) {
-    SkASSERT(v->isEmpty());
+bool Parse<ShapeValue>(const Json::Value& jv, ShapeValue* v) {
+    SkASSERT(v->fVertices.empty());
 
     // Some versions wrap values as single-element arrays.
     if (jv.isArray() && jv.size() == 1) {
@@ -135,24 +136,11 @@ bool Parse<SkPath>(const Json::Value& jv, SkPath* v) {
         return false;
     }
 
-    if (!verts.empty()) {
-        v->moveTo(verts.front());
+    v->fVertices.reserve(inPts.size());
+    for (size_t i = 0; i < inPts.size(); ++i) {
+        v->fVertices.push_back(BezierVertex({inPts[i], outPts[i], verts[i]}));
     }
-
-    const auto& addCubic = [&](size_t from, size_t to) {
-        v->cubicTo(verts[from] + outPts[from],
-                   verts[to]   + inPts[to],
-                   verts[to]);
-    };
-
-    for (size_t i = 1; i < verts.size(); ++i) {
-        addCubic(i - 1, i);
-    }
-
-    if (!verts.empty() && ParseDefault(jv["c"], false)) {
-        addCubic(verts.size() - 1, 0);
-        v->close();
-    }
+    v->fClosed = ParseDefault(jv["c"], false);
 
     return true;
 }
