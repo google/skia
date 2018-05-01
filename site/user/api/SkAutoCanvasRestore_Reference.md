@@ -13,9 +13,7 @@ SkAutoCanvasRestore Reference
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 
 # <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
-Stack helper class calls <a href="SkCanvas_Reference#SkCanvas_restoreToCount">SkCanvas::restoreToCount</a> when <a href="#SkAutoCanvasRestore">SkAutoCanvasRestore</a>
-goes out of scope. Use this to guarantee that the canvas is restored to a known
-state.
+Stack helper class calls
 
 ## <a name="Constructor"></a> Constructor
 

@@ -530,7 +530,7 @@ public:
                                      sk_sp<SkImageFilter>,
                                      const CropRect*);
 
-    void toString(SkString* str) const override;
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiffuseLightingImageFilter)
     SkScalar kd() const { return fKD; }
 
@@ -565,7 +565,7 @@ public:
                                      SkScalar ks, SkScalar shininess,
                                      sk_sp<SkImageFilter>, const CropRect*);
 
-    void toString(SkString* str) const override;
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpecularLightingImageFilter)
 
     SkScalar ks() const { return fKS; }
@@ -824,9 +824,10 @@ class GrGLLight;
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkColor xform_color(const SkPoint3& color, SkColorSpaceXformer* xformer) {
-    SkColor origColor = SkColorSetRGB(SkScalarRoundToInt(color.fX),
-                                      SkScalarRoundToInt(color.fY),
-                                      SkScalarRoundToInt(color.fZ));
+    SkColor origColor = SkColorSetARGBInline(0xFF,
+                                             SkScalarRoundToInt(color.fX),
+                                             SkScalarRoundToInt(color.fY),
+                                             SkScalarRoundToInt(color.fZ));
     return xformer->apply(origColor);
 }
 
@@ -1371,11 +1372,13 @@ const {
     return this->refMe();
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkDiffuseLightingImageFilter::toString(SkString* str) const {
     str->appendf("SkDiffuseLightingImageFilter: (");
     str->appendf("kD: %f\n", fKD);
     str->append(")");
 }
+#endif
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkDiffuseLightingImageFilter::makeFragmentProcessor(
@@ -1526,11 +1529,13 @@ const {
     return this->refMe();
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkSpecularLightingImageFilter::toString(SkString* str) const {
     str->appendf("SkSpecularLightingImageFilter: (");
     str->appendf("kS: %f shininess: %f", fKS, fShininess);
     str->append(")");
 }
+#endif
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkSpecularLightingImageFilter::makeFragmentProcessor(

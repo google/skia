@@ -11,6 +11,7 @@
 #ifndef GrBlurredEdgeFragmentProcessor_DEFINED
 #define GrBlurredEdgeFragmentProcessor_DEFINED
 #include "SkTypes.h"
+#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
@@ -35,4 +36,5 @@ private:
     Mode fMode;
     typedef GrFragmentProcessor INHERITED;
 };
+#endif
 #endif

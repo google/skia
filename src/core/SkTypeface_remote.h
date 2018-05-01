@@ -16,23 +16,47 @@
 #include "SkScalerContext.h"
 #include "SkTypeface.h"
 
-class SkStrikeClient;
+#include <thread>
+
 class SkTypefaceProxy;
+
+class SkRemoteScalerContext {
+public:
+    virtual ~SkRemoteScalerContext() {}
+    // TODO: do metrics need effects?
+    virtual void generateFontMetrics(
+            const SkTypefaceProxy& tf,
+            const SkScalerContextRec& rec,
+            SkPaint::FontMetrics*) = 0;
+    virtual void generateMetricsAndImage(
+            const SkTypefaceProxy& tf,
+            const SkScalerContextRec& rec,
+            SkArenaAlloc* alloc,
+            SkGlyph* glyph)  = 0;
+    virtual void generatePath(
+            const SkTypefaceProxy& tf,
+            const SkScalerContextRec& rec,
+            SkGlyphID glyph, SkPath* path) = 0;
+};
 
 class SkScalerContextProxy : public SkScalerContext {
 public:
-    SkScalerContextProxy(sk_sp<SkTypeface> tf,
-                         const SkScalerContextEffects& effects,
-                         const SkDescriptor* desc,
-                         SkStrikeClient* rsc);
+    SkScalerContextProxy(
+            sk_sp<SkTypeface> tf,
+            const SkScalerContextEffects& effects,
+            const SkDescriptor* desc,
+            SkRemoteScalerContext* rsc);
 
 protected:
-    unsigned generateGlyphCount() override;
-    uint16_t generateCharToGlyph(SkUnichar) override;
-    void generateAdvance(SkGlyph* glyph) override;
+    unsigned generateGlyphCount(void) override { SK_ABORT("Should never be called."); return 0;}
+    uint16_t generateCharToGlyph(SkUnichar uni) override {
+        SK_ABORT("Should never be called.");
+        return 0;
+    }
+    void generateAdvance(SkGlyph* glyph) override { this->generateMetrics(glyph); }
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    bool generatePath(SkGlyphID glyphID, SkPath* path) override;
+    void generatePath(SkGlyphID glyphID, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override;
 
 private:
@@ -44,20 +68,24 @@ private:
 
     SkTypefaceProxy* typefaceProxy();
 
-    SkArenaAlloc          fAlloc{kMinAllocAmount};
-    SkStrikeClient* const fClient;
+    SkArenaAlloc  fAlloc{kMinAllocAmount};
+    SkRemoteScalerContext* const fRemote;
     typedef SkScalerContext INHERITED;
 };
 
 class SkTypefaceProxy : public SkTypeface {
 public:
-    SkTypefaceProxy(SkFontID fontId,
-                    int glyphCount,
-                    const SkFontStyle& style,
-                    bool isFixed,
-                    SkStrikeClient* rsc)
-            : INHERITED{style, false}, fFontId{fontId}, fGlyphCount{glyphCount}, fRsc{rsc} {}
-    SkFontID remoteTypefaceID() const {return fFontId;}
+    SkTypefaceProxy(
+            SkFontID fontId,
+            int glyphCount,
+            const SkFontStyle& style,
+            bool isFixed,
+            SkRemoteScalerContext* rsc)
+            : INHERITED{style, false}
+            , fFontId{fontId}
+            , fGlyphCount{glyphCount}
+            , fRsc{rsc} { }
+    SkFontID fontID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
     static SkTypefaceProxy* DownCast(SkTypeface* typeface) {
         // TODO: how to check the safety of the down cast?
@@ -96,6 +124,8 @@ protected:
     }
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects& effects,
                                            const SkDescriptor* desc) const override {
+        //std::cout << fFontId << fThreadId;
+
         return new SkScalerContextProxy(sk_ref_sp(const_cast<SkTypefaceProxy*>(this)), effects,
                                          desc, fRsc);
 
@@ -131,11 +161,10 @@ protected:
     }
 
 private:
-    const SkFontID        fFontId;
-    const int             fGlyphCount;
-
-    // TODO: Does this need a ref to the strike client? If yes, make it a weak ref.
-    SkStrikeClient* const fRsc;
+    const SkFontID fFontId;
+    const int fGlyphCount;
+    // const std::thread::id fThreadId;  // TODO: figure out a good solutions for this.
+    SkRemoteScalerContext* const fRsc;
 
     typedef SkTypeface INHERITED;
 };
