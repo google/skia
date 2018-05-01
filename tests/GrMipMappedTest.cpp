@@ -136,8 +136,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
             }
 
             std::unique_ptr<SkImageGenerator> imageGen = GrBackendTextureImageGenerator::Make(
-                    texture, kTopLeft_GrSurfaceOrigin, nullptr, kRGBA_8888_SkColorType,
-                    kPremul_SkAlphaType, nullptr);
+                    texture, kTopLeft_GrSurfaceOrigin, nullptr, kPremul_SkAlphaType, nullptr);
             REPORTER_ASSERT(reporter, imageGen);
             if (!imageGen) {
                 gpu->deleteTestingOnlyBackendTexture(backendTex);
@@ -181,34 +180,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
 
             GrBackendTexture genBackendTex = genTexture->getBackendTexture();
 
-            if (kOpenGL_GrBackend == genBackendTex.backend()) {
-                GrGLTextureInfo genTexInfo;
-                GrGLTextureInfo origTexInfo;
-                if (genBackendTex.getGLTextureInfo(&genTexInfo) &&
-                    backendTex.getGLTextureInfo(&origTexInfo)) {
-                    if (willUseMips && GrMipMapped::kNo == mipMapped) {
-                        // We did a copy so the texture IDs should be different
-                        REPORTER_ASSERT(reporter, origTexInfo.fID != genTexInfo.fID);
-                    } else {
-                        REPORTER_ASSERT(reporter, origTexInfo.fID == genTexInfo.fID);
-                    }
+            if (const GrGLTextureInfo* genTexInfo = genBackendTex.getGLTextureInfo()) {
+                const GrGLTextureInfo* origTexInfo = backendTex.getGLTextureInfo();
+                if (willUseMips && GrMipMapped::kNo == mipMapped) {
+                    // We did a copy so the texture IDs should be different
+                    REPORTER_ASSERT(reporter, origTexInfo->fID != genTexInfo->fID);
                 } else {
-                    ERRORF(reporter, "Failed to get GrGLTextureInfo");
+                    REPORTER_ASSERT(reporter, origTexInfo->fID == genTexInfo->fID);
                 }
 #ifdef SK_VULKAN
-            } else if (kVulkan_GrBackend == genBackendTex.backend()) {
-                GrVkImageInfo genImageInfo;
-                GrVkImageInfo origImageInfo;
-                if (genBackendTex.getVkImageInfo(&genImageInfo) &&
-                    backendTex.getVkImageInfo(&origImageInfo)) {
-                    if (willUseMips && GrMipMapped::kNo == mipMapped) {
-                        // We did a copy so the texture IDs should be different
-                        REPORTER_ASSERT(reporter, origImageInfo.fImage != genImageInfo.fImage);
-                    } else {
-                        REPORTER_ASSERT(reporter, origImageInfo.fImage == genImageInfo.fImage);
-                    }
+            } else if (const GrVkImageInfo* genImageInfo = genBackendTex.getVkImageInfo()) {
+                const GrVkImageInfo* origImageInfo = backendTex.getVkImageInfo();
+                if (willUseMips && GrMipMapped::kNo == mipMapped) {
+                    // We did a copy so the texture IDs should be different
+                    REPORTER_ASSERT(reporter, origImageInfo->fImage != genImageInfo->fImage);
                 } else {
-                    ERRORF(reporter, "Failed to get GrVkImageInfo");
+                    REPORTER_ASSERT(reporter, origImageInfo->fImage == genImageInfo->fImage);
                 }
 #endif
             } else {
@@ -284,7 +271,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             // Must flush the context to make sure all the cmds (copies, etc.) from above are sent
             // to the gpu before we delete the backendHandle.
             context->flush();
-            gpu->testingOnly_flushGpuAndSync();
             gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
     }

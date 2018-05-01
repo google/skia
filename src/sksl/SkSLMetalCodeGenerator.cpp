@@ -451,8 +451,6 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
     this->writeLine(") {");
 
-    ASSERT(!fProgram.fSettings.fFragColorIsInOut);
-
     if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
@@ -729,9 +727,9 @@ void MetalCodeGenerator::writeHeader() {
 }
 
 void MetalCodeGenerator::writeUniformStruct() {
-    for (const auto& e : fProgram) {
-        if (ProgramElement::kVar_Kind == e.fKind) {
-            VarDeclarations& decls = (VarDeclarations&) e;
+    for (const auto& e : fProgram.fElements) {
+        if (ProgramElement::kVar_Kind == e->fKind) {
+            VarDeclarations& decls = (VarDeclarations&) *e;
             if (!decls.fVars.size()) {
                 continue;
             }
@@ -770,9 +768,9 @@ void MetalCodeGenerator::writeInputStruct() {
     if (Program::kFragment_Kind == fProgram.fKind) {
         this->write("    float4 position [[position]];\n");
     }
-    for (const auto& e : fProgram) {
-        if (ProgramElement::kVar_Kind == e.fKind) {
-            VarDeclarations& decls = (VarDeclarations&) e;
+    for (const auto& e : fProgram.fElements) {
+        if (ProgramElement::kVar_Kind == e->fKind) {
+            VarDeclarations& decls = (VarDeclarations&) *e;
             if (!decls.fVars.size()) {
                 continue;
             }
@@ -800,9 +798,9 @@ void MetalCodeGenerator::writeInputStruct() {
 void MetalCodeGenerator::writeOutputStruct() {
     this->write("struct Outputs {\n");
     this->write("    float4 position [[position]];\n");
-    for (const auto& e : fProgram) {
-        if (ProgramElement::kVar_Kind == e.fKind) {
-            VarDeclarations& decls = (VarDeclarations&) e;
+    for (const auto& e : fProgram.fElements) {
+        if (ProgramElement::kVar_Kind == e->fKind) {
+            VarDeclarations& decls = (VarDeclarations&) *e;
             if (!decls.fVars.size()) {
                 continue;
             }
@@ -978,9 +976,9 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
     }
     auto found = fRequirements.find(&f);
     if (found == fRequirements.end()) {
-        for (const auto& e : fProgram) {
-            if (ProgramElement::kFunction_Kind == e.fKind) {
-                const FunctionDefinition& def = (const FunctionDefinition&) e;
+        for (const auto& e : fProgram.fElements) {
+            if (ProgramElement::kFunction_Kind == e->fKind) {
+                const FunctionDefinition& def = (const FunctionDefinition&) *e;
                 if (&def.fDeclaration == &f) {
                     Requirements reqs = this->requirements(*def.fBody);
                     fRequirements[&f] = reqs;
@@ -1004,8 +1002,8 @@ bool MetalCodeGenerator::generateCode() {
     }
     StringStream body;
     fOut = &body;
-    for (const auto& e : fProgram) {
-        this->writeProgramElement(e);
+    for (const auto& e : fProgram.fElements) {
+        this->writeProgramElement(*e);
     }
     fOut = rawOut;
 

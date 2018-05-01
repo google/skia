@@ -25,7 +25,6 @@
 #define SK_TRANSFORMEDCOORDS2D_BUILTIN 10005
 #define SK_TEXTURESAMPLERS_BUILTIN     10006
 #define SK_OUT_BUILTIN                 10007
-#define SK_LASTFRAGCOLOR_BUILTIN       10008
 #define SK_FRAGCOORD_BUILTIN              15
 #define SK_VERTEXID_BUILTIN               42
 #define SK_INSTANCEID_BUILTIN             43
@@ -89,10 +88,6 @@ public:
         return fErrorCount;
     }
 
-    Context& context() {
-        return *fContext;
-    }
-
     static const char* OperatorName(Token::Kind token);
 
     static bool IsAssignment(Token::Kind token);
@@ -133,19 +128,13 @@ private:
 
     Position position(int offset);
 
-    std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
-    std::shared_ptr<SymbolTable> fVertexSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fFragmentInclude;
-    std::shared_ptr<SymbolTable> fFragmentSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fGeometryInclude;
-    std::shared_ptr<SymbolTable> fGeometrySymbolTable;
-
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
+    String fSkiaVertText; // FIXME store parsed version instead
     int fFlags;
 
     const String* fSource;
-    std::shared_ptr<Context> fContext;
+    Context fContext;
     int fErrorCount;
     String fErrorText;
 };

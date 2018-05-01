@@ -7,19 +7,25 @@
 #ifndef SkJpegInfo_DEFINED
 #define SkJpegInfo_DEFINED
 
-#include "SkEncodedInfo.h"
-#include "SkEncodedOrigin.h"
 #include "SkSize.h"
 
-/** Returns true if the data seems to be a valid JPEG image with a known colorType.
+class SkData;
 
-    @param [out] size        Image size in pixels
-    @param [out] colorType   Encoded color type (kGray_Color, kYUV_Color, several others).
-    @param [out] orientation EXIF Orientation of the image.
+struct SkJFIFInfo {
+    SkISize fSize;
+    enum Type {
+        kGrayscale,
+        kYCbCr,
+    } fType;
+};
+
+/** Returns true iff the data seems to be a valid JFIF JPEG image.
+    If so and if info is not nullptr, populate info.
+
+    JPEG/JFIF References:
+        http://www.w3.org/Graphics/JPEG/itu-t81.pdf
+        http://www.w3.org/Graphics/JPEG/jfif3.pdf
 */
-bool SkGetJpegInfo(const void* data, size_t len,
-                   SkISize* size,
-                   SkEncodedInfo::Color* colorType,
-                   SkEncodedOrigin* orientation);
+bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info);
 
 #endif  // SkJpegInfo_DEFINED

@@ -7,7 +7,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/android_ndk_linux/VERSION",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/android_ndk_linux/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -17,31 +17,31 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN"
     },
     "infra_step": true,
     "name": "fetch-gn"
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/skia/bin/gn",
+      "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN/Release",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN/Release",
       "--args=extra_cflags=[\"-DDUMMY_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" ndk_api=21 sanitize=\"ASAN\" target_cpu=\"arm\""
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN"
     },
     "name": "gn gen"
   },
@@ -51,14 +51,14 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN/Release"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN/Release"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Android_ASAN"
     },
     "name": "ninja"
   },

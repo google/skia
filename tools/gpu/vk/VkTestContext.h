@@ -18,6 +18,9 @@ namespace sk_gpu_test {
 class VkTestContext : public TestContext {
 public:
     virtual GrBackend backend() override { return kVulkan_GrBackend; }
+    virtual GrBackendContext backendContext() override {
+        return reinterpret_cast<GrBackendContext>(fVk.get());
+    }
 
     sk_sp<const GrVkBackendContext> getVkBackendContext() {
         return fVk;

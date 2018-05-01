@@ -20,7 +20,6 @@ class SkPaint;
 class SkSurfaceCharacterization;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
-class GrBackendTexture;
 class GrContext;
 class GrRenderTarget;
 
@@ -174,12 +173,11 @@ public:
         @param backendTexture  texture residing on GPU
         @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorType       one of:
-                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+        @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                               kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
                                kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param colorSpace      range of colors; may be nullptr
+        @param colorSpace      range of colors
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
         @return                SkSurface if all parameters are valid; otherwise, nullptr
@@ -191,8 +189,8 @@ public:
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps);
 
-    /** Wraps a GPU-backed buffer into SkSurface. Caller must ensure backendRenderTarget
-        is valid for the lifetime of returned SkSurface.
+    /** Wraps a GPU-backed buffer into SkSurface. Caller must ensure render target is
+        valid for the lifetime of returned SkSurface.
 
         SkSurface is returned if all parameters are valid. backendRenderTarget is valid if
         its pixel configuration agrees with colorSpace and context; for instance, if
@@ -206,10 +204,35 @@ public:
         @param context              GPU context
         @param backendRenderTarget  GPU intermediate memory buffer
         @param origin               one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType            one of:
-                                    kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                                    kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                                    kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+        @param colorSpace           range of colors
+        @param surfaceProps         LCD striping orientation and setting for device independent
+                                    fonts; may be nullptr
+        @return                     SkSurface if all parameters are valid; otherwise, nullptr
+    */
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
+                                                const GrBackendRenderTarget& backendRenderTarget,
+                                                GrSurfaceOrigin origin,
+                                                sk_sp<SkColorSpace> colorSpace,
+                                                const SkSurfaceProps* surfaceProps);
+
+    /** Wraps a GPU-backed buffer into SkSurface. Caller must ensure render target is
+        valid for the lifetime of returned SkSurface.
+
+        SkSurface is returned if all parameters are valid. backendRenderTarget is valid if
+        its pixel configuration agrees with colorSpace and context; for instance, if
+        backendRenderTarget has an sRGB configuration, then context must support sRGB,
+        and colorSpace must be present. Further, backendRenderTarget width and height must
+        not exceed context capabilities, and the context must be able to support
+        back-end render targets.
+
+        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
+
+        @param context              GPU context
+        @param backendRenderTarget  GPU intermediate memory buffer
+        @param origin               one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param colorType            one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                                    kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                                    kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
                                     kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace           range of colors
         @param surfaceProps         LCD striping orientation and setting for device independent
@@ -223,18 +246,11 @@ public:
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps);
 
-    /** Wraps a GPU-backed texture into SkSurface. Caller must ensure backendTexture is
-        valid for the lifetime of returned SkSurface. If sampleCnt greater than zero,
-        creates an intermediate MSAA SkSurface which is used for drawing backendTexture.
-
-        SkSurface is returned if all parameters are valid. backendTexture is valid if
-        its pixel configuration agrees with colorSpace and context; for instance, if
-        backendTexture has an sRGB configuration, then context must support sRGB,
-        and colorSpace must be present. Further, backendTexture width and height must
-        not exceed context capabilities.
-
-        Returned SkSurface is available only for drawing into, and cannot generate an
-        SkImage.
+    /** Used to wrap a GPU-backed texture as a SkSurface. Skia will treat the texture as
+        a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
+        the associated render target objects (but not the provided texture). Skia will not assume
+        ownership of the texture and the client must ensure the texture is valid for the lifetime
+        of the SkSurface.
 
         If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 
@@ -242,12 +258,11 @@ public:
         @param backendTexture  texture residing on GPU
         @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorType       one of:
-                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+        @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                               kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
                                kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param colorSpace      range of colors; may be nullptr
+        @param colorSpace      range of colors
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
         @return                SkSurface if all parameters are valid; otherwise, nullptr
@@ -346,18 +361,6 @@ public:
                                 nullptr);
     }
 
-    /** Returns SkSurface on GPU indicated by context that is compatible with the provided
-        characterization. budgeted selects whether allocation for pixels is tracked by context.
-
-        @param context           GPU context
-        @param characterization  description of the desired SkSurface
-        @param budgeted          one of: SkBudgeted::kNo, SkBudgeted::kYes
-        @return                  SkSurface if all parameters are valid; otherwise, nullptr
-    */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context,
-                                             const SkSurfaceCharacterization& characterization,
-                                             SkBudgeted budgeted);
-
     /** Returns SkSurface without backing pixels. Drawing to SkCanvas returned from SkSurface
         has no effect. Calling makeImageSnapshot() on returned SkSurface returns nullptr.
 
@@ -428,7 +431,6 @@ public:
     static const BackendHandleAccess kDiscardWrite_TextureHandleAccess =
             kDiscardWrite_BackendHandleAccess;
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     /** Returns the GPU back-end reference of the texture used by SkSurface, or zero
         if SkSurface is not backed by a GPU texture.
 
@@ -459,34 +461,6 @@ public:
     */
     bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess);
-#endif
-
-    /** Retrieves the backend texture. If Surface has no backend texture, an invalid
-        object is returned. Call GrBackendTexture::isValid to determine if the result
-        is valid.
-
-        The returned GrBackendTexture should be discarded if the Surface is drawn to or deleted.
-
-        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-                                             kFlushWrite_BackendHandleAccess,
-                                             kDiscardWrite_BackendHandleAccess
-        @return                     GPU texture reference; invalid on failure
-    */
-    GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
-
-    /** Retrieves the backend render target. If Surface has no backend render target, an invalid
-        object is returned. Call GrBackendRenderTarget::isValid to determine if the result
-        is valid.
-
-        The returned GrBackendRenderTarget should be discarded if the Surface is drawn to
-        or deleted.
-
-        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-                                             kFlushWrite_BackendHandleAccess,
-                                             kDiscardWrite_BackendHandleAccess
-        @return                     GPU render target reference; invalid on failure
-    */
-    GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
 
     /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
         SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface

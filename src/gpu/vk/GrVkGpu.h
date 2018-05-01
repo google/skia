@@ -9,6 +9,7 @@
 #define GrVkGpu_DEFINED
 
 #include "GrGpu.h"
+#include "GrGpuFactory.h"
 #include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
 #include "GrVkCopyManager.h"
@@ -37,6 +38,7 @@ namespace SkSL {
 
 class GrVkGpu : public GrGpu {
 public:
+    static sk_sp<GrGpu> Make(GrBackendContext backendContext, const GrContextOptions&, GrContext*);
     static sk_sp<GrGpu> Make(sk_sp<const GrVkBackendContext>, const GrContextOptions&, GrContext*);
 
     ~GrVkGpu() override;

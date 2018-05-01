@@ -59,7 +59,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = false;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
-    fRequiresFlushBetweenNonAndInstancedDraws = false;
     fProgramBinarySupport = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
@@ -760,14 +759,17 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     }
 
     if (ctxInfo.hasExtension("GL_OES_EGL_image_external")) {
-        if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
-            shaderCaps->fExternalTextureSupport = true;
-            shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
-        } else if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
-                   ctxInfo.hasExtension("OES_EGL_image_external_essl3")) {
+        // We should check that we're using ES2 shading language, or have the ESSL3 extension,
+        // but we found at least one device that breaks that rule. So, we enable support via the
+        // ES2 extension if the ES2 extension is missing. This could fail if a device only supports
+        // external images in ES2, but that seems unlikely? (skbug.com/7713)
+        shaderCaps->fExternalTextureSupport = true;
+        if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
+            ctxInfo.hasExtension("OES_EGL_image_external_essl3")) {
             // At least one driver has been found that has this extension without the "GL_" prefix.
-            shaderCaps->fExternalTextureSupport = true;
             shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
+        } else {
+            shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
         }
     }
 
@@ -801,12 +803,6 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     } else {
         // Desktop GLSL 3.30 == ES GLSL 3.00.
         shaderCaps->fVertexIDSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
-    }
-
-    if (kGL_GrGLStandard == standard) {
-        shaderCaps->fFPManipulationSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
-    } else {
-        shaderCaps->fFPManipulationSupport = ctxInfo.glslGeneration() >= k310es_GrGLSLGeneration;
     }
 
     shaderCaps->fFloatIs32Bits = is_float_fp32(ctxInfo, gli, GR_GL_HIGH_FLOAT);
@@ -2156,7 +2152,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // 340.96 and 367.57.
     if (kGL_GrGLStandard == ctxInfo.standard() &&
         ctxInfo.driver() == kNVIDIA_GrGLDriver &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(367, 57, 0)) {
+        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(367, 57)) {
         fClearTextureSupport = false;
     }
 
@@ -2175,7 +2171,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Qualcomm driver @103.0 has been observed to crash compiling ccpr geometry
     // shaders. @127.0 is the earliest verified driver to not crash.
     if (kQualcomm_GrGLDriver == ctxInfo.driver() &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(127, 0, 0)) {
+        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(127,0)) {
         shaderCaps->fGeometryShaderSupport = false;
     }
 
@@ -2192,7 +2188,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // did not reproduce on a Nexus7 2013 with a 320 running Android M with driver 127.0. It's
     // unclear whether this really affects a wide range of devices.
     if (ctxInfo.renderer() == kAdreno3xx_GrGLRenderer &&
-        ctxInfo.driverVersion() > GR_GL_DRIVER_VER(127, 0, 0)) {
+        ctxInfo.driverVersion() > GR_GL_DRIVER_VER(127, 0)) {
         fMapBufferType = kNone_MapBufferType;
         fMapBufferFlags = kNone_MapFlags;
     }
@@ -2234,10 +2230,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // full screen clears
     // crbug.com/773107 - On MacBook Pros, a wide range of Intel GPUs don't always
     // perform full screen clears.
-    // Update on 4/4/2018 - This appears to be fixed on driver 10.30.12 on a macOS 10.13.2 on a
-    // Retina MBP Early 2015 with Iris 6100. It is possibly fixed on earlier drivers as well.
-    if (kIntel_GrGLVendor == ctxInfo.vendor() &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(10, 30, 12)) {
+    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
         fUseDrawToClearColor = true;
     }
 #endif
@@ -2252,7 +2245,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {
         // This is known to be fixed sometime between driver 145.0 and 219.0
-        if (ctxInfo.driverVersion() <= GR_GL_DRIVER_VER(219, 0, 0)) {
+        if (ctxInfo.driverVersion() <= GR_GL_DRIVER_VER(219, 0)) {
             fUseDrawToClearStencilClip = true;
         }
         fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
@@ -2267,14 +2260,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // - A Nexus 7 2013 (Adreno 320) running Android 4 with driver 53.0
     // The particular lines that get dropped from test images varies across different devices.
     if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() &&
-        ctxInfo.driverVersion() > GR_GL_DRIVER_VER(53, 0, 0)) {
+        ctxInfo.driverVersion() > GR_GL_DRIVER_VER(53, 0)) {
         fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = true;
-    }
-
-    if (kIntelSkylake_GrGLRenderer == ctxInfo.renderer() ||
-        (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
-         GrGLANGLERenderer::kSkylake == ctxInfo.angleRenderer())) {
-        fRequiresFlushBetweenNonAndInstancedDraws = true;
     }
 
     // Our Chromebook with kPowerVRRogue_GrGLRenderer seems to crash when glDrawArraysInstanced is
@@ -2284,7 +2271,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
-    if (kTegra_PreK1_GrGLRenderer == ctxInfo.renderer()) {
+    if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {
         fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
         fUseDrawInsteadOfAllRenderTargetWrites = true;
     }
@@ -2321,6 +2308,17 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDrawArraysBaseVertexIsBroken = true;
     }
 
+    // The ccpr vertex-shader implementation does not work on this platform. Only allow CCPR with
+    // GS.
+
+    if (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
+        GrGLANGLERenderer::kSkylake == ctxInfo.angleRenderer()) {
+        bool gsSupport = fShaderCaps->geometryShaderSupport();
+#if GR_TEST_UTILS
+        gsSupport &= !contextOptions.fSuppressGeometryShaders;
+#endif
+        fBlacklistCoverageCounting = !gsSupport;
+    }
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
     // Galaxy S7.
     // TODO: Once this is fixed we can update the check here to look at a driver version number too.
@@ -2344,7 +2342,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fFragCoordConventionsExtensionString = nullptr;
     }
 
-    if (kTegra_PreK1_GrGLRenderer == ctxInfo.renderer()) {
+    if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {
         // The Tegra3 compiler will sometimes never return if we have min(abs(x), 1.0),
         // so we must do the abs first in a separate expression.
         shaderCaps->fCanUseMinAndAbsTogether = false;
@@ -2409,11 +2407,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fInterpolantsAreInaccurate = true;
     }
 
-    // gl_FragCoord has an incorrect subpixel offset on legacy Tegra hardware.
-    if (kTegra_PreK1_GrGLRenderer == ctxInfo.renderer()) {
-        shaderCaps->fCanUseFragCoord = false;
-    }
-
     // On Mali G71, mediump ints don't appear capable of representing every integer beyond +/-2048.
     // (Are they implemented with fp16?)
     if (kARM_GrGLVendor == ctxInfo.vendor()) {
@@ -2432,7 +2425,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // Non-coherent advanced blend has an issue on NVIDIA pre 337.00.
     if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337, 00, 0) &&
+        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337,00) &&
         kAdvanced_BlendEquationSupport == fBlendEquationSupport) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
@@ -2440,7 +2433,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     if (this->advancedBlendEquationSupport()) {
         if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
-            ctxInfo.driverVersion() < GR_GL_DRIVER_VER(355, 00, 0)) {
+            ctxInfo.driverVersion() < GR_GL_DRIVER_VER(355,00)) {
             // Blacklist color-dodge and color-burn on pre-355.00 NVIDIA.
             fAdvBlendEqBlacklist |= (1 << kColorDodge_GrBlendEquation) |
                                     (1 << kColorBurn_GrBlendEquation);
@@ -2464,18 +2457,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
             fDiscardRenderTargetSupport = false;
             fInvalidateFBType = kNone_InvalidateFBType;
     }
-
-    // Many ES3 drivers only advertise the ES2 image_external extension, but support the _essl3
-    // extension, and require that it be enabled to work with ESSL3. Other devices require the ES2
-    // extension to be enabled, even when using ESSL3. Enabling both extensions fixes both cases.
-    // skbug.com/7713
-    if (ctxInfo.hasExtension("GL_OES_EGL_image_external") &&
-        ctxInfo.glslGeneration() >= k330_GrGLSLGeneration &&
-        !shaderCaps->fExternalTextureSupport) { // i.e. Missing the _essl3 extension
-        shaderCaps->fExternalTextureSupport = true;
-        shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
-        shaderCaps->fSecondExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
-    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
@@ -2489,7 +2470,6 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
         SkASSERT(!fUseDrawInsteadOfAllRenderTargetWrites);
         SkASSERT(!fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines);
-        SkASSERT(!fRequiresFlushBetweenNonAndInstancedDraws);
     }
     if (GrContextOptions::Enable::kNo == options.fUseDrawInsteadOfGLClear) {
         fUseDrawToClearColor = false;
@@ -2559,10 +2539,10 @@ GrColorType GrGLCaps::supportedReadPixelsColorType(GrPixelConfig config,
 }
 
 bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& backendRT) const {
-    GrGLFramebufferInfo fbInfo;
-    SkAssertResult(backendRT.getGLFramebufferInfo(&fbInfo));
+    const GrGLFramebufferInfo* fbInfo = backendRT.getGLFramebufferInfo();
+    SkASSERT(fbInfo);
     // Window Rectangles are not supported for FBO 0;
-    return fbInfo.fFBOID != 0;
+    return fbInfo->fFBOID != 0;
 }
 
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
@@ -2667,20 +2647,20 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
 
 bool GrGLCaps::validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
                                       GrPixelConfig* config) const {
-    GrGLTextureInfo texInfo;
-    if (!tex.getGLTextureInfo(&texInfo)) {
+    const GrGLTextureInfo* texInfo = tex.getGLTextureInfo();
+    if (!texInfo) {
         return false;
     }
-    return validate_sized_format(texInfo.fFormat, ct, config, fStandard);
+    return validate_sized_format(texInfo->fFormat, ct, config, fStandard);
 }
 
 bool GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType ct,
                                            GrPixelConfig* config) const {
-    GrGLFramebufferInfo fbInfo;
-    if (!rt.getGLFramebufferInfo(&fbInfo)) {
+    const GrGLFramebufferInfo* fbInfo = rt.getGLFramebufferInfo();
+    if (!fbInfo) {
         return false;
     }
-    return validate_sized_format(fbInfo.fFormat, ct, config, fStandard);
+    return validate_sized_format(fbInfo->fFormat, ct, config, fStandard);
 }
 
 bool GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,

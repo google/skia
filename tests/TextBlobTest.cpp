@@ -194,6 +194,7 @@ public:
         font.setEmbeddedBitmapText(true);
         font.setAutohinted(true);
         font.setVerticalText(true);
+        font.setFlags(font.getFlags() | SkPaint::kGenA8FromLCD_Flag);
 
         // Ensure we didn't pick default values by mistake.
         SkPaint defaultPaint;
@@ -212,6 +213,8 @@ public:
         REPORTER_ASSERT(reporter, defaultPaint.isEmbeddedBitmapText() != font.isEmbeddedBitmapText());
         REPORTER_ASSERT(reporter, defaultPaint.isAutohinted() != font.isAutohinted());
         REPORTER_ASSERT(reporter, defaultPaint.isVerticalText() != font.isVerticalText());
+        REPORTER_ASSERT(reporter, (defaultPaint.getFlags() & SkPaint::kGenA8FromLCD_Flag) !=
+                                  (font.getFlags() & SkPaint::kGenA8FromLCD_Flag));
 
         SkTextBlobBuilder builder;
         AddRun(font, 1, SkTextBlob::kDefault_Positioning, SkPoint::Make(0, 0), builder);
@@ -239,6 +242,8 @@ public:
             REPORTER_ASSERT(reporter, paint.isEmbeddedBitmapText() == font.isEmbeddedBitmapText());
             REPORTER_ASSERT(reporter, paint.isAutohinted() == font.isAutohinted());
             REPORTER_ASSERT(reporter, paint.isVerticalText() == font.isVerticalText());
+            REPORTER_ASSERT(reporter, (paint.getFlags() & SkPaint::kGenA8FromLCD_Flag) ==
+                                      (font.getFlags() & SkPaint::kGenA8FromLCD_Flag));
 
             it.next();
         }

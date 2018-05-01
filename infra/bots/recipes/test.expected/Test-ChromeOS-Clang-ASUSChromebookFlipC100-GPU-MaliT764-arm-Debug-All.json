@@ -9,7 +9,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "read chromeos ip",
@@ -39,7 +39,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/resources"
@@ -63,7 +63,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "remount /home/chronos/user/ as exec"
@@ -84,7 +84,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/bin"
@@ -105,7 +105,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/bin"
@@ -173,7 +173,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "read /home/chronos/user/SKP_VERSION",
@@ -195,7 +195,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/SKP_VERSION"
@@ -216,7 +216,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/skps"
@@ -237,7 +237,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/skps"
@@ -325,7 +325,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "read /home/chronos/user/SK_IMAGE_VERSION",
@@ -347,7 +347,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/SK_IMAGE_VERSION"
@@ -368,7 +368,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/images"
@@ -389,7 +389,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/images"
@@ -477,7 +477,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "read /home/chronos/user/SVG_VERSION",
@@ -499,7 +499,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/SVG_VERSION"
@@ -520,7 +520,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/svgs"
@@ -541,7 +541,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/svgs"
@@ -588,34 +588,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[START_DIR]/test"
-    ],
-    "infra_step": true,
-    "name": "rmtree test"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/test"
-    ],
-    "infra_step": true,
-    "name": "makedirs test"
-  },
-  {
-    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
@@ -630,7 +602,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/dm_out"
@@ -651,7 +623,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/dm_out"
@@ -682,7 +654,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "get uninteresting hashes",
@@ -776,13 +748,13 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "rmtree dm"
@@ -797,13 +769,13 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "makedirs dm"
@@ -813,17 +785,17 @@
       "python",
       "-u",
       "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
-      "[START_DIR]/build/out/Debug/dm",
+      "[START_DIR]/out/Debug/dm",
       "foo@127.0.0.1:/home/chronos/user/bin/dm"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "scp [START_DIR]/build/out/Debug/dm foo@127.0.0.1:/home/chronos/user/bin/dm",
+    "name": "scp [START_DIR]/out/Debug/dm foo@127.0.0.1:/home/chronos/user/bin/dm",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -850,7 +822,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "chmod dm"
@@ -1021,7 +993,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "dm"
@@ -1032,10 +1004,10 @@
       "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
       "foo@127.0.0.1:/home/chronos/user/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "infra_step": true,
-    "name": "scp -r foo@127.0.0.1:/home/chronos/user/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm",
+    "name": "scp -r foo@127.0.0.1:/home/chronos/user/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",

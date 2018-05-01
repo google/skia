@@ -23,8 +23,6 @@ DEPS = [
 def RunSteps(api):
   api.core.setup()
   api.flavor.install(skps=True, svgs=True)
-  api.file.ensure_directory('makedirs perf', api.vars.swarming_out_dir)
-
   with api.context(cwd=api.vars.skia_dir):
     extra_arg = '--svgs %s --skps %s' % (api.flavor.device_dirs.svg_dir,
                                          api.flavor.device_dirs.skp_dir)
@@ -41,9 +39,9 @@ def RunSteps(api):
         api.vars.skia_dir.join('tools', 'calmbench', 'ab.py'),
         api.vars.swarming_out_dir,
         'modified', 'master',
-        api.vars.build_dir.join("out", api.vars.configuration, 'nanobench'),
-        api.vars.build_dir.join("ParentRevision", "out",
-                                api.vars.configuration, 'nanobench'),
+        api.path['start_dir'].join("out", api.vars.configuration, 'nanobench'),
+        api.path['start_dir'].join("ParentRevision", "out",
+                                   api.vars.configuration, 'nanobench'),
         extra_arg, extra_arg,
         2,          # reps
         "false",    # skipbase

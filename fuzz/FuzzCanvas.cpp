@@ -55,6 +55,7 @@
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
 #include "SkReadBuffer.h"
+#include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTextBlob.h"
 #include "SkTileImageFilter.h"
@@ -74,6 +75,12 @@
 // TODO:
 //   SkTextBlob with Unicode
 //   SkImage: more types
+
+template <typename T, typename Min, typename Max>
+inline void fuzz_enum_range(Fuzz* fuzz, T* value, Min rmin, Max rmax) {
+    using U = skstd::underlying_type_t<T>;
+    fuzz->nextRange((U*)value, (U)rmin, (U)rmax);
+}
 
 // be careful: `foo(make_fuzz_t<T>(f), make_fuzz_t<U>(f))` is undefined.
 // In fact, all make_fuzz_foo() functions have this potential problem.
@@ -488,7 +495,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
 
 static sk_sp<SkMaskFilter> make_fuzz_maskfilter(Fuzz* fuzz) {
     int maskfilterType;
-    fuzz->nextRange(&maskfilterType, 0, 1);
+    fuzz->nextRange(&maskfilterType, 0, 2);
     switch (maskfilterType) {
         case 0:
             return nullptr;
@@ -505,6 +512,12 @@ static sk_sp<SkMaskFilter> make_fuzz_maskfilter(Fuzz* fuzz) {
             fuzz->nextRange(&flags, 0, 1);
             bool respectCTM = flags != 0;
             return SkMaskFilter::MakeBlur(blurStyle, sigma, occluder, respectCTM);
+        }
+        case 2: {
+            SkRRect first, second;
+            SkScalar radius;
+            fuzz->next(&first, &second, &radius);
+            return SkRRectsGaussianEdgeMaskFilter::Make(first, second, radius);
         }
         default:
             SkASSERT(false);
@@ -1269,9 +1282,6 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 SkRect r;
                 fuzz->next(&r);
-                if (!r.isFinite()) {
-                    break;
-                }
                 canvas->drawRect(r, paint);
                 break;
             }
@@ -1286,9 +1296,6 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 SkRect r;
                 fuzz->next(&r);
-                if (!r.isFinite()) {
-                    break;
-                }
                 canvas->drawOval(r, paint);
                 break;
             }
@@ -1806,23 +1813,14 @@ DEF_FUZZ(NativeGLCanvas, fuzz) {
     fuzz_ganesh(fuzz, context);
 }
 
-// This target is deprecated, NullGLContext is not well maintained.
-// Please use MockGPUCanvas instead.
 DEF_FUZZ(NullGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType));
 }
 
-// This target is deprecated, DebugGLContext is not well maintained.
-// Please use MockGPUCanvas instead.
 DEF_FUZZ(DebugGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kDebugGL_ContextType));
-}
-
-DEF_FUZZ(MockGPUCanvas, fuzz) {
-    sk_gpu_test::GrContextFactory f;
-    fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kMock_ContextType));
 }
 #endif
 
