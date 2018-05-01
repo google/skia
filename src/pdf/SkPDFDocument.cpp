@@ -211,7 +211,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
             SkScalarRoundToInt(width), SkScalarRoundToInt(height));
     fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this);
     fPageDevice->setFlip();  // Only the top-level device needs to be flipped.
-    fCanvas.reset(new SkCanvas(fPageDevice.get()));
+    fCanvas.reset(new SkCanvas(fPageDevice));
     return fCanvas.get();
 }
 

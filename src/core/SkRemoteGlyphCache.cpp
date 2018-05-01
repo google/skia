@@ -188,7 +188,7 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(
         const SkSurfaceProps& props,
         SkScalerContextFlags flags,
         SkStrikeCacheDifferenceSpec* strikeDiffs)
-        : SkNoDrawCanvas{new TrackLayerDevice{SkIRect::MakeWH(width, height), props}}
+        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props)}
         , fDeviceMatrix{deviceMatrix}
         , fSurfaceProps{props}
         , fScalerContextFlags{flags}

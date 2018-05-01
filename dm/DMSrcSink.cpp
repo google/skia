@@ -32,6 +32,7 @@
 #include "SkImageInfoPriv.h"
 #include "SkLiteDL.h"
 #include "SkLiteRecorder.h"
+#include "SkMakeUnique.h"
 #include "SkMallocPixelRef.h"
 #include "SkMultiPictureDocumentPriv.h"
 #include "SkMultiPictureDraw.h"
@@ -1800,9 +1801,9 @@ ThreadedSink::ThreadedSink(SkColorType colorType, sk_sp<SkColorSpace> colorSpace
 Error ThreadedSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkString* str) const {
     this->allocPixels(src, dst);
 
-    std::unique_ptr<SkThreadedBMPDevice> device(new SkThreadedBMPDevice(
-            *dst, FLAGS_backendTiles, FLAGS_backendThreads, fExecutor.get()));
-    std::unique_ptr<SkCanvas> canvas(new SkCanvas(device.get()));
+    auto canvas = skstd::make_unique<SkCanvas>(
+            sk_make_sp<SkThreadedBMPDevice>(
+                    *dst, FLAGS_backendTiles, FLAGS_backendThreads, fExecutor.get()));
     Error result = src.draw(canvas.get());
     canvas->flush();
     return result;

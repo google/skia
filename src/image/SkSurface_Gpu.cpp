@@ -100,7 +100,7 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
     SkCanvas::InitFlags flags = SkCanvas::kDefault_InitFlags;
     flags = static_cast<SkCanvas::InitFlags>(flags | SkCanvas::kConservativeRasterClip_InitFlag);
 
-    return new SkCanvas(fDevice.get(), flags);
+    return new SkCanvas(fDevice, flags);
 }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {

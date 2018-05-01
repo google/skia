@@ -29,7 +29,7 @@ public:
     // TODO: investigate the users of this ctor.
     SkNoDrawCanvas(const SkIRect&);
 
-    explicit SkNoDrawCanvas(SkBaseDevice* device);
+    explicit SkNoDrawCanvas(sk_sp<SkBaseDevice> device);
 
     // Optimization to reset state to be the same as after construction.
     void resetCanvas(int width, int height) {

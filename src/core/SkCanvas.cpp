@@ -557,7 +557,7 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     fIsScaleTranslate = true;
 }
 
-SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
+void SkCanvas::init(sk_sp<SkBaseDevice> device, InitFlags flags) {
     if (device && device->forceConservativeRasterClip()) {
         flags = InitFlags(flags | kConservativeRasterClip_InitFlag);
     }
@@ -573,7 +573,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
-    new (fDeviceCMStorage) DeviceCM(sk_ref_sp(device), nullptr, fMCRec->fMatrix, nullptr, nullptr);
+    new (fDeviceCMStorage) DeviceCM(device, nullptr, fMCRec->fMatrix, nullptr, nullptr);
 
     fMCRec->fTopLayer = fMCRec->fLayer;
 
@@ -587,8 +587,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
         device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
     }
-
-    return device;
 }
 
 SkCanvas::SkCanvas()
@@ -605,9 +603,8 @@ SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
     , fProps(SkSurfacePropsCopyOrDefault(props))
 {
     inc_canvas();
-
-    this->init(new SkNoPixelsDevice(SkIRect::MakeWH(SkTMax(width, 0), SkTMax(height, 0)), fProps),
-               kDefault_InitFlags)->unref();
+    this->init(sk_make_sp<SkNoPixelsDevice>(
+            SkIRect::MakeWH(SkTMax(width, 0), SkTMax(height, 0)), fProps), kDefault_InitFlags);
 }
 
 SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
@@ -617,10 +614,10 @@ SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
     inc_canvas();
 
     SkIRect r = bounds.isEmpty() ? SkIRect::MakeEmpty() : bounds;
-    this->init(new SkNoPixelsDevice(r, fProps), flags)->unref();
+    this->init(sk_make_sp<SkNoPixelsDevice>(r, fProps), flags);
 }
 
-SkCanvas::SkCanvas(SkBaseDevice* device)
+SkCanvas::SkCanvas(sk_sp<SkBaseDevice> device)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(device->surfaceProps())
 {
@@ -629,7 +626,7 @@ SkCanvas::SkCanvas(SkBaseDevice* device)
     this->init(device, kDefault_InitFlags);
 }
 
-SkCanvas::SkCanvas(SkBaseDevice* device, InitFlags flags)
+SkCanvas::SkCanvas(sk_sp<SkBaseDevice> device, InitFlags flags)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(device->surfaceProps())
 {
@@ -645,7 +642,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
     inc_canvas();
 
     sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps, nullptr, nullptr));
-    this->init(device.get(), kDefault_InitFlags);
+    this->init(device, kDefault_InitFlags);
 }
 
 SkCanvas::SkCanvas(const SkBitmap& bitmap, std::unique_ptr<SkRasterHandleAllocator> alloc,
@@ -657,7 +654,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, std::unique_ptr<SkRasterHandleAllocat
     inc_canvas();
 
     sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps, hndl, nullptr));
-    this->init(device.get(), kDefault_InitFlags);
+    this->init(device, kDefault_InitFlags);
 }
 
 SkCanvas::SkCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap, nullptr, nullptr) {}
@@ -673,7 +670,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, ColorBehavior)
     SkBitmap tmp(bitmap);
     *const_cast<SkImageInfo*>(&tmp.info()) = tmp.info().makeColorSpace(nullptr);
     sk_sp<SkBaseDevice> device(new SkBitmapDevice(tmp, fProps, nullptr, nullptr));
-    this->init(device.get(), kDefault_InitFlags);
+    this->init(device, kDefault_InitFlags);
 }
 #endif
 
@@ -2869,7 +2866,7 @@ SkNoDrawCanvas::SkNoDrawCanvas(int width, int height)
 SkNoDrawCanvas::SkNoDrawCanvas(const SkIRect& bounds)
     : INHERITED(bounds, kConservativeRasterClip_InitFlag) {}
 
-SkNoDrawCanvas::SkNoDrawCanvas(SkBaseDevice *device)
+SkNoDrawCanvas::SkNoDrawCanvas(sk_sp<SkBaseDevice> device)
     : INHERITED(device) {}
 
 SkCanvas::SaveLayerStrategy SkNoDrawCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
