@@ -150,9 +150,9 @@ public:
     /**
      * Returns an index buffer that can be used to render quads.
      * Six indices per quad: 0, 1, 2, 2, 1, 3, etc.
-     * The max number of quads is the buffer's index capacity divided by 6.
+     * The max number of quads is specified by QuadCountOfQuadBuffer().
      * Draw with GrPrimitiveType::kTriangles
-     * @ return the quad index buffer
+     * @return the quad index buffer
      */
     sk_sp<const GrBuffer> refQuadIndexBuffer() {
         if (auto buffer = this->findByUniqueKey<const GrBuffer>(fQuadIndexBufferKey)) {
@@ -162,6 +162,22 @@ public:
     }
 
     static int QuadCountOfQuadBuffer();
+
+    /**
+     * Returns an index buffer that can be used to render triangle fans.
+     * The buffer has the pattern 0, 1, 2, 0, 2, 3, 0, 3, 4 ...
+     * The max number of quads is specified by TriCountOfFanBuffer().
+     * Draw with GrPrimitiveType::kTriangles
+     * @return the fan index buffer
+     */
+    sk_sp<const GrBuffer> refFanIndexBuffer() {
+        if (auto buffer = this->findByUniqueKey<const GrBuffer>(fFanIndexBufferKey)) {
+            return buffer;
+        }
+        return this->createFanIndexBuffer();
+    }
+
+    static int TriCountOfFanBuffer();
 
     /**
      * Factories for GrPath objects. It's an error to call these if path rendering
@@ -295,12 +311,14 @@ private:
                                                      const GrUniqueKey& key);
 
     sk_sp<const GrBuffer> createQuadIndexBuffer();
+    sk_sp<const GrBuffer> createFanIndexBuffer();
 
-    GrResourceCache*    fCache;
-    GrGpu*              fGpu;
+    GrResourceCache* fCache;
+    GrGpu* fGpu;
     sk_sp<const GrCaps> fCaps;
-    GrUniqueKey         fQuadIndexBufferKey;
-    bool                fExplicitlyAllocateGPUResources;
+    GrUniqueKey fQuadIndexBufferKey;
+    GrUniqueKey fFanIndexBufferKey;
+    bool fExplicitlyAllocateGPUResources;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
