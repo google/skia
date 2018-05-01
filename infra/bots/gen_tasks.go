@@ -541,10 +541,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				version, ok := map[string]string{
 					"MaliT604":           "10575.22.0",
 					"MaliT764":           "10575.22.0",
-					"MaliT860":           "10172.0.0",
-					"PowerVRGX6250":      "10176.5.0",
-					"TegraK1":            "10172.0.0",
-					"IntelHDGraphics615": "10032.17.0",
+					"MaliT860":           "10575.22.0",
+					"PowerVRGX6250":      "10575.22.0",
+					"TegraK1":            "10575.22.0",
+					"IntelHDGraphics615": "10575.22.0",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in ChromeOS GPU mapping.", parts["cpu_or_gpu_value"])

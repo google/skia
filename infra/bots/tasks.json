@@ -24186,7 +24186,7 @@
         "gpu:TegraK1",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10172.0.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -24289,7 +24289,7 @@
         "gpu:TegraK1",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10172.0.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -24392,7 +24392,7 @@
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10176.5.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -24495,7 +24495,7 @@
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10176.5.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -24598,7 +24598,7 @@
         "gpu:IntelHDGraphics615",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10032.17.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -24701,7 +24701,7 @@
         "gpu:IntelHDGraphics615",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10032.17.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -25010,7 +25010,7 @@
         "gpu:MaliT860",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10172.0.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -25113,7 +25113,7 @@
         "gpu:MaliT860",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10172.0.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -47227,7 +47227,7 @@
         "gpu:TegraK1",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10172.0.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -47330,7 +47330,7 @@
         "gpu:TegraK1",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10172.0.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -47433,7 +47433,7 @@
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10176.5.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -47536,7 +47536,7 @@
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10176.5.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -47639,7 +47639,7 @@
         "gpu:IntelHDGraphics615",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10032.17.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -47742,7 +47742,7 @@
         "gpu:IntelHDGraphics615",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10032.17.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -48051,7 +48051,7 @@
         "gpu:MaliT860",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10172.0.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -48154,7 +48154,7 @@
         "gpu:MaliT860",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:10172.0.0"
+        "release_version:10575.22.0"
       ],
       "env_prefixes": {
         "PATH": [
