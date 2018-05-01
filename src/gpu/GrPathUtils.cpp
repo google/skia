@@ -401,6 +401,11 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
                                        SkPathPriv::FirstDirection dir,
                                        SkTArray<SkPoint, true>* quads,
                                        int sublevel = 0) {
+#if defined(IS_FUZZING)
+    if (sublevel >= 7) {
+        return;
+    }
+#endif
 
     // Notation: Point a is always p[0]. Point b is p[1] unless p[1] == p[0], in which case it is
     // p[2]. Point d is always p[3]. Point c is p[2] unless p[2] == p[3], in which case it is p[1].

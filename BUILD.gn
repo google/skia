@@ -1797,6 +1797,7 @@ if (skia_enable_tools) {
     include_dirs = [
       "tools",
       "tools/debugger",
+      "tools/fonts",
     ]
     sources = [
       "fuzz/FuzzCanvas.cpp",
@@ -1816,13 +1817,27 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
+      "tools/Resources.cpp",
+
+      # Note: We can't use tool_utils directly because it brings in
+      # the common flags, which borks the flags on fuzz.cpp with
+      # irrelevent details (and some duplicate flags)
       "tools/UrlDataManager.cpp",
       "tools/debugger/SkDebugCanvas.cpp",
       "tools/debugger/SkDrawCommand.cpp",
       "tools/debugger/SkJsonWriteBuffer.cpp",
+      "tools/fonts/SkTestFontMgr.cpp",
+      "tools/fonts/SkTestFontMgr.h",
+      "tools/fonts/SkTestSVGTypeface.cpp",
+      "tools/fonts/SkTestSVGTypeface.h",
+      "tools/fonts/SkTestTypeface.cpp",
+      "tools/fonts/SkTestTypeface.h",
+      "tools/fonts/sk_tool_utils_font.cpp",
       "tools/picture_utils.cpp",
+      "tools/sk_tool_utils.cpp",
     ]
     deps = [
+      ":experimental_svg_model",
       ":flags",
       ":gpu_tool_utils",
       ":skia",

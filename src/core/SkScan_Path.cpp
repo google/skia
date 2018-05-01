@@ -245,6 +245,11 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
         SkFixed dRite = riteE->fDX;
         int count = local_bot - local_top;
         SkASSERT(count >= 0);
+#if defined(IS_FUZZING)
+        if (count > 1000) {
+            return;
+        }
+#endif
         if (0 == (dLeft | dRite)) {
             int L = SkFixedRoundToInt(left);
             int R = SkFixedRoundToInt(rite);
