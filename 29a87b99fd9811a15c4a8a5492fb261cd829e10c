@@ -22,6 +22,30 @@
       "revId": "29a87b99fd9811a15c4a8a5492fb261cd829e10c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62f2a2b9_107021a3",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-01T22:11:43Z",
+      "side": 1,
+      "message": "No devices should be public anymore, so I\u0027m not sure how anyone would be calling this. If anyone outside Skia is still calling this, we need to fix that.",
+      "parentUuid": "f7eb9a3e_814b88cb",
+      "range": {
+        "startLine": 158,
+        "startChar": 4,
+        "endLine": 158,
+        "endChar": 50
+      },
+      "revId": "29a87b99fd9811a15c4a8a5492fb261cd829e10c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
