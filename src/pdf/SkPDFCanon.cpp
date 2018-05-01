@@ -12,7 +12,5 @@
 
 SkPDFCanon::~SkPDFCanon() {}
 SkPDFCanon::SkPDFCanon() {}
-SkPDFCanon::SkPDFCanon(SkPDFCanon&&) = default;
-SkPDFCanon& SkPDFCanon::operator=(SkPDFCanon&&) = default;
 
 

@@ -100,8 +100,7 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     SkScalar R = SkMinScalar(ar, br);                   \
     SkScalar T = SkMaxScalar(at, bt);                   \
     SkScalar B = SkMinScalar(ab, bb);                   \
-    do { if (!(L < R && T < B)) return false; } while (0)
-    // do the !(opposite) check so we return false if either arg is NaN
+    do { if (L >= R || T >= B) return false; } while (0)
 
 bool SkRect::intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
     CHECK_INTERSECT(left, top, right, bottom, fLeft, fTop, fRight, fBottom);

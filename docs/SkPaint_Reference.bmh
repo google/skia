@@ -536,6 +536,7 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
         kEmbeddedBitmapText_Flag = 0x400,
         kAutoHinting_Flag     = 0x800,
         kVerticalText_Flag    = 0x1000,
+        kGenA8FromLCD_Flag    = 0x2000,
 
         kAllFlags = 0xFFFF,
     };
@@ -578,6 +579,12 @@ multiple settings at once.
     ##
     #Const kVerticalText_Flag       0x1000
         mask for setting Vertical_Text
+    ##
+    #Const kGenA8FromLCD_Flag       0x2000
+        #Private
+        Hack for GDI -- do not use if you can help it
+        ##
+        not intended for public use                           
     ##
     #Const kAllFlags                0xFFFF
         mask of all Flags, including private flags and flags reserved for future use
@@ -784,9 +791,7 @@ at compile time.
 
 Some platform implementations may ignore dithering. Set
 
-#Formula
-SK_IGNORE_GPU_DITHER
-##
+#Define SK_IGNORE_GPU_DITHER
 
 to ignore Dither on GPU_Surface.
 
@@ -1897,8 +1902,6 @@ while stroking.
         kStroke_Style,
         kStrokeAndFill_Style,
     };
-
-    static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
 ##
 
 Set Style to fill, stroke, or both fill and stroke geometry.
@@ -1933,12 +1936,22 @@ a fill draw.
     and the set Path_Fill_Type is ignored. 
 ##
 
+#Enum Style ##
+
+#Enum
+#Line # number of Style defines ##
+#Code
+    enum {
+        kStyleCount = kStrokeAndFill_Style + 1,
+    };
+##
+
 #Const kStyleCount 3
 The number of different Style values defined.
 May be used to verify that Style is a legal value.
 ##
 
-#Enum Style ##
+#Enum ##
 
 #Method Style getStyle() const
 
@@ -3485,8 +3498,6 @@ Increments drawLooper Reference_Count by one.
         kCenter_Align,
         kRight_Align,
     };
-
-    static constexpr int kAlignCount = 3;
 ##
 
 Align adjusts the text relative to the text position.
@@ -3518,6 +3529,17 @@ Align defaults to kLeft_Align.
 #Const kRight_Align 2
     Moves the glyph by its width if Flags has kVerticalText_Flag clear,
     and by its height if Flags has kVerticalText_Flag set.
+##
+
+#Enum ##
+
+#Enum
+#Line # number of Text_Align values ##
+
+#Code
+    enum {
+        kAlignCount = 3,
+    };
 ##
 
 #Const kAlignCount 3
@@ -5125,9 +5147,15 @@ Paint may draw to.
 #Method void toString(SkString* str) const
 #In Utility
 #Line # converts Paint to machine readable form ##
+#DefinedBy SK_TO_STRING_NONVIRT() ##
+
+#Private
+macro expands to: void toString(SkString* str) const;
+##
 
 Creates string representation of Paint. The representation is read by
-internal debugging tools.
+internal debugging tools. The interface and implementation may be
+suppressed by defining SK_IGNORE_TO_STRING.
 
 #Param str  storage for string representation of Paint ##
 

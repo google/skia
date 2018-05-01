@@ -11,6 +11,7 @@
 #ifndef GrSimpleTextureEffect_DEFINED
 #define GrSimpleTextureEffect_DEFINED
 #include "SkTypes.h"
+#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrSimpleTextureEffect : public GrFragmentProcessor {
@@ -67,4 +68,5 @@ private:
     GrCoordTransform fImageCoordTransform;
     typedef GrFragmentProcessor INHERITED;
 };
+#endif
 #endif

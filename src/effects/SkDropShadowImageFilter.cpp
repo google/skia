@@ -159,6 +159,7 @@ SkIRect SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const Sk
     return dst;
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkDropShadowImageFilter::toString(SkString* str) const {
     str->appendf("SkDropShadowImageFilter: (");
 
@@ -180,3 +181,4 @@ void SkDropShadowImageFilter::toString(SkString* str) const {
 
     str->append(")");
 }
+#endif

@@ -5,196 +5,104 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkRemoteGlyphCachePriv_DEFINED
-#define SkRemoteGlyphCachePriv_DEFINED
+#ifndef SkRemoteGlyphCache_DEFINED
+#define SkRemoteGlyphCache_DEFINED
 
 #include <memory>
-#include <tuple>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
-
-#include "../private/SkTHash.h"
 #include "SkData.h"
-#include "SkDrawLooper.h"
-#include "SkMakeUnique.h"
-#include "SkNoDrawCanvas.h"
-#include "SkRefCnt.h"
-#include "SkRemoteGlyphCache.h"
+#include "SkDescriptor.h"
 #include "SkSerialProcs.h"
+#include "SkTHash.h"
 #include "SkTypeface.h"
+#include "SkTypeface_remote.h"
 
-class Serializer;
-class SkDescriptor;
-class SkGlyphCache;
-struct SkPackedGlyphID;
-class SkScalerContextRecDescriptor;
-class SkTextBlobRunIterator;
-class SkTypefaceProxy;
-struct WireTypeface;
-
-class SkStrikeServer;
-
-struct SkDescriptorMapOperators {
-    size_t operator()(const SkDescriptor* key) const;
-    bool operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const;
-};
-
-template <typename T>
-using SkDescriptorMap = std::unordered_map<const SkDescriptor*, T, SkDescriptorMapOperators,
-                                           SkDescriptorMapOperators>;
-
-using SkDescriptorSet =
-        std::unordered_set<const SkDescriptor*, SkDescriptorMapOperators, SkDescriptorMapOperators>;
-
-// A SkTextBlobCacheDiffCanvas is used to populate the SkStrikeServer with ops
-// which will be serialized and renderered using the SkStrikeClient.
-class SK_API SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
+class SkScalerContextRecDescriptor {
 public:
-    SkTextBlobCacheDiffCanvas(int width, int height, const SkMatrix& deviceMatrix,
-                              const SkSurfaceProps& props, SkStrikeServer* strikeserver);
-    ~SkTextBlobCacheDiffCanvas() override;
+    SkScalerContextRecDescriptor() {}
+    explicit SkScalerContextRecDescriptor(const SkScalerContextRec& rec) {
+        auto desc = reinterpret_cast<SkDescriptor*>(&fDescriptor);
+        desc->init();
+        desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+        desc->computeChecksum();
+        SkASSERT(sizeof(fDescriptor) == desc->getLength());
+    }
 
-protected:
-    SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
+    explicit SkScalerContextRecDescriptor(const SkDescriptor& desc)
+        : SkScalerContextRecDescriptor(ExtractRec(desc)) { }
 
-    void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                        const SkPaint& paint) override;
+    SkScalerContextRecDescriptor& operator=(const SkScalerContextRecDescriptor& rhs) {
+        std::memcpy(&fDescriptor, &rhs.fDescriptor, rhs.desc().getLength());
+        return *this;
+    }
 
-private:
-    void processLooper(const SkPoint& position,
-                       const SkTextBlobRunIterator& it,
-                       const SkPaint& origPaint,
-                       SkDrawLooper* looper);
-    void processGlyphRun(const SkPoint& position,
-                         const SkTextBlobRunIterator& it,
-                         const SkPaint& runPaint);
+    const SkDescriptor& desc() const {
+        return *reinterpret_cast<const SkDescriptor*>(&fDescriptor);
+    }
 
-    const SkMatrix fDeviceMatrix;
-    const SkSurfaceProps fSurfaceProps;
-    SkStrikeServer* const fStrikeServer;
-};
-
-using SkDiscardableHandleId = uint32_t;
-
-// This class is not thread-safe.
-class SK_API SkStrikeServer {
-public:
-    // An interface used by the server to create handles for pinning SkGlyphCache
-    // entries on the remote client.
-    class SK_API DiscardableHandleManager {
-    public:
-        virtual ~DiscardableHandleManager() {}
-
-        // Creates a new *locked* handle and returns a unique ID that can be used to identify
-        // it on the remote client.
-        virtual SkDiscardableHandleId createHandle() = 0;
-
-        // Returns true if the handle could be successfully locked. The server can
-        // assume it will remain locked until the next set of serialized entries is
-        // pulled from the SkStrikeServer.
-        // If returns false, the cache entry mapped to the handle has been deleted
-        // on the client. Any subsequent attempts to lock the same handle are not
-        // allowed.
-        virtual bool lockHandle(SkDiscardableHandleId) = 0;
-
-        // TODO(khushalsagar): Add an API which checks whether a handle is still
-        // valid without locking, so we can avoid tracking stale handles once they
-        // have been purged on the remote side.
+    struct Hash {
+        uint32_t operator()(SkScalerContextRecDescriptor const& s) const {
+            return s.desc().getChecksum();
+        }
     };
 
-    SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
-    ~SkStrikeServer();
-
-    // Serializes the typeface to be remoted using this server.
-    sk_sp<SkData> serializeTypeface(SkTypeface*);
-
-    // Serializes the strike data captured using a SkTextBlobCacheDiffCanvas. Any
-    // handles locked using the DiscardableHandleManager will be assumed to be
-    // unlocked after this call.
-    void writeStrikeData(std::vector<uint8_t>* memory);
-
-    // Methods used internally in skia ------------------------------------------
-    class SkGlyphCacheState {
-    public:
-        SkGlyphCacheState(std::unique_ptr<SkDescriptor> desc,
-                          SkDiscardableHandleId discardableHandleId);
-        ~SkGlyphCacheState();
-
-        void addGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID);
-        void writePendingGlyphs(Serializer* serializer);
-        bool has_pending_glyphs() const { return !fPendingGlyphs.empty(); }
-        SkDiscardableHandleId discardable_handle_id() const { return fDiscardableHandleId; }
-
-    private:
-        // The set of glyphs cached on the remote client.
-        SkTHashSet<SkPackedGlyphID> fCachedGlyphs;
-
-        // The set of glyphs which has not yet been serialized and sent to the
-        // remote client.
-        std::vector<SkPackedGlyphID> fPendingGlyphs;
-
-        std::unique_ptr<SkDescriptor> fDesc;
-        const SkDiscardableHandleId fDiscardableHandleId = -1;
-        std::unique_ptr<SkScalerContext> fContext;
-    };
-    SkGlyphCacheState* getOrCreateCache(SkTypeface*, std::unique_ptr<SkDescriptor>);
+    friend bool operator==(const SkScalerContextRecDescriptor& lhs,
+                           const SkScalerContextRecDescriptor& rhs ) {
+        return lhs.desc() == rhs.desc();
+    }
 
 private:
-    SkDescriptorMap<std::unique_ptr<SkGlyphCacheState>> fRemoteGlyphStateMap;
-    DiscardableHandleManager* const fDiscardableHandleManager;
-    SkTHashSet<SkFontID> fCachedTypefaces;
+    static SkScalerContextRec ExtractRec(const SkDescriptor& desc) {
+        uint32_t size;
+        auto recPtr = desc.findEntry(kRec_SkDescriptorTag, &size);
 
-    // State cached until the next serialization.
-    SkDescriptorSet fLockedDescs;
-    std::vector<WireTypeface> fTypefacesToSend;
+        SkScalerContextRec result;
+        std::memcpy(&result, recPtr, size);
+        return result;
+    }
+    // The system only passes descriptors without effects. That is why it uses a fixed size
+    // descriptor. storageFor is needed because some of the constructors below are private.
+    template <typename T>
+    using storageFor = typename std::aligned_storage<sizeof(T), alignof(T)>::type;
+    struct {
+        storageFor<SkDescriptor>        dummy1;
+        storageFor<SkDescriptor::Entry> dummy2;
+        storageFor<SkScalerContextRec>  dummy3;
+    } fDescriptor;
 };
 
-class SK_API SkStrikeClient {
+class SkRemoteGlyphCacheRenderer {
 public:
-    // An interface to delete handles that may be pinned by the remote server.
-    class DiscardableHandleManager : public SkRefCnt {
-    public:
-        virtual ~DiscardableHandleManager() {}
+    void prepareSerializeProcs(SkSerialProcs* procs);
 
-        // Returns true if the handle was unlocked and can be safely deleted. Once
-        // successful, subsequent attempts to delete the same handle are invalid.
-        virtual bool deleteHandle(SkDiscardableHandleId) = 0;
-    };
-
-    SkStrikeClient(sk_sp<DiscardableHandleManager>);
-    ~SkStrikeClient();
-
-    // Deserializes the typeface previously serialized using the SkStrikeServer. Returns null if the
-    // data is invalid.
-    sk_sp<SkTypeface> deserializeTypeface(const void* data, size_t length);
-
-    // Deserializes the strike data from a SkStrikeServer. All messages generated
-    // from a server when serializing the ops must be deserialized before the op
-    // is rasterized.
-    // Returns false if the data is invalid.
-    bool readStrikeData(const volatile void* memory, size_t memorySize);
-
-    // TODO: Remove these since we don't support pulling this data on-demand.
-    void generateFontMetrics(const SkTypefaceProxy& typefaceProxy,
-                             const SkScalerContextRec& rec,
-                             SkPaint::FontMetrics* metrics);
-    void generateMetricsAndImage(const SkTypefaceProxy& typefaceProxy,
-                                 const SkScalerContextRec& rec,
-                                 SkArenaAlloc* alloc,
-                                 SkGlyph* glyph);
-    void generatePath(const SkTypefaceProxy& typefaceProxy,
-                      const SkScalerContextRec& rec,
-                      SkGlyphID glyphID,
-                      SkPath* path);
+    SkScalerContext* generateScalerContext(
+        const SkScalerContextRecDescriptor& desc, SkFontID typefaceId);
 
 private:
-    class DiscardableStrikePinner;
+    sk_sp<SkData> encodeTypeface(SkTypeface* tf);
 
-    sk_sp<SkTypeface> addTypeface(const WireTypeface& wire);
+    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
 
-    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
-    sk_sp<DiscardableHandleManager> fDiscardableHandleManager;
+    using DescriptorToContextMap = SkTHashMap<SkScalerContextRecDescriptor,
+                                              std::unique_ptr<SkScalerContext>,
+                                              SkScalerContextRecDescriptor::Hash>;
+
+    DescriptorToContextMap fScalerContextMap;
 };
 
-#endif  // SkRemoteGlyphCachePriv_DEFINED
+class SkRemoteGlyphCacheGPU {
+public:
+    explicit SkRemoteGlyphCacheGPU(std::unique_ptr<SkRemoteScalerContext> remoteScalerContext);
+
+    void prepareDeserializeProcs(SkDeserialProcs* procs);
+    SkTypeface* lookupTypeface(SkFontID id);
+
+private:
+    sk_sp<SkTypeface> decodeTypeface(const void* buf, size_t len);
+
+    std::unique_ptr<SkRemoteScalerContext> fRemoteScalerContext;
+    // TODO: Figure out how to manage the entries for the following maps.
+    SkTHashMap<SkFontID, sk_sp<SkTypefaceProxy>> fMapIdToTypeface;
+};
+
+#endif  // SkRemoteGlyphCache_DEFINED
