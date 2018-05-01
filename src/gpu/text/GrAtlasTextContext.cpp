@@ -795,7 +795,9 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                 glyphPos.fY += (2 == scalarsPerPosition ? pos[1] : 0) -
                                SkFloatToScalar(glyph.fAdvanceY) * alignMul * textRatio;
 
-                if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
+                if (glyph.fMaskFormat == SkMask::kA8_Format ||
+                    glyph.fMaskFormat == SkMask::kBW_Format)
+                {
                     DfAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph, glyphPos.fX,
                                   glyphPos.fY, paint.filteredPremulColor(), cache.get(), textRatio);
                 } else {
