@@ -18,7 +18,7 @@ public:
         : fSrcProfile(srcProfile)
         , fDstProfile(dstProfile)
         , fPremulFormat(premulFormat) {
-        skcms_EnsureUsableAsDestination(&fDstProfile, &skcms_sRGB_profile);
+        skcms_EnsureUsableAsDestination(&fDstProfile, skcms_sRGB_profile());
 
     #ifndef SK_DONT_OPTIMIZE_SRC_PROFILES_FOR_SPEED
         skcms_OptimizeForSpeed(&fSrcProfile);
@@ -133,7 +133,7 @@ sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile* profile) {
         return nullptr;
     }
 
-    if (skcms_ApproximatelyEqualProfiles(profile, &skcms_sRGB_profile)) {
+    if (skcms_ApproximatelyEqualProfiles(profile, skcms_sRGB_profile())) {
         return SkColorSpace::MakeSRGB();
     }
 

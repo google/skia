@@ -781,63 +781,71 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     return usable_as_src(profile);
 }
 
-const skcms_ICCProfile skcms_sRGB_profile = {
-    // These fields are moot when not a skcms_Parse()'d profile.
-    .buffer    = NULL,
-    .size      =    0,
-    .tag_count =    0,
 
-    // We choose to represent sRGB with its canonical transfer function,
-    // and with its canonical XYZD50 gamut matrix.
-    .data_color_space = make_signature('R', 'G', 'B', ' '),
-    .pcs              = make_signature('X', 'Y', 'Z', ' '),
-    .has_trc      = true,
-    .has_toXYZD50 = true,
-    .has_A2B      = false,
+const skcms_ICCProfile* skcms_sRGB_profile() {
+    static const skcms_ICCProfile sRGB_profile = {
+        // These fields are moot when not a skcms_Parse()'d profile.
+        .buffer    = NULL,
+        .size      =    0,
+        .tag_count =    0,
 
-    .trc = {
-        {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
-        {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
-        {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
-    },
+        // We choose to represent sRGB with its canonical transfer function,
+        // and with its canonical XYZD50 gamut matrix.
+        .data_color_space = make_signature('R', 'G', 'B', ' '),
+        .pcs              = make_signature('X', 'Y', 'Z', ' '),
+        .has_trc      = true,
+        .has_toXYZD50 = true,
+        .has_A2B      = false,
 
-    .toXYZD50 = {{
-        { 0.436065674f, 0.385147095f, 0.143066406f },
-        { 0.222488403f, 0.716873169f, 0.060607910f },
-        { 0.013916016f, 0.097076416f, 0.714096069f },
-    }},
+        .trc = {
+            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+        },
 
-    .has_poly_tf = { true, true, true },
-    .poly_tf = {
-       {0.293833881617f, 0.704207003117f, (float)(1/12.92), 0.04045f},
-       {0.293833881617f, 0.704207003117f, (float)(1/12.92), 0.04045f},
-       {0.293833881617f, 0.704207003117f, (float)(1/12.92), 0.04045f},
-    },
-};
+        .toXYZD50 = {{
+            { 0.436065674f, 0.385147095f, 0.143066406f },
+            { 0.222488403f, 0.716873169f, 0.060607910f },
+            { 0.013916016f, 0.097076416f, 0.714096069f },
+        }},
 
-const skcms_ICCProfile skcms_XYZD50_profile = {
-    .buffer           = NULL,
-    .size             = 0,
-    .tag_count        = 0,
+        .has_poly_tf = { true, true, true },
+        .poly_tf = {
+        {0.293833881617f, 0.704207003117f, (float)(1/12.92), 0.04045f},
+        {0.293833881617f, 0.704207003117f, (float)(1/12.92), 0.04045f},
+        {0.293833881617f, 0.704207003117f, (float)(1/12.92), 0.04045f},
+        },
+    };
+    return &sRGB_profile;
+}
 
-    .data_color_space = make_signature('R', 'G', 'B', ' '),
-    .pcs              = make_signature('X', 'Y', 'Z', ' '),
-    .has_trc          = true,
-    .has_toXYZD50     = true,
-    .has_A2B          = false,
+const skcms_ICCProfile* skcms_XYZD50_profile() {
+    static const skcms_ICCProfile XYZD50_profile = {
+        .buffer           = NULL,
+        .size             = 0,
+        .tag_count        = 0,
 
-    .trc = {
-        {{0, {1,1,0,0,0,0,0}}},
-        {{0, {1,1,0,0,0,0,0}}},
-        {{0, {1,1,0,0,0,0,0}}},
-    },
+        .data_color_space = make_signature('R', 'G', 'B', ' '),
+        .pcs              = make_signature('X', 'Y', 'Z', ' '),
+        .has_trc          = true,
+        .has_toXYZD50     = true,
+        .has_A2B          = false,
 
-    .toXYZD50 = {{
-        {1,0,0},
-        {0,1,0},
-        {0,0,1},
-    }},
-};
+        .trc = {
+            {{0, {1,1,0,0,0,0,0}}},
+            {{0, {1,1,0,0,0,0,0}}},
+            {{0, {1,1,0,0,0,0,0}}},
+        },
+
+        .toXYZD50 = {{
+            {1,0,0},
+            {0,1,0},
+            {0,0,1},
+        }},
+    };
+
+    return &XYZD50_profile;
+}
 
 const uint8_t skcms_252_random_bytes[] = {
     8, 179, 128, 204, 253, 38, 134, 184, 68, 102, 32, 138, 99, 39, 169, 215,
@@ -885,13 +893,13 @@ bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICC
             dstB[252];
     if (!skcms_Transform(
                 skcms_252_random_bytes,     fmt, skcms_AlphaFormat_Unpremul, A,
-                dstA, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &skcms_XYZD50_profile,
+                dstA, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
                 npixels)) {
         return false;
     }
     if (!skcms_Transform(
                 skcms_252_random_bytes,     fmt, skcms_AlphaFormat_Unpremul, B,
-                dstB, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &skcms_XYZD50_profile,
+                dstB, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
                 npixels)) {
         return false;
     }
