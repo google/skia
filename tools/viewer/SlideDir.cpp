@@ -72,8 +72,6 @@ protected:
     }
 
     void onRender(SkCanvas* canvas) const override {
-        SkAutoCanvasRestore acr(canvas, true);
-        canvas->clipRect(SkRect::Make(fSlide->getDimensions()), true);
         fSlide->draw(canvas);
     }
 

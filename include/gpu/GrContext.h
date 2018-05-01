@@ -55,13 +55,16 @@ class SkTraceMemoryDump;
 class SK_API GrContext : public SkRefCnt {
 public:
     /**
-     * Creates a GrContext for a backend context. If no GrGLInterface is provided then the result of
-     * GrGLMakeNativeInterface() is used if it succeeds.
+     * Creates a GrContext for a backend context.
      */
+    static GrContext* Create(GrBackend, GrBackendContext, const GrContextOptions& options);
+    static GrContext* Create(GrBackend, GrBackendContext);
+
     static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
     static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>);
-    static sk_sp<GrContext> MakeGL(const GrContextOptions&);
-    static sk_sp<GrContext> MakeGL();
+    // Deprecated
+    static sk_sp<GrContext> MakeGL(const GrGLInterface*);
+    static sk_sp<GrContext> MakeGL(const GrGLInterface*, const GrContextOptions&);
 
 #ifdef SK_VULKAN
     static sk_sp<GrContext> MakeVulkan(sk_sp<const GrVkBackendContext>, const GrContextOptions&);
@@ -188,33 +191,8 @@ public:
      */
     void purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources);
 
-    /**
-     * This entry point is intended for instances where an app has been backgrounded or
-     * suspended.
-     * If 'scratchResourcesOnly' is true all unlocked scratch resources will be purged but the
-     * unlocked resources with persistent data will remain. If 'scratchResourcesOnly' is false
-     * then all unlocked resources will be purged.
-     * In either case, after the unlocked resources are purged a separate pass will be made to
-     * ensure that resource usage is under budget (i.e., even if 'scratchResourcesOnly' is true
-     * some resources with persistent data may be purged to be under budget).
-     *
-     * @param scratchResourcesOnly   If true only unlocked scratch resources will be purged prior
-     *                               enforcing the budget requirements.
-     */
-    void purgeUnlockedResources(bool scratchResourcesOnly);
-
     /** Access the context capabilities */
     const GrCaps* caps() const { return fCaps.get(); }
-
-    /**
-     * Gets the maximum supported texture size.
-     */
-    int maxTextureSize() const;
-
-    /**
-     * Gets the maximum supported render target size.
-     */
-    int maxRenderTargetSize() const;
 
     /**
      * Can a SkImage be created with the given color type.
@@ -357,7 +335,7 @@ private:
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
  */
-class SK_API GrContextThreadSafeProxy : public SkRefCnt {
+class GrContextThreadSafeProxy : public SkRefCnt {
 public:
     bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
 
@@ -388,15 +366,13 @@ public:
      *                               with this characterization will be replayed into
      *  @param isMipMapped           Will the surface the DDL will be replayed into have space
      *                               allocated for mipmaps?
-     *  @param willUseGLFBO0         Will the surface the DDL will be replayed into be backed by GL
-     *                               FBO 0. This flag is only valid if using an GL backend.
      */
     SkSurfaceCharacterization createCharacterization(
                                   size_t cacheMaxResourceBytes,
                                   const SkImageInfo& ii, const GrBackendFormat& backendFormat,
                                   int sampleCount, GrSurfaceOrigin origin,
                                   const SkSurfaceProps& surfaceProps,
-                                  bool isMipMapped, bool willUseGLFBO0 = false);
+                                  bool isMipMapped);
 
     const GrCaps* caps() const { return fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fCaps; }
@@ -421,7 +397,6 @@ private:
     friend class GrDirectContext; // To construct this object
     friend class GrContextPriv;   // for access to 'fOptions' in MakeDDL
     friend class GrDDLContext;    // to implement the GrDDLContext ctor (access to all members)
-    friend class SkSurfaceCharacterization; // for access to 'fContextUniqueID' for operator==
 
     typedef SkRefCnt INHERITED;
 };

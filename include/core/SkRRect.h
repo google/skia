@@ -270,7 +270,9 @@ public:
 
     bool isValid() const;
 
-    static constexpr size_t kSizeInMemory = 12 * sizeof(SkScalar);
+    enum {
+        kSizeInMemory = 12 * sizeof(SkScalar)
+    };
 
     /**
      *  Write the rrect into the specified buffer. This is guaranteed to always
@@ -325,7 +327,7 @@ private:
 
     void computeType();
     bool checkCornerContainment(SkScalar x, SkScalar y) const;
-    void scaleRadii(const SkRect& rect);
+    void scaleRadii();
 
     SkRect fRect = SkRect::MakeEmpty();
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]

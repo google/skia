@@ -15,8 +15,11 @@ CONFIG_RELEASE = 'Release'
 
 class SkiaVarsApi(recipe_api.RecipeApi):
 
-  override_checkout_root = None
-  override_gclient_cache = None
+  def make_path(self, *path):
+    """Return a Path object for the given path."""
+    key  = 'custom_%s' % '_'.join(path)
+    self.m.path.c.base_paths[key] = tuple(path)
+    return self.m.path[key]
 
   def setup(self):
     """Prepare the variables."""
@@ -24,12 +27,6 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.builder_name = self.m.properties['buildername']
 
     self.slave_dir = self.m.path['start_dir']
-
-    # Special input/output directories.
-    self.build_dir = self.slave_dir.join('build')
-    self.test_dir = self.slave_dir.join('test')
-    self.perf_dir = self.slave_dir.join('perf')
-
     self.checkout_root = self.slave_dir
     self.default_env = self.m.context.env
     self.default_env['CHROME_HEADLESS'] = '1'
@@ -37,7 +34,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
         self.default_env.get('PATH', '%(PATH)s'),
         str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
     ])
-    self.gclient_env = {'DEPOT_TOOLS_UPDATE': '0'}
+    self.gclient_env = {}
     self.is_compile_bot = self.builder_name.startswith('Build-')
 
     self.persistent_checkout = False
@@ -56,17 +53,18 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     if 'Coverage' in self.builder_name and 'Upload' in self.builder_name:
       self.persistent_checkout = True
 
-    self.cache_dir = self.slave_dir.join('cache')
     if self.persistent_checkout:
-      self.checkout_root = self.cache_dir.join('work')
-      self.gclient_cache = self.cache_dir.join('git')
-    if self.override_checkout_root:
-      self.checkout_root = self.override_checkout_root
-      self.gclient_cache = self.override_gclient_cache
+      if 'Win' in self.builder_name:
+        self.checkout_root = self.make_path('C:\\', 'b', 'work')
+        self.gclient_cache = self.make_path('C:\\', 'b', 'cache')
+      else:
+        self.checkout_root = self.make_path('/', 'b', 'work')
+        self.gclient_cache = self.make_path('/', 'b', 'cache')
+
       # got_revision is filled in after checkout steps.
       self.got_revision = None
     else:
-      # If there's no persistent checkout, then we have to assume we got the
+      # If there's no persistent checkout, then we have to asume we got the
       # correct revision of the files from isolate.
       self.got_revision = self.m.properties['revision']
 
@@ -92,8 +90,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.resource_dir = self.skia_dir.join('resources')
     self.images_dir = self.slave_dir.join('skimage')
     self.skia_out = self.skia_dir.join('out', self.builder_name)
-    self.swarming_out_dir = self.slave_dir.join(
-        self.m.properties['swarm_out_dir'])
+    self.swarming_out_dir = self.make_path(self.m.properties['swarm_out_dir'])
     if 'ParentRevision' in self.builder_name:
       # Tasks that depend on ParentRevision builds usually also depend on a
       # second build task. Use a different path for build results so that the
@@ -102,7 +99,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.local_skp_dir = self.slave_dir.join('skp')
     self.local_svg_dir = self.slave_dir.join('svg')
     if not self.is_compile_bot:
-      self.skia_out = self.build_dir.join('out')
+      self.skia_out = self.slave_dir.join('out')
     self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
     # Some bots also require a checkout of chromium.

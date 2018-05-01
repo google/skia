@@ -375,11 +375,43 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
     vector<IterState> iterStack;
     iterStack.emplace_back(child.fTokens.begin(), child.fTokens.end());
     IterState* iterState = &iterStack[0];
-    Preprocessor preprocessor;
+    bool preprocessorWord = false;
+    const char* preprocessStart = nullptr;
+    const char* preprocessEnd = nullptr;
     for (int onePast = 0; onePast < 2; onePast += iterState->fDefIter == iterState->fDefEnd) {
         Definition* token = onePast ? nullptr : &*iterState->fDefIter++;
-        if (this->enumPreprocessor(token, MemberPass::kOut, iterStack, &iterState,
-                &preprocessor)) {
+        if (token && Definition::Type::kBracket == token->fType) {
+            if (Bracket::kSlashSlash == token->fBracket) {
+                fStart = token->fContentEnd;
+                continue;  // ignore old inline comments
+            }
+            if (Bracket::kSlashStar == token->fBracket) {
+                fStart = token->fContentEnd + 1;
+                continue;  // ignore old inline comments
+            }
+            if (Bracket::kPound == token->fBracket) {  // preprocessor wraps member
+                preprocessStart = token->fContentStart;
+                if (KeyWord::kIf == token->fKeyWord || KeyWord::kIfdef == token->fKeyWord) {
+                    iterStack.emplace_back(token->fTokens.begin(), token->fTokens.end());
+                    iterState = &iterStack.back();
+                    preprocessorWord = true;
+                } else if (KeyWord::kEndif == token->fKeyWord) {
+                    iterStack.pop_back();
+                    iterState = &iterStack.back();
+                    preprocessEnd = token->fContentEnd;
+                } else {
+                    SkASSERT(0); // incomplete
+                }
+                continue;
+            }
+            SkASSERT(0); // incomplete
+        }
+        if (token && Definition::Type::kWord != token->fType) {
+            SkASSERT(0); // incomplete
+        }
+        if (preprocessorWord) {
+            preprocessorWord = false;
+            preprocessEnd = token->fContentEnd;
             continue;
         }
         if (token && State::kItemName == state) {
@@ -430,16 +462,16 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
                 fIndent -= 4;
             }
             this->lfcr();
-            if (preprocessor.fStart) {
-                SkASSERT(preprocessor.fEnd);
+            if (preprocessStart) {
+                SkASSERT(preprocessEnd);
                 int saveIndent = fIndent;
                 fIndent = SkTMax(0, fIndent - 8);
                 this->lf(2);
-                this->writeBlock(
-                        (int) (preprocessor.fEnd - preprocessor.fStart), preprocessor.fStart);
+                this->writeBlock((int) (preprocessEnd - preprocessStart), preprocessStart);
                 this->lfcr();
                 fIndent = saveIndent;
-                preprocessor.reset();
+                preprocessStart = nullptr;
+                preprocessEnd = nullptr;
             }
             if (token && State::kItemValue == state) {
                 fStart = token->fContentStart;
@@ -506,11 +538,8 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
                 this->writeString(currentEnumItem->fToBeDeprecated
                         ? "To be deprecated soon." : "Deprecated.");
             }
-            TextParserSave save(this);
-            this->setForErrorReporting(currentEnumItem, commentStart);
             wroteLineFeed  = Wrote::kLF ==
                 this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
-            save.restore();
             fIndent -= 4;
             if (wroteLineFeed || fColumn > 100 - 3 /* space * / */ ) {
                 this->lfcr();
@@ -528,65 +557,6 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
         fStart = token->fContentEnd;
         state = State::kItemName;
     }
-}
-
-bool IncludeWriter::enumPreprocessor(Definition* token, MemberPass pass,
-        vector<IterState>& iterStack, IterState** iterState, Preprocessor* preprocessor) {
-    if (token && Definition::Type::kBracket == token->fType) {
-        if (Bracket::kSlashSlash == token->fBracket) {
-            if (MemberPass::kOut == pass) {
-                fStart = token->fContentEnd;
-            }
-            return true;  // ignore old inline comments
-        }
-        if (Bracket::kSlashStar == token->fBracket) {
-            if (MemberPass::kOut == pass) {
-                fStart = token->fContentEnd + 1;
-            }
-            return true;  // ignore old inline comments
-        }
-        if (Bracket::kPound == token->fBracket) {  // preprocessor wraps member
-            preprocessor->fDefinition = token;
-            preprocessor->fStart = token->fContentStart;
-            if (KeyWord::kIf == token->fKeyWord || KeyWord::kIfdef == token->fKeyWord) {
-                iterStack.emplace_back(token->fTokens.begin(), token->fTokens.end());
-                *iterState = &iterStack.back();
-                preprocessor->fWord = true;
-            } else if (KeyWord::kEndif == token->fKeyWord || KeyWord::kElif == token->fKeyWord
-                    || KeyWord::kElse == token->fKeyWord) {
-                iterStack.pop_back();
-                *iterState = &iterStack.back();
-                preprocessor->fEnd = token->fContentEnd;
-                if (KeyWord::kElif == token->fKeyWord) {
-                    iterStack.emplace_back(token->fTokens.begin(), token->fTokens.end());
-                    *iterState = &iterStack.back();
-                    preprocessor->fWord = true;
-                }
-            } else {
-                SkASSERT(0); // incomplete
-            }
-            return true;
-        }
-        if (preprocessor->fDefinition) {
-            if (Bracket::kParen == token->fBracket) {
-                preprocessor->fEnd = token->fContentEnd;
-                SkASSERT(')' == *preprocessor->fEnd);
-                ++preprocessor->fEnd;
-                return true;
-            }
-            SkASSERT(0);  // incomplete
-        }
-        return true;
-    }
-    if (token && Definition::Type::kWord != token->fType) {
-        SkASSERT(0); // incomplete
-    }
-    if (preprocessor->fWord) {
-        preprocessor->fWord = false;
-        preprocessor->fEnd = token->fContentEnd;
-        return true;
-    }
-    return false;
 }
 
 void IncludeWriter::enumSizeItems(const Definition& child) {
@@ -610,11 +580,36 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
     vector<IterState> iterStack;
     iterStack.emplace_back(brace->fTokens.begin(), brace->fTokens.end());
     IterState* iterState = &iterStack[0];
-    Preprocessor preprocessor;
+    bool preprocessorWord = false;
     while (iterState->fDefIter != iterState->fDefEnd) {
         auto& token = *iterState->fDefIter++;
-        if (this->enumPreprocessor(&token, MemberPass::kCount, iterStack, &iterState,
-                &preprocessor)) {
+        if (Definition::Type::kBracket == token.fType) {
+            if (Bracket::kSlashSlash == token.fBracket) {
+                continue;  // ignore old inline comments
+            }
+            if (Bracket::kSlashStar == token.fBracket) {
+                continue;  // ignore old inline comments
+            }
+            if (Bracket::kPound == token.fBracket) {  // preprocessor wraps member
+                if (KeyWord::kIf == token.fKeyWord || KeyWord::kIfdef == token.fKeyWord) {
+                    iterStack.emplace_back(token.fTokens.begin(), token.fTokens.end());
+                    iterState = &iterStack.back();
+                    preprocessorWord = true;
+                } else if (KeyWord::kEndif == token.fKeyWord) {
+                    iterStack.pop_back();
+                    iterState = &iterStack.back();
+                } else {
+                    SkASSERT(0); // incomplete
+                }
+                continue;
+            }
+            SkASSERT(0); // incomplete
+        }
+        if (Definition::Type::kWord != token.fType) {
+            SkASSERT(0); // incomplete
+        }
+        if (preprocessorWord) {
+            preprocessorWord = false;
             continue;
         }
         if (State::kItemName == state) {
@@ -683,8 +678,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
     fMethodDef = &child;
     fContinuation = nullptr;
     fDeferComment = nullptr;
-    const Definition* csParent = method->csParent();
-    if (csParent && (0 == fIndent || fIndentNext)) {
+    if (0 == fIndent || fIndentNext) {
         fIndent += 4;
         fIndentNext = false;
     }
@@ -718,7 +712,22 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
             }
             this->indentToColumn(column);
             fIndent = column;
+#if 0
+            const char* partStart = methodPart->fContentStart;
+            const char* partEnd = methodPart->fContentEnd;
+            while ('\n' == partEnd[-1]) {
+                --partEnd;
+            }
+            while ('#' == partEnd[-1]) { // FIXME: so wrong; should not be before fContentEnd
+                --partEnd;
+            }
+            int partLen = (int) (partEnd - partStart);
+            // FIXME : detect this earlier; assert if #Return is empty
+            SkASSERT(partLen > 0 && partLen < 300);  // may assert if param desc is especially long
+            this->rewriteBlock(partLen, partStart, Phrase::kYes);
+#else
             this->descriptionOut(methodPart, SkipFirstLine::kNo, Phrase::kYes);
+#endif
             fIndent = saveIndent;
             this->lfcr();
         }
@@ -754,19 +763,8 @@ void IncludeWriter::structOut(const Definition* root, const Definition& child,
     this->writeCommentTrailer();
 }
 
-bool IncludeWriter::findEnumSubtopic(string undername, const Definition** rootDefPtr) const {
-    const Definition* subtopic = fEnumDef->fParent;
-    string subcheck = subtopic->fFiddle + '_' + undername;
-    auto iter = fBmhParser->fTopicMap.find(subcheck);
-    if (iter == fBmhParser->fTopicMap.end()) {
-        return false;
-    }
-    *rootDefPtr = iter->second;
-    return true;
-}
-
 Definition* IncludeWriter::findMemberCommentBlock(const vector<Definition*>& bmhChildren,
-        string name) const {
+        const string& name) const {
     for (auto memberDef : bmhChildren) {
         if (MarkType::kMember != memberDef->fMarkType) {
             continue;
@@ -1040,6 +1038,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
+        if (51 == child.fLineCount) {
+            SkDebugf("");
+        }
         if (KeyWord::kOperator == child.fKeyWord && method &&
                 Definition::MethodType::kOperator == method->fMethodType) {
             eatOperator = true;
@@ -1204,7 +1205,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             continue;
         }
         if (MarkType::kMethod == child.fMarkType) {
-            if (this->isInternalName(child)) {
+            if (this->internalName(child)) {
                 continue;
             }
             const char* bodyEnd = fDeferComment ? fDeferComment->fContentStart - 1 :
@@ -1224,7 +1225,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 --bodyEnd;
             }
             int blockSize = (int) (bodyEnd - fStart);
-            SkASSERT(blockSize >= 0);
             if (blockSize) {
                 string debugstr(fStart, blockSize);
                 this->writeBlock(blockSize, fStart);
@@ -1435,7 +1435,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 default:
                     SkASSERT(0);
             }
-            if (KeyWord::kUint8_t == child.fKeyWord || KeyWord::kUint32_t == child.fKeyWord) {
+            if (KeyWord::kUint8_t == child.fKeyWord) {
                 continue;
             } else {
                 if (fInEnum && KeyWord::kClass == child.fChildren[0]->fKeyWord) {
@@ -1600,7 +1600,6 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
         RootDefinition* root = &bmhParser.fClassMap[skClassName];
         fRootTopic = root->fParent;
         root->clearVisited();
-        fFileName = includeMapper.second.fFileName;
         fStart = includeMapper.second.fContentStart;
         fEnd = includeMapper.second.fContentEnd;
         fAnonymousEnumCount = 1;
@@ -1729,10 +1728,8 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                 auto aliasIter = fBmhParser->fAliasMap.find(undername);
                 if (fBmhParser->fAliasMap.end() != aliasIter) {
                     rootDef = aliasIter->second;
-                } else if (fInEnum && fEnumDef && this->findEnumSubtopic(undername, &rootDef)) {
-                    ;
                 } else if (!first) {
-                    this->fChar = start;
+                    SkDebugf("unfound: %s\n", undername.c_str());
                     this->reportError("reference unfound");
                     return "";
                 }

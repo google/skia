@@ -39,6 +39,7 @@ enum SkTextEncoding {
      kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
      kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
      kVerticalText_Flag    = 0x1000,
+     kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
  };
 
  SkFont would absorb these:
@@ -51,6 +52,7 @@ enum SkTextEncoding {
      kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
      kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
      kVerticalText_Flag    = 0x1000,
+     kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
 
  leaving these still in paint
 
@@ -104,7 +106,7 @@ public:
         kUseNonlinearMetrics_Flag   = 1 << 3,
 
         kVertical_Flag              = 1 << 4,
-
+        kGenA8FromLCD_Flag          = 1 << 5,
         kEmbolden_Flag              = 1 << 6,
         kDevKern_Flag               = 1 << 7,   // ifdef ANDROID ?
     };
@@ -155,7 +157,9 @@ public:
     static sk_sp<SkFont> Testing_CreateFromPaint(const SkPaint&);
 
 private:
-    static constexpr int kAllFlags = 0xFF;
+    enum {
+        kAllFlags = 0xFF,
+    };
 
     SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType,
            uint32_t flags);

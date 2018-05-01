@@ -61,9 +61,7 @@ public:
         }
     }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     GrBackendObject getRenderTargetHandle() const override { return fRTFBOID; }
-#endif
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
