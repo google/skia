@@ -89,8 +89,6 @@ DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
                                       server_tf->uniqueID());
 }
 
-#if 0
-TODO(khushalsagar): Re-enable once crbug.com/831354 is fixed.
 DEF_TEST(SkRemoteGlyphCache_StrikeSerialization, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
@@ -124,7 +122,6 @@ DEF_TEST(SkRemoteGlyphCache_StrikeSerialization, reporter) {
         }
     }
 }
-#endif
 
 DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
