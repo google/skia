@@ -149,7 +149,9 @@ sk_sp<sksg::RenderNode> AttachComposition(const Json::Value&, AttachContext* ctx
 sk_sp<sksg::Path> AttachPath(const Json::Value& jpath, AttachContext* ctx) {
     auto path_node = sksg::Path::Make();
     return BindProperty<ShapeValue>(jpath, &ctx->fAnimators,
-            [path_node](const ShapeValue& p) { path_node->setPath(p); })
+        [path_node](const ShapeValue& p) {
+            path_node->setPath(ValueTraits<ShapeValue>::As<SkPath>(p));
+        })
         ? path_node
         : nullptr;
 }
