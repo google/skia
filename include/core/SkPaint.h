@@ -232,7 +232,7 @@ public:
         kFakeBoldText_Flag       = 0x20,   //!< mask for setting fake bold
         kLinearText_Flag         = 0x40,   //!< mask for setting linear text
         kSubpixelText_Flag       = 0x80,   //!< mask for setting subpixel text
-        kDevKernText_Flag        = 0x100,  //!< mask for setting full hinting spacing
+        kUnused                  = 0x100,  //!< mask for setting full hinting spacing
         kLCDRenderText_Flag      = 0x200,  //!< mask for setting LCD text
         kEmbeddedBitmapText_Flag = 0x400,  //!< mask for setting font embedded bitmaps
         kAutoHinting_Flag        = 0x800,  //!< mask for setting auto-hinting
@@ -451,9 +451,7 @@ public:
 
         @return  kDevKernText_Flag state
     */
-    bool isDevKernText() const {
-        return SkToBool(this->getFlags() & kDevKernText_Flag);
-    }
+    bool isDevKernText() const { return false; }
 
     /** Requests, but does not require, to use hinting to adjust glyph spacing.
 
@@ -462,7 +460,7 @@ public:
 
         @param devKernText  setting for devKernText
     */
-    void setDevKernText(bool devKernText);
+    void setDevKernText(bool devKernText) { }
 
     /** Returns SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
@@ -1645,7 +1643,6 @@ private:
     };
 
     static GlyphCacheProc GetGlyphCacheProc(TextEncoding encoding,
-                                            bool isDevKern,
                                             bool needFullMetrics);
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,

@@ -9,7 +9,6 @@
 #define SkFindAndPositionGlyph_DEFINED
 
 #include "SkArenaAlloc.h"
-#include "SkAutoKern.h"
 #include "SkGlyph.h"
 #include "SkGlyphCache.h"
 #include "SkMatrixPriv.h"
@@ -320,8 +319,8 @@ private:
         virtual ~GlyphFindAndPlaceInterface() { }
 
         // findAndPositionGlyph calculates the position of the glyph, finds the glyph, and
-        // returns the position of where the next glyph will be using the glyph's advance and
-        // possibly kerning. The returned position is used by drawText, but ignored by drawPosText.
+        // returns the position of where the next glyph will be using the glyph's advance. The
+        // returned position is used by drawText, but ignored by drawPosText.
         // The compiler should prune all this calculation if the return value is not used.
         //
         // This should be a pure virtual, but some versions of GCC <= 4.8 have a bug that causes a
@@ -383,31 +382,20 @@ private:
         GlyphFinderInterface* fGlyphFinder;
     };
 
-    enum SelectKerning {
-        kNoKerning = false,
-        kUseKerning = true
-    };
-
     // GlyphFindAndPlaceFullPixel handles finding and placing glyphs when no sub-pixel
-    // positioning is requested. The kUseKerning argument should be true for drawText, and false
-    // for drawPosText.
-    template<typename ProcessOneGlyph, SkPaint::Align kTextAlignment, SelectKerning kUseKerning>
+    // positioning is requested.
+    template<typename ProcessOneGlyph, SkPaint::Align kTextAlignment>
     class GlyphFindAndPlaceFullPixel final : public GlyphFindAndPlaceInterface<ProcessOneGlyph> {
     public:
         explicit GlyphFindAndPlaceFullPixel(GlyphFinderInterface* glyphFinder)
             : fGlyphFinder(glyphFinder) {
-            // Kerning can only be used with SkPaint::kLeft_Align
-            static_assert(!kUseKerning || SkPaint::kLeft_Align == kTextAlignment,
-                          "Kerning can only be used with left aligned text.");
         }
 
         SkPoint findAndPositionGlyph(
             const char** text, SkPoint position, ProcessOneGlyph&& processOneGlyph) override {
             SkPoint finalPosition = position;
             const SkGlyph& glyph = fGlyphFinder->lookupGlyph(text);
-            if (kUseKerning) {
-                finalPosition += {fAutoKern.adjust(glyph), 0.0f};
-            }
+
             if (glyph.fWidth > 0) {
                 finalPosition -= TextAlignmentAdjustment(kTextAlignment, glyph);
                 processOneGlyph(glyph, finalPosition, {SK_ScalarHalf, SK_ScalarHalf});
@@ -418,8 +406,6 @@ private:
 
     private:
         GlyphFinderInterface* fGlyphFinder;
-
-        SkAutoKern fAutoKern;
     };
 
     template <typename ProcessOneGlyph, SkPaint::Align kTextAlignment>
@@ -446,14 +432,12 @@ private:
         SkScalar    x = 0, y = 0;
         const char* stop = text + byteLength;
 
-        SkAutoKern  autokern;
-
         while (text < stop) {
             // don't need x, y here, since all subpixel variants will have the
             // same advance
             const SkGlyph& glyph = glyphFinder->lookupGlyph(&text);
 
-            x += autokern.adjust(glyph) + SkFloatToScalar(glyph.fAdvanceX);
+            x += SkFloatToScalar(glyph.fAdvanceX);
             y += SkFloatToScalar(glyph.fAdvanceY);
         }
         SkASSERT(text == stop);
@@ -543,18 +527,17 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
         switch (textAlignment) {
             case SkPaint::kLeft_Align:
                 findAndPosition = arena.make<
-                    GlyphFindAndPlaceFullPixel<ProcessOneGlyph,
-                        SkPaint::kLeft_Align, kNoKerning>>(glyphFinder);
+                    GlyphFindAndPlaceFullPixel<ProcessOneGlyph, SkPaint::kLeft_Align>>(glyphFinder);
                 break;
             case SkPaint::kCenter_Align:
                 findAndPosition = arena.make<
                     GlyphFindAndPlaceFullPixel<ProcessOneGlyph,
-                        SkPaint::kCenter_Align, kNoKerning>>(glyphFinder);
+                        SkPaint::kCenter_Align>>(glyphFinder);
                 break;
             case SkPaint::kRight_Align:
                 findAndPosition = arena.make<
                     GlyphFindAndPlaceFullPixel<ProcessOneGlyph,
-                        SkPaint::kRight_Align, kNoKerning>>(glyphFinder);
+                        SkPaint::kRight_Align>>(glyphFinder);
                 break;
         }
     }
@@ -595,8 +578,7 @@ inline void SkFindAndPlaceGlyph::ProcessText(
         findAndPosition = getSubpixel<ProcessOneGlyph, SkPaint::kLeft_Align>(
             &arena, axisAlignment, glyphFinder);
     } else {
-        using FullPixel =
-            GlyphFindAndPlaceFullPixel<ProcessOneGlyph, SkPaint::kLeft_Align, kUseKerning>;
+        using FullPixel = GlyphFindAndPlaceFullPixel<ProcessOneGlyph, SkPaint::kLeft_Align>;
         findAndPosition = arena.make<FullPixel>(glyphFinder);
     }
 
