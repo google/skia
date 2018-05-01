@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc56a3fb_ff3c6ece",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-01T14:46:48Z",
+      "side": 1,
+      "message": "Please don\u0027t do this.  Even though the CL looks trivial, tasks.json has the potential to break everything, so we need to run the CQ tests.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 10
+      },
+      "revId": "75eb71b274dc6bae2fd97a23afc880fef3050d2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
