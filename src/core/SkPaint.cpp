@@ -762,7 +762,7 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
             for (; text < stop; n++) {
                 const int rsb = g->fRsbDelta;
                 g = &glyphCacheProc(cache, &text);
-                x += SkAutoKern_Adjust(rsb, g->fLsbDelta) + advance(*g, xyIndex);
+                x += SkAutoKern::AdjustKerning(rsb, g->fLsbDelta) + advance(*g, xyIndex);
             }
         } else {
             for (; text < stop; n++) {
@@ -775,7 +775,7 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
             for (; text < stop; n++) {
                 const int rsb = g->fRsbDelta;
                 g = &glyphCacheProc(cache, &text);
-                x += SkAutoKern_Adjust(rsb, g->fLsbDelta);
+                x += SkAutoKern::AdjustKerning(rsb, g->fLsbDelta);
                 joinBoundsProc(*g, bounds, x);
                 x += advance(*g, xyIndex);
             }
@@ -867,7 +867,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
         while (text < stop) {
             const char* curr = text;
             const SkGlyph& g = glyphCacheProc(cache.get(), &text);
-            SkScalar x = SkAutoKern_Adjust(rsb, g.fLsbDelta) + advance(g, xyIndex);
+            SkScalar x = SkAutoKern::AdjustKerning(rsb, g.fLsbDelta) + advance(g, xyIndex);
             if ((width += x) > maxWidth) {
                 width -= x;
                 text = curr;
