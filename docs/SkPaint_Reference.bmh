@@ -1547,7 +1547,7 @@ a specific pair of characters is adjusted using data in the font Kerning tables.
 
 ##
 
-#Method void setDevKernText(bool devKernText)
+#Method void setDevKernText(bool)
 
 #In Full_Hinting_Spacing
 #Line # sets or clears Full_Hinting_Spacing ##
