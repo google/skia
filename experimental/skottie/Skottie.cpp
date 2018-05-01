@@ -33,6 +33,7 @@
 #include "SkSGOpacityEffect.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
+#include "SkSGRoundEffect.h"
 #include "SkSGScene.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
@@ -452,6 +453,25 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
     return trimmed;
 }
 
+std::vector<sk_sp<sksg::GeometryNode>> AttachRoundGeometryEffect(
+    const Json::Value& jtrim, AttachContext* ctx, std::vector<sk_sp<sksg::GeometryNode>>&& geos) {
+
+    std::vector<sk_sp<sksg::GeometryNode>> rounded;
+    rounded.reserve(geos.size());
+
+    for (const auto& g : geos) {
+        const auto roundEffect = sksg::RoundEffect::Make(std::move(g));
+        rounded.push_back(roundEffect);
+
+        BindProperty<ScalarValue>(jtrim["r"], &ctx->fAnimators,
+            [roundEffect](const ScalarValue& r) {
+                roundEffect->setRadius(r);
+            });
+    }
+
+    return rounded;
+}
+
 using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const Json::Value&, AttachContext*);
 static constexpr GeometryAttacherT gGeometryAttachers[] = {
     AttachPathGeometry,
@@ -475,6 +495,7 @@ using GeometryEffectAttacherT =
 static constexpr GeometryEffectAttacherT gGeometryEffectAttachers[] = {
     AttachMergeGeometryEffect,
     AttachTrimGeometryEffect,
+    AttachRoundGeometryEffect,
 };
 
 enum class ShapeType {
@@ -500,6 +521,7 @@ const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
         { "gs", ShapeType::kPaint         , 3 }, // gstroke   -> AttachGradientStroke
         { "mm", ShapeType::kGeometryEffect, 0 }, // merge     -> AttachMergeGeometryEffect
         { "rc", ShapeType::kGeometry      , 1 }, // rrect     -> AttachRRectGeometry
+        { "rd", ShapeType::kGeometryEffect, 2 }, // round     -> AttachRoundGeometryEffect
         { "sh", ShapeType::kGeometry      , 0 }, // shape     -> AttachPathGeometry
         { "sr", ShapeType::kGeometry      , 3 }, // polystar  -> AttachPolyStarGeometry
         { "st", ShapeType::kPaint         , 1 }, // stroke    -> AttachColorStroke

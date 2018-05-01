@@ -1489,6 +1489,7 @@ if (skia_enable_tools) {
       "experimental/sksg/geometry/SkSGPath.cpp",
       "experimental/sksg/geometry/SkSGPlane.cpp",
       "experimental/sksg/geometry/SkSGRect.cpp",
+      "experimental/sksg/geometry/SkSGRoundEffect.cpp",
       "experimental/sksg/geometry/SkSGText.cpp",
       "experimental/sksg/geometry/SkSGTrimEffect.cpp",
       "experimental/sksg/paint/SkSGColor.cpp",

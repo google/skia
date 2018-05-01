@@ -21,7 +21,7 @@ public:
         that should be "rounded".
     */
     static sk_sp<SkPathEffect> Make(SkScalar radius) {
-        return sk_sp<SkPathEffect>(new SkCornerPathEffect(radius));
+        return radius > 0 ? sk_sp<SkPathEffect>(new SkCornerPathEffect(radius)) : nullptr;
     }
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
