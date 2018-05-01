@@ -540,7 +540,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			} else if strings.Contains(parts["os"], "ChromeOS") {
 				version, ok := map[string]string{
 					"MaliT604":           "9901.12.0",
-					"MaliT764":           "10172.0.0",
+					"MaliT764":           "10575.22.0",
 					"MaliT860":           "10172.0.0",
 					"PowerVRGX6250":      "10176.5.0",
 					"TegraK1":            "10172.0.0",
