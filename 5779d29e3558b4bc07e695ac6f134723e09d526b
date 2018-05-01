@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30983421_e64aa64c",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-01T13:46:26Z",
+      "side": 1,
+      "message": "static? auto_descriptor_from_desc",
+      "range": {
+        "startLine": 22,
+        "startChar": 14,
+        "endLine": 22,
+        "endChar": 36
+      },
+      "revId": "5779d29e3558b4bc07e695ac6f134723e09d526b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
