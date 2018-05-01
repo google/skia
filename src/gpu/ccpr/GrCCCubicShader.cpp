@@ -8,13 +8,13 @@
 #include "GrCCCubicShader.h"
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
 using Shader = GrCCCoverageProcessor::Shader;
 
 void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                    const char* wind, const char** /*outHull4*/) const {
+                                    const char* repetitionID, const char* wind,
+                                    GeometryVars* vars) const {
     // Find the cubic's power basis coefficients.
     s->codeAppendf("float2x4 C = float4x4(-1,  3, -3,  1, "
                                          " 3, -6,  3,  0, "
@@ -26,21 +26,6 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     s->codeAppend ("float D2 = -determinant(float2x2(C[0].xz, C[1].xz));");
     s->codeAppend ("float D1 = +determinant(float2x2(C));");
 
-    // Shift the exponents in D so the largest magnitude falls somewhere in 1..2. This protects us
-    // from overflow while solving for roots and KLM functionals.
-    s->codeAppend ("float Dmax = max(max(abs(D1), abs(D2)), abs(D3));");
-    s->codeAppend ("float norm;");
-    if (s->getProgramBuilder()->shaderCaps()->fpManipulationSupport()) {
-        s->codeAppend ("int exp;");
-        s->codeAppend ("frexp(Dmax, exp);");
-        s->codeAppend ("norm = ldexp(1, 1 - exp);");
-    } else {
-        s->codeAppend ("norm = 1/Dmax;"); // Dmax will not be 0 because we cull line cubics on CPU.
-    }
-    s->codeAppend ("D3 *= norm;");
-    s->codeAppend ("D2 *= norm;");
-    s->codeAppend ("D1 *= norm;");
-
     // Calculate the KLM matrix.
     s->declareGlobal(fKLMMatrix);
     s->codeAppend ("float discr = 3*D2*D2 - 4*D1*D3;");
@@ -49,9 +34,9 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     s->codeAppend ("q = x*D2 + (D2 >= 0 ? q : -q);");
 
     s->codeAppend ("float2 l, m;");
-    s->codeAppend ("l.ts = float2(q, 2*x * D1);");
-    s->codeAppend ("m.ts = float2(2, q) * (discr >= 0 ? float2(D3, 1) "
-                                                     ": float2(D2*D2 - D3*D1, D1));");
+    s->codeAppend ("l.ts = normalize(float2(q, 2*x * D1));");
+    s->codeAppend ("m.ts = normalize(float2(2, q) * (discr >= 0 ? float2(D3, 1) "
+                                                               ": float2(D2*D2 - D3*D1, D1)));");
 
     s->codeAppend ("float4 K;");
     s->codeAppend ("float4 lm = l.sstt * m.stst;");
@@ -62,7 +47,7 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     s->codeAppend ("L = float4(-1,x,-x,1) * l.sstt * (discr >= 0 ? l.ssst * l.sttt : lm);");
     s->codeAppend ("M = float4(-1,x,-x,1) * m.sstt * (discr >= 0 ? m.ssst * m.sttt : lm.xzyw);");
 
-    s->codeAppend ("int middlerow = abs(D2) > abs(D1) ? 2 : 1;");
+    s->codeAppend ("short middlerow = abs(D2) > abs(D1) ? 2 : 1;");
     s->codeAppend ("float3x3 CI = inverse(float3x3(C[0][0], C[0][middlerow], C[0][3], "
                                                   "C[1][0], C[1][middlerow], C[1][3], "
                                                   "      0,               0,       1));");
@@ -73,78 +58,120 @@ void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
     // Evaluate the cubic at T=.5 for a mid-ish point.
     s->codeAppendf("float2 midpoint = %s * float4(.125, .375, .375, .125);", pts);
 
-    // Orient the KLM matrix so L & M are both positive on the side of the curve we wish to fill.
+    // Orient the KLM matrix so L & M have matching signs on the side of the curve we wish to fill.
+    // We give L & M both the same sign as wind, in order to pass this value to the fragment shader.
+    // (Cubics are pre-chopped such that L & M do not change sign within any individual segment).
     s->codeAppendf("float2 orientation = sign(float3(midpoint, 1) * float2x3(%s[1], %s[2]));",
                    fKLMMatrix.c_str(), fKLMMatrix.c_str());
     s->codeAppendf("%s *= float3x3(orientation[0] * orientation[1], 0, 0, "
-                                  "0, orientation[0], 0, "
-                                  "0, 0, orientation[1]);", fKLMMatrix.c_str());
+                                  "0, orientation[0] * %s, 0, "
+                                  "0, 0, orientation[1] * %s);", fKLMMatrix.c_str(), wind, wind);
 
     // Determine the amount of additional coverage to subtract out for the flat edge (P3 -> P0).
     s->declareGlobal(fEdgeDistanceEquation);
-    s->codeAppendf("int edgeidx0 = %s > 0 ? 3 : 0;", wind);
+    s->codeAppendf("short edgeidx0 = %s > 0 ? 3 : 0;", wind);
     s->codeAppendf("float2 edgept0 = %s[edgeidx0];", pts);
     s->codeAppendf("float2 edgept1 = %s[3 - edgeidx0];", pts);
     Shader::EmitEdgeDistanceEquation(s, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
+
+    this->onEmitSetupCode(s, pts, repetitionID, vars);
 }
 
 void GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                      GrGLSLVarying::Scope scope, SkString* code,
                                      const char* position, const char* coverage,
-                                     const char* cornerCoverage) {
-    fKLM_fEdge.reset(kFloat4_GrSLType, scope);
-    varyingHandler->addVarying("klm_and_edge", &fKLM_fEdge);
+                                     const char* attenuatedCoverage, const char* /*wind*/) {
+    SkASSERT(!coverage);
+    SkASSERT(!attenuatedCoverage);
+
+    fKLMD.reset(kFloat4_GrSLType, scope);
+    varyingHandler->addVarying("klmd", &fKLMD);
     code->appendf("float3 klm = float3(%s, 1) * %s;", position, fKLMMatrix.c_str());
-    // We give L & M both the same sign as wind, in order to pass this value to the fragment shader.
-    // (Cubics are pre-chopped such that L & M do not change sign within any individual segment.)
-    code->appendf("%s.xyz = klm * float3(1, %s, %s);",
-                  OutName(fKLM_fEdge), coverage, coverage); // coverage == wind on curves.
-    code->appendf("%s.w = dot(float3(%s, 1), %s);", // Flat edge opposite the curve.
-                  OutName(fKLM_fEdge), position, fEdgeDistanceEquation.c_str());
+    code->appendf("float d = dot(float3(%s, 1), %s);", position, fEdgeDistanceEquation.c_str());
+    code->appendf("%s = float4(klm, d);", OutName(fKLMD));
 
-    fGradMatrix.reset(kFloat4_GrSLType, scope);
-    varyingHandler->addVarying("grad_matrix", &fGradMatrix);
-    code->appendf("%s.xy = 2*bloat * 3 * klm[0] * %s[0].xy;",
-                  OutName(fGradMatrix), fKLMMatrix.c_str());
-    code->appendf("%s.zw = -2*bloat * (klm[1] * %s[2].xy + klm[2] * %s[1].xy);",
-                    OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
-
-    if (cornerCoverage) {
-        code->appendf("half hull_coverage; {");
-        this->calcHullCoverage(code, OutName(fKLM_fEdge), OutName(fGradMatrix), "hull_coverage");
-        code->appendf("}");
-        fCornerCoverage.reset(kHalf2_GrSLType, scope);
-        varyingHandler->addVarying("corner_coverage", &fCornerCoverage);
-        code->appendf("%s = half2(hull_coverage, 1) * %s;",
-                      OutName(fCornerCoverage), cornerCoverage);
-    }
+    this->onEmitVaryings(varyingHandler, scope, code);
 }
 
 void GrCCCubicShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
                                          const char* outputCoverage) const {
-    this->calcHullCoverage(&AccessCodeString(f), fKLM_fEdge.fsIn(), fGradMatrix.fsIn(),
-                           outputCoverage);
+    f->codeAppendf("float k = %s.x, l = %s.y, m = %s.z, d = %s.w;",
+                   fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn());
+
+    this->emitCoverage(f, outputCoverage);
 
     // Wind is the sign of both L and/or M. Take the sign of whichever has the larger magnitude.
     // (In reality, either would be fine because we chop cubics with more than a half pixel of
     // padding around the L & M lines, so neither should approach zero.)
     f->codeAppend ("half wind = sign(l + m);");
     f->codeAppendf("%s *= wind;", outputCoverage);
-
-    if (fCornerCoverage.fsIn()) {
-        f->codeAppendf("%s = %s.x * %s.y + %s;", // Attenuated corner coverage.
-                       outputCoverage, fCornerCoverage.fsIn(), fCornerCoverage.fsIn(),
-                       outputCoverage);
-    }
 }
 
-void GrCCCubicShader::calcHullCoverage(SkString* code, const char* klmAndEdge,
-                                       const char* gradMatrix, const char* outputCoverage) const {
-    code->appendf("float k = %s.x, l = %s.y, m = %s.z;", klmAndEdge, klmAndEdge, klmAndEdge);
-    code->append ("float f = k*k*k - l*m;");
-    code->appendf("float2 grad = %s.xy * k + %s.zw;", gradMatrix, gradMatrix);
-    code->append ("float fwidth = abs(grad.x) + abs(grad.y);");
-    code->appendf("%s = min(0.5 - f/fwidth, 1);", outputCoverage); // Curve coverage.
-    code->appendf("half d = min(%s.w, 0);", klmAndEdge); // Flat edge opposite the curve.
-    code->appendf("%s = max(%s + d, 0);", outputCoverage, outputCoverage); // Total hull coverage.
+void GrCCCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                         GrGLSLVarying::Scope scope, SkString* code) {
+    fGradMatrix.reset(kFloat2x2_GrSLType, scope);
+    varyingHandler->addVarying("grad_matrix", &fGradMatrix);
+    // "klm" was just defined by the base class.
+    code->appendf("%s[0] = 2*bloat * 3 * klm[0] * %s[0].xy;",
+                  OutName(fGradMatrix), fKLMMatrix.c_str());
+    code->appendf("%s[1] = -2*bloat * (klm[1] * %s[2].xy + klm[2] * %s[1].xy);",
+                  OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
+}
+
+void GrCCCubicHullShader::emitCoverage(GrGLSLFPFragmentBuilder* f,
+                                       const char* outputCoverage) const {
+    // k,l,m,d are defined by the base class.
+    f->codeAppend ("float f = k*k*k - l*m;");
+    f->codeAppendf("float2 grad_f = %s * float2(k, 1);", fGradMatrix.fsIn());
+    f->codeAppendf("%s = clamp(0.5 - f * inversesqrt(dot(grad_f, grad_f)), 0, 1);", outputCoverage);
+    f->codeAppendf("%s += min(d, 0);", outputCoverage); // Flat edge opposite the curve.
+}
+
+void GrCCCubicCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                            const char* repetitionID, GeometryVars* vars) const {
+    s->codeAppendf("float2 corner = %s[%s * 3];", pts, repetitionID);
+    vars->fCornerVars.fPoint = "corner";
+}
+
+void GrCCCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                           GrGLSLVarying::Scope scope, SkString* code) {
+    using Interpolation = GrGLSLVaryingHandler::Interpolation;
+
+    fdKLMDdx.reset(kFloat4_GrSLType, scope);
+    varyingHandler->addVarying("dklmddx", &fdKLMDdx, Interpolation::kCanBeFlat);
+    code->appendf("%s = 2*bloat * float4(%s[0].x, %s[1].x, %s[2].x, %s.x);",
+                  OutName(fdKLMDdx), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
+                  fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
+
+    fdKLMDdy.reset(kFloat4_GrSLType, scope);
+    varyingHandler->addVarying("dklmddy", &fdKLMDdy, Interpolation::kCanBeFlat);
+    code->appendf("%s = 2*bloat * float4(%s[0].y, %s[1].y, %s[2].y, %s.y);",
+                  OutName(fdKLMDdy), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
+                  fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
+}
+
+void GrCCCubicCornerShader::emitCoverage(GrGLSLFPFragmentBuilder* f,
+                                         const char* outputCoverage) const {
+    f->codeAppendf("float2x4 grad_klmd = float2x4(%s, %s);", fdKLMDdx.fsIn(), fdKLMDdy.fsIn());
+
+    // Erase what the previous hull shader wrote. We don't worry about the two corners falling on
+    // the same pixel because those cases should have been weeded out by this point.
+    // k,l,m,d are defined by the base class.
+    f->codeAppend ("float f = k*k*k - l*m;");
+    f->codeAppend ("float2 grad_f = float3(3*k*k, -m, -l) * float2x3(grad_klmd);");
+    f->codeAppendf("%s = -clamp(0.5 - f * inversesqrt(dot(grad_f, grad_f)), 0, 1);",
+                   outputCoverage);
+    f->codeAppendf("%s -= d;", outputCoverage);
+
+    // Use software msaa to estimate actual coverage at the corner pixels.
+    const int sampleCount = Shader::DefineSoftSampleLocations(f, "samples");
+    f->codeAppendf("float4 klmd_center = float4(%s.xyz, %s.w + 0.5);",
+                   fKLMD.fsIn(), fKLMD.fsIn());
+    f->codeAppendf("for (int i = 0; i < %i; ++i) {", sampleCount);
+    f->codeAppend (    "float4 klmd = grad_klmd * samples[i] + klmd_center;");
+    f->codeAppend (    "half f = klmd.y * klmd.z - klmd.x * klmd.x * klmd.x;");
+    f->codeAppendf(    "%s += all(greaterThan(half4(f, klmd.y, klmd.z, klmd.w), "
+                                             "half4(0))) ? %f : 0;",
+                       outputCoverage, 1.0 / sampleCount);
+    f->codeAppend ("}");
 }

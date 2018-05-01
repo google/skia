@@ -82,8 +82,10 @@ bool SkPaintImageFilter::affectsTransparentBlack() const {
     return true;
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkPaintImageFilter::toString(SkString* str) const {
     str->appendf("SkPaintImageFilter: (");
     fPaint.toString(str);
     str->append(")");
 }
+#endif

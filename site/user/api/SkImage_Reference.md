@@ -13,7 +13,6 @@ SkImage Reference
 | <a href="#Constructor">Constructor</a> | functions that construct <a href="#SkImage">SkImage</a> |
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
-| Typedef | types defined by other types |
 
 # <a name="SkImage"></a> Class SkImage
 <a href="#Image">Image</a> describes a two dimensional array of pixels to draw. The pixels may be
@@ -124,7 +123,7 @@ drawing.
 | <a href="#SkImage_colorType">colorType</a> | returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
 | <a href="#SkImage_dimensions">dimensions</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> |
 | <a href="#SkImage_encodeToData">encodeToData</a> | returns encoded <a href="#Image">Image</a> as <a href="undocumented#SkData">SkData</a> |
-| <a href="#SkImage_getBackendTexture">getBackendTexture</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
+| <a href="#SkImage_getTextureHandle">getTextureHandle</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
 | <a href="#SkImage_height">height</a> | returns pixel row count |
 | <a href="#SkImage_isAlphaOnly">isAlphaOnly</a> | returns if pixels represent a transparency mask |
 | <a href="#SkImage_isLazyGenerated">isLazyGenerated</a> | returns if <a href="#Image">Image</a> is created as needed |
@@ -534,8 +533,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static sk_sp&lt;SkImage&gt; MakeCrossContextFromEncoded(GrContext* context, sk_sp&lt;SkData&gt; data,
-                                                  bool buildMips, SkColorSpace* dstColorSpace,
-                                                  bool limitToMaxTextureSize = false)
+                                                  bool buildMips, SkColorSpace* dstColorSpace)
 </pre>
 
 Creates <a href="#Image">Image</a> from encoded <a href="#SkImage_MakeCrossContextFromEncoded_data">data</a>. <a href="#Image">Image</a> is uploaded to GPU back-end using <a href="#SkImage_MakeCrossContextFromEncoded_context">context</a>.
@@ -566,8 +564,6 @@ moving resources between contexts.
 create <a href="#Image">Image</a> as Mip_Map if true</td>
   </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
 range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_limitToMaxTextureSize"> <code><strong>limitToMaxTextureSize </strong></code> </a></td> <td>
-downscale image to GPU maximum texture size, if necessary</td>
   </tr>
 </table>
 
@@ -590,8 +586,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static sk_sp&lt;SkImage&gt; MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
-                                                 bool buildMips, SkColorSpace* dstColorSpace,
-                                                 bool limitToMaxTextureSize = false)
+                                                 bool buildMips, SkColorSpace* dstColorSpace)
 </pre>
 
 Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeCrossContextFromPixmap_pixmap">pixmap</a>. <a href="#Image">Image</a> is uploaded to GPU back-end using <a href="#SkImage_MakeCrossContextFromPixmap_context">context</a>.
@@ -622,8 +617,6 @@ Recognized GPU formats vary by platform and GPU back-end.
 create <a href="#Image">Image</a> as Mip_Map if true</td>
   </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
 range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_limitToMaxTextureSize"> <code><strong>limitToMaxTextureSize </strong></code> </a></td> <td>
-downscale image to GPU maximum texture size, if necessary</td>
   </tr>
 </table>
 
@@ -779,21 +772,21 @@ created <a href="#Image">Image</a>, or nullptr
 ## <a name="SkImage_BitDepth"></a> Enum SkImage::BitDepth
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum class <a href="#SkImage_BitDepth">BitDepth</a> {
-        <a href="#SkImage_BitDepth_kU8">kU8</a>,
-        <a href="#SkImage_BitDepth_kF16">kF16</a>,
-    };
+enum class <a href="#SkImage_BitDepth">BitDepth</a> {
+<a href="#SkImage_BitDepth_kU8">kU8</a>,
+<a href="#SkImage_BitDepth_kF16">kF16</a>,
+};
 </pre>
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkImage_BitDepth_kU8"> <code><strong>SkImage::BitDepth::kU8 </strong></code> </a></td><td>0</td><td>Use 8 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using unsigned integer format.
+    <td><a name="SkImage_BitDepth_kU8"> <code><strong>SkImage::BitDepth::kU8 </strong></code> </a></td><td>0</td><td>Use 8 bits per <a href="undocumented#ARGB">Color ARGB</a> component using unsigned integer format.
 </td>
   </tr>
   <tr>
-    <td><a name="SkImage_BitDepth_kF16"> <code><strong>SkImage::BitDepth::kF16 </strong></code> </a></td><td>1</td><td>Use 16 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using half-precision floating point format.
+    <td><a name="SkImage_BitDepth_kF16"> <code><strong>SkImage::BitDepth::kF16 </strong></code> </a></td><td>1</td><td>Use 16 bits per <a href="undocumented#ARGB">Color ARGB</a> component using half-precision floating point format.
 </td>
   </tr>
 </table>
@@ -895,7 +888,7 @@ created <a href="#Image">Image</a>, or nullptr
 | <a href="#SkImage_colorSpace">colorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImage_colorType">colorType</a> | returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
 | <a href="#SkImage_dimensions">dimensions</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> |
-| <a href="#SkImage_getBackendTexture">getBackendTexture</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
+| <a href="#SkImage_getTextureHandle">getTextureHandle</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
 | <a href="#SkImage_height">height</a> | returns pixel row count |
 | <a href="#SkImage_isAlphaOnly">isAlphaOnly</a> | returns if pixels represent a transparency mask |
 | <a href="#SkImage_isLazyGenerated">isLazyGenerated</a> | returns if <a href="#Image">Image</a> is created as needed |
@@ -1178,7 +1171,7 @@ alphaOnly = true
 bool isOpaque() const
 </pre>
 
-Returns true if pixels ignore their <a href="SkColor_Reference#Alpha">Alpha</a> value and are treated as fully opaque.
+Returns true if pixels ignore their <a href="undocumented#Alpha">Alpha</a> value and are treated as fully opaque.
 
 ### Return Value
 
@@ -1409,28 +1402,16 @@ true if <a href="#Image">Image</a> can be drawn
 GrBackendObject getTextureHandle(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const
 </pre>
 
----
+Retrieves the back-end API handle of texture. If <a href="#SkImage_getTextureHandle_flushPendingGrContextIO">flushPendingGrContextIO</a> is true,
+complete deferred I/O operations.
 
-<a name="SkImage_getBackendTexture"></a>
-## getBackendTexture
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-GrBackendTexture getBackendTexture(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const
-</pre>
-
-Retrieves the backend texture. If <a href="#Image">Image</a> has no backend texture, an invalid
-object is returned. Call <a href="undocumented#GrBackendTexture_isValid">GrBackendTexture::isValid</a> to determine if the result
-is valid.
-
-If <a href="#SkImage_getBackendTexture_flushPendingGrContextIO">flushPendingGrContextIO</a> is true, completes deferred I/O operations.
-
-If <a href="#SkImage_getBackendTexture_origin">origin</a> in not nullptr, copies location of content drawn into <a href="#Image">Image</a>.
+If <a href="#SkImage_getTextureHandle_origin">origin</a> in not nullptr, copies location of content drawn into <a href="#Image">Image</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_getBackendTexture_flushPendingGrContextIO"> <code><strong>flushPendingGrContextIO </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkImage_getTextureHandle_flushPendingGrContextIO"> <code><strong>flushPendingGrContextIO </strong></code> </a></td> <td>
 flag to flush outstanding requests</td>
-  </tr>  <tr>    <td><a name="SkImage_getBackendTexture_origin"> <code><strong>origin </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkImage_getTextureHandle_origin"> <code><strong>origin </strong></code> </a></td> <td>
 storage for one of: <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a>,
 <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>; or nullptr</td>
   </tr>
@@ -1438,11 +1419,15 @@ storage for one of: <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrS
 
 ### Return Value
 
-back-end API texture handle; invalid on failure
+back-end API texture handle, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="d093aad721261f421c4bef4a296aab48" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="c321079049b0363c3b53bb76991768d4" gpu="true"></fiddle-embed></div>
+
+### Example
+
+<div><fiddle-embed name="7161810a96a75540c55af0021a1e5bb9" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1453,10 +1438,10 @@ back-end API texture handle; invalid on failure
 ## <a name="SkImage_CachingHint"></a> Enum SkImage::CachingHint
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href="#SkImage_CachingHint">CachingHint</a> {
-        <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>,
-        <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a>,
-    };
+enum <a href="#SkImage_CachingHint">CachingHint</a> {
+<a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>,
+<a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a>,
+};
 </pre>
 
 <a href="#SkImage_CachingHint">CachingHint</a> selects whether Skia may internally cache <a href="SkBitmap_Reference#Bitmap">Bitmaps</a> generated by
@@ -2051,9 +2036,9 @@ true if backend texture was created
 soon
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href="#SkImage_LegacyBitmapMode">LegacyBitmapMode</a> {
-        <a href="#SkImage_kRO_LegacyBitmapMode">kRO LegacyBitmapMode</a>,
-    };
+enum <a href="#SkImage_LegacyBitmapMode">LegacyBitmapMode</a> {
+<a href="#SkImage_kRO_LegacyBitmapMode">kRO LegacyBitmapMode</a>,
+};
 </pre>
 
 ### Constants

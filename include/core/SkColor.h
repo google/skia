@@ -57,36 +57,36 @@ static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a) {
 // common colors
 
 /** transparent SkAlpha value */
-constexpr SkAlpha SK_AlphaTRANSPARENT = 0x00;
+#define SK_AlphaTRANSPARENT static_cast<SkAlpha>(0x00)
 /** opaque SkAlpha value */
-constexpr SkAlpha SK_AlphaOPAQUE      = 0xFF;
+#define SK_AlphaOPAQUE      static_cast<SkAlpha>(0xFF)
 
 /** transparent SkColor value */
-constexpr SkColor SK_ColorTRANSPARENT = SkColorSetARGB(0x00, 0x00, 0x00, 0x00);
+#define SK_ColorTRANSPARENT static_cast<SkColor>(0x00000000)
 
 /** black SkColor value */
-constexpr SkColor SK_ColorBLACK       = SkColorSetARGB(0xFF, 0x00, 0x00, 0x00);
+#define SK_ColorBLACK       static_cast<SkColor>(0xFF000000)
 /** dark gray SkColor value */
-constexpr SkColor SK_ColorDKGRAY      = SkColorSetARGB(0xFF, 0x44, 0x44, 0x44);
+#define SK_ColorDKGRAY      static_cast<SkColor>(0xFF444444)
 /** gray SkColor value */
-constexpr SkColor SK_ColorGRAY        = SkColorSetARGB(0xFF, 0x88, 0x88, 0x88);
+#define SK_ColorGRAY        static_cast<SkColor>(0xFF888888)
 /** light gray SkColor value */
-constexpr SkColor SK_ColorLTGRAY      = SkColorSetARGB(0xFF, 0xCC, 0xCC, 0xCC);
+#define SK_ColorLTGRAY      static_cast<SkColor>(0xFFCCCCCC)
 /** white SkColor value */
-constexpr SkColor SK_ColorWHITE       = SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF);
+#define SK_ColorWHITE       static_cast<SkColor>(0xFFFFFFFF)
 
 /** red SkColor value */
-constexpr SkColor SK_ColorRED         = SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00);
+#define SK_ColorRED         static_cast<SkColor>(0xFFFF0000)
 /** green SkColor value */
-constexpr SkColor SK_ColorGREEN       = SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00);
+#define SK_ColorGREEN       static_cast<SkColor>(0xFF00FF00)
 /** blue SkColor value */
-constexpr SkColor SK_ColorBLUE        = SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF);
+#define SK_ColorBLUE        static_cast<SkColor>(0xFF0000FF)
 /** yellow SkColor value */
-constexpr SkColor SK_ColorYELLOW      = SkColorSetARGB(0xFF, 0xFF, 0xFF, 0x00);
+#define SK_ColorYELLOW      static_cast<SkColor>(0xFFFFFF00)
 /** cyan SkColor value */
-constexpr SkColor SK_ColorCYAN        = SkColorSetARGB(0xFF, 0x00, 0xFF, 0xFF);
+#define SK_ColorCYAN        static_cast<SkColor>(0xFF00FFFF)
 /** magenta SkColor value */
-constexpr SkColor SK_ColorMAGENTA     = SkColorSetARGB(0xFF, 0xFF, 0x00, 0xFF);
+#define SK_ColorMAGENTA     static_cast<SkColor>(0xFFFF00FF)
 
 ////////////////////////////////////////////////////////////////////////
 

@@ -135,8 +135,8 @@ public:
                    fPost2x2[0][1], fPost2x2[1][0], fPost2x2[1][1]);
         msg.appendf("  frame %g miter %g format %d join %d cap %d flags %#hx\n",
                    fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
-        msg.appendf("  lum bits %x, device gamma %d, paint gamma %d contrast %d\n", fLumBits,
-                    fDeviceGamma, fPaintGamma, fContrast);
+        msg.appendf("  lum bits %x, device gamma %d, paint gamma %d contrast %d\n",
+                    fLumBits, fDeviceGamma, fPaintGamma, fContrast);
         return msg;
     }
 
@@ -289,7 +289,7 @@ public:
     void        getAdvance(SkGlyph*);
     void        getMetrics(SkGlyph*);
     void        getImage(const SkGlyph&);
-    bool SK_WARN_UNUSED_RESULT getPath(SkPackedGlyphID, SkPath*);
+    void        getPath(SkPackedGlyphID, SkPath*);
     void        getFontMetrics(SkPaint::FontMetrics*);
 
     /** Return the size in bytes of the associated gamma lookup table
@@ -377,9 +377,9 @@ protected:
 
     /** Sets the passed path to the glyph outline.
      *  If this cannot be done the path is set to empty;
-     *  @return false if this glyph does not have any path.
+     *  this is indistinguishable from a glyph with an empty path.
      */
-    virtual bool SK_WARN_UNUSED_RESULT generatePath(SkGlyphID glyphId, SkPath* path) = 0;
+    virtual void generatePath(SkGlyphID glyphId, SkPath* path) = 0;
 
     /** Retrieves font metrics. */
     virtual void generateFontMetrics(SkPaint::FontMetrics*) = 0;
@@ -416,7 +416,8 @@ private:
     bool fGenerateImageFromPath;
 
     /** Returns false if the glyph has no path at all. */
-    bool internalGetPath(SkPackedGlyphID id, SkPath* devPath);
+    bool internalGetPath(SkPackedGlyphID id, SkPath* fillPath,
+                         SkPath* devPath, SkMatrix* fillToDevMatrix);
 
     // SkMaskGamma::PreBlend converts linear masks to gamma correcting masks.
 protected:

@@ -51,6 +51,8 @@
 #include "../private/SkShadowFlags.h"
 #include "text/GrTextUtils.h"
 
+#if SK_SUPPORT_GPU
+
 #define ASSERT_SINGLE_OWNER \
 SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->contextPriv().debugSingleOwner());)
 
@@ -509,6 +511,14 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
 void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawOval", fContext.get());
+    // Presumably the path effect warps this to something other than an oval
+    if (paint.getPathEffect()) {
+        SkPath path;
+        path.setIsVolatile(true);
+        path.addOval(oval);
+        this->drawPath(path, paint, nullptr, true);
+        return;
+    }
 
     if (paint.getMaskFilter()) {
         // The RRect path can handle special case blurring
@@ -1052,7 +1062,7 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
 
 
 void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const SkPaint& paint,
-                              SkImage* clipImage, const SkMatrix& clipMatrix) {
+                              SkImage* clipImage,const SkMatrix& clipMatrix) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
 
@@ -1062,7 +1072,9 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
 
     sk_sp<SkSpecialImage> result;
     if (paint.getImageFilter()) {
-        result = this->filterTexture(special1, left, top, &offset, paint.getImageFilter());
+        result = this->filterTexture(special1, left, top,
+                                      &offset,
+                                      paint.getImageFilter());
         if (!result) {
             return;
         }
@@ -1082,7 +1094,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     if (tmpUnfiltered.getMaskFilter()) {
         SkMatrix ctm = this->ctm();
         ctm.postTranslate(-SkIntToScalar(left + offset.fX), -SkIntToScalar(top + offset.fY));
-        tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithMatrix(ctm));
+        tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithLocalMatrix(ctm));
     }
 
     tmpUnfiltered.setImageFilter(nullptr);
@@ -1348,15 +1360,6 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
     }
 }
 
-// When drawing nine-patches or n-patches, cap the filter quality at kBilerp.
-static GrSamplerState::Filter compute_lattice_filter_mode(const SkPaint& paint) {
-    if (paint.getFilterQuality() == kNone_SkFilterQuality) {
-        return GrSamplerState::Filter::kNearest;
-    }
-
-    return GrSamplerState::Filter::kBilerp;
-}
-
 void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
                                    const SkIRect& center, const SkRect& dst, const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerNine", fContext.get());
@@ -1378,7 +1381,7 @@ void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
         return;
     }
 
-    const GrSamplerState::Filter kMode = compute_lattice_filter_mode(paint);
+    static const GrSamplerState::Filter kMode = GrSamplerState::Filter::kNearest;
     auto fp = producer->createFragmentProcessor(
             SkMatrix::I(), SkRect::MakeIWH(producer->width(), producer->height()),
             GrTextureProducer::kNo_FilterConstraint, true, &kMode,
@@ -1433,7 +1436,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
                                       const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerLattice", fContext.get());
 
-    const GrSamplerState::Filter kMode = compute_lattice_filter_mode(paint);
+    static const GrSamplerState::Filter kMode = GrSamplerState::Filter::kNearest;
     std::unique_ptr<GrFragmentProcessor> fp(producer->createFragmentProcessor(
             SkMatrix::I(), SkRect::MakeIWH(producer->width(), producer->height()),
             GrTextureProducer::kNo_FilterConstraint, true, &kMode,
@@ -1534,10 +1537,8 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
             triangleCount = n / 3;
             break;
         case SkVertices::kTriangleStrip_VertexMode:
-            triangleCount = n - 2;
-            break;
         case SkVertices::kTriangleFan_VertexMode:
-            SK_ABORT("Unexpected triangle fan.");
+            triangleCount = n - 2;
             break;
     }
 
@@ -1677,6 +1678,12 @@ void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
+    return GrTextUtils::ShouldDisableLCD(paint);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkGpuDevice::flush() {
     this->flushAndSignalSemaphores(0, nullptr);
 }
@@ -1745,3 +1752,4 @@ SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
     return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
 }
 
+#endif
