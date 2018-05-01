@@ -606,6 +606,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 
         result = this->gpuFilter(source, sigma, input, inputBounds, dstBounds, inputOffset,
                                  ctx.outputProperties(), &resultOffset);
+        SkDebugf("resultOffset: %d %d\n", resultOffset.fX, resultOffset.fY);
     } else
 #endif
     {
@@ -631,6 +632,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
         return input->makeSubset(inputBounds);
     }
 
+    SkDebugf("offset: %d %d\n", offset->fX, offset->fY);
     GrContext* context = source->getContext();
 
     sk_sp<GrTextureProxy> inputTexture(input->asTextureProxyRef(context));
