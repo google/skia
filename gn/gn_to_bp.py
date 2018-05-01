@@ -234,12 +234,6 @@ local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
 export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
 defines      = [str(d) for d in js['targets']['//:skia']['defines']]
 
-# We need to add skcms.c, which lives in third_party
-srcs.add("third_party/skcms/skcms.c")
-local_includes.add("third_party/skcms")
-# TODO: re-enable after relaxing CTS tests
-defines.remove('SK_USE_SKCMS')
-
 dm_srcs         = strip_slashes(js['targets']['//:dm']['sources'])
 dm_includes     = strip_slashes(js['targets']['//:dm']['include_dirs'])
 
@@ -251,6 +245,11 @@ gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', srcs, None)
 gn_to_bp_utils.GrabDependentValues(js, '//:dm', 'sources', dm_srcs, 'skia')
 gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
                                    nanobench_srcs, 'skia')
+
+# skcms is a little special, kind of a second-party library.
+srcs          .add("third_party/skcms/skcms.c")
+local_includes.add("third_party/skcms")
+dm_includes   .add("third_party/skcms")
 
 # No need to list headers.
 srcs            = {s for s in srcs           if not s.endswith('.h')}
