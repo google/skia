@@ -10,6 +10,7 @@
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
+#include "SkFontMgrPriv.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
@@ -22,6 +23,7 @@
 #include "SkReadBuffer.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "SkTestFontMgr.h"
 #include "SkTextBlob.h"
 
 #if SK_SUPPORT_GPU
@@ -84,12 +86,16 @@ static void print_api_names();
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
 
+SkCommandLineFlags::StringArray FLAGS_key;
+
 int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n"
                                  "       fuzz -b <path/to/file>\n"
                                  "--help lists the valid types. If type is not specified,\n"
                                  "fuzz will make a guess based on the name of the file.\n");
     SkCommandLineFlags::Parse(argc, argv);
+
+    gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
 
     SkString path = SkString(FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0]);
     SkString type = SkString(FLAGS_type.isEmpty() ? "" : FLAGS_type[0]);

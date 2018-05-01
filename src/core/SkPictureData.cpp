@@ -495,6 +495,12 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
 }
 
 void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t size) {
+#if defined(IS_FUZZING)
+    SkDebugf("size %d\n", size);
+    if (size > 2000) {
+        return;
+    }
+#endif
     switch (tag) {
         case SK_PICT_PAINT_BUFFER_TAG: {
             if (!buffer.validate(SkTFitsIn<int>(size))) {
@@ -514,6 +520,12 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
                 if (!buffer.validate(count >= 0)) {
                     return;
                 }
+#if defined(IS_FUZZING)
+                SkDebugf("count %d\n", count);
+                if (count > 20) {
+                    return;
+                }
+#endif
                 fPaths.reset(count);
                 for (int i = 0; i < count; i++) {
                     buffer.readPath(&fPaths[i]);
