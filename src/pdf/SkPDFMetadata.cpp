@@ -132,7 +132,7 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
     if (metadata.fModified.fEnabled) {
         dict->insertString("ModDate", pdf_date(metadata.fModified.fDateTime));
     }
-    return std::move(dict);
+    return dict;
 }
 
 SkPDFMetadata::UUID SkPDFMetadata::CreateUUID(
@@ -184,7 +184,7 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakePdfId(const UUID& doc,
             SkString(reinterpret_cast<const char*>(&doc), sizeof(UUID)));
     array->appendString(
             SkString(reinterpret_cast<const char*>(&instance), sizeof(UUID)));
-    return std::move(array);
+    return array;
 }
 
 // Convert a block of memory to hexadecimal.  Input and output pointers will be

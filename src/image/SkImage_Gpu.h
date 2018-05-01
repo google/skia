@@ -49,14 +49,8 @@ public:
         *uniqueID = this->uniqueID();
         return fProxy;
     }
-
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
                                        GrSurfaceOrigin* origin) const override;
-#endif
-    GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
-                                         GrSurfaceOrigin* origin) const override;
-
     GrTexture* onGetTexture() const override;
 
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,

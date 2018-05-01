@@ -633,6 +633,7 @@ void SkBitmap::validate() const {
 }
 #endif
 
+#ifndef SK_IGNORE_TO_STRING
 #include "SkString.h"
 void SkBitmap::toString(SkString* str) const {
 
@@ -659,6 +660,7 @@ void SkBitmap::toString(SkString* str) const {
     str->appendf(" pixelref:%p", this->pixelRef());
     str->append(")");
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

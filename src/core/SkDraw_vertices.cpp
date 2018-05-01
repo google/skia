@@ -77,7 +77,7 @@ public:
 
     bool isOpaque() const override { return fIsOpaque; }
 
-    void toString(SkString* str) const override;
+    SK_TO_STRING_OVERRIDE()
 
     // For serialization.  This will never be called.
     Factory getFactory() const override { SK_ABORT("not reached"); return nullptr; }
@@ -99,6 +99,7 @@ private:
     typedef SkShaderBase INHERITED;
 };
 
+#ifndef SK_IGNORE_TO_STRING
 void SkTriColorShader::toString(SkString* str) const {
     str->append("SkTriColorShader: (");
 
@@ -106,6 +107,7 @@ void SkTriColorShader::toString(SkString* str) const {
 
     str->append(")");
 }
+#endif
 
 static bool SK_WARN_UNUSED_RESULT
 update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPM4f colors[],
@@ -294,7 +296,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         // no colors[] and no texture, stroke hairlines with paint's color.
         SkPaint p;
         p.setStyle(SkPaint::kStroke_Style);
-        SkAutoBlitterChoose blitter(*this, nullptr, p);
+        SkAutoBlitterChoose blitter(fDst, *fMatrix, p);
         // Abort early if we failed to create a shader context.
         if (blitter->isNullBlitter()) {
             return;

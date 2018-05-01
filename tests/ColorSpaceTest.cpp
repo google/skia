@@ -8,23 +8,11 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
 #include "SkColorSpace_XYZ.h"
-#include "SkData.h"
-#include "SkImageInfo.h"
-#include "SkMatrix44.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
-#include "SkTypes.h"
+#include "SkColorSpacePriv.h"
 #include "Test.h"
+
 #include "png.h"
-
-#if defined(SK_USE_SKCMS)
-#include "skcms.h"
-#endif
-
-#include <memory>
-#include <utility>
 
 static bool almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.001f;
@@ -435,10 +423,3 @@ DEF_TEST(ColorSpace_IsSRGB, r) {
     REPORTER_ASSERT(r, srgb0->isSRGB());
     REPORTER_ASSERT(r, !twoDotTwo->isSRGB());
 }
-
-#if defined(SK_USE_SKCMS)
-DEF_TEST(ColorSpace_skcms_IsSRGB, r) {
-    sk_sp<SkColorSpace> srgb = SkColorSpace::Make(skcms_sRGB_profile());
-    REPORTER_ASSERT(r, srgb->isSRGB());
-}
-#endif

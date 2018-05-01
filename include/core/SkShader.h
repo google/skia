@@ -62,7 +62,9 @@ public:
         kLast_TileMode = kDecal_TileMode
     };
 
-    static constexpr int kTileModeCount = kLast_TileMode + 1;
+    enum {
+        kTileModeCount = kLast_TileMode + 1
+    };
 
     /**
      *  Returns the local matrix.

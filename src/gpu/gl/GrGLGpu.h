@@ -34,6 +34,7 @@ class GrSwizzle;
 
 class GrGLGpu final : public GrGpu, private GrMesh::SendToGpuImpl {
 public:
+    static sk_sp<GrGpu> Make(GrBackendContext backendContext, const GrContextOptions&, GrContext*);
     static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrContext*);
     ~GrGLGpu() override;
 
@@ -628,9 +629,8 @@ private:
         return (wide ? 0x2 : 0x0) | (tall ? 0x1 : 0x0);
     }
 
-    float fHWMinSampleShading;
-    GrPrimitiveType fLastPrimitiveType;
-    bool fRequiresFlushBeforeNextInstancedDraw = false;
+    float                                   fHWMinSampleShading;
+    GrPrimitiveType                         fLastPrimitiveType;
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.

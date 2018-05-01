@@ -22,6 +22,9 @@ DEPS = [
 def RunSteps(api):
   api.vars.setup()
   api.infra.update_go_deps()
+  with api.infra.DownloadGitCookies(
+      '/test/gspath', api.path['start_dir'].join('localpath'), api):
+    pass
   with api.infra.MetadataFetch(api, 'key', 'file'):
     pass
 
