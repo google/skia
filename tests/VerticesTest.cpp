@@ -91,13 +91,13 @@ DEF_TEST(Vertices, reporter) {
     {
         // This has the maximum number of vertices to be rewritten as indexed triangles without
         // overflowing a 16bit index.
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 21847, 0,
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, SK_MaxU16 + 1, 0,
                                     SkVertices::kHasColors_BuilderFlag);
         REPORTER_ASSERT(reporter, builder.isValid());
     }
     {
         // This has too many to be rewritten.
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 21848, 0,
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, SK_MaxU16 + 2, 0,
                                     SkVertices::kHasColors_BuilderFlag);
         REPORTER_ASSERT(reporter, !builder.isValid());
     }
