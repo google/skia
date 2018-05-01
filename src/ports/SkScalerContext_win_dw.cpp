@@ -377,12 +377,6 @@ uint16_t SkScalerContext_DW::generateCharToGlyph(SkUnichar uni) {
 }
 
 void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
-    //Delta is the difference between the right/left side bearing metric
-    //and where the right/left side bearing ends up after hinting.
-    //DirectWrite does not provide this information.
-    glyph->fRsbDelta = 0;
-    glyph->fLsbDelta = 0;
-
     glyph->fAdvanceX = 0;
     glyph->fAdvanceY = 0;
 

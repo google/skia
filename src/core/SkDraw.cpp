@@ -1571,7 +1571,6 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkS
     paint.setPathEffect(nullptr);
 
     SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
-                                                                        paint.isDevKernText(),
                                                                         true);
     auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
             paint, props, this->scalerContextFlags(), nullptr);
