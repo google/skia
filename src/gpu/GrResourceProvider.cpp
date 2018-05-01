@@ -27,7 +27,6 @@
 #include "SkMathPriv.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
-GR_DECLARE_STATIC_UNIQUE_KEY(gFanIndexBufferKey);
 
 const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
 
@@ -60,9 +59,6 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
 
     GR_DEFINE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
     fQuadIndexBufferKey = gQuadIndexBufferKey;
-
-    GR_DEFINE_STATIC_UNIQUE_KEY(gFanIndexBufferKey);
-    fFanIndexBufferKey = gFanIndexBufferKey;
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
@@ -345,49 +341,13 @@ sk_sp<const GrBuffer> GrResourceProvider::createPatternedIndexBuffer(const uint1
 
 static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;
 
-int GrResourceProvider::QuadCountOfQuadBuffer() { return kMaxQuads; }
-
 sk_sp<const GrBuffer> GrResourceProvider::createQuadIndexBuffer() {
     GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
     static const uint16_t kPattern[] = { 0, 1, 2, 2, 1, 3 };
     return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
 
-// Don't make this maximally sized. It'd be way bigger than required for most cases.
-static constexpr int kMaxFanTris = 1 << 12;
-
-int GrResourceProvider::TriCountOfFanBuffer() { return kMaxFanTris; }
-
-sk_sp<const GrBuffer> GrResourceProvider::createFanIndexBuffer() {
-    GR_STATIC_ASSERT(kMaxFanTris + 2 <= SK_MaxU16 + 1);
-    size_t numIndices = kMaxFanTris * 3;
-    size_t bufferSize = numIndices * sizeof(uint16_t);
-    sk_sp<GrBuffer> buffer(this->createBuffer(bufferSize, kIndex_GrBufferType,
-                                              kStatic_GrAccessPattern, kNoPendingIO_Flag));
-    if (!buffer) {
-        return nullptr;
-    }
-    uint16_t* data = (uint16_t*)buffer->map();
-    SkAutoTArray<uint16_t> temp;
-    if (!data) {
-        temp.reset(numIndices);
-        data = temp.get();
-    }
-    for (int i = 0; i < kMaxFanTris; ++i) {
-        data[3 * i + 0] = 0;
-        data[3 * i + 1] = i + 1;
-        data[3 * i + 2] = i + 2;
-    }
-    if (temp.get()) {
-        if (!buffer->updateData(data, bufferSize)) {
-            return nullptr;
-        }
-    } else {
-        buffer->unmap();
-    }
-    this->assignUniqueKeyToResource(fFanIndexBufferKey, buffer.get());
-    return std::move(buffer);
-}
+int GrResourceProvider::QuadCountOfQuadBuffer() { return kMaxQuads; }
 
 sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
     if (this->isAbandoned()) {

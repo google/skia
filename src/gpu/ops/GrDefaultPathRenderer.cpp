@@ -61,20 +61,17 @@ namespace {
 
 class PathGeoBuilder {
 public:
-    PathGeoBuilder(GrPrimitiveType primitiveType, bool useTriFanIndexBuffer,
-                   GrMeshDrawOp::Target* target, GrGeometryProcessor* geometryProcessor,
-                   const GrPipeline* pipeline)
+    PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
+                   GrGeometryProcessor* geometryProcessor, const GrPipeline* pipeline)
             : fMesh(primitiveType)
             , fTarget(target)
             , fVertexStride(sizeof(SkPoint))
             , fGeometryProcessor(geometryProcessor)
             , fPipeline(pipeline)
             , fIndexBuffer(nullptr)
-            , fUseTriFanIndexBuffer(useTriFanIndexBuffer)
             , fFirstIndex(0)
             , fIndicesInChunk(0)
             , fIndices(nullptr) {
-        SkASSERT(!fUseTriFanIndexBuffer || GrPrimitiveType::kTriangles == primitiveType);
         this->allocNewBuffers();
     }
 
@@ -95,7 +92,7 @@ public:
     void addLine(const SkPoint& p) {
         needSpace(1, this->indexScale());
 
-        if (this->isDynamicallyIndexed()) {
+        if (this->isIndexed()) {
             uint16_t prevIdx = this->currentIndex() - 1;
             appendCountourEdgeIndices(prevIdx);
         }
@@ -111,7 +108,7 @@ public:
         uint16_t numPts = (uint16_t)GrPathUtils::generateQuadraticPoints(
                 pts[0], pts[1], pts[2], srcSpaceTolSqd, &fCurVert,
                 GrPathUtils::quadraticPointCount(pts, srcSpaceTol));
-        if (this->isDynamicallyIndexed()) {
+        if (this->isIndexed()) {
             for (uint16_t i = 0; i < numPts; ++i) {
                 appendCountourEdgeIndices(firstQPtIdx + i);
             }
@@ -136,7 +133,7 @@ public:
         uint16_t numPts = (uint16_t) GrPathUtils::generateCubicPoints(
                 pts[0], pts[1], pts[2], pts[3], srcSpaceTolSqd, &fCurVert,
                 GrPathUtils::cubicPointCount(pts, srcSpaceTol));
-        if (this->isDynamicallyIndexed()) {
+        if (this->isIndexed()) {
             for (uint16_t i = 0; i < numPts; ++i) {
                 appendCountourEdgeIndices(firstCPtIdx + i);
             }
@@ -197,9 +194,9 @@ private:
      *  Derived properties
      *  TODO: Cache some of these for better performance, rather than re-computing?
      */
-    bool isDynamicallyIndexed() const {
-        return !fUseTriFanIndexBuffer && (GrPrimitiveType::kLines == fMesh.primitiveType() ||
-                                          GrPrimitiveType::kTriangles == fMesh.primitiveType());
+    bool isIndexed() const {
+        return GrPrimitiveType::kLines == fMesh.primitiveType() ||
+               GrPrimitiveType::kTriangles == fMesh.primitiveType();
     }
     bool isHairline() const {
         return GrPrimitiveType::kLines == fMesh.primitiveType() ||
@@ -226,7 +223,6 @@ private:
         // which have a worst-case of 1k points.
         static const int kMinVerticesPerChunk = GrPathUtils::kMaxPointsPerCurve + 2;
         static const int kFallbackVerticesPerChunk = 16384;
-        GR_STATIC_ASSERT(kFallbackVerticesPerChunk <= SK_MaxU16 + 1);
 
         fVertices = static_cast<SkPoint*>(fTarget->makeVertexSpaceAtLeast(fVertexStride,
                                                                           kMinVerticesPerChunk,
@@ -235,7 +231,7 @@ private:
                                                                           &fFirstVertex,
                                                                           &fVerticesInChunk));
 
-        if (this->isDynamicallyIndexed()) {
+        if (this->isIndexed()) {
             // Similar to above: Ensure we get enough indices for one worst-case quad/cubic.
             // No extra indices are needed for stitching, though. If we can't get that many, ask
             // for enough to match our large vertex request.
@@ -269,25 +265,14 @@ private:
         SkASSERT(vertexCount <= fVerticesInChunk);
         SkASSERT(indexCount <= fIndicesInChunk);
 
-        if (fUseTriFanIndexBuffer) {
-            if (vertexCount >= 3) {
-                if (auto indexBuffer = fTarget->resourceProvider()->refFanIndexBuffer()) {
-                    fMesh.setIndexed(indexBuffer.get(), 3 * (vertexCount - 2), 0, 0,
-                                     vertexCount - 1);
-                    fMesh.setVertexData(fVertexBuffer, fFirstVertex);
-                    fTarget->draw(fGeometryProcessor, fPipeline, fMesh);
-                }
+        if (this->isIndexed() ? SkToBool(indexCount) : SkToBool(vertexCount)) {
+            if (!this->isIndexed()) {
+                fMesh.setNonIndexedNonInstanced(vertexCount);
+            } else {
+                fMesh.setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1);
             }
-        } else {
-            if (this->isDynamicallyIndexed() ? SkToBool(indexCount) : SkToBool(vertexCount)) {
-                if (!this->isDynamicallyIndexed()) {
-                    fMesh.setNonIndexedNonInstanced(vertexCount);
-                } else {
-                    fMesh.setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1);
-                }
-                fMesh.setVertexData(fVertexBuffer, fFirstVertex);
-                fTarget->draw(fGeometryProcessor, fPipeline, fMesh);
-            }
+            fMesh.setVertexData(fVertexBuffer, fFirstVertex);
+            fTarget->draw(fGeometryProcessor, fPipeline, fMesh);
         }
 
         fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
@@ -333,7 +318,6 @@ private:
     SkPoint* fCurVert;
 
     const GrBuffer* fIndexBuffer;
-    bool fUseTriFanIndexBuffer;
     int fFirstIndex;
     int fIndicesInChunk;
     uint16_t* fIndices;
@@ -414,25 +398,27 @@ private:
 
         SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
-        bool useFanIndexBuffer = false;
-        bool singleContour =
-                1 == fPaths.count() && !PathGeoBuilder::PathHasMultipleSubpaths(fPaths[0].fPath);
+        int instanceCount = fPaths.count();
+
+        // We avoid indices when we have a single hairline contour.
+        bool isIndexed = !this->isHairline() || instanceCount > 1 ||
+                         PathGeoBuilder::PathHasMultipleSubpaths(fPaths[0].fPath);
 
         // determine primitiveType
         GrPrimitiveType primitiveType;
         if (this->isHairline()) {
-            primitiveType = singleContour ? GrPrimitiveType::kLineStrip : GrPrimitiveType::kLines;
+            primitiveType = isIndexed ? GrPrimitiveType::kLines : GrPrimitiveType::kLineStrip;
         } else {
-            useFanIndexBuffer = singleContour;
             primitiveType = GrPrimitiveType::kTriangles;
         }
 
-        PathGeoBuilder pathGeoBuilder(primitiveType, useFanIndexBuffer, target, gp.get(),
+        PathGeoBuilder pathGeoBuilder(primitiveType, target, gp.get(),
                                       fHelper.makePipeline(target));
 
         // fill buffers
-        for (const auto& instance : fPaths) {
-            pathGeoBuilder.addPath(instance.fPath, instance.fTolerance);
+        for (int i = 0; i < instanceCount; i++) {
+            const PathData& args = fPaths[i];
+            pathGeoBuilder.addPath(args.fPath, args.fTolerance);
         }
     }
 
