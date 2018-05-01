@@ -224,7 +224,7 @@ class SkScalerContext {
 public:
     enum Flags {
         kFrameAndFill_Flag        = 0x0001,
-        kDevKernText_Flag         = 0x0002,
+        kUnused                   = 0x0002,
         kEmbeddedBitmapText_Flag  = 0x0004,
         kEmbolden_Flag            = 0x0008,
         kSubpixelPositioning_Flag = 0x0010,
