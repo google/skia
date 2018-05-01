@@ -310,7 +310,8 @@ public:
                                   const SkMatrix* deviceMatrix,
                                   SkScalerContextFlags scalerContextFlags,
                                   SkScalerContextRec* rec,
-                                  SkScalerContextEffects* effects);
+                                  SkScalerContextEffects* effects,
+                                  bool enableTypefaceFiltering = true);
 
     static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
                                                  SkAutoDescriptor* ad);
