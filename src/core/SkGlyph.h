@@ -159,7 +159,11 @@ public:
     int16_t     fTop, fLeft;
 
     uint8_t     fMaskFormat;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
+#else
+    int8_t      pad[2];
+#endif
     int8_t      fForceBW;
 
     void initWithGlyphID(SkPackedGlyphID glyph_id);
