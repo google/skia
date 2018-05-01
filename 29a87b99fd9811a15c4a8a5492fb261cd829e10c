@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7eb9a3e_814b88cb",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-01T22:05:14Z",
+      "side": 1,
+      "message": "Noob question: Since this is a public API, can this break the build for other clients?\n\nAlso, I wonder if its better to fix the ASAN bot failure by adding a new API which takes a sk_sp, and remove the existing one in a follow up change.",
+      "range": {
+        "startLine": 158,
+        "startChar": 4,
+        "endLine": 158,
+        "endChar": 50
+      },
+      "revId": "29a87b99fd9811a15c4a8a5492fb261cd829e10c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
