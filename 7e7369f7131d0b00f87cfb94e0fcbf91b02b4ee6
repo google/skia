@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4416c19_e6764500",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-01T20:38:16Z",
+      "side": 1,
+      "message": "FWIW, we\u0027ve run into this enough times that we wrote and sometimes use sk_careful_memcpy(), which is basically just\n\n  if (len) memcpy(...)\n\nThis all looks fine as it is... just seemed worth mentioning!",
+      "revId": "7e7369f7131d0b00f87cfb94e0fcbf91b02b4ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
