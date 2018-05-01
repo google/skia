@@ -819,7 +819,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
     // Must mask with a Form XObject.
     sk_sp<SkPDFDevice> maskDevice = this->makeCongruentDevice();
     {
-        SkCanvas canvas(maskDevice.get());
+        SkCanvas canvas(maskDevice);
         canvas.drawImage(mask, dstMaskBounds.x(), dstMaskBounds.y());
     }
     if (!ctm.isIdentity() && paint->getShader()) {
@@ -2098,7 +2098,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         // Must mask with a Form XObject.
         sk_sp<SkPDFDevice> maskDevice = this->makeCongruentDevice();
         {
-            SkCanvas canvas(maskDevice.get());
+            SkCanvas canvas(maskDevice);
             if (paint.getMaskFilter()) {
                 // This clip prevents the mask image shader from covering
                 // entire device if unnecessary.

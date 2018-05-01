@@ -28,6 +28,7 @@
 #include "SkFontMgrPriv.h"
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
+#include "SkMakeUnique.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPaintFilterCanvas.h"
@@ -1027,7 +1028,6 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     // we need to render offscreen. We also need to render offscreen if we're in any raster mode,
     // because the window surface is actually GL.
     sk_sp<SkSurface> offscreenSurface = nullptr;
-    std::unique_ptr<SkThreadedBMPDevice> threadedDevice;
     std::unique_ptr<SkCanvas> threadedCanvas;
     if (Window::kRaster_BackendType == fBackendType ||
         ColorMode::kColorManagedLinearF16 == fColorMode ||
@@ -1052,9 +1052,10 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         if (fTileCnt > 0 && offscreenSurface->peekPixels(&offscreenPixmap)) {
             SkBitmap offscreenBitmap;
             offscreenBitmap.installPixels(offscreenPixmap);
-            threadedDevice.reset(new SkThreadedBMPDevice(offscreenBitmap, fTileCnt,
-                                                         fThreadCnt, fExecutor.get()));
-            threadedCanvas.reset(new SkCanvas(threadedDevice.get()));
+            threadedCanvas =
+                skstd::make_unique<SkCanvas>(
+                    sk_make_sp<SkThreadedBMPDevice>(
+                         offscreenBitmap, fTileCnt, fThreadCnt, fExecutor.get()));
             slideCanvas = threadedCanvas.get();
         } else {
             slideCanvas = offscreenSurface->getCanvas();
