@@ -223,6 +223,15 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
     SkPoint* devVerts = outerAlloc.makeArray<SkPoint>(count);
     fMatrix->mapPoints(devVerts, vertices, count);
 
+    {
+        SkRect bounds;
+        // this also sets bounds to empty if we see a non-finite value
+        bounds.set(devVerts, count);
+        if (bounds.isEmpty()) {
+            return;
+        }
+    }
+
     VertState       state(count, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(vmode);
 
