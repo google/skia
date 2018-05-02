@@ -170,6 +170,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, proxy->texPriv().doesNotSupportMipMaps());
     REPORTER_ASSERT(reporter, proxy->priv().peekTexture()->surfacePriv().doesNotSupportMipMaps());
 
+    REPORTER_ASSERT(reporter, proxy->texPriv().isGLTextureRectangleOrExternal());
+    REPORTER_ASSERT(reporter,
+                    proxy->priv().peekTexture()->surfacePriv().isGLTextureRectangleOrExternal());
     REPORTER_ASSERT(reporter, proxy->texPriv().isClampOnly());
     REPORTER_ASSERT(reporter, proxy->priv().peekTexture()->surfacePriv().isClampOnly());
 
