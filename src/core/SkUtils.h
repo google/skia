@@ -29,6 +29,16 @@ static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
 }
 ///////////////////////////////////////////////////////////////////////////////
 
+// N.B. an error in the UTFN is encoded as a -1 in glyphCount. If glyphCount = 0, then glyphs is
+// null.
+struct SkUtfNGlyphIDAllocation {
+    SkTypeface::Encoding encoding;
+    const void* utfN {nullptr};
+    size_t byteLength {0};
+    int glyphCount {-1};
+    std::unique_ptr<SkGlyphID[]> glyphs{nullptr};
+};
+
 #define kMaxBytesInUTF8Sequence     4
 
 #ifdef SK_DEBUG
@@ -49,6 +59,11 @@ int SkUTF8_CountUnichars(const void* utf8, size_t byteLength);
 int SkUTF16_CountUnichars(const void* utf16, size_t byteLength);
 int SkUTF32_CountUnichars(const void* utf32, size_t byteLength);
 int SkUTFN_CountUnichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
+
+int SkUTFN_CountUnichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
+
+SkUtfNGlyphIDAllocation SkUTFN_AllocateGlyphs(
+    SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
 
 /** This function is safe: invalid UTF8 sequences will return -1
  *  When -1 is returned, ptr is unchanged.
@@ -107,6 +122,9 @@ inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
     }
     return true;
 }
+
+size_t SkParseUnicode(const void*, size_t, SkTypeface::Encoding,
+                      std::function<void(size_t, SkUnichar)>);
 
 namespace SkHexadecimalDigits {
     extern const char gUpper[16];  // 0-9A-F
