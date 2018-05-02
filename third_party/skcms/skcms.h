@@ -209,18 +209,6 @@ SKCMS_API bool skcms_Transform(const void*             src,
                                const skcms_ICCProfile* dstProfile,
                                size_t                  npixels);
 
-// If profile cannot be used as a destination profile in skcms_Transform(),
-// rewrite it with approximations where reasonable or by pulling from fallback
-// (e.g. skcms_sRGB_profile) where not.
-SKCMS_API void skcms_EnsureUsableAsDestination(skcms_ICCProfile* profile,
-                                               const skcms_ICCProfile* fallback);
-
-// If profile cannot be used as a destination profile with a single parametric transfer function,
-// (ie for rasterization), rewrite it with approximations where reasonable or by pulling from
-// fallback (e.g. skcms_sRGB_profile) where not.
-SKCMS_API void skcms_EnsureUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile,
-                                                              const skcms_ICCProfile* fallback);
-
 // If profile can be used as a destination in skcms_Transform, return true. Otherwise, attempt to
 // rewrite it with approximations where reasonable. If successful, return true. If no reasonable
 // approximation exists, leave the profile unchanged and return false.
@@ -228,7 +216,7 @@ SKCMS_API bool skcms_MakeUsableAsDestination(skcms_ICCProfile* profile);
 
 // If profile can be used as a destination with a single parametric transfer function (ie for
 // rasterization), return true. Otherwise, attempt to rewrite it with approximations where
-// reasonable. If successful, return true. If not reasonable approximation exists, leave the
+// reasonable. If successful, return true. If no reasonable approximation exists, leave the
 // profile unchanged and return false.
 SKCMS_API bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile);
 
