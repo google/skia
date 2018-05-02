@@ -304,6 +304,12 @@ public:
      */
     bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op);
 
+    /**
+     *  Union this region with the array of rectangles, returning true if the result
+     *  is non-empty.
+     */
+    bool bulkUnion(const SkIRect[], int count);
+
 #ifdef SK_BUILD_FOR_ANDROID
     /** Returns a new char* containing the list of rectangles in this region
      */

@@ -1135,6 +1135,36 @@ bool SkRegion::op(const SkRegion& rgna, const SkRegion& rgnb, Op op) {
     return SkRegion::Oper(rgna, rgnb, op, this);
 }
 
+#include "SkTDArray.h"
+
+bool SkRegion::bulkUnion(const SkIRect rects[], int count) {
+    if (count < 1) {
+        return !this->isEmpty();
+    }
+    if (count == 1) {
+        return this->op(rects[0], kUnion_Op);
+    }
+
+    // old way
+    for (int i = 0; i < count; ++i) {
+        this->op(rects[i], kUnion_Op);
+    }
+#if 0
+    SkTDArray<SkIRect> storage;
+    storage.setReserve(count);
+    for (int i = 0; i < count; ++i) {
+        if (!rects[i].isEmpty()) {
+            storage.push(rects[i]);
+        }
+    }
+    count = storage.count();
+    std::sort(storage.begin(), storage.end(), [](const SkIRect& a, const SkIRect& b) {
+        return a.fTop < b.fTop;
+    });
+#endif
+    return !this->isEmpty();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkBuffer.h"
