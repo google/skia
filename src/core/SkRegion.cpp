@@ -1233,14 +1233,14 @@ static bool validate_run(const int32_t* runs,
         }
 
         int32_t xIntervals = *runs++;
+        if (xIntervals > intervalCount) {
+            return false;
+        }
         SkASSERT(runs < end);
         if (xIntervals < 0 || runs + 1 + 2 * xIntervals > end) {
             return false;
         }
         intervalCount -= xIntervals;
-        if (intervalCount < 0) {
-            return false;  // too many intervals
-        }
         bool firstInterval = true;
         int32_t lastRight = 0;  // check that x-intervals are distinct and ordered.
         while (xIntervals-- > 0) {
