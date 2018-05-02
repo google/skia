@@ -21,10 +21,11 @@ class SkTypefaceProxy;
 
 class SkScalerContextProxy : public SkScalerContext {
 public:
-    SkScalerContextProxy(sk_sp<SkTypeface> tf,
-                         const SkScalerContextEffects& effects,
-                         const SkDescriptor* desc,
-                         SkStrikeClient* rsc);
+    SkScalerContextProxy(
+            sk_sp<SkTypeface> tf,
+            const SkScalerContextEffects& effects,
+            const SkDescriptor* desc,
+            SkStrikeClient* rsc);
 
 protected:
     unsigned generateGlyphCount() override;
@@ -51,12 +52,16 @@ private:
 
 class SkTypefaceProxy : public SkTypeface {
 public:
-    SkTypefaceProxy(SkFontID fontId,
-                    int glyphCount,
-                    const SkFontStyle& style,
-                    bool isFixed,
-                    SkStrikeClient* rsc)
-            : INHERITED{style, false}, fFontId{fontId}, fGlyphCount{glyphCount}, fRsc{rsc} {}
+    SkTypefaceProxy(
+            SkFontID fontId,
+            int glyphCount,
+            const SkFontStyle& style,
+            bool isFixed,
+            SkStrikeClient* rsc)
+            : INHERITED{style, false}
+            , fFontId{fontId}
+            , fGlyphCount{glyphCount}
+            , fRsc{rsc} { }
     SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
     static SkTypefaceProxy* DownCast(SkTypeface* typeface) {
@@ -133,8 +138,6 @@ protected:
 private:
     const SkFontID        fFontId;
     const int             fGlyphCount;
-
-    // TODO: Does this need a ref to the strike client? If yes, make it a weak ref.
     SkStrikeClient* const fRsc;
 
     typedef SkTypeface INHERITED;
