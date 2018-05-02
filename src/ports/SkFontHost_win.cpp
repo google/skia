@@ -943,6 +943,8 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
     // TODO(benjaminwagner): What is the type of gm.gmCellInc[XY]?
     glyph->fAdvanceX = (float)((int)gm.gmCellIncX);
     glyph->fAdvanceY = (float)((int)gm.gmCellIncY);
+    glyph->fRsbDelta = 0;
+    glyph->fLsbDelta = 0;
 
     if (this->isSubpixel()) {
         sk_bzero(&gm, sizeof(gm));
@@ -2263,6 +2265,7 @@ void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
     }
 
     unsigned flagsWeDontSupport = SkScalerContext::kVertical_Flag |
+                                  SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kForceAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |
                                   SkScalerContext::kEmbolden_Flag |

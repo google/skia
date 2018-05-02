@@ -258,6 +258,7 @@ void DWriteFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
     }
 
     unsigned flagsWeDontSupport = SkScalerContext::kVertical_Flag |
+                                  SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kForceAutohinting_Flag |
                                   SkScalerContext::kEmbolden_Flag |
                                   SkScalerContext::kLCD_Vertical_Flag;

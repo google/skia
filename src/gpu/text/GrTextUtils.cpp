@@ -62,7 +62,7 @@ bool GrTextUtils::PathTextIter::next(const SkGlyph** skGlyph, const SkPath** pat
     if (fText < fStop) {
         const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &fText);
 
-        fXPos += fPrevAdvance * fScale;
+        fXPos += (fPrevAdvance + fAutoKern.adjust(glyph)) * fScale;
         SkASSERT(0 == fXYIndex || 1 == fXYIndex);
         fPrevAdvance = SkFloatToScalar((&glyph.fAdvanceX)[fXYIndex]);
 

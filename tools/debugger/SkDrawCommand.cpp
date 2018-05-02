@@ -1268,6 +1268,7 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_FAKEBOLDTEXT, paint.isFakeBoldText(), false);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_LINEARTEXT, paint.isLinearText(), false);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_SUBPIXELTEXT, paint.isSubpixelText(), false);
+    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_DEVKERNTEXT, paint.isDevKernText(), false);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_LCDRENDERTEXT, paint.isLCDRenderText(), false);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_EMBEDDEDBITMAPTEXT, paint.isEmbeddedBitmapText(), false);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_AUTOHINTING, paint.isAutohinted(), false);

@@ -12,7 +12,7 @@
 Paint controls options applied when drawing and measuring. Paint collects all
 options outside of the Canvas_Clip and Canvas_Matrix.
 
-Various options apply to text, strokes and fills, and images.
+Various options apply to text, strokes and fills, and images. 
 
 Some options may not be implemented on all platforms; in these cases, setting
 the option has no effect. Some options are conveniences that duplicate Canvas
@@ -21,14 +21,14 @@ functionality; for instance, text size is identical to matrix scale.
 Paint options are rarely exclusive; each option modifies a stage of the drawing
 pipeline and multiple pipeline stages may be affected by a single Paint.
 
-Paint collects effects and filters that describe single-pass and multiple-pass
+Paint collects effects and filters that describe single-pass and multiple-pass 
 algorithms that alter the drawing geometry, color, and transparency. For instance,
-Paint does not directly implement dashing or blur, but contains the objects that do so.
+Paint does not directly implement dashing or blur, but contains the objects that do so. 
 
 The objects contained by Paint are opaque, and cannot be edited outside of the Paint
 to affect it. The implementation is free to defer computations associated with the
 Paint, or ignore them altogether. For instance, some GPU implementations draw all
-Path geometries with Anti-aliasing, regardless of how SkPaint::kAntiAlias_Flag
+Path geometries with Anti-aliasing, regardless of how SkPaint::kAntiAlias_Flag 
 is set in Paint.
 
 Paint describes a single color, a single font, a single image quality, and so on.
@@ -108,7 +108,7 @@ Constructs Paint with default values.
 #Table ##
 
 The flags, text size, hinting, and miter limit may be overridden at compile time by defining
-paint default values. The overrides may be included in "SkUserConfig.h" or predefined by the
+paint default values. The overrides may be included in "SkUserConfig.h" or predefined by the 
 build system.
 
 #Return  default initialized Paint ##
@@ -226,7 +226,7 @@ Decreases Paint Reference_Count of owned objects: Typeface, Path_Effect, Shader,
 Mask_Filter, Color_Filter, Draw_Looper, and Image_Filter. If the
 objects containing Reference_Count go to zero, they are deleted.
 
-#NoExample
+#NoExample 
 ##
 
 ##
@@ -428,21 +428,21 @@ as the Font_Engine.
 #Const kSlight_Hinting 1
     Modifies glyph outlines minimally to improve constrast.
     With FreeType, this is equivalent in spirit to the
-    FT_LOAD_TARGET_LIGHT value supplied to FT_Load_Glyph. It chooses a
+    FT_LOAD_TARGET_LIGHT value supplied to FT_Load_Glyph. It chooses a 
     lighter hinting algorithm for non-monochrome modes.
     Generated Glyphs may be fuzzy but better resemble their original shape.
 ##
 #Const kNormal_Hinting 2
     Modifies glyph outlines to improve constrast. This is the default.
     With FreeType, this supplies FT_LOAD_TARGET_NORMAL to FT_Load_Glyph,
-    choosing the default hinting algorithm, which is optimized for standard
-    gray-level rendering.
+    choosing the default hinting algorithm, which is optimized for standard 
+    gray-level rendering. 
 ##
 #Const kFull_Hinting 3
     Modifies glyph outlines for maxiumum constrast. With FreeType, this selects
-    FT_LOAD_TARGET_LCD or FT_LOAD_TARGET_LCD_V if kLCDRenderText_Flag is set.
-    FT_LOAD_TARGET_LCD is a variant of FT_LOAD_TARGET_NORMAL optimized for
-    horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a
+    FT_LOAD_TARGET_LCD or FT_LOAD_TARGET_LCD_V if kLCDRenderText_Flag is set. 
+    FT_LOAD_TARGET_LCD is a variant of FT_LOAD_TARGET_NORMAL optimized for 
+    horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a 
     variant of FT_LOAD_TARGET_NORMAL optimized for vertically decimated LCD displays.
 ##
 
@@ -500,7 +500,7 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
     # kNo_Hinting     # 0 # leaves glyph outlines unchanged from their native representation ##
     # kSlight_Hinting # 1 # modifies glyph outlines minimally to improve contrast ##
     # kNormal_Hinting # 2 # modifies glyph outlines to improve contrast ##
-    # kFull_Hinting   # 3 # modifies glyph outlines for maximum contrast ##
+    # kFull_Hinting   # 3 # modifies glyph outlines for maximum contrast ## 
     ##
 
     #Param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting ##
@@ -548,7 +548,7 @@ with a custom definition of SkPaintDefaults_Flags.
 All flags can be read and written explicitly; Flags allows manipulating
 multiple settings at once.
 
-    #Const kAntiAlias_Flag          0x0001
+    #Const kAntiAlias_Flag          0x0001 
         mask for setting Anti-alias
     ##
     #Const kDither_Flag             0x0004
@@ -562,16 +562,16 @@ multiple settings at once.
         mask for setting Linear_Text
     ##
     #Const kSubpixelText_Flag       0x0080
-        mask for setting Subpixel_Text
+        mask for setting Subpixel_Text                 
     ##
     #Const kDevKernText_Flag        0x0100
-    #Deprecated
+        mask for setting Full_Hinting_Spacing
     ##
     #Const kLCDRenderText_Flag      0x0200
         mask for setting LCD_Text
     ##
     #Const kEmbeddedBitmapText_Flag 0x0400
-        mask for setting Font_Embedded_Bitmaps
+        mask for setting Font_Embedded_Bitmaps             
     ##
     #Const kAutoHinting_Flag        0x0800
         mask for setting Automatic_Hinting
@@ -663,7 +663,7 @@ Anti-alias drawing approximates partial pixel coverage with transparency.
 If kAntiAlias_Flag is clear, pixel centers contained by the shape edge are drawn opaque.
 If kAntiAlias_Flag is set, pixels are drawn with Color_Alpha equal to their coverage.
 
-The rule for Aliased pixels is inconsistent across platforms. A shape edge
+The rule for Aliased pixels is inconsistent across platforms. A shape edge 
 passing through the pixel center may, but is not required to, draw the pixel.
 
 Raster_Engine draws Aliased pixels whose centers are on or to the right of the start of an
@@ -767,10 +767,10 @@ at compile time.
 #Subtopic Dither
 #Line # distributing color error ##
 
-Dither increases fidelity by adjusting the color of adjacent pixels.
+Dither increases fidelity by adjusting the color of adjacent pixels. 
 This can help to smooth color transitions and reducing banding in gradients.
 Dithering lessens visible banding from kRGB_565_SkColorType
-and kRGBA_8888_SkColorType gradients,
+and kRGBA_8888_SkColorType gradients, 
 and improves rendering into a kRGB_565_SkColorType Surface.
 
 Dithering is always enabled for linear gradients drawing into
@@ -791,7 +791,7 @@ SK_IGNORE_GPU_DITHER
 to ignore Dither on GPU_Surface.
 
 #Example
-#Description
+#Description 
 Dithering in the bottom half more closely approximates the requested color by
 alternating nearby colors from pixel to pixel.
 ##
@@ -817,7 +817,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Example
-#Description
+#Description 
 Dithering introduces subtle adjustments to color to smooth gradients.
 Drawing the gradient repeatedly with SkBlendMode::kPlus exaggerates the
 dither, making it easier to see.
@@ -849,7 +849,7 @@ void draw(SkCanvas* canvas) {
 #In Dither
 #Line # returns true if Dither is set ##
     If true, color error may be distributed to smooth color transition.
-
+     
     Equivalent to getFlags masked with kDither_Flag.
 
     #Return  kDither_Flag state ##
@@ -905,19 +905,19 @@ void draw(SkCanvas* canvas) {
 
 LCD_Text and Subpixel_Text increase the precision of glyph position.
 
-When set, Flags kLCDRenderText_Flag takes advantage of the organization of Color_RGB stripes that
+When set, Flags kLCDRenderText_Flag takes advantage of the organization of Color_RGB stripes that 
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
 LCD_Text can be enabled on devices that orient stripes horizontally or vertically, and that order
 the color components as Color_RGB or Color_RBG.
 
-Flags kSubpixelText_Flag uses the pixel transparency to represent a fractional offset.
+Flags kSubpixelText_Flag uses the pixel transparency to represent a fractional offset. 
 As the opaqueness
 of the color increases, the edge of the glyph appears to move towards the outside of the pixel.
 
 Either or both techniques can be enabled.
 kLCDRenderText_Flag and kSubpixelText_Flag are clear by default.
-LCD_Text or Subpixel_Text can be enabled by default by setting SkPaintDefaults_Flags to
+LCD_Text or Subpixel_Text can be enabled by default by setting SkPaintDefaults_Flags to 
 kLCDRenderText_Flag or kSubpixelText_Flag (or both) at compile time.
 
 #Example
@@ -1017,7 +1017,7 @@ If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
                   canvas->drawString(width, 128, 0, paint);
               }
            }
-        }
+        } 
     ##
 
     #SeeAlso isLinearText Hinting
@@ -1029,12 +1029,12 @@ If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
 #Alias Subpixel_Text
 #Line # uses pixel transparency to represent fractional offset ##
 
-Flags kSubpixelText_Flag uses the pixel transparency to represent a fractional offset.
+Flags kSubpixelText_Flag uses the pixel transparency to represent a fractional offset. 
 As the opaqueness
 of the color increases, the edge of the glyph appears to move towards the outside of the pixel.
 
 #Method bool isSubpixelText() const
-
+    
 #In Subpixel_Text
 #Line # returns true if Subpixel_Text is set ##
     If true, Glyphs at different sub-pixel positions may differ on pixel edge coverage.
@@ -1090,7 +1090,7 @@ SkDebugf("paint.isSubpixelText() %c= !!(paint.getFlags() & SkPaint::kSubpixelTex
 #Line # text relying on the order of Color_RGB stripes ##
 #Alias LCD_Text # makes this a top level name, since it is under subtopic Device_Text
 
-When set, Flags kLCDRenderText_Flag takes advantage of the organization of Color_RGB stripes that
+When set, Flags kLCDRenderText_Flag takes advantage of the organization of Color_RGB stripes that 
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
 LCD_Text can be enabled on devices that orient stripes horizontally or vertically, and that order
@@ -1156,7 +1156,7 @@ SkDebugf("paint.isLCDRenderText() %c= !!(paint.getFlags() & SkPaint::kLCDRenderT
 
 Font_Embedded_Bitmaps allows selecting custom sized bitmap Glyphs.
 Flags kEmbeddedBitmapText_Flag when set chooses an embedded bitmap glyph over an outline contained
-in a font if the platform supports this option.
+in a font if the platform supports this option. 
 
 FreeType selects the bitmap glyph if available when kEmbeddedBitmapText_Flag is set, and selects
 the outline glyph if kEmbeddedBitmapText_Flag is clear.
@@ -1343,7 +1343,7 @@ is positioned to the right of the preceding glyph. Vertical_Text sets successive
 Glyphs to position below the preceding glyph.
 
 Skia can translate text character codes as a series of Glyphs, but does not implement
-font substitution,
+font substitution, 
 textual substitution, line layout, or contextual spacing like Kerning pairs. Use
 a text shaping engine like
 #A HarfBuzz # http://harfbuzz.org/ ##
@@ -1434,12 +1434,12 @@ Fake_Bold approximates the bold font style accompanying a normal font when a bol
 is not available. Skia does not provide font substitution; it is up to the client to find the
 bold font face using the platform Font_Manager.
 
-Use Text_Skew_X to approximate an italic font style when the italic font face
+Use Text_Skew_X to approximate an italic font style when the italic font face 
 is not available.
 
 A FreeType based port may define SK_USE_FREETYPE_EMBOLDEN at compile time to direct
 the font engine to create the bold Glyphs. Otherwise, the extra bold is computed
-by increasing the stroke width and setting the Style to kStrokeAndFill_Style as needed.
+by increasing the stroke width and setting the Style to kStrokeAndFill_Style as needed.  
 
 Fake_Bold is disabled by default.
 
@@ -1527,11 +1527,48 @@ Full_Hinting_Spacing is not related to text Kerning, where the space between
 a specific pair of characters is adjusted using data in the font Kerning tables.
 
 #Method bool isDevKernText() const
-#Deprecated
+
+#In Full_Hinting_Spacing
+#Line # returns true if Full_Hinting_Spacing is set ##
+    Returns if character spacing may be adjusted by the hinting difference.
+
+    Equivalent to getFlags masked with kDevKernText_Flag.
+
+    #Return  kDevKernText_Flag state ##
+
+    #Example
+    SkPaint paint;
+    SkDebugf("paint.isDevKernText() %c= !!(paint.getFlags() & SkPaint::kDevKernText_Flag)\n",
+        paint.isDevKernText() == !!(paint.getFlags() & SkPaint::kDevKernText_Flag) ? '=' : '!');
+    paint.setDevKernText(true);
+    SkDebugf("paint.isDevKernText() %c= !!(paint.getFlags() & SkPaint::kDevKernText_Flag)\n",
+        paint.isDevKernText() == !!(paint.getFlags() & SkPaint::kDevKernText_Flag) ? '=' : '!');
+    ##
+
 ##
 
-#Method void setDevKernText(bool)
-#Deprecated
+#Method void setDevKernText(bool devKernText)
+
+#In Full_Hinting_Spacing
+#Line # sets or clears Full_Hinting_Spacing ##
+    Requests, but does not require, to use hinting to adjust glyph spacing.
+
+    Sets kDevKernText_Flag if devKernText is true.
+    Clears kDevKernText_Flag if devKernText is false.
+
+    #Param devKernText  setting for devKernText ##
+
+    #Example
+        SkPaint paint1, paint2;
+        paint1.setDevKernText(true);
+        paint2.setFlags(paint2.getFlags() | SkPaint::kDevKernText_Flag);
+        SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+
+        #StdOut
+            paint1 == paint2
+        ##
+    ##
+
 ##
 
 #Subtopic Full_Hinting_Spacing ##
@@ -1562,7 +1599,7 @@ Filter_Quality is kNone_SkFilterQuality by default.
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     canvas->scale(.2f, .2f);
-    for (SkFilterQuality q : { kNone_SkFilterQuality, kLow_SkFilterQuality,
+    for (SkFilterQuality q : { kNone_SkFilterQuality, kLow_SkFilterQuality, 
                                kMedium_SkFilterQuality, kHigh_SkFilterQuality } ) {
         paint.setFilterQuality(q);
         canvas->drawImage(image.get(), 0, 0, &paint);
@@ -1579,7 +1616,7 @@ void draw(SkCanvas* canvas) {
 Returns Filter_Quality, the image filtering level. A lower setting
 draws faster; a higher setting looks better when the image is scaled.
 
-#Return  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
+#Return  one of: kNone_SkFilterQuality, kLow_SkFilterQuality, 
                  kMedium_SkFilterQuality, kHigh_SkFilterQuality
 #Return ##
 
@@ -1602,9 +1639,9 @@ draws faster; a higher setting looks better when the image is scaled.
 #Line # sets Filter_Quality, the image filtering level ##
 Sets Filter_Quality, the image filtering level. A lower setting
 draws faster; a higher setting looks better when the image is scaled.
-Does not check to see if quality is valid.
+Does not check to see if quality is valid. 
 
-#Param  quality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
+#Param  quality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality, 
                  kMedium_SkFilterQuality, kHigh_SkFilterQuality
 ##
 
@@ -1700,10 +1737,10 @@ a different arrangement.
 #In Color_Methods
 #Line # sets Color_Alpha and Color_RGB, one drawing color ##
     Sets Alpha and Color_RGB used when stroking and filling. The color is a 32-bit value,
-    Unpremultiplied, packing 8-bit components for Alpha, Red, Blue, and Green.
+    Unpremultiplied, packing 8-bit components for Alpha, Red, Blue, and Green. 
 
     #Param color    Unpremultiplied Color_ARGB ##
-
+    
     #Example
         SkPaint green1, green2;
         unsigned a = 255;
@@ -1752,7 +1789,7 @@ Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color
 
 #In Alpha_Methods
 #Line # sets Color_Alpha, color opacity ##
-    Replaces Alpha, leaving Color_RGB
+    Replaces Alpha, leaving Color_RGB 
     unchanged. An out of range value triggers an assert in the debug
     build. a is a value from zero to 255.
     a set to zero makes Color fully transparent; a set to 255 makes Color
@@ -1786,7 +1823,7 @@ Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color
     #Param r    amount of Color_RGB_Red, from no red (0) to full red (255) ##
     #Param g    amount of Color_RGB_Green, from no green (0) to full green (255) ##
     #Param b    amount of Color_RGB_Blue, from no blue (0) to full blue (255) ##
-
+        
     #Example
         SkPaint transRed1, transRed2;
         transRed1.setARGB(255 / 2, 255, 0, 0);
@@ -1838,8 +1875,8 @@ may have gaps, and if kAntiAlias_Flag is set, Color_Alpha will increase to visua
 #Alias Hairline # maybe should be Stroke_Hairline ?
 
 Stroke_Width of zero has a special meaning and switches drawing to use Hairline.
-Hairline draws the thinnest continuous frame. If kAntiAlias_Flag is clear, adjacent pixels
-flow horizontally, vertically,or diagonally.
+Hairline draws the thinnest continuous frame. If kAntiAlias_Flag is clear, adjacent pixels 
+flow horizontally, vertically,or diagonally. 
 
 #ToDo  what is the description of Anti-aliased hairlines? ##
 
@@ -1873,7 +1910,7 @@ a fill draw.
 
 #Const  kFill_Style 0
     Set to fill geometry.
-    Applies to Rect, Region, Round_Rect, Circles, Ovals, Path, and Text.
+    Applies to Rect, Region, Round_Rect, Circles, Ovals, Path, and Text. 
     Bitmap, Image, Patches, Region, Sprites, and Vertices are painted as if
     kFill_Style is set, and ignore the set Style.
     The Path_Fill_Type specifies additional rules to fill the area outside the path edge,
@@ -1883,7 +1920,7 @@ a fill draw.
 
 #Const kStroke_Style 1
     Set to stroke geometry.
-    Applies to Rect, Region, Round_Rect, Arcs, Circles, Ovals, Path, and Text.
+    Applies to Rect, Region, Round_Rect, Arcs, Circles, Ovals, Path, and Text. 
     Arcs, Lines, and points, are always drawn as if kStroke_Style is set,
     and ignore the set Style.
     The stroke construction is unaffected by the Path_Fill_Type.
@@ -1893,7 +1930,7 @@ a fill draw.
     Set to stroke and fill geometry.
     Applies to Rect, Region, Round_Rect, Circles, Ovals, Path, and Text.
     Path is treated as if it is set to SkPath::kWinding_FillType,
-    and the set Path_Fill_Type is ignored.
+    and the set Path_Fill_Type is ignored. 
 ##
 
 #Const kStyleCount 3
@@ -1974,12 +2011,12 @@ May be used to verify that Style is a legal value.
 #Line # thickness perpendicular to geometry ##
 
 Stroke_Width sets the width for stroking. The width is the thickness
-of the stroke perpendicular to the path direction when the paint style is
+of the stroke perpendicular to the path direction when the paint style is 
 set to kStroke_Style or kStrokeAndFill_Style.
 
 When width is greater than zero, the stroke encompasses as many pixels partially
 or fully as needed. When the width equals zero, the paint enables hairlines;
-the stroke is always one pixel wide.
+the stroke is always one pixel wide. 
 
 The stroke dimensions are scaled by the canvas matrix, but Hairline stroke
 remains one pixel wide regardless of scaling.
@@ -1990,12 +2027,12 @@ The default width for the paint is zero.
 #Height 170
     #Platform raster gpu
     #Description
-        The pixels hit to represent thin lines vary with the angle of the
+        The pixels hit to represent thin lines vary with the angle of the 
         line and the platform implementation.
     ##
     void draw(SkCanvas* canvas) {
         SkPaint paint;
-        for (bool antialias : { false, true }) {
+        for (bool antialias : { false, true }) { 
             paint.setAntiAlias(antialias);
             for (int width = 0; width <= 4; ++width) {
                 SkScalar offset = antialias * 100 + width * 20;
@@ -2015,7 +2052,7 @@ The default width for the paint is zero.
     outline the shape.
 
     #Return  zero for Hairline, greater than zero for pen thickness ##
-
+     
     #Example
         SkPaint paint;
         SkDebugf("0 %c= paint.getStrokeWidth()\n", 0 == paint.getStrokeWidth() ? '=' : '!');
@@ -2032,10 +2069,10 @@ The default width for the paint is zero.
 #In Stroke_Width
 #Line # sets thickness of the stroke ##
     Sets the thickness of the pen used by the paint to
-    outline the shape.
-    Has no effect if width is less than zero.
+    outline the shape. 
+    Has no effect if width is less than zero. 
 
-    #Param width  zero thickness for Hairline; greater than zero for pen thickness
+    #Param width  zero thickness for Hairline; greater than zero for pen thickness 
     ##
 
     #Example
@@ -2229,7 +2266,7 @@ Stroke_Cap draws at the beginning and end of an open Path_Contour.
     ##
 #Enum ##
 
-Stroke describes the area covered by a pen of Stroke_Width as it
+Stroke describes the area covered by a pen of Stroke_Width as it 
 follows the Path_Contour, moving parallel to the contour direction.
 
 If the Path_Contour is not terminated by SkPath::kClose_Verb, the contour has a
@@ -2238,7 +2275,7 @@ visible beginning and end.
 Path_Contour may start and end at the same point; defining Zero_Length_Contour.
 
 kButt_Cap and Zero_Length_Contour is not drawn.
-kRound_Cap and Zero_Length_Contour draws a circle of diameter Stroke_Width
+kRound_Cap and Zero_Length_Contour draws a circle of diameter Stroke_Width 
 at the contour point.
 kSquare_Cap and Zero_Length_Contour draws an upright square with a side of
 Stroke_Width at the contour point.
@@ -2291,7 +2328,7 @@ Stroke_Cap is kButt_Cap by default.
 
     #Param cap  one of: kButt_Cap, kRound_Cap, kSquare_Cap;
                 has no effect if cap is not valid
-    ##
+    ## 
 
     #Example
         SkPaint paint;
@@ -2299,7 +2336,7 @@ Stroke_Cap is kButt_Cap by default.
         paint.setStrokeCap((SkPaint::Cap) SkPaint::kCapCount);
         SkDebugf("kRound_Cap %c= paint.getStrokeCap()\n",
                 SkPaint::kRound_Cap == paint.getStrokeCap() ? '=' : '!');
-
+    
         #StdOut
             kRound_Cap == paint.getStrokeCap()
         ##
@@ -2315,7 +2352,7 @@ Stroke_Cap is kButt_Cap by default.
 
 Stroke_Join draws at the sharp corners of an open or closed Path_Contour.
 
-Stroke describes the area covered by a pen of Stroke_Width as it
+Stroke describes the area covered by a pen of Stroke_Width as it 
 follows the Path_Contour, moving parallel to the contour direction.
 
 If the contour direction changes abruptly, because the tangent direction leading
@@ -2361,7 +2398,7 @@ Choose miter join to draw sharp corners. Choose round join to draw a circle with
 radius equal to the stroke width on top of the corner. Choose bevel join to minimally
 connect the thick strokes.
 
-The fill path constructed to describe the stroked path respects the join setting but may
+The fill path constructed to describe the stroked path respects the join setting but may 
 not contain the actual join. For instance, a fill path constructed with round joins does
 not necessarily include circles at each connected segment.
 
@@ -2384,7 +2421,7 @@ not necessarily include circles at each connected segment.
 
 #Const kDefault_Join 1
     Equivalent to kMiter_Join.
-    Stroke_Join is set to kMiter_Join by default.
+    Stroke_Join is set to kMiter_Join by default. 
 ##
 
 #Const kJoinCount 3
@@ -2445,7 +2482,7 @@ void draw(SkCanvas* canvas) {
     The geometry drawn at the corners of strokes.
 
     #Param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
-                 otherwise, has no effect
+                 otherwise, has no effect 
     ##
 
     #Example
@@ -2479,11 +2516,11 @@ destination Path.
 Fill Path can request the Path_Effect to restrict to a culling rectangle, but
 the Path_Effect is not required to do so.
 
-If Style is kStroke_Style or kStrokeAndFill_Style,
+If Style is kStroke_Style or kStrokeAndFill_Style, 
 and Stroke_Width is greater than zero, the Stroke_Width, Stroke_Cap, Stroke_Join,
 and Miter_Limit operate on the destination Path, replacing it.
 
-Fill Path can specify the precision used by Stroke_Width to approximate the stroke geometry.
+Fill Path can specify the precision used by Stroke_Width to approximate the stroke geometry. 
 
 If the Style is kStroke_Style and the Stroke_Width is zero, getFillPath
 returns false since Hairline has no filled equivalent.
@@ -2507,7 +2544,7 @@ returns false since Hairline has no filled equivalent.
     #Height 192
     #Description
     A very small Quad stroke is turned into a filled path with increasing levels of precision.
-    At the lowest precision, the Quad stroke is approximated by a rectangle.
+    At the lowest precision, the Quad stroke is approximated by a rectangle. 
     At the highest precision, the filled path has high fidelity compared to the original stroke.
     ##
         void draw(SkCanvas* canvas) {
@@ -2578,7 +2615,7 @@ returns false since Hairline has no filled equivalent.
 
 Shader defines the colors used when drawing a shape.
 Shader may be an image, a gradient, or a computed fill.
-If Paint has no Shader, then Color fills the shape.
+If Paint has no Shader, then Color fills the shape. 
 
 Shader is modulated by Color_Alpha component of Color.
 If Shader object defines only Color_Alpha, then Color modulated by Color_Alpha describes
@@ -2611,7 +2648,7 @@ void draw(SkCanvas* canvas) {
    bitmap.setInfo(SkImageInfo::MakeA8(5, 1), 5);  // bitmap only contains alpha
    uint8_t pixels[5] = { 0x22, 0x55, 0x88, 0xBB, 0xFF };
    bitmap.setPixels(pixels);
-   paint.setShader(SkShader::MakeBitmapShader(bitmap,
+   paint.setShader(SkShader::MakeBitmapShader(bitmap, 
             SkShader::kMirror_TileMode, SkShader::kMirror_TileMode));
    for (SkColor c : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {
        paint.setColor(c);  // all components in color affect shader
@@ -2628,7 +2665,7 @@ void draw(SkCanvas* canvas) {
     Optional colors used when filling a path, such as a gradient.
 
     Does not alter Shader Reference_Count.
-
+    
     #Return  Shader if previously set, nullptr otherwise ##
 
     #Example
@@ -2732,7 +2769,7 @@ void draw(SkCanvas* canvas) {
 #Line # returns Color_Filter, how colors are altered ##
     Returns Color_Filter if set, or nullptr.
     Does not alter Color_Filter Reference_Count.
-
+    
     #Return  Color_Filter if previously set, nullptr otherwise ##
 
     #Example
@@ -2839,10 +2876,10 @@ void draw(SkCanvas* canvas) {
     #Example
         void draw(SkCanvas* canvas) {
            SkPaint paint;
-           SkDebugf("kSrcOver %c= getBlendMode\n",
+           SkDebugf("kSrcOver %c= getBlendMode\n", 
                     SkBlendMode::kSrcOver == paint.getBlendMode() ? '=' : '!');
            paint.setBlendMode(SkBlendMode::kSrc);
-           SkDebugf("kSrcOver %c= getBlendMode\n",
+           SkDebugf("kSrcOver %c= getBlendMode\n", 
                     SkBlendMode::kSrcOver == paint.getBlendMode() ? '=' : '!');
         }
 
@@ -2882,7 +2919,7 @@ void draw(SkCanvas* canvas) {
 
 #In Blend_Mode_Methods
 #Line # sets Blend_Mode, how colors combine with destination ##
-    Sets Blend_Mode to mode.
+    Sets Blend_Mode to mode. 
     Does not check for valid input.
 
     #Param mode  SkBlendMode used to combine source color and destination ##
@@ -2932,7 +2969,7 @@ If Paint has no Path_Effect, the path geometry is unaltered when filled or strok
 #Line # returns Path_Effect, modifications to path geometry; dashing ##
     Returns Path_Effect if set, or nullptr.
     Does not alter Path_Effect Reference_Count.
-
+    
     #Return  Path_Effect if previously set, nullptr otherwise ##
 
     #Example
@@ -3027,7 +3064,7 @@ modifying the draw.
 #Line # returns Mask_Filter, alterations to Mask_Alpha ##
     Returns Mask_Filter if set, or nullptr.
     Does not alter Mask_Filter Reference_Count.
-
+    
     #Return  Mask_Filter if previously set, nullptr otherwise ##
 
     #Example
@@ -3053,7 +3090,7 @@ modifying the draw.
     Returns Mask_Filter if set, or nullptr.
 
     Increases Mask_Filter Reference_Count by one.
-
+    
     #Return  Mask_Filter if previously set, nullptr otherwise ##
 
     #Example
@@ -3127,7 +3164,7 @@ implementation.
 #Line # returns Typeface, font description ##
     Returns Typeface if set, or nullptr.
     Increments Typeface Reference_Count by one.
-
+    
     #Return  Typeface if previously set, nullptr otherwise ##
 
     #Example
@@ -3157,7 +3194,7 @@ implementation.
     #Example
         void draw(SkCanvas* canvas) {
            SkPaint paint1, paint2;
-           paint1.setTypeface(SkTypeface::MakeFromName("monospace",
+           paint1.setTypeface(SkTypeface::MakeFromName("monospace", 
                     SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
                     SkFontStyle::kItalic_Slant)));
            SkDebugf("typeface1 %c= typeface2\n",
@@ -3179,7 +3216,7 @@ implementation.
 
 #In Typeface_Methods
 #Line # sets Typeface, font description ##
-Sets Typeface to typeface, decreasing Reference_Count of the previous Typeface.
+Sets Typeface to typeface, decreasing Reference_Count of the previous Typeface. 
 Pass nullptr to clear Typeface and use the default typeface. Increments
 typeface Reference_Count by one.
 
@@ -3236,7 +3273,7 @@ Mask_Filter.
 #Line # returns Image_Filter, alter pixels; blur ##
     Returns Image_Filter if set, or nullptr.
     Does not alter Image_Filter Reference_Count.
-
+    
     #Return  Image_Filter if previously set, nullptr otherwise ##
 
     #Example
@@ -3324,7 +3361,7 @@ to another to construct the draw.
 
 Draw_Looper draws one or more times, modifying the canvas and paint each time.
 Draw_Looper may be used to draw multiple colors or create a colored shadow.
-Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw.
+Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw. 
 
 #Example
 #Height 128
@@ -3351,7 +3388,7 @@ Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw.
 #Line # returns Draw_Looper, multiple layers ##
     Returns Draw_Looper if set, or nullptr.
     Does not alter Draw_Looper Reference_Count.
-
+    
     #Return  Draw_Looper if previously set, nullptr otherwise ##
 
     #Example
@@ -3454,9 +3491,9 @@ Increments drawLooper Reference_Count by one.
 
 Align adjusts the text relative to the text position.
 Align affects Glyphs drawn with: SkCanvas::drawText, SkCanvas::drawPosText,
-SkCanvas::drawPosTextH, SkCanvas::drawTextOnPath,
+SkCanvas::drawPosTextH, SkCanvas::drawTextOnPath, 
 SkCanvas::drawTextOnPathHV, SkCanvas::drawTextRSXform, SkCanvas::drawTextBlob,
-and SkCanvas::drawString;
+and SkCanvas::drawString; 
 as well as calls that place text Glyphs like getTextWidths and getTextPath.
 
 The text position is set by the font for both horizontal and vertical text.
@@ -3464,7 +3501,7 @@ Typically, for horizontal text, the position is to the left side of the glyph on
 base line; and for vertical text, the position is the horizontal center of the glyph
 at the caps height.
 
-Align adjusts the glyph position to center it or move it to abut the position
+Align adjusts the glyph position to center it or move it to abut the position 
 using the metrics returned by the font.
 
 Align defaults to kLeft_Align.
@@ -3617,7 +3654,7 @@ Set SkPaintDefaults_TextSize at compile time to change the default setting.
 #Line # sets text size in points ##
     Sets Text_Size in points.
     Has no effect if textSize is not greater than or equal to zero.
-
+     
     #Param textSize  typographic height of text ##
 
     #Example
@@ -3678,7 +3715,7 @@ Text_Scale_X defaults to 1.
 #Line # sets the text horizontal scale; condensed text ##
     Sets Text_Scale_X.
     Default value is 1.
-
+     
     #Param scaleX  text horizontal scale ##
 
     #Example
@@ -3785,7 +3822,7 @@ in the total storage required.
 #A UTF-32 # http://www.unicode.org/versions/Unicode5.0.0/ch03.pdf ##
  encodes each character as one 32-bit word.
 
-Font_Manager uses font data to convert character code points into glyph indices.
+Font_Manager uses font data to convert character code points into glyph indices. 
 A glyph index is a 16-bit word.
 
 TextEncoding is set to kUTF8_TextEncoding by default.
@@ -3838,16 +3875,16 @@ void draw(SkCanvas* canvas) {
     Returns Text_Encoding.
     Text_Encoding determines how character code points are mapped to font glyph indices.
 
-    #Return  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or
-             kGlyphID_TextEncoding
+    #Return  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or 
+             kGlyphID_TextEncoding 
     ##
 
     #Example
         SkPaint paint;
-        SkDebugf("kUTF8_TextEncoding %c= text encoding\n",
+        SkDebugf("kUTF8_TextEncoding %c= text encoding\n", 
                 SkPaint::kUTF8_TextEncoding == paint.getTextEncoding() ? '=' : '!');
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        SkDebugf("kGlyphID_TextEncoding %c= text encoding\n",
+        SkDebugf("kGlyphID_TextEncoding %c= text encoding\n", 
                 SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding() ? '=' : '!');
 
         #StdOut
@@ -3863,12 +3900,12 @@ void draw(SkCanvas* canvas) {
 
 #In Text_Encoding
 #Line # sets character or glyph encoded size ##
-    Sets Text_Encoding to encoding.
+    Sets Text_Encoding to encoding. 
     Text_Encoding determines how character code points are mapped to font glyph indices.
     Invalid values for encoding are ignored.
 
-    #Param encoding  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or
-                     kGlyphID_TextEncoding
+    #Param encoding  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or 
+                     kGlyphID_TextEncoding 
     #Param ##
 
     #Example
@@ -3889,7 +3926,7 @@ void draw(SkCanvas* canvas) {
 #Line # common glyph dimensions ##
 
 Font_Metrics describe dimensions common to the Glyphs in Typeface.
-The dimensions are computed by Font_Manager from font data and do not take
+The dimensions are computed by Font_Manager from font data and do not take 
 Paint settings other than Text_Size into account.
 
 Font dimensions specify the anchor to the left of the glyph at baseline as the origin.
@@ -4242,12 +4279,12 @@ void draw(SkCanvas* canvas) {
 #In Font_Metrics
 #Line # returns union all glyph bounds ##
 Returns the union of bounds of all Glyphs.
-Returned dimensions are computed by Font_Manager from font data,
+Returned dimensions are computed by Font_Manager from font data, 
 ignoring Hinting. Includes Text_Size, Text_Scale_X,
 and Text_Skew_X, but not Fake_Bold or Path_Effect.
 
 If Text_Size is large, Text_Scale_X is one, and Text_Skew_X is zero,
-returns the same bounds as Font_Metrics { FontMetrics::fXMin,
+returns the same bounds as Font_Metrics { FontMetrics::fXMin, 
 FontMetrics::fTop, FontMetrics::fXMax, FontMetrics::fBottom }.
 
 #Return  union of bounds of all Glyphs ##
@@ -4340,7 +4377,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 #Method bool containsText(const void* text, size_t byteLength) const
 #In Utility
 #Line # returns if all text corresponds to Glyphs ##
-    Returns true if all text corresponds to a non-zero glyph index.
+    Returns true if all text corresponds to a non-zero glyph index. 
     Returns false if any characters in text are not supported in
     Typeface.
 
@@ -4364,7 +4401,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
         const uint16_t goodChar = 0x00B0;  // degree symbol
         const uint16_t badChar = 0xD800;   // Unicode surrogate
         paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
-        SkDebugf("0x%04x %c= has char\n", goodChar,
+        SkDebugf("0x%04x %c= has char\n", goodChar, 
                 paint.containsText(&goodChar, 2) ? '=' : '!');
         SkDebugf("0x%04x %c= has char\n", badChar,
                 paint.containsText(&badChar, 2) ? '=' : '!');
@@ -4385,7 +4422,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
         const uint16_t zeroGlyph = 0;
         const uint16_t badGlyph = 65535; // larger than glyph count in font
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        SkDebugf("0x%04x %c= has glyph\n", goodGlyph,
+        SkDebugf("0x%04x %c= has glyph\n", goodGlyph, 
                 paint.containsText(&goodGlyph, 2) ? '=' : '!');
         SkDebugf("0x%04x %c= has glyph\n", zeroGlyph,
                 paint.containsText(&zeroGlyph, 2) ? '=' : '!');
@@ -4410,8 +4447,8 @@ text contains an invalid UTF-8 sequence, zero is returned.
 #In Utility
 #Line # converts Glyphs into text ##
 
-    Converts glyphs into text if possible.
-    Glyph values without direct Unicode equivalents are mapped to zero.
+    Converts glyphs into text if possible. 
+    Glyph values without direct Unicode equivalents are mapped to zero. 
     Uses the Typeface, but is unaffected
     by Text_Encoding; the text values returned are equivalent to kUTF32_TextEncoding.
 
@@ -4459,7 +4496,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
     Path_Effect to scale the metrics and bounds.
     Returns the bounding box of text if bounds is not nullptr.
     The bounding box is computed as if the text was drawn at the origin.
-
+     
     #Param text         character codes or glyph indices to be measured ##
     #Param length       number of bytes of text to measure ##
     #Param bounds       returns bounding box relative to (0, 0) if not nullptr ##
@@ -4535,7 +4572,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
     #Param maxWidth      advance limit; text is measured while advance is less than maxWidth ##
     #Param measuredWidth returns the width of the text less than or equal to maxWidth ##
     #Return              bytes of text that fit, always less than or equal to length  ##
-
+     
     #Example
     #Description
     Line under "Breakfast" shows desired width, shorter than available characters.
@@ -4569,19 +4606,19 @@ text contains an invalid UTF-8 sequence, zero is returned.
     the glyph count in text.
     Both widths and bounds may be nullptr.
     If widths is not nullptr, widths must be an array of glyph count entries.
-    if bounds is not nullptr, bounds must be an array of glyph count entries.
+    if bounds is not nullptr, bounds must be an array of glyph count entries. 
     If kVerticalText_Flag is clear, widths returns the horizontal advance.
     If kVerticalText_Flag is set, widths returns the vertical advance.
     Uses Text_Encoding to decode text, Typeface to get the font metrics,
     and Text_Size to scale the widths and bounds.
     Does not scale the advance by Fake_Bold or Path_Effect.
     Does include Fake_Bold and Path_Effect in the bounds.
-
+   
     #Param text          character codes or glyph indices to be measured ##
     #Param byteLength    number of bytes of text to measure ##
     #Param widths        returns text advances for each glyph; may be nullptr ##
     #Param bounds        returns bounds for each glyph relative to (0, 0); may be nullptr ##
-
+    
     #Return              glyph count in text ##
 
     #Example
@@ -4721,13 +4758,13 @@ underline that skips Descenders.
     Returns the number of intervals that intersect bounds.
     bounds describes a pair of lines parallel to the text advance.
     The return count is zero or a multiple of two, and is at most twice the number of Glyphs in
-    the string.
+    the string. 
     Uses Text_Encoding to decode text, Typeface to get the glyph paths,
     and Text_Size, Fake_Bold, and Path_Effect to scale and modify the glyph paths.
     Uses x, y, and Text_Align to position intervals.
-
+    
     Pass nullptr for intervals to determine the size of the interval array.
-
+    
     intervals are cached to improve performance for multiple calls.
 
     #Param text          character codes or glyph indices ##
@@ -4776,13 +4813,13 @@ void draw(SkCanvas* canvas) {
     Returns the number of intervals that intersect bounds.
     bounds describes a pair of lines parallel to the text advance.
     The return count is zero or a multiple of two, and is at most twice the number of Glyphs in
-    the string.
+    the string. 
     Uses Text_Encoding to decode text, Typeface to get the glyph paths,
     and Text_Size, Fake_Bold, and Path_Effect to scale and modify the glyph paths.
     Uses pos array and Text_Align to position intervals.
-
+    
     Pass nullptr for intervals to determine the size of the interval array.
-
+    
     intervals are cached to improve performance for multiple calls.
 
     #Param text          character codes or glyph indices ##
@@ -4831,13 +4868,13 @@ void draw(SkCanvas* canvas) {
     Returns the number of intervals that intersect bounds.
     bounds describes a pair of lines parallel to the text advance.
     The return count is zero or a multiple of two, and is at most twice the number of Glyphs in
-    the string.
+    the string. 
     Uses Text_Encoding to decode text, Typeface to get the glyph paths,
     and Text_Size, Fake_Bold, and Path_Effect to scale and modify the glyph paths.
     Uses xpos array, constY, and Text_Align to position intervals.
-
+    
     Pass nullptr for intervals to determine the size of the interval array.
-
+    
     intervals are cached to improve performance for multiple calls.
 
     #Param text          character codes or glyph indices ##
@@ -4891,15 +4928,15 @@ void draw(SkCanvas* canvas) {
     Returns the number of intervals that intersect bounds.
     bounds describes a pair of lines parallel to the text advance.
     The return count is zero or a multiple of two, and is at most twice the number of Glyphs in
-    the string.
+    the string. 
     Uses Typeface to get the glyph paths,
     and Text_Size, Fake_Bold, and Path_Effect to scale and modify the glyph paths.
     Uses run array and Text_Align to position intervals.
-
+    
     Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
 
     Pass nullptr for intervals to determine the size of the interval array.
-
+    
     intervals are cached to improve performance for multiple calls.
 
     #Param blob          Glyphs, positions, and text paint attributes ##
@@ -4917,11 +4954,11 @@ void draw(SkCanvas* canvas) {
             SkPoint textPos = { 20, 110 };
             int len = 3;
             SkTextBlobBuilder textBlobBuilder;
-            const SkTextBlobBuilder::RunBuffer& run =
+            const SkTextBlobBuilder::RunBuffer& run = 
                     textBlobBuilder.allocRun(paint, len, textPos.fX, textPos.fY);
             run.glyphs[0] = 10;
             run.glyphs[1] = 20;
-            run.glyphs[2] = 30;
+            run.glyphs[2] = 30;       
             sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
             canvas->drawTextBlob(blob.get(), textPos.fX, textPos.fY, paint);
             SkScalar bounds[] = { 116, 134 };
@@ -4959,7 +4996,7 @@ void draw(SkCanvas* canvas) {
     #Example
         void draw(SkCanvas* canvas) {
             auto debugster = [](const char* prefix, const SkPaint& p) -> void {
-                SkDebugf("%s nothing to draw: %s\n", prefix,
+                SkDebugf("%s nothing to draw: %s\n", prefix, 
                          p.nothingToDraw() ? "true" : "false");
             };
             SkPaint paint;
@@ -4985,18 +5022,18 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 #Subtopic Fast_Bounds
 #Line # approximate area required by Paint ##
-    #Private
-    To be made private.
+    #Private  
+    To be made private. 
     ##
 
 Fast_Bounds methods conservatively outset a drawing bounds by additional area
 Paint may draw to.
 
 #Method bool canComputeFastBounds() const
-
+    
 #In Fast_Bounds
 #Line # returns true if settings allow for fast bounds computation ##
-    #Private
+    #Private  
     (to be made private)
     ##
 
@@ -5008,10 +5045,10 @@ Paint may draw to.
 ##
 
 #Method const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const
-
+    
 #In Fast_Bounds
 #Line # returns fill bounds for quick reject tests ##
-    #Private
+    #Private  
     (to be made private)
     ##
 
@@ -5026,7 +5063,7 @@ Paint may draw to.
     use the returned value. It is legal for orig and storage to be the same
     Rect.
 
-    #Private
+    #Private  
     e.g.
     if (paint.canComputeFastBounds()) {
     SkRect r, storage;
@@ -5048,7 +5085,7 @@ Paint may draw to.
                                               SkRect* storage) const
 #In Fast_Bounds
 #Line # returns stroke bounds for quick reject tests ##
-    #Private
+    #Private  
     (to be made private)
     ##
 
@@ -5062,7 +5099,7 @@ Paint may draw to.
                                           Style style) const
 #In Fast_Bounds
 #Line # returns bounds for quick reject tests ##
-    #Private
+    #Private  
     (to be made private)
     ##
 

@@ -451,7 +451,9 @@ public:
 
         @return  kDevKernText_Flag state
     */
-    bool isDevKernText() const { return false; }
+    bool isDevKernText() const {
+        return SkToBool(this->getFlags() & kDevKernText_Flag);
+    }
 
     /** Requests, but does not require, to use hinting to adjust glyph spacing.
 
@@ -460,7 +462,7 @@ public:
 
         @param devKernText  setting for devKernText
     */
-    void setDevKernText(bool) { }
+    void setDevKernText(bool devKernText);
 
     /** Returns SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
@@ -1643,6 +1645,7 @@ private:
     };
 
     static GlyphCacheProc GetGlyphCacheProc(TextEncoding encoding,
+                                            bool isDevKern,
                                             bool needFullMetrics);
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,

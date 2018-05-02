@@ -994,6 +994,8 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
                                 fLoadGlyphFlags | FT_ADVANCE_FLAG_FAST_ONLY,
                                 &advance );
         if (0 == error) {
+            glyph->fRsbDelta = 0;
+            glyph->fLsbDelta = 0;
             const SkScalar advanceScalar = SkFT_FixedToScalar(advance);
             glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
             glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
@@ -1089,6 +1091,9 @@ bool SkScalerContext_FreeType::shouldSubpixelBitmap(const SkGlyph& glyph, const 
 void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
+    glyph->fRsbDelta = 0;
+    glyph->fLsbDelta = 0;
+
     FT_Error    err;
 
     if (this->setupSize()) {
@@ -1179,6 +1184,11 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         } else {
             glyph->fAdvanceX = SkFDot6ToFloat(fFace->glyph->advance.x);
             glyph->fAdvanceY = -SkFDot6ToFloat(fFace->glyph->advance.y);
+
+            if (fRec.fFlags & kDevKernText_Flag) {
+                glyph->fRsbDelta = SkToS8(fFace->glyph->rsb_delta);
+                glyph->fLsbDelta = SkToS8(fFace->glyph->lsb_delta);
+            }
         }
     }
 
