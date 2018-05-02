@@ -6,6 +6,7 @@
  */
 
 
+#include "SkMakeUnique.h"
 #include "SkUtils.h"
 
 /*  0xxxxxxx    1 total
@@ -372,12 +373,6 @@ size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
     return size;
 }
 
-const char SkHexadecimalDigits::gUpper[16] =
-           { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-const char SkHexadecimalDigits::gLower[16] =
-           { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
-
 // returns -1 on error
 int SkUTF32_CountUnichars(const void* text, size_t byteLength) {
     if (byteLength == 0) {
@@ -397,4 +392,85 @@ int SkUTF32_CountUnichars(const void* text, size_t byteLength) {
     }
     return SkToInt(byteLength >> 2);
 }
+
+int SkUTFN_CountUnichars(
+    SkTypeface::Encoding encoding, const void* utfN, size_t byteLength) {
+    SkASSERT(utfN != nullptr);
+    if (byteLength >= std::numeric_limits<int>::max()) {
+        return -1;
+    }
+    switch (encoding) {
+        case SkTypeface::kUTF8_Encoding:
+            return SkUTF8_CountUnichars(utfN, byteLength);
+        case SkTypeface::kUTF16_Encoding:
+            return SkUTF16_CountUnichars(utfN, byteLength);
+        case SkTypeface::kUTF32_Encoding:
+            return SkUTF32_CountUnichars(utfN, byteLength);
+        default:
+            SkDEBUGFAIL("unknown text encoding");
+    }
+
+    return 0;
+}
+
+SkUtfNGlyphIDAllocation SkUTFN_AllocateGlyphs(
+    SkTypeface::Encoding encoding, const void* utfN, size_t byteLength) {
+    int size = SkUTFN_CountUnichars(encoding, utfN, byteLength);
+    SkUtfNGlyphIDAllocation alloc;
+    alloc.glyphCount = size;
+    if (size > 0) {
+        alloc.encoding = encoding;
+        alloc.byteLength = byteLength;
+        alloc.utfN = utfN;
+        alloc.glyphs = skstd::make_unique_default<uint16_t[]>(size);
+    }
+    return alloc;
+}
+
+size_t SkParseUnicode(const void* text,
+                      size_t size,
+                      SkTypeface::Encoding encoding,
+                      std::function<void(size_t, uint32_t)> f) {
+    size_t unicodeSize = 0;
+    switch(encoding) {
+        case SkTypeface::kUTF8_Encoding:{
+            auto cursor = (const char*)text;
+            auto end = (const char*)((const char*)text + size);
+            while (cursor < end) {
+                SkUnichar c = SkUTF8_NextUnicharWithError(&cursor, end);
+                if (c < 0) { return 0; }
+                f(unicodeSize, c);
+                unicodeSize += 1;
+            }
+            break;
+        }
+        case SkTypeface::kUTF16_Encoding: {
+            auto cursor = (const uint16_t*)text;
+            auto end = (const uint16_t*)((const char*)text + size);
+            while (cursor < end) {
+                // TODO: add the error version when written.
+                f(unicodeSize, SkUTF16_NextUnichar(&cursor));
+                unicodeSize += 1;
+            }
+            break;
+        }
+        case SkTypeface::kUTF32_Encoding: {
+            auto cursor = (const uint32_t*)text;
+            auto end = (const uint32_t*)((const char*)text + size);
+            while (cursor < end) {
+                f(unicodeSize, (SkUnichar)*cursor);
+                cursor += 1;
+                unicodeSize += 1;
+            }
+            break;
+        }
+    }
+    return unicodeSize;
+}
+
+const char SkHexadecimalDigits::gUpper[16] =
+           { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+const char SkHexadecimalDigits::gLower[16] =
+           { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
 

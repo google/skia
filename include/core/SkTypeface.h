@@ -23,6 +23,7 @@ class SkStream;
 class SkStreamAsset;
 class SkWStream;
 struct SkAdvancedTypefaceMetrics;
+struct SkUtfNGlyphIDAllocation;
 struct SkScalerContextEffects;
 struct SkScalerContextRec;
 
@@ -153,6 +154,8 @@ public:
      */
     int charsToGlyphs(const void* chars, Encoding encoding, SkGlyphID glyphs[],
                       int glyphCount) const;
+
+    size_t charsToGlyphs(SkUtfNGlyphIDAllocation* alloc);
 
     /**
      *  Return the number of glyphs in the typeface.
@@ -349,10 +352,11 @@ protected:
     virtual void* onGetCTFontRef() const { return nullptr; }
 
 private:
-    /** Retrieve detailed typeface metrics.  Used by the PDF backend.  */
-    std::unique_ptr<SkAdvancedTypefaceMetrics> getAdvancedMetrics() const;
     friend class SkRandomTypeface; // getAdvancedMetrics
     friend class SkPDFFont;        // getAdvancedMetrics
+    friend class SkPaintPriv;      // GetDefaultTypeface
+
+    class CodePointCache;
 
     /** Style specifies the intrinsic style attributes of a given typeface */
     enum Style {
@@ -363,17 +367,18 @@ private:
         // helpers
         kBoldItalic = 0x03
     };
+
     static SkFontStyle FromOldStyle(Style oldStyle);
     static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
-    friend class SkPaintPriv;      // GetDefaultTypeface
 
-private:
-    SkFontID            fUniqueID;
-    SkFontStyle         fStyle;
-    mutable SkRect      fBounds;
-    mutable SkOnce      fBoundsOnce;
-    bool                fIsFixedPitch;
+    /** Retrieve detailed typeface metrics.  Used by the PDF backend.  */
+    std::unique_ptr<SkAdvancedTypefaceMetrics> getAdvancedMetrics() const;
 
-    typedef SkWeakRefCnt INHERITED;
+    SkFontID                        fUniqueID;
+    SkFontStyle                     fStyle;
+    mutable SkRect                  fBounds;
+    mutable SkOnce                  fBoundsOnce;
+    bool                            fIsFixedPitch;
+    std::unique_ptr<CodePointCache> fCodePointCache;
 };
 #endif
