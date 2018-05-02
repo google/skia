@@ -34,7 +34,9 @@ struct SkPackedID {
         kCodeMask = ((1 << kSubShift) - 1),
         // relative offsets for X and Y subpixel bits
         kSubShiftX = kSubBits,
-        kSubShiftY = 0
+        kSubShiftY = 0,
+        // Mask for marking non-subpixel codes.
+        kMarkMask = 1 << kSubShift,
     };
 
     SkPackedID(uint32_t code) {
@@ -52,6 +54,15 @@ struct SkPackedID {
                       code;
         SkASSERT(ID != kImpossibleID);
         fID = ID;
+    }
+
+    SkPackedID(uint32_t code, bool mark) {
+        SkASSERT(code <= kCodeMask);
+        SkASSERT(code != kImpossibleID);
+        fID = code;
+        if (mark) {
+            fID |= kMarkMask;
+        }
     }
 
     constexpr SkPackedID() : fID(kImpossibleID) {}
@@ -80,6 +91,10 @@ struct SkPackedID {
 
     SkFixed getSubYFixed() const {
         return SubToFixed(ID2SubY(fID));
+    }
+
+    bool isMarked() {
+        return (fID & kMarkMask) != 0;
     }
 
     uint32_t hash() const {
