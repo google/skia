@@ -6,10 +6,11 @@
  */
 
 #include "SkColorSpaceXformer.h"
-#include "SkReadBuffer.h"
-#include "SkSweepGradient.h"
+#include "SkFloatingPoint.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
+#include "SkReadBuffer.h"
+#include "SkSweepGradient.h"
 #include "SkWriteBuffer.h"
 
 SkSweepGradient::SkSweepGradient(const SkPoint& center, SkScalar t0, SkScalar t1,
@@ -31,7 +32,7 @@ SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
 }
 
 static std::tuple<SkScalar, SkScalar> angles_from_t_coeff(SkScalar tBias, SkScalar tScale) {
-    return std::make_tuple(-tBias * 360, (1 / tScale - tBias) * 360);
+    return std::make_tuple(-tBias * 360, (sk_ieee_float_divide(1, tScale) - tBias) * 360);
 }
 
 sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
