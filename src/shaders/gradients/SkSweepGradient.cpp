@@ -31,7 +31,7 @@ SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
 }
 
 static std::tuple<SkScalar, SkScalar> angles_from_t_coeff(SkScalar tBias, SkScalar tScale) {
-    return std::make_tuple(-tBias * 360, (1 / tScale - tBias) * 360);
+    return std::make_tuple(-tBias * 360, (sk_ieee_float_divide(1, tScale) - tBias) * 360);
 }
 
 sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
