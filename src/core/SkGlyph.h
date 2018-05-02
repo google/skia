@@ -131,6 +131,10 @@ struct SkPackedUnicharID : public SkPackedID {
     }
 };
 
+// Because SkGlyph is used directly in a hash table, it can be moved around using memcpy, and any
+// uninitialized pad bytes will be considered uninitialized. Make sure all pad bytes have an
+// initialized value.
+SK_BEGIN_REQUIRE_DENSE
 class SkGlyph {
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
@@ -160,6 +164,9 @@ public:
     uint8_t     fMaskFormat;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
+#else
+    int8_t      pad0{0}, pad1{0}; // It's simplest to add pads here. This will all change once
+                                  // we rip androids hand out of this data structure.
 #endif
     int8_t      fForceBW;
 
@@ -225,5 +232,6 @@ public:
 #endif
     SkPackedGlyphID fID;
 };
+SK_END_REQUIRE_DENSE
 
 #endif
