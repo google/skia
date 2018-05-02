@@ -354,10 +354,9 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
 
     // TODO(crbug.com/831354): The typeface proxy on the client does not replicate the
     // filtering done by the typeface on the server.
-    const bool enableTypefaceFiltering = false;
     SkScalerContext::MakeRecAndEffects(runPaint, &fSurfaceProps, &runMatrix,
                                        SkScalerContextFlags::kFakeGammaAndBoostContrast, &rec,
-                                       &effects, enableTypefaceFiltering);
+                                       &effects);
 
     TRACE_EVENT1("skia", "RecForDesc", "rec", TRACE_STR_COPY(rec.dump().c_str()));
     auto desc = SkScalerContext::DescriptorGivenRecAndEffects(rec, effects);
