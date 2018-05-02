@@ -1793,15 +1793,13 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 ThreadedSink::ThreadedSink(SkColorType colorType, sk_sp<SkColorSpace> colorSpace)
-        : RasterSink(colorType, colorSpace)
-        , fExecutor(SkExecutor::MakeFIFOThreadPool(FLAGS_backendThreads)) {
-}
+        : RasterSink(colorType, colorSpace) {}
 
 Error ThreadedSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkString* str) const {
     this->allocPixels(src, dst);
 
     std::unique_ptr<SkThreadedBMPDevice> device(new SkThreadedBMPDevice(
-            *dst, FLAGS_backendTiles, FLAGS_backendThreads, fExecutor.get()));
+            *dst, FLAGS_backendTiles, FLAGS_backendThreads));
     std::unique_ptr<SkCanvas> canvas(new SkCanvas(device.get()));
     Error result = src.draw(canvas.get());
     canvas->flush();
