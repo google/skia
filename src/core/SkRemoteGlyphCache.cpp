@@ -549,8 +549,8 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
 
 class SkStrikeClient::DiscardableStrikePinner : public SkStrikePinner {
 public:
-    DiscardableStrikePinner(
-            SkDiscardableHandleId discardableHandleId, sk_sp<DiscardableHandleManager> manager)
+    DiscardableStrikePinner(SkDiscardableHandleId discardableHandleId,
+                            sk_sp<DiscardableHandleManager> manager)
             : fDiscardableHandleId(discardableHandleId), fManager(std::move(manager)) {}
 
     ~DiscardableStrikePinner() override = default;
@@ -635,17 +635,17 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             SkGlyph glyph;
             if (!deserializer.read<SkGlyph>(&glyph)) READ_FAILURE
 
-            SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph.getPackedID());
-            *allocatedGlyph = glyph;
-
             ArraySlice<uint8_t> image;
             auto imageSize = glyph.computeImageSize();
             if (imageSize != 0) {
                 image = deserializer.readArray<uint8_t>(imageSize);
                 if (!image.data()) READ_FAILURE
-                allocatedGlyph->allocImage(strike->getAlloc());
-                memcpy(allocatedGlyph->fImage, image.data(), image.size());
             }
+
+            SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph.getPackedID());
+            *allocatedGlyph = glyph;
+            allocatedGlyph->allocImage(strike->getAlloc());
+            memcpy(allocatedGlyph->fImage, image.data(), image.size());
         }
     }
 
