@@ -34,7 +34,8 @@ public:
         }
         return SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, this->vertexCount(),
                                     fPositions.begin(), nullptr, fColors.begin(),
-                                    this->indexCount(), fIndices.begin());
+                                    this->indexCount(), fIndices.begin(),
+                                    SkVertices::kDont_PremulColorMode);
     }
 
 protected:
@@ -61,6 +62,8 @@ protected:
 
     void appendTriangle(uint16_t index0, uint16_t index1, uint16_t index2);
     void appendQuad(uint16_t index0, uint16_t index1, uint16_t index2, uint16_t index3);
+    void tessellateQuad(uint16_t prevPenumbraIndex, uint16_t currUmbraIndex,
+                        const SkPoint& newPenumbraPoint);
 
     SkScalar heightFunc(SkScalar x, SkScalar y) {
         return fZPlaneParams.fX*x + fZPlaneParams.fY*y + fZPlaneParams.fZ;
@@ -294,6 +297,40 @@ void SkBaseShadowTessellator::appendQuad(uint16_t index0, uint16_t index1,
     indices[3] = index2;
     indices[4] = index1;
     indices[5] = index3;
+}
+
+// adds new penumbra point, breaking quad into a rectangle and two triangles
+void SkBaseShadowTessellator::tessellateQuad(uint16_t prevPenumbraIndex, uint16_t currUmbraIndex,
+                                             const SkPoint& newPenumbraPoint) {
+    SkVector outset = newPenumbraPoint - fPositions[currUmbraIndex];
+    SkVector transverse = fPositions[fPrevUmbraIndex] - fPositions[currUmbraIndex];
+    // if quad is not a rectangle, break into rectangle and two triangles
+    SkScalar projection = outset.dot(transverse);
+    if (!SkScalarNearlyZero(projection)) {
+        // *** seems like there should be a more efficient way to do this
+        projection /= transverse.length();
+        transverse.normalize();
+        outset -= transverse * projection;
+
+        *fPositions.push() = fPositions[fPrevUmbraIndex] + outset;
+        *fColors.push() = fPenumbraColor;
+        this->appendTriangle(prevPenumbraIndex, fPositions.count() - 1, fPrevUmbraIndex);
+
+        *fPositions.push() = fPositions[currUmbraIndex] + outset;
+        *fColors.push() = fPenumbraColor;
+        this->appendQuad(fPrevUmbraIndex, fPositions.count() - 2, currUmbraIndex,
+                         fPositions.count() - 1);
+
+        *fPositions.push() = newPenumbraPoint;
+        *fColors.push() = fPenumbraColor;
+        this->appendTriangle(fPositions.count() - 2, fPositions.count() - 1, currUmbraIndex);
+    } else {
+        *fPositions.push() = newPenumbraPoint;
+        *fColors.push() = fPenumbraColor;
+
+        this->appendQuad(fPrevUmbraIndex, prevPenumbraIndex, currUmbraIndex,
+                         fPositions.count() - 1);
+    }
 }
 
 bool SkBaseShadowTessellator::setTransformedHeightFunc(const SkMatrix& ctm) {
@@ -1145,12 +1182,8 @@ bool SkSpotShadowTessellator::computeConvexShadow(SkScalar radius) {
         }
 
         // add final edge
-        *fPositions.push() = fFirstPoint + normal;
-        *fColors.push() = fPenumbraColor;
-
-        this->appendQuad(fPrevUmbraIndex, fPositions.count() - 2,
-                         fFirstVertexIndex, fPositions.count() - 1);
-
+        SkPoint finalPoint = fFirstPoint + normal;
+        this->tessellateQuad(fPositions.count() - 1, fFirstVertexIndex, finalPoint);
         fPrevOutset = normal;
     }
 
@@ -1516,15 +1549,18 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
         }
     }
 
-    // add next penumbra point and quad
-    SkPoint newPoint = nextPoint + nextNormal;
-    *fPositions.push() = newPoint;
-    *fColors.push() = fPenumbraColor;
+    if (duplicate) {
+        // add next penumbra point and fan triangle
+        SkPoint newPoint = nextPoint + nextNormal;
+        *fPositions.push() = newPoint;
+        *fColors.push() = fPenumbraColor;
 
-    if (!duplicate) {
-        this->appendTriangle(fPrevUmbraIndex, prevPenumbraIndex, currUmbraIndex);
+        this->appendTriangle(prevPenumbraIndex, fPositions.count() - 1, currUmbraIndex);
+    } else {
+        // add next penumbra point and quad
+        SkPoint newPoint = nextPoint + nextNormal;
+        this->tessellateQuad(prevPenumbraIndex, currUmbraIndex, newPoint);
     }
-    this->appendTriangle(prevPenumbraIndex, fPositions.count() - 1, currUmbraIndex);
 
     fPrevUmbraIndex = currUmbraIndex;
     fPrevOutset = nextNormal;
