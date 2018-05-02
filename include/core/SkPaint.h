@@ -1306,9 +1306,7 @@ public:
         @param byteLength  length of character storage in bytes
         @return            number of glyphs represented by text of length byteLength
     */
-    int countText(const void* text, size_t byteLength) const {
-        return this->textToGlyphs(text, byteLength, nullptr);
-    }
+    int countText(const void* text, size_t byteLength) const;
 
     /** Returns the advance width of text if kVerticalText_Flag is clear,
         and the height of text if kVerticalText_Flag is set.

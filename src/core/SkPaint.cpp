@@ -393,27 +393,29 @@ SkScalar SkPaint::MaxCacheSize2(SkScalar maxLimit) {
 #include "SkGlyphCache.h"
 #include "SkUtils.h"
 
-int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyphs[]) const {
-    if (byteLength == 0) {
-        return 0;
-    }
-
-    SkASSERT(textData != nullptr);
-
-    if (nullptr == glyphs) {
-        switch (this->getTextEncoding()) {
+int SkPaint::countText(const void* text, size_t byteLength) const {
+    SkASSERT(text != nullptr);
+    switch (this->getTextEncoding()) {
         case kUTF8_TextEncoding:
-            return SkUTF8_CountUnichars(textData, byteLength);
+            return SkUTF8_CountUnichars(text, byteLength);
         case kUTF16_TextEncoding:
-            return SkUTF16_CountUnichars(textData, byteLength);
+            return SkUTF16_CountUnichars(text, byteLength);
         case kUTF32_TextEncoding:
             return SkToInt(byteLength >> 2);
         case kGlyphID_TextEncoding:
             return SkToInt(byteLength >> 1);
         default:
             SkDEBUGFAIL("unknown text encoding");
-        }
-        return 0;
+    }
+
+    return 0;
+}
+
+int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyphs[]) const {
+    SkASSERT(textData != nullptr);
+
+    if (nullptr == glyphs) {
+        return this->countText(textData, byteLength);
     }
 
     // if we get here, we have a valid glyphs[] array, so time to fill it in
