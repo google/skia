@@ -1077,6 +1077,19 @@ static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
     return textBlobBuilder.make();
 }
 
+static bool pointsAreReasonable(const SkPoint* pts, int count) {
+#if defined(IS_FUZZING_WITH_LIBFUZZER)
+    // LibFuzzer frequently runs into timeouts when drawing huge, but finite, points.
+    // Put an upper limit on this to lessen those timeouts.
+    for(int i = 0; i < count; i++) {
+        if (pts[i].isFinite() && pts[i].length() > 10000000) {
+            return false;
+        }
+    }
+#endif
+    return true;
+}
+
 static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
     if (!fuzz || !canvas || depth <= 0) {
         return;
@@ -1262,7 +1275,9 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz->nextRange(&count, 0, kMaxCount);
                 SkPoint pts[kMaxCount];
                 fuzz->nextN(pts, count);
-                canvas->drawPoints(pointMode, count, pts, paint);
+                if (pointsAreReasonable(pts, count)) {
+                    canvas->drawPoints(pointMode, count, pts, paint);
+                }
                 break;
             }
             case 25: {
