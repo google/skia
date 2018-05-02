@@ -961,7 +961,7 @@ static inline bool isSmoothEnough(SkAnalyticEdge* thisEdge, SkAnalyticEdge* next
 // If yes, we can later skip the fractional y and directly jump to integer y.
 static inline bool isSmoothEnough(SkAnalyticEdge* leftE, SkAnalyticEdge* riteE,
                            SkAnalyticEdge* currE, int stop_y) {
-    if (currE->fUpperY >= stop_y << 16) {
+    if (currE->fUpperY >= SkLeftShift(stop_y, 16)) {
         return false; // We're at the end so we won't skip anything
     }
     if (leftE->fLowerY + SK_Fixed1 < riteE->fLowerY) {
