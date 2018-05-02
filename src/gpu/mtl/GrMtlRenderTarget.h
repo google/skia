@@ -40,9 +40,7 @@ public:
         return true;
     }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     GrBackendObject getRenderTargetHandle() const override;
-#endif
 
     GrBackendRenderTarget getBackendRenderTarget() const override {
         return GrBackendRenderTarget(); // invalid

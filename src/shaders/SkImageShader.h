@@ -23,12 +23,16 @@ public:
 
     bool isOpaque() const override;
 
-    void toString(SkString* str) const override;
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
+
+    static bool IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType, SkAlphaType,
+                                     SkShader::TileMode tx, SkShader::TileMode ty,
+                                     const SkMatrix& localM);
 
 private:
     SkImageShader(sk_sp<SkImage>,
@@ -43,6 +47,8 @@ private:
     bool onIsABitmap(SkBitmap*, SkMatrix*, SkShader::TileMode*) const override;
 #endif
     SkImage* onIsAImage(SkMatrix*, SkShader::TileMode*) const override;
+
+    bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override;
 
     bool onAppendStages(const StageRec&) const override;
 

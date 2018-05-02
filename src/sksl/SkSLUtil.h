@@ -151,14 +151,6 @@ public:
         return nullptr;
     }
 
-    const char* externalTextureExtensionString() const {
-        return nullptr;
-    }
-
-    const char* secondExternalTextureExtensionString() const {
-        return nullptr;
-    }
-
     const char* versionDeclString() const {
         return "";
     }
@@ -177,10 +169,6 @@ public:
 
     bool incompleteShortIntPrecision() const {
         return false;
-    }
-
-    const char* fbFetchColorName() const {
-        return nullptr;
     }
 };
 

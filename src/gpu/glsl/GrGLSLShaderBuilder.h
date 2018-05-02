@@ -169,6 +169,7 @@ protected:
         kFragCoordConventions_GLSLPrivateFeature,
         kBlendEquationAdvanced_GLSLPrivateFeature,
         kBlendFuncExtended_GLSLPrivateFeature,
+        kExternalTexture_GLSLPrivateFeature,
         kTexelBuffer_GLSLPrivateFeature,
         kFramebufferFetch_GLSLPrivateFeature,
         kNoPerspectiveInterpolation_GLSLPrivateFeature,
@@ -249,7 +250,6 @@ protected:
     int fCodeIndex;
     bool fFinalized;
 
-    friend class GrCCCoverageProcessor; // to access code().
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
     friend class GrGLSLVaryingHandler; // to access noperspective interpolation feature.

@@ -91,14 +91,6 @@ protected:
         return fSurfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport;
     }
 
-    void setGLRTFBOIDIs0() {
-        SkASSERT(this->asRenderTarget());
-        fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
-    }
-    bool glRTFBOIDis0() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0;
-    }
-
     // Methods made available via GrSurfacePriv
     bool hasPendingRead() const;
     bool hasPendingWrite() const;
@@ -122,8 +114,6 @@ protected:
     void onAbandon() override;
 
 private:
-    const char* getResourceType() const override { return "Surface"; }
-
     GrPixelConfig          fConfig;
     int                    fWidth;
     int                    fHeight;

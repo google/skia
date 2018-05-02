@@ -95,18 +95,41 @@ private:
     typedef GrContext INHERITED;
 };
 
+GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext) {
+    GrContextOptions defaultOptions;
+    return Create(backend, backendContext, defaultOptions);
+}
+
+GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
+                             const GrContextOptions& options) {
+
+    sk_sp<GrContext> context(new GrDirectContext(backend));
+
+    context->fGpu = GrGpu::Make(backend, backendContext, options, context.get());
+    if (!context->fGpu) {
+        return nullptr;
+    }
+
+    context->fCaps = context->fGpu->refCaps();
+    if (!context->init(options)) {
+        return nullptr;
+    }
+
+    return context.release();
+}
+
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
     GrContextOptions defaultOptions;
     return MakeGL(std::move(interface), defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeGL(const GrContextOptions& options) {
-    return MakeGL(nullptr, options);
+sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface) {
+    return MakeGL(sk_ref_sp(interface));
 }
 
-sk_sp<GrContext> GrContext::MakeGL() {
-    GrContextOptions defaultOptions;
-    return MakeGL(nullptr, defaultOptions);
+sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface,
+                                   const GrContextOptions& options) {
+    return MakeGL(sk_ref_sp(interface), options);
 }
 
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,

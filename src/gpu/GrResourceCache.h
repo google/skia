@@ -168,12 +168,7 @@ public:
     void purgeAsNeeded();
 
     /** Purges all resources that don't have external owners. */
-    void purgeAllUnlocked() { this->purgeUnlockedResources(false); }
-
-    // Purge unlocked resources. If 'scratchResourcesOnly' is true the purgeable resources
-    // containing persistent data are spared. If it is false then all purgeable resources will
-    // be deleted.
-    void purgeUnlockedResources(bool scratchResourcesOnly);
+    void purgeAllUnlocked();
 
     /** Purge all resources not used since the passed in time. */
     void purgeResourcesNotUsedSince(GrStdSteadyClock::time_point);

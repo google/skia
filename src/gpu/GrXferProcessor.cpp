@@ -6,9 +6,8 @@
  */
 
 #include "GrXferProcessor.h"
-
-#include "GrCaps.h"
 #include "GrPipeline.h"
+#include "gl/GrGLCaps.h"
 
 GrXferProcessor::GrXferProcessor(ClassID classID)
         : INHERITED(classID)

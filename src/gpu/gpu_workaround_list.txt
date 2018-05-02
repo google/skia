@@ -1,2 +1,0 @@
-avoid_stencil_buffers
-clear_to_zero_or_one_broken
