@@ -13,14 +13,36 @@
 #include "SkMutex.h"
 #include "SkOTTable_OS_2.h"
 #include "SkOnce.h"
+#include "SkSharedMutex.h"
 #include "SkStream.h"
+#include "SkTHash.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
+#include "SkUtils.h"
+
+class SkTypeface::CodePointCache {
+public:
+    explicit CodePointCache(SkTypeface*);
+
+    size_t utfNToGlyphs(
+        const void *text,
+        size_t bytes,
+        SkTypeface::Encoding encoding,
+        uint16_t glyphs[]);
+
+private:
+    SkTypeface* const fTypeface;
+    SkSharedMutex fMu;
+    SkTHashMap<uint32_t, uint16_t> fMap;
+};
 
 SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
-    : fUniqueID(SkTypefaceCache::NewFontID()), fStyle(style), fIsFixedPitch(isFixedPitch) { }
+    : fUniqueID(SkTypefaceCache::NewFontID())
+    , fStyle(style)
+    , fIsFixedPitch(isFixedPitch)
+    , fCodePointCache(skstd::make_unique<CodePointCache>(this)) { }
 
-SkTypeface::~SkTypeface() { }
+SkTypeface::~SkTypeface() = default;
 
 #ifdef SK_WHITELIST_SERIALIZED_TYPEFACES
 extern void WhitelistSerializeTypeface(const SkTypeface*, SkWStream* );
@@ -259,6 +281,17 @@ int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
     return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
 
+size_t SkTypeface::textToGlyphs(
+    const void *text, size_t bytes, SkTypeface::Encoding encoding, uint16_t *glyphs) {
+    return fCodePointCache->utfNToGlyphs(text, bytes, encoding, glyphs);
+}
+
+uint16_t SkTypeface::codePointToGlyph(uint32_t codePoint) const {
+    uint16_t answer;
+    this->onCharsToGlyphs(&codePoint, kUTF32_Encoding, &answer, 1);
+    return answer;
+}
+
 int SkTypeface::countGlyphs() const {
     return this->onCountGlyphs();
 }
@@ -367,4 +400,72 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::onGetAdvancedMetrics() const {
     SkDEBUGFAIL("Typefaces that need to work with PDF backend must override this.");
     return nullptr;
+}
+
+SkTypeface::CodePointCache::CodePointCache(SkTypeface* typeface)
+    : fTypeface{typeface} { }
+
+size_t SkTypeface::CodePointCache::utfNToGlyphs(
+    const void *text, size_t bytes, SkTypeface::Encoding encoding, uint16_t glyphs[])
+{
+    // Just no.
+    if (bytes >= std::numeric_limits<uint32_t>::max()) {
+        return 0;
+    }
+
+    size_t glyphCount = 0;
+
+    struct Missing {
+        uint32_t codepoint;
+        uint32_t position;
+    };
+
+    struct MissingLess {
+        bool operator()(const Missing &a, const Missing &b) {
+            return a.codepoint < b.codepoint;
+        }
+    };
+
+    std::vector<Missing> missing;
+
+    fMu.acquireShared();
+    if (fMap.count() > 0) {
+        auto convert = [&glyphs, &missing, this](size_t i, uint32_t c) {
+            if (auto glyph = fMap.find(c)) {
+                glyphs[i] = *glyph;
+            } else {
+                missing.push_back(Missing{c, SkTo<uint32_t>(i)});
+            }
+        };
+        glyphCount = SkParseUnicode(text, bytes, encoding, convert);
+        fMu.releaseShared();
+    } else {
+        // Can release the lock early for first time.
+        fMu.releaseShared();
+        auto convert = [&missing](size_t i, uint32_t c) {
+            missing.emplace_back(Missing{c, SkTo<uint32_t>(i)});
+        };
+        glyphCount = SkParseUnicode(text, bytes, encoding, convert);
+    }
+
+    if (missing.empty()) {
+        return glyphCount;
+    } else {
+        // Sort to get the codepoints in order.
+        std::sort(missing.begin(), missing.end(), MissingLess());
+
+        // Find all the missing pairs, and fill in the glyphs using positions.
+        uint32_t lastCodepoint = std::numeric_limits<uint32_t>::max();
+        uint16_t glyph = 0;
+        for (auto& m : missing) {
+            if (m.codepoint != lastCodepoint) {
+                glyph = fTypeface->codePointToGlyph(m.codepoint);
+                SkAutoMutexAcquire l(fMu);
+                fMap.set(m.codepoint, glyph);
+            }
+            glyphs[m.position] = glyph;
+        }
+    }
+
+    return glyphCount;
 }
