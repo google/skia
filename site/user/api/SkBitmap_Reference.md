@@ -50,7 +50,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | name | description |
 | --- | --- |
 | <a href="#Allocate">Allocate</a> | allocates storage for pixels |
-| <a href="#Draw">Draw</a> | set pixels to <a href="SkColor_Reference#Color">Color</a> |
+| <a href="#Draw">Draw</a> | sets pixels to <a href="SkColor_Reference#Color">Color</a> |
 | <a href="#Pixels">Pixels</a> | read and write pixel values |
 | <a href="#Property">Property</a> | metrics and attributes |
 | <a href="#Row_Bytes">Row Bytes</a> | interval from one row to the next |
@@ -313,7 +313,7 @@ copy of <a href="#SkBitmap_copy_const_SkBitmap_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="f12c2af14b0fffd094d632b5f766aa1d">
+<div><fiddle-embed name="bbbae7a181bfd128a4484e8e9f454db1">
 
 #### Example Output
 
@@ -354,7 +354,7 @@ copy of <a href="#SkBitmap_move_SkBitmap_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="a137b2027d2ac098a21d68d93391f5bb">
+<div><fiddle-embed name="40afd4f1fa69e02d69d92b38252088ef">
 
 #### Example Output
 
@@ -410,7 +410,7 @@ copy of <a href="#SkBitmap_copy_operator_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="98d5866308756c21c8f8b639bc4e033a">
+<div><fiddle-embed name="45279c519ae808f78bd30e9d84bdfdde">
 
 #### Example Output
 
@@ -451,7 +451,7 @@ copy of <a href="#SkBitmap_move_operator_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="02836d36fa714d553c32f0d8ea11da73">
+<div><fiddle-embed name="35ea3fed27d8db22dc00f48670de64de">
 
 #### Example Output
 
@@ -770,7 +770,7 @@ immutable.
 
 ### Example
 
-<div><fiddle-embed name="7ade8a1a21ea5197e565c86740b47b73"><div><a href="undocumented#SkColorSpace_MakeSRGBLinear">SkColorSpace::MakeSRGBLinear</a> creates <a href="undocumented#Color_Space">Color Space</a> with linear gamma
+<div><fiddle-embed name="817f95879fadba44baf87ea60e9b595a"><div><a href="undocumented#SkColorSpace_MakeSRGBLinear">SkColorSpace::MakeSRGBLinear</a> creates <a href="undocumented#Color_Space">Color Space</a> with linear gamma
 and an sRGB gamut. This <a href="undocumented#Color_Space">Color Space</a> gamma is not close to sRGB gamma.
 </div>
 
@@ -807,7 +807,7 @@ The returned <a href="undocumented#Color_Space">Color Space</a> is immutable.
 
 ### Example
 
-<div><fiddle-embed name="972e9bb22c1ce94bb97b2d106168280e">
+<div><fiddle-embed name="cb028b7931da85b949ad0953b9711f9f">
 
 #### Example Output
 
@@ -1137,7 +1137,7 @@ true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set
 
 ### Example
 
-<div><fiddle-embed name="be21305f5654a1d8ed765710813a1f14"><a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<div><fiddle-embed name="dd73f0f927a049b17982c8cf06dd2d00"><a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
 <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
 <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
@@ -1241,7 +1241,7 @@ true if pixels are immutable
 
 ### Example
 
-<div><fiddle-embed name="cca4f94232e5e1fcee9a841b13df9d9c">
+<div><fiddle-embed name="db61fdcd382342ee88ea1b4f27c27b95">
 
 #### Example Output
 
@@ -1340,7 +1340,7 @@ true if marked volatile
 
 ### Example
 
-<div><fiddle-embed name="4f3e4d39cf34ea52fcd933dbafc46dfa">
+<div><fiddle-embed name="23c4543ac6cdd0e8fe762816a0dc2e03">
 
 #### Example Output
 
@@ -1380,7 +1380,7 @@ true if backing pixels are temporary</td>
 
 ### Example
 
-<div><fiddle-embed name="9443ada07e6123fc895be4c958244218"></fiddle-embed></div>
+<div><fiddle-embed name="e8627a4df659b896402f89a91326618f"></fiddle-embed></div>
 
 ### See Also
 
@@ -1406,7 +1406,7 @@ its memory if <a href="#Bitmap">Bitmap</a> is the sole owner.
 
 ### Example
 
-<div><fiddle-embed name="458f838acf38302abec477cec3102f0f">
+<div><fiddle-embed name="52ccaeda67924373c5b55a2b89fe314d">
 
 #### Example Output
 
@@ -1676,7 +1676,9 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> set successful
 
 <table>
   <tr>
-    <td><a name="SkBitmap_kZeroPixels_AllocFlag"> <code><strong>SkBitmap::kZeroPixels_AllocFlag </strong></code> </a></td><td>1</td><td>Instructs <a href="#SkBitmap_tryAllocPixelsFlags">tryAllocPixelsFlags</a> and <a href="#SkBitmap_allocPixelsFlags">allocPixelsFlags</a> to zero pixel memory.
+    <td><a name="SkBitmap_kZeroPixels_AllocFlag"> <code><strong>SkBitmap::kZeroPixels_AllocFlag </strong></code> </a></td><td>1</td><td></table>
+
+Instructs <a href="#SkBitmap_tryAllocPixelsFlags">tryAllocPixelsFlags</a> and <a href="#SkBitmap_allocPixelsFlags">allocPixelsFlags</a> to zero pixel memory.
 </td>
   </tr>
 </table>
@@ -1747,7 +1749,7 @@ true if pixels allocation is successful
 
 ### Example
 
-<div><fiddle-embed name="4fff5f5034ced615ad5a1d50c40aeff3">
+<div><fiddle-embed name="f1d1880d38e0aea4cefd3e11745e8a09">
 
 #### Example Output
 
@@ -1798,7 +1800,7 @@ contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a
 
 ### Example
 
-<div><fiddle-embed name="f21b8965a88c94a32393a8890c4672af"><div><a href="undocumented#Text">Text</a> is drawn on a transparent background; drawing the bitmap a second time
+<div><fiddle-embed name="737e721c7d9e0f367d25521a1b823b9d"><div><a href="undocumented#Text">Text</a> is drawn on a transparent background; drawing the bitmap a second time
 lets the first draw show through.
 </div></fiddle-embed></div>
 
@@ -2089,7 +2091,7 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> is set to info
 
 ### Example
 
-<div><fiddle-embed name="ff5b5c349efb5d929ff5dff07b7727e6"><div><a href="#SkBitmap_installPixels_releaseProc">releaseProc</a> is called immediately because <a href="#SkBitmap_rowBytes">rowBytes</a> is too small for <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
+<div><fiddle-embed name="8c4f7bf73fffa1a812ee8e88e44e639c"><div><a href="#SkBitmap_installPixels_releaseProc">releaseProc</a> is called immediately because <a href="#SkBitmap_rowBytes">rowBytes</a> is too small for <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
 </div>
 
 #### Example Output
@@ -2330,7 +2332,7 @@ true if custom <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a> repo
 
 <div><fiddle-embed name="eb6f861ca1839146d26e40d56c2a001c"><div><a href="#SkBitmap_HeapAllocator">HeapAllocator</a> limits the maximum size of <a href="#Bitmap">Bitmap</a> to two gigabytes. Using
 a custom <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a>, this limitation may be relaxed. This example can be
-modified to allocate an eight gigabyte <a href="#Bitmap">Bitmap</a> on a 64 bit platform with
+modified to allocate an eight gigabyte <a href="#Bitmap">Bitmap</a> on a 64-bit platform with
 sufficient memory.
 </div></fiddle-embed></div>
 
@@ -2475,7 +2477,7 @@ row offset in <a href="undocumented#Pixel_Ref">Pixel Ref</a> for bitmap origin</
 
 ### Example
 
-<div><fiddle-embed name="13df9e5b1adcec33d11e4b0f8a91ecb8"><div>Treating 32 bit data as 8 bit data is unlikely to produce useful results.
+<div><fiddle-embed name="f98cc0451c6e77a8833d261c9a484c5f"><div>Treating 32-bit data as 8-bit data is unlikely to produce useful results.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -2557,7 +2559,7 @@ Marks that pixels in <a href="undocumented#Pixel_Ref">Pixel Ref</a> have changed
 
 ### Example
 
-<div><fiddle-embed name="706e6409c8364e7786d6c69db7242c76"></fiddle-embed></div>
+<div><fiddle-embed name="8f463ed17b0ed4fb9c503a0ec71706f9"></fiddle-embed></div>
 
 ### See Also
 
@@ -2594,7 +2596,7 @@ then <a href="SkColor_Reference#RGB">Color RGB</a> is ignored.
 
 ### Example
 
-<div><fiddle-embed name="22804faa423192f96a29578b1d396ace"></fiddle-embed></div>
+<div><fiddle-embed name="418928dbfffa9eb00c8225530f44baf5"></fiddle-embed></div>
 
 ### See Also
 
@@ -2630,7 +2632,7 @@ amount of <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a>, from no blue 
 
 ### Example
 
-<div><fiddle-embed name="ebaa436565ce9c0f883bef871d099654"></fiddle-embed></div>
+<div><fiddle-embed name="67277b0a1003f340473a35982533561c"></fiddle-embed></div>
 
 ### See Also
 
@@ -2672,7 +2674,7 @@ rectangle to fill</td>
 
 ### Example
 
-<div><fiddle-embed name="116baaa35348b5c0a353fb6d4917d574"></fiddle-embed></div>
+<div><fiddle-embed name="2c5c4230ccd2861a5d15b7cd2764ab6e"></fiddle-embed></div>
 
 ### See Also
 
@@ -2723,7 +2725,7 @@ pixel converted to <a href="undocumented#Unpremultiply">Unpremultiplied</a> <a h
 
 ### Example
 
-<div><fiddle-embed name="2e49fa71dd4be95470248ea6eb35468b">
+<div><fiddle-embed name="0f05970f0ce47f462e8c0a3aa146575f">
 
 #### Example Output
 
@@ -2877,7 +2879,7 @@ unsigned 16-bit pointer to pixel at (<a href="#SkBitmap_getAddr16_x">x</a>, <a h
 
 ### Example
 
-<div><fiddle-embed name="3d7e49d428c9a4812558b39cf505baa6">
+<div><fiddle-embed name="53e00899ef2e00e2096daf7a07d9b059">
 
 #### Example Output
 
@@ -2981,7 +2983,7 @@ true if <a href="#SkBitmap_extractSubset_dst">dst</a> is replaced by <a href="#S
 
 ### Example
 
-<div><fiddle-embed name="3ad80d8fcb13344612f361812658b696">
+<div><fiddle-embed name="304148c50c91490bfd58e9222342419c">
 
 #### Example Output
 
@@ -3036,6 +3038,7 @@ If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_alphaType">alphaType</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkBitmap_readPixels_srcX">srcX</a> and <a href="#SkBitmap_readPixels_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
 Returns false ifabs(srcX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
@@ -3103,6 +3106,7 @@ If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_alphaType">alphaType</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkBitmap_readPixels_2_srcX">srcX</a> and <a href="#SkBitmap_readPixels_2_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
 Returns false ifabs(srcX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
@@ -3164,6 +3168,7 @@ If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkBitmap_readPixels_3_srcX">srcX</a> and <a href="#SkBitmap_readPixels_3_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
 Returns false ifabs(srcX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
@@ -3233,7 +3238,7 @@ true if pixels are copied to <a href="#SkBitmap_readPixels_4_dst">dst</a>
 
 ### Example
 
-<div><fiddle-embed name="2260ff6d04708699b6223b4f73fd268e"></fiddle-embed></div>
+<div><fiddle-embed name="4590fbf052659d6e629fbfd827081ae5"></fiddle-embed></div>
 
 ### See Also
 
@@ -3267,6 +3272,7 @@ If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkBitmap_writePixels_src">src</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkBitmap_writePixels_dstX">dstX</a> and <a href="#SkBitmap_writePixels_dstY">dstY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
 Returns false ifabs(dstX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,

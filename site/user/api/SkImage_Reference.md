@@ -144,7 +144,7 @@ drawing.
 | <a href="#SkImage_refEncodedData">refEncodedData</a> | returns <a href="#Image">Image</a> encoded in <a href="undocumented#SkData">SkData</a> if present |
 | <a href="#SkImage_scalePixels">scalePixels</a> | scales and converts one <a href="#Image">Image</a> to another |
 | <a href="#SkImage_toString">toString</a> | converts <a href="#Image">Image</a> to machine readable form |
-| <a href="#SkImage_uniqueID">uniqueID</a> | identifier for <a href="#Image">Image</a> |
+| <a href="#SkImage_uniqueID">uniqueID</a> | returns identifier for <a href="#Image">Image</a> |
 | <a href="#SkImage_width">width</a> | returns pixel column count |
 
 <a name="SkImage_MakeRasterCopy"></a>
@@ -221,7 +221,7 @@ size of pixel row or larger</td>
 
 ### Example
 
-<div><fiddle-embed name="367bdf6ee6ef2482eea95d4a9887c9b0"></fiddle-embed></div>
+<div><fiddle-embed name="22e7ce79ab2fe94252d23319f2258127"></fiddle-embed></div>
 
 ### See Also
 
@@ -685,7 +685,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="b07964ec9c5c8a6febba805f1cf4d071" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="b034517e39394b7543f06ec885e36d7d" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -789,11 +789,15 @@ created <a href="#Image">Image</a>, or nullptr
 
 <table>
   <tr>
-    <td><a name="SkImage_BitDepth_kU8"> <code><strong>SkImage::BitDepth::kU8 </strong></code> </a></td><td>0</td><td>Use 8 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using unsigned integer format.
+    <td><a name="SkImage_BitDepth_kU8"> <code><strong>SkImage::BitDepth::kU8 </strong></code> </a></td><td>0</td><td></table>
+
+Use 8 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using unsigned integer format.
 </td>
   </tr>
   <tr>
-    <td><a name="SkImage_BitDepth_kF16"> <code><strong>SkImage::BitDepth::kF16 </strong></code> </a></td><td>1</td><td>Use 16 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using half-precision floating point format.
+    <td><a name="SkImage_BitDepth_kF16"> <code><strong>SkImage::BitDepth::kF16 </strong></code> </a></td><td>1</td><td></table>
+
+Use 16 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using half-precision floating point format.
 </td>
   </tr>
 </table>
@@ -830,7 +834,7 @@ width and height</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_paint"> <code><strong>paint </strong></code> </a></td> <td>
 <a href="SkPaint_Reference#Paint">Paint</a> to apply transparency, filtering, and so on; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_bitDepth"> <code><strong>bitDepth </strong></code> </a></td> <td>
-8 bit integer or 16 bit float: per component</td>
+8-bit integer or 16-bit float: per component</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
 range of colors; may be nullptr</td>
   </tr>
@@ -903,7 +907,7 @@ created <a href="#Image">Image</a>, or nullptr
 | <a href="#SkImage_isTextureBacked">isTextureBacked</a> | returns if <a href="#Image">Image</a> was created from <a href="undocumented#GPU_Texture">GPU Texture</a> |
 | <a href="#SkImage_isValid">isValid</a> | returns if <a href="#Image">Image</a> can draw to <a href="undocumented#Raster_Surface">Raster Surface</a> or <a href="undocumented#GPU_Context">GPU Context</a> |
 | <a href="#SkImage_refColorSpace">refColorSpace</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a> |
-| <a href="#SkImage_uniqueID">uniqueID</a> | identifier for <a href="#Image">Image</a> |
+| <a href="#SkImage_uniqueID">uniqueID</a> | returns identifier for <a href="#Image">Image</a> |
 | <a href="#SkImage_width">width</a> | returns pixel column count |
 
 <a name="SkImage_width"></a>
@@ -1039,7 +1043,9 @@ SkAlphaType alphaType() const
 </pre>
 
 Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
+
+<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
 or was parsed from encoded data.
 
 ### Return Value
@@ -1418,7 +1424,7 @@ GrBackendObject getTextureHandle(bool flushPendingGrContextIO, GrSurfaceOrigin* 
 GrBackendTexture getBackendTexture(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const
 </pre>
 
-Retrieves the backend texture. If <a href="#Image">Image</a> has no backend texture, an invalid
+Retrieves the back-end texture. If <a href="#Image">Image</a> has no back-end texture, an invalid
 object is returned. Call <a href="undocumented#GrBackendTexture_isValid">GrBackendTexture::isValid</a> to determine if the result
 is valid.
 
@@ -1474,11 +1480,13 @@ pixels are not accessible.
 
 <table>
   <tr>
-    <td><a name="SkImage_kAllow_CachingHint"> <code><strong>SkImage::kAllow_CachingHint </strong></code> </a></td><td>0</td><td>Allows Skia to internally cache decoded and copied pixels.
+    <td><a name="SkImage_kAllow_CachingHint"> <code><strong>SkImage::kAllow_CachingHint </strong></code> </a></td><td>0</td><td></table>
+
 </td>
   </tr>
   <tr>
-    <td><a name="SkImage_kDisallow_CachingHint"> <code><strong>SkImage::kDisallow_CachingHint </strong></code> </a></td><td>1</td><td>Disallows Skia from internally caching decoded and copied pixels.
+    <td><a name="SkImage_kDisallow_CachingHint"> <code><strong>SkImage::kDisallow_CachingHint </strong></code> </a></td><td>1</td><td></table>
+
 </td>
   </tr>
 </table>
@@ -1581,6 +1589,7 @@ If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color T
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a> must
 match. If <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> is nullptr, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkImage_readPixels_2_srcX">srcX</a> and <a href="#SkImage_readPixels_2_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkImage_width">width</a> or <a href="#SkImage_height">height</a> is zero or negative.
 Returns false ifabs(srcX) >= <a href="#Image">Image</a> <a href="#SkImage_width">width</a>,
@@ -2026,7 +2035,7 @@ If <a href="#Image">Image</a> is not texture backed, returns texture with <a hre
   </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_image"> <code><strong>image </strong></code> </a></td> <td>
 <a href="#Image">Image</a> used for texture</td>
   </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-storage for backend texture</td>
+storage for back-end texture</td>
   </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTextureReleaseProc"> <code><strong>backendTextureReleaseProc </strong></code> </a></td> <td>
 storage for clean up function</td>
   </tr>
@@ -2034,11 +2043,11 @@ storage for clean up function</td>
 
 ### Return Value
 
-true if backend texture was created
+true if back-end texture was created
 
 ### Example
 
-<div><fiddle-embed name="98e70337c2964abd2624239d28bbecd7" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="06aeb3cf63ffccf7b49fe556e5def351" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2060,7 +2069,8 @@ soon
 
 <table>
   <tr>
-    <td><a name="SkImage_kRO_LegacyBitmapMode"> <code><strong>SkImage::kRO_LegacyBitmapMode </strong></code> </a></td><td>0</td><td>Returned bitmap is read-only and immutable.
+    <td><a name="SkImage_kRO_LegacyBitmapMode"> <code><strong>SkImage::kRO_LegacyBitmapMode </strong></code> </a></td><td>0</td><td></table>
+
 </td>
   </tr>
 

@@ -849,7 +849,7 @@ bool isValid() const
 
 <table>
   <tr>
-    <td><a name="kBottomLeft_GrSurfaceOrigin"> <code><strong>kBottomLeft_GrSurfaceOrigin </strong></code> </a></td><td>0 </td><td></td>
+    <td><a name="kBottomLeft_GrSurfaceOrigin"> <code><strong>kBottomLeft_GrSurfaceOrigin </strong></code> </a></td><td>0</td><td></td>
   </tr>
   <tr>
     <td><a name="kTopLeft_GrSurfaceOrigin"> <code><strong>kTopLeft_GrSurfaceOrigin </strong></code> </a></td><td>1</td><td></td>

@@ -4,7 +4,7 @@ SkColor4f Reference
 # <a name="Color4f"></a> Color4f
 
 # <a name="SkColor4f"></a> Struct SkColor4f
-The float values are 0...1 unpremultiplied
+The float values are 0...1 <a href="undocumented#Unpremultiply">Unpremultiplied</a>
 
 ## <a name="Overview"></a> Overview
 
