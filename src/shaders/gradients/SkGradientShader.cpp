@@ -118,7 +118,6 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
 SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit)
     : INHERITED(desc.fLocalMatrix)
     , fPtsToUnit(ptsToUnit)
-    , fColorSpace(desc.fColorSpace ? desc.fColorSpace : SkColorSpace::MakeSRGBLinear())
     , fColorsAreOpaque(true)
 {
     fPtsToUnit.getType();  // Precache so reads are threadsafe.
@@ -167,6 +166,16 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     if (dummyLast) {
         origColors += desc.fCount;
         *origColors = desc.fColors[desc.fCount - 1];
+    }
+
+    if (!desc.fColorSpace) {
+        // This happens if we were constructed from SkColors, so our colors are really sRGB
+        fColorSpace = SkColorSpace::MakeSRGBLinear();
+    } else {
+        // The color space refers to the float colors, so it must be linear gamma
+        // TODO: GPU code no longer requires this (see GrGradientEffect). Remove this restriction?
+        SkASSERT(desc.fColorSpace->gammaIsLinear());
+        fColorSpace = desc.fColorSpace;
     }
 
     if (desc.fPos) {
@@ -410,6 +419,13 @@ bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque && (this->getTileMode() != SkShader::kDecal_TileMode);
 }
 
+bool SkGradientShaderBase::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
+    if (this->getTileMode() == SkShader::kDecal_TileMode) {
+        return true;
+    }
+    return this->INHERITED::onIsRasterPipelineOnly(ctm);
+}
+
 static unsigned rounded_divide(unsigned numer, unsigned denom) {
     return (numer + (denom >> 1)) / denom;
 }
@@ -619,6 +635,7 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
     }
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkGradientShaderBase::toString(SkString* str) const {
 
     str->appendf("%d colors: ", fColorCount);
@@ -650,6 +667,7 @@ void SkGradientShaderBase::toString(SkString* str) const {
 
     this->INHERITED::toString(str);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

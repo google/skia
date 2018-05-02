@@ -11,7 +11,7 @@
 #include "SkFontStyle.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
-#include "SkTestTypeface.h"
+#include "SkTestScalerContext.h"
 #include "SkUtils.h"
 #include "sk_tool_utils.h"
 
@@ -70,23 +70,42 @@ sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
 }
 
 sk_sp<SkTypeface> emoji_typeface() {
-    const char* filename;
 #if defined(SK_BUILD_FOR_WIN)
-    filename = "fonts/colr.ttf";
-#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    filename = "fonts/sbix.ttf";
-#else
-    filename = "fonts/cbdt.ttf";
-#endif
-    sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(filename);
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    const char *colorEmojiFontName = "Segoe UI Emoji";
+    sk_sp<SkTypeface> typeface(fm->matchFamilyStyle(colorEmojiFontName, SkFontStyle()));
     if (typeface) {
         return typeface;
     }
-    return SkTypeface::MakeFromName("Emoji", SkFontStyle());
+    sk_sp<SkTypeface> fallback(fm->matchFamilyStyleCharacter(
+        colorEmojiFontName, SkFontStyle(), nullptr /* bcp47 */, 0 /* bcp47Count */,
+        0x1f4b0 /* character: 💰 */));
+    if (fallback) {
+        return fallback;
+    }
+    // If we don't have Segoe UI Emoji and can't find a fallback, try Segoe UI Symbol.
+    // Windows 7 does not have Segoe UI Emoji; Segoe UI Symbol has the (non - color) emoji.
+    return SkTypeface::MakeFromName("Segoe UI Symbol", SkFontStyle());
+
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+    return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
+
+#else
+    return MakeResourceAsTypeface("fonts/Funkster.ttf");
+
+#endif
 }
 
 const char* emoji_sample_text() {
-    return "\xF0\x9F\x98\x80" " " "\xE2\x99\xA2"; // 😀 ♢
+#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+    return "\xF0\x9F\x92\xB0" "\xF0\x9F\x8F\xA1" "\xF0\x9F\x8E\x85"  // 💰🏡🎅
+           "\xF0\x9F\x8D\xAA" "\xF0\x9F\x8D\x95" "\xF0\x9F\x9A\x80"  // 🍪🍕🚀
+           "\xF0\x9F\x9A\xBB" "\xF0\x9F\x92\xA9" "\xF0\x9F\x93\xB7"  // 🚻💩📷
+           "\xF0\x9F\x93\xA6"                                        // 📦
+           "\xF0\x9F\x87\xBA" "\xF0\x9F\x87\xB8" "\xF0\x9F\x87\xA6"; // 🇺🇸🇦
+#else
+    return "Hamburgefons";
+#endif
 }
 
 static const char* platform_os_name() {

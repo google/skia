@@ -1,0 +1,17 @@
+ <!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+   <file>skia.png</file>
+   <file>delete.png</file>
+   <file>breakpoint_16x16.png</file>
+   <file>blank.png</file>
+   <file>breakpoint.png</file>
+   <file>inspector.png</file>
+   <file>reload.png</file>
+   <file>play.png</file>
+   <file>pause.png</file>
+   <file>rewind.png</file>
+   <file>previous.png</file>
+   <file>next.png</file>
+   <file>profile.png</file>
+ </qresource>
+ </RCC>

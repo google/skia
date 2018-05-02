@@ -20,6 +20,7 @@ class GrPipeline;
 
 class GrMockGpu : public GrGpu {
 public:
+    static sk_sp<GrGpu> Make(GrBackendContext, const GrContextOptions&, GrContext*);
     static sk_sp<GrGpu> Make(const GrMockOptions*, const GrContextOptions&, GrContext*);
 
     ~GrMockGpu() override {}
@@ -125,8 +126,6 @@ private:
 
     void testingOnly_flushGpuAndSync() override {}
 #endif
-
-    const GrMockOptions fMockOptions;
 
     static int NextInternalTextureID();
     static int NextExternalTextureID();

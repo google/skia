@@ -5,7 +5,6 @@
                 "SkBitmap.h",
                 "SkCanvas.h",
                 "SkImage.h",
-                "SkImageInfo.h",
                 "SkMatrix.h",
                 "SkPaint.h",
                 "SkPath.h",
@@ -18,11 +17,11 @@
         "docs": [
             "SkAutoCanvasRestore_Reference.bmh",
             "SkCanvas_Reference.bmh",
+            "SkIPoint16_Reference.bmh",
             "SkPaint_Reference.bmh",
             "SkPoint_Reference.bmh",
             "SkIRect_Reference.bmh",
             "SkImage_Reference.bmh",
-            "SkImageInfo_Reference.bmh",
             "SkPath_Reference.bmh",
             "SkRect_Reference.bmh",
             "SkBitmap_Reference.bmh",
@@ -37,12 +36,11 @@
     "InProgress": {
         "include": {
             "core": [
-                "SkColor.h"
+                "SkImageInfo.h"
             ]
         },
         "docs": [
-            "SkColor_Reference.bmh",
-            "SkColor4f_Reference.bmh",
+            "SkImageInfo_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]

@@ -67,10 +67,7 @@ void SkA8_Coverage_Blitter::blitRect(int x, int y, int width, int height) {
 }
 
 void SkA8_Coverage_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
-    if (SkMask::kA8_Format != mask.fFormat) {
-        this->INHERITED::blitMask(mask, clip);
-        return;
-    }
+    SkASSERT(SkMask::kA8_Format == mask.fFormat);
 
     int x = clip.fLeft;
     int y = clip.fTop;

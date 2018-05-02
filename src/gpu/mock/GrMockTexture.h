@@ -31,11 +31,9 @@ public:
 
     ~GrMockTexture() override {}
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     GrBackendObject getTextureHandle() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
     }
-#endif
     GrBackendTexture getBackendTexture() const override {
         return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(),
                                 fInfo);
@@ -120,11 +118,9 @@ public:
         return {this->width(), this->height(), this->numColorSamples(), numStencilBits, fInfo};
     }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     GrBackendObject getRenderTargetHandle() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
     }
-#endif
 
 protected:
     // constructor for subclasses
@@ -160,9 +156,7 @@ public:
         this->registerWithCacheWrapped();
     }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
     GrBackendObject getRenderTargetHandle() const override { return 0; }
-#endif
 
     GrTexture* asTexture() override { return this; }
     GrRenderTarget* asRenderTarget() override { return this; }

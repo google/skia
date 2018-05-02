@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2016 Google Inc.
  *
@@ -5,26 +6,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include <initializer_list>
+#include "Test.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrContextFactory.h"
 #include "GrContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
-#include "GrTypes.h"
 #include "ProxyUtils.h"
-#include "SkImageInfo.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkTemplates.h"
-#include "SkUtils.h"
-#include "Test.h"
 
-#include <utility>
+#include "SkUtils.h"
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
