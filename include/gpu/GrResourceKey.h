@@ -241,7 +241,7 @@ public:
     GrUniqueKey& operator=(const GrUniqueKey& that) {
         this->INHERITED::operator=(that);
         this->setCustomData(sk_ref_sp(that.getCustomData()));
-        fTag = that.fTag;
+        SkDEBUGCODE(fTag = that.fTag;)
         return *this;
     }
 
@@ -257,13 +257,14 @@ public:
         return fData.get();
     }
 
-    const char* tag() const { return fTag; }
+    SkDEBUGCODE(const char* tag() const { return fTag.c_str(); })
 
     class Builder : public INHERITED::Builder {
     public:
         Builder(GrUniqueKey* key, Domain type, int data32Count, const char* tag = nullptr)
                 : INHERITED::Builder(key, type, data32Count) {
-            key->fTag = tag;
+            SkDEBUGCODE(key->fTag = tag;)
+            (void) tag;  // suppress unused named param warning.
         }
 
         /** Used to build a key that wraps another key and adds additional data. */
@@ -276,7 +277,8 @@ public:
             const uint32_t* srcData = innerKey.data();
             (*innerKeyData++) = innerKey.domain();
             memcpy(innerKeyData, srcData, innerKey.dataSize());
-            key->fTag = tag;
+            SkDEBUGCODE(key->fTag = tag;)
+            (void) tag;  // suppress unused named param warning.
         }
 
     private:
@@ -288,7 +290,7 @@ public:
 
 private:
     sk_sp<SkData> fData;
-    const char* fTag;
+    SkDEBUGCODE(SkString fTag;)
 };
 
 /**

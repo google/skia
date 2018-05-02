@@ -10,7 +10,6 @@
 
 #include "GrCaps.h"
 #include "GrGeometryProcessor.h"
-#include "GrPipeline.h"
 #include "GrShaderCaps.h"
 #include "SkNx.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -19,31 +18,21 @@
 class GrGLSLFPFragmentBuilder;
 class GrGLSLVertexGeoBuilder;
 class GrMesh;
-class GrOpFlushState;
 
 /**
  * This is the geometry processor for the simple convex primitive shapes (triangles and closed,
  * convex bezier curves) from which ccpr paths are composed. The output is a single-channel alpha
  * value, positive for clockwise shapes and negative for counter-clockwise, that indicates coverage.
  *
- * The caller is responsible to draw all primitives as produced by GrCCGeometry into a cleared,
- * floating point, alpha-only render target using SkBlendMode::kPlus. Once all of a path's
- * primitives have been drawn, the render target contains a composite coverage count that can then
- * be used to draw the path (see GrCCPathProcessor).
+ * The caller is responsible to execute all render passes for all applicable primitives into a
+ * cleared, floating point, alpha-only render target using SkBlendMode::kPlus (see RenderPass
+ * below). Once all of a path's primitives have been drawn, the render target contains a composite
+ * coverage count that can then be used to draw the path (see GrCCPathProcessor).
  *
- * To draw primitives, use appendMesh() and draw() (defined below).
+ * To draw a renderer pass, see appendMesh below.
  */
 class GrCCCoverageProcessor : public GrGeometryProcessor {
 public:
-    enum class PrimitiveType {
-        kTriangles,
-        kWeightedTriangles, // Triangles (from the tessellator) whose winding magnitude > 1.
-        kQuadratics,
-        kCubics,
-        kConics
-    };
-    static const char* PrimitiveTypeName(PrimitiveType);
-
     // Defines a single primitive shape with 3 input points (i.e. Triangles and Quadratics).
     // X,Y point values are transposed.
     struct TriPointInstance {
@@ -54,23 +43,51 @@ public:
         void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans);
     };
 
-    // Defines a single primitive shape with 4 input points, or 3 input points plus a "weight"
-    // parameter duplicated in both lanes of the 4th input (i.e. Cubics, Conics, and Triangles with
-    // a weighted winding number). X,Y point values are transposed.
+    // Defines a single primitive shape with 4 input points, or 3 input points plus a W parameter
+    // duplicated in both 4th components (i.e. Cubics or Triangles with a custom winding number).
+    // X,Y point values are transposed.
     struct QuadPointInstance {
         float fX[4];
         float fY[4];
 
         void set(const SkPoint[4], float dx, float dy);
-        void setW(const SkPoint[3], const Sk2f& trans, float w);
-        void setW(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
+        void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans, float w);
     };
 
-    GrCCCoverageProcessor(GrResourceProvider* rp, PrimitiveType type)
+    // All primitive shapes (triangles and closed, convex bezier curves) may require two render
+    // passes: One to draw a rough outline of the shape, and a second pass to touch up the corners.
+    // Check DoesRenderPass() before attempting to draw a given RenderPass. Here we enumerate every
+    // possible render pass needed in order to produce a complete coverage count mask. This is an
+    // exhaustive list of all ccpr coverage shaders.
+    enum class RenderPass {
+        kTriangles,
+        kTriangleCorners,
+        kQuadratics,
+        kQuadraticCorners,
+        kCubics,
+        kCubicCorners
+    };
+    static bool RenderPassIsCubic(RenderPass);
+    static const char* RenderPassName(RenderPass);
+
+    constexpr static bool DoesRenderPass(RenderPass renderPass, const GrCaps& caps) {
+        return RenderPass::kTriangleCorners != renderPass ||
+               caps.shaderCaps()->geometryShaderSupport();
+    }
+
+    enum class WindMethod : bool {
+        kCrossProduct, // Calculate wind = +/-1 by sign of the cross product.
+        kInstanceData // Instance data provides custom, signed wind values of any magnitude.
+                      // (For tightly-wound tessellated triangles.)
+    };
+
+    GrCCCoverageProcessor(GrResourceProvider* rp, RenderPass pass, WindMethod windMethod)
             : INHERITED(kGrCCCoverageProcessor_ClassID)
-            , fPrimitiveType(type)
+            , fRenderPass(pass)
+            , fWindMethod(windMethod)
             , fImpl(rp->caps()->shaderCaps()->geometryShaderSupport() ? Impl::kGeometryShader
                                                                       : Impl::kVertexShader) {
+        SkASSERT(DoesRenderPass(pass, *rp->caps()));
         if (Impl::kGeometryShader == fImpl) {
             this->initGS();
         } else {
@@ -79,7 +96,7 @@ public:
     }
 
     // GrPrimitiveProcessor overrides.
-    const char* name() const override { return PrimitiveTypeName(fPrimitiveType); }
+    const char* name() const override { return RenderPassName(fRenderPass); }
     SkString dumpInfo() const override {
         return SkStringPrintf("%s\n%s", this->name(), this->INHERITED::dumpInfo().c_str());
     }
@@ -105,38 +122,42 @@ public:
         }
     }
 
-    void draw(GrOpFlushState*, const GrPipeline&, const GrMesh[], const GrPipeline::DynamicState[],
-              int meshCount, const SkRect& drawBounds) const;
-
     // The Shader provides code to calculate each pixel's coverage in a RenderPass. It also
     // provides details about shape-specific geometry.
     class Shader {
     public:
-        // Called before generating geometry. Subclasses may set up internal member variables during
-        // this time that will be needed during onEmitVaryings (e.g. transformation matrices).
+        union GeometryVars {
+            struct {
+                const char* fAlternatePoints; // floatNx2 (if left null, will use input points).
+            } fHullVars;
+
+            struct {
+                const char* fPoint; // float2
+            } fCornerVars;
+
+            GeometryVars() { memset(this, 0, sizeof(*this)); }
+        };
+
+        // Called before generating geometry. Subclasses must fill out the applicable fields in
+        // GeometryVars (if any), and may also use this opportunity to setup internal member
+        // variables that will be needed during onEmitVaryings (e.g. transformation matrices).
         //
-        // If the 'outHull4' parameter is provided, and there are not 4 input points, the subclass
-        // is required to fill it with the name of a 4-point hull around which the Impl can generate
-        // its geometry. If it is left unchanged, the Impl will use the regular input points.
-        virtual void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* wind,
-                                   const char** outHull4 = nullptr) const {
-            SkASSERT(!outHull4);
-        }
+        // repetitionID is a 0-based index and indicates which edge or corner is being generated.
+        // It will be null when generating a hull.
+        virtual void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts,
+                                   const char* repetitionID, const char* wind,
+                                   GeometryVars*) const {}
 
         void emitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
                           SkString* code, const char* position, const char* coverage,
-                          const char* cornerCoverage) {
+                          const char* attenuatedCoverage, const char* wind) {
             SkASSERT(GrGLSLVarying::Scope::kVertToGeo != scope);
-            this->onEmitVaryings(varyingHandler, scope, code, position, coverage, cornerCoverage);
+            this->onEmitVaryings(varyingHandler, scope, code, position, coverage,
+                                 attenuatedCoverage, wind);
         }
 
         void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
                               const char* skOutputColor, const char* skOutputCoverage) const;
-
-        // Calculates the winding direction of the input points (+1, -1, or 0). Wind for extremely
-        // thin triangles gets rounded to zero.
-        static void CalcWind(const GrCCCoverageProcessor&, GrGLSLVertexGeoBuilder*, const char* pts,
-                             const char* outputWind);
 
         // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
         // border of a conservative raster edge and 0 on the inside. 'leftPt' and 'rightPt' must be
@@ -166,20 +187,20 @@ public:
         // regular (linearly-interpolated) coverage. This function calculates the attenuation value
         // to use in the single, outermost vertex. The remaining three vertices of the corner box
         // all use an attenuation value of 1.
-        static void CalcCornerAttenuation(GrGLSLVertexGeoBuilder*, const char* leftDir,
-                                          const char* rightDir, const char* outputAttenuation);
+        static void CalcCornerCoverageAttenuation(GrGLSLVertexGeoBuilder*, const char* leftDir,
+                                                  const char* rightDir,
+                                                  const char* outputAttenuation);
 
         virtual ~Shader() {}
 
     protected:
         // Here the subclass adds its internal varyings to the handler and produces code to
-        // initialize those varyings from a given position and coverage values.
+        // initialize those varyings from a given position, input coverage value, and wind.
         //
-        // NOTE: the coverage values are signed appropriately for wind.
-        //       'coverage' will only be +1 or -1 on curves.
+        // NOTE: the coverage inputs are only relevant for triangles. Otherwise they are null.
         virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                                     const char* position, const char* coverage,
-                                    const char* cornerCoverage) = 0;
+                                    const char* attenuatedCoverage, const char* wind) = 0;
 
         // Emits the fragment code that calculates a pixel's signed coverage value.
         virtual void onEmitFragmentCode(GrGLSLFPFragmentBuilder*,
@@ -193,55 +214,28 @@ public:
             return Scope::kGeoToFrag == varying.scope() ? varying.gsOut() : varying.vsOut();
         }
 
-        // Our friendship with GrGLSLShaderBuilder does not propogate to subclasses.
-        inline static SkString& AccessCodeString(GrGLSLShaderBuilder* s) { return s->code(); }
+        // Defines a global float2 array that contains MSAA sample locations as offsets from pixel
+        // center. Subclasses can use this for software multisampling.
+        //
+        // Returns the number of samples.
+        static int DefineSoftSampleLocations(GrGLSLFPFragmentBuilder* f, const char* samplesName);
     };
 
-private:
     class GSImpl;
-    class GSTriangleHullImpl;
-    class GSCurveHullImpl;
-    class GSCornerImpl;
     class VSImpl;
-    class TriangleShader;
 
+private:
     // Slightly undershoot a bloat radius of 0.5 so vertices that fall on integer boundaries don't
     // accidentally bleed into neighbor pixels.
     static constexpr float kAABloatRadius = 0.491111f;
 
     // Number of bezier points for curves, or 3 for triangles.
-    int numInputPoints() const { return PrimitiveType::kCubics == fPrimitiveType ? 4 : 3; }
-
-    bool isTriangles() const {
-        return PrimitiveType::kTriangles == fPrimitiveType ||
-               PrimitiveType::kWeightedTriangles == fPrimitiveType;
-    }
-
-    int hasInputWeight() const {
-        return PrimitiveType::kWeightedTriangles == fPrimitiveType ||
-               PrimitiveType::kConics == fPrimitiveType;
-    }
+    int numInputPoints() const { return RenderPassIsCubic(fRenderPass) ? 4 : 3; }
 
     enum class Impl : bool {
         kGeometryShader,
         kVertexShader
     };
-
-    // Geometry shader backend draws primitives in two subpasses.
-    enum class GSSubpass : bool {
-        kHulls,
-        kCorners
-    };
-
-    GrCCCoverageProcessor(const GrCCCoverageProcessor& proc, GSSubpass subpass)
-            : INHERITED(kGrCCCoverageProcessor_ClassID)
-            , fPrimitiveType(proc.fPrimitiveType)
-            , fImpl(Impl::kGeometryShader)
-            SkDEBUGCODE(, fDebugBloat(proc.fDebugBloat))
-            , fGSSubpass(subpass) {
-        SkASSERT(Impl::kGeometryShader == proc.fImpl);
-        this->initGS();
-    }
 
     void initGS();
     void initVS(GrResourceProvider*);
@@ -254,33 +248,19 @@ private:
     GrGLSLPrimitiveProcessor* createGSImpl(std::unique_ptr<Shader>) const;
     GrGLSLPrimitiveProcessor* createVSImpl(std::unique_ptr<Shader>) const;
 
-    const PrimitiveType fPrimitiveType;
+    const RenderPass fRenderPass;
+    const WindMethod fWindMethod;
     const Impl fImpl;
     SkDEBUGCODE(float fDebugBloat = 0);
 
-    // Used by GSImpl.
-    const GSSubpass fGSSubpass = GSSubpass::kHulls;
-
     // Used by VSImpl.
-    sk_sp<const GrBuffer> fVSVertexBuffer;
-    sk_sp<const GrBuffer> fVSIndexBuffer;
-    int fVSNumIndicesPerInstance;
-    GrPrimitiveType fVSTriangleType;
+    sk_sp<const GrBuffer> fVertexBuffer;
+    sk_sp<const GrBuffer> fIndexBuffer;
+    int fNumIndicesPerInstance;
+    GrPrimitiveType fPrimitiveType;
 
     typedef GrGeometryProcessor INHERITED;
 };
-
-inline const char* GrCCCoverageProcessor::PrimitiveTypeName(PrimitiveType type) {
-    switch (type) {
-        case PrimitiveType::kTriangles: return "kTriangles";
-        case PrimitiveType::kWeightedTriangles: return "kWeightedTriangles";
-        case PrimitiveType::kQuadratics: return "kQuadratics";
-        case PrimitiveType::kCubics: return "kCubics";
-        case PrimitiveType::kConics: return "kConics";
-    }
-    SK_ABORT("Invalid PrimitiveType");
-    return "";
-}
 
 inline void GrCCCoverageProcessor::TriPointInstance::set(const SkPoint p[3], const Sk2f& trans) {
     this->set(p[0], p[1], p[2], trans);
@@ -301,19 +281,42 @@ inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint p[4], fl
     (Y + dy).store(&fY);
 }
 
-inline void GrCCCoverageProcessor::QuadPointInstance::setW(const SkPoint p[3], const Sk2f& trans,
-                                                           float w) {
-    this->setW(p[0], p[1], p[2], trans, w);
-}
-
-inline void GrCCCoverageProcessor::QuadPointInstance::setW(const SkPoint& p0, const SkPoint& p1,
-                                                           const SkPoint& p2, const Sk2f& trans,
-                                                           float w) {
+inline void GrCCCoverageProcessor::QuadPointInstance::set(const SkPoint& p0, const SkPoint& p1,
+                                                          const SkPoint& p2, const Sk2f& trans,
+                                                          float w) {
     Sk2f P0 = Sk2f::Load(&p0) + trans;
     Sk2f P1 = Sk2f::Load(&p1) + trans;
     Sk2f P2 = Sk2f::Load(&p2) + trans;
     Sk2f W = Sk2f(w);
     Sk2f::Store4(this, P0, P1, P2, W);
+}
+
+inline bool GrCCCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
+    switch (pass) {
+        case RenderPass::kTriangles:
+        case RenderPass::kTriangleCorners:
+        case RenderPass::kQuadratics:
+        case RenderPass::kQuadraticCorners:
+            return false;
+        case RenderPass::kCubics:
+        case RenderPass::kCubicCorners:
+            return true;
+    }
+    SK_ABORT("Invalid RenderPass");
+    return false;
+}
+
+inline const char* GrCCCoverageProcessor::RenderPassName(RenderPass pass) {
+    switch (pass) {
+        case RenderPass::kTriangles: return "kTriangles";
+        case RenderPass::kTriangleCorners: return "kTriangleCorners";
+        case RenderPass::kQuadratics: return "kQuadratics";
+        case RenderPass::kQuadraticCorners: return "kQuadraticCorners";
+        case RenderPass::kCubics: return "kCubics";
+        case RenderPass::kCubicCorners: return "kCubicCorners";
+    }
+    SK_ABORT("Invalid RenderPass");
+    return "";
 }
 
 #endif

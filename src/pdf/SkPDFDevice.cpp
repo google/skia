@@ -13,7 +13,6 @@
 #include "SkBitmapKey.h"
 #include "SkCanvas.h"
 #include "SkClipOpPriv.h"
-#include "SkClusterator.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkDraw.h"
@@ -819,7 +818,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
     // Must mask with a Form XObject.
     sk_sp<SkPDFDevice> maskDevice = this->makeCongruentDevice();
     {
-        SkCanvas canvas(maskDevice);
+        SkCanvas canvas(maskDevice.get());
         canvas.drawImage(mask, dstMaskBounds.x(), dstMaskBounds.y());
     }
     if (!ctm.isIdentity() && paint->getShader()) {
@@ -1050,7 +1049,204 @@ private:
     bool fInitialized = false;
     const bool fDefaultPositioning;
 };
+
+/** Given the m-to-n glyph-to-character mapping data (as returned by
+    harfbuzz), iterate over the clusters. */
+class Clusterator {
+public:
+    Clusterator() : fClusters(nullptr), fUtf8Text(nullptr), fGlyphCount(0), fTextByteLength(0) {}
+    explicit Clusterator(uint32_t glyphCount)
+        : fClusters(nullptr)
+        , fUtf8Text(nullptr)
+        , fGlyphCount(glyphCount)
+        , fTextByteLength(0) {}
+    // The clusters[] array is an array of offsets into utf8Text[],
+    // one offset for each glyph.  See SkTextBlobBuilder for more info.
+    Clusterator(const uint32_t* clusters,
+                const char* utf8Text,
+                uint32_t glyphCount,
+                uint32_t textByteLength)
+        : fClusters(clusters)
+        , fUtf8Text(utf8Text)
+        , fGlyphCount(glyphCount)
+        , fTextByteLength(textByteLength) {
+        // This is a cheap heuristic for /ReversedChars which seems to
+        // work for clusters produced by HarfBuzz, which either
+        // increase from zero (LTR) or decrease to zero (RTL).
+        // "ReversedChars" is how PDF deals with RTL text.
+        fReversedChars =
+            fUtf8Text && fClusters && fGlyphCount && fClusters[0] != 0;
+    }
+    struct Cluster {
+        const char* fUtf8Text;
+        uint32_t fTextByteLength;
+        uint32_t fGlyphIndex;
+        uint32_t fGlyphCount;
+        explicit operator bool() const { return fGlyphCount != 0; }
+    };
+    // True if this looks like right-to-left text.
+    bool reversedChars() const { return fReversedChars; }
+    Cluster next() {
+        if ((!fUtf8Text || !fClusters) && fGlyphCount) {
+            // These glyphs have no text.  Treat as one "cluster".
+            uint32_t glyphCount = fGlyphCount;
+            fGlyphCount = 0;
+            return Cluster{nullptr, 0, 0, glyphCount};
+        }
+        if (fGlyphCount == 0 || fTextByteLength == 0) {
+            return Cluster{nullptr, 0, 0, 0};  // empty
+        }
+        SkASSERT(fUtf8Text);
+        SkASSERT(fClusters);
+        uint32_t cluster = fClusters[0];
+        if (cluster >= fTextByteLength) {
+            return Cluster{nullptr, 0, 0, 0};  // bad input.
+        }
+        uint32_t glyphsInCluster = 1;
+        while (glyphsInCluster < fGlyphCount &&
+               fClusters[glyphsInCluster] == cluster) {
+            ++glyphsInCluster;
+        }
+        SkASSERT(glyphsInCluster <= fGlyphCount);
+        uint32_t textLength = 0;
+        if (glyphsInCluster == fGlyphCount) {
+            // consumes rest of glyphs and rest of text
+            if (kInvalidCluster == fPreviousCluster) { // LTR text or single cluster
+                textLength = fTextByteLength - cluster;
+            } else { // RTL text; last cluster.
+                SkASSERT(fPreviousCluster < fTextByteLength);
+                if (fPreviousCluster <= cluster) {  // bad input.
+                    return Cluster{nullptr, 0, 0, 0};
+                }
+                textLength = fPreviousCluster - cluster;
+            }
+            fGlyphCount = 0;
+            return Cluster{fUtf8Text + cluster,
+                           textLength,
+                           fGlyphIndex,
+                           glyphsInCluster};
+        }
+        SkASSERT(glyphsInCluster < fGlyphCount);
+        uint32_t nextCluster = fClusters[glyphsInCluster];
+        if (nextCluster >= fTextByteLength) {
+            return Cluster{nullptr, 0, 0, 0};  // bad input.
+        }
+        if (nextCluster > cluster) { // LTR text
+            if (kInvalidCluster != fPreviousCluster) {
+                return Cluster{nullptr, 0, 0, 0};  // bad input.
+            }
+            textLength = nextCluster - cluster;
+        } else { // RTL text
+            SkASSERT(nextCluster < cluster);
+            if (kInvalidCluster == fPreviousCluster) { // first cluster
+                textLength = fTextByteLength - cluster;
+            } else { // later cluster
+                if (fPreviousCluster <= cluster) {
+                    return Cluster{nullptr, 0, 0, 0}; // bad input.
+                }
+                textLength = fPreviousCluster - cluster;
+            }
+            fPreviousCluster = cluster;
+        }
+        uint32_t glyphIndex = fGlyphIndex;
+        fGlyphCount -= glyphsInCluster;
+        fGlyphIndex += glyphsInCluster;
+        fClusters   += glyphsInCluster;
+        return Cluster{fUtf8Text + cluster,
+                       textLength,
+                       glyphIndex,
+                       glyphsInCluster};
+    }
+
+private:
+    static constexpr uint32_t kInvalidCluster = 0xFFFFFFFF;
+    const uint32_t* fClusters;
+    const char* fUtf8Text;
+    uint32_t fGlyphCount;
+    uint32_t fTextByteLength;
+    uint32_t fGlyphIndex = 0;
+    uint32_t fPreviousCluster = kInvalidCluster;
+    bool fReversedChars = false;
+};
+
+struct TextStorage {
+    SkAutoTMalloc<char> fUtf8textStorage;
+    SkAutoTMalloc<uint32_t> fClusterStorage;
+    SkAutoTMalloc<SkGlyphID> fGlyphStorage;
+};
 }  // namespace
+
+/** Given some unicode text (as passed to drawText(), convert to
+    glyphs (via primitive shaping), while preserving
+    glyph-to-character mapping information. */
+static Clusterator make_clusterator(
+        const void* sourceText,
+        size_t sourceByteCount,
+        const SkPaint& paint,
+        TextStorage* storage,
+        int glyphCount) {
+    SkASSERT(SkPaint::kGlyphID_TextEncoding != paint.getTextEncoding());
+    SkASSERT(glyphCount == paint.textToGlyphs(sourceText, sourceByteCount, nullptr));
+    SkASSERT(glyphCount > 0);
+    storage->fGlyphStorage.reset(SkToSizeT(glyphCount));
+    (void)paint.textToGlyphs(sourceText, sourceByteCount, storage->fGlyphStorage.get());
+    storage->fClusterStorage.reset(SkToSizeT(glyphCount));
+    uint32_t* clusters = storage->fClusterStorage.get();
+    uint32_t utf8ByteCount = 0;
+    const char* utf8Text = nullptr;
+    switch (paint.getTextEncoding()) {
+        case SkPaint::kUTF8_TextEncoding: {
+            const char* txtPtr = (const char*)sourceText;
+            for (int i = 0; i < glyphCount; ++i) {
+                clusters[i] = SkToU32(txtPtr - (const char*)sourceText);
+                txtPtr += SkUTF8_LeadByteToCount(*(const unsigned char*)txtPtr);
+                SkASSERT(txtPtr <= (const char*)sourceText + sourceByteCount);
+            }
+            SkASSERT(txtPtr == (const char*)sourceText + sourceByteCount);
+            utf8ByteCount = SkToU32(sourceByteCount);
+            utf8Text = (const char*)sourceText;
+            break;
+        }
+        case SkPaint::kUTF16_TextEncoding: {
+            const uint16_t* utf16ptr = (const uint16_t*)sourceText;
+            int utf16count = SkToInt(sourceByteCount / sizeof(uint16_t));
+            utf8ByteCount = SkToU32(SkUTF16_ToUTF8(utf16ptr, utf16count));
+            storage->fUtf8textStorage.reset(utf8ByteCount);
+            char* txtPtr = storage->fUtf8textStorage.get();
+            utf8Text = txtPtr;
+            int clusterIndex = 0;
+            while (utf16ptr < (const uint16_t*)sourceText + utf16count) {
+                clusters[clusterIndex++] = SkToU32(txtPtr - utf8Text);
+                SkUnichar uni = SkUTF16_NextUnichar(&utf16ptr);
+                txtPtr += SkUTF8_FromUnichar(uni, txtPtr);
+            }
+            SkASSERT(clusterIndex == glyphCount);
+            SkASSERT(txtPtr == storage->fUtf8textStorage.get() + utf8ByteCount);
+            SkASSERT(utf16ptr == (const uint16_t*)sourceText + utf16count);
+            break;
+        }
+        case SkPaint::kUTF32_TextEncoding: {
+            const SkUnichar* utf32 = (const SkUnichar*)sourceText;
+            int utf32count = SkToInt(sourceByteCount / sizeof(SkUnichar));
+            SkASSERT(glyphCount == utf32count);
+            for (int i = 0; i < utf32count; ++i) {
+                utf8ByteCount += SkToU32(SkUTF8_FromUnichar(utf32[i]));
+            }
+            storage->fUtf8textStorage.reset(SkToSizeT(utf8ByteCount));
+            char* txtPtr = storage->fUtf8textStorage.get();
+            utf8Text = txtPtr;
+            for (int i = 0; i < utf32count; ++i) {
+                clusters[i] = SkToU32(txtPtr - utf8Text);
+                txtPtr += SkUTF8_FromUnichar(utf32[i], txtPtr);
+            }
+            break;
+        }
+        default:
+            SkDEBUGFAIL("");
+            break;
+    }
+    return Clusterator(clusters, utf8Text, SkToU32(glyphCount), utf8ByteCount);
+}
 
 static SkUnichar map_glyph(const SkTDArray<SkUnichar>& glyphToUnicode, SkGlyphID glyph) {
     return SkToInt(glyph) < glyphToUnicode.count() ? glyphToUnicode[SkToInt(glyph)] : -1;
@@ -1200,14 +1396,38 @@ void SkPDFDevice::internalDrawText(
     if (!metrics) {
         return;
     }
-    SkClusterator clusterator(sourceText, sourceByteCount, paint,
-                              clusters, textByteLength, utf8Text);
-    const SkGlyphID* glyphs = clusterator.glyphs();
-    uint32_t glyphCount = clusterator.glyphCount();
-    if (glyphCount == 0) {
+    int glyphCount = paint.textToGlyphs(sourceText, sourceByteCount, nullptr);
+    if (glyphCount <= 0) {
         return;
     }
 
+    // These three heap buffers are only used in the case where no glyphs
+    // are passed to drawText() (most clients pass glyphs or a textblob).
+    TextStorage storage;
+    const SkGlyphID* glyphs = nullptr;
+    Clusterator clusterator;
+    if (textByteLength > 0) {
+        SkASSERT(glyphCount == SkToInt(sourceByteCount / sizeof(SkGlyphID)));
+        glyphs = (const SkGlyphID*)sourceText;
+        clusterator = Clusterator(clusters, utf8Text, SkToU32(glyphCount), textByteLength);
+        SkASSERT(clusters);
+        SkASSERT(utf8Text);
+        SkASSERT(srcPaint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
+        SkASSERT(glyphCount == paint.textToGlyphs(sourceText, sourceByteCount, nullptr));
+    } else if (SkPaint::kGlyphID_TextEncoding == srcPaint.getTextEncoding()) {
+        SkASSERT(glyphCount == SkToInt(sourceByteCount / sizeof(SkGlyphID)));
+        glyphs = (const SkGlyphID*)sourceText;
+        clusterator = Clusterator(SkToU32(glyphCount));
+        SkASSERT(glyphCount == paint.textToGlyphs(sourceText, sourceByteCount, nullptr));
+        SkASSERT(nullptr == clusters);
+        SkASSERT(nullptr == utf8Text);
+    } else {
+        SkASSERT(nullptr == clusters);
+        SkASSERT(nullptr == utf8Text);
+        clusterator = make_clusterator(sourceText, sourceByteCount, srcPaint,
+                                       &storage, glyphCount);
+        glyphs = storage.fGlyphStorage;
+    }
     bool defaultPositioning = (positioning == SkTextBlob::kDefault_Positioning);
     paint.setHinting(SkPaint::kNo_Hinting);
 
@@ -1227,7 +1447,7 @@ void SkPDFDevice::internalDrawText(
                             /* SkPaint::kRight_Align */           -1.0f;
     if (defaultPositioning && alignment != SkPaint::kLeft_Align) {
         SkScalar advance = 0;
-        for (uint32_t i = 0; i < glyphCount; ++i) {
+        for (int i = 0; i < glyphCount; ++i) {
             advance += advanceScale * glyphCache->getGlyphIDAdvance(glyphs[i]).fAdvanceX;
         }
         offset.offset(alignmentFactor * advance, 0);
@@ -1263,7 +1483,7 @@ void SkPDFDevice::internalDrawText(
                                         offset);
         SkPDFFont* font = nullptr;
 
-        while (SkClusterator::Cluster c = clusterator.next()) {
+        while (Clusterator::Cluster c = clusterator.next()) {
             int index = c.fGlyphIndex;
             int glyphLimit = index + c.fGlyphCount;
 
@@ -1368,7 +1588,7 @@ void SkPDFDevice::internalDrawText(
         scaledGlyphCachePaint.setTextScaleX(paint.getTextScaleX());
         scaledGlyphCachePaint.setTextSkewX(paint.getTextSkewX());
         scaledGlyphCachePaint.setTypeface(sk_ref_sp(typeface));
-        auto scaledGlyphCache = SkStrikeCache::FindOrCreateStrikeExclusive(scaledGlyphCachePaint);
+        auto scaledGlyphCache = SkGlyphCache::FindOrCreateStrikeExclusive(scaledGlyphCachePaint);
         SkTHashMap<SkPDFCanon::BitmapGlyphKey, SkPDFCanon::BitmapGlyph>* map =
             &this->getCanon()->fBitmapGlyphImages;
         for (PositionedGlyph positionedGlyph : fMissingGlyphs) {
@@ -1421,6 +1641,7 @@ void SkPDFDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
             continue;
         }
+        runPaint.setFlags(this->filterTextFlags(runPaint));
         SkPoint offset = it.offset() + SkPoint{x, y};
         this->internalDrawText(it.glyphs(), sizeof(SkGlyphID) * it.glyphCount(),
                                it.pos(), it.positioning(), offset, runPaint,
@@ -2098,7 +2319,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         // Must mask with a Form XObject.
         sk_sp<SkPDFDevice> maskDevice = this->makeCongruentDevice();
         {
-            SkCanvas canvas(maskDevice);
+            SkCanvas canvas(maskDevice.get());
             if (paint.getMaskFilter()) {
                 // This clip prevents the mask image shader from covering
                 // entire device if unnecessary.

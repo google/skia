@@ -16,14 +16,13 @@
 
 SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
 
+template <class T> static void renew(T* t) { t->~T(); new (t) T; }
+
 SkPDFObjectSerializer::~SkPDFObjectSerializer() {
     for (int i = 0; i < fObjNumMap.objects().count(); ++i) {
         fObjNumMap.objects()[i]->drop();
     }
 }
-SkPDFObjectSerializer::SkPDFObjectSerializer(SkPDFObjectSerializer&&) = default;
-SkPDFObjectSerializer& SkPDFObjectSerializer::operator=(SkPDFObjectSerializer&&) = default;
-
 
 void SkPDFObjectSerializer::addObjectRecursively(const sk_sp<SkPDFObject>& object) {
     fObjNumMap.addObjectRecursively(object.get());
@@ -211,7 +210,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
             SkScalarRoundToInt(width), SkScalarRoundToInt(height));
     fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this);
     fPageDevice->setFlip();  // Only the top-level device needs to be flipped.
-    fCanvas.reset(new SkCanvas(fPageDevice));
+    fCanvas.reset(new SkCanvas(fPageDevice.get()));
     return fCanvas.get();
 }
 
@@ -243,8 +242,8 @@ void SkPDFDocument::onAbort() {
 void SkPDFDocument::reset() {
     fCanvas.reset(nullptr);
     fPages.reset();
-    fCanon = SkPDFCanon();
-    fObjectSerializer = SkPDFObjectSerializer();
+    renew(&fCanon);
+    renew(&fObjectSerializer);
     fFonts.reset();
 }
 

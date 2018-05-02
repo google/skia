@@ -97,6 +97,7 @@ std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
 
 #endif
 
+#ifndef SK_IGNORE_TO_STRING
 void SkColorShader::toString(SkString* str) const {
     str->append("SkColorShader: (");
 
@@ -107,6 +108,7 @@ void SkColorShader::toString(SkString* str) const {
 
     str->append(")");
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,6 +225,7 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
 
 #endif
 
+#ifndef SK_IGNORE_TO_STRING
 void SkColor4Shader::toString(SkString* str) const {
     str->append("SkColor4Shader: (");
 
@@ -232,6 +235,7 @@ void SkColor4Shader::toString(SkString* str) const {
     }
     str->append(" )");
 }
+#endif
 
 sk_sp<SkShader> SkColor4Shader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     return SkShader::MakeColorShader(xformer->apply(fCachedByteColor));

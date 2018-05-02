@@ -33,7 +33,7 @@ uniform half blurRadius;
                                                                 float xformedSigma) {
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 9, "RoundRect Blur Mask");
+        GrUniqueKey::Builder builder(&key, kDomain, 9);
         builder[0] = SkScalarCeilToInt(xformedSigma-1/6.0f);
 
         int index = 1;
@@ -79,7 +79,6 @@ uniform half blurRadius;
                                                    xformedSigma,
                                                    xformedSigma,
                                                    GrTextureDomain::kIgnore_Mode,
-                                                   kPremul_SkAlphaType,
                                                    SkBackingFit::kExact));
             if (!rtc2) {
                 return nullptr;

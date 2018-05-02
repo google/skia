@@ -10,10 +10,10 @@
 #include "GrContext.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
+#include "SkGlyphCache.h"
 #include "SkMathPriv.h"
 #include "SkMatrixPriv.h"
 #include "SkPoint3.h"
-#include "SkStrikeCache.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "text/GrAtlasManager.h"
@@ -269,7 +269,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     char* currVertex = reinterpret_cast<char*>(vertices);
 
-    SkExclusiveStrikePtr autoGlyphCache;
+    SkAutoGlyphCache autoGlyphCache;
     // each of these is a SubRun
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
