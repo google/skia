@@ -5,17 +5,25 @@
  * found in the LICENSE file.
  */
 
+#include <functional>
+#include <iterator>
+
 #include "SkAdvancedTypefaceMetrics.h"
+#include "SkCodepointToGlyphCache.h"
 #include "SkEndian.h"
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
+#include "SkGlyph.h"
 #include "SkMakeUnique.h"
 #include "SkMutex.h"
 #include "SkOTTable_OS_2.h"
 #include "SkOnce.h"
+#include "SkSharedMutex.h"
 #include "SkStream.h"
+#include "SkTHash.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
+#include "SkUtils.h"
 
 SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
     : fUniqueID(SkTypefaceCache::NewFontID()), fStyle(style), fIsFixedPitch(isFixedPitch) { }
@@ -257,6 +265,16 @@ int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
         return 0;
     }
     return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
+}
+
+uint16_t SkTypeface::codepointToGlyph(uint32_t codepoint) const {
+    uint16_t answer;
+    this->onCharsToGlyphs(&codepoint, kUTF32_Encoding, &answer, 1);
+    return answer;
+}
+
+SkCodepointToGlyphCache* SkTypeface::codepointToGlyphCache() const {
+    return fCodepointCache.get();
 }
 
 int SkTypeface::countGlyphs() const {
