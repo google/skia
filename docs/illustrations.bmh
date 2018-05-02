@@ -1,6 +1,6 @@
 #Topic Illustrations
 
-#Subtopic Image_Info_Color_Type_BGR_565
+#Subtopic kRGB_565_SkColorType
 #Example
 #Width 415
 #Height 250
@@ -43,7 +43,7 @@ void draw(SkCanvas* canvas) {
             canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);
         }
     };
-    SkScalar edges[] = { 0, 5, 11, 16, 
+    SkScalar edges[] = { 0, 5, 11, 16,
                          0, 3, 8,
                          0, 5, 8 };
     const char* labels[] = { "red", "green", "blue" };
@@ -54,7 +54,7 @@ void draw(SkCanvas* canvas) {
 ##
 ##
 
-#Subtopic Image_Info_Color_Type_ABGR_4444
+#Subtopic kARGB_4444_SkColorType
 #Example
 #Width 415
 #Height 250
@@ -104,7 +104,7 @@ void draw(SkCanvas* canvas) {
 ##
 ##
 
-#Subtopic Image_Info_Color_Type_RGBA_8888
+#Subtopic kRGBA_8888_SkColorType
 #Example
 #Width 812
 #Height 365
@@ -156,7 +156,7 @@ void draw(SkCanvas* canvas) {
 ##
 ##
 
-#Subtopic Image_Info_Color_Type_RGB_888x
+#Subtopic kRGB_888x_SkColorType
 #Example
 #Width 812
 #Height 365
@@ -208,7 +208,7 @@ void draw(SkCanvas* canvas) {
 ##
 ##
 
-#Subtopic Image_Info_Color_Type_BGRA_8888
+#Subtopic kBGRA_8888_SkColorType
 #Example
 #Width 812
 #Height 365
@@ -260,7 +260,7 @@ void draw(SkCanvas* canvas) {
 ##
 ##
 
-#Subtopic Image_Info_Color_Type_RGBA_1010102
+#Subtopic kRGBA_1010102_SkColorType
 #Example
 #Width 812
 #Height 380
@@ -323,7 +323,7 @@ void draw(SkCanvas* canvas) {
 ##
 ##
 
-#Subtopic Image_Info_Color_Type_RGB_101010x
+#Subtopic kRGB_101010x_SkColorType
 #Example
 #Width 812
 #Height 380
@@ -386,7 +386,7 @@ void draw(SkCanvas* canvas) {
 ##
 ##
 
-#Subtopic Image_Info_Color_Type_RGBA_F16
+#Subtopic kRGBA_F16_SkColorType
 #Example
 #Width 812
 #Height 685
