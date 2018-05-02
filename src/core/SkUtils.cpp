@@ -372,6 +372,40 @@ size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
     return size;
 }
 
+size_t SkParseUnicode(const void* text,
+                      size_t size,
+                      SkTypeface::Encoding encoding,
+                      std::function<void(SkUnichar)> f) {
+    switch(encoding) {
+        case SkTypeface::kUTF8_Encoding:{
+            auto cursor = (const char*)text;
+            auto end = (const char*)((const char*)text + size);
+            while (cursor < end) {
+                f(SkUTF8_NextUnichar(&cursor));
+            }
+            break;
+        }
+        case SkTypeface::kUTF16_Encoding: {
+            auto cursor = (const uint16_t*)text;
+            auto end = (const uint16_t*)((const char*)text + size);
+            while (cursor < end) {
+                f(SkUTF16_NextUnichar(&cursor));
+            }
+            break;
+        }
+        case SkTypeface::kUTF32_Encoding: {
+            auto cursor = (const uint32_t*)text;
+            auto end = (const uint32_t*)((const char*)text + size);
+            while (cursor < end) {
+                f((SkUnichar)*cursor);
+            }
+            break;
+        }
+    }
+
+
+}
+
 const char SkHexadecimalDigits::gUpper[16] =
            { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 const char SkHexadecimalDigits::gLower[16] =

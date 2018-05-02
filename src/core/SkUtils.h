@@ -11,6 +11,7 @@
 #include "SkTypes.h"
 #include "SkMath.h"
 #include "SkOpts.h"
+#include "SkTypeface.h"
 
 /** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.
     @param buffer   The memory to have value copied into it
@@ -103,6 +104,8 @@ inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
     }
     return true;
 }
+
+size_t SkParseUnicode(const void*, size_t, SkTypeface::Encoding, std::function<void(SkUnichar)>);
 
 namespace SkHexadecimalDigits {
     extern const char gUpper[16];  // 0-9A-F

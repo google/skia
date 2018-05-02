@@ -154,6 +154,8 @@ public:
     int charsToGlyphs(const void* chars, Encoding encoding, SkGlyphID glyphs[],
                       int glyphCount) const;
 
+    int charsToGlyphs(const void* text, size_t bytes, Encoding encoding, SkGlyphID glyphs[]) const;
+
     /**
      *  Return the number of glyphs in the typeface.
      */

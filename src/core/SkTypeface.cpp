@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <functional>
+
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkEndian.h"
 #include "SkFontDescriptor.h"
@@ -257,6 +259,18 @@ int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
         return 0;
     }
     return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
+}
+
+int SkTypeface::charsToGlyphs(const void* text, size_t bytes, Encoding encoding,
+                              uint16_t glyphs[]) const {
+    if (bytes <= 0 || nullptr == text || (unsigned)encoding > kUTF32_Encoding) {
+        return 0;
+    }
+
+
+
+
+    //return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
 
 int SkTypeface::countGlyphs() const {
