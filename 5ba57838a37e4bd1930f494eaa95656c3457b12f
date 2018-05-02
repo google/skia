@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce6a658c_38364650",
+        "filename": "mvk_datatypes.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-02T17:21:44Z",
+      "side": 1,
+      "message": "why is this no_feats, no_feats when before it was all_clr",
+      "range": {
+        "startLine": 197,
+        "startChar": 174,
+        "endLine": 197,
+        "endChar": 189
+      },
+      "revId": "5ba57838a37e4bd1930f494eaa95656c3457b12f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b118607f_2cd7a512",
+        "filename": "mvk_datatypes.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-02T17:21:44Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 199,
+        "startChar": 177,
+        "endLine": 199,
+        "endChar": 211
+      },
+      "revId": "5ba57838a37e4bd1930f494eaa95656c3457b12f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a20c3a7_e49b1a21",
+        "filename": "mvk_datatypes.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-02T17:21:44Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 201,
+        "startChar": 175,
+        "endLine": 201,
+        "endChar": 208
+      },
+      "revId": "5ba57838a37e4bd1930f494eaa95656c3457b12f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "698b0714_1437e70e",
+        "filename": "mvk_datatypes.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-02T17:21:44Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 205,
+        "startChar": 178,
+        "endLine": 205,
+        "endChar": 211
+      },
+      "revId": "5ba57838a37e4bd1930f494eaa95656c3457b12f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
