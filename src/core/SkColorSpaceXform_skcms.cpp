@@ -18,8 +18,6 @@ public:
         : fSrcProfile(srcProfile)
         , fDstProfile(dstProfile)
         , fPremulFormat(premulFormat) {
-        skcms_EnsureUsableAsDestination(&fDstProfile, skcms_sRGB_profile());
-
     #ifndef SK_DONT_OPTIMIZE_SRC_PROFILES_FOR_SPEED
         skcms_OptimizeForSpeed(&fSrcProfile);
     #endif
@@ -116,6 +114,10 @@ std::unique_ptr<SkColorSpaceXform> MakeSkcmsXform(SkColorSpace* src, SkColorSpac
     skcms_ICCProfile srcProfile, dstProfile;
 
     if (!cs_to_profile(src, &srcProfile) || !cs_to_profile(dst, &dstProfile)) {
+        return nullptr;
+    }
+
+    if (!skcms_MakeUsableAsDestination(&dstProfile)) {
         return nullptr;
     }
 
