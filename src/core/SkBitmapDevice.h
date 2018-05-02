@@ -55,21 +55,13 @@ public:
      *  any drawing to this device will have no effect.
      */
     SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
-                   void* externalHandle, const SkBitmap* coverage);
+                   void* externalHandle = nullptr);
 
     static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&,
-                                  bool trackCoverage,
-                                  SkRasterHandleAllocator*);
-
-    static SkBitmapDevice* Create(const SkImageInfo& info, const SkSurfaceProps& props) {
-        return Create(info, props, false, nullptr);
-    }
-
-    const SkPixmap* accessCoverage() const {
-        return fCoverage ? &fCoverage->pixmap() : nullptr;
-    }
+                                  SkRasterHandleAllocator* = nullptr);
 
 protected:
+    bool onShouldDisableLCD(const SkPaint&) const override;
     void* getRasterHandle() const override { return fRasterHandle; }
 
     /** These are called inside the per-device-layer loop for each draw call.
@@ -145,9 +137,6 @@ protected:
     void validateDevBounds(const SkIRect& r) override;
     ClipType onGetClipType() const override;
 
-    virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
-                            const SkPaint&);
-
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
@@ -174,7 +163,6 @@ private:
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
-    std::unique_ptr<SkBitmap> fCoverage;    // if non-null, will have the same dimensions as fBitmap
 
     typedef SkBaseDevice INHERITED;
 };

@@ -11,7 +11,7 @@
 #include "SkSize.h"
 
 struct SkYUVSizeInfo {
-    enum YUVIndex {
+    enum {
         kY          = 0,
         kU          = 1,
         kV          = 2,

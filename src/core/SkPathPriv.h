@@ -106,12 +106,6 @@ public:
                                   SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
 
     /**
-     * Determines whether an arc produced by CreateDrawArcPath will be convex. Assumes a non-empty
-     * oval.
-     */
-    static bool DrawArcIsConvex(SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
-
-    /**
      * Returns a C++11-iterable object that traverses a path's verbs in order. e.g:
      *
      *   for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
@@ -216,26 +210,6 @@ public:
             *dir = isCCW ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
         }
         return result;
-    }
-
-    // For crbug.com/821353 and skbug.com/6886
-    static bool IsBadForDAA(const SkPath& path) { return path.fIsBadForDAA; }
-    static void SetIsBadForDAA(SkPath& path, bool isBadForDAA) { path.fIsBadForDAA = isBadForDAA; }
-
-    // Returns number of valid points for each SkPath::Iter verb
-    static int PtsInIter(unsigned verb) {
-        static const uint8_t gPtsInVerb[] = {
-            1,  // kMove    pts[0]
-            2,  // kLine    pts[0..1]
-            3,  // kQuad    pts[0..2]
-            3,  // kConic   pts[0..2]
-            4,  // kCubic   pts[0..3]
-            0,  // kClose
-            0   // kDone
-        };
-
-        SkASSERT(verb < SK_ARRAY_COUNT(gPtsInVerb));
-        return gPtsInVerb[verb];
     }
 };
 

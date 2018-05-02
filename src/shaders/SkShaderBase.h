@@ -12,7 +12,6 @@
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkShader.h"
-#include "SkTLazy.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFPArgs.h"
@@ -174,6 +173,12 @@ public:
         return this->onMakeColorSpace(xformer);
     }
 
+    bool isRasterPipelineOnly(const SkMatrix& ctm) const {
+        // We always use RP when perspective is present.
+        return ctm.hasPerspective() || fLocalMatrix.hasPerspective()
+                                    || this->onIsRasterPipelineOnly(ctm);
+    }
+
     struct StageRec {
         SkRasterPipeline*   fPipeline;
         SkArenaAlloc*       fAlloc;
@@ -186,16 +191,9 @@ public:
     // If this returns false, then we draw nothing (do not fall back to shader context)
     bool appendStages(const StageRec&) const;
 
-    bool SK_WARN_UNUSED_RESULT computeTotalInverse(const SkMatrix& ctm,
-                                                   const SkMatrix* outerLocalMatrix,
-                                                   SkMatrix* totalInverse) const;
-
-    // Returns the total local matrix for this shader:
-    //
-    //   M = postLocalMatrix x shaderLocalMatrix x preLocalMatrix
-    //
-    SkTCopyOnFirstWrite<SkMatrix> totalLocalMatrix(const SkMatrix* preLocalMatrix,
-                                                   const SkMatrix* postLocalMatrix = nullptr) const;
+    bool computeTotalInverse(const SkMatrix& ctm,
+                             const SkMatrix* outerLocalMatrix,
+                             SkMatrix* totalInverse) const;
 
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     virtual bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode[2]) const {
@@ -207,7 +205,7 @@ public:
         return nullptr;
     }
 
-    virtual void toString(SkString* str) const;
+    SK_TO_STRING_VIRT()
 
     SK_DEFINE_FLATTENABLE_TYPE(SkShaderBase)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
@@ -242,6 +240,8 @@ protected:
 
     // Default impl creates shadercontext and calls that (not very efficient)
     virtual bool onAppendStages(const StageRec&) const;
+
+    virtual bool onIsRasterPipelineOnly(const SkMatrix& ctm) const { return false; }
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.

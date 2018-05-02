@@ -430,7 +430,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyp
         return SkToInt(byteLength >> 1);
     }
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*this);
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(*this);
 
     const char* text = (const char*)textData;
     const char* stop = text + byteLength;
@@ -487,7 +487,7 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
         return true;
     }
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*this);
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(*this);
 
     switch (this->getTextEncoding()) {
         case SkPaint::kUTF8_TextEncoding: {
@@ -536,7 +536,7 @@ void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar tex
     SkASSERT(textData != nullptr);
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
             *this, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 
     for (int index = 0; index < count; index++) {
@@ -656,7 +656,8 @@ SkPaint::kDevKernText_Flag          |       \
 SkPaint::kLinearText_Flag           |       \
 SkPaint::kLCDRenderText_Flag        |       \
 SkPaint::kEmbeddedBitmapText_Flag   |       \
-SkPaint::kAutoHinting_Flag          )
+SkPaint::kAutoHinting_Flag          |       \
+SkPaint::kGenA8FromLCD_Flag )
 
 SkScalar SkPaint::setupForAsPaths() {
     uint32_t flags = this->getFlags();
@@ -801,7 +802,7 @@ SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bound
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(paint);
 
     SkScalar width = 0;
 
@@ -854,7 +855,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
         maxWidth /= scale;
     }
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(paint);
 
     GlyphCacheProc   glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                  paint.isDevKernText(),
@@ -924,7 +925,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
 
     {
         auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
-        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+        auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
         *metrics = cache->getFontMetrics();
     }
 
@@ -959,7 +960,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(paint);
     GlyphCacheProc      glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                     paint.isDevKernText(),
                                                                     nullptr != bounds);
@@ -1548,6 +1549,8 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
     return *storage;
 }
 
+#ifndef SK_IGNORE_TO_STRING
+
 void SkPaint::toString(SkString* str) const {
     str->append("<dl><dt>SkPaint:</dt><dd><dl>");
 
@@ -1655,6 +1658,8 @@ void SkPaint::toString(SkString* str) const {
                           "EmbeddedBitmapText", &needSeparator);
         SkAddFlagToString(str, this->isAutohinted(), "Autohinted", &needSeparator);
         SkAddFlagToString(str, this->isVerticalText(), "VerticalText", &needSeparator);
+        SkAddFlagToString(str, SkToBool(this->getFlags() & SkPaint::kGenA8FromLCD_Flag),
+                          "GenA8FromLCD", &needSeparator);
     } else {
         str->append("None");
     }
@@ -1697,6 +1702,7 @@ void SkPaint::toString(SkString* str) const {
 
     str->append("</dd></dl></dl>");
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1741,7 +1747,7 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     }
 
     // SRGBTODO: Is this correct?
-    fCache = SkStrikeCache::FindOrCreateStrikeExclusive(
+    fCache = SkGlyphCache::FindOrCreateStrikeExclusive(
         fPaint, nullptr,
         SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 

@@ -156,6 +156,8 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
             continue;
         }
 
+        runPaint.setFlags(this->filterTextFlags(runPaint));
+
         switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
             this->drawText(it.glyphs(), textLen, x + offset.x(), y + offset.y(), runPaint);
@@ -523,6 +525,23 @@ void SkBaseDevice::drawTextRSXform(const void* text, size_t len,
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+
+uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
+    uint32_t flags = paint.getFlags();
+
+    if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
+        return flags;
+    }
+
+    if (kUnknown_SkPixelGeometry == fSurfaceProps.pixelGeometry()
+        || this->onShouldDisableLCD(paint)) {
+
+        flags &= ~SkPaint::kLCDRenderText_Flag;
+        flags |= SkPaint::kGenA8FromLCD_Flag;
+    }
+
+    return flags;
+}
 
 sk_sp<SkSurface> SkBaseDevice::makeSurface(SkImageInfo const&, SkSurfaceProps const&) {
     return nullptr;

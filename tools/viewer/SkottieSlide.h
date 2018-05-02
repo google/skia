@@ -9,8 +9,8 @@
 #define SkottieSlide_DEFINED
 
 #include "Slide.h"
-#include "Skottie.h"
 
+namespace skottie { class Animation; }
 namespace sksg    { class Scene;     }
 
 class SkottieSlide : public Slide {
@@ -32,11 +32,9 @@ public:
 private:
     SkString                  fPath;
     sk_sp<skottie::Animation> fAnimation;
-    skottie::Animation::Stats fAnimationStats;
     SkSize                    fWinSize = SkSize::MakeEmpty();
     SkMSec                    fTimeBase  = 0;
-    bool                      fShowAnimationInval = false,
-                              fShowAnimationStats = false;
+    bool                      fShowAnimationInval = false;
 
     typedef Slide INHERITED;
 };

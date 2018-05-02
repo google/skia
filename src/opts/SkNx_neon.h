@@ -34,20 +34,6 @@ public:
     AI static SkNx Load(const void* ptr) { return vld1_f32((const float*)ptr); }
     AI void store(void* ptr) const { vst1_f32((float*)ptr, fVec); }
 
-    AI static void Load2(const void* ptr, SkNx* x, SkNx* y) {
-        float32x2x2_t xy = vld2_f32((const float*) ptr);
-        *x = xy.val[0];
-        *y = xy.val[1];
-    }
-
-    AI static void Store2(void* dst, const SkNx& a, const SkNx& b) {
-        float32x2x2_t ab = {{
-            a.fVec,
-            b.fVec,
-        }};
-        vst2_f32((float*) dst, ab);
-    }
-
     AI static void Store3(void* dst, const SkNx& a, const SkNx& b, const SkNx& c) {
         float32x2x3_t abc = {{
             a.fVec,
@@ -126,20 +112,12 @@ public:
     }
 
     AI bool allTrue() const {
-    #if defined(__aarch64__)
-        return 0 != vminv_u32(vreinterpret_u32_f32(fVec));
-    #else
         auto v = vreinterpret_u32_f32(fVec);
         return vget_lane_u32(v,0) && vget_lane_u32(v,1);
-    #endif
     }
     AI bool anyTrue() const {
-    #if defined(__aarch64__)
-        return 0 != vmaxv_u32(vreinterpret_u32_f32(fVec));
-    #else
         auto v = vreinterpret_u32_f32(fVec);
         return vget_lane_u32(v,0) || vget_lane_u32(v,1);
-    #endif
     }
 
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
@@ -250,41 +228,15 @@ public:
         return pun.fs[k&3];
     }
 
-    AI float min() const {
-    #if defined(__aarch64__)
-        return vminvq_f32(fVec);
-    #else
-        SkNx min = Min(*this, vrev64q_f32(fVec));
-        return std::min(min[0], min[2]);
-    #endif
-    }
-
-    AI float max() const {
-    #if defined(__aarch64__)
-        return vmaxvq_f32(fVec);
-    #else
-        SkNx max = Max(*this, vrev64q_f32(fVec));
-        return std::max(max[0], max[2]);
-    #endif
-    }
-
     AI bool allTrue() const {
-    #if defined(__aarch64__)
-        return 0 != vminvq_u32(vreinterpretq_u32_f32(fVec));
-    #else
         auto v = vreinterpretq_u32_f32(fVec);
         return vgetq_lane_u32(v,0) && vgetq_lane_u32(v,1)
             && vgetq_lane_u32(v,2) && vgetq_lane_u32(v,3);
-    #endif
     }
     AI bool anyTrue() const {
-    #if defined(__aarch64__)
-        return 0 != vmaxvq_u32(vreinterpretq_u32_f32(fVec));
-    #else
         auto v = vreinterpretq_u32_f32(fVec);
         return vgetq_lane_u32(v,0) || vgetq_lane_u32(v,1)
             || vgetq_lane_u32(v,2) || vgetq_lane_u32(v,3);
-    #endif
     }
 
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {

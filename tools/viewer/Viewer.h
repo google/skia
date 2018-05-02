@@ -16,7 +16,6 @@
 #include "SkAnimTimer.h"
 #include "SkExecutor.h"
 #include "SkJSONCPP.h"
-#include "SkScan.h"
 #include "SkTouchGesture.h"
 #include "Slide.h"
 #include "StatsLayer.h"
@@ -64,10 +63,10 @@ public:
             DeltaAAEnabled,
             DeltaAAForced,
         } fAntiAlias = AntiAliasState::Alias;
-        const bool fOriginalSkUseAnalyticAA = gSkUseAnalyticAA;
-        const bool fOriginalSkForceAnalyticAA = gSkForceAnalyticAA;
-        const bool fOriginalSkUseDeltaAA = gSkUseDeltaAA;
-        const bool fOriginalSkForceDeltaAA = gSkForceDeltaAA;
+        bool fOriginalSkUseAnalyticAA = false;
+        bool fOriginalSkForceAnalyticAA = false;
+        bool fOriginalSkUseDeltaAA = false;
+        bool fOriginalSkForceDeltaAA = false;
 
         bool fTextAlign = false;
         bool fCapType = false;
@@ -100,8 +99,6 @@ private:
     void drawImGui();
 
     void changeZoomLevel(float delta);
-    void preTouchMatrixChanged();
-    SkMatrix computePreTouchMatrix();
     SkMatrix computeMatrix();
     SkPoint mapEvent(float x, float y);
 
@@ -142,7 +139,6 @@ private:
 
     // transform data
     SkScalar               fZoomLevel;
-    SkScalar               fRotation;
 
     sk_app::CommandSet     fCommands;
 
@@ -158,9 +154,6 @@ private:
     // identity unless the window initially scales the content to fit the screen.
     SkMatrix               fDefaultMatrix;
 
-    bool                   fPerspective;
-    SkPoint                fPerspectivePoints[4];
-
     SkTArray<std::function<void(void)>> fDeferredActions;
 
     Json::Value            fAllSlideNames; // cache all slide names for fast updateUIState
@@ -171,7 +164,6 @@ private:
 
     SkPaint fPaint;
     SkPaintFields fPaintOverrides;
-    bool fPixelGeometryOverrides = false;
 };
 
 

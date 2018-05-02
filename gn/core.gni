@@ -159,6 +159,7 @@ skia_core_sources = [
   "$_src/core/SkGlyph.cpp",
   "$_src/core/SkGlyphCache.cpp",
   "$_src/core/SkGlyphCache.h",
+  "$_src/core/SkGlyphCache_Globals.h",
   "$_src/core/SkGpuBlurUtils.h",
   "$_src/core/SkGpuBlurUtils.cpp",
   "$_src/core/SkGraphics.cpp",
@@ -294,8 +295,6 @@ skia_core_sources = [
   "$_src/core/SkSpriteBlitter.h",
   "$_src/core/SkStream.cpp",
   "$_src/core/SkStreamPriv.h",
-  "$_src/core/SkStrikeCache.cpp",
-  "$_src/core/SkStrikeCache.h",
   "$_src/core/SkString.cpp",
   "$_src/core/SkStringUtils.cpp",
   "$_src/core/SkStroke.h",
@@ -303,7 +302,6 @@ skia_core_sources = [
   "$_src/core/SkStrokeRec.cpp",
   "$_src/core/SkStrokerPriv.cpp",
   "$_src/core/SkStrokerPriv.h",
-  "$_src/core/SkSurfaceCharacterization.cpp",
   "$_src/core/SkSurfacePriv.h",
   "$_src/core/SkSwizzle.cpp",
   "$_src/core/SkSRGB.cpp",
@@ -319,6 +317,7 @@ skia_core_sources = [
   "$_src/core/SkTextMapStateProc.h",
   "$_src/core/SkTextToPathIter.h",
   "$_src/core/SkTime.cpp",
+  "$_src/core/SkTDPQueue.h",
 
   # The Clang's false positive thread warnings have been resolved in SkTaskGroup2D.cpp
   "$_src/core/SkThreadedBMPDevice.cpp",
