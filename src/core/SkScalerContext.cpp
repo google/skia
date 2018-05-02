@@ -817,7 +817,8 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
                                         const SkMatrix* deviceMatrix,
                                         SkScalerContextFlags scalerContextFlags,
                                         SkScalerContextRec* rec,
-                                        SkScalerContextEffects* effects) {
+                                        SkScalerContextEffects* effects,
+                                        bool enableTypefaceFiltering) {
     SkASSERT(deviceMatrix == nullptr || !deviceMatrix->hasPerspective());
 
     SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
@@ -963,7 +964,9 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
     // cache. This way if we're asking for something that they will ignore,
     // they can modify our rec up front, so we don't create duplicate cache
     // entries.
-    typeface->onFilterRec(rec);
+    if (enableTypefaceFiltering) {
+        typeface->onFilterRec(rec);
+    }
 
     if (!SkToBool(scalerContextFlags & SkScalerContextFlags::kFakeGamma)) {
         rec->ignoreGamma();
