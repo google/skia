@@ -9,7 +9,6 @@
 #define SkStrikeCache_DEFINED
 
 #include <unordered_map>
-#include <unordered_set>
 
 #include "SkDescriptor.h"
 #include "SkSpinlock.h"
@@ -31,6 +30,24 @@ class SkTraceMemoryDump;
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
+
+struct SkDescriptorMapOperators {
+    size_t operator()(const SkDescriptor* key) const {
+        return key->getChecksum();
+    }
+
+    bool operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
+        return *lhs == *rhs;
+    }
+};
+
+template <typename T>
+using SkDescriptorMap =
+        std::unordered_map<
+                const SkDescriptor*,
+                T,
+                SkDescriptorMapOperators,
+                SkDescriptorMapOperators>;
 
 class SkStrikePinner {
 public:
