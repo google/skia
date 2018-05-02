@@ -12,7 +12,6 @@ void SkGlyph::initWithGlyphID(SkPackedGlyphID glyph_id) {
     fImage          = nullptr;
     fPathData       = nullptr;
     fMaskFormat     = MASK_FORMAT_UNKNOWN;
-    fForceBW        = 0;
 }
 
 void SkGlyph::toMask(SkMask* mask) const {
