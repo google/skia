@@ -179,7 +179,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomLevel(0.0f)
     , fRotation(0.0f)
     , fGestureDevice(GestureDevice::kNone)
-    , fPerspective(false)
+    , fPerspectiveMode(kPerspective_Off)
     , fTileCnt(0)
     , fThreadCnt(0)
 {
@@ -489,6 +489,18 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
+    fCommands.addCommand('p', "Transform", "Toggle Perspective Mode", [this]() {
+        fPerspectiveMode = (kPerspective_Real == fPerspectiveMode) ? kPerspective_Fake
+                                                                   : kPerspective_Real;
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('P', "Transform", "Toggle Perspective", [this]() {
+        fPerspectiveMode = (kPerspective_Off == fPerspectiveMode) ? kPerspective_Real
+                                                                  : kPerspective_Off;
+        this->updateTitle();
+        fWindow->inval();
+    });
 
     // set up slides
     this->initSlides();
@@ -788,6 +800,12 @@ void Viewer::updateTitle() {
         title.appendf(" [Path renderer: %s]", gPathRendererNames[pr].c_str());
     }
 
+    if (kPerspective_Real == fPerspectiveMode) {
+        title.append(" Perpsective (Real)");
+    } else if (kPerspective_Fake == fPerspectiveMode) {
+        title.append(" Perspective (Fake)");
+    }
+
     fWindow->setTitle(title.c_str());
 }
 
@@ -878,6 +896,20 @@ void Viewer::preTouchMatrixChanged() {
     fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
 }
 
+SkMatrix Viewer::computePerspectiveMatrix() {
+    SkScalar w = fWindow->width(), h = fWindow->height();
+    SkPoint orthoPts[4] = { { 0, 0 }, { w, 0 }, { 0, h }, { w, h } };
+    SkPoint perspPts[4] = {
+        { fPerspectivePoints[0].fX * w, fPerspectivePoints[0].fY * h },
+        { fPerspectivePoints[1].fX * w, fPerspectivePoints[1].fY * h },
+        { fPerspectivePoints[2].fX * w, fPerspectivePoints[2].fY * h },
+        { fPerspectivePoints[3].fX * w, fPerspectivePoints[3].fY * h }
+    };
+    SkMatrix m;
+    m.setPolyToPoly(orthoPts, perspPts, 4);
+    return m;
+}
+
 SkMatrix Viewer::computePreTouchMatrix() {
     SkMatrix m = fDefaultMatrix;
     SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
@@ -887,17 +919,8 @@ SkMatrix Viewer::computePreTouchMatrix() {
     const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
     m.preRotate(fRotation, slideSize.width() * 0.5f, slideSize.height() * 0.5f);
 
-    if (fPerspective) {
-        SkScalar w = fWindow->width(), h = fWindow->height();
-        SkPoint orthoPts[4] = { { 0, 0 }, { w, 0 }, { 0, h }, { w, h } };
-        SkPoint perspPts[4] = {
-            { fPerspectivePoints[0].fX * w, fPerspectivePoints[0].fY * h },
-            { fPerspectivePoints[1].fX * w, fPerspectivePoints[1].fY * h },
-            { fPerspectivePoints[2].fX * w, fPerspectivePoints[2].fY * h },
-            { fPerspectivePoints[3].fX * w, fPerspectivePoints[3].fY * h }
-        };
-        SkMatrix persp;
-        persp.setPolyToPoly(orthoPts, perspPts, 4);
+    if (kPerspective_Real == fPerspectiveMode) {
+        SkMatrix persp = this->computePerspectiveMatrix();
         m.postConcat(persp);
     }
 
@@ -1026,10 +1049,11 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 
     // If we're in F16, or we're zooming, or we're in color correct 8888 and the gamut isn't sRGB,
     // we need to render offscreen. We also need to render offscreen if we're in any raster mode,
-    // because the window surface is actually GL.
+    // because the window surface is actually GL, or we're doing fake perspective.
     sk_sp<SkSurface> offscreenSurface = nullptr;
     std::unique_ptr<SkCanvas> threadedCanvas;
     if (Window::kRaster_BackendType == fBackendType ||
+        kPerspective_Fake == fPerspectiveMode ||
         ColorMode::kColorManagedLinearF16 == fColorMode ||
         fShowZoomWindow ||
         (ColorMode::kColorManagedSRGB8888 == fColorMode &&
@@ -1093,7 +1117,14 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         auto retaggedImage = SkImageMakeRasterCopyAndAssignColorSpace(fLastImage.get(), srgb.get());
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
+        int prePerspectiveCount = canvas->save();
+        if (kPerspective_Fake == fPerspectiveMode) {
+            paint.setFilterQuality(kHigh_SkFilterQuality);
+            canvas->clear(SK_ColorWHITE);
+            canvas->concat(this->computePerspectiveMatrix());
+        }
         canvas->drawImage(retaggedImage, 0, 0, &paint);
+        canvas->restoreToCount(prePerspectiveCount);
     }
 }
 
@@ -1436,8 +1467,11 @@ void Viewer::drawImGui() {
                     this->preTouchMatrixChanged();
                     paramsChanged = true;
                 }
-                if (ImGui::Checkbox("Perspective", &fPerspective)) {
+                int perspectiveMode = static_cast<int>(fPerspectiveMode);
+                if (ImGui::Combo("Perspective", &perspectiveMode, "Off\0Real\0Fake\0\0")) {
+                    fPerspectiveMode = static_cast<PerspectiveMode>(perspectiveMode);
                     this->preTouchMatrixChanged();
+                    this->updateTitle();
                 }
                 if (ImGui_DragQuad(fPerspectivePoints)) {
                     this->preTouchMatrixChanged();

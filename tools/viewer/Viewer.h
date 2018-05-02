@@ -102,6 +102,7 @@ private:
     void changeZoomLevel(float delta);
     void preTouchMatrixChanged();
     SkMatrix computePreTouchMatrix();
+    SkMatrix computePerspectiveMatrix();
     SkMatrix computeMatrix();
     SkPoint mapEvent(float x, float y);
 
@@ -158,7 +159,12 @@ private:
     // identity unless the window initially scales the content to fit the screen.
     SkMatrix               fDefaultMatrix;
 
-    bool                   fPerspective;
+    enum PerspectiveMode {
+        kPerspective_Off,
+        kPerspective_Real,
+        kPerspective_Fake,
+    };
+    PerspectiveMode        fPerspectiveMode;
     SkPoint                fPerspectivePoints[4];
 
     SkTArray<std::function<void(void)>> fDeferredActions;
