@@ -50,9 +50,6 @@ trouble with aliases, plurals
     need to keep first letter of includeWriter @param / @return lowercase
     Quad -> quad, Quads -> quads
 deprecated methods should be sorted down in md out, and show include "Deprecated." text body.
-rewrap text to fit in some number of columns
-#Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
-     would rather keep links for boby above #Literal, and/or make it a block and not a one-liner
 see head of selfCheck.cpp for additional todos
  */
 
@@ -63,112 +60,6 @@ see head of selfCheck.cpp for additional todos
   method contains named parameters
      parameters may be reused in other methods
  */
-
-#define M(mt) (1LL << (int) MarkType::k##mt)
-#define M_D M(Description)
-#define M_CS M(Class) | M(Struct)
-#define M_ST M(Subtopic) | M(Topic)
-#define M_CSST M_CS | M_ST
-#ifdef M_E
-#undef M_E
-#endif
-#define M_E M(Enum) | M(EnumClass)
-
-#define R_Y Resolvable::kYes
-#define R_N Resolvable::kNo
-#define R_O Resolvable::kOut
-#define R_F Resolvable::kFormula
-#define R_C Resolvable::kClone
-
-#define E_Y Exemplary::kYes
-#define E_N Exemplary::kNo
-#define E_O Exemplary::kOptional
-
-BmhParser::MarkProps BmhParser::kMarkProps[] = {
-// names without formal definitions (e.g. Column) aren't included
-// fill in other names once they're actually used
-  { "",             MarkType::kNone,         R_Y, E_N, 0 }
-, { "A",            MarkType::kAnchor,       R_N, E_N, 0 }
-, { "Alias",        MarkType::kAlias,        R_N, E_N, 0 }
-, { "Bug",          MarkType::kBug,          R_N, E_N, 0 }
-, { "Class",        MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
-, { "Code",         MarkType::kCode,         R_F, E_N, M_CSST | M_E | M(Method) | M(Define) | M(Typedef) }
-, { "",             MarkType::kColumn,       R_Y, E_N, M(Row) }
-, { "",             MarkType::kComment,      R_N, E_N, 0 }
-, { "Const",        MarkType::kConst,        R_Y, E_O, M_E | M_ST  }
-, { "Define",       MarkType::kDefine,       R_O, E_Y, M_ST }
-, { "DefinedBy",    MarkType::kDefinedBy,    R_N, E_N, M(Method) }
-, { "Deprecated",   MarkType::kDeprecated,   R_Y, E_N, 0 }
-, { "Description",  MarkType::kDescription,  R_Y, E_N, M(Example) | M(NoExample) }
-, { "Doxygen",      MarkType::kDoxygen,      R_Y, E_N, 0 }
-, { "Duration",     MarkType::kDuration,     R_N, E_N, M(Example) | M(NoExample) }
-, { "Enum",         MarkType::kEnum,         R_Y, E_O, M_CSST | M(Root) }
-, { "EnumClass",    MarkType::kEnumClass,    R_Y, E_O, M_CSST | M(Root) }
-, { "Example",      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M(Method) | M(Const) | M(Define) }
-, { "Experimental", MarkType::kExperimental, R_Y, E_N, 0 }
-, { "External",     MarkType::kExternal,     R_Y, E_N, M(Root) }
-, { "File",         MarkType::kFile,         R_N, E_N, M(Track) }
-, { "Formula",      MarkType::kFormula,      R_F, E_N,
-                                              M(Column) | M_E | M_ST | M(Member) | M(Method) | M_D }
-, { "Function",     MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
-, { "Height",       MarkType::kHeight,       R_N, E_N, M(Example) | M(NoExample) }
-, { "Illustration", MarkType::kIllustration, R_N, E_N, M(Subtopic) }
-, { "Image",        MarkType::kImage,        R_N, E_N, M(Example) | M(NoExample) }
-, { "In",           MarkType::kIn,           R_N, E_N, M_CSST | M_E | M(Method) | M(Typedef) }
-, { "Legend",       MarkType::kLegend,       R_Y, E_N, M(Table) }
-, { "Line",         MarkType::kLine,         R_N, E_N, M_CSST | M_E | M(Method) | M(Typedef) }
-, { "",             MarkType::kLink,         R_N, E_N, M(Anchor) }
-, { "List",         MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
-, { "Literal",      MarkType::kLiteral,      R_N, E_N, M(Code) }
-, { "",             MarkType::kMarkChar,     R_N, E_N, 0 }
-, { "Member",       MarkType::kMember,       R_Y, E_N, M_CSST }
-, { "Method",       MarkType::kMethod,       R_Y, E_Y, M_CSST }
-, { "NoExample",    MarkType::kNoExample,    R_N, E_N, M_CSST | M_E | M(Method) | M(Const) | M(Define) }
-, { "Outdent",      MarkType::kOutdent,      R_N, E_N, M(Code) }
-, { "Param",        MarkType::kParam,        R_Y, E_N, M(Method) | M(Define) }
-, { "PhraseDef",    MarkType::kPhraseDef,    R_Y, E_N, M(Subtopic) }
-, { "",             MarkType::kPhraseRef,    R_Y, E_N, 0 }
-, { "Platform",     MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
-, { "Populate",     MarkType::kPopulate,     R_N, E_N, M(Subtopic) }
-, { "Private",      MarkType::kPrivate,      R_N, E_N, 0 }
-, { "Return",       MarkType::kReturn,       R_Y, E_N, M(Method) }
-, { "",             MarkType::kRoot,         R_Y, E_N, 0 }
-, { "",             MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
-, { "SeeAlso",      MarkType::kSeeAlso,      R_C, E_N, M_CSST | M_E | M(Method) | M(Define) | M(Typedef) }
-, { "Set",          MarkType::kSet,          R_N, E_N, M(Example) | M(NoExample) }
-, { "StdOut",       MarkType::kStdOut,       R_N, E_N, M(Example) | M(NoExample) }
-, { "Struct",       MarkType::kStruct,       R_Y, E_O, M(Class) | M(Root) | M_ST }
-, { "Substitute",   MarkType::kSubstitute,   R_N, E_N, M_ST }
-, { "Subtopic",     MarkType::kSubtopic,     R_Y, E_Y, M_CSST }
-, { "Table",        MarkType::kTable,        R_Y, E_N, M(Method) | M_CSST | M_E }
-, { "Template",     MarkType::kTemplate,     R_Y, E_N, 0 }
-, { "",             MarkType::kText,         R_N, E_N, 0 }
-, { "Time",         MarkType::kTime,         R_Y, E_N, M(Track) }
-, { "ToDo",         MarkType::kToDo,         R_N, E_N, 0 }
-, { "Topic",        MarkType::kTopic,        R_Y, E_Y, M_CS | M(Root) | M(Topic) }
-, { "Track",        MarkType::kTrack,        R_Y, E_N, M_E | M_ST }
-, { "Typedef",      MarkType::kTypedef,      R_Y, E_N, M(Class) | M_ST }
-, { "",             MarkType::kUnion,        R_Y, E_N, 0 }
-, { "Volatile",     MarkType::kVolatile,     R_N, E_N, M(StdOut) }
-, { "Width",        MarkType::kWidth,        R_N, E_N, M(Example) | M(NoExample) }
-};
-
-#undef R_O
-#undef R_N
-#undef R_Y
-#undef R_F
-#undef R_C
-
-#undef M_E
-#undef M_CSST
-#undef M_ST
-#undef M_CS
-#undef M_D
-#undef M
-
-#undef E_Y
-#undef E_N
-#undef E_O
 
 bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markType,
         const vector<string>& typeNameBuilder, HasTag hasTag) {
@@ -183,7 +74,6 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kClass:
         case MarkType::kStruct:
         case MarkType::kConst:
-        case MarkType::kDefine:
         case MarkType::kEnum:
         case MarkType::kEnumClass:
         case MarkType::kMember:
@@ -195,7 +85,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             if (typeNameBuilder.size() > 1) {
                 return this->reportError<bool>("expected one name only");
             }
-            string name = typeNameBuilder[0];
+            const string& name = typeNameBuilder[0];
             if (nullptr == fRoot) {
                 fRoot = this->findBmhObject(markType, name);
                 fRoot->fFileName = fFileName;
@@ -241,8 +131,8 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                             || MarkType::kExperimental == child->fMarkType
                             || MarkType::kNoExample == child->fMarkType;
                 }
-                if (kMarkProps[(int) markType].fExemplary != hasExample
-                        && kMarkProps[(int) markType].fExemplary != Exemplary::kOptional) {
+                if (fMaps[(int) markType].fExemplary != hasExample
+                        && fMaps[(int) markType].fExemplary != Exemplary::kOptional) {
                     if (string::npos == fFileName.find("undocumented")
                             && !hasExcluder) {
                         hasExample == Exemplary::kNo ?
@@ -501,6 +391,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kAlias:
         case MarkType::kAnchor:
         case MarkType::kBug:
+        case MarkType::kDefine:
         case MarkType::kDeprecated:
         case MarkType::kDuration:
         case MarkType::kFile:
@@ -551,7 +442,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             } else if (MarkType::kAlias == markType) {
                 this->skipWhiteSpace();
                 const char* start = fChar;
-                this->skipToNonName();
+                this->skipToNonAlphaNum();
                 string alias(start, fChar - start);
                 if (fAliasMap.end() != fAliasMap.find(alias)) {
                     return this->reportError<bool>("duplicate alias");
@@ -599,7 +490,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
     return true;
 }
 
-void BmhParser::reportDuplicates(const Definition& def, string dup) const {
+void BmhParser::reportDuplicates(const Definition& def, const string& dup) const {
     if (MarkType::kExample == def.fMarkType && dup == def.fFiddle) {
         TextParser reporter(&def);
         reporter.reportError("duplicate example name");
@@ -652,14 +543,14 @@ bool BmhParser::checkEndMarker(MarkType markType, string match) const {
         return this->reportError<bool>("mismatched end marker expect #");
     }
     const char* nameStart = tp.fChar;
-    tp.skipToNonName();
+    tp.skipToNonAlphaNum();
     string markName(nameStart, tp.fChar - nameStart);
-    if (kMarkProps[(int) markType].fName != markName) {
+    if (fMaps[(int) markType].fName != markName) {
         return this->reportError<bool>("expected #XXX ## to match");
     }
     tp.skipSpace();
     nameStart = tp.fChar;
-    tp.skipToNonName();
+    tp.skipToNonAlphaNum();
     markName = string(nameStart, tp.fChar - nameStart);
     if ("" == markName) {
         if (fMC != tp.next() || fMC != tp.next()) {
@@ -725,7 +616,7 @@ bool BmhParser::checkParamReturn(const Definition* definition) const {
 bool BmhParser::childOf(MarkType markType) const {
     auto childError = [this](MarkType markType) -> bool {
         string errStr = "expected ";
-        errStr += kMarkProps[(int) markType].fName;
+        errStr += fMaps[(int) markType].fName;
         errStr += " parent";
         return this->reportError<bool>(errStr.c_str());
     };
@@ -748,10 +639,10 @@ string BmhParser::className(MarkType markType) {
     const char* end = this->lineEnd();
     const char* mc = this->strnchr(fMC, end);
     string classID;
-    TextParserSave savePlace(this);
+    TextParser::Save savePlace(this);
     this->skipSpace();
     const char* wordStart = fChar;
-    this->skipToNonName();
+    this->skipToNonAlphaNum();
     const char* wordEnd = fChar;
     classID = string(wordStart, wordEnd - wordStart);
     if (!mc) {
@@ -811,14 +702,14 @@ bool BmhParser::collectExternals() {
                 this->skipLine();
                 continue;
             }
-            if (this->startsWith(kMarkProps[(int) MarkType::kExternal].fName)) {
-                this->skipToNonName();
+            if (this->startsWith(fMaps[(int) MarkType::kExternal].fName)) {
+                this->skipToNonAlphaNum();
                 continue;
             }
         }
         this->skipToAlpha();
         const char* wordStart = fChar;
-        this->skipToNonName();
+        this->skipToNonAlphaNum();
         if (fChar - wordStart > 0) {
             fExternals.emplace_front(MarkType::kExternal, wordStart, fChar, fLineCount, fParent,
                     fMC);
@@ -898,7 +789,7 @@ bool BmhParser::endTableColumn(const char* end, const char* terminator) {
     return true;
 }
 
-static size_t count_indent(string text, size_t test, size_t end) {
+static size_t count_indent(const string& text, size_t test, size_t end) {
     size_t result = test;
     while (test < end) {
         if (' ' != text[test]) {
@@ -909,7 +800,7 @@ static size_t count_indent(string text, size_t test, size_t end) {
     return test - result;
 }
 
-static void add_code(string text, int pos, int end,
+static void add_code(const string& text, int pos, int end,
     size_t outIndent, size_t textIndent, string& example) {
     do {
         // fix this to move whole paragraph in, out, but preserve doc indent
@@ -1041,8 +932,9 @@ bool BmhParser::exampleToScript(Definition* def, ExampleOptions exampleOptions,
         code += "}";
     }
     string example = "\"" + normalizedName + "\": {\n";
-    string filename = def->fileName();
-    string baseFile = filename.substr(0, filename.length() - 4);
+    size_t nameStart = def->fFileName.find(SkOSPath::SEPARATOR, 0);
+    SkASSERT(string::npos != nameStart);
+    string baseFile = def->fFileName.substr(nameStart + 1, def->fFileName.length() - nameStart - 5);
     if (ExampleOptions::kText == exampleOptions) {
         example += "    \"code\": \"" + code + "\",\n";
         example += "    \"hash\": \"" + def->fHash + "\",\n";
@@ -1162,6 +1054,9 @@ bool BmhParser::findDefinitions() {
     const char* lastMC = nullptr;
     fParent = nullptr;
     while (!this->eof()) {
+        if (195 == fLineCount && "docs\\SkImageInfo_Reference.bmh" == fFileName) {
+            SkDebugf("");
+        }
         if (this->peek() == fMC) {
             lastMC = fChar;
             this->next();
@@ -1212,12 +1107,12 @@ bool BmhParser::findDefinitions() {
                 bool hasEnd = this->hasEndToken();
                 if (!hasEnd) {
                     MarkType parentType = fParent ? fParent->fMarkType : MarkType::kRoot;
-                    uint64_t parentMask = kMarkProps[(int) markType].fParentMask;
+                    uint64_t parentMask = fMaps[(int) markType].fParentMask;
                     if (parentMask && !(parentMask & (1LL << (int) parentType))) {
                         return this->reportError<bool>("invalid parent");
                     }
                 }
-                if (!this->skipName(kMarkProps[(int) markType].fName)) {
+                if (!this->skipName(fMaps[(int) markType].fName)) {
                     return this->reportError<bool>("illegal markup character");
                 }
                 if (!this->skipSpace()) {
@@ -1331,14 +1226,14 @@ bool BmhParser::findDefinitions() {
 
 MarkType BmhParser::getMarkType(MarkLookup lookup) const {
     for (int index = 0; index <= Last_MarkType; ++index) {
-        int typeLen = strlen(kMarkProps[index].fName);
+        int typeLen = strlen(fMaps[index].fName);
         if (typeLen == 0) {
             continue;
         }
         if (fChar + typeLen >= fEnd || fChar[typeLen] > ' ') {
             continue;
         }
-        int chCompare = strncmp(fChar, kMarkProps[index].fName, typeLen);
+        int chCompare = strncmp(fChar, fMaps[index].fName, typeLen);
         if (chCompare < 0) {
             goto fail;
         }
@@ -1594,7 +1489,7 @@ string BmhParser::memberName() {
     do {
         this->skipSpace();
         wordStart = fChar;
-        this->skipToNonName();
+        this->skipToNonAlphaNum();
     } while (this->anyOf(wordStart, prefixes, SK_ARRAY_COUNT(prefixes)));
     if ('*' == this->peek()) {
         this->next();
@@ -1675,7 +1570,7 @@ string BmhParser::methodName() {
     bool addConst = false;
     if (isConstructor || expectOperator) {
         paren = this->strnchr(')', end) + 1;
-        TextParserSave saveState(this);
+        TextParser::Save saveState(this);
         this->skipTo(paren);
         if (this->skipExact("_const")) {
             addConst = true;
@@ -1698,7 +1593,7 @@ string BmhParser::methodName() {
         }
         this->next();
     }
-    TextParserSave saveState(this);
+    TextParser::Save saveState(this);
     this->skipWhiteSpace();
     if (this->startsWith("const")) {
         this->skipName("const");
@@ -1736,7 +1631,7 @@ const char* BmhParser::checkForFullTerminal(const char* end, const Definition* d
     if (parser.eof() || fMC != parser.next()) {
         return end;
     }
-    const char* markName = kMarkProps[(int) definition->fMarkType].fName;
+    const char* markName = fMaps[(int) definition->fMarkType].fName;
     if (!parser.skipExact(markName)) {
         return end;
     }
@@ -1841,22 +1736,6 @@ void TextParser::reportWarning(const char* errorStr) const {
         }
         SkDebugf("%.*s\n", (int) lineLen, err.fLine);
         SkDebugf("%*s^\n", (int) spaces, "");
-    }
-}
-
-void TextParser::setForErrorReporting(const Definition* definition, const char* str) {
-    fFileName = definition->fFileName;
-    fStart = definition->fContentStart;
-    fLine = str;
-    while (fLine > fStart && fLine[-1] != '\n') {
-        --fLine;
-    }
-    fChar = str;
-    fEnd = definition->fContentEnd;
-    fLineCount = definition->fLineCount;
-    const char* lineInc = fStart;
-    while (lineInc < str) {
-        fLineCount += '\n' == *lineInc++;
     }
 }
 
@@ -2034,7 +1913,6 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         builder = fParent->fName;
     }
     switch (markType) {
-        case MarkType::kDefine:
         case MarkType::kEnum:
             // enums may be nameless
         case MarkType::kConst:
@@ -2069,6 +1947,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kAlias:
         case MarkType::kAnchor:
         case MarkType::kBug:  // fixme: expect number
+        case MarkType::kDefine:
         case MarkType::kDefinedBy:
         case MarkType::kDeprecated:
         case MarkType::kDuration:
@@ -2151,7 +2030,7 @@ string BmhParser::typedefName() {
     return uniqueRootName(builder, MarkType::kTypedef);
 }
 
-string BmhParser::uniqueName(string base, MarkType markType) {
+string BmhParser::uniqueName(const string& base, MarkType markType) {
     string builder(base);
     if (!builder.length()) {
         builder = fParent->fName;
@@ -2181,8 +2060,8 @@ tryNext: ;
     return numBuilder;
 }
 
-string BmhParser::uniqueRootName(string base, MarkType markType) {
-    auto checkName = [markType](const Definition& def, string numBuilder) -> bool {
+string BmhParser::uniqueRootName(const string& base, MarkType markType) {
+    auto checkName = [markType](const Definition& def, const string& numBuilder) -> bool {
         return markType == def.fMarkType && def.fName == numBuilder;
     };
 
@@ -2237,11 +2116,11 @@ tryNext: ;
 
 void BmhParser::validate() const {
     for (int index = 0; index <= (int) Last_MarkType; ++index) {
-        SkASSERT(kMarkProps[index].fMarkType == (MarkType) index);
+        SkASSERT(fMaps[index].fMarkType == (MarkType) index);
     }
     const char* last = "";
     for (int index = 0; index <= (int) Last_MarkType; ++index) {
-        const char* next = kMarkProps[index].fName;
+        const char* next = fMaps[index].fName;
         if (!last[0]) {
             last = next;
             continue;
@@ -2254,7 +2133,7 @@ void BmhParser::validate() const {
     }
 }
 
-string BmhParser::word(string prefix, string delimiter) {
+string BmhParser::word(const string& prefix, const string& delimiter) {
     string builder(prefix);
     this->skipWhiteSpace();
     const char* lineEnd = fLine + this->lineLength();
@@ -2410,7 +2289,7 @@ int main(int argc, char** const argv) {
         if (FLAGS_tokens)  {
             IncludeParser::RemoveFile(FLAGS_bmh[0], FLAGS_include[0]);
         }
-        if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh", ParserCommon::OneFile::kNo)) {
+        if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh")) {
             return -1;
         }
     } else if (!FLAGS_status.isEmpty()) {
@@ -2425,7 +2304,7 @@ int main(int argc, char** const argv) {
             return 1;
         }
         HackParser hacker(bmhParser);
-        if (!hacker.parseFile(FLAGS_bmh[0], ".bmh", ParserCommon::OneFile::kNo)) {
+        if (!hacker.parseFile(FLAGS_bmh[0], ".bmh")) {
             SkDebugf("hack failed\n");
             return -1;
         }
@@ -2438,12 +2317,12 @@ int main(int argc, char** const argv) {
     if (!FLAGS_include.isEmpty() && FLAGS_tokens) {
         IncludeParser includeParser;
         includeParser.validate();
-        if (!includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
+        if (!includeParser.parseFile(FLAGS_include[0], ".h")) {
             return -1;
         }
         if (FLAGS_tokens) {
             includeParser.fDebugOut = FLAGS_stdout;
-            if (includeParser.dumpTokens()) {
+            if (includeParser.dumpTokens(FLAGS_bmh[0])) {
                 bmhParser.fWroteOut = true;
             }
             done = true;
@@ -2453,7 +2332,7 @@ int main(int argc, char** const argv) {
             IncludeParser includeParser;
             includeParser.validate();
             if (!FLAGS_include.isEmpty() &&
-                    !includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
+                    !includeParser.parseFile(FLAGS_include[0], ".h")) {
                 return -1;
             }
             if (!FLAGS_status.isEmpty() && !includeParser.parseStatus(FLAGS_status[0], ".h",
@@ -2468,7 +2347,7 @@ int main(int argc, char** const argv) {
             IncludeWriter includeWriter;
             includeWriter.validate();
             if (!FLAGS_include.isEmpty() &&
-                    !includeWriter.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
+                    !includeWriter.parseFile(FLAGS_include[0], ".h")) {
                 return -1;
             }
             if (!FLAGS_status.isEmpty() && !includeWriter.parseStatus(FLAGS_status[0], ".h",
@@ -2485,7 +2364,7 @@ int main(int argc, char** const argv) {
     }
     if (!done && !FLAGS_fiddle.isEmpty() && FLAGS_examples.isEmpty()) {
         FiddleParser fparser(&bmhParser);
-        if (!fparser.parseFile(FLAGS_fiddle[0], ".txt", ParserCommon::OneFile::kNo)) {
+        if (!fparser.parseFile(FLAGS_fiddle[0], ".txt")) {
             return -1;
         }
     }
@@ -2498,7 +2377,7 @@ int main(int argc, char** const argv) {
         if (!FLAGS_status.isEmpty() && !cparser.openStatus(FLAGS_status[0], FLAGS_ref[0])) {
             return -1;
         }
-        if (!cparser.parseFile(FLAGS_fiddle[0], ".txt", ParserCommon::OneFile::kNo)) {
+        if (!cparser.parseFile(FLAGS_fiddle[0], ".txt")) {
             return -1;
         }
         if (!cparser.closeCatalog()) {
@@ -2508,16 +2387,9 @@ int main(int argc, char** const argv) {
         done = true;
     }
     if (!done && !FLAGS_ref.isEmpty() && FLAGS_examples.isEmpty()) {
-        IncludeParser includeParser;
-        includeParser.validate();
-        if (!FLAGS_include.isEmpty() && !includeParser.parseFile(FLAGS_include[0], ".h",
-                ParserCommon::OneFile::kYes)) {
-            return -1;
-        }
         MdOut mdOut(bmhParser);
         mdOut.fDebugOut = FLAGS_stdout;
-        if (!FLAGS_bmh.isEmpty() && mdOut.buildReferences(includeParser,
-                FLAGS_bmh[0], FLAGS_ref[0])) {
+        if (!FLAGS_bmh.isEmpty() && mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0])) {
             bmhParser.fWroteOut = true;
         }
         if (!FLAGS_status.isEmpty() && mdOut.buildStatus(FLAGS_status[0], FLAGS_ref[0])) {

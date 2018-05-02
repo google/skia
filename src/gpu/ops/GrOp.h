@@ -11,7 +11,6 @@
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
-#include "GrTracing.h"
 #include "GrXferProcessor.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
@@ -51,9 +50,6 @@ class GrRenderTargetOpList;
     #define GrOP_SPEW(code)
     #define GrOP_INFO(...)
 #endif
-
-// Print out op information at flush time
-#define GR_FLUSH_TIME_OP_SPEW 0
 
 // A helper macro to generate a class static id
 #define DEFINE_OP_CLASS_ID \
@@ -152,10 +148,7 @@ public:
     void prepare(GrOpFlushState* state) { this->onPrepare(state); }
 
     /** Issues the op's commands to GrGpu. */
-    void execute(GrOpFlushState* state) {
-        TRACE_EVENT0("skia", name());
-        this->onExecute(state);
-    }
+    void execute(GrOpFlushState* state) { this->onExecute(state); }
 
     /** Used for spewing information about ops when debugging. */
     virtual SkString dumpInfo() const {

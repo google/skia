@@ -16,7 +16,6 @@
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkRSXform.h"
-#include "SkStrikeCache.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
 
@@ -64,7 +63,7 @@ void SkOverdrawCanvas::onDrawText(const void* text, size_t byteLength, SkScalar 
     ProcessOneGlyphBounds processBounds(this);
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     this->getProps(&props);
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
             paint, &props, SkScalerContextFlags::kNone, &this->getTotalMatrix());
     SkFindAndPlaceGlyph::ProcessText(paint.getTextEncoding(), (const char*) text, byteLength,
                                      SkPoint::Make(x, y), SkMatrix(), paint.getTextAlign(),
@@ -77,7 +76,7 @@ void SkOverdrawCanvas::drawPosTextCommon(const void* text, size_t byteLength, co
     ProcessOneGlyphBounds processBounds(this);
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     this->getProps(&props);
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+    auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
             paint, &props, SkScalerContextFlags::kNone, &this->getTotalMatrix());
     SkFindAndPlaceGlyph::ProcessPosText(paint.getTextEncoding(), (const char*) text, byteLength,
                                         SkPoint::Make(0, 0), SkMatrix(), (const SkScalar*) pos, 2,

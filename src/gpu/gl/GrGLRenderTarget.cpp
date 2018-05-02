@@ -46,9 +46,6 @@ inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDDesc& idD
     if (glCaps.maxWindowRectangles() > 0 && idDesc.fRTFBOID) {
         this->setSupportsWindowRects();
     }
-    if (!idDesc.fRTFBOID) {
-        this->setGLRTFBOIDIs0();
-    }
 }
 
 void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
@@ -219,14 +216,19 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
 
         // Due to this resource having both a texture and a renderbuffer component, dump as
         // skia/gpu_resources/resource_#/renderbuffer
-        SkString resourceName = this->getResourceName();
-        resourceName.append("/renderbuffer");
+        SkString dumpName("skia/gpu_resources/resource_");
+        dumpName.appendU32(this->uniqueID().asUInt());
+        dumpName.append("/renderbuffer");
 
-        this->dumpMemoryStatisticsPriv(traceMemoryDump, resourceName, "RenderTarget", size);
+        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
+
+        if (this->isPurgeable()) {
+            traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes", size);
+        }
 
         SkString renderbuffer_id;
         renderbuffer_id.appendU32(fMSColorRenderbufferID);
-        traceMemoryDump->setMemoryBacking(resourceName.c_str(), "gl_renderbuffer",
+        traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_renderbuffer",
                                           renderbuffer_id.c_str());
     }
 }

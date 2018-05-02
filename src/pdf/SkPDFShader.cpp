@@ -72,7 +72,7 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
     SkISize patternDeviceSize = {SkScalarCeilToInt(deviceBounds.width()),
                                  SkScalarCeilToInt(deviceBounds.height())};
     auto patternDevice = sk_make_sp<SkPDFDevice>(patternDeviceSize, doc);
-    SkCanvas canvas(patternDevice);
+    SkCanvas canvas(patternDevice.get());
 
     SkRect patternBBox = SkRect::Make(image->bounds());
 

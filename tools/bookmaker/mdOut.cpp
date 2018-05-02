@@ -16,11 +16,11 @@
     }                               \
     fprintf(fOut, __VA_ARGS__)
 
-static void add_ref(string leadingSpaces, string ref, string* result) {
+static void add_ref(const string& leadingSpaces, const string& ref, string* result) {
     *result += leadingSpaces + ref;
 }
 
-static string preformat(string orig) {
+static string preformat(const string& orig) {
     string result;
     for (auto c : orig) {
         if ('<' == c) {
@@ -34,7 +34,7 @@ static string preformat(string orig) {
     return result;
 }
 
-static bool all_lower(string ref) {
+static bool all_lower(const string& ref) {
 	for (auto ch : ref) {
 		if (!islower(ch)) {
 			return false;
@@ -57,12 +57,6 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         const char* base = t.fChar;
         t.skipWhiteSpace();
         const char* wordStart = t.fChar;
-        if (BmhParser::Resolvable::kFormula == resolvable && !t.eof() && '"' == t.peek()) {
-            t.next();
-            t.skipToEndBracket('"');
-            t.next();
-            continue;
-        }
         t.skipToMethodStart();
         const char* start = t.fChar;
         if (wordStart < start) {
@@ -99,7 +93,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             continue;
         }
         ref = string(start, t.fChar - start);
-        if (const Definition* def = this->isDefined(t, ref, resolvable)) {
+        if (const Definition* def = this->isDefined(t, ref,
+                BmhParser::Resolvable::kOut != resolvable)) {
             if (MarkType::kExternal == def->fMarkType) {
                 add_ref(leadingSpaces, ref, &result);
                 continue;
@@ -127,7 +122,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     }
                     string altTest = ref + '_';
                     altTest += suffix++;
-                    altDef = this->isDefined(t, altTest, BmhParser::Resolvable::kOut);
+                    altDef = this->isDefined(t, altTest, false);
                 }
                 if (suffix > '9') {
                     t.reportError("too many alts");
@@ -135,18 +130,13 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     return result;
                 }
                 if (!foundMatch) {
-                    if (!(def = this->isDefined(t, fullRef, resolvable))) {
-                        if (BmhParser::Resolvable::kFormula == resolvable) {
-                            // TODO: look for looser mapping -- if methods name match, look for
-                            //   unique mapping based on number of parameters
-                            // for now, just look for function name match
-                            def = this->isDefined(t, ref, resolvable);
-                        }
-                        if (!def && !result.size()) {
+                    if (!(def = this->isDefined(t, fullRef,
+                            BmhParser::Resolvable::kOut != resolvable))) {
+                        if (!result.size()) {
                             t.reportError("missing method");
                             fAddRefFailed = true;
-                            return result;
                         }
+                        return result;
                     }
                     ref = fullRef;
                 }
@@ -155,11 +145,6 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
 				add_ref(leadingSpaces, ref, &result);
 				continue;
 			}
-            if (!def) {
-                t.reportError("missing method");
-                fAddRefFailed = true;
-                return result;
-            }
 			result += linkRef(leadingSpaces, def, ref, resolvable);
             continue;
         }
@@ -171,7 +156,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             }
             t.next();
             ref = string(start, t.fChar - start);
-            if (const Definition* def = this->isDefined(t, ref, BmhParser::Resolvable::kYes)) {
+            if (const Definition* def = this->isDefined(t, ref, true)) {
                 SkASSERT(def->fFiddle.length());
 				result += linkRef(leadingSpaces, def, ref, resolvable);
                 continue;
@@ -185,26 +170,24 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             // look for Sk / sk / SK ..
         if (!ref.compare(0, 2, "Sk") && ref != "Skew" && ref != "Skews" &&
               ref != "Skip" && ref != "Skips") {
-            if (BmhParser::Resolvable::kOut != resolvable &&
-                    BmhParser::Resolvable::kFormula != resolvable) {
+            if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("missed Sk prefixed");
                 fAddRefFailed = true;
-                return result;
             }
+            return result;
         }
         if (!ref.compare(0, 2, "SK")) {
-            if (BmhParser::Resolvable::kOut != resolvable &&
-                    BmhParser::Resolvable::kFormula != resolvable) {
+            if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("missed SK prefixed");
                 fAddRefFailed = true;
-                return result;
             }
+            return result;
         }
         if (!isupper(start[0])) {
             // TODO:
             // look for all lowercase w/o trailing parens as mistaken method matches
             // will also need to see if Example Description matches var in example
-            const Definition* def = nullptr;
+            const Definition* def;
             if (fMethod && (def = fMethod->hasParam(ref))) {
 				result += linkRef(leadingSpaces, def, ref, resolvable);
                 fLastParam = def;
@@ -226,8 +209,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                             }
                         }
                     }
-                    if (BmhParser::Resolvable::kOut != resolvable &&
-                            BmhParser::Resolvable::kFormula != resolvable) {
+                    if (BmhParser::Resolvable::kOut != resolvable) {
                         t.reportError("missed camelCase");
                         fAddRefFailed = true;
                         return result;
@@ -254,7 +236,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         if (isupper(t.fChar[1]) && startsSentence) {
             TextParser next(t.fFileName, &t.fChar[1], t.fEnd, t.fLineCount);
             string nextWord(next.fChar, next.wordEnd() - next.fChar);
-            if (this->isDefined(t, nextWord, BmhParser::Resolvable::kYes)) {
+            if (this->isDefined(t, nextWord, true)) {
 				add_ref(leadingSpaces, ref, &result);
                 continue;
             }
@@ -276,12 +258,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         } while ((test = test->fParent));
     found:
         if (!test) {
-            if (BmhParser::Resolvable::kOut != resolvable &&
-                    BmhParser::Resolvable::kFormula != resolvable) {
+            if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("undefined reference");
                 fAddRefFailed = true;
-            } else {
-				add_ref(leadingSpaces, ref, &result);
             }
         }
     } while (!t.eof());
@@ -290,22 +269,25 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
 
 
 
-bool MdOut::buildReferences(const IncludeParser& includeParser, const char* docDir,
-        const char* mdFileOrPath) {
+bool MdOut::buildReferences(const char* docDir, const char* mdFileOrPath) {
     if (!sk_isdir(mdFileOrPath)) {
-        SkDebugf("must pass directory %s\n", mdFileOrPath);
-        SkDebugf("pass -i SkXXX.h to build references for a single include\n");
-        return false;
-    }
-    SkOSFile::Iter it(docDir, ".bmh");
-    for (SkString file; it.next(&file); ) {
-        if (!includeParser.references(file)) {
-            continue;
-        }
-        SkString p = SkOSPath::Join(docDir, file.c_str());
-        if (!this->buildRefFromFile(p.c_str(), mdFileOrPath)) {
-            SkDebugf("failed to parse %s\n", p.c_str());
+        SkString mdFile = SkOSPath::Basename(mdFileOrPath);
+        SkString bmhFile = SkOSPath::Join(docDir, mdFile.c_str());
+        bmhFile.remove(bmhFile.size() - 3, 3);
+        bmhFile += ".bmh";
+        SkString mdPath = SkOSPath::Dirname(mdFileOrPath);
+        if (!this->buildRefFromFile(bmhFile.c_str(), mdPath.c_str())) {
+            SkDebugf("failed to parse %s\n", mdFileOrPath);
             return false;
+        }
+    } else {
+        SkOSFile::Iter it(docDir, ".bmh");
+        for (SkString file; it.next(&file); ) {
+            SkString p = SkOSPath::Join(docDir, file.c_str());
+            if (!this->buildRefFromFile(p.c_str(), mdFileOrPath)) {
+                SkDebugf("failed to parse %s\n", p.c_str());
+                return false;
+            }
         }
     }
     return true;
@@ -394,13 +376,11 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
         fPopulators[kClassesAndStructs].fDescription = "embedded struct and class members";
         fPopulators[kConstants].fDescription = "enum and enum class, const values";
         fPopulators[kConstructors].fDescription = "functions that construct";
-        fPopulators[kDefines].fDescription = "preprocessor definitions of functions, values";
         fPopulators[kMemberFunctions].fDescription = "static functions and member methods";
         fPopulators[kMembers].fDescription = "member values";
         fPopulators[kOperators].fDescription = "operator overloading methods";
         fPopulators[kRelatedFunctions].fDescription = "similar methods grouped together";
         fPopulators[kSubtopics].fDescription = "";
-        fPopulators[kTypedefs].fDescription = "types defined by other types";
         this->populateTables(fRoot);
         this->markTypeOut(topicDef);
     }
@@ -427,9 +407,9 @@ bool MdOut::checkParamReturnBody(const Definition* def) {
     TextParser paramBody(def);
     const char* descriptionStart = paramBody.fChar;
     if (!islower(descriptionStart[0]) && !isdigit(descriptionStart[0])) {
-        paramBody.skipToNonName();
+        paramBody.skipToNonAlphaNum();
         string ref = string(descriptionStart, paramBody.fChar - descriptionStart);
-        if (!this->isDefined(paramBody, ref, BmhParser::Resolvable::kYes)) {
+        if (!this->isDefined(paramBody, ref, true)) {
             string errorStr = MarkType::kReturn == def->fMarkType ? "return" : "param";
             errorStr += " description must start with lower case";
             paramBody.reportError(errorStr.c_str());
@@ -504,8 +484,7 @@ const Definition* MdOut::findParamType() {
         SkASSERT(!parser.eof());
         string name = string(word, parser.fChar - word);
         if (fLastParam->fName == name) {
-            const Definition* paramType = this->isDefined(parser, lastFull,
-                    BmhParser::Resolvable::kOut);
+            const Definition* paramType = this->isDefined(parser, lastFull, false);
             return paramType;
         }
         if (isupper(name[0])) {
@@ -515,8 +494,7 @@ const Definition* MdOut::findParamType() {
     return nullptr;
 }
 
-const Definition* MdOut::isDefined(const TextParser& parser, string ref,
-        BmhParser::Resolvable resolvable) {
+const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, bool report) {
     auto rootIter = fBmhParser.fClassMap.find(ref);
     if (rootIter != fBmhParser.fClassMap.end()) {
         return &rootIter->second;
@@ -540,10 +518,6 @@ const Definition* MdOut::isDefined(const TextParser& parser, string ref,
     auto aliasIter = fBmhParser.fAliasMap.find(ref);
     if (aliasIter != fBmhParser.fAliasMap.end()) {
         return aliasIter->second;
-    }
-    auto defineIter = fBmhParser.fDefineMap.find(ref);
-    if (defineIter != fBmhParser.fDefineMap.end()) {
-        return &defineIter->second;
     }
     for (const auto& external : fBmhParser.fExternals) {
         if (external.fName == ref) {
@@ -639,8 +613,7 @@ const Definition* MdOut::isDefined(const TextParser& parser, string ref,
                 return nullptr;
             }
         } else {
-            if (BmhParser::Resolvable::kOut != resolvable &&
-                    BmhParser::Resolvable::kFormula != resolvable) {
+            if (report) {
                 parser.reportError("SK undefined");
                 fAddRefFailed = true;
             }
@@ -670,8 +643,7 @@ const Definition* MdOut::isDefined(const TextParser& parser, string ref,
                     return definition;
                 }
             }
-            if (BmhParser::Resolvable::kOut != resolvable &&
-                    BmhParser::Resolvable::kFormula != resolvable) {
+            if (report) {
                 parser.reportError("_ undefined");
                 fAddRefFailed = true;
             }
@@ -697,8 +669,8 @@ string MdOut::linkName(const Definition* ref) const {
 
 // for now, hard-code to html links
 // def should not include SkXXX_
-string MdOut::linkRef(string leadingSpaces, const Definition* def,
-        string ref, BmhParser::Resolvable resolvable) const {
+string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
+        const string& ref, BmhParser::Resolvable resolvable) const {
     string buildup;
     string refName;
     const string* str = &def->fFiddle;
@@ -825,7 +797,6 @@ void MdOut::markTypeOut(Definition* def) {
             FPRINTF("<pre style=\"padding: 1em 1em 1em 1em;"
                     "width: 62.5em; background-color: #f0f0f0\">");
             this->lf(1);
-            fResolveAndIndent = true;
             break;
         case MarkType::kColumn:
             this->writePending();
@@ -918,7 +889,7 @@ void MdOut::markTypeOut(Definition* def) {
                 if (def->fWrapper.length() > 0) {
                     FPRINTF("%s", def->fWrapper.c_str());
                 }
-                fLiteralAndIndent = true;
+                fRespectLeadingSpace = true;
             }
             } break;
         case MarkType::kExperimental:
@@ -1030,7 +1001,7 @@ void MdOut::markTypeOut(Definition* def) {
             paramParser.skipWhiteSpace();
             SkASSERT(paramParser.startsWith("#Param"));
             paramParser.next(); // skip hash
-            paramParser.skipToNonName(); // skip Param
+            paramParser.skipToNonAlphaNum(); // skip Param
             paramParser.skipSpace();
             const char* paramName = paramParser.fChar;
             paramParser.skipToSpace();
@@ -1136,8 +1107,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kWidth:
             break;
         case MarkType::kPhraseDef:
-            // skip text and children
-            return;
+            break;
         case MarkType::kPhraseRef:
             if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
                 def->reportError<void>("missing phrase definition");
@@ -1155,7 +1125,7 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         default:
             SkDebugf("fatal error: MarkType::k%s unhandled in %s()\n",
-                    BmhParser::kMarkProps[(int) def->fMarkType].fName, __func__);
+                    fBmhParser.fMaps[(int) def->fMarkType].fName, __func__);
             SkASSERT(0); // handle everything
             break;
     }
@@ -1169,12 +1139,9 @@ void MdOut::markTypeOut(Definition* def) {
             }
             break;
         case MarkType::kCode:
-            fIndent = 0;
-            this->lf(1);
             this->writePending();
             FPRINTF("</pre>");
             this->lf(2);
-            fResolveAndIndent = false;
             break;
         case MarkType::kColumn:
             if (fInList) {
@@ -1207,7 +1174,7 @@ void MdOut::markTypeOut(Definition* def) {
                 FPRINTF("</pre>");
             }
             this->lf(2);
-            fLiteralAndIndent = false;
+            fRespectLeadingSpace = false;
             break;
         case MarkType::kLink:
             this->writeString("</a>");
@@ -1291,9 +1258,9 @@ void MdOut::populateTables(const Definition* def) {
         if (MarkType::kTopic == child->fMarkType || MarkType::kSubtopic == child->fMarkType) {
             string name = child->fName;
             bool builtInTopic = name == kClassesAndStructs || name == kConstants
-                    || name == kConstructors || name == kDefines || name == kMemberFunctions
-                    || name == kMembers || name == kOperators || name == kOverview
-                    || name == kRelatedFunctions || name == kSubtopics || name == kTypedefs;
+                    || name == kConstructors || name == kMemberFunctions || name == kMembers
+                    || name == kOperators || name == kOverview || name == kRelatedFunctions
+                    || name == kSubtopics;
             if (!builtInTopic && child->fName != kOverview) {
                 this->populator(kRelatedFunctions).fMembers.push_back(child);
             }
@@ -1313,15 +1280,9 @@ void MdOut::populateTables(const Definition* def) {
             this->populator(kConstants).fMembers.push_back(child);
             continue;
         }
-        if (MarkType::kDefine == child->fMarkType) {
-            this->populator(kDefines).fMembers.push_back(child);
-        }
         if (MarkType::kMember == child->fMarkType) {
             this->populator(kMembers).fMembers.push_back(child);
             continue;
-        }
-        if (MarkType::kTypedef == child->fMarkType) {
-            this->populator(kTypedefs).fMembers.push_back(child);
         }
         if (MarkType::kMethod != child->fMarkType) {
             continue;
@@ -1356,15 +1317,9 @@ void MdOut::populateTables(const Definition* def) {
 }
 
 void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable resolvable) {
-    if ((BmhParser::Resolvable::kLiteral == resolvable || fLiteralAndIndent ||
-            fResolveAndIndent) && end > start) {
-        int linefeeds = 0;
+    if ((BmhParser::Resolvable::kLiteral == resolvable || fRespectLeadingSpace) && end > start) {
         while ('\n' == *start) {
-            ++linefeeds;
             ++start;
-        }
-        if (fResolveAndIndent && linefeeds) {
-            this->lf(linefeeds);
         }
         const char* spaceStart = start;
         while (' ' == *start) {
@@ -1373,8 +1328,6 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
         if (start > spaceStart) {
             fIndent = start - spaceStart;
         }
-    }
-    if (BmhParser::Resolvable::kLiteral == resolvable || fLiteralAndIndent) {
         this->writeBlockTrim(end - start, start);
         if ('\n' == end[-1]) {
             this->lf(1);
@@ -1394,20 +1347,14 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
     trim_end_spaces(resolved);
     if (resolved.length()) {
         TextParser paragraph(fFileName, &*resolved.begin(), &*resolved.end(), fLineCount);
+        TextParser original(fFileName, start, end, fLineCount);
+        while (!original.eof() && '\n' == original.peek()) {
+            original.next();
+        }
+        original.skipSpace();
         while (!paragraph.eof()) {
-            while ('\n' == paragraph.peek()) {
-                paragraph.next();
-                if (paragraph.eof()) {
-                    return;
-                }
-            }
-            const char* lineStart = paragraph.fChar;
             paragraph.skipWhiteSpace();
             const char* contentStart = paragraph.fChar;
-            if (fResolveAndIndent && contentStart > lineStart) {
-                this->writePending();
-                this->indentToColumn(contentStart - lineStart);
-            }
             paragraph.skipToEndBracket('\n');
             ptrdiff_t lineLength = paragraph.fChar - contentStart;
             if (lineLength) {
@@ -1417,6 +1364,17 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
                 string str(contentStart, lineLength);
                 this->writeString(str.c_str());
             }
+#if 0
+            int linefeeds = 0;
+            while (lineLength > 0 && '\n' == contentStart[--lineLength]) {
+
+                ++linefeeds;
+            }
+            if (lineLength > 0) {
+                this->nl();
+            }
+            fLinefeeds += linefeeds;
+#endif
             if (paragraph.eof()) {
                 break;
             }
@@ -1428,10 +1386,16 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
                 this->lf(linefeeds);
             }
         }
+#if 0
+        while (end > start && end[0] == '\n') {
+            FPRINTF("\n");
+            --end;
+        }
+#endif
     }
 }
 
-void MdOut::rowOut(const char* name, string description) {
+void MdOut::rowOut(const char* name, const string& description) {
     this->lfAlways(1);
     FPRINTF("| ");
     this->resolveOut(name, name + strlen(name), BmhParser::Resolvable::kYes);
@@ -1446,8 +1410,8 @@ void MdOut::subtopicsOut() {
     SkASSERT(csParent);
     this->rowOut("name", "description");
     this->rowOut("---", "---");
-    for (auto item : { kClassesAndStructs, kConstants, kConstructors, kDefines,
-            kMemberFunctions, kMembers, kOperators, kRelatedFunctions, kTypedefs } ) {
+    for (auto item : { kClassesAndStructs, kConstants, kConstructors, kMemberFunctions,
+            kMembers, kOperators, kRelatedFunctions } ) {
         for (auto entry : this->populator(item).fMembers) {
             if (entry->csParent() == csParent) {
                 string description = fPopulators.find(item)->second.fDescription;

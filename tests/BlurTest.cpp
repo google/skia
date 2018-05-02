@@ -29,7 +29,7 @@
 #include "SkPixmap.h"
 #include "SkPoint.h"
 #include "SkRRect.h"
-#include "SkRectPriv.h"
+#include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkShader.h"
@@ -192,8 +192,8 @@ static void ground_truth_2d(int width, int height,
         return;
     }
 
-    int midX = dst.fBounds.x() + dst.fBounds.width()/2;
-    int midY = dst.fBounds.y() + dst.fBounds.height()/2;
+    int midX = dst.fBounds.centerX();
+    int midY = dst.fBounds.centerY();
     uint8_t* bytes = dst.getAddr8(midX, midY);
     int i;
     for (i = 0; i < dst.fBounds.width()-(midX-dst.fBounds.fLeft); ++i) {
@@ -383,6 +383,9 @@ static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma, Sk
             REPORTER_ASSERT(reporter, rec.fOffset.y() == dy);
             REPORTER_ASSERT(reporter, rec.fColor == color);
             REPORTER_ASSERT(reporter, rec.fStyle == style);
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
+            REPORTER_ASSERT(reporter, rec.fQuality == kHigh_SkBlurQuality);
+#endif
         }
     }
 }
@@ -398,6 +401,9 @@ static void test_looper(skiatest::Reporter* reporter, sk_sp<SkDrawLooper> lp, Sk
     if (success) {
         REPORTER_ASSERT(reporter, rec.fSigma == sigma);
         REPORTER_ASSERT(reporter, rec.fStyle == style);
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
+        REPORTER_ASSERT(reporter, rec.fQuality == kHigh_SkBlurQuality);
+#endif
     }
 }
 
@@ -472,6 +478,9 @@ DEF_TEST(BlurAsABlur, reporter) {
                         REPORTER_ASSERT(reporter, success);
                         REPORTER_ASSERT(reporter, rec.fSigma == sigma);
                         REPORTER_ASSERT(reporter, rec.fStyle == style);
+#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER
+                        REPORTER_ASSERT(reporter, rec.fQuality == kHigh_SkBlurQuality);
+#endif
                     } else {
                         REPORTER_ASSERT(reporter, !success);
                     }
@@ -707,40 +716,4 @@ DEF_TEST(BlurZeroSigma, reporter) {
         }
     }
 }
-
-
-///////////////////////////////////////////////////////////////////////////////////////////
-#if SK_SUPPORT_GPU
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlurMaskBiggerThanDest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-
-    SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-
-    sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
-    if (!dst) {
-        ERRORF(reporter, "Could not create surface for test.");
-        return;
-    }
-
-    SkPaint p;
-    p.setColor(SK_ColorRED);
-    p.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 3));
-
-    SkCanvas* canvas = dst->getCanvas();
-
-    canvas->clear(SK_ColorBLACK);
-    canvas->drawCircle(SkPoint::Make(16, 16), 8, p);
-
-    SkBitmap readback;
-    SkAssertResult(readback.tryAllocPixels(ii));
-
-    canvas->readPixels(readback, 0, 0);
-    REPORTER_ASSERT(reporter, SkColorGetR(readback.getColor(15, 15)) > 128);
-    REPORTER_ASSERT(reporter, SkColorGetG(readback.getColor(15, 15)) == 0);
-    REPORTER_ASSERT(reporter, SkColorGetB(readback.getColor(15, 15)) == 0);
-    REPORTER_ASSERT(reporter, readback.getColor(31, 31) == SK_ColorBLACK);
-}
-
-#endif
 

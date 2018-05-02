@@ -155,7 +155,7 @@ public:
 
     /** To be deprecated soon.
     */
-    explicit SkCanvas(sk_sp<SkBaseDevice> device);
+    explicit SkCanvas(SkBaseDevice* device);
 
     /** Construct a canvas that draws into bitmap.
         Sets SkSurfaceProps::kLegacyFontHost_InitType in constructed SkSurface.
@@ -596,11 +596,11 @@ public:
     */
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
 
-    /** \enum SaveLayerFlagsSet
+    /** \enum
         SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
         defining how layer allocated by saveLayer() operates.
     */
-    enum SaveLayerFlagsSet {
+    enum {
         /** Creates layer for LCD text. Flag is ignored if layer SkPaint contains
             SkImageFilter or SkColorFilter.
         */
@@ -608,8 +608,6 @@ public:
 
         /** Initializes layer with the contents of the previous layer. */
         kInitWithPrevious_SaveLayerFlag       = 1 << 2,
-
-        kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag  = 1 << 3,
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
         /** To be deprecated soon. */
@@ -1601,9 +1599,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, color alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint's
-        SkFilterQuality is higher than kLow_SkFilterQuality, it will be treated as if it
-        were kLow_SkFilterQuality.
+        If paint contains SkMaskFilter, generate mask from image bounds.
 
         If generated mask extends beyond image bounds, replicate image edge colors, just
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
@@ -1732,9 +1728,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, color alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper. If bitmap is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint's
-        SkFilterQuality is higher than kLow_SkFilterQuality, it will be treated as if it
-        were kLow_SkFilterQuality.
+        If paint contains SkMaskFilter, generate mask from bitmap bounds.
 
         If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
         just as SkShader made from SkShader::MakeBitmapShader with
@@ -1834,9 +1828,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, color alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper. If bitmap is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint's
-        SkFilterQuality is higher than kLow_SkFilterQuality, it will be treated as if it
-        were kLow_SkFilterQuality.
+        If paint contains SkMaskFilter, generate mask from bitmap bounds.
 
         If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
         just as SkShader made from SkShader::MakeBitmapShader with
@@ -1864,9 +1856,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, color alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper. If bitmap is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint's
-        SkFilterQuality is higher than kLow_SkFilterQuality, it will be treated as if it
-        were kLow_SkFilterQuality.
+        If paint contains SkMaskFilter, generate mask from bitmap bounds.
 
         If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
         just as SkShader made from SkShader::MakeBitmapShader with
@@ -1905,8 +1895,7 @@ public:
                   const SkPaint& paint);
 
     /** Draw null terminated string, with origin at (x, y), using clip, SkMatrix, and
-        SkPaint paint. Note that this per-glyph xform does not affect the shader (if present)
-        on the paint, just the glyph's geometry.
+        SkPaint paint.
 
         string meaning depends on SkPaint::TextEncoding; by default, strings are encoded
         as UTF-8. Other values of SkPaint::TextEncoding are unlikely to produce the desired
@@ -2066,7 +2055,8 @@ public:
         using clip, SkMatrix, and SkPaint paint.
 
         SkRSXform array specifies a separate square scale, rotation, and translation for
-        each glyph.
+        each glyph. Note that this per-glyph xform does not affect the shader (if present)
+        on the paint, just the glyph's geometry.
 
         Optional SkRect cullRect is a conservative bounds of text, taking into account
         SkRSXform and paint. If cullRect is outside of clip, canvas can skip drawing.
@@ -2639,12 +2629,12 @@ private:
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;
-
     // the first N recs that can fit here mean we won't call malloc
-    static constexpr int kMCRecSize      = 128;  // most recent measurement
-    static constexpr int kMCRecCount     = 32;   // common depth for save/restores
-    static constexpr int kDeviceCMSize   = 224;  // most recent measurement
-
+    enum {
+        kMCRecSize      = 128,  // most recent measurement
+        kMCRecCount     = 32,   // common depth for save/restores
+        kDeviceCMSize   = 224,  // most recent measurement
+    };
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
     intptr_t fDeviceCMStorage[kDeviceCMSize / sizeof(intptr_t)];
 
@@ -2689,7 +2679,7 @@ protected:
     // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
     SkCanvas(const SkIRect& bounds, InitFlags);
 private:
-    SkCanvas(sk_sp<SkBaseDevice> device, InitFlags);
+    SkCanvas(SkBaseDevice* device, InitFlags);
     SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
              SkRasterHandleAllocator::Handle);
 
@@ -2703,7 +2693,7 @@ private:
     //  - internalSaveLayer
     void setupDevice(SkBaseDevice*);
 
-    void init(sk_sp<SkBaseDevice>, InitFlags);
+    SkBaseDevice* init(SkBaseDevice*, InitFlags);
 
     /**
      * Gets the bounds of the top level layer in global canvas coordinates. We don't want this
@@ -2772,7 +2762,7 @@ private:
 };
 
 /** \class SkAutoCanvasRestore
-    Stack helper class calls SkCanvas::restoreToCount when SkAutoCanvasRestore
+    Stack helper class calls SkCanvas::restoreToCount() when SkAutoCanvasRestore
     goes out of scope. Use this to guarantee that the canvas is restored to a known
     state.
 */

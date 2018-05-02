@@ -205,8 +205,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
     auto* ccpr = context->contextPriv().drawingManager()->getCoverageCountingPathRenderer();
 
-    GrReducedClip reducedClip(*fStack, devBounds, caps, maxWindowRectangles, maxAnalyticFPs,
-                              ccpr ? maxAnalyticFPs : 0);
+    GrReducedClip reducedClip(*fStack, devBounds, caps, maxWindowRectangles, maxAnalyticFPs, ccpr);
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
         return false;
@@ -232,7 +231,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     // can cause a flush or otherwise change which opList our draw is going into.
     uint32_t opListID = renderTargetContext->getOpList()->uniqueID();
     int rtWidth = renderTargetContext->width(), rtHeight = renderTargetContext->height();
-    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(ccpr, proxyProvider, opListID,
+    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(proxyProvider, opListID,
                                                               rtWidth, rtHeight)) {
         out->addCoverageFP(std::move(clipFPs));
     }

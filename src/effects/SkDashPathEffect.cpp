@@ -367,12 +367,6 @@ void SkDashImpl::flatten(SkWriteBuffer& buffer) const {
 sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
     const SkScalar phase = buffer.readScalar();
     uint32_t count = buffer.getArrayCount();
-
-    // Don't allocate gigantic buffers if there's not data for them.
-    if (count > buffer.size() / sizeof(SkScalar)) {
-        return nullptr;
-    }
-
     SkAutoSTArray<32, SkScalar> intervals(count);
     if (buffer.readScalarArray(intervals.get(), count)) {
         return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);
@@ -380,6 +374,7 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
     return nullptr;
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkDashImpl::toString(SkString* str) const {
     str->appendf("SkDashPathEffect: (");
     str->appendf("count: %d phase %.2f intervals: (", fCount, fPhase);
@@ -391,6 +386,7 @@ void SkDashImpl::toString(SkString* str) const {
     }
     str->appendf("))");
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

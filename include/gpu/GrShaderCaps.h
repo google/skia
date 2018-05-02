@@ -76,9 +76,6 @@ public:
 
     bool vertexIDSupport() const { return fVertexIDSupport; }
 
-    // frexp, ldexp, etc.
-    bool fpManipulationSupport() const { return fFPManipulationSupport; }
-
     bool floatIs32Bits() const { return fFloatIs32Bits; }
 
     bool halfIs32Bits() const { return fHalfIs32Bits; }
@@ -176,18 +173,9 @@ public:
         return fSecondaryOutputExtensionString;
     }
 
-    // This returns the name of an extension that must be enabled in the shader to support external
-    // textures. In some cases, two extensions must be enabled - the second extension is returned
-    // by secondExternalTextureExtensionString(). If that function returns nullptr, then only one
-    // extension is required.
     const char* externalTextureExtensionString() const {
         SkASSERT(this->externalTextureSupport());
         return fExternalTextureExtensionString;
-    }
-
-    const char* secondExternalTextureExtensionString() const {
-        SkASSERT(this->externalTextureSupport());
-        return fSecondExternalTextureExtensionString;
     }
 
     const char* texelBufferExtensionString() const {
@@ -262,7 +250,6 @@ private:
     bool fExternalTextureSupport : 1;
     bool fTexelFetchSupport : 1;
     bool fVertexIDSupport : 1;
-    bool fFPManipulationSupport : 1;
     bool fFloatIs32Bits : 1;
     bool fHalfIs32Bits : 1;
 
@@ -288,7 +275,6 @@ private:
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;
-    const char* fSecondExternalTextureExtensionString;
     const char* fTexelBufferExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
     const char* fImageLoadStoreExtensionString;

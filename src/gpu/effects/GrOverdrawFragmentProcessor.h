@@ -11,6 +11,7 @@
 #ifndef GrOverdrawFragmentProcessor_DEFINED
 #define GrOverdrawFragmentProcessor_DEFINED
 #include "SkTypes.h"
+#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrOverdrawFragmentProcessor : public GrFragmentProcessor {
@@ -53,4 +54,5 @@ private:
     SkPMColor fColor5;
     typedef GrFragmentProcessor INHERITED;
 };
+#endif
 #endif
