@@ -41,7 +41,9 @@ public:
     GrInternalSurfaceFlags flags() const { return fSurface->fSurfaceFlags; }
 
     bool doesNotSupportMipMaps() const { return fSurface->doesNotSupportMipMaps(); }
-    bool isClampOnly() const { return fSurface->isClampOnly(); }
+    bool isGLRectOrExternalTex() const { return fSurface->isGLRectOrExternalTex(); }
+    // We only support the clamp wrap mode with gl rectangle or external textures.
+    bool isClampOnly() const { return fSurface->isGLRectOrExternalTex(); }
 
 private:
     explicit GrSurfacePriv(GrSurface* surface) : fSurface(surface) {}

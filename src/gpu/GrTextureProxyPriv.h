@@ -32,7 +32,9 @@ public:
     GrMipMapped proxyMipMapped() const { return fTextureProxy->fMipMapped; }
 
     bool doesNotSupportMipMaps() const { return fTextureProxy->doesNotSupportMipMaps(); }
-    bool isClampOnly() const { return fTextureProxy->isClampOnly(); }
+    bool isGLRectOrExternalTex() const { return fTextureProxy->isGLRectOrExternalTex(); }
+    // We only support the clamp wrap mode with gl rectangle or external textures.
+    bool isClampOnly() const { return fTextureProxy->isGLRectOrExternalTex(); }
 
     void setDoesNotSupportMipMaps() {
         fTextureProxy->setDoesNotSupportMipMaps();

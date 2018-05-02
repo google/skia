@@ -71,11 +71,16 @@ protected:
         return fSurfaceFlags & GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
     }
 
-    void setIsClampOnly() {
+    void setIsGLRectOrExternalTex() {
         SkASSERT(this->asTexture());
-        fSurfaceFlags |= GrInternalSurfaceFlags::kIsClampOnly;
+        fSurfaceFlags |= GrInternalSurfaceFlags::kIsGLRectOrExternalTex;
+        // If we are a GL rectangle or external texture, it also means that we do not support
+        // generating mip maps.
+        this->setDoesNotSupportMipMaps();
     }
-    bool isClampOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kIsClampOnly; }
+    bool isGLRectOrExternalTex() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kIsGLRectOrExternalTex;
+    }
 
     void setHasMixedSamples() {
         SkASSERT(this->asRenderTarget());

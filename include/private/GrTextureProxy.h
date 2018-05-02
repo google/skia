@@ -107,11 +107,12 @@ protected:
         return fSurfaceFlags & GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
     }
 
-    void setIsClampOnly() {
-        fSurfaceFlags |= GrInternalSurfaceFlags::kIsClampOnly;
+    void setIsGLRectOrExternalTex() {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kIsGLRectOrExternalTex;
     }
-    bool isClampOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kIsClampOnly; }
-
+    bool isGLRectOrExternalTex() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kIsGLRectOrExternalTex;
+    }
 
 private:
     GrMipMapped      fMipMapped;
