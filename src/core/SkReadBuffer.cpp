@@ -280,18 +280,19 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
     }
 
     int32_t size = this->read32();
+    if (size == SK_NaN32) {
+        // 0x80000000 is never valid, since it cannot be passed to abs().
+        this->validate(false);
+        return nullptr;
+    }
+    if (size == 0) {
+        // The image could not be encoded at serialization time - return an empty placeholder.
+        return MakeEmptyImage(width, height);
+    }
 
     // we used to negate the size for "custom" encoded images -- ignore that signal (Dec-2017)
     size = SkAbs32(size);
-    if (size < 0) {
-        // size == 0x80000000, possible to get here only in Release builds;
-        // SkAbs32() would already have asserted in Debug builds.
-        this->validate(false);
-        return nullptr;
-    } else if (size == 0) {
-        // The image could not be encoded at serialization time - return an empty placeholder.
-        return MakeEmptyImage(width, height);
-    } else if (size == 1) {
+    if (size == 1) {
         // legacy check (we stopped writing this for "raw" images Nov-2017)
         this->validate(false);
         return nullptr;
