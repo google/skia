@@ -235,7 +235,7 @@ size of one row of addr; width times pixel size, or larger</td>
 
 ### Example
 
-<div><fiddle-embed name="a7c9bfe44f5d888ab5b9996f2b126788"></fiddle-embed></div>
+<div><fiddle-embed name="9a392b753167cfa849cebeefd5a6e07d"></fiddle-embed></div>
 
 ### See Also
 
@@ -263,7 +263,7 @@ Changes <a href="undocumented#Color_Space">Color Space</a> in <a href="SkImageIn
 
 ### Example
 
-<div><fiddle-embed name="bc42aea1e30b7234544bc25b4fc09dd0">
+<div><fiddle-embed name="30d70aec4de17c831dba71e03dc9664a">
 
 #### Example Output
 
@@ -379,7 +379,7 @@ byte length of pixel row
 
 ### Example
 
-<div><fiddle-embed name="da5e1f7f49891d3805a5a6103a000eff">
+<div><fiddle-embed name="19ac8bb81854680bd408fec8cb797d5c">
 
 #### Example Output
 
@@ -578,7 +578,7 @@ immutable.
 
 ### Example
 
-<div><fiddle-embed name="34c71f803b8edb48eaf1cd0c55bb212e"><div><a href="undocumented#SkColorSpace_MakeSRGBLinear">SkColorSpace::MakeSRGBLinear</a> creates <a href="undocumented#Color_Space">Color Space</a> with linear gamma
+<div><fiddle-embed name="3421bb20a302d563832ba7bb45e0cc58"><div><a href="undocumented#SkColorSpace_MakeSRGBLinear">SkColorSpace::MakeSRGBLinear</a> creates <a href="undocumented#Color_Space">Color Space</a> with linear gamma
 and an sRGB gamut. This <a href="undocumented#Color_Space">Color Space</a> gamma is not close to sRGB gamma.
 </div>
 
@@ -719,7 +719,7 @@ one of: 0, 1, 2, 3; left shift to convert pixels to bytes
 
 ### Example
 
-<div><fiddle-embed name="2e778ffd6edea51af4b07f5d322ceb6a">
+<div><fiddle-embed name="bf31ee140e2c163c3957276e6d4c4f0c">
 
 #### Example Output
 
@@ -1528,7 +1528,7 @@ writable unsigned 32-bit pointer to pixel
 
 ### Example
 
-<div><fiddle-embed name="f4fdce206b8c0a4e79f0a9f52b7f47a6"></fiddle-embed></div>
+<div><fiddle-embed name="d99d5d394182e8c2c0cab402f93ca6c7"></fiddle-embed></div>
 
 ### See Also
 
@@ -1649,6 +1649,7 @@ If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_colorType">colorType</a> is <
 If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkPixmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkPixmap_alphaType">alphaType</a> must
 match. If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkPixmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkPixmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkPixmap_readPixels_srcX">srcX</a> and <a href="#SkPixmap_readPixels_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkPixmap_width">width</a> or <a href="#SkPixmap_height">height</a> is zero or negative. Returns false if:
 
@@ -1762,6 +1763,7 @@ If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_colorType">colorType</a> is <
 If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkPixmap_readPixels_3_dstInfo">dstInfo</a>.<a href="#SkPixmap_alphaType">alphaType</a> must
 match. If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkPixmap_readPixels_3_dstInfo">dstInfo</a>.<a href="#SkPixmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkPixmap_readPixels_3_srcX">srcX</a> and <a href="#SkPixmap_readPixels_3_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_width">width</a> or <a href="#SkPixmap_height">height</a> is zero or negative. Returns false if:
 
@@ -1815,6 +1817,7 @@ If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_colorType">colorType</a> is <
 If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkPixmap_readPixels_4_dst">dst</a>.<a href="#SkPixmap_info">info</a>.<a href="#SkPixmap_alphaType">alphaType</a> must
 match. If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkPixmap_readPixels_4_dst">dst</a>.<a href="#SkPixmap_info">info</a>.<a href="#SkPixmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkPixmap_readPixels_4_srcX">srcX</a> and <a href="#SkPixmap_readPixels_4_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_width">width</a> or <a href="#SkPixmap_height">height</a> is zero or negative. Returns false if:
 
@@ -1863,6 +1866,7 @@ If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_colorType">colorType</a> is <
 If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkPixmap_readPixels_5_dst">dst</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
 match. If <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkPixmap_readPixels_5_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
+
 Returns false if <a href="#Pixmap">Pixmap</a> <a href="#SkPixmap_width">width</a> or <a href="#SkPixmap_height">height</a> is zero or negative.
 
 ### Parameters

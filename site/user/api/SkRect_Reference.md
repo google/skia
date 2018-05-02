@@ -30,10 +30,10 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | name | description |
 | --- | --- |
 | <a href="#As_Points">As Points</a> | conversion to and from <a href="SkPoint_Reference#Point">Points</a> |
-| <a href="#From_Integers">From Integers</a> | set <a href="undocumented#Scalar">Scalar</a> values from integer input |
+| <a href="#From_Integers">From Integers</a> | sets <a href="undocumented#Scalar">Scalar</a> values from integer input |
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
-| <a href="#Intersection">Intersection</a> | set to shared bounds |
-| <a href="#Join">Join</a> | set to union of bounds |
+| <a href="#Intersection">Intersection</a> | sets to shared bounds |
+| <a href="#Join">Join</a> | sets to union of bounds |
 | <a href="#Property">Property</a> | member values, center, validity |
 | <a href="#Rounding">Rounding</a> | adjust to integer bounds |
 | <a href="#Set">Set</a> | replaces all values |
@@ -69,12 +69,12 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_isetWH">isetWH</a> | sets to int input (0, 0, width, height) |
 | <a href="#SkRect_join">join</a> | sets to union of bounds |
 | <a href="#SkRect_joinNonEmptyArg">joinNonEmptyArg</a> | sets to union of bounds, asserting that argument is not empty |
-| <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds. Skips empty check for both |
+| <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds; skips empty check for both |
 | <a href="#SkRect_left">left</a> | returns smaller bounds in x, if sorted |
 | <a href="#SkRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkRect_makeOffset">makeOffset</a> | constructs from translated sides |
 | <a href="#SkRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkRect_makeSorted">makeSorted</a> | constructs <a href="#Rect">Rect</a>, ordering sides from smaller to larger |
 | <a href="#SkRect_offset">offset</a> | translates sides without changing width and height |
 | <a href="#SkRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
 | <a href="#SkRect_outset">outset</a> | moves the sides symmetrically about the center |
@@ -139,7 +139,7 @@ vertical values when sorted. When equal to or less than <a href="#SkRect_fTop">f
 | <a href="#SkRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkRect_makeOffset">makeOffset</a> | constructs from translated sides |
 | <a href="#SkRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkRect_makeSorted">makeSorted</a> | constructs <a href="#Rect">Rect</a>, ordering sides from smaller to larger |
 
 <a name="SkRect_MakeEmpty"></a>
 ## MakeEmpty
@@ -2107,7 +2107,7 @@ true if <a href="#SkRect_intersect_r">r</a> and <a href="#Rect">Rect</a> have ar
 
 ### Example
 
-<div><fiddle-embed name="70e5b3979fc8a31eda070cfed91bc271"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="5d0b12e0ef6f1c181dddded4274230ca"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -2159,7 +2159,7 @@ true if construction and <a href="#Rect">Rect</a> have area in common
 
 ### Example
 
-<div><fiddle-embed name="9f06dad5e6c712f7a2c149d075e816d2"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="5002f65a72def2787086a33131933e70"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -2354,7 +2354,7 @@ intersection
 | <a href="#SkRect_join">join</a> | sets to union of bounds |
 |  | <a href="#SkRect_join">join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> |
 | <a href="#SkRect_joinNonEmptyArg">joinNonEmptyArg</a> | sets to union of bounds, asserting that argument is not empty |
-| <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds. Skips empty check for both |
+| <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds; skips empty check for both |
 
 <a name="SkRect_join"></a>
 ## join
