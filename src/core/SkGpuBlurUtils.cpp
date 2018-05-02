@@ -350,37 +350,37 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
     return dstRenderTargetContext->asTextureProxyRef();
 }
 
+// Expand the contents of 'srcRenderTargetContext' to fit in 'dstII'.
 static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
-                                             sk_sp<GrRenderTargetContext> dstRenderTargetContext,
-                                             const SkIRect& srcRect,
+                                             sk_sp<GrRenderTargetContext> srcRenderTargetContext,
                                              const SkIRect& localSrcBounds,
                                              int scaleFactorX, int scaleFactorY,
                                              GrTextureDomain::Mode mode,
                                              const SkImageInfo& dstII,
                                              SkBackingFit fit) {
-    sk_sp<GrTextureProxy> srcProxy = dstRenderTargetContext->asTextureProxyRef();
-    if (!srcProxy) {
-        return nullptr;
-    }
-
-    GrPixelConfig config = get_blur_config(srcProxy.get(), dstII.colorSpace());
+    const SkIRect srcRect = SkIRect::MakeWH(srcRenderTargetContext->width(),
+                                            srcRenderTargetContext->height());
 
     // Clear one pixel to the right and below, to accommodate bilinear upsampling.
     // TODO: it seems like we should actually be clamping here rather than darkening
     // the bottom right edges.
     SkIRect clearRect = SkIRect::MakeXYWH(srcRect.fLeft, srcRect.fBottom, srcRect.width() + 1, 1);
-    dstRenderTargetContext->priv().absClear(&clearRect, 0x0);
+    srcRenderTargetContext->priv().absClear(&clearRect, 0x0);
     clearRect = SkIRect::MakeXYWH(srcRect.fRight, srcRect.fTop, 1, srcRect.height());
-    dstRenderTargetContext->priv().absClear(&clearRect, 0x0);
+    srcRenderTargetContext->priv().absClear(&clearRect, 0x0);
 
-    SkIRect dstRect(srcRect);
-    scale_irect(&dstRect, scaleFactorX, scaleFactorY);
+    sk_sp<GrTextureProxy> srcProxy = srcRenderTargetContext->asTextureProxyRef();
+    if (!srcProxy) {
+        return nullptr;
+    }
 
-    dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
-                                                        fit,
-                                                        SkTMin(dstRect.width(), dstII.width()),
-                                                        SkTMin(dstRect.height(), dstII.height()),
-                                                        config, dstII.refColorSpace());
+    srcRenderTargetContext = nullptr; // no longer needed
+
+    GrPixelConfig config = get_blur_config(srcProxy.get(), dstII.colorSpace());
+
+    sk_sp<GrRenderTargetContext> dstRenderTargetContext =
+        context->contextPriv().makeDeferredRenderTargetContext(fit, dstII.width(), dstII.height(),
+                                                               config, dstII.refColorSpace());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -404,10 +404,14 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
     } else {
         // FIXME:  this should be mitchell, not bilinear.
         paint.addColorTextureProcessor(std::move(srcProxy), SkMatrix::I(),
-                                        GrSamplerState::ClampBilerp());
+                                       GrSamplerState::ClampBilerp());
     }
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     GrFixedClip clip(dstII.bounds());
+
+    // TODO: using dstII as dstRect results in some image diffs - why?
+    SkIRect dstRect(srcRect);
+    scale_irect(&dstRect, scaleFactorX, scaleFactorY);
 
     dstRenderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                            SkRect::Make(dstRect), SkRect::Make(srcRect));
@@ -417,7 +421,6 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
 
 namespace SkGpuBlurUtils {
 
-// TODO: the 'fit' field actually only needs to apply to the final, returned GrRenderTargetContext
 sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                           sk_sp<GrTextureProxy> srcProxy,
                                           sk_sp<SkColorSpace> colorSpace,
@@ -460,6 +463,14 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                     mode, finalDestII, fit);
     }
 
+    // Only the last rendered renderTargetContext needs to match the supplied 'fit'
+    SkBackingFit xFit = fit, yFit = fit;
+    if (scaleFactorX > 1 || scaleFactorY > 1) {
+        xFit = yFit = SkBackingFit::kApprox;  // reexpand will be last
+    } else if (sigmaY > 0.0f) {
+        xFit = SkBackingFit::kApprox;         // the y-pass will be last
+    }
+
     SkIRect localSrcBounds = srcBounds;
 
     if (scaleFactorX > 1 || scaleFactorY > 1) {
@@ -478,7 +489,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     if (sigmaX > 0.0f) {
         dstRenderTargetContext = convolve_gaussian(context, std::move(srcProxy), srcRect, srcOffset,
                                                    Direction::kX, radiusX, sigmaX, localSrcBounds,
-                                                   mode, finalDestII, fit);
+                                                   mode, finalDestII, xFit);
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -508,7 +519,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     if (sigmaY > 0.0f) {
         dstRenderTargetContext = convolve_gaussian(context, std::move(srcProxy), srcRect, srcOffset,
                                                    Direction::kY, radiusY, sigmaY, localSrcBounds,
-                                                   mode, finalDestII, fit);
+                                                   mode, finalDestII, yFit);
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -526,7 +537,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     SkASSERT(srcProxy.get() == dstRenderTargetContext->asTextureProxy());
 
     if (scaleFactorX > 1 || scaleFactorY > 1) {
-        dstRenderTargetContext = reexpand(context, std::move(dstRenderTargetContext), srcRect,
+        dstRenderTargetContext = reexpand(context, std::move(dstRenderTargetContext),
                                           localSrcBounds, scaleFactorX, scaleFactorY,
                                           mode, finalDestII, fit);
     }
