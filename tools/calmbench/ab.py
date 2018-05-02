@@ -245,6 +245,9 @@ def different_enough(lower1, upper2):
   return upper2 < DIFF_T * lower1
 
 
+# TODO(liyuqian): we used this hacky criteria mainly because that I didn't have
+# time to study more rigorous statistical tests. We should adopt a more rigorous
+# test in the future.
 def get_suspects():
   suspects = []
   for bench in timesA.keys():
@@ -347,7 +350,15 @@ def test():
         args.config: {
           "signed_regression": normalize_r(r),
           "lower_quantile_ms": get_lower_upper(timesA[bench])[0] * 1e-6,
-          "upper_quantile_ms": get_lower_upper(timesA[bench])[1] * 1e-6
+          "upper_quantile_ms": get_lower_upper(timesA[bench])[1] * 1e-6,
+          "options": {
+            # TODO(liyuqian): let ab.py call nanobench with --outResultsFile so
+            # nanobench could generate the json for us that's exactly the same
+            # as that being used by perf bots. Currently, we cannot guarantee
+            # that bench is the name (e.g., bench may have additional resolution
+            # information appended after name).
+            "name": bench
+          }
         }
       }
 
