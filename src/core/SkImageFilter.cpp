@@ -14,6 +14,7 @@
 #include "SkMatrixImageFilter.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
+#include "SkSafe32.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "SkValidationUtils.h"
@@ -79,7 +80,7 @@ void SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds,
                 cropped->fTop = devICropR.fTop;
             }
         } else {
-            devICropR.fBottom = cropped->fTop + devICropR.height();
+            devICropR.fBottom = Sk32_sat_add(cropped->fTop, devICropR.height());
         }
         if (fFlags & kHasWidth_CropEdge) {
             if (embiggen || devICropR.fRight < cropped->fRight) {
