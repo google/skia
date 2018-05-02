@@ -57,7 +57,7 @@ This approach may be deprecated in the future.
 
 | name | description |
 | --- | --- |
-| <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> | Android framework only |
+| <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> | exists for Android framework only |
 | <a href="#SkCanvas_PointMode">PointMode</a> | sets <a href="#SkCanvas_drawPoints">drawPoints</a> options |
 | <a href="#SkCanvas_SaveLayerFlagsSet">SaveLayerFlagsSet</a> | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
 | <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> | sets <a href="#SkCanvas_drawImageRect">drawImageRect</a> options |
@@ -80,9 +80,9 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 | <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates from image data and <a href="undocumented#Storage">Pixel Storage</a> |
 | <a href="#SkCanvas_empty_constructor">SkCanvas()</a> | creates with no <a href="SkSurface_Reference#Surface">Surface</a>, no dimensions |
 | <a href="#SkCanvas_copy_const_SkBitmap">SkCanvas(const SkBitmap& bitmap)</a> | uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a> |
-| <a href="#SkCanvas_const_SkBitmap">SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)</a> | Android framework only |
+| <a href="#SkCanvas_const_SkBitmap">SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)</a> | exists for Android framework only |
 | <a href="#SkCanvas_const_SkBitmap_const_SkSurfaceProps">SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)</a> | uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a> and <a href="undocumented#Surface_Properties">Surface Properties</a> |
-| <a href="#SkCanvas_int_int_const_SkSurfaceProps_star">SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)</a> | no <a href="SkSurface_Reference#Surface">Surface</a>, set dimensions, <a href="undocumented#Surface_Properties">Surface Properties</a> |
+| <a href="#SkCanvas_int_int_const_SkSurfaceProps_star">SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)</a> | creates with no <a href="SkSurface_Reference#Surface">Surface</a>, set dimensions, <a href="undocumented#Surface_Properties">Surface Properties</a> |
 | <a href="#SkCanvas_makeSurface">makeSurface</a> | creates <a href="SkSurface_Reference#Surface">Surface</a> matching <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a> |
 | <a href="#SkCanvas_destructor">~SkCanvas()</a> | draws saved <a href="#Layer">Layers</a>, frees resources |
 
@@ -94,7 +94,7 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 | <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates from image data and <a href="undocumented#Storage">Pixel Storage</a> |
 | <a href="#SkCanvas_accessTopLayerPixels">accessTopLayerPixels</a> | returns writable pixel access if available |
 | <a href="#SkCanvas_accessTopRasterHandle">accessTopRasterHandle</a> | returns context that tracks <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
-| <a href="#SkCanvas_androidFramework_setDeviceClipRestriction">androidFramework setDeviceClipRestriction</a> | for use by Android framework |
+| <a href="#SkCanvas_androidFramework_setDeviceClipRestriction">androidFramework setDeviceClipRestriction</a> | exists for use by Android framework |
 | <a href="#SkCanvas_clear">clear</a> | fills <a href="#Clip">Clip</a> with <a href="SkColor_Reference#Color">Color</a> |
 | <a href="#SkCanvas_clipPath">clipPath</a> | combines <a href="#Clip">Clip</a> with <a href="SkPath_Reference#Path">Path</a> |
 | <a href="#SkCanvas_clipRRect">clipRRect</a> | combines <a href="#Clip">Clip</a> with <a href="undocumented#Round_Rect">Round Rect</a> |
@@ -283,7 +283,7 @@ interval from one <a href="SkSurface_Reference#Surface">Surface</a> row to the n
 
 ### Example
 
-<div><fiddle-embed name="a9b116a7ebd1708237ce81ef532e9cb4"><div>Allocates a three by three bitmap, clears it to white, and draws a black pixel
+<div><fiddle-embed name="4cacf302830e644234d522f6e2f8f580"><div>Allocates a three by three bitmap, clears it to white, and draws a black pixel
 in the center.
 </div>
 
@@ -388,11 +388,11 @@ canvas is empty
 
 ---
 
-<a name="SkCanvas_copy_SkBaseDevice_star"></a>
+<a name="SkCanvas_copy_SkBaseDevice"></a>
 ## SkCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-explicit SkCanvas(SkBaseDevice* device)
+explicit SkCanvas(sk_sp&lt;SkBaseDevice&gt; device)
 </pre>
 
 soon
@@ -467,7 +467,9 @@ storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
 
 <table>
   <tr>
-    <td><a name="SkCanvas_ColorBehavior_kLegacy"> <code><strong>SkCanvas::ColorBehavior::kLegacy </strong></code> </a></td><td>0</td><td>Is a placeholder to allow specialized constructor; has no meaning.
+    <td><a name="SkCanvas_ColorBehavior_kLegacy"> <code><strong>SkCanvas::ColorBehavior::kLegacy </strong></code> </a></td><td>0</td><td></table>
+
+Is a placeholder to allow specialized constructor; has no meaning.
 </td>
   </tr>
 
@@ -479,6 +481,8 @@ storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)
 </pre>
+
+Android framework only.
 
 ### Parameters
 
@@ -1027,7 +1031,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="2964297993747769b0760874c19e0168"><div>A black circle drawn on a blue background provides an image to copy.
+<div><fiddle-embed name="102d014d7f753db2a9b9ee08893aaf11"><div>A black circle drawn on a blue background provides an image to copy.
 <a href="#SkCanvas_readPixels">readPixels</a> copies one quarter of the canvas into each of the four corners.
 The copied quarter circles overdraw the original circle.
 </div></fiddle-embed></div>
@@ -1350,7 +1354,7 @@ save state and return the depth of the stack.
 
 ### Example
 
-<div><fiddle-embed name="a4548baa133302e933b4d3442c06f5b3"><div><a href="#Draw">Draw</a> to ever smaller clips; then restore drawing to full canvas.
+<div><fiddle-embed name="bb1dbfdca3aedf716beb6f07e2aab065"><div><a href="#Draw">Draw</a> to ever smaller clips; then restore drawing to full canvas.
 Note that the second <a href="#SkCanvas_clipRect">clipRect</a> is not permitted to enlarge <a href="#Clip">Clip</a>.
 </div></fiddle-embed></div>
 
@@ -1626,6 +1630,7 @@ and draws <a href="#Layer">Layer</a>.
 <a href="#Matrix">Matrix</a> may be changed by <a href="#SkCanvas_translate">translate</a>, <a href="#SkCanvas_scale">scale</a>, <a href="#SkCanvas_rotate">rotate</a>, <a href="#SkCanvas_skew">skew</a>, <a href="#SkCanvas_concat">concat</a>,
 <a href="#SkCanvas_setMatrix">setMatrix</a>, and <a href="#SkCanvas_resetMatrix">resetMatrix</a>. <a href="#Clip">Clip</a> may be changed by <a href="#SkCanvas_clipRect">clipRect</a>, <a href="#SkCanvas_clipRRect">clipRRect</a>,
 <a href="#SkCanvas_clipPath">clipPath</a>, <a href="#SkCanvas_clipRegion">clipRegion</a>.
+
 <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_saveLayerPreserveLCDTextRequests_bounds">bounds</a> suggests but does not define the <a href="#Layer">Layer</a> size. To clip drawing to
 a specific rectangle, use <a href="#SkCanvas_clipRect">clipRect</a>.
 
@@ -1728,16 +1733,21 @@ defining how <a href="#Layer">Layer</a> allocated by <a href="#SkCanvas_saveLaye
 
 <table>
   <tr>
-    <td><a name="SkCanvas_kPreserveLCDText_SaveLayerFlag"> <code><strong>SkCanvas::kPreserveLCDText_SaveLayerFlag </strong></code> </a></td><td>2</td><td>Creates <a href="#Layer">Layer</a> for LCD text. Flag is ignored if <a href="#Layer">Layer</a> <a href="SkPaint_Reference#Paint">Paint</a> contains
+    <td><a name="SkCanvas_kPreserveLCDText_SaveLayerFlag"> <code><strong>SkCanvas::kPreserveLCDText_SaveLayerFlag </strong></code> </a></td><td>2</td><td></table>
+
+Creates <a href="#Layer">Layer</a> for LCD text. Flag is ignored if <a href="#Layer">Layer</a> <a href="SkPaint_Reference#Paint">Paint</a> contains
 <a href="undocumented#Image_Filter">Image Filter</a> or <a href="undocumented#Color_Filter">Color Filter</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkCanvas_kInitWithPrevious_SaveLayerFlag"> <code><strong>SkCanvas::kInitWithPrevious_SaveLayerFlag </strong></code> </a></td><td>4</td><td>Initializes <a href="#Layer">Layer</a> with the contents of the previous <a href="#Layer">Layer</a>.
+    <td><a name="SkCanvas_kInitWithPrevious_SaveLayerFlag"> <code><strong>SkCanvas::kInitWithPrevious_SaveLayerFlag </strong></code> </a></td><td>4</td><td></table>
+
+Initializes <a href="#Layer">Layer</a> with the contents of the previous <a href="#Layer">Layer</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag"> <code><strong>SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag </strong></code> </a></td><td>8</td><td>Experimental -- don't use</td>
+    <td><a name="SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag"> <code><strong>SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag </strong></code> </a></td><td>8</td><td>Do not use.
+</td>
   </tr>
   <tr>
     <td><a name="SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag"> <code><strong>SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag </strong></code> </a></td><td>0x80000000</td><td>soon</td>
@@ -1746,7 +1756,7 @@ defining how <a href="#Layer">Layer</a> allocated by <a href="#SkCanvas_saveLaye
 
 ### Example
 
-<div><fiddle-embed name="d314c688925d2c549d4762f5cc6e6a1a"><div><a href="#Canvas">Canvas</a> <a href="#Layer">Layer</a> captures red and blue circles scaled up by four.
+<div><fiddle-embed name="05db6a937225e8e31ae3481173d25dae"><div><a href="#Canvas">Canvas</a> <a href="#Layer">Layer</a> captures red and blue circles scaled up by four.
 scalePaint blends <a href="#Layer">Layer</a> back with transparency.
 </div></fiddle-embed></div>
 
@@ -1808,7 +1818,7 @@ contents of the previous <a href="#Layer">Layer</a>.
 
 ### Example
 
-<div><fiddle-embed name="7b18146582fc2440656b839a173ed500"><div><a href="#Canvas">Canvas</a> <a href="#Layer">Layer</a> captures a red Anti-aliased circle and a blue <a href="undocumented#Alias">Aliased</a> circle scaled
+<div><fiddle-embed name="ee8c0b120234e27364f8c9a786cf8f89"><div><a href="#Canvas">Canvas</a> <a href="#Layer">Layer</a> captures a red Anti-aliased circle and a blue <a href="undocumented#Alias">Aliased</a> circle scaled
 up by four. After drawing another red circle without scaling on top, the <a href="#Layer">Layer</a> is
 transferred to the main canvas.
 </div></fiddle-embed></div>
@@ -2120,7 +2130,7 @@ amount to rotate, in <a href="#SkCanvas_rotate_degrees">degrees</a></td>
 
 ### Example
 
-<div><fiddle-embed name="caafb205771b714948e00dcd58ccaf1f"><div><a href="#Draw">Draw</a> clock hands at time 5:10. The hour hand and minute hand point up and
+<div><fiddle-embed name="963789ac8498d4e505748ab3b15cdaa5"><div><a href="#Draw">Draw</a> clock hands at time 5:10. The hour hand and minute hand point up and
 are rotated clockwise.
 </div></fiddle-embed></div>
 
@@ -2346,7 +2356,7 @@ and is unaffected by <a href="#Matrix">Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="d2e60e5171f26ff9ddefae48387f889b"><div><a href="#Draw">Draw</a> a red circle with an <a href="undocumented#Alias">Aliased</a> clip and an Anti-aliased clip.
+<div><fiddle-embed name="862cc026601a41a58df49c0b9f0d7777"><div><a href="#Draw">Draw</a> a red circle with an <a href="undocumented#Alias">Aliased</a> clip and an Anti-aliased clip.
 Use an image filter to zoom into the pixels drawn.
 The edge of the <a href="undocumented#Alias">Aliased</a> clip fully draws pixels in the red circle.
 The edge of the Anti-aliased clip partially draws pixels in the red circle.
@@ -2740,7 +2750,7 @@ true if <a href="#SkCanvas_quickReject_rect">rect</a>, transformed by <a href="#
 
 ### Example
 
-<div><fiddle-embed name="c15e39862d5f07b0fed44c71e86f7cc9">
+<div><fiddle-embed name="cfe4016241074477809dd45435be9cf4">
 
 #### Example Output
 
@@ -2781,7 +2791,7 @@ true if <a href="#SkCanvas_quickReject_2_path">path</a>, transformed by <a href=
 
 ### Example
 
-<div><fiddle-embed name="64723a541c40073157abf2ca67907e15">
+<div><fiddle-embed name="56dcd14f943aea6f7d7aafe0de7e6c25">
 
 #### Example Output
 
@@ -2817,7 +2827,7 @@ bounds of <a href="#Clip">Clip</a> in local coordinates
 
 ### Example
 
-<div><fiddle-embed name="0b36ff64daf88c046b4ae6ed4ee64db9"><div>Initial bounds is device bounds outset by 1 on all sides.
+<div><fiddle-embed name="7f60cb030d3f9b2473adbe3e34b19d91"><div>Initial bounds is device bounds outset by 1 on all sides.
 Clipped bounds is <a href="#SkCanvas_clipPath">clipPath</a> bounds outset by 1 on all sides.
 Scaling the canvas by two in x and y scales the local bounds by 1/2 in x and y.
 </div>
@@ -2898,7 +2908,7 @@ bounds of <a href="#Clip">Clip</a> in <a href="undocumented#Device">Device</a> c
 
 ### Example
 
-<div><fiddle-embed name="5f4c910afa4a5a61702e5119eab2cac9"><div>Initial bounds is device bounds, not outset.
+<div><fiddle-embed name="556832ac5711af662a98c21c547185e9"><div>Initial bounds is device bounds, not outset.
 Clipped bounds is <a href="#SkCanvas_clipPath">clipPath</a> bounds, not outset.
 Scaling the canvas by 1/2 in x and y scales the device bounds by 1/2 in x and y.
 </div>
@@ -3057,7 +3067,7 @@ This has the effect of replacing all pixels contained by <a href="#Clip">Clip</a
 
 ### Example
 
-<div><fiddle-embed name="d97750e04989d42dc879406127b22c0b"></fiddle-embed></div>
+<div><fiddle-embed name="8c4499e322f10153dcd9b0b9806233b9"></fiddle-embed></div>
 
 ### See Also
 
@@ -3135,15 +3145,18 @@ an open polygon.
 
 <table>
   <tr>
-    <td><a name="SkCanvas_kPoints_PointMode"> <code><strong>SkCanvas::kPoints_PointMode </strong></code> </a></td><td>0</td><td><a href="#Draw">Draw</a> each point separately.
+    <td><a name="SkCanvas_kPoints_PointMode"> <code><strong>SkCanvas::kPoints_PointMode </strong></code> </a></td><td>0</td><td></table>
+
 </td>
   </tr>
   <tr>
-    <td><a name="SkCanvas_kLines_PointMode"> <code><strong>SkCanvas::kLines_PointMode </strong></code> </a></td><td>1</td><td><a href="#Draw">Draw</a> each pair of points as a line segment.
+    <td><a name="SkCanvas_kLines_PointMode"> <code><strong>SkCanvas::kLines_PointMode </strong></code> </a></td><td>1</td><td></table>
+
 </td>
   </tr>
   <tr>
-    <td><a name="SkCanvas_kPolygon_PointMode"> <code><strong>SkCanvas::kPolygon_PointMode </strong></code> </a></td><td>2</td><td><a href="#Draw">Draw</a> the array of points as a open polygon.
+    <td><a name="SkCanvas_kPolygon_PointMode"> <code><strong>SkCanvas::kPolygon_PointMode </strong></code> </a></td><td>2</td><td></table>
+
 </td>
   </tr>
 </table>
@@ -3208,7 +3221,7 @@ stroke, blend, color, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="f1dfbb0d5a17c8beab19af29f2aaba8c"><div>
+<div><fiddle-embed name="635d54b4716e226e93dfbc21ad40e77d"><div>
 
 <table>  <tr>
     <td>The first column draws points.</td>  </tr>  <tr>
@@ -3516,7 +3529,7 @@ may have any combination of positive non-square radii for the four corners.
 
 ### Example
 
-<div><fiddle-embed name="369cdbfb2a200d5bb8ae40f7cc1025c3"></fiddle-embed></div>
+<div><fiddle-embed name="90fed1bb11efb43aada94113338c63d8"></fiddle-embed></div>
 
 ### See Also
 
@@ -3760,7 +3773,7 @@ stroke, blend, color, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="d489555a878cb2ab08eea5faf516f54e"><div>Top rows draw stroked <a href="#SkCanvas_drawPath_path">path</a> with combinations of joins and caps. The open contour
+<div><fiddle-embed name="fe2294131f422b8d6752f6a880f98ad9"><div>Top rows draw stroked <a href="#SkCanvas_drawPath_path">path</a> with combinations of joins and caps. The open contour
 is affected by caps; the closed contour is affected by joins.
 Bottom row draws fill the same for open and closed contour.
 First bottom column shows winding fills overlap.
@@ -3883,11 +3896,17 @@ outside source <a href="SkRect_Reference#Rect">Rect</a>.
 
 <table>
   <tr>
-    <td><a name="SkCanvas_kStrict_SrcRectConstraint"> <code><strong>SkCanvas::kStrict_SrcRectConstraint </strong></code> </a></td><td>Requires Image_Filter to respect source Rect,</td><td>sampling only inside of its bounds, possibly with a performance penalty.
+    <td><a name="SkCanvas_kStrict_SrcRectConstraint"> <code><strong>SkCanvas::kStrict_SrcRectConstraint </strong></code> </a></td><td>0</td><td></table>
+
+Requires <a href="undocumented#Image_Filter">Image Filter</a> to respect source <a href="SkRect_Reference#Rect">Rect</a>,
+sampling only inside of its bounds, possibly with a performance penalty.
 </td>
   </tr>
   <tr>
-    <td><a name="SkCanvas_kFast_SrcRectConstraint"> <code><strong>SkCanvas::kFast_SrcRectConstraint </strong></code> </a></td><td>Permits Image_Filter to sample outside of source Rect</td><td>by half the width of <a href="undocumented#Image_Filter">Image Filter</a>, permitting it to run faster but with
+    <td><a name="SkCanvas_kFast_SrcRectConstraint"> <code><strong>SkCanvas::kFast_SrcRectConstraint </strong></code> </a></td><td>1</td><td></table>
+
+Permits <a href="undocumented#Image_Filter">Image Filter</a> to sample outside of source <a href="SkRect_Reference#Rect">Rect</a>
+by half the width of <a href="undocumented#Image_Filter">Image Filter</a>, permitting it to run faster but with
 error at the image edges.
 </td>
   </tr>
@@ -3949,7 +3968,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_src">src</a> or draw fas
 
 ### Example
 
-<div><fiddle-embed name="2b01c707ef8b5ce3023b7a1d55fce059"><div>The left bitmap draws with <a href="SkPaint_Reference#Paint">Paint</a> default <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, and stays within
+<div><fiddle-embed name="bfd18e9cac896cdf94c9f154ccf94be8"><div>The left bitmap draws with <a href="SkPaint_Reference#Paint">Paint</a> default <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, and stays within
 its bounds; there is no bleeding with <a href="#SkCanvas_kFast_SrcRectConstraint">kFast SrcRectConstraint</a>.
 the middle and right bitmaps draw with <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a>; with
 <a href="#SkCanvas_kStrict_SrcRectConstraint">kStrict SrcRectConstraint</a>, the filter remains within the checkerboard, and
@@ -4004,7 +4023,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_2_isrc">isrc</a> or draw
 
 ### Example
 
-<div><fiddle-embed name="b63b8f9f587b8d918973dc065ce4a593"></fiddle-embed></div>
+<div><fiddle-embed name="7f92cd5c9b9f4b1ac3cd933b08037bfe"></fiddle-embed></div>
 
 ### See Also
 
@@ -4098,7 +4117,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_4_src">src</a> or draw f
 
 ### Example
 
-<div><fiddle-embed name="589999454db90c573f7facfb007253a7"><div><a href="#Canvas">Canvas</a> scales and translates; transformation from <a href="#SkCanvas_drawImageRect_4_src">src</a> to <a href="#SkCanvas_drawImageRect_4_dst">dst</a> also scales.
+<div><fiddle-embed name="d4b35a9d24c32c042bd1f529b8de3c0d"><div><a href="#Canvas">Canvas</a> scales and translates; transformation from <a href="#SkCanvas_drawImageRect_4_src">src</a> to <a href="#SkCanvas_drawImageRect_4_dst">dst</a> also scales.
 The two matrices are concatenated to create the final transformation.
 </div></fiddle-embed></div>
 
@@ -4149,7 +4168,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_5_image">image</a> or dr
 
 ### Example
 
-<div><fiddle-embed name="249fadde5d0d0fc515e9f53f188af48b"></fiddle-embed></div>
+<div><fiddle-embed name="d307e7e1237f39fb54d80723e5449857"></fiddle-embed></div>
 
 ### See Also
 
@@ -4195,7 +4214,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_6_image">image</a> or dr
 
 ### Example
 
-<div><fiddle-embed name="37a85bd2247487c7af584e42c1cabe4a"></fiddle-embed></div>
+<div><fiddle-embed name="3a47ef94cb70144455f80333d8653e6c"></fiddle-embed></div>
 
 ### See Also
 
@@ -4217,11 +4236,11 @@ the <a href="#SkCanvas_drawImageNine_center">center</a>. Corners are unmodified 
 are larger than <a href="#SkCanvas_drawImageNine_dst">dst</a>; <a href="#SkCanvas_drawImageNine_center">center</a> and four sides are scaled to fit remaining space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageNine_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawImageNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageNine_image">image</a> bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If image is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawImageNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from image bounds. If <a href="#SkCanvas_drawImageNine_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawImageNine_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond <a href="#SkCanvas_drawImageNine_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageNine_image">image</a> edge colors, just
 as <a href="undocumented#Shader">Shader</a> made from <a href="SkImage_Reference#SkImage_makeShader">SkImage::makeShader</a> with <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set
 replicates the <a href="#SkCanvas_drawImageNine_image">image</a> edge color when it samples outside of its bounds.
@@ -4242,7 +4261,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="47f78f3f70ccd9e6c40ee3203a5c71dd"><div>The leftmost <a href="#SkCanvas_drawImageNine_image">image</a> is smaller than <a href="#SkCanvas_drawImageNine_center">center</a>; only corners are drawn, all scaled to fit.
+<div><fiddle-embed name="4f153cf1d0dbe1a95acf5badeec14dae"><div>The leftmost <a href="#SkCanvas_drawImageNine_image">image</a> is smaller than <a href="#SkCanvas_drawImageNine_center">center</a>; only corners are drawn, all scaled to fit.
 The second <a href="#SkCanvas_drawImageNine_image">image</a> equals the size of <a href="#SkCanvas_drawImageNine_center">center</a>; only corners are drawn without scaling.
 The remaining images are larger than <a href="#SkCanvas_drawImageNine_center">center</a>. All corners draw without scaling.
 The sides and <a href="#SkCanvas_drawImageNine_center">center</a> are scaled if needed to take up the remaining space.
@@ -4292,7 +4311,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="e941e553970569d1ffb03a42f7fcd6d9"><div>The two leftmost images has four corners and sides to the left and right of <a href="#SkCanvas_drawImageNine_2_center">center</a>.
+<div><fiddle-embed name="d597d9af8d17fd93e634dd12017058e2"><div>The two leftmost images has four corners and sides to the left and right of <a href="#SkCanvas_drawImageNine_2_center">center</a>.
 The leftmost <a href="#SkCanvas_drawImageNine_2_image">image</a> scales the width of corners proportionately to fit.
 The third and fourth <a href="#SkCanvas_drawImageNine_2_image">image</a> corners are not scaled; the sides and <a href="#SkCanvas_drawImageNine_2_center">center</a> are scaled to
 fill the remaining space.
@@ -4341,7 +4360,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="70d7fbf7de82264dd66a526d98d31def"></fiddle-embed></div>
+<div><fiddle-embed name="4a521be1f850058541e136a808c65e78"></fiddle-embed></div>
 
 ### See Also
 
@@ -4391,7 +4410,7 @@ filter strictly within <a href="#SkCanvas_drawBitmapRect_src">src</a> or draw fa
 
 ### Example
 
-<div><fiddle-embed name="4be3c8406a350bc3429a69e5c1daa8cd"></fiddle-embed></div>
+<div><fiddle-embed name="7d04932f2a259cc70d6e45cd25a6feb6"></fiddle-embed></div>
 
 ### See Also
 
@@ -4441,7 +4460,7 @@ sample strictly within <a href="#SkCanvas_drawBitmapRect_2_isrc">isrc</a>, or dr
 
 ### Example
 
-<div><fiddle-embed name="69b028ef1f95c355672fbdcbf47550f2"></fiddle-embed></div>
+<div><fiddle-embed name="0a3c6d2459566e58cee7d4910655ee21"></fiddle-embed></div>
 
 ### See Also
 
@@ -4489,7 +4508,7 @@ filter strictly within <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> or
 
 ### Example
 
-<div><fiddle-embed name="76b74b826e43b4a595d18115564e88c7"></fiddle-embed></div>
+<div><fiddle-embed name="bdbeac3c97f60a63987b1cc8e1f1e91e"></fiddle-embed></div>
 
 ### See Also
 
@@ -4512,11 +4531,11 @@ sides are larger than <a href="#SkCanvas_drawBitmapNine_dst">dst</a>; <a href="#
 space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawBitmapNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawBitmapNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds. If <a href="#SkCanvas_drawBitmapNine_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawBitmapNine_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> edge colors,
 just as <a href="undocumented#Shader">Shader</a> made from <a href="undocumented#SkShader_MakeBitmapShader">SkShader::MakeBitmapShader</a> with
 <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> edge color when it samples
@@ -4538,7 +4557,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="a4a30aa10e566a85fe6f6cad2ff9935b"><div>The two leftmost <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> draws has four corners and sides to the left and right of <a href="#SkCanvas_drawBitmapNine_center">center</a>.
+<div><fiddle-embed name="e99e7be0d8f67dfacbecf85df585433d"><div>The two leftmost <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> draws has four corners and sides to the left and right of <a href="#SkCanvas_drawBitmapNine_center">center</a>.
 The leftmost <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> draw scales the width of corners proportionately to fit.
 The third and fourth draw corners are not scaled; the sides and <a href="#SkCanvas_drawBitmapNine_center">center</a> are scaled to
 fill the remaining space.
@@ -4593,15 +4612,18 @@ or to fill the grid entry with a color.
 
 <table>
   <tr>
-    <td><a name="SkCanvas_Lattice_kDefault"> <code><strong>SkCanvas::Lattice::kDefault </strong></code> </a></td><td>0</td><td>Draws <a href="SkBitmap_Reference#Bitmap">Bitmap</a> into lattice rectangle.
+    <td><a name="SkCanvas_Lattice_kDefault"> <code><strong>SkCanvas::Lattice::kDefault </strong></code> </a></td><td>0</td><td></table>
+
 </td>
   </tr>
   <tr>
-    <td><a name="SkCanvas_Lattice_kTransparent"> <code><strong>SkCanvas::Lattice::kTransparent </strong></code> </a></td><td>1</td><td>Skips lattice rectangle by making it transparent.
+    <td><a name="SkCanvas_Lattice_kTransparent"> <code><strong>SkCanvas::Lattice::kTransparent </strong></code> </a></td><td>1</td><td></table>
+
 </td>
   </tr>
   <tr>
-    <td><a name="SkCanvas_Lattice_kFixedColor"> <code><strong>SkCanvas::Lattice::kFixedColor </strong></code> </a></td><td>2</td><td>Draws one of <a href="#SkCanvas_Lattice_fColors">fColors</a> into lattice rectangle.
+    <td><a name="SkCanvas_Lattice_kFixedColor"> <code><strong>SkCanvas::Lattice::kFixedColor </strong></code> </a></td><td>2</td><td></table>
+
 </td>
   </tr>
 
@@ -4675,11 +4697,11 @@ size and shrink proportionately when all fixed elements exceed the <a href="#SkC
 dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds. If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> edge colors,
 just as <a href="undocumented#Shader">Shader</a> made from <a href="undocumented#SkShader_MakeBitmapShader">SkShader::MakeBitmapShader</a> with
 <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> edge color when it samples
@@ -4701,7 +4723,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="7a02b16a4cc8158d88858a76907c9d89"><div>The two leftmost <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> draws has four corners and sides to the left and right of center.
+<div><fiddle-embed name="c5bfa944e17ba4a4400dc799f032069c"><div>The two leftmost <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> draws has four corners and sides to the left and right of center.
 The leftmost <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> draw scales the width of corners proportionately to fit.
 The third and fourth draw corners are not scaled; the sides are scaled to
 fill the remaining space; the center is transparent.
@@ -4732,11 +4754,11 @@ size and shrink proportionately when all fixed elements exceed the bitmap
 dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a>.
-
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
-If <a href="#SkCanvas_drawImageLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds.
-
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If image is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+If <a href="#SkCanvas_drawImageLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from image bounds. If <a href="#SkCanvas_drawImageLattice_paint">paint</a>
+<a href="undocumented#Filter_Quality">Filter Quality</a> set to <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, disable pixel filtering. For all
+other values of <a href="#SkCanvas_drawImageLattice_paint">paint</a> <a href="undocumented#Filter_Quality">Filter Quality</a>, use <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a> to filter pixels.
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as <a href="undocumented#Shader">Shader</a> made from <a href="undocumented#SkShader_MakeBitmapShader">SkShader::MakeBitmapShader</a> with
 <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the bitmap edge color when it samples
@@ -4758,7 +4780,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="47f78f3f70ccd9e6c40ee3203a5c71dd"><div>The leftmost <a href="#SkCanvas_drawImageLattice_image">image</a> is smaller than center; only corners are drawn, all scaled to fit.
+<div><fiddle-embed name="4f153cf1d0dbe1a95acf5badeec14dae"><div>The leftmost <a href="#SkCanvas_drawImageLattice_image">image</a> is smaller than center; only corners are drawn, all scaled to fit.
 The second <a href="#SkCanvas_drawImageLattice_image">image</a> equals the size of center; only corners are drawn without scaling.
 The remaining images are larger than center. All corners draw without scaling. The sides
 are scaled if needed to take up the remaining space; the center is transparent.
@@ -4824,7 +4846,7 @@ start of <a href="#SkCanvas_drawText_text">text</a> on <a href="#SkCanvas_drawTe
 
 ### Example
 
-<div><fiddle-embed name="a3365bd3044b13e8e0318ee8aefbdf91"><div>The same <a href="#SkCanvas_drawText_text">text</a> is drawn varying <a href="SkPaint_Reference#Text_Size">Paint Text Size</a> and varying
+<div><fiddle-embed name="55f5e59350622c5e2834d1c85789f732"><div>The same <a href="#SkCanvas_drawText_text">text</a> is drawn varying <a href="SkPaint_Reference#Text_Size">Paint Text Size</a> and varying
 <a href="#Matrix">Matrix</a>.
 </div></fiddle-embed></div>
 
@@ -4841,9 +4863,8 @@ start of <a href="#SkCanvas_drawText_text">text</a> on <a href="#SkCanvas_drawTe
 void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint)
 </pre>
 
-<a href="#Draw">Draw</a> null terminated <a href="#SkCanvas_drawString_string">string</a>, with origin at (<a href="#SkCanvas_drawString_x">x</a>, <a href="#SkCanvas_drawString_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
-<a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawString_paint">paint</a>. Note that this per-glyph xform does not affect the shader (if present)
-on the <a href="#SkCanvas_drawString_paint">paint</a>, just the glyph's geometry.
+Draws null terminated <a href="#SkCanvas_drawString_string">string</a>, with origin at (<a href="#SkCanvas_drawString_x">x</a>, <a href="#SkCanvas_drawString_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
+<a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawString_paint">paint</a>.
 
 <a href="#SkCanvas_drawString_string">string</a> meaning depends on <a href="SkPaint_Reference#Text_Encoding">Paint Text Encoding</a>; by default, strings are encoded
 as UTF-8. Other values of <a href="SkPaint_Reference#Text_Encoding">Paint Text Encoding</a> are unlikely to produce the desired
@@ -5068,7 +5089,7 @@ offset of <a href="#SkCanvas_drawTextOnPathHV_text">text</a> above (if negative)
 
 ### Example
 
-<div><fiddle-embed name="25cc5452156d7f06e85f514913d46b5c"></fiddle-embed></div>
+<div><fiddle-embed name="b2f22d1d5041e55d6913aab52f73a7d3"></fiddle-embed></div>
 
 ### See Also
 
@@ -5086,20 +5107,22 @@ void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path, con
 
 <a href="#Draw">Draw</a> <a href="#SkCanvas_drawTextOnPath_text">text</a> on <a href="SkPath_Reference#Path">Path</a> <a href="#SkCanvas_drawTextOnPath_path">path</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextOnPath_paint">paint</a>.
 
-Origin of <a href="#SkCanvas_drawTextOnPath_text">text</a> is at beginning of <a href="#SkCanvas_drawTextOnPath_path">path</a> offset by <a href="#SkCanvas_drawTextOnPath_matrix">matrix</a>, if provided, before it
-is mapped to <a href="#SkCanvas_drawTextOnPath_path">path</a>. If the <a href="#SkCanvas_drawTextOnPath_path">path</a> section corresponding the glyph advance is
-curved, the glyph is drawn curved to match; control points in the glyph are
-mapped to projected points parallel to the <a href="#SkCanvas_drawTextOnPath_path">path</a>. If the <a href="#SkCanvas_drawTextOnPath_text">text</a> advance is larger
-than the <a href="#SkCanvas_drawTextOnPath_path">path</a> length, the excess <a href="#SkCanvas_drawTextOnPath_text">text</a> is clipped.
+Origin of <a href="#SkCanvas_drawTextOnPath_text">text</a> is at beginning of <a href="#SkCanvas_drawTextOnPath_path">path</a> offset by <a href="#SkCanvas_drawTextOnPath_matrix">matrix</a>, if not nullptr.
+<a href="#SkCanvas_drawTextOnPath_matrix">matrix</a> also transforms <a href="#SkCanvas_drawTextOnPath_text">text</a> before <a href="#SkCanvas_drawTextOnPath_text">text</a> is mapped to <a href="#SkCanvas_drawTextOnPath_path">path</a>. If the <a href="#SkCanvas_drawTextOnPath_path">path</a> section
+corresponding the glyph advance is curved, the glyph is drawn curved to match;
+control points in the glyph are mapped to projected points parallel to the <a href="#SkCanvas_drawTextOnPath_path">path</a>.
+If the <a href="#SkCanvas_drawTextOnPath_text">text</a> advance is larger than the <a href="#SkCanvas_drawTextOnPath_path">path</a> length, the excess <a href="#SkCanvas_drawTextOnPath_text">text</a> is clipped.
 
 <a href="#SkCanvas_drawTextOnPath_text">text</a> meaning depends on <a href="SkPaint_Reference#Text_Encoding">Paint Text Encoding</a>; by default, <a href="#SkCanvas_drawTextOnPath_text">text</a> is encoded as
 UTF-8. Origin meaning depends on <a href="SkPaint_Reference#Text_Align">Paint Text Align</a> and <a href="SkPaint_Reference#Vertical_Text">Paint Vertical Text</a>; by
 default <a href="#SkCanvas_drawTextOnPath_text">text</a> positions the first glyph left side bearing at origin x and its
-baseline at origin y. <a href="undocumented#Text">Text</a> size is affected by <a href="#Matrix">Matrix</a> and <a href="SkPaint_Reference#Text_Size">Paint Text Size</a>.
+baseline at origin y. <a href="undocumented#Text">Text</a> size is affected by <a href="#SkCanvas_drawTextOnPath_matrix">matrix</a> parameter, <a href="#Matrix">Canvas Matrix</a>,
+and <a href="SkPaint_Reference#Text_Size">Paint Text Size</a>.
 
 All elements of <a href="#SkCanvas_drawTextOnPath_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawTextOnPath_text">text</a>. By default, draws
-filled 12 point black <a href="undocumented#Glyph">Glyphs</a>.
+filled 12 point black <a href="undocumented#Glyph">Glyphs</a>. <a href="#Canvas">Canvas</a> <a href="#Matrix">Matrix</a> does effect <a href="#SkCanvas_drawTextOnPath_paint">paint</a> <a href="undocumented#Shader">Shader</a>, but
+<a href="#SkCanvas_drawTextOnPath_matrix">matrix</a> parameter does not.
 
 ### Parameters
 
@@ -5119,7 +5142,7 @@ to use identity <a href="#Matrix">Matrix</a></td>
 
 ### Example
 
-<div><fiddle-embed name="0f60797fbdce3d3c71c46b800e6bd6f8"></fiddle-embed></div>
+<div><fiddle-embed name="236e680b27960ca22641586dba0599c9"></fiddle-embed></div>
 
 ### See Also
 
@@ -5165,7 +5188,7 @@ byte length of <a href="#SkCanvas_drawTextRSXform_text">text</a> array</td>
 
 ### Example
 
-<div><fiddle-embed name="55c84c39890c7516f7c835c46b1b8fc9"></fiddle-embed></div>
+<div><fiddle-embed name="3ce367af833428b08e75d8a22fe67808"></fiddle-embed></div>
 
 ### See Also
 
@@ -5208,7 +5231,7 @@ blend, color, stroking, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="2254beaa675e3b329dccddca4eeea735"></fiddle-embed></div>
+<div><fiddle-embed name="5f823814ec9df1f912a2ea943bedfca1"></fiddle-embed></div>
 
 ### See Also
 
@@ -5250,7 +5273,7 @@ blend, color, stroking, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="d88b17d85fa68c56b3c1ad02b69068bf"><div><a href="SkPaint_Reference#Paint">Paint</a> attributes unrelated to text, like color, have no effect on <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> in allocated <a href="undocumented#Text_Blob">Text Blob</a>.
+<div><fiddle-embed name="af4c69fbbd165c8b0eb0c9bd49ccbd8d"><div><a href="SkPaint_Reference#Paint">Paint</a> attributes unrelated to text, like color, have no effect on <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> in allocated <a href="undocumented#Text_Blob">Text Blob</a>.
 <a href="SkPaint_Reference#Paint">Paint</a> attributes related to text, like text size, have no effect on <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> passed to <a href="#SkCanvas_drawTextBlob">drawTextBlob</a>.
 </div></fiddle-embed></div>
 
@@ -5282,7 +5305,7 @@ recorded drawing commands to play</td>
 
 ### Example
 
-<div><fiddle-embed name="a7373b01354dda73dafe8718f4fd0cfc"></fiddle-embed></div>
+<div><fiddle-embed name="83918a23fcffd47f59a1ef662c85a24c"></fiddle-embed></div>
 
 ### See Also
 
@@ -5311,7 +5334,7 @@ recorded drawing commands to play</td>
 
 ### Example
 
-<div><fiddle-embed name="a7373b01354dda73dafe8718f4fd0cfc"></fiddle-embed></div>
+<div><fiddle-embed name="83918a23fcffd47f59a1ef662c85a24c"></fiddle-embed></div>
 
 ### See Also
 
@@ -5345,7 +5368,7 @@ recorded drawing commands to play</td>
 
 ### Example
 
-<div><fiddle-embed name="4ec028d8ffa0a6ae1a99ff8d094b02bc"></fiddle-embed></div>
+<div><fiddle-embed name="759e4e5bac680838added8f70884dcdc"></fiddle-embed></div>
 
 ### See Also
 
@@ -5379,7 +5402,7 @@ recorded drawing commands to play</td>
 
 ### Example
 
-<div><fiddle-embed name="7295eb14091e98565cec0353661a6a7d"></fiddle-embed></div>
+<div><fiddle-embed name="c4ff59439dd2fc871925d4eeb0c84ca1"></fiddle-embed></div>
 
 ### See Also
 

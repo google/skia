@@ -124,7 +124,7 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#AffineIndex">AffineIndex</a> | affine member indices |
 | <a href="#MemberIndex">MemberIndex</a> | member indices |
 | <a href="#Property">Property</a> | values and attributes |
-| <a href="#Set">Set</a> | set one or more matrix values |
+| <a href="#Set">Set</a> | sets one or more matrix values |
 | <a href="#Transform">Transform</a> | map points with <a href="#Matrix">Matrix</a> |
 | <a href="#Utility">Utility</a> | rarely called management functions |
 
@@ -348,19 +348,29 @@ Used to identify the complexity of <a href="#Matrix">Matrix</a>, to optimize per
 
 <table>
   <tr>
-    <td><a name="SkMatrix_kIdentity_Mask"> <code><strong>SkMatrix::kIdentity_Mask </strong></code> </a></td><td>0</td><td>all bits clear if <a href="#Matrix">Matrix</a> is identity</td>
+    <td><a name="SkMatrix_kIdentity_Mask"> <code><strong>SkMatrix::kIdentity_Mask </strong></code> </a></td><td>0</td><td></table>
+
+all bits clear if <a href="#Matrix">Matrix</a> is identity</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kTranslate_Mask"> <code><strong>SkMatrix::kTranslate_Mask </strong></code> </a></td><td>1</td><td>set if <a href="#Matrix">Matrix</a> has translation</td>
+    <td><a name="SkMatrix_kTranslate_Mask"> <code><strong>SkMatrix::kTranslate_Mask </strong></code> </a></td><td>1</td><td></table>
+
+set if <a href="#Matrix">Matrix</a> has translation</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kScale_Mask"> <code><strong>SkMatrix::kScale_Mask </strong></code> </a></td><td>2</td><td>set if <a href="#Matrix">Matrix</a> has x or y scale</td>
+    <td><a name="SkMatrix_kScale_Mask"> <code><strong>SkMatrix::kScale_Mask </strong></code> </a></td><td>2</td><td></table>
+
+set if <a href="#Matrix">Matrix</a> has x or y scale</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kAffine_Mask"> <code><strong>SkMatrix::kAffine_Mask </strong></code> </a></td><td>4</td><td>set if <a href="#Matrix">Matrix</a> skews or rotates</td>
+    <td><a name="SkMatrix_kAffine_Mask"> <code><strong>SkMatrix::kAffine_Mask </strong></code> </a></td><td>4</td><td></table>
+
+set if <a href="#Matrix">Matrix</a> skews or rotates</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kPerspective_Mask"> <code><strong>SkMatrix::kPerspective_Mask </strong></code> </a></td><td>8</td><td>set if <a href="#Matrix">Matrix</a> has perspective</td>
+    <td><a name="SkMatrix_kPerspective_Mask"> <code><strong>SkMatrix::kPerspective_Mask </strong></code> </a></td><td>8</td><td></table>
+
+set if <a href="#Matrix">Matrix</a> has perspective</td>
   </tr>
 </table>
 
@@ -745,7 +755,7 @@ true if <a href="#Matrix">Matrix</a> only rotates, uniformly scales, translates
 
 ### Example
 
-<div><fiddle-embed name="98d60230ad633ae74d851de3a65d72d6"><div><a href="undocumented#String">String</a> is drawn four times through but only two are visible. Drawing the pair
+<div><fiddle-embed name="8b37f4ae7fec1756433c0f984175fb14"><div><a href="undocumented#String">String</a> is drawn four times through but only two are visible. Drawing the pair
 with <a href="#SkMatrix_isSimilarity">isSimilarity</a> false reveals the pair not visible through the matrix.
 </div></fiddle-embed></div>
 
@@ -783,7 +793,7 @@ true if <a href="#Matrix">Matrix</a> only rotates, scales, translates
 
 ### Example
 
-<div><fiddle-embed name="a3d5bfebc1c3423fb983d30aaf4ac5f4"><div>Equal scale is both similar and preserves right angles.
+<div><fiddle-embed name="b9becf0dc24a9f00726e24a81fb72f16"><div>Equal scale is both similar and preserves right angles.
 Unequal scale is not similar but preserves right angles.
 Skews are not similar and do not preserve right angles.
 </div></fiddle-embed></div>
@@ -795,6 +805,41 @@ Skews are not similar and do not preserve right angles.
 ---
 
 ## <a name="MemberIndex"></a> MemberIndex
+
+
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="Matrix_MemberIndex"> <code><strong>MemberIndex </strong></code> </a></td><td>#Const kMScaleX 0</td><td>horizontal scale factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_MemberIndex"> <code><strong>MemberIndex </strong></code> </a></td><td>#Const kMSkewX 1</td><td>horizontal skew factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_MemberIndex"> <code><strong>MemberIndex </strong></code> </a></td><td>#Const kMTransX 2</td><td>horizontal translation</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_MemberIndex"> <code><strong>MemberIndex </strong></code> </a></td><td>#Const kMSkewY 3</td><td>vertical skew factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_MemberIndex"> <code><strong>MemberIndex </strong></code> </a></td><td>#Const kMScaleY 4</td><td>vertical scale factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_MemberIndex"> <code><strong>MemberIndex </strong></code> </a></td><td>#Const kMTransY 5</td><td>vertical translation</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_MemberIndex"> <code><strong>MemberIndex </strong></code> </a></td><td>#Const kMPersp0 6</td><td>input x perspective factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_MemberIndex"> <code><strong>MemberIndex </strong></code> </a></td><td>#Const kMPersp1 7</td><td>input y perspective factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_MemberIndex"> <code><strong>MemberIndex </strong></code> </a></td><td>#Const kMPersp2 8</td><td>perspective bias</td>
+  <tr>
+</table>
+
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     static constexpr int <a href="#SkMatrix_kMScaleX">kMScaleX</a> = 0;
@@ -815,31 +860,49 @@ each value in <a href="#Matrix">Matrix</a>.
 
 <table>
   <tr>
-    <td><a name="SkMatrix_kMScaleX"> <code><strong>SkMatrix::kMScaleX </strong></code> </a></td><td>0</td><td>horizontal scale factor</td>
+    <td><a name="SkMatrix_kMScaleX"> <code><strong>SkMatrix::kMScaleX </strong></code> </a></td><td>0</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kMSkewX"> <code><strong>SkMatrix::kMSkewX </strong></code> </a></td><td>1</td><td>horizontal skew factor</td>
+    <td><a name="SkMatrix_kMSkewX"> <code><strong>SkMatrix::kMSkewX </strong></code> </a></td><td>1</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kMTransX"> <code><strong>SkMatrix::kMTransX </strong></code> </a></td><td>2</td><td>horizontal translation</td>
+    <td><a name="SkMatrix_kMTransX"> <code><strong>SkMatrix::kMTransX </strong></code> </a></td><td>2</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kMSkewY"> <code><strong>SkMatrix::kMSkewY </strong></code> </a></td><td>3</td><td>vertical skew factor</td>
+    <td><a name="SkMatrix_kMSkewY"> <code><strong>SkMatrix::kMSkewY </strong></code> </a></td><td>3</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kMScaleY"> <code><strong>SkMatrix::kMScaleY </strong></code> </a></td><td>4</td><td>vertical scale factor</td>
+    <td><a name="SkMatrix_kMScaleY"> <code><strong>SkMatrix::kMScaleY </strong></code> </a></td><td>4</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kMTransY"> <code><strong>SkMatrix::kMTransY </strong></code> </a></td><td>5</td><td>vertical translation</td>
+    <td><a name="SkMatrix_kMTransY"> <code><strong>SkMatrix::kMTransY </strong></code> </a></td><td>5</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kMPersp0"> <code><strong>SkMatrix::kMPersp0 </strong></code> </a></td><td>6</td><td>input x perspective factor</td>
+    <td><a name="SkMatrix_kMPersp0"> <code><strong>SkMatrix::kMPersp0 </strong></code> </a></td><td>6</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kMPersp1"> <code><strong>SkMatrix::kMPersp1 </strong></code> </a></td><td>7</td><td>input y perspective factor</td>
+    <td><a name="SkMatrix_kMPersp1"> <code><strong>SkMatrix::kMPersp1 </strong></code> </a></td><td>7</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kMPersp2"> <code><strong>SkMatrix::kMPersp2 </strong></code> </a></td><td>8</td><td>perspective bias</td>
+    <td><a name="SkMatrix_kMPersp2"> <code><strong>SkMatrix::kMPersp2 </strong></code> </a></td><td>8</td><td></table>
+
+</td>
   </tr>
 </table>
 
@@ -852,6 +915,32 @@ each value in <a href="#Matrix">Matrix</a>.
 <a href="#SkMatrix_get">get</a> <a href="#SkMatrix_set">set</a>
 
 ## <a name="AffineIndex"></a> AffineIndex
+
+
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="Matrix_AffineIndex"> <code><strong>AffineIndex </strong></code> </a></td><td>#Const kAScaleX 0</td><td>horizontal scale factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_AffineIndex"> <code><strong>AffineIndex </strong></code> </a></td><td>#Const kASkewY 1</td><td>vertical skew factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_AffineIndex"> <code><strong>AffineIndex </strong></code> </a></td><td>#Const kASkewX 2</td><td>horizontal skew factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_AffineIndex"> <code><strong>AffineIndex </strong></code> </a></td><td>#Const kAScaleY 3</td><td>vertical scale factor</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_AffineIndex"> <code><strong>AffineIndex </strong></code> </a></td><td>#Const kATransX 4</td><td>horizontal translation</td>
+  <tr>
+  <tr>
+    <td><a name="Matrix_AffineIndex"> <code><strong>AffineIndex </strong></code> </a></td><td>#Const kATransY 5</td><td>vertical translation</td>
+  <tr>
+</table>
+
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     static constexpr int <a href="#SkMatrix_kAScaleX">kAScaleX</a> = 0;
@@ -869,22 +958,34 @@ PDF and XPS.
 
 <table>
   <tr>
-    <td><a name="SkMatrix_kAScaleX"> <code><strong>SkMatrix::kAScaleX </strong></code> </a></td><td>0</td><td>horizontal scale factor</td>
+    <td><a name="SkMatrix_kAScaleX"> <code><strong>SkMatrix::kAScaleX </strong></code> </a></td><td>0</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kASkewY"> <code><strong>SkMatrix::kASkewY </strong></code> </a></td><td>1</td><td>vertical skew factor</td>
+    <td><a name="SkMatrix_kASkewY"> <code><strong>SkMatrix::kASkewY </strong></code> </a></td><td>1</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kASkewX"> <code><strong>SkMatrix::kASkewX </strong></code> </a></td><td>2</td><td>horizontal skew factor</td>
+    <td><a name="SkMatrix_kASkewX"> <code><strong>SkMatrix::kASkewX </strong></code> </a></td><td>2</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kAScaleY"> <code><strong>SkMatrix::kAScaleY </strong></code> </a></td><td>3</td><td>vertical scale factor</td>
+    <td><a name="SkMatrix_kAScaleY"> <code><strong>SkMatrix::kAScaleY </strong></code> </a></td><td>3</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kATransX"> <code><strong>SkMatrix::kATransX </strong></code> </a></td><td>4</td><td>horizontal translation</td>
+    <td><a name="SkMatrix_kATransX"> <code><strong>SkMatrix::kATransX </strong></code> </a></td><td>4</td><td></table>
+
+</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kATransY"> <code><strong>SkMatrix::kATransY </strong></code> </a></td><td>5</td><td>vertical translation</td>
+    <td><a name="SkMatrix_kATransY"> <code><strong>SkMatrix::kATransY </strong></code> </a></td><td>5</td><td></table>
+
+</td>
   </tr>
 </table>
 
@@ -1632,7 +1733,7 @@ storage for nine <a href="undocumented#Scalar">Scalar</a> values</td>
 
 ### Example
 
-<div><fiddle-embed name="df509d73b47cb98b0475e4465db7b246">
+<div><fiddle-embed name="379fc375e011050b54ed9df83c0996a7">
 
 #### Example Output
 
@@ -2179,7 +2280,7 @@ y translation before applying <a href="#Matrix">Matrix</a></td>
 
 ### Example
 
-<div><fiddle-embed name="08f6749933f4ce541073077ab506fd9b"></fiddle-embed></div>
+<div><fiddle-embed name="f75a9b629aa6c51ed888f8799b5ba5f7"></fiddle-embed></div>
 
 ### See Also
 
@@ -2584,7 +2685,7 @@ y translation after applying <a href="#Matrix">Matrix</a></td>
 
 ### Example
 
-<div><fiddle-embed name="57e4cff302c0d754ac6c66050d741772"><div>Compare with <a href="#SkMatrix_preTranslate">preTranslate</a> example.
+<div><fiddle-embed name="f5144ef4bd7cea294fad2f756ed335af"><div>Compare with <a href="#SkMatrix_preTranslate">preTranslate</a> example.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -3029,25 +3130,33 @@ how <a href="#Matrix">Matrix</a> maps to the side or center of the destination <
 
 <table>
   <tr>
-    <td><a name="SkMatrix_kFill_ScaleToFit"> <code><strong>SkMatrix::kFill_ScaleToFit </strong></code> </a></td><td>0</td><td>Computes <a href="#Matrix">Matrix</a> that scales in x and y independently, so that source <a href="SkRect_Reference#Rect">Rect</a> is
+    <td><a name="SkMatrix_kFill_ScaleToFit"> <code><strong>SkMatrix::kFill_ScaleToFit </strong></code> </a></td><td>0</td><td></table>
+
+Computes <a href="#Matrix">Matrix</a> that scales in x and y independently, so that source <a href="SkRect_Reference#Rect">Rect</a> is
 mapped to completely fill destination <a href="SkRect_Reference#Rect">Rect</a>. The aspect ratio of source <a href="SkRect_Reference#Rect">Rect</a>
 may change.
 </td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kStart_ScaleToFit"> <code><strong>SkMatrix::kStart_ScaleToFit </strong></code> </a></td><td>1</td><td>Computes <a href="#Matrix">Matrix</a> that maintains source <a href="SkRect_Reference#Rect">Rect</a> aspect ratio, mapping source <a href="SkRect_Reference#Rect">Rect</a>
+    <td><a name="SkMatrix_kStart_ScaleToFit"> <code><strong>SkMatrix::kStart_ScaleToFit </strong></code> </a></td><td>1</td><td></table>
+
+Computes <a href="#Matrix">Matrix</a> that maintains source <a href="SkRect_Reference#Rect">Rect</a> aspect ratio, mapping source <a href="SkRect_Reference#Rect">Rect</a>
 width or height to destination <a href="SkRect_Reference#Rect">Rect</a>. Aligns mapping to left and top edges
 of destination <a href="SkRect_Reference#Rect">Rect</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kCenter_ScaleToFit"> <code><strong>SkMatrix::kCenter_ScaleToFit </strong></code> </a></td><td>2</td><td>Computes <a href="#Matrix">Matrix</a> that maintains source <a href="SkRect_Reference#Rect">Rect</a> aspect ratio, mapping source <a href="SkRect_Reference#Rect">Rect</a>
+    <td><a name="SkMatrix_kCenter_ScaleToFit"> <code><strong>SkMatrix::kCenter_ScaleToFit </strong></code> </a></td><td>2</td><td></table>
+
+Computes <a href="#Matrix">Matrix</a> that maintains source <a href="SkRect_Reference#Rect">Rect</a> aspect ratio, mapping source <a href="SkRect_Reference#Rect">Rect</a>
 width or height to destination <a href="SkRect_Reference#Rect">Rect</a>. Aligns mapping to center of destination
 <a href="SkRect_Reference#Rect">Rect</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kEnd_ScaleToFit"> <code><strong>SkMatrix::kEnd_ScaleToFit </strong></code> </a></td><td>3</td><td>Computes <a href="#Matrix">Matrix</a> that maintains source <a href="SkRect_Reference#Rect">Rect</a> aspect ratio, mapping source <a href="SkRect_Reference#Rect">Rect</a>
+    <td><a name="SkMatrix_kEnd_ScaleToFit"> <code><strong>SkMatrix::kEnd_ScaleToFit </strong></code> </a></td><td>3</td><td></table>
+
+Computes <a href="#Matrix">Matrix</a> that maintains source <a href="SkRect_Reference#Rect">Rect</a> aspect ratio, mapping source <a href="SkRect_Reference#Rect">Rect</a>
 width or height to destination <a href="SkRect_Reference#Rect">Rect</a>. Aligns mapping to right and bottom
 edges of destination <a href="SkRect_Reference#Rect">Rect</a>.
 </td>
