@@ -437,8 +437,11 @@ private:
     bool fUsesSrcInput;
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
+
+    // fCacheKeys is managed exclusively by SkImageFilterCache.
+    friend class SkImageFilterCache;
     mutable SkTArray<SkImageFilterCacheKey> fCacheKeys;
-    mutable SkMutex fMutex;
+
     typedef SkFlattenable INHERITED;
 };
 

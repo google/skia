@@ -8,11 +8,11 @@
 #ifndef SkImageFilterCache_DEFINED
 #define SkImageFilterCache_DEFINED
 
+#include "SkImageFilter.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
 struct SkIPoint;
-class SkImageFilter;
 class SkSpecialImage;
 
 struct SkImageFilterCacheKey {
@@ -59,8 +59,13 @@ public:
     virtual void set(const SkImageFilterCacheKey& key, SkSpecialImage* image,
                      const SkIPoint& offset, const SkImageFilter* filter) = 0;
     virtual void purge() = 0;
-    virtual void purgeByKeys(const SkImageFilterCacheKey[], int) = 0;
+    virtual void purgeByImageFilter(const SkImageFilter*) = 0;
     SkDEBUGCODE(virtual int count() const = 0;)
+protected:
+    SkTArray<SkImageFilterCacheKey>* internalFilterCacheKeys(const SkImageFilter* filter) {
+        return &filter->fCacheKeys;
+    }
+
 };
 
 #endif

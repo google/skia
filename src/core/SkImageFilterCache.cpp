@@ -76,6 +76,8 @@ public:
         fLookup.add(v);
         fLRU.addToHead(v);
         fCurrentBytes += image->getSize();
+        this->internalFilterCacheKeys(filter)->push_back(key);
+
         while (fCurrentBytes > fMaxBytes) {
             Value* tail = fLRU.tail();
             SkASSERT(tail);
@@ -95,18 +97,20 @@ public:
         }
     }
 
-    void purgeByKeys(const Key keys[], int count) override {
+    void purgeByImageFilter(const SkImageFilter* filter) override {
         SkAutoMutexAcquire mutex(fMutex);
-        // This function is only called in the destructor of SkImageFilter.
-        // Because the destructor will destroy the fCacheKeys anyway, we set the
-        // filter to be null so that removeInternal() won't call the
-        // SkImageFilter::removeKey() function.
-        for (int i = 0; i < count; i++) {
-            if (Value* v = fLookup.find(keys[i])) {
+        SkTArray<SkImageFilterCacheKey>* cacheKeys = this->internalFilterCacheKeys(filter);
+        for (int i = 0; i < cacheKeys->count(); i++) {
+            if (Value* v = fLookup.find((*cacheKeys)[i])) {
+                // We set the filter to be null so that removeInternal() won't delete keys from
+                // cacheKeys.
                 v->fFilter = nullptr;
                 this->removeInternal(v);
             }
         }
+        // We assume this function is only called by SkImageFilter destructor, so we don't bother
+        // clearing cacheKeys.
+        //cacheKeys.reset();
     }
 
     SkDEBUGCODE(int count() const override { return fLookup.count(); })
@@ -114,7 +118,13 @@ private:
     void removeInternal(Value* v) {
         SkASSERT(v->fImage);
         if (v->fFilter) {
-            v->fFilter->removeKey(v->fKey);
+            SkTArray<SkImageFilterCacheKey>* cacheKeys = this->internalFilterCacheKeys(v->fFilter);
+            for (int i = 0; i < cacheKeys->count(); i++) {
+                if ((*cacheKeys)[i] == v->fKey) {
+                    cacheKeys->removeShuffle(i);
+                    break;
+                }
+            }
         }
         fCurrentBytes -= v->fImage->getSize();
         fLRU.remove(v);
