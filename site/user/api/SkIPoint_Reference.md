@@ -16,7 +16,7 @@ SkIPoint Reference
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkIPoint"></a> Struct SkIPoint
-<a href="#SkIPoint">SkIPoint</a> holds two 32 bit integer coordinates.
+<a href="#SkIPoint">SkIPoint</a> holds two 32-bit integer coordinates.
 
 ## <a name="Related_Function"></a> Related Function
 

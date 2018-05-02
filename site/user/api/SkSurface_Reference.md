@@ -46,8 +46,8 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> | creates <a href="#Surface">Surface</a> pointing to new GPU memory buffer |
 | <a href="#SkSurface_characterize">characterize</a> | sets <a href="undocumented#Surface_Characterization">Surface Characterization</a> for threaded GPU processing |
 | <a href="#SkSurface_draw">draw</a> | draws <a href="#Surface">Surface</a> contents to canvas |
-| <a href="#SkSurface_flush">flush</a> | resolve pending I/O |
-| <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolve pending I/O, and signal |
+| <a href="#SkSurface_flush">flush</a> | resolves pending I/O |
+| <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolves pending I/O, and signal |
 | <a href="#SkSurface_generationID">generationID</a> | returns unique ID |
 | <a href="#SkSurface_getBackendRenderTarget">getBackendRenderTarget</a> | returns the GPU reference to render target |
 | <a href="#SkSurface_getBackendTexture">getBackendTexture</a> | returns the GPU reference to texture |
@@ -59,7 +59,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_peekPixels">peekPixels</a> | copies <a href="#Surface">Surface</a> parameters to <a href="SkPixmap_Reference#Pixmap">Pixmap</a> |
 | <a href="#SkSurface_props">props</a> | returns <a href="undocumented#Surface_Properties">Surface Properties</a> |
 | <a href="#SkSurface_readPixels">readPixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
-| <a href="#SkSurface_wait">wait</a> | rause commands until signaled |
+| <a href="#SkSurface_wait">wait</a> | pauses commands until signaled |
 | <a href="#SkSurface_width">width</a> | returns pixel column count |
 | <a href="#SkSurface_writePixels">writePixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
 
@@ -922,11 +922,17 @@ surface generationID: 3
 
 <table>
   <tr>
-    <td><a name="SkSurface_kDiscard_ContentChangeMode"> <code><strong>SkSurface::kDiscard_ContentChangeMode </strong></code> </a></td><td>Pass to notifyContentWillChange to discard surface contents when</td><td>the surface is cleared or overwritten.
+    <td><a name="SkSurface_kDiscard_ContentChangeMode"> <code><strong>SkSurface::kDiscard_ContentChangeMode </strong></code> </a></td><td>#Line # discards surface on change ##</td><td></table>
+
+Pass to <a href="#SkSurface_notifyContentWillChange">notifyContentWillChange</a> to discard surface contents when
+the surface is cleared or overwritten.
 </td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kRetain_ContentChangeMode"> <code><strong>SkSurface::kRetain_ContentChangeMode </strong></code> </a></td><td>Pass to notifyContentWillChange when to preserve surface contents.</td><td>If a snapshot has been generated, this copies the <a href="#Surface">Surface</a> contents.
+    <td><a name="SkSurface_kRetain_ContentChangeMode"> <code><strong>SkSurface::kRetain_ContentChangeMode </strong></code> </a></td><td>#Line # preserves surface on change ##</td><td></table>
+
+Pass to <a href="#SkSurface_notifyContentWillChange">notifyContentWillChange</a> when to preserve surface contents.
+If a snapshot has been generated, this copies the <a href="#Surface">Surface</a> contents.
 </td>
   </tr>
 </table>
@@ -993,15 +999,21 @@ one of: <a href="#SkSurface_kDiscard_ContentChangeMode">kDiscard ContentChangeMo
 
 <table>
   <tr>
-    <td><a name="SkSurface_kFlushRead_BackendHandleAccess"> <code><strong>SkSurface::kFlushRead_BackendHandleAccess </strong></code> </a></td><td>0</td><td>Caller may read from the back-end object.
+    <td><a name="SkSurface_kFlushRead_BackendHandleAccess"> <code><strong>SkSurface::kFlushRead_BackendHandleAccess </strong></code> </a></td><td>0</td><td></table>
+
+Caller may read from the back-end object.
 </td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kFlushWrite_BackendHandleAccess"> <code><strong>SkSurface::kFlushWrite_BackendHandleAccess </strong></code> </a></td><td>1</td><td>Caller may write to the back-end object.
+    <td><a name="SkSurface_kFlushWrite_BackendHandleAccess"> <code><strong>SkSurface::kFlushWrite_BackendHandleAccess </strong></code> </a></td><td>1</td><td></table>
+
+Caller may write to the back-end object.
 </td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>2</td><td>Caller must overwrite the entire back-end object.
+    <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>2</td><td></table>
+
+Caller must overwrite the entire back-end object.
 </td>
   </tr>
   <tr>
@@ -1046,7 +1058,7 @@ bool getRenderTargetHandle(GrBackendObject* backendObject, BackendHandleAccess b
 GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess)
 </pre>
 
-Retrieves the backend texture. If <a href="#Surface">Surface</a> has no backend texture, an invalid
+Retrieves the back-end texture. If <a href="#Surface">Surface</a> has no back-end texture, an invalid
 object is returned. Call <a href="undocumented#GrBackendTexture_isValid">GrBackendTexture::isValid</a> to determine if the result
 is valid.
 
@@ -1077,7 +1089,7 @@ GPU texture reference; invalid on failure
 GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess)
 </pre>
 
-Retrieves the backend render target. If <a href="#Surface">Surface</a> has no backend render target, an invalid
+Retrieves the back-end render target. If <a href="#Surface">Surface</a> has no back-end render target, an invalid
 object is returned. Call <a href="undocumented#GrBackendRenderTarget_isValid">GrBackendRenderTarget::isValid</a> to determine if the result
 is valid.
 
@@ -1383,7 +1395,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="d141d6c662d201d191fb1eea26d014fd"><div>A black oval drawn on a red background provides an image to copy.
+<div><fiddle-embed name="484d60dab5d846bf28c7a4d48892324a"><div>A black oval drawn on a red background provides an image to copy.
 <a href="#SkSurface_readPixels">readPixels</a> copies one quarter of the <a href="#Surface">Surface</a> into each of the four corners.
 The copied quarter ovals overdraw the original oval.
 </div></fiddle-embed></div>
@@ -1443,7 +1455,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="dcbd4af9151820f63de45a35f3a8d110"></fiddle-embed></div>
+<div><fiddle-embed name="2d991a231e49d1de13eeb2ba9b440e01"></fiddle-embed></div>
 
 ### See Also
 
@@ -1571,9 +1583,9 @@ soon
 | name | description |
 | --- | --- |
 | <a href="#SkSurface_characterize">characterize</a> | sets <a href="undocumented#Surface_Characterization">Surface Characterization</a> for threaded GPU processing |
-| <a href="#SkSurface_flush">flush</a> | resolve pending I/O |
-| <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolve pending I/O, and signal |
-| <a href="#SkSurface_wait">wait</a> | rause commands until signaled |
+| <a href="#SkSurface_flush">flush</a> | resolves pending I/O |
+| <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolves pending I/O, and signal |
+| <a href="#SkSurface_wait">wait</a> | pauses commands until signaled |
 
 <a name="SkSurface_flush"></a>
 ## flush
@@ -1703,7 +1715,7 @@ true if supported
 
 ### Example
 
-<div><fiddle-embed name="3df4e2fc63483a3fa19589b5388080bc" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="6de6f3ef699a72ff26da1b26b23a3316" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1736,7 +1748,7 @@ false if <a href="#SkSurface_draw_2_deferredDisplayList">deferredDisplayList</a>
 
 ### Example
 
-<div><fiddle-embed name="3dfa7496268dfb2c7465cda5da39dfbd" gpu="true" cpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="46d9bacf593deaaeabd74ff42f2571a0" gpu="true" cpu="true"></fiddle-embed></div>
 
 ### See Also
 
