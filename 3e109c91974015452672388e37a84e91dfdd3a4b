@@ -22,6 +22,23 @@
       "revId": "3e109c91974015452672388e37a84e91dfdd3a4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "534b9b27_65ed6746",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-02T18:53:12Z",
+      "side": 1,
+      "message": "Isn\u0027t that last sentence incorrect now?",
+      "revId": "3e109c91974015452672388e37a84e91dfdd3a4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
