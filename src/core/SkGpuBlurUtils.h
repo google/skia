@@ -44,7 +44,6 @@ namespace SkGpuBlurUtils {
             float sigmaX,
             float sigmaY,
             GrTextureDomain::Mode mode,
-            SkAlphaType at,
             SkBackingFit fit = SkBackingFit::kApprox);
 };
 

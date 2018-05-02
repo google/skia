@@ -1,0 +1,150 @@
+#Topic IPoint16
+#Alias IPoint16_Reference
+
+#Subtopic Overview
+    #Subtopic Subtopic
+    #Populate
+    ##
+##
+
+#Struct SkIPoint16
+
+SkIPoint16 holds two 16 bit integer coordinates.
+
+#Subtopic Related_Function
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+#Subtopic Member
+#Populate
+
+#Member int16_t  fX
+#Line # x-axis value ##
+x-axis value used by IPoint16
+##
+
+#Member int16_t  fY
+#Line # y-axis value ##
+y-axis value used by IPoint16
+##
+
+#Subtopic Member ##
+
+# ------------------------------------------------------------------------------
+
+#Subtopic Constructor
+#Populate
+##
+
+#Method static constexpr SkIPoint16 Make(int x, int y)
+
+#In Constructor
+#Line # constructs from integer inputs ##
+Sets fX to x, fY to y. If SK_DEBUG is defined, asserts
+if x or y does not fit in 16 bits.
+
+#Param x  integer x-axis value of constructed IPoint ##
+#Param y  integer y-axis value of constructed IPoint ##
+
+#Return IPoint16 (x, y) ##
+
+#Example
+SkIPoint16 pt1 = {45, 66};
+SkIPoint16 pt2 = SkIPoint16::Make(45, 66);
+SkDebugf("pt1.fX %c= pt2.fX\n", pt1.fX == pt2.fX ? '=' : '!');
+SkDebugf("pt1.fY %c= pt2.fY\n", pt1.fY == pt2.fY ? '=' : '!');
+#StdOut
+pt1.fX == pt2.fX
+pt1.fY == pt2.fY
+##
+##
+
+#SeeAlso set() SkPoint::iset() SkIPoint::Make
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Subtopic Property
+#Line # member values ##
+#Populate
+##
+
+#Method int16_t x() const
+
+#In Property
+#Line # returns fX ##
+Returns x-axis value of IPoint16.
+
+#Return fX ##
+
+#Example
+SkIPoint16 pt1 = {45, 66};
+SkDebugf("pt1.fX %c= pt1.x()\n", pt1.fX == pt1.x() ? '=' : '!');
+#StdOut
+pt1.fX == pt1.x()
+##
+##
+
+#SeeAlso y() SkIPoint::x()
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int16_t y() const
+#In Property
+#Line # returns fY ##
+Returns y-axis value of IPoint.
+
+#Return fY ##
+
+#Example
+SkIPoint16 pt1 = {45, 66};
+SkDebugf("pt1.fY %c= pt1.y()\n", pt1.fY == pt1.y() ? '=' : '!');
+#StdOut
+pt1.fY == pt1.y()
+##
+##
+
+#SeeAlso x() SkPoint::y() SkIPoint::y()
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Subtopic Set
+#Populate
+#Line # replaces all values ##
+##
+
+#Method void set(int x, int y)
+#In Set
+#Line # sets to integer input ##
+Sets fX to x and fY to y.
+
+#Param x  new value for fX ##
+#Param y  new value for fY ##
+
+#Example
+SkIPoint16 pt1, pt2 = { SK_MinS16, SK_MaxS16 };
+pt1.set(SK_MinS16, SK_MaxS16);
+SkDebugf("pt1.fX %c= pt2.fX\n", pt1.fX == pt2.fX ? '=' : '!');
+SkDebugf("pt1.fY %c= pt2.fY\n", pt1.fY == pt2.fY ? '=' : '!');
+#StdOut
+pt1.fX == pt2.fX
+pt1.fY == pt2.fY
+##
+##
+
+#SeeAlso Make SkPoint::set
+
+#Method ##
+
+#Struct SkIPoint16 ##
+
+#Topic IPoint16 ##

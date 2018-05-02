@@ -17,7 +17,6 @@
 #include "ast/SkSLASTFloatLiteral.h"
 #include "ast/SkSLASTIndexSuffix.h"
 #include "ast/SkSLASTIntLiteral.h"
-#include "ir/SkSLAppendStage.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
 #include "ir/SkSLBreakStatement.h"
@@ -142,8 +141,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
 #undef CAP
 }
 
-void IRGenerator::start(const Program::Settings* settings,
-                        std::vector<std::unique_ptr<ProgramElement>>* inherited) {
+void IRGenerator::start(const Program::Settings* settings) {
     fSettings = settings;
     fCapsMap.clear();
     if (settings->fCaps) {
@@ -155,17 +153,6 @@ void IRGenerator::start(const Program::Settings* settings,
     fSkPerVertex = nullptr;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
-    if (inherited) {
-        for (const auto& e : *inherited) {
-            if (e->fKind == ProgramElement::kInterfaceBlock_Kind) {
-                InterfaceBlock& intf = (InterfaceBlock&) *e;
-                if (intf.fVariable.fName == Compiler::PERVERTEX_NAME) {
-                    ASSERT(!fSkPerVertex);
-                    fSkPerVertex = &intf.fVariable;
-                }
-            }
-        }
-    }
 }
 
 void IRGenerator::finish() {
@@ -625,7 +612,8 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
 }
 
 std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
-    // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
+    // sk_Position = float4(sk_Position.x * rtAdjust.x + sk_Position.w * rtAdjust.y,
+    //                      sk_Position.y * rtAdjust.z + sk_Position.w * rtAdjust.w,
     //                      0,
     //                      sk_Position.w);
     ASSERT(fSkPerVertex && fRTAdjust);
@@ -638,15 +626,16 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     #define ADJUST (fRTAdjustInterfaceBlock ? \
                     FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
                     REF(fRTAdjust))
-    #define SWIZZLE(expr, ...) std::unique_ptr<Expression>(new Swizzle(fContext, expr, \
-                                                                       { __VA_ARGS__ }))
-    #define OP(left, op, right) std::unique_ptr<Expression>( \
-                                   new BinaryExpression(-1, left, op, right, \
-                                                        *fContext.fFloat2_Type))
+    #define SWIZZLE(expr, field) std::unique_ptr<Expression>(new Swizzle(fContext, expr, { field }))
+    #define OP(left, op, right) std::unique_ptr<Expression>(\
+                                   new BinaryExpression(-1, left, op, right, *fContext.fFloat_Type))
     std::vector<std::unique_ptr<Expression>> children;
-    children.push_back(OP(OP(SWIZZLE(POS, 0, 1), Token::STAR, SWIZZLE(ADJUST, 0, 2)),
+    children.push_back(OP(OP(SWIZZLE(POS, 0), Token::STAR, SWIZZLE(ADJUST, 0)),
                           Token::PLUS,
-                          OP(SWIZZLE(POS, 3, 3), Token::STAR, SWIZZLE(ADJUST, 1, 3))));
+                          OP(SWIZZLE(POS, 3), Token::STAR, SWIZZLE(ADJUST, 1))));
+    children.push_back(OP(OP(SWIZZLE(POS, 1), Token::STAR, SWIZZLE(ADJUST, 2)),
+                          Token::PLUS,
+                          OP(SWIZZLE(POS, 3), Token::STAR, SWIZZLE(ADJUST, 3))));
     children.push_back(std::unique_ptr<Expression>(new FloatLiteral(fContext, -1, 0.0)));
     children.push_back(SWIZZLE(POS, 3));
     std::unique_ptr<Expression> result = OP(POS, Token::EQ,
@@ -655,7 +644,6 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
                                                                              std::move(children))));
     return std::unique_ptr<Statement>(new ExpressionStatement(std::move(result)));
 }
-
 
 void IRGenerator::convertFunction(const ASTFunction& f) {
     const Type* returnType = this->convertType(*f.fReturnType);
@@ -872,6 +860,10 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             old->add(fields[i].fName, std::unique_ptr<Field>(new Field(intf.fOffset, *var,
                                                                        (int) i)));
         }
+    }
+    if (var->fName == Compiler::PERVERTEX_NAME) {
+        ASSERT(!fSkPerVertex);
+        fSkPerVertex = var;
     }
     return std::unique_ptr<InterfaceBlock>(new InterfaceBlock(intf.fOffset,
                                                               var,
@@ -1099,18 +1091,15 @@ static bool determine_binary_type(const Context& context,
             return right.canCoerceTo(left);
         case Token::EQEQ: // fall through
         case Token::NEQ:
-            if (right.canCoerceTo(left)) {
+            if (left == right) {
                 *outLeftType = &left;
-                *outRightType = &left;
-                *outResultType = context.fBool_Type.get();
-                return true;
-            } if (left.canCoerceTo(right)) {
-                *outLeftType = &right;
                 *outRightType = &right;
                 *outResultType = context.fBool_Type.get();
                 return true;
             }
-            return false;
+            isLogical = true;
+            validMatrixOrVectorOp = true;
+            break;
         case Token::LT:   // fall through
         case Token::GT:   // fall through
         case Token::LTEQ: // fall through
@@ -1414,9 +1403,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
         return nullptr;
     }
     if (Compiler::IsAssignment(expression.fOperator)) {
-        this->setRefKind(*left, expression.fOperator != Token::EQ ?
-                                                             VariableReference::kReadWrite_RefKind :
-                                                             VariableReference::kWrite_RefKind);
+        this->markWrittenTo(*left, expression.fOperator != Token::EQ);
     }
     left = this->coerce(std::move(left), *leftType);
     right = this->coerce(std::move(right), *rightType);
@@ -1547,10 +1534,8 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             return nullptr;
         }
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
-            this->setRefKind(*arguments[i],
-                             function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag ?
-                             VariableReference::kReadWrite_RefKind :
-                             VariableReference::kPointer_RefKind);
+            this->markWrittenTo(*arguments[i],
+                                function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag);
         }
     }
     if (function.fBuiltin && function.fName == "texture" &&
@@ -1801,7 +1786,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
                               "' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
+            this->markWrittenTo(*base, true);
             break;
         case Token::MINUSMINUS:
             if (!base->fType.isNumber()) {
@@ -1810,7 +1795,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
                               "' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
+            this->markWrittenTo(*base, true);
             break;
         case Token::LOGICALNOT:
             if (base->fType != *fContext.fBool_Type) {
@@ -1982,91 +1967,6 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
     return result;
 }
 
-std::unique_ptr<Expression> IRGenerator::convertAppend(int offset,
-                                          const std::vector<std::unique_ptr<ASTExpression>>& args) {
-#ifndef SKSL_STANDALONE
-    if (args.size() < 2) {
-        fErrors.error(offset, "'append' requires at least two arguments");
-        return nullptr;
-    }
-    std::unique_ptr<Expression> pipeline = this->convertExpression(*args[0]);
-    if (!pipeline) {
-        return nullptr;
-    }
-    if (pipeline->fType != *fContext.fSkRasterPipeline_Type) {
-        fErrors.error(offset, "first argument of 'append' must have type 'SkRasterPipeline'");
-        return nullptr;
-    }
-    if (ASTExpression::kIdentifier_Kind != args[1]->fKind) {
-        fErrors.error(offset, "'" + args[1]->description() + "' is not a valid stage");
-        return nullptr;
-    }
-    StringFragment name = ((const ASTIdentifier&) *args[1]).fText;
-    SkRasterPipeline::StockStage stage = SkRasterPipeline::premul;
-    std::vector<std::unique_ptr<Expression>> stageArgs;
-    stageArgs.push_back(std::move(pipeline));
-    for (size_t i = 2; i < args.size(); ++i) {
-        std::unique_ptr<Expression> arg = this->convertExpression(*args[i]);
-        if (!arg) {
-            return nullptr;
-        }
-        stageArgs.push_back(std::move(arg));
-    }
-    size_t expectedArgs = 0;
-    // FIXME use a map
-    if ("premul" == name) {
-        stage = SkRasterPipeline::premul;
-    }
-    else if ("unpremul" == name) {
-        stage = SkRasterPipeline::unpremul;
-    }
-    else if ("clamp_0" == name) {
-        stage = SkRasterPipeline::clamp_0;
-    }
-    else if ("clamp_1" == name) {
-        stage = SkRasterPipeline::clamp_1;
-    }
-    else if ("matrix_4x5" == name) {
-        expectedArgs = 1;
-        stage = SkRasterPipeline::matrix_4x5;
-        if (1 == stageArgs.size() && stageArgs[0]->fType.fName != "float[20]") {
-            fErrors.error(offset, "pipeline stage '" + name + "' expected a float[20] argument");
-            return nullptr;
-        }
-    }
-    else {
-        bool found = false;
-        for (const auto& e : *fProgramElements) {
-            if (ProgramElement::kFunction_Kind == e->fKind) {
-                const FunctionDefinition& f = (const FunctionDefinition&) *e;
-                if (f.fDeclaration.fName == name) {
-                    stage = SkRasterPipeline::callback;
-                    std::vector<const FunctionDeclaration*> functions = { &f.fDeclaration };
-                    stageArgs.emplace_back(new FunctionReference(fContext, offset, functions));
-                    found = true;
-                    break;
-                }
-            }
-        }
-        if (!found) {
-            fErrors.error(offset, "'" + name + "' is not a valid pipeline stage");
-            return nullptr;
-        }
-    }
-    if (args.size() != expectedArgs + 2) {
-        fErrors.error(offset, "pipeline stage '" + name + "' expected an additional argument " +
-                              "count of " + to_string((int) expectedArgs) + ", but found " +
-                              to_string((int) args.size() - 1));
-        return nullptr;
-    }
-    return std::unique_ptr<Expression>(new AppendStage(fContext, offset, stage,
-                                                       std::move(stageArgs)));
-#else
-    ASSERT(false);
-    return nullptr;
-#endif
-}
-
 std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                                                             const ASTSuffixExpression& expression) {
     std::unique_ptr<Expression> base = this->convertExpression(*expression.fBase);
@@ -2092,10 +1992,6 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
         }
         case ASTSuffix::kCall_Kind: {
             auto rawArguments = &((ASTCallSuffix&) *expression.fSuffix).fArguments;
-            if (Expression::kFunctionReference_Kind == base->fKind &&
-                "append" == ((const FunctionReference&) *base).fFunctions[0]->fName) {
-                return convertAppend(expression.fOffset, *rawArguments);
-            }
             std::vector<std::unique_ptr<Expression>> arguments;
             for (size_t i = 0; i < rawArguments->size(); i++) {
                 std::unique_ptr<Expression> converted =
@@ -2136,7 +2032,7 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                               "'++' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
+            this->markWrittenTo(*base, true);
             return std::unique_ptr<Expression>(new PostfixExpression(std::move(base),
                                                                      Token::PLUSPLUS));
         case ASTSuffix::kPostDecrement_Kind:
@@ -2145,7 +2041,7 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                               "'--' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
+            this->markWrittenTo(*base, true);
             return std::unique_ptr<Expression>(new PostfixExpression(std::move(base),
                                                                      Token::MINUSMINUS));
         default:
@@ -2181,7 +2077,7 @@ static bool has_duplicates(const Swizzle& swizzle) {
     return false;
 }
 
-void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind kind) {
+void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) expr).fVariable;
@@ -2189,26 +2085,27 @@ void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind 
                 fErrors.error(expr.fOffset,
                               "cannot modify immutable variable '" + var.fName + "'");
             }
-            ((VariableReference&) expr).setRefKind(kind);
+            ((VariableReference&) expr).setRefKind(readWrite ? VariableReference::kReadWrite_RefKind
+                                                             : VariableReference::kWrite_RefKind);
             break;
         }
         case Expression::kFieldAccess_Kind:
-            this->setRefKind(*((FieldAccess&) expr).fBase, kind);
+            this->markWrittenTo(*((FieldAccess&) expr).fBase, readWrite);
             break;
         case Expression::kSwizzle_Kind:
             if (has_duplicates((Swizzle&) expr)) {
                 fErrors.error(expr.fOffset,
                               "cannot write to the same swizzle field more than once");
             }
-            this->setRefKind(*((Swizzle&) expr).fBase, kind);
+            this->markWrittenTo(*((Swizzle&) expr).fBase, readWrite);
             break;
         case Expression::kIndex_Kind:
-            this->setRefKind(*((IndexExpression&) expr).fBase, kind);
+            this->markWrittenTo(*((IndexExpression&) expr).fBase, readWrite);
             break;
         case Expression::kTernary_Kind: {
             TernaryExpression& t = (TernaryExpression&) expr;
-            this->setRefKind(*t.fIfTrue, kind);
-            this->setRefKind(*t.fIfFalse, kind);
+            this->markWrittenTo(*t.fIfTrue, readWrite);
+            this->markWrittenTo(*t.fIfFalse, readWrite);
             break;
         }
         default:

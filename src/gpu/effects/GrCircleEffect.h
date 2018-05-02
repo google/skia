@@ -11,6 +11,7 @@
 #ifndef GrCircleEffect_DEFINED
 #define GrCircleEffect_DEFINED
 #include "SkTypes.h"
+#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrCircleEffect : public GrFragmentProcessor {
@@ -48,4 +49,5 @@ private:
     float fRadius;
     typedef GrFragmentProcessor INHERITED;
 };
+#endif
 #endif

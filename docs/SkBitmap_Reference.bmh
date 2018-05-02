@@ -1475,8 +1475,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if flags is zero, and calloc(), if flags is
 kZeroPixels_AllocFlag.
 
-flags set to kZeroPixels_AllocFlag offers equal or better performance than
-subsequently calling eraseColor with SK_ColorTRANSPARENT.
+Passing kZeroPixels_AllocFlag is usually faster than separately calling
+eraseColor(SK_ColorTRANSPARENT).
 
 #Param info  contains width, height, Alpha_Type, Color_Type, Color_Space ##
 #Param flags  kZeroPixels_AllocFlag, or zero ##
@@ -1519,8 +1519,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if flags is zero, and calloc(), if flags is
 kZeroPixels_AllocFlag.
 
-flags set to kZeroPixels_AllocFlag offers equal or better performance than
-subsequently calling eraseColor with SK_ColorTRANSPARENT.
+Passing kZeroPixels_AllocFlag is usually faster than separately calling
+eraseColor(SK_ColorTRANSPARENT).
 
 #Param info  contains width, height, Alpha_Type, Color_Type, Color_Space ##
 #Param flags  kZeroPixels_AllocFlag, or zero ##
@@ -3442,9 +3442,15 @@ SK_DEBUG is defined at compile time.
 #Method void toString(SkString* str) const;
 #In Utility
 #Line # converts Bitmap to machine readable form ##
+#DefinedBy SK_TO_STRING_NONVIRT() ##
+
+#Private
+macro expands to: void toString(SkString* str) const;
+##
 
 Creates string representation of Bitmap. The representation is read by
-internal debugging tools.
+internal debugging tools. The interface and implementation may be
+suppressed by defining SK_IGNORE_TO_STRING.
 
 #Param str  storage for string representation ##
 

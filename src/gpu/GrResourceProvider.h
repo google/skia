@@ -10,6 +10,7 @@
 
 #include "GrBuffer.h"
 #include "GrContextOptions.h"
+#include "GrPathRange.h"
 #include "GrResourceCache.h"
 #include "SkImageInfoPriv.h"
 #include "SkScalerContext.h"
@@ -142,7 +143,7 @@ public:
                                                            int vertCount,
                                                            const GrUniqueKey& key) {
         if (auto buffer = this->findByUniqueKey<GrBuffer>(key)) {
-            return std::move(buffer);
+            return buffer;
         }
         return this->createPatternedIndexBuffer(pattern, patternSize, reps, vertCount, key);
     }
@@ -164,7 +165,7 @@ public:
     static int QuadCountOfQuadBuffer();
 
     /**
-     * Factories for GrPath objects. It's an error to call these if path rendering
+     * Factories for GrPath and GrPathRange objects. It's an error to call these if path rendering
      * is not supported.
      */
     sk_sp<GrPath> createPath(const SkPath&, const GrStyle&);

@@ -27,8 +27,7 @@ static SkBitmap make_bm(int w, int h) {
 // TODO: can this be derived from SkBaseDevice?
 class FakeDevice : public SkBitmapDevice {
 public:
-    FakeDevice() : INHERITED(make_bm(100, 100), SkSurfaceProps(0, kUnknown_SkPixelGeometry),
-                             nullptr, nullptr) {
+    FakeDevice() : INHERITED(make_bm(100, 100), SkSurfaceProps(0, kUnknown_SkPixelGeometry)) {
     }
 
     void drawRect(const SkRect& r, const SkPaint& paint) override {
@@ -56,7 +55,7 @@ static void test_frontToBack(skiatest::Reporter* reporter) {
     layerPaint->setBlendMode(SkBlendMode::kSrc);
 
     FakeDevice device;
-    SkCanvas canvas(sk_ref_sp(&device));
+    SkCanvas canvas(&device);
     SkPaint paint;
     auto looper(looperBuilder.detach());
     SkArenaAlloc alloc{48};
@@ -95,7 +94,7 @@ static void test_backToFront(skiatest::Reporter* reporter) {
     layerPaint->setBlendMode(SkBlendMode::kSrc);
 
     FakeDevice device;
-    SkCanvas canvas(sk_ref_sp(&device));
+    SkCanvas canvas(&device);
     SkPaint paint;
     auto looper(looperBuilder.detach());
     SkArenaAlloc alloc{48};
@@ -134,7 +133,7 @@ static void test_mixed(skiatest::Reporter* reporter) {
     layerPaint->setBlendMode(SkBlendMode::kSrc);
 
     FakeDevice device;
-    SkCanvas canvas(sk_ref_sp(&device));
+    SkCanvas canvas(&device);
     SkPaint paint;
     sk_sp<SkDrawLooper> looper(looperBuilder.detach());
     SkArenaAlloc alloc{48};

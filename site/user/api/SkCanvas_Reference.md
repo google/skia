@@ -14,7 +14,6 @@ SkCanvas Reference
 | <a href="#Constructor">Constructor</a> | functions that construct <a href="#SkCanvas">SkCanvas</a> |
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
-| Typedef | types defined by other types |
 
 # <a name="SkCanvas"></a> Class SkCanvas
 <a href="#Canvas">Canvas</a> provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -24,7 +23,7 @@ SkCanvas Reference
 Each <a href="#Canvas">Canvas</a> draw call transforms the geometry of the object by the concatenation of all
 <a href="#Matrix">Matrix</a> values in the stack. The transformed geometry is clipped by the intersection
 of all of <a href="#Clip">Clip</a> values in the stack. The <a href="#Canvas">Canvas</a> draw calls use <a href="SkPaint_Reference#Paint">Paint</a> to supply drawing
-state such as <a href="SkColor_Reference#Color">Color</a>, <a href="undocumented#Typeface">Typeface</a>, text size, stroke width, <a href="undocumented#Shader">Shader</a> and so on.
+state such as <a href="undocumented#Color">Color</a>, <a href="undocumented#Typeface">Typeface</a>, text size, stroke width, <a href="undocumented#Shader">Shader</a> and so on.
 
 To draw to a pixel-based destination, create <a href="undocumented#Raster_Surface">Raster Surface</a> or <a href="undocumented#GPU_Surface">GPU Surface</a>.
 Request <a href="#Canvas">Canvas</a> from <a href="SkSurface_Reference#Surface">Surface</a> to obtain the interface to draw.
@@ -59,8 +58,8 @@ This approach may be deprecated in the future.
 | --- | --- |
 | <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> | Android framework only |
 | <a href="#SkCanvas_PointMode">PointMode</a> | sets <a href="#SkCanvas_drawPoints">drawPoints</a> options |
-| <a href="#SkCanvas_SaveLayerFlagsSet">SaveLayerFlagsSet</a> | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
 | <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> | sets <a href="#SkCanvas_drawImageRect">drawImageRect</a> options |
+| _anonymous | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
 
 ## <a name="Class_or_Struct"></a> Class or Struct
 
@@ -95,7 +94,7 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 | <a href="#SkCanvas_accessTopLayerPixels">accessTopLayerPixels</a> | returns writable pixel access if available |
 | <a href="#SkCanvas_accessTopRasterHandle">accessTopRasterHandle</a> | returns context that tracks <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
 | <a href="#SkCanvas_androidFramework_setDeviceClipRestriction">androidFramework setDeviceClipRestriction</a> | for use by Android framework |
-| <a href="#SkCanvas_clear">clear</a> | fills <a href="#Clip">Clip</a> with <a href="SkColor_Reference#Color">Color</a> |
+| <a href="#SkCanvas_clear">clear</a> | fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> |
 | <a href="#SkCanvas_clipPath">clipPath</a> | combines <a href="#Clip">Clip</a> with <a href="SkPath_Reference#Path">Path</a> |
 | <a href="#SkCanvas_clipRRect">clipRRect</a> | combines <a href="#Clip">Clip</a> with <a href="undocumented#Round_Rect">Round Rect</a> |
 | <a href="#SkCanvas_clipRect">clipRect</a> | combines <a href="#Clip">Clip</a> with <a href="SkRect_Reference#Rect">Rect</a> |
@@ -110,7 +109,7 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 | <a href="#SkCanvas_drawBitmapNine">drawBitmapNine</a> | draws <a href="undocumented#Nine_Patch">Nine Patch</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a> |
 | <a href="#SkCanvas_drawBitmapRect">drawBitmapRect</a> | draws <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a> |
 | <a href="#SkCanvas_drawCircle">drawCircle</a> | draws <a href="undocumented#Circle">Circle</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
-| <a href="#SkCanvas_drawColor">drawColor</a> | fills <a href="#Clip">Clip</a> with <a href="SkColor_Reference#Color">Color</a> and <a href="undocumented#Blend_Mode">Blend Mode</a> |
+| <a href="#SkCanvas_drawColor">drawColor</a> | fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> and <a href="undocumented#Blend_Mode">Blend Mode</a> |
 | <a href="#SkCanvas_drawDRRect">drawDRRect</a> | draws double <a href="undocumented#Round_Rect">Round Rect</a> stroked or filled |
 | <a href="#SkCanvas_drawDrawable">drawDrawable</a> | draws <a href="undocumented#Drawable">Drawable</a>, encapsulated drawing commands |
 | <a href="#SkCanvas_drawIRect">drawIRect</a> | draws <a href="SkIRect_Reference#IRect">IRect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
@@ -458,9 +457,9 @@ storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
 ## <a name="SkCanvas_ColorBehavior"></a> Enum SkCanvas::ColorBehavior
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum class <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> {
-        <a href="#SkCanvas_ColorBehavior_kLegacy">kLegacy</a>,
-    };
+enum class <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> {
+<a href="#SkCanvas_ColorBehavior_kLegacy">kLegacy</a>,
+};
 </pre>
 
 ### Constants
@@ -1035,8 +1034,8 @@ The copied quarter circles overdraw the original circle.
 ### Example
 
 <div><fiddle-embed name="481e990e923a0ed34654f4361b94f096"><div><a href="#Canvas">Canvas</a> returned by <a href="undocumented#Raster_Surface">Raster Surface</a> has <a href="undocumented#Premultiply">Premultiplied</a> pixel values.
-<a href="#SkCanvas_clear">clear</a> takes <a href="undocumented#Unpremultiply">Unpremultiplied</a> input with <a href="SkColor_Reference#Alpha">Color Alpha</a> equal 0x80
-and <a href="SkColor_Reference#RGB">Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href="SkColor_Reference#RGB">Color RGB</a> is multiplied by <a href="SkColor_Reference#Alpha">Color Alpha</a>
+<a href="#SkCanvas_clear">clear</a> takes <a href="undocumented#Unpremultiply">Unpremultiplied</a> input with <a href="undocumented#Alpha">Color Alpha</a> equal 0x80
+and <a href="undocumented#RGB">Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href="undocumented#RGB">Color RGB</a> is multiplied by <a href="undocumented#Alpha">Color Alpha</a>
 to generate <a href="undocumented#Premultiply">Premultiplied</a> value 0x802B5580. <a href="#SkCanvas_readPixels">readPixels</a> converts pixel back
 to <a href="undocumented#Unpremultiply">Unpremultiplied</a> value 0x8056A9FF, introducing error.
 </div>
@@ -1110,8 +1109,8 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="85f199032943b6483722c34a91c4e20f"><div><a href="#SkCanvas_clear">clear</a> takes <a href="undocumented#Unpremultiply">Unpremultiplied</a> input with <a href="SkColor_Reference#Alpha">Color Alpha</a> equal 0x80
-and <a href="SkColor_Reference#RGB">Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href="SkColor_Reference#RGB">Color RGB</a> is multiplied by <a href="SkColor_Reference#Alpha">Color Alpha</a>
+<div><fiddle-embed name="85f199032943b6483722c34a91c4e20f"><div><a href="#SkCanvas_clear">clear</a> takes <a href="undocumented#Unpremultiply">Unpremultiplied</a> input with <a href="undocumented#Alpha">Color Alpha</a> equal 0x80
+and <a href="undocumented#RGB">Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href="undocumented#RGB">Color RGB</a> is multiplied by <a href="undocumented#Alpha">Color Alpha</a>
 to generate <a href="undocumented#Premultiply">Premultiplied</a> value 0x802B5580.
 </div>
 
@@ -1183,8 +1182,8 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="af6dec8ef974aa67bf102f29915bcd6a"><div><a href="#SkCanvas_clear">clear</a> takes <a href="undocumented#Unpremultiply">Unpremultiplied</a> input with <a href="SkColor_Reference#Alpha">Color Alpha</a> equal 0x80
-and <a href="SkColor_Reference#RGB">Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href="SkColor_Reference#RGB">Color RGB</a> is multiplied by <a href="SkColor_Reference#Alpha">Color Alpha</a>
+<div><fiddle-embed name="af6dec8ef974aa67bf102f29915bcd6a"><div><a href="#SkCanvas_clear">clear</a> takes <a href="undocumented#Unpremultiply">Unpremultiplied</a> input with <a href="undocumented#Alpha">Color Alpha</a> equal 0x80
+and <a href="undocumented#RGB">Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href="undocumented#RGB">Color RGB</a> is multiplied by <a href="undocumented#Alpha">Color Alpha</a>
 to generate <a href="undocumented#Premultiply">Premultiplied</a> value 0x802B5580.
 </div>
 
@@ -1509,7 +1508,7 @@ is restored, the <a href="SkBitmap_Reference#Bitmap">Bitmap</a> is drawn into th
 
 <a href="#Layer">Layer</a> may be initialized with the contents of the previous <a href="#Layer">Layer</a>. When <a href="#Layer">Layer</a> is
 restored, its <a href="SkBitmap_Reference#Bitmap">Bitmap</a> can be modified by <a href="SkPaint_Reference#Paint">Paint</a> passed to <a href="#Layer">Layer</a> to apply
-<a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>.
+<a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>.
 
 <a name="SkCanvas_saveLayer"></a>
 ## saveLayer
@@ -1530,7 +1529,7 @@ and draws the <a href="SkBitmap_Reference#Bitmap">Bitmap</a>.
 <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_saveLayer_bounds">bounds</a> suggests but does not define the <a href="SkBitmap_Reference#Bitmap">Bitmap</a> size. To clip drawing to
 a specific rectangle, use <a href="#SkCanvas_clipRect">clipRect</a>.
 
-Optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_saveLayer_paint">paint</a> applies <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and
+Optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_saveLayer_paint">paint</a> applies <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and
 <a href="undocumented#Blend_Mode">Blend Mode</a> when <a href="#SkCanvas_restore">restore</a> is called.
 
 Call <a href="#SkCanvas_restoreToCount">restoreToCount</a> with returned value to restore this and subsequent saves.
@@ -1578,7 +1577,7 @@ and draws the <a href="SkBitmap_Reference#Bitmap">Bitmap</a>.
 <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_saveLayer_2_bounds">bounds</a> suggests but does not define the <a href="#Layer">Layer</a> size. To clip drawing to
 a specific rectangle, use <a href="#SkCanvas_clipRect">clipRect</a>.
 
-Optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_saveLayer_2_paint">paint</a> applies <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and
+Optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_saveLayer_2_paint">paint</a> applies <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and
 <a href="undocumented#Blend_Mode">Blend Mode</a> when <a href="#SkCanvas_restore">restore</a> is called.
 
 Call <a href="#SkCanvas_restoreToCount">restoreToCount</a> with returned value to restore this and subsequent saves.
@@ -1629,7 +1628,7 @@ and draws <a href="#Layer">Layer</a>.
 <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_saveLayerPreserveLCDTextRequests_bounds">bounds</a> suggests but does not define the <a href="#Layer">Layer</a> size. To clip drawing to
 a specific rectangle, use <a href="#SkCanvas_clipRect">clipRect</a>.
 
-Optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_saveLayerPreserveLCDTextRequests_paint">paint</a> applies <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and
+Optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_saveLayerPreserveLCDTextRequests_paint">paint</a> applies <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and
 <a href="undocumented#Blend_Mode">Blend Mode</a> when <a href="#SkCanvas_restore">restore</a> is called.
 
 Call <a href="#SkCanvas_restoreToCount">restoreToCount</a> with returned value to restore this and subsequent saves.
@@ -1708,17 +1707,14 @@ depth of saved stack
 
 ---
 
-## <a name="SkCanvas_SaveLayerFlagsSet"></a> Enum SkCanvas::SaveLayerFlagsSet
+## <a name="SkCanvas__anonymous"></a> Enum SkCanvas::_anonymous
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href="#SkCanvas_SaveLayerFlagsSet">SaveLayerFlagsSet</a> {
-        <a href="#SkCanvas_kPreserveLCDText_SaveLayerFlag">kPreserveLCDText SaveLayerFlag</a> = 1 << 1,
-        <a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a> = 1 << 2,
-        <a href="#SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag">kMaskAgainstCoverage EXPERIMENTAL DONT USE SaveLayerFlag</a> = 1 << 3,
-        <a href="#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag">kDontClipToLayer Legacy SaveLayerFlag</a> = kDontClipToLayer_PrivateSaveLayerFlag,
-    };
-
-    typedef uint32_t <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a>;
+enum {
+<a href="#SkCanvas_kPreserveLCDText_SaveLayerFlag">kPreserveLCDText SaveLayerFlag</a> = 1 << 1,
+<a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a> = 1 << 2,
+<a href="#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag">kDontClipToLayer Legacy SaveLayerFlag</a> = kDontClipToLayer_PrivateSaveLayerFlag,
+};
 </pre>
 
 <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a> provides options that may be used in any combination in <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a>,
@@ -1735,9 +1731,6 @@ defining how <a href="#Layer">Layer</a> allocated by <a href="#SkCanvas_saveLaye
   <tr>
     <td><a name="SkCanvas_kInitWithPrevious_SaveLayerFlag"> <code><strong>SkCanvas::kInitWithPrevious_SaveLayerFlag </strong></code> </a></td><td>4</td><td>Initializes <a href="#Layer">Layer</a> with the contents of the previous <a href="#Layer">Layer</a>.
 </td>
-  </tr>
-  <tr>
-    <td><a name="SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag"> <code><strong>SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag </strong></code> </a></td><td>8</td><td>Experimental -- don't use</td>
   </tr>
   <tr>
     <td><a name="SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag"> <code><strong>SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag </strong></code> </a></td><td>0x80000000</td><td>soon</td>
@@ -1759,14 +1752,14 @@ scalePaint blends <a href="#Layer">Layer</a> back with transparency.
 # <a name="SkCanvas_SaveLayerRec"></a> Struct SkCanvas::SaveLayerRec
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    struct <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> {
-        <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a>*(...
+struct <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> {
+<a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a>*(...
 
-        const <a href="SkRect_Reference#SkRect">SkRect</a>*           <a href="#SkCanvas_SaveLayerRec_fBounds">fBounds</a>;
-        const <a href="SkPaint_Reference#SkPaint">SkPaint</a>*          <a href="#SkCanvas_SaveLayerRec_fPaint">fPaint</a>;
-        const <a href="undocumented#SkImageFilter">SkImageFilter</a>*    <a href="#SkCanvas_SaveLayerRec_fBackdrop">fBackdrop</a>;
-        <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a>          <a href="#SkCanvas_SaveLayerRec_fSaveLayerFlags">fSaveLayerFlags</a>;
-    };
+const <a href="SkRect_Reference#SkRect">SkRect</a>*           <a href="#SkCanvas_SaveLayerRec_fBounds">fBounds</a>;
+const <a href="SkPaint_Reference#SkPaint">SkPaint</a>*          <a href="#SkCanvas_SaveLayerRec_fPaint">fPaint</a>;
+const <a href="undocumented#SkImageFilter">SkImageFilter</a>*    <a href="#SkCanvas_SaveLayerRec_fBackdrop">fBackdrop</a>;
+<a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a>          <a href="#SkCanvas_SaveLayerRec_fSaveLayerFlags">fSaveLayerFlags</a>;
+};
 </pre>
 
 <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> contains the state used to create the <a href="#Layer">Layer</a>.
@@ -1780,7 +1773,7 @@ a specific rectangle, use <a href="#SkCanvas_clipRect">clipRect</a>.
 <a name="SkCanvas_SaveLayerRec_fPaint"> <code><strong>const SkPaint*          fPaint</strong></code> </a>
 
 <a href="#SkCanvas_SaveLayerRec_fPaint">fPaint</a> modifies how <a href="#Layer">Layer</a> overlays the prior <a href="#Layer">Layer</a>; may be nullptr.
-<a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and
+<a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and
 <a href="undocumented#Mask_Filter">Mask Filter</a> affect <a href="#Layer">Layer</a> draw.
 
 <a name="SkCanvas_SaveLayerRec_fBackdrop"> <code><strong>const SkImageFilter*    fBackdrop</strong></code> </a>
@@ -1791,7 +1784,7 @@ prior <a href="#Layer">Layer</a> without an <a href="undocumented#Image_Filter">
 
 <a name="SkCanvas_SaveLayerRec_fClipMask"> <code><strong>const SkImage*          fClipMask</strong></code> </a>
 
-<a href="#SkCanvas_restore">restore</a> clips <a href="#Layer">Layer</a> by the <a href="SkColor_Reference#Alpha">Color Alpha</a> channel of <a href="#SkCanvas_SaveLayerRec_fClipMask">fClipMask</a> when
+<a href="#SkCanvas_restore">restore</a> clips <a href="#Layer">Layer</a> by the <a href="undocumented#Alpha">Color Alpha</a> channel of <a href="#SkCanvas_SaveLayerRec_fClipMask">fClipMask</a> when
 <a href="#Layer">Layer</a> is copied to <a href="undocumented#Device">Device</a>. <a href="#SkCanvas_SaveLayerRec_fClipMask">fClipMask</a> may be nullptr.    .
 
 <a name="SkCanvas_SaveLayerRec_fClipMatrix"> <code><strong>const SkMatrix*         fClipMatrix</strong></code> </a>
@@ -1939,7 +1932,7 @@ SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* ba
 
 Not ready for general use.
 Sets <a href="#SkCanvas_SaveLayerRec_fBounds">fBounds</a>, <a href="#SkCanvas_SaveLayerRec_fPaint">fPaint</a>, <a href="#SkCanvas_SaveLayerRec_fBackdrop">fBackdrop</a>, <a href="#SkCanvas_SaveLayerRec_fClipMask">fClipMask</a>, <a href="#SkCanvas_SaveLayerRec_fClipMatrix">fClipMatrix</a>, and <a href="#SkCanvas_SaveLayerRec_fSaveLayerFlags">fSaveLayerFlags</a>.
-<a href="#SkCanvas_SaveLayerRec_SaveLayerRec_4_clipMatrix">clipMatrix</a> uses <a href="SkColor_Reference#Alpha">Color Alpha</a> channel of image, transformed by <a href="#SkCanvas_SaveLayerRec_SaveLayerRec_4_clipMatrix">clipMatrix</a>, to clip
+<a href="#SkCanvas_SaveLayerRec_SaveLayerRec_4_clipMatrix">clipMatrix</a> uses <a href="undocumented#Alpha">Color Alpha</a> channel of image, transformed by <a href="#SkCanvas_SaveLayerRec_SaveLayerRec_4_clipMatrix">clipMatrix</a>, to clip
 <a href="#Layer">Layer</a> when drawn to <a href="#Canvas">Canvas</a>.
 
 Implementation is not complete; has no effect if <a href="undocumented#Device">Device</a> is GPU-backed.
@@ -1984,7 +1977,7 @@ Saves <a href="#Matrix">Matrix</a>, <a href="#Clip">Clip</a>, and <a href="undoc
 and allocates <a href="SkBitmap_Reference#Bitmap">Bitmap</a> for subsequent drawing.
 
 Calling <a href="#SkCanvas_restore">restore</a> discards changes to <a href="#Matrix">Matrix</a>, <a href="#Clip">Clip</a>, and <a href="undocumented#Draw_Filter">Draw Filter</a>,
-and blends <a href="SkBitmap_Reference#Bitmap">Bitmap</a> with <a href="SkColor_Reference#Alpha">Color Alpha</a> opacity onto the prior <a href="#Layer">Layer</a>.
+and blends <a href="SkBitmap_Reference#Bitmap">Bitmap</a> with <a href="undocumented#Alpha">Color Alpha</a> opacity onto the prior <a href="#Layer">Layer</a>.
 
 <a href="#Matrix">Matrix</a> may be changed by <a href="#SkCanvas_translate">translate</a>, <a href="#SkCanvas_scale">scale</a>, <a href="#SkCanvas_rotate">rotate</a>, <a href="#SkCanvas_skew">skew</a>, <a href="#SkCanvas_concat">concat</a>,
 <a href="#SkCanvas_setMatrix">setMatrix</a>, and <a href="#SkCanvas_resetMatrix">resetMatrix</a>. <a href="#Clip">Clip</a> may be changed by <a href="#SkCanvas_clipRect">clipRect</a>, <a href="#SkCanvas_clipRRect">clipRRect</a>,
@@ -2196,9 +2189,9 @@ amount to skew in y</td>
 
 <div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"><div>Black text mimics an oblique text style by using a negative skew in x that
 shifts the geometry to the right as the y values decrease.
-<a href="SkColor_Reference#RGB_Red">Red</a> text uses a positive skew in y to shift the geometry down as the x values
+<a href="undocumented#RGB_Red">Red</a> text uses a positive skew in y to shift the geometry down as the x values
 increase.
-<a href="SkColor_Reference#RGB_Blue">Blue</a> text combines x and y skew to rotate and scale.
+<a href="undocumented#RGB_Blue">Blue</a> text combines x and y skew to rotate and scale.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -2964,7 +2957,7 @@ device bounds empty = true
 
 | name | description |
 | --- | --- |
-| <a href="#SkCanvas_clear">clear</a> | fills <a href="#Clip">Clip</a> with <a href="SkColor_Reference#Color">Color</a> |
+| <a href="#SkCanvas_clear">clear</a> | fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> |
 | <a href="#SkCanvas_drawAnnotation">drawAnnotation</a> | associates a <a href="SkRect_Reference#Rect">Rect</a> with a key-value pair |
 |  | <a href="#SkCanvas_drawAnnotation">drawAnnotation(const SkRect& rect, const char key[], SkData* value)</a> |
 |  | <a href="#SkCanvas_drawAnnotation_2">drawAnnotation(const SkRect& rect, const char key[], const sk sp&lt;SkData&gt;& value)</a> |
@@ -2977,7 +2970,7 @@ device bounds empty = true
 | <a href="#SkCanvas_drawCircle">drawCircle</a> | draws <a href="undocumented#Circle">Circle</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
 |  | <a href="#SkCanvas_drawCircle">drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint)</a> |
 |  | <a href="#SkCanvas_drawCircle_2">drawCircle(SkPoint center, SkScalar radius, const SkPaint& paint)</a> |
-| <a href="#SkCanvas_drawColor">drawColor</a> | fills <a href="#Clip">Clip</a> with <a href="SkColor_Reference#Color">Color</a> and <a href="undocumented#Blend_Mode">Blend Mode</a> |
+| <a href="#SkCanvas_drawColor">drawColor</a> | fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> and <a href="undocumented#Blend_Mode">Blend Mode</a> |
 | <a href="#SkCanvas_drawDRRect">drawDRRect</a> | draws double <a href="undocumented#Round_Rect">Round Rect</a> stroked or filled |
 | <a href="#SkCanvas_drawDrawable">drawDrawable</a> | draws <a href="undocumented#Drawable">Drawable</a>, encapsulated drawing commands |
 |  | <a href="#SkCanvas_drawDrawable">drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr)</a> |
@@ -3016,13 +3009,13 @@ device bounds empty = true
 void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver)
 </pre>
 
-Fill <a href="#Clip">Clip</a> with <a href="SkColor_Reference#Color">Color</a> <a href="#SkCanvas_drawColor_color">color</a>.
-<a href="#SkCanvas_drawColor_mode">mode</a> determines how <a href="SkColor_Reference#ARGB">Color ARGB</a> is combined with destination.
+Fill <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> <a href="#SkCanvas_drawColor_color">color</a>.
+<a href="#SkCanvas_drawColor_mode">mode</a> determines how <a href="undocumented#ARGB">Color ARGB</a> is combined with destination.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_drawColor_color"> <code><strong>color </strong></code> </a></td> <td>
-<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#ARGB">Color ARGB</a></td>
+<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="undocumented#ARGB">Color ARGB</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_drawColor_mode"> <code><strong>mode </strong></code> </a></td> <td>
 <a href="undocumented#SkBlendMode">SkBlendMode</a> used to combine source <a href="#SkCanvas_drawColor_color">color</a> and destination</td>
   </tr>
@@ -3045,13 +3038,13 @@ Fill <a href="#Clip">Clip</a> with <a href="SkColor_Reference#Color">Color</a> <
 void clear(SkColor color)
 </pre>
 
-Fill <a href="#Clip">Clip</a> with <a href="SkColor_Reference#Color">Color</a> <a href="#SkCanvas_clear_color">color</a> using <a href="undocumented#SkBlendMode_kSrc">SkBlendMode::kSrc</a>.
+Fill <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> <a href="#SkCanvas_clear_color">color</a> using <a href="undocumented#SkBlendMode_kSrc">SkBlendMode::kSrc</a>.
 This has the effect of replacing all pixels contained by <a href="#Clip">Clip</a> with <a href="#SkCanvas_clear_color">color</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_clear_color"> <code><strong>color </strong></code> </a></td> <td>
-<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#ARGB">Color ARGB</a></td>
+<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="undocumented#ARGB">Color ARGB</a></td>
   </tr>
 </table>
 
@@ -3121,11 +3114,11 @@ graphics state used to fill <a href="#Canvas">Canvas</a></td>
 ## <a name="SkCanvas_PointMode"></a> Enum SkCanvas::PointMode
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href="#SkCanvas_PointMode">PointMode</a> {
-        <a href="#SkCanvas_kPoints_PointMode">kPoints PointMode</a>,
-        <a href="#SkCanvas_kLines_PointMode">kLines PointMode</a>,
-        <a href="#SkCanvas_kPolygon_PointMode">kPolygon PointMode</a>,
-    };
+enum <a href="#SkCanvas_PointMode">PointMode</a> {
+<a href="#SkCanvas_kPoints_PointMode">kPoints PointMode</a>,
+<a href="#SkCanvas_kLines_PointMode">kLines PointMode</a>,
+<a href="#SkCanvas_kPolygon_PointMode">kPolygon PointMode</a>,
+};
 </pre>
 
 Selects if an array of points are drawn as discrete points, as lines, or as
@@ -3789,7 +3782,7 @@ void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint*
 <a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImage_image">image</a>, with its <a href="#SkCanvas_drawImage_top">top</a>-<a href="#SkCanvas_drawImage_left">left</a> corner at (<a href="#SkCanvas_drawImage_left">left</a>, <a href="#SkCanvas_drawImage_top">top</a>),
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_paint">paint</a>.
 
-If <a href="#SkCanvas_drawImage_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>,
+If <a href="#SkCanvas_drawImage_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>,
 and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImage_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImage_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImage_image">image</a> bounds. If generated
 mask extends beyond <a href="#SkCanvas_drawImage_image">image</a> bounds, replicate <a href="#SkCanvas_drawImage_image">image</a> edge colors, just as <a href="undocumented#Shader">Shader</a>
@@ -3830,7 +3823,7 @@ void drawImage(const sk_sp&lt;SkImage&gt;& image, SkScalar left, SkScalar top,
 <a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImage_2_image">image</a>, with its <a href="#SkCanvas_drawImage_2_top">top</a>-<a href="#SkCanvas_drawImage_2_left">left</a> corner at (<a href="#SkCanvas_drawImage_2_left">left</a>, <a href="#SkCanvas_drawImage_2_top">top</a>),
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_2_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImage_2_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImage_2_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImage_2_image">image</a> bounds. If generated
 mask extends beyond <a href="#SkCanvas_drawImage_2_image">image</a> bounds, replicate <a href="#SkCanvas_drawImage_2_image">image</a> edge colors, just as <a href="undocumented#Shader">Shader</a>
@@ -3864,10 +3857,10 @@ and so on; or nullptr</td>
 ## <a name="SkCanvas_SrcRectConstraint"></a> Enum SkCanvas::SrcRectConstraint
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> {
-        <a href="#SkCanvas_kStrict_SrcRectConstraint">kStrict SrcRectConstraint</a>,
-        <a href="#SkCanvas_kFast_SrcRectConstraint">kFast SrcRectConstraint</a>,
-    };
+enum <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> {
+<a href="#SkCanvas_kStrict_SrcRectConstraint">kStrict SrcRectConstraint</a>,
+<a href="#SkCanvas_kFast_SrcRectConstraint">kFast SrcRectConstraint</a>,
+};
 </pre>
 
 <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> controls the behavior at the edge of source <a href="SkRect_Reference#Rect">Rect</a>,
@@ -3919,7 +3912,7 @@ void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst, c
 <a href="#Draw">Draw</a> <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_src">src</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_dst">dst</a>.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_image">image</a> bounds.
 
@@ -3974,7 +3967,7 @@ Note that <a href="#SkCanvas_drawImageRect_2_isrc">isrc</a> is on integer pixel 
 boundaries. Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a>
 <a href="#SkCanvas_drawImageRect_2_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_2_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_2_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_2_image">image</a> bounds.
 
@@ -4022,7 +4015,7 @@ void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint
 <a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_3_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_3_dst">dst</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>,
 and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_3_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_3_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_3_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_3_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_3_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_3_image">image</a> bounds.
 
@@ -4068,7 +4061,7 @@ void drawImageRect(const sk_sp&lt;SkImage&gt;& image, const SkRect& src, const S
 <a href="#Draw">Draw</a> <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_4_src">src</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_4_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_4_dst">dst</a>.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_4_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_4_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_4_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_4_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_4_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_4_image">image</a> bounds.
 
@@ -4119,7 +4112,7 @@ void drawImageRect(const sk_sp&lt;SkImage&gt;& image, const SkIRect& isrc, const
 <a href="#SkCanvas_drawImageRect_5_isrc">isrc</a> is on integer pixel boundaries; <a href="#SkCanvas_drawImageRect_5_dst">dst</a> may include fractional boundaries.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_5_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_5_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_5_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_5_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_5_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_5_image">image</a> bounds.
 
@@ -4167,7 +4160,7 @@ void drawImageRect(const sk_sp&lt;SkImage&gt;& image, const SkRect& dst, const S
 <a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_6_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_6_dst">dst</a>,
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_6_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_6_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_6_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_6_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_6_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_6_image">image</a> bounds.
 
@@ -4218,7 +4211,7 @@ are larger than <a href="#SkCanvas_drawImageNine_dst">dst</a>; <a href="#SkCanva
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageNine_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageNine_image">image</a> bounds.
 
@@ -4268,7 +4261,7 @@ are larger than <a href="#SkCanvas_drawImageNine_2_dst">dst</a>; <a href="#SkCan
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_2_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageNine_2_image">image</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageNine_2_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageNine_2_image">image</a> bounds.
 
@@ -4316,7 +4309,7 @@ void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top, const SkPai
 <a href="#Draw">Draw</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a>, with its <a href="#SkCanvas_drawBitmap_top">top</a>-<a href="#SkCanvas_drawBitmap_left">left</a> corner at (<a href="#SkCanvas_drawBitmap_left">left</a>, <a href="#SkCanvas_drawBitmap_top">top</a>),
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmap_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmap_paint">paint</a> is not nullptr, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmap_paint">paint</a> is not nullptr, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmap_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a> bounds.
 
@@ -4360,7 +4353,7 @@ void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst
 <a href="#Draw">Draw</a> <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_src">src</a> of <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_dst">dst</a>.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapRect_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a> bounds.
 
@@ -4410,7 +4403,7 @@ void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& d
 <a href="#SkCanvas_drawBitmapRect_2_isrc">isrc</a> is on integer pixel boundaries; <a href="#SkCanvas_drawBitmapRect_2_dst">dst</a> may include fractional boundaries.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_2_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapRect_2_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapRect_2_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapRect_2_bitmap">bitmap</a> bounds.
 
@@ -4460,7 +4453,7 @@ void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* pa
 <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> bounds is on integer pixel boundaries; <a href="#SkCanvas_drawBitmapRect_3_dst">dst</a> may include fractional boundaries.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_3_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_3_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_3_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapRect_3_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> bounds.
 
@@ -4513,7 +4506,7 @@ space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> bounds.
 
@@ -4555,17 +4548,17 @@ and below <a href="#SkCanvas_drawBitmapNine_center">center</a> to fill the remai
 # <a name="SkCanvas_Lattice"></a> Struct SkCanvas::Lattice
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    struct <a href="#SkCanvas_Lattice">Lattice</a> {
-        enum <a href="#SkCanvas_Lattice_RectType">RectType</a> ...
+struct <a href="#SkCanvas_Lattice">Lattice</a> {
+enum <a href="#SkCanvas_Lattice_RectType">RectType</a> ...
 
-        const int*      <a href="#SkCanvas_Lattice_fXDivs">fXDivs</a>;
-        const int*      <a href="#SkCanvas_Lattice_fYDivs">fYDivs</a>;
-        const <a href="#SkCanvas_Lattice_RectType">RectType</a>* <a href="#SkCanvas_Lattice_fRectTypes">fRectTypes</a>;
-        int             <a href="#SkCanvas_Lattice_fXCount">fXCount</a>;
-        int             <a href="#SkCanvas_Lattice_fYCount">fYCount</a>;
-        const <a href="SkIRect_Reference#SkIRect">SkIRect</a>*  <a href="#SkCanvas_Lattice_fBounds">fBounds</a>;
-        const <a href="SkColor_Reference#SkColor">SkColor</a>*  <a href="#SkCanvas_Lattice_fColors">fColors</a>;
-    };
+const int*      <a href="#SkCanvas_Lattice_fXDivs">fXDivs</a>;
+const int*      <a href="#SkCanvas_Lattice_fYDivs">fYDivs</a>;
+const <a href="#SkCanvas_Lattice_RectType">RectType</a>* <a href="#SkCanvas_Lattice_fRectTypes">fRectTypes</a>;
+int             <a href="#SkCanvas_Lattice_fXCount">fXCount</a>;
+int             <a href="#SkCanvas_Lattice_fYCount">fYCount</a>;
+const <a href="SkIRect_Reference#SkIRect">SkIRect</a>*  <a href="#SkCanvas_Lattice_fBounds">fBounds</a>;
+const <a href="undocumented#SkColor">SkColor</a>*  <a href="#SkCanvas_Lattice_fColors">fColors</a>;
+};
 </pre>
 
 <a href="#SkCanvas_Lattice">Lattice</a> divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a> or <a href="SkImage_Reference#Image">Image</a> into a rectangular grid.
@@ -4579,11 +4572,11 @@ remaining space, if any.
 ## <a name="SkCanvas_Lattice_RectType"></a> Enum SkCanvas::Lattice::RectType
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-            enum <a href="#SkCanvas_Lattice_RectType">RectType</a> : uint8_t {
-                <a href="#SkCanvas_Lattice_kDefault">kDefault</a> = 0,
-                <a href="#SkCanvas_Lattice_kTransparent">kTransparent</a>,
-                <a href="#SkCanvas_Lattice_kFixedColor">kFixedColor</a>,
-            };
+enum <a href="#SkCanvas_Lattice_RectType">RectType</a> : uint8_t {
+<a href="#SkCanvas_Lattice_kDefault">kDefault</a> = 0,
+<a href="#SkCanvas_Lattice_kTransparent">kTransparent</a>,
+<a href="#SkCanvas_Lattice_kFixedColor">kFixedColor</a>,
+};
 </pre>
 
 Optional setting per rectangular grid entry to make it transparent,
@@ -4676,7 +4669,7 @@ dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> bounds.
 
@@ -4733,7 +4726,7 @@ dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a>.
 
-If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
+If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds.
 
@@ -5326,7 +5319,7 @@ void drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint
 </pre>
 
 <a href="#Draw">Draw</a> <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_3_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>; transforming <a href="#SkCanvas_drawPicture_3_picture">picture</a> with
-<a href="#Matrix">Matrix</a> <a href="#SkCanvas_drawPicture_3_matrix">matrix</a>, if provided; and use <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPicture_3_paint">paint</a> <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
+<a href="#Matrix">Matrix</a> <a href="#SkCanvas_drawPicture_3_matrix">matrix</a>, if provided; and use <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPicture_3_paint">paint</a> <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>, if provided.
 
 <a href="#SkCanvas_drawPicture_3_matrix">matrix</a> transformation is equivalent to: <a href="#SkCanvas_save">save</a>, <a href="#SkCanvas_concat">concat</a>, <a href="#SkCanvas_drawPicture">drawPicture</a>, <a href="#SkCanvas_restore">restore</a>.
@@ -5360,7 +5353,7 @@ void drawPicture(const sk_sp&lt;SkPicture&gt;& picture, const SkMatrix* matrix, 
 </pre>
 
 <a href="#Draw">Draw</a> <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_4_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>; transforming <a href="#SkCanvas_drawPicture_4_picture">picture</a> with
-<a href="#Matrix">Matrix</a> <a href="#SkCanvas_drawPicture_4_matrix">matrix</a>, if provided; and use <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPicture_4_paint">paint</a> <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
+<a href="#Matrix">Matrix</a> <a href="#SkCanvas_drawPicture_4_matrix">matrix</a>, if provided; and use <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPicture_4_paint">paint</a> <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>, if provided.
 
 <a href="#SkCanvas_drawPicture_4_matrix">matrix</a> transformation is equivalent to: <a href="#SkCanvas_save">save</a>, <a href="#SkCanvas_concat">concat</a>, <a href="#SkCanvas_drawPicture">drawPicture</a>, <a href="#SkCanvas_restore">restore</a>.
@@ -5462,15 +5455,15 @@ Draws a Coons_Patch: the interpolation of four <a href="#SkCanvas_drawPatch_cubi
 associating a color, and optionally a texture coordinate, with each corner.
 
 Coons_Patch uses <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>, <a href="#SkCanvas_drawPatch_paint">paint</a> <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
-<a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>. If <a href="undocumented#Shader">Shader</a> is provided it is treated
-as Coons_Patch texture; <a href="undocumented#Blend_Mode">Blend Mode</a> <a href="#SkCanvas_drawPatch_mode">mode</a> combines <a href="SkColor_Reference#Color">Color</a> <a href="#SkCanvas_drawPatch_colors">colors</a> and <a href="undocumented#Shader">Shader</a> if
+<a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>. If <a href="undocumented#Shader">Shader</a> is provided it is treated
+as Coons_Patch texture; <a href="undocumented#Blend_Mode">Blend Mode</a> <a href="#SkCanvas_drawPatch_mode">mode</a> combines <a href="undocumented#Color">Color</a> <a href="#SkCanvas_drawPatch_colors">colors</a> and <a href="undocumented#Shader">Shader</a> if
 both are provided.
 
 <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkCanvas_drawPatch_cubics">cubics</a> specifies four <a href="SkPath_Reference#Cubic">Cubics</a> starting at the top-left corner,
 in clockwise order, sharing every fourth point. The last <a href="SkPath_Reference#Cubic">Cubic</a> ends at the
 first point.
 
-<a href="SkColor_Reference#Color">Color</a> array color associates <a href="#SkCanvas_drawPatch_colors">colors</a> with corners in top-left, top-right,
+<a href="undocumented#Color">Color</a> array color associates <a href="#SkCanvas_drawPatch_colors">colors</a> with corners in top-left, top-right,
 bottom-right, bottom-left order.
 
 If <a href="#SkCanvas_drawPatch_paint">paint</a> contains <a href="undocumented#Shader">Shader</a>, <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkCanvas_drawPatch_texCoords">texCoords</a> maps <a href="undocumented#Shader">Shader</a> as texture to
@@ -5481,7 +5474,7 @@ corners in top-left, top-right, bottom-right, bottom-left order.
 <table>  <tr>    <td><a name="SkCanvas_drawPatch_cubics"> <code><strong>cubics </strong></code> </a></td> <td>
 <a href="SkPath_Reference#Cubic">Path Cubic</a> array, sharing common points</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPatch_colors"> <code><strong>colors </strong></code> </a></td> <td>
-<a href="SkColor_Reference#Color">Color</a> array, one for each corner</td>
+<a href="undocumented#Color">Color</a> array, one for each corner</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPatch_texCoords"> <code><strong>texCoords </strong></code> </a></td> <td>
 <a href="SkPoint_Reference#Point">Point</a> array of texture coordinates, mapping <a href="undocumented#Shader">Shader</a> to corners;
 may be nullptr</td>
@@ -5514,15 +5507,15 @@ Draws <a href="SkPath_Reference#Cubic">Cubic</a> Coons_Patch: the interpolation 
 associating a color, and optionally a texture coordinate, with each corner.
 
 Coons_Patch uses <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>, <a href="#SkCanvas_drawPatch_2_paint">paint</a> <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
-<a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>. If <a href="undocumented#Shader">Shader</a> is provided it is treated
-as Coons_Patch texture; <a href="undocumented#Blend_Mode">Blend Mode</a> mode combines <a href="SkColor_Reference#Color">Color</a> <a href="#SkCanvas_drawPatch_2_colors">colors</a> and <a href="undocumented#Shader">Shader</a> if
+<a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>. If <a href="undocumented#Shader">Shader</a> is provided it is treated
+as Coons_Patch texture; <a href="undocumented#Blend_Mode">Blend Mode</a> mode combines <a href="undocumented#Color">Color</a> <a href="#SkCanvas_drawPatch_2_colors">colors</a> and <a href="undocumented#Shader">Shader</a> if
 both are provided.
 
 <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkCanvas_drawPatch_2_cubics">cubics</a> specifies four <a href="SkPath_Reference#Cubic">Cubics</a> starting at the top-left corner,
 in clockwise order, sharing every fourth point. The last <a href="SkPath_Reference#Cubic">Cubic</a> ends at the
 first point.
 
-<a href="SkColor_Reference#Color">Color</a> array color associates <a href="#SkCanvas_drawPatch_2_colors">colors</a> with corners in top-left, top-right,
+<a href="undocumented#Color">Color</a> array color associates <a href="#SkCanvas_drawPatch_2_colors">colors</a> with corners in top-left, top-right,
 bottom-right, bottom-left order.
 
 If <a href="#SkCanvas_drawPatch_2_paint">paint</a> contains <a href="undocumented#Shader">Shader</a>, <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkCanvas_drawPatch_2_texCoords">texCoords</a> maps <a href="undocumented#Shader">Shader</a> as texture to
@@ -5533,7 +5526,7 @@ corners in top-left, top-right, bottom-right, bottom-left order.
 <table>  <tr>    <td><a name="SkCanvas_drawPatch_2_cubics"> <code><strong>cubics </strong></code> </a></td> <td>
 <a href="SkPath_Reference#Cubic">Path Cubic</a> array, sharing common points</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPatch_2_colors"> <code><strong>colors </strong></code> </a></td> <td>
-<a href="SkColor_Reference#Color">Color</a> array, one for each corner</td>
+<a href="undocumented#Color">Color</a> array, one for each corner</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPatch_2_texCoords"> <code><strong>texCoords </strong></code> </a></td> <td>
 <a href="SkPoint_Reference#Point">Point</a> array of texture coordinates, mapping <a href="undocumented#Shader">Shader</a> to corners;
 may be nullptr</td>
@@ -5567,7 +5560,7 @@ void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[]
 </pre>
 
 <a href="#Draw">Draw</a> a set of sprites from <a href="#SkCanvas_drawAtlas_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_paint">paint</a>.
-<a href="#SkCanvas_drawAtlas_paint">paint</a> uses Anti-alias, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
+<a href="#SkCanvas_drawAtlas_paint">paint</a> uses Anti-alias, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
 to draw, if present. For each entry in the array, <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawAtlas_tex">tex</a> locates sprite in
 <a href="#SkCanvas_drawAtlas_atlas">atlas</a>, and <a href="undocumented#RSXform">RSXform</a> <a href="#SkCanvas_drawAtlas_xform">xform</a> transforms it into destination space.
 
@@ -5616,7 +5609,7 @@ void drawAtlas(const sk_sp&lt;SkImage&gt;& atlas, const SkRSXform xform[], const
 </pre>
 
 <a href="#Draw">Draw</a> a set of sprites from <a href="#SkCanvas_drawAtlas_2_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_2_paint">paint</a>.
-<a href="#SkCanvas_drawAtlas_2_paint">paint</a> uses Anti-alias, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
+<a href="#SkCanvas_drawAtlas_2_paint">paint</a> uses Anti-alias, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
 to draw, if present. For each entry in the array, <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawAtlas_2_tex">tex</a> locates sprite in
 <a href="#SkCanvas_drawAtlas_2_atlas">atlas</a>, and <a href="undocumented#RSXform">RSXform</a> <a href="#SkCanvas_drawAtlas_2_xform">xform</a> transforms it into destination space.
 
@@ -5664,7 +5657,7 @@ void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[]
 </pre>
 
 <a href="#Draw">Draw</a> a set of sprites from <a href="#SkCanvas_drawAtlas_3_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_3_paint">paint</a>.
-<a href="#SkCanvas_drawAtlas_3_paint">paint</a> uses Anti-alias, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
+<a href="#SkCanvas_drawAtlas_3_paint">paint</a> uses Anti-alias, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
 to draw, if present. For each entry in the array, <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawAtlas_3_tex">tex</a> locates sprite in
 <a href="#SkCanvas_drawAtlas_3_atlas">atlas</a>, and <a href="undocumented#RSXform">RSXform</a> <a href="#SkCanvas_drawAtlas_3_xform">xform</a> transforms it into destination space.
 
@@ -5707,7 +5700,7 @@ void drawAtlas(const sk_sp&lt;SkImage&gt;& atlas, const SkRSXform xform[], const
 </pre>
 
 <a href="#Draw">Draw</a> a set of sprites from <a href="#SkCanvas_drawAtlas_4_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_4_paint">paint</a>.
-<a href="#SkCanvas_drawAtlas_4_paint">paint</a> uses Anti-alias, <a href="SkColor_Reference#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
+<a href="#SkCanvas_drawAtlas_4_paint">paint</a> uses Anti-alias, <a href="undocumented#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
 to draw, if present. For each entry in the array, <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawAtlas_4_tex">tex</a> locates sprite in
 <a href="#SkCanvas_drawAtlas_4_atlas">atlas</a>, and <a href="undocumented#RSXform">RSXform</a> <a href="#SkCanvas_drawAtlas_4_xform">xform</a> transforms it into destination space.
 
