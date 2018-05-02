@@ -572,7 +572,7 @@ public:
     VertexRegenerator(GrResourceProvider*, GrAtlasTextBlob*, int runIdx, int subRunIdx,
                       const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                       GrDeferredUploadTarget*, GrGlyphCache*, GrAtlasManager*,
-                      SkExclusiveStrikePtr*);
+                      SkAutoGlyphCache*);
 
     struct Result {
         /**

@@ -11,7 +11,6 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
-#include "SkStrikeCache.h"
 #include "sk_tool_utils.h"
 
 static constexpr int kScreenWidth = 1500;
@@ -47,10 +46,10 @@ private:
 
     void onDelayedSetup() override {
         SkPaint defaultPaint;
-        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(defaultPaint);
+        auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(defaultPaint);
         for (int i = 0; i < kNumGlyphs; ++i) {
-            SkPackedGlyphID id(cache->unicharToGlyph(kGlyphs[i]));
-            sk_ignore_unused_variable(cache->getScalerContext()->getPath(id, &fGlyphs[i]));
+            SkGlyphID id = cache->unicharToGlyph(kGlyphs[i]);
+            cache->getScalerContext()->getPath(SkPackedGlyphID(id), &fGlyphs[i]);
             fGlyphs[i].setIsVolatile(fUncached);
         }
 

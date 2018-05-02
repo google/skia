@@ -131,19 +131,16 @@ public:
     */
     int height() const { return fPixmap.height(); }
 
-    /** Returns SkColorType, one of:
-        kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-        kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-        kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-        kGray_8_SkColorType, kRGBA_F16_SkColorType.
+    /** Returns SkColorType, one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+        kRGB_565_SkColorType, kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
+        kBGRA_8888_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType.
 
         @return  SkColorType in SkImageInfo
     */
     SkColorType colorType() const { return fPixmap.colorType(); }
 
-    /** Returns SkAlphaType, one of:
-        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-        kUnpremul_SkAlphaType.
+    /** Returns SkAlphaType, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+        kPremul_SkAlphaType, kUnpremul_SkAlphaType.
 
         @return  SkAlphaType in SkImageInfo
     */
@@ -157,7 +154,7 @@ public:
     */
     SkColorSpace* colorSpace() const { return fPixmap.colorSpace(); }
 
-    /** Returns smart pointer to SkColorSpace, the range of colors, associated with
+    /** Returns a smart pointer to SkColorSpace, the range of colors, associated with
         SkImageInfo. The smart pointer tracks the number of objects sharing this
         SkColorSpace reference so the memory is released when the owners destruct.
 
@@ -248,9 +245,8 @@ public:
         This changes SkAlphaType in SkPixelRef; all bitmaps sharing SkPixelRef
         are affected.
 
-        @param alphaType  one of:
-                          kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                          kUnpremul_SkAlphaType
+        @param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
         @return           true if SkAlphaType is set
     */
     bool setAlphaType(SkAlphaType alphaType);
@@ -287,14 +283,11 @@ public:
     */
     void setImmutable();
 
-    /** Returns true if SkAlphaType is set to hint that all pixels are opaque; their
-        color alpha value is implicitly or explicitly 1.0. If true, and all pixels are
-        not opaque, Skia may draw incorrectly.
-
+    /** Returns true if SkAlphaType is kOpaque_SkAlphaType.
         Does not check if SkColorType allows alpha, or if any pixel value has
         transparency.
 
-        @return  true if SkImageInfo SkAlphaType is kOpaque_SkAlphaType
+        @return  true if SkImageInfo describes opaque alpha
     */
     bool isOpaque() const {
         return SkAlphaTypeIsOpaque(this->alphaType());
@@ -435,8 +428,8 @@ public:
         implementation of malloc(), if flags is zero, and calloc(), if flags is
         kZeroPixels_AllocFlag.
 
-        flags set to kZeroPixels_AllocFlag offers equal or better performance than
-        subsequently calling eraseColor() with SK_ColorTRANSPARENT.
+        Passing kZeroPixels_AllocFlag is usually faster than separately calling
+        eraseColor(SK_ColorTRANSPARENT).
 
         @param info   contains width, height, SkAlphaType, SkColorType, SkColorSpace
         @param flags  kZeroPixels_AllocFlag, or zero
@@ -458,8 +451,8 @@ public:
         implementation of malloc(), if flags is zero, and calloc(), if flags is
         kZeroPixels_AllocFlag.
 
-        flags set to kZeroPixels_AllocFlag offers equal or better performance than
-        subsequently calling eraseColor() with SK_ColorTRANSPARENT.
+        Passing kZeroPixels_AllocFlag is usually faster than separately calling
+        eraseColor(SK_ColorTRANSPARENT).
 
         @param info   contains width, height, SkAlphaType, SkColorType, SkColorSpace
         @param flags  kZeroPixels_AllocFlag, or zero
@@ -792,7 +785,11 @@ public:
         this->eraseColor(SkColorSetARGB(a, r, g, b));
     }
 
-    /** Deprecated.
+    /** Deprecated. Use eraseARGB() or eraseColor().
+
+        @param r  amount of red
+        @param g  amount of green
+        @param b  amount of blue
     */
     SK_ATTR_DEPRECATED("use eraseARGB or eraseColor")
     void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const {
@@ -1246,12 +1243,14 @@ public:
         bool allocPixelRef(SkBitmap* bitmap) override;
     };
 
-    /** Creates string representation of SkBitmap. The representation is read by
-        internal debugging tools.
+    /** macro expands to: void toString(SkString* str) const;
+        Creates string representation of SkBitmap. The representation is read by
+        internal debugging tools. The interface and implementation may be
+        suppressed by defining SK_IGNORE_TO_STRING.
 
         @param str  storage for string representation
     */
-    void toString(SkString* str) const;
+    SK_TO_STRING_NONVIRT()
 
 private:
     enum Flags {

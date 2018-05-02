@@ -8,7 +8,7 @@
 #ifndef GrBlurUtils_DEFINED
 #define GrBlurUtils_DEFINED
 
-#include "GrTypesPriv.h"
+#include "GrTypes.h"
 
 class GrClip;
 class GrContext;

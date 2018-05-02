@@ -18,7 +18,6 @@
 #include "GrSemaphore.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
-#include "GrTextureProxyPriv.h"
 
 #include "SkGr.h"
 #include "SkMessageBus.h"
@@ -34,8 +33,13 @@ GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
 
 std::unique_ptr<SkImageGenerator>
 GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin origin,
-                                     sk_sp<GrSemaphore> semaphore, SkColorType colorType,
+                                     sk_sp<GrSemaphore> semaphore,
                                      SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
+    SkColorType colorType = kUnknown_SkColorType;
+    if (!GrPixelConfigToColorType(texture->config(), &colorType)) {
+        return nullptr;
+    }
+
     GrContext* context = texture->getContext();
 
     // Attach our texture to this context's resource cache. This ensures that deletion will happen
@@ -44,10 +48,6 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     context->contextPriv().getResourceCache()->insertCrossContextGpuResource(texture.get());
 
     GrBackendTexture backendTexture = texture->getBackendTexture();
-    if (!context->caps()->validateBackendTexture(backendTexture, colorType,
-                                                 &backendTexture.fConfig)) {
-        return nullptr;
-    }
 
     SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
                                          std::move(colorSpace));
@@ -74,6 +74,7 @@ GrBackendTextureImageGenerator::~GrBackendTextureImageGenerator() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
 void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* ctx) {
     RefHelper* refHelper = static_cast<RefHelper*>(ctx);
     SkASSERT(refHelper);
@@ -90,9 +91,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     SkASSERT(context);
 
     if (context->contextPriv().getBackend() != fBackendTexture.backend()) {
-        return nullptr;
-    }
-    if (info.colorType() != this->getInfo().colorType()) {
         return nullptr;
     }
 
@@ -176,16 +174,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
             },
             desc, fSurfaceOrigin, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
 
-    if (!proxy) {
-        return nullptr;
-    }
-
-    // We can't pass the fact that this creates a wrapped texture into createLazyProxy so we need
-    // to manually call setDoesNotSupportMipMaps.
-    if (GrMipMapped::kNo == mipMapped) {
-        proxy->texPriv().setDoesNotSupportMipMaps();
-    }
-
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
         (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped())) {
@@ -218,4 +206,4 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         return rtContext->asTextureProxyRef();
     }
 }
-
+#endif

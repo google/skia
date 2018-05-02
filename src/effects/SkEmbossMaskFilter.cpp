@@ -72,10 +72,6 @@ SkMask::Format SkEmbossMaskFilter::getFormat() const {
 
 bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
                                     const SkMatrix& matrix, SkIPoint* margin) const {
-    if (src.fFormat != SkMask::kA8_Format) {
-        return false;
-    }
-
     SkScalar sigma = matrix.mapRadius(fBlurSigma);
 
     if (!SkBlurMask::BoxBlur(dst, src, sigma, kInner_SkBlurStyle)) {
@@ -141,6 +137,7 @@ void SkEmbossMaskFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fBlurSigma);
 }
 
+#ifndef SK_IGNORE_TO_STRING
 void SkEmbossMaskFilter::toString(SkString* str) const {
     str->append("SkEmbossMaskFilter: (");
 
@@ -159,3 +156,4 @@ void SkEmbossMaskFilter::toString(SkString* str) const {
     str->appendScalar(fBlurSigma);
     str->append(")");
 }
+#endif
