@@ -1,8 +1,8 @@
 # external references that will be documented eventually ...
 #External
  DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__ AHardwareBuffer
- FreeType FreeType-based Harfbuzz   
- Descenders Kerning Unhinted 
+ FreeType FreeType-based Harfbuzz
+ Descenders Kerning Unhinted
  LCD RGB sRGB YUV
  YUV_Component_Y YUV_Component_U YUV_Component_V
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
@@ -15,6 +15,9 @@
  NaN NaNs
  Bezier_Curve Coons_Patch Cartesian_Coordinate Euclidean_Distance Euclidean_Space Mip_Map
  C C++ Destructor Subclasses
+ CSS HTML
+ HTML_Gray HTML_DarkGray HTML_LightGray HTML_Silver HTML_Lime HTML_Green HTML_Aqua HTML_Fuchsia
+ SVG_lightgray SVG_darkgray
  SkUserConfig  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto
  SkXXX_Reference # ditto
@@ -96,7 +99,7 @@ FT_Load_Glyph
 
 #Topic Color_Filter
 #Class SkColorFilter
-#Method void toString(SkString* str) const 
+#Method void toString(SkString* str) const
 ##
 #Class ##
 #Topic ##
@@ -295,7 +298,7 @@ FT_Load_Glyph
 #Subtopic Scaling
 #Subtopic ##
 #Class SkImageFilter
-#Method void toString(SkString* str) const 
+#Method void toString(SkString* str) const
 ##
 #Class ##
 #Topic ##
@@ -308,7 +311,7 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic Left_Side_Bearing 
+#Topic Left_Side_Bearing
 ##
 
 #Topic Line
@@ -329,7 +332,7 @@ FT_Load_Glyph
 
 #Topic Mask_Filter
 #Class SkMaskFilter
-#Method void toString(SkString* str) const 
+#Method void toString(SkString* str) const
 ##
 #Class ##
 #Topic ##
@@ -668,7 +671,7 @@ FT_Load_Glyph
     #Typedef ##
 
     #Enum GrSurfaceOrigin
-    #Const kBottomLeft_GrSurfaceOrigin 0 
+    #Const kBottomLeft_GrSurfaceOrigin 0
     ##
     #Const kTopLeft_GrSurfaceOrigin 1
     ##
