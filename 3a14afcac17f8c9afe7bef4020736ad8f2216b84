@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d59df0b_f1965755",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-02T20:26:47Z",
+      "side": 1,
+      "message": "I don\u0027t have access to the fuzzer bug to see the actual exception, but don\u0027t we already check for finite matrices on context creation?\n\nIt\u0027s ok to check here too, but it\u0027s doesn\u0027t seem like a great place \u0027cause this could be barely-finite and turn infinite when composed with the canvas transform later.",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 5
+      },
+      "revId": "3a14afcac17f8c9afe7bef4020736ad8f2216b84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
