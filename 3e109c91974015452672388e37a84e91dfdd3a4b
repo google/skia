@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de47f7e5_e97704d4",
+        "filename": "include/gpu/GrSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-02T18:52:01Z",
+      "side": 1,
+      "message": "The actual GL enums, excluding suffixes, are GL_TEXTURE_RECTANGLE and GL_TEXTURE_EXTERNAL. Can we more closely match that? Like setIsGLTextureRectangleOrExternal?",
+      "range": {
+        "startLine": 74,
+        "startChar": 10,
+        "endLine": 74,
+        "endChar": 33
+      },
+      "revId": "3e109c91974015452672388e37a84e91dfdd3a4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
