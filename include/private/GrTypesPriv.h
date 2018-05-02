@@ -874,13 +874,14 @@ enum class GrInternalSurfaceFlags {
     // into Ganesh.
     kDoesNotSupportMipMaps = 1 << 1,
 
-    // This flag is set when the internal texture target only supports the clamp wrap mode (e.g.,
-    // external and rectangle textures). Note that Ganesh does not internally
-    // create resources with this limitation - this flag will only appear on resources passed
-    // into Ganesh.
-    kIsClampOnly           = 1 << 2,
+    // This flag is for GL only. It says that the GL texture we will use has a target which is
+    // either GL_TEXTURE_RECTANGLE or GL_GL_TEXTURE_EXTERNAL. We use this information to make
+    // decisions about various rendering capabilites (e.g. is clamp the only supported wrap mode).
+    // Note: Ganesh does not internally create these types of textures so they will only occur on
+    // resources passed into Ganesh.
+    kIsGLRectOrExternalTex = 1 << 2,
 
-    kTextureMask           = kDoesNotSupportMipMaps | kIsClampOnly,
+    kTextureMask           = kDoesNotSupportMipMaps | kIsGLRectOrExternalTex,
 
     // RT-only
 

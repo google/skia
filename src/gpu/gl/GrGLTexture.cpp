@@ -71,8 +71,7 @@ void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(0 != idDesc.fInfo.fFormat);
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
         idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
-        this->setDoesNotSupportMipMaps();
-        this->setIsClampOnly();
+        this->setIsGLRectOrExternalTex();
     }
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
