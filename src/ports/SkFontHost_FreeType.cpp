@@ -460,7 +460,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    bool generatePath(SkGlyphID glyphID, SkPath* path) override;
+    void generatePath(SkGlyphID glyphID, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
     SkUnichar generateGlyphToChar(uint16_t glyph) override;
 
@@ -536,8 +536,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     }
 
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
-    info->fPostScriptName.set(FT_Get_Postscript_Name(face));
-    info->fFontName = info->fPostScriptName;
+    info->fFontName.set(FT_Get_Postscript_Name(face));
 
     if (FT_HAS_MULTIPLE_MASTERS(face)) {
         info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
@@ -994,6 +993,8 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
                                 fLoadGlyphFlags | FT_ADVANCE_FLAG_FAST_ONLY,
                                 &advance );
         if (0 == error) {
+            glyph->fRsbDelta = 0;
+            glyph->fLsbDelta = 0;
             const SkScalar advanceScalar = SkFT_FixedToScalar(advance);
             glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
             glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
@@ -1089,6 +1090,9 @@ bool SkScalerContext_FreeType::shouldSubpixelBitmap(const SkGlyph& glyph, const 
 void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
+    glyph->fRsbDelta = 0;
+    glyph->fLsbDelta = 0;
+
     FT_Error    err;
 
     if (this->setupSize()) {
@@ -1179,6 +1183,11 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         } else {
             glyph->fAdvanceX = SkFDot6ToFloat(fFace->glyph->advance.x);
             glyph->fAdvanceY = -SkFDot6ToFloat(fFace->glyph->advance.y);
+
+            if (fRec.fFlags & kDevKernText_Flag) {
+                glyph->fRsbDelta = SkToS8(fFace->glyph->rsb_delta);
+                glyph->fLsbDelta = SkToS8(fFace->glyph->lsb_delta);
+            }
         }
     }
 
@@ -1222,14 +1231,14 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 }
 
 
-bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
-    SkASSERT(path);
-
+void SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     SkAutoMutexAcquire  ac(gFTMutex);
+
+    SkASSERT(path);
 
     if (this->setupSize()) {
         path->reset();
-        return false;
+        return;
     }
 
     uint32_t flags = fLoadGlyphFlags;
@@ -1237,16 +1246,16 @@ bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
 
     FT_Error err = FT_Load_Glyph(fFace, glyphID, flags);
+
     if (err != 0) {
+        SK_TRACEFTR(err, "SkScalerContext_FreeType::generatePath: FT_Load_Glyph(glyph:%d "
+                     "flags:%d) failed.", glyphID, flags);
         path->reset();
-        return false;
+        return;
     }
     emboldenIfNeeded(fFace, fFace->glyph, glyphID);
 
-    if (!generateGlyphPath(fFace, path)) {
-        path->reset();
-        return false;
-    }
+    generateGlyphPath(fFace, path);
 
     // The path's origin from FreeType is always the horizontal layout origin.
     // Offset the path so that it is relative to the vertical origin if needed.
@@ -1257,7 +1266,6 @@ bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
         FT_Vector_Transform(&vector, &fMatrix22);
         path->offset(SkFDot6ToScalar(vector.x), -SkFDot6ToScalar(vector.y));
     }
-    return true;
 }
 
 void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics) {

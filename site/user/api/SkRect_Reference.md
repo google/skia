@@ -906,7 +906,7 @@ left: -41 right: -20 centerX: -30.5
 
 ### See Also
 
-<a href="#SkRect_centerY">centerY</a>
+<a href="#SkRect_centerY">centerY</a> <a href="SkIRect_Reference#SkIRect_centerX">SkIRect::centerX</a>
 
 ---
 
@@ -938,7 +938,7 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 
 ### See Also
 
-<a href="#SkRect_centerX">centerX</a>
+<a href="#SkRect_centerX">centerX</a> <a href="SkIRect_Reference#SkIRect_centerY">SkIRect::centerY</a>
 
 ---
 
@@ -2535,9 +2535,7 @@ void round(SkIRect* dst) const
 </pre>
 
 Sets <a href="SkIRect_Reference#IRect">IRect</a> by adding 0.5 and discarding the fractional portion of <a href="#Rect">Rect</a>
-members, using(<a href="undocumented#SkScalarRoundToInt">SkScalarRoundToInt(fLeft)</a>, <a href="undocumented#SkScalarRoundToInt">SkScalarRoundToInt(fTop)</a>,
-<a href="undocumented#SkScalarRoundToInt">SkScalarRoundToInt(fRight)</a>, <a href="undocumented#SkScalarRoundToInt">SkScalarRoundToInt(fBottom)</a>)
-.
+members, using(.
 
 ### Parameters
 
@@ -2572,9 +2570,7 @@ void roundOut(SkIRect* dst) const
 </pre>
 
 Sets <a href="SkIRect_Reference#IRect">IRect</a> by discarding the fractional portion of <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fTop">fTop</a>; and
-rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(<a href="undocumented#SkScalarFloorToInt">SkScalarFloorToInt(fLeft)</a>, <a href="undocumented#SkScalarFloorToInt">SkScalarFloorToInt(fTop)</a>,
-<a href="undocumented#SkScalarCeilToInt">SkScalarCeilToInt(fRight)</a>, <a href="undocumented#SkScalarCeilToInt">SkScalarCeilToInt(fBottom)</a>)
-.
+rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(.
 
 ### Parameters
 
@@ -2608,9 +2604,7 @@ void roundOut(SkRect* dst) const
 </pre>
 
 Sets <a href="#Rect">Rect</a> by discarding the fractional portion of <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fTop">fTop</a>; and
-rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(<a href="undocumented#SkScalarFloorToInt">SkScalarFloorToInt(fLeft)</a>, <a href="undocumented#SkScalarFloorToInt">SkScalarFloorToInt(fTop)</a>,
-<a href="undocumented#SkScalarCeilToInt">SkScalarCeilToInt(fRight)</a>, <a href="undocumented#SkScalarCeilToInt">SkScalarCeilToInt(fBottom)</a>)
-.
+rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(.
 
 ### Parameters
 
@@ -2645,9 +2639,7 @@ void roundIn(SkIRect* dst) const
 </pre>
 
 Sets <a href="#Rect">Rect</a> by rounding up <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fTop">fTop</a>; and
-discarding the fractional portion of <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(<a href="undocumented#SkScalarCeilToInt">SkScalarCeilToInt(fLeft)</a>, <a href="undocumented#SkScalarCeilToInt">SkScalarCeilToInt(fTop)</a>,
-<a href="undocumented#SkScalarFloorToInt">SkScalarFloorToInt(fRight)</a>, <a href="undocumented#SkScalarFloorToInt">SkScalarFloorToInt(fBottom)</a>)
-.
+discarding the fractional portion of <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(.
 
 ### Parameters
 
@@ -2681,9 +2673,7 @@ SkIRect round() const
 </pre>
 
 Returns <a href="SkIRect_Reference#IRect">IRect</a> by adding 0.5 and discarding the fractional portion of <a href="#Rect">Rect</a>
-members, using(<a href="undocumented#SkScalarRoundToInt">SkScalarRoundToInt(fLeft)</a>, <a href="undocumented#SkScalarRoundToInt">SkScalarRoundToInt(fTop)</a>,
-<a href="undocumented#SkScalarRoundToInt">SkScalarRoundToInt(fRight)</a>, <a href="undocumented#SkScalarRoundToInt">SkScalarRoundToInt(fBottom)</a>)
-.
+members, using(.
 
 ### Return Value
 
@@ -2714,9 +2704,7 @@ SkIRect roundOut() const
 </pre>
 
 Sets <a href="SkIRect_Reference#IRect">IRect</a> by discarding the fractional portion of <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fTop">fTop</a>; and
-rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(<a href="undocumented#SkScalarFloorToInt">SkScalarFloorToInt(fLeft)</a>, <a href="undocumented#SkScalarFloorToInt">SkScalarFloorToInt(fTop)</a>,
-<a href="undocumented#SkScalarCeilToInt">SkScalarCeilToInt(fRight)</a>, <a href="undocumented#SkScalarCeilToInt">SkScalarCeilToInt(fBottom)</a>)
-.
+rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fBottom</a>, using(.
 
 ### Return Value
 

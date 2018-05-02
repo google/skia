@@ -551,7 +551,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    bool generatePath(SkGlyphID glyph, SkPath* path) override;
+    void generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
@@ -830,13 +830,6 @@ uint16_t SkScalerContext_GDI::generateCharToGlyph(SkUnichar utf32) {
         HRZM(ScriptItemize(utf16, numWCHAR, maxItems, &sc, nullptr, si, &numItems),
              "Could not itemize character.");
 
-        // Disable any attempt at shaping.
-        // Without this ScriptShape may return 0x80040200 (USP_E_SCRIPT_NOT_IN_FONT)
-        // when all that is desired here is a simple cmap lookup.
-        for (SCRIPT_ITEM& item : si) {
-            item.a.eScript = SCRIPT_UNDEFINED;
-        }
-
         // Sometimes ScriptShape cannot find a glyph for a non-BMP and returns 2 space glyphs.
         static const int maxGlyphs = 2;
         SCRIPT_VISATTR vsa[maxGlyphs];
@@ -943,6 +936,8 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
     // TODO(benjaminwagner): What is the type of gm.gmCellInc[XY]?
     glyph->fAdvanceX = (float)((int)gm.gmCellIncX);
     glyph->fAdvanceY = (float)((int)gm.gmCellIncY);
+    glyph->fRsbDelta = 0;
+    glyph->fLsbDelta = 0;
 
     if (this->isSubpixel()) {
         sk_bzero(&gm, sizeof(gm));
@@ -1612,7 +1607,7 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
     return total_size;
 }
 
-bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
+void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
     SkASSERT(fDDC);
 
@@ -1634,7 +1629,7 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
     DWORD total_size = getGDIGlyphPath(glyph, format, &glyphbuf);
     if (0 == total_size) {
-        return false;
+        return;
     }
 
     if (fRec.getHinting() != SkPaint::kSlight_Hinting) {
@@ -1646,7 +1641,7 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
         SkAutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
         DWORD hinted_total_size = getGDIGlyphPath(glyph, format, &hintedGlyphbuf);
         if (0 == hinted_total_size) {
-            return false;
+            return;
         }
 
         if (!sk_path_from_gdi_paths(path, glyphbuf, total_size,
@@ -1656,7 +1651,6 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
             sk_path_from_gdi_path(path, glyphbuf, total_size);
         }
     }
-    return true;
 }
 
 static void logfont_for_name(const char* familyName, LOGFONT* lf) {
@@ -2263,6 +2257,7 @@ void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
     }
 
     unsigned flagsWeDontSupport = SkScalerContext::kVertical_Flag |
+                                  SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kForceAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |
                                   SkScalerContext::kEmbolden_Flag |

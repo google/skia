@@ -465,8 +465,7 @@ for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
 
 #Method static sk_sp<SkImage> MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> data,
                                                       bool buildMips,
-                                                      SkColorSpace* dstColorSpace,
-                                                      bool limitToMaxTextureSize = false)
+                                                      SkColorSpace* dstColorSpace)
 #In Constructor
 #Line # creates Image from encoded data, and uploads to GPU ##
 
@@ -492,7 +491,6 @@ moving resources between contexts.
 #Param data  Image to decode ##
 #Param buildMips  create Image as Mip_Map if true ##
 #Param dstColorSpace  range of colors of matching Surface on GPU ##
-#Param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary ##
 
 #Return created Image, or nullptr ##
 
@@ -514,8 +512,7 @@ canvas->drawImage(image, 0, 0);
 
 #Method static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
                                                       bool buildMips,
-                                                      SkColorSpace* dstColorSpace,
-                                                      bool limitToMaxTextureSize = false)
+                                                      SkColorSpace* dstColorSpace)
 #In Constructor
 #Line # creates Image from Pixmap, and uploads to GPU ##
 
@@ -541,7 +538,6 @@ Recognized GPU formats vary by platform and GPU back-end.
 #Param pixmap  Image_Info, pixel address, and row bytes ##
 #Param buildMips  create Image as Mip_Map if true ##
 #Param dstColorSpace  range of colors of matching Surface on GPU ##
-#Param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary ##
 
 #Return created Image, or nullptr ##
 
@@ -1324,49 +1320,68 @@ drawImage(textureImage, "backEndTexture");
 
 #Method GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
                                      GrSurfaceOrigin* origin = nullptr) const
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
-                                           GrSurfaceOrigin* origin = nullptr) const
 #In Property
 #Line # returns GPU reference to Image as texture ##
 
-Retrieves the backend texture. If Image has no backend texture, an invalid
-object is returned. Call GrBackendTexture::isValid to determine if the result
-is valid.
-
-If flushPendingGrContextIO is true, completes deferred I/O operations.
+Retrieves the back-end API handle of texture. If flushPendingGrContextIO is true,
+complete deferred I/O operations.
 
 If origin in not nullptr, copies location of content drawn into Image.
 
 #Param flushPendingGrContextIO  flag to flush outstanding requests ##
 #Param origin  storage for one of: kTopLeft_GrSurfaceOrigin,
-               kBottomLeft_GrSurfaceOrigin; or nullptr
+               kBottomLeft_GrSurfaceOrigin; or nullptr 
 ##
 
-#Return back-end API texture handle; invalid on failure ##
+#Return back-end API texture handle, or nullptr ##
 
 #Example
-#Image 3
+#Image 4
 #Platform gpu
-    GrContext* grContext = canvas->getGrContext();
-    if (!grContext) {
-        canvas->drawString("GPU only!", 20, 40, SkPaint());
-        return;
-    }
-    sk_sp<SkImage> imageFromBackend = SkImage::MakeFromAdoptedTexture(grContext, backEndTexture,
-            kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
-    GrBackendTexture textureFromImage = imageFromBackend->getBackendTexture(false);
-    if (!textureFromImage.isValid()) {
-        return;
-    }
-    sk_sp<SkImage> imageFromTexture = SkImage::MakeFromAdoptedTexture(grContext, textureFromImage,
-            kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
-    canvas->drawImage(imageFromTexture, 0, 0);
-    canvas->drawImage(imageFromBackend, 128, 128);
+GrContext* context = canvas->getGrContext();
+if (!context) {
+   return;
+}
+SkPaint paint;
+paint.setAntiAlias(true);
+SkString str;
+int y = -10;
+for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
+    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,
+            backEndTexture, origin, kN32_SkColorType, kPremul_SkAlphaType, nullptr));
+    GrSurfaceOrigin readBackOrigin;
+    GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
+    str.printf("readBackHandle: 0x%lx", readBackHandle);
+    canvas->drawString(str, 5, y += 30, paint);
+    canvas->drawImage(srcImage, 80, y += 10);
+    str.printf("origin: k%s_GrSurfaceOrigin", readBackOrigin ? "BottomLeft" : "TopLeft");
+    canvas->drawString(str, 5, y += srcImage->height() + 10, paint);
+}
+##
+
+#Example
+#Image 5
+#Platform gpu
+    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
+        if (nullptr == image) {
+            return;
+        }
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setTextAlign(SkPaint::kCenter_Align);
+        canvas->drawImage(image, 0, image->height() / 4);
+        canvas->drawString(label, image->width() / 2, image->height() / 8, paint);
+        GrSurfaceOrigin readBackOrigin;
+        GrBackendObject readBackHandle = image->getTextureHandle(false, &readBackOrigin);
+        canvas->drawString(readBackHandle ? "has readBackHandle" : "no readBackHandle",
+                           image->width() / 2, image->height() * 11 / 8, paint);
+    };
+    drawImage(image, "image");
+    canvas->translate(image->width(), 0);
+    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
+                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,
+                                nullptr));
+    drawImage(textureImage, "backEndTexture");
 ##
 
 #SeeAlso MakeFromTexture isTextureBacked
