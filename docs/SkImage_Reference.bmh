@@ -703,9 +703,11 @@ should this be moved to chrome only?
 ##
 
 #Const kU8 0
+#Line # uses 8-bit unsigned int per Color component ##
 Use 8 bits per Color_ARGB component using unsigned integer format.
 ##
 #Const kF16 1
+#Line # uses 16-bit float per Color component ##
 Use 16 bits per Color_ARGB component using half-precision floating point format.  
 ##
 
@@ -735,7 +737,7 @@ with default Paint. colorSpace may be nullptr.
 #Param dimensions  width and height ##
 #Param matrix  Matrix to rotate, scale, translate, and so on; may be nullptr ##
 #Param paint  Paint to apply transparency, filtering, and so on; may be nullptr ##
-#Param bitDepth  8 bit integer or 16 bit float: per component ##
+#Param bitDepth  8-bit integer or 16-bit float: per component ##
 #Param colorSpace  range of colors; may be nullptr ##
 
 #Return created Image, or nullptr ##
@@ -903,7 +905,7 @@ Returns IRect { 0, 0, width(), height() }.
 
 #Method uint32_t uniqueID() const
 #In Property
-#Line # identifier for Image ##
+#Line # returns identifier for Image ##
 Returns value unique to image. Image contents cannot change after Image is
 created. Any operation to create a new Image will receive generate a new
 unique number.
@@ -1334,7 +1336,7 @@ drawImage(textureImage, "backEndTexture");
 #In Property
 #Line # returns GPU reference to Image as texture ##
 
-Retrieves the backend texture. If Image has no backend texture, an invalid
+Retrieves the back-end texture. If Image has no back-end texture, an invalid
 object is returned. Call GrBackendTexture::isValid to determine if the result
 is valid.
 
@@ -1396,10 +1398,10 @@ Image pixels may not be cached if memory requirements are too large or
 pixels are not accessible.
 
 #Const kAllow_CachingHint 0
-Allows Skia to internally cache decoded and copied pixels.
+#Line # allows internally caching decoded and copied pixels ##
 ##
 #Const kDisallow_CachingHint 1
-Disallows Skia from internally caching decoded and copied pixels.
+#Line # disallows internally caching decoded and copied pixels ##
 ##
 
 #NoExample
@@ -2028,10 +2030,10 @@ If Image is not texture backed, returns texture with Image contents.
 
 #Param context  GPU_Context ##
 #Param image  Image used for texture ##
-#Param backendTexture  storage for backend texture ##
+#Param backendTexture  storage for back-end texture ##
 #Param backendTextureReleaseProc  storage for clean up function ##
 
-#Return true if backend texture was created ##
+#Return true if back-end texture was created ##
 
 #Example
 #Platform gpu
@@ -2083,7 +2085,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Const kRO_LegacyBitmapMode 0
-Returned bitmap is read-only and immutable.
+#Line # returned bitmap is read-only and immutable ##
 ##
 
 #Enum ##

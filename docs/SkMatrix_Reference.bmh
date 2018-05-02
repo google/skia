@@ -188,18 +188,23 @@ Enum of bit fields for mask returned by getType.
 Used to identify the complexity of Matrix, to optimize performance.
 
 #Const kIdentity_Mask 0
+#Line # identity Matrix; all bits clear ##
 all bits clear if Matrix is identity
 ##
 #Const kTranslate_Mask 1
+#Line # translation Matrix ##
 set if Matrix has translation
 ##
 #Const kScale_Mask 2
+#Line # scale Matrix ##
 set if Matrix has x or y scale
 ##
 #Const kAffine_Mask 4
+#Line # skew or rotate Matrix ##
 set if Matrix skews or rotates
 ##
 #Const kPerspective_Mask 8
+#Line # perspective Matrix ##
 set if Matrix has perspective
 ##
 
@@ -639,31 +644,31 @@ Matrix organizes its values in row order. These members correspond to
 each value in Matrix.
 
 #Const kMScaleX 0
-horizontal scale factor
+#Line # horizontal scale factor ##
 ##
 #Const kMSkewX 1
-horizontal skew factor
+#Line # horizontal skew factor ##
 ##
 #Const kMTransX 2
-horizontal translation
+#Line # horizontal translation ##
 ##
 #Const kMSkewY 3
-vertical skew factor
+#Line # vertical skew factor ##
 ##
 #Const kMScaleY 4
-vertical scale factor
+#Line # vertical scale factor ##
 ##
 #Const kMTransY 5
-vertical translation
+#Line # vertical translation ##
 ##
 #Const kMPersp0 6
-input x perspective factor
+#Line # input x perspective factor ##
 ##
 #Const kMPersp1 7
-input y perspective factor
+#Line # input y perspective factor ##
 ##
 #Const kMPersp2 8
-perspective bias
+#Line # perspective bias ##
 ##
 
 #Example
@@ -710,22 +715,22 @@ Affine arrays are in column major order to match the matrix used by
 PDF and XPS.
 
 #Const kAScaleX 0
-horizontal scale factor
+#Line # horizontal scale factor ##
 ##
 #Const kASkewY 1
-vertical skew factor
+#Line # vertical skew factor ##
 ##
 #Const kASkewX 2
-horizontal skew factor
+#Line # horizontal skew factor ##
 ##
 #Const kAScaleY 3
-vertical scale factor
+#Line # vertical scale factor ##
 ##
 #Const kATransX 4
-horizontal translation
+#Line # horizontal translation ##
 ##
 #Const kATransY 5
-vertical translation
+#Line # vertical translation ##
 ##
 
 #NoExample
@@ -1044,7 +1049,7 @@ after dirty cache:    x = 66
 # ------------------------------------------------------------------------------
 #Subtopic Set
 #Populate
-#Line # set one or more matrix values ##
+#Line # sets one or more matrix values ##
 ##
 
 #Method void set(int index, SkScalar value)
@@ -2780,21 +2785,25 @@ or may restrict Matrix to square scaling. If restricted, ScaleToFit specifies
 how Matrix maps to the side or center of the destination Rect.
 
 #Const kFill_ScaleToFit 0
+#Line # scales in x and y to fill destination Rect ##
     Computes Matrix that scales in x and y independently, so that source Rect is
     mapped to completely fill destination Rect. The aspect ratio of source Rect
     may change.
 ##
 #Const kStart_ScaleToFit 1
+#Line # scales and aligns to left and top ##
     Computes Matrix that maintains source Rect aspect ratio, mapping source Rect
     width or height to destination Rect. Aligns mapping to left and top edges
     of destination Rect.
 ##
 #Const kCenter_ScaleToFit 2
+#Line # scales and aligns to center ##
     Computes Matrix that maintains source Rect aspect ratio, mapping source Rect
     width or height to destination Rect. Aligns mapping to center of destination
     Rect.
 ##
 #Const kEnd_ScaleToFit 3
+#Line # scales and aligns to right and bottom ##
     Computes Matrix that maintains source Rect aspect ratio, mapping source Rect
     width or height to destination Rect. Aligns mapping to right and bottom
     edges of destination Rect.

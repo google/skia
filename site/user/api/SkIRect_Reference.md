@@ -16,7 +16,7 @@ SkIRect Reference
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkIRect"></a> Struct SkIRect
-<a href="#SkIRect">SkIRect</a> holds four 32 bit integer coordinates describing the upper and
+<a href="#SkIRect">SkIRect</a> holds four 32-bit integer coordinates describing the upper and
 lower bounds of a rectangle. <a href="#SkIRect">SkIRect</a> may be created from outer bounds or
 from position, width, and height. <a href="#SkIRect">SkIRect</a> describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
@@ -27,8 +27,8 @@ its top, it is considered empty.
 | name | description |
 | --- | --- |
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
-| <a href="#Intersection">Intersection</a> | set to shared bounds |
-| <a href="#Join">Join</a> | set to union of bounds |
+| <a href="#Intersection">Intersection</a> | sets to shared bounds |
+| <a href="#Join">Join</a> | sets to union of bounds |
 | <a href="#Property">Property</a> | member values, center, validity |
 | <a href="#Set">Set</a> | replaces all values |
 | <a href="#Sorting">Sorting</a> | orders sides |
@@ -60,7 +60,7 @@ its top, it is considered empty.
 | <a href="#SkIRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkIRect_makeOffset">makeOffset</a> | constructs from translated sides |
 | <a href="#SkIRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs <a href="#IRect">IRect</a>, ordering sides from smaller to larger |
 | <a href="#SkIRect_offset">offset</a> | translates sides without changing width and height |
 | <a href="#SkIRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
 | <a href="#SkIRect_outset">outset</a> | moves the sides symmetrically about the center |
@@ -119,7 +119,7 @@ When equal to or less than <a href="#SkIRect_fTop">fTop</a>, <a href="#IRect">IR
 | <a href="#SkIRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkIRect_makeOffset">makeOffset</a> | constructs from translated sides |
 | <a href="#SkIRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs <a href="#IRect">IRect</a>, ordering sides from smaller to larger |
 
 <a name="SkIRect_MakeEmpty"></a>
 ## MakeEmpty
