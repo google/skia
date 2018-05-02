@@ -497,11 +497,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         }
 
         srcRect.offsetTo(0, 0);
-        localSrcBounds = srcRect;
-        if (GrTextureDomain::kClamp_Mode == mode) {
-            // We need to adjust bounds because we only fill part of the srcRect in x-pass.
-            localSrcBounds.inset(0, radiusY);
-        }
+        localSrcBounds.fLeft = srcRect.fLeft;
+        localSrcBounds.fRight = srcRect.fRight;
         srcOffset.set(0, 0);
     }
 
@@ -519,6 +516,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         }
 
         srcRect.offsetTo(0, 0);
+        localSrcBounds.fTop = srcRect.fTop;
+        localSrcBounds.fBottom = srcRect.fBottom;
         srcOffset.set(0, 0);
     }
 
