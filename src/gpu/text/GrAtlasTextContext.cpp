@@ -498,6 +498,7 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
     pathPaint.setPathEffect(nullptr);
 
     SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(pathPaint.getTextEncoding(),
+                                                                        pathPaint.isDevKernText(),
                                                                         true);
     auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
             pathPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
@@ -678,7 +679,7 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
 
     const SkPaint& skPaint = paint.skPaint();
     SkPaint::GlyphCacheProc glyphCacheProc =
-            SkPaint::GetGlyphCacheProc(skPaint.getTextEncoding(), true);
+            SkPaint::GetGlyphCacheProc(skPaint.getTextEncoding(), skPaint.isDevKernText(), true);
 
     SkTArray<SkScalar> positions;
 
@@ -704,13 +705,14 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
         auto origPaintCache =
             SkStrikeCache::FindOrCreateStrikeExclusive(*desc.getDesc(), effects, *typeface);
 
+        SkAutoKern autokern;
         const char* stop = text + byteLength;
         while (textPtr < stop) {
             // don't need x, y here, since all subpixel variants will have the
             // same advance
             const SkGlyph& glyph = glyphCacheProc(origPaintCache.get(), &textPtr);
 
-            SkScalar width = SkFloatToScalar(glyph.fAdvanceX);
+            SkScalar width = SkFloatToScalar(glyph.fAdvanceX) + autokern.adjust(glyph);
             positions.push_back(stopX + origin * width);
 
             SkScalar height = SkFloatToScalar(glyph.fAdvanceY);
@@ -775,7 +777,7 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
         auto cache = blob->setupCache(runIndex, props, SkScalerContextFlags::kNone, dfPaint,
                                       nullptr);
         SkPaint::GlyphCacheProc glyphCacheProc =
-            SkPaint::GetGlyphCacheProc(dfPaint.getTextEncoding(), true);
+            SkPaint::GetGlyphCacheProc(dfPaint.getTextEncoding(), dfPaint.isDevKernText(), true);
 
         const char* stop = text + byteLength;
 
@@ -882,7 +884,8 @@ void GrAtlasTextContext::FallbackTextHelper::drawText(GrAtlasTextBlob* blob, int
         SkExclusiveStrikePtr cache;
         const SkPaint& skPaint = paint.skPaint();
         SkPaint::GlyphCacheProc glyphCacheProc =
-            SkPaint::GetGlyphCacheProc(skPaint.getTextEncoding(), true);
+            SkPaint::GetGlyphCacheProc(skPaint.getTextEncoding(),
+                                       skPaint.isDevKernText(), true);
         SkColor textColor = paint.filteredPremulColor();
         SkScalar textRatio = SK_Scalar1;
         if (fUseScaledFallback) {

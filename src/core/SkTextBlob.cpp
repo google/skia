@@ -67,6 +67,7 @@ private:
         SkPaint::kFakeBoldText_Flag       |
         SkPaint::kLinearText_Flag         |
         SkPaint::kSubpixelText_Flag       |
+        SkPaint::kDevKernText_Flag        |
         SkPaint::kLCDRenderText_Flag      |
         SkPaint::kEmbeddedBitmapText_Flag |
         SkPaint::kAutoHinting_Flag        |

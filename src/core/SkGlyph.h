@@ -131,6 +131,7 @@ struct SkPackedUnicharID : public SkPackedID {
     }
 };
 
+SK_BEGIN_REQUIRE_DENSE
 class SkGlyph {
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
@@ -158,9 +159,7 @@ public:
     int16_t     fTop, fLeft;
 
     uint8_t     fMaskFormat;
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
-#endif
     int8_t      fForceBW;
 
     void initWithGlyphID(SkPackedGlyphID glyph_id);
@@ -225,5 +224,6 @@ public:
 #endif
     SkPackedGlyphID fID;
 };
+SK_END_REQUIRE_DENSE
 
 #endif

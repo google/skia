@@ -8,6 +8,7 @@
 #ifndef SkTextToPathIter_DEFINED
 #define SkTextToPathIter_DEFINED
 
+#include "SkAutoKern.h"
 #include "SkPaint.h"
 #include "SkStrikeCache.h"
 
@@ -26,6 +27,7 @@ protected:
     SkPaint::GlyphCacheProc fGlyphCacheProc;
 
     SkScalar        fXPos;      // accumulated xpos, returned in next
+    SkAutoKern      fAutoKern;
     int             fXYIndex;   // cache for horizontal -vs- vertical text
 };
 

@@ -207,6 +207,7 @@ public:
         REPORTER_ASSERT(reporter, defaultPaint.isFakeBoldText() != font.isFakeBoldText());
         REPORTER_ASSERT(reporter, defaultPaint.isLinearText() != font.isLinearText());
         REPORTER_ASSERT(reporter, defaultPaint.isSubpixelText() != font.isSubpixelText());
+        REPORTER_ASSERT(reporter, defaultPaint.isDevKernText() != font.isDevKernText());
         REPORTER_ASSERT(reporter, defaultPaint.isLCDRenderText() != font.isLCDRenderText());
         REPORTER_ASSERT(reporter, defaultPaint.isEmbeddedBitmapText() != font.isEmbeddedBitmapText());
         REPORTER_ASSERT(reporter, defaultPaint.isAutohinted() != font.isAutohinted());
@@ -233,6 +234,7 @@ public:
             REPORTER_ASSERT(reporter, paint.isFakeBoldText() == font.isFakeBoldText());
             REPORTER_ASSERT(reporter, paint.isLinearText() == font.isLinearText());
             REPORTER_ASSERT(reporter, paint.isSubpixelText() == font.isSubpixelText());
+            REPORTER_ASSERT(reporter, paint.isDevKernText() == font.isDevKernText());
             REPORTER_ASSERT(reporter, paint.isLCDRenderText() == font.isLCDRenderText());
             REPORTER_ASSERT(reporter, paint.isEmbeddedBitmapText() == font.isEmbeddedBitmapText());
             REPORTER_ASSERT(reporter, paint.isAutohinted() == font.isAutohinted());

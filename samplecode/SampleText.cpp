@@ -92,7 +92,8 @@ protected:
         SkPaint     paint;
         const char* s = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit";
 
-        paint.setFlags(paint.getFlags() | SkPaint::kAntiAlias_Flag);
+        paint.setFlags(paint.getFlags() | SkPaint::kAntiAlias_Flag
+                                        | SkPaint::kDevKernText_Flag);
         paint.setTextSize(SkIntToScalar(14));
         canvas.drawString(s, SkIntToScalar(8), SkIntToScalar(14), paint);
     }
