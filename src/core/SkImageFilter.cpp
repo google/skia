@@ -166,7 +166,6 @@ SkImageFilter::SkImageFilter(sk_sp<SkImageFilter> const* inputs,
 }
 
 SkImageFilter::~SkImageFilter() {
-    SkAutoMutexAcquire lock(fMutex);
     SkImageFilterCache::Get()->purgeByKeys(fCacheKeys.begin(), fCacheKeys.count());
 }
 
