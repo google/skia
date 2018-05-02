@@ -859,12 +859,12 @@ enum GrAccessPattern {
 
 // Flags shared between the GrSurface & GrSurfaceProxy class hierarchies
 enum class GrInternalSurfaceFlags {
-    kNone                  = 0,
+    kNone                           = 0,
 
     // Surface-level
-    kNoPendingIO           = 1 << 0,
+    kNoPendingIO                    = 1 << 0,
 
-    kSurfaceMask           = kNoPendingIO,
+    kSurfaceMask                    = kNoPendingIO,
 
     // Texture-only flags
 
@@ -872,15 +872,16 @@ enum class GrInternalSurfaceFlags {
     // external and rectangle textures). Note that Ganesh does not internally
     // create resources with this limitation - this flag will only appear on resources passed
     // into Ganesh.
-    kDoesNotSupportMipMaps = 1 << 1,
+    kDoesNotSupportMipMaps          = 1 << 1,
 
-    // This flag is set when the internal texture target only supports the clamp wrap mode (e.g.,
-    // external and rectangle textures). Note that Ganesh does not internally
-    // create resources with this limitation - this flag will only appear on resources passed
-    // into Ganesh.
-    kIsClampOnly           = 1 << 2,
+    // This flag is for GL only. It says that the GL texture we will use has a target which is
+    // either GL_TEXTURE_RECTANGLE or GL_GL_TEXTURE_EXTERNAL. We use this information to make
+    // decisions about various rendering capabilites (e.g. is clamp the only supported wrap mode).
+    // Note: Ganesh does not internally create these types of textures so they will only occur on
+    // resources passed into Ganesh.
+    kIsGLTextureRectangleOrExternal = 1 << 2,
 
-    kTextureMask           = kDoesNotSupportMipMaps | kIsClampOnly,
+    kTextureMask                    = kDoesNotSupportMipMaps | kIsGLTextureRectangleOrExternal,
 
     // RT-only
 
@@ -890,19 +891,19 @@ enum class GrInternalSurfaceFlags {
     //    this is disabled for FBO0
     //    but, otherwise, is enabled whenever MSAA is enabled and GrCaps reports mixed samples
     //        are supported
-    kMixedSampled          = 1 << 3,
+    kMixedSampled                   = 1 << 3,
 
     // For internal resources:
     //    this is enabled whenever GrCaps reports window rect support
     // For wrapped resources1
     //    this is disabled for FBO0
     //    but, otherwise, is enabled whenever GrCaps reports window rect support
-    kWindowRectsSupport    = 1 << 4,
+    kWindowRectsSupport             = 1 << 4,
 
     // This flag is for use with GL only. It tells us that the internal render target wraps FBO 0.
-    kGLRTFBOIDIs0          = 1 << 5,
+    kGLRTFBOIDIs0                   = 1 << 5,
 
-    kRenderTargetMask      = kMixedSampled | kWindowRectsSupport | kGLRTFBOIDIs0,
+    kRenderTargetMask               = kMixedSampled | kWindowRectsSupport | kGLRTFBOIDIs0,
 };
 GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
 
