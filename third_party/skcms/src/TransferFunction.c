@@ -132,49 +132,57 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 // Our overall strategy is then:
 //    For a couple tolerances,
 //       - skcms_fit_linear(): fit c,d,f iteratively to as many points as our tolerance allows
-//       - fit_nonlinear():    fit g,a,b using Gauss-Newton given c,d,f (and by constraint, e)
+//       - invert c,d,f
+//       - fit_nonlinear():    fit g,a,b using Gauss-Newton given those inverted c,d,f
+//                             (and by constraint, inverted e) to the inverse of the table.
 //    Return the parameters with least maximum error.
 //
-// To run Gauss-Newton to find g,a,b, we'll also need the gradient of the non-linear piece:
-//    ∂tf/∂g = ln(ax + b)*(ax + b)^g
-//           - ln(ad + b)*(ad + b)^g
-//    ∂tf/∂a = xg(ax + b)^(g-1)
-//           - dg(ad + b)^(g-1)
-//    ∂tf/∂b =  g(ax + b)^(g-1)
-//           -  g(ad + b)^(g-1)
+// To run Gauss-Newton to find g,a,b, we'll also need the gradient of the residuals
+// of round-trip f_inv(x), the inverse of the non-linear piece of f(x).
+//
+//    let y = Table(x)
+//    r(x) = x - f_inv(y)
+//
+//    ∂r/∂g = ln(ay + b)*(ay + b)^g
+//          - ln(ad + b)*(ad + b)^g
+//    ∂r/∂a = yg(ay + b)^(g-1)
+//          - dg(ad + b)^(g-1)
+//    ∂r/∂b =  g(ay + b)^(g-1)
+//          -  g(ad + b)^(g-1)
 
 typedef struct {
     const skcms_Curve*            curve;
     const skcms_TransferFunction* tf;
 } rg_nonlinear_arg;
 
-// Return the residual of the skcms_Curve and skcms_TransferFunction with parameters P,
+// Return the residual of roundtripping skcms_Curve(x) through f_inv(y) with parameters P,
 // and fill out the gradient of the residual into dfdP.
 static float rg_nonlinear(float x, const void* ctx, const float P[3], float dfdP[3]) {
     const rg_nonlinear_arg* arg = (const rg_nonlinear_arg*)ctx;
 
-    const skcms_TransferFunction* tf = arg->tf;
+    const float y = skcms_eval_curve(x, arg->curve);
 
+    const skcms_TransferFunction* tf = arg->tf;
     const float g = P[0],  a = P[1],  b = P[2],
                 c = tf->c, d = tf->d, f = tf->f;
 
-    const float X = a*x+b,
-                D = a*d+b;
-    assert (X >= 0 && D >= 0);
+    const float Y = fmaxf_(a*y + b, 0.0f),
+                D =        a*d + b;
+    assert (D >= 0);
 
     // The gradient.
-    dfdP[0] = 0.69314718f*log2f_(X)*powf_(X, g)
+    dfdP[0] = 0.69314718f*log2f_(Y)*powf_(Y, g)
             - 0.69314718f*log2f_(D)*powf_(D, g);
-    dfdP[1] = x*g*powf_(X, g-1)
+    dfdP[1] = y*g*powf_(Y, g-1)
             - d*g*powf_(D, g-1);
-    dfdP[2] =   g*powf_(X, g-1)
+    dfdP[2] =   g*powf_(Y, g-1)
             -   g*powf_(D, g-1);
 
     // The residual.
-     const float t = powf_(X, g)
-                   - powf_(D, g)
-                   + c*d + f;
-    return skcms_eval_curve(x, arg->curve) - t;
+    const float f_inv = powf_(Y, g)
+                      - powf_(D, g)
+                      + c*d + f;
+    return x - f_inv;
 }
 
 int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float* d, float* f) {
@@ -281,7 +289,8 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     *max_error = INFINITY_;
     const float kTolerances[] = { 1.5f / 65535.0f, 1.0f / 512.0f };
     for (int t = 0; t < ARRAY_COUNT(kTolerances); t++) {
-        skcms_TransferFunction tf;
+        skcms_TransferFunction tf,
+                               tf_inv;
         int L = skcms_fit_linear(curve, N, kTolerances[t], &tf.c, &tf.d, &tf.f);
 
         if (L == N) {
@@ -291,6 +300,11 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             tf.a = tf.c;
             tf.b = tf.f;
             tf.c = tf.d = tf.e = tf.f = 0;
+
+            // We set tf directly, so calculate tf_inv to keep in sync.
+            if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
+                continue;
+            }
         } else if (L == N - 1) {
             // Degenerate case with only two points in the nonlinear segment. Solve directly.
             tf.g = 1;
@@ -299,6 +313,11 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             tf.b = skcms_eval_curve((N-2)*x_scale, curve)
                  - tf.a * (N-2)*x_scale;
             tf.e = 0;
+
+            // We solved tf directly, so calculate tf_inv to keep in sync.
+            if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
+                continue;
+            }
         } else {
             // Start by guessing a gamma-only curve through the midpoint.
             int mid = (L + N) / 2;
@@ -307,27 +326,33 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             tf.g = log2f_(mid_y) / log2f_(mid_x);;
             tf.a = 1;
             tf.b = 0;
+            tf.e =    tf.c*tf.d + tf.f
+              - powf_(tf.a*tf.d + tf.b, tf.g);
 
-            if (!fit_nonlinear(curve, L,N, &tf)) {
+
+            if (!skcms_TransferFunction_invert(&tf, &tf_inv) ||
+                !fit_nonlinear(curve, L,N, &tf_inv)) {
+                continue;
+            }
+
+            // We fit tf_inv, so calculate tf to keep in sync.
+            if (!skcms_TransferFunction_invert(&tf_inv, &tf)) {
                 continue;
             }
         }
 
-        // We want to calculate the error of this approximation now.
-        // The most likely use case for this approximation is to be inverted and
-        // used as the transfer function for a destination color space, so we'll
-        // exercise that scenario here.
-        skcms_TransferFunction inv;
-        if (!skcms_TransferFunction_invert(&tf, &inv)) {
-            // If we can't invert the transfer function, it's not of much practical use anyway.
-            continue;
-        }
+        // We find our error by roundtripping the table through tf_inv.
+        //
+        // (The most likely use case for this approximation is to be inverted and
+        // used as the transfer function for a destination color space.)
+        //
+        // We test using tf_inv, but all paths above have kept tf and tf_inv in sync.
 
         float err = 0;
         for (int i = 0; i < N; i++) {
             float x = i * x_scale,
                   y = skcms_eval_curve(x, curve);
-            err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(&inv, y)));
+            err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(&tf_inv, y)));
         }
         if (*max_error > err) {
             *max_error = err;
