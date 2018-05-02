@@ -84,37 +84,40 @@ public:
 
 /** Allocate an array of T elements, and free the array in the destructor
  */
-template <typename T> class SkAutoTArray  {
+template <typename T> class SkAutoTArray : SkNoncopyable {
 public:
-    SkAutoTArray() {}
+    SkAutoTArray() {
+        fArray = nullptr;
+        SkDEBUGCODE(fCount = 0;)
+    }
     /** Allocate count number of T elements
      */
     explicit SkAutoTArray(int count) {
         SkASSERT(count >= 0);
+        fArray = nullptr;
         if (count) {
-            fArray.reset(new T[count]);
+            fArray = new T[count];
         }
         SkDEBUGCODE(fCount = count;)
     }
 
-    SkAutoTArray(SkAutoTArray&& other) : fArray(std::move(other.fArray)) {
-        SkDEBUGCODE(fCount = other.fCount; other.fCount = 0;)
-    }
-    SkAutoTArray& operator=(SkAutoTArray&& other) {
-        if (this != &other) {
-            fArray = std::move(other.fArray);
-            SkDEBUGCODE(fCount = other.fCount; other.fCount = 0;)
-        }
-        return *this;
-    }
-
     /** Reallocates given a new count. Reallocation occurs even if new count equals old count.
      */
-    void reset(int count) { *this = SkAutoTArray(count);  }
+    void reset(int count) {
+        delete[] fArray;
+        SkASSERT(count >= 0);
+        fArray = nullptr;
+        if (count) {
+            fArray = new T[count];
+        }
+        SkDEBUGCODE(fCount = count;)
+    }
+
+    ~SkAutoTArray() { delete[] fArray; }
 
     /** Return the array of T elements. Will be NULL if count == 0
      */
-    T* get() const { return fArray.get(); }
+    T* get() const { return fArray; }
 
     /** Return the nth element in the array
      */
@@ -123,9 +126,14 @@ public:
         return fArray[index];
     }
 
+    void swap(SkAutoTArray& other) {
+        SkTSwap(fArray, other.fArray);
+        SkDEBUGCODE(SkTSwap(fCount, other.fCount));
+    }
+
 private:
-    std::unique_ptr<T[]> fArray;
-    SkDEBUGCODE(int fCount = 0;)
+    T*  fArray;
+    SkDEBUGCODE(int fCount;)
 };
 
 /** Wraps SkAutoTArray, with room for kCountRequested elements preallocated.
@@ -228,48 +236,79 @@ private:
 /** Manages an array of T elements, freeing the array in the destructor.
  *  Does NOT call any constructors/destructors on T (T must be POD).
  */
-template <typename T> class SkAutoTMalloc  {
+template <typename T> class SkAutoTMalloc : SkNoncopyable {
 public:
     /** Takes ownership of the ptr. The ptr must be a value which can be passed to sk_free. */
-    explicit SkAutoTMalloc(T* ptr = nullptr) : fPtr(ptr) {}
+    explicit SkAutoTMalloc(T* ptr = nullptr) {
+        fPtr = ptr;
+    }
 
     /** Allocates space for 'count' Ts. */
-    explicit SkAutoTMalloc(size_t count)
-        : fPtr(count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr) {}
+    explicit SkAutoTMalloc(size_t count) {
+        fPtr = count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr;
+    }
 
-    SkAutoTMalloc(SkAutoTMalloc&&) = default;
-    SkAutoTMalloc& operator=(SkAutoTMalloc&&) = default;
+    SkAutoTMalloc(SkAutoTMalloc<T>&& that) : fPtr(that.release()) {}
+
+    ~SkAutoTMalloc() {
+        sk_free(fPtr);
+    }
 
     /** Resize the memory area pointed to by the current ptr preserving contents. */
     void realloc(size_t count) {
-        fPtr.reset(count ? (T*)sk_realloc_throw(fPtr.release(), count * sizeof(T)) : nullptr);
+        if (count) {
+            fPtr = reinterpret_cast<T*>(sk_realloc_throw(fPtr, count * sizeof(T)));
+        } else {
+            this->reset(0);
+        }
     }
 
     /** Resize the memory area pointed to by the current ptr without preserving contents. */
     T* reset(size_t count = 0) {
-        fPtr.reset(count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr);
-        return this->get();
+        sk_free(fPtr);
+        fPtr = count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr;
+        return fPtr;
     }
 
-    T* get() const { return fPtr.get(); }
+    T* get() const { return fPtr; }
 
-    operator T*() { return fPtr.get(); }
+    operator T*() {
+        return fPtr;
+    }
 
-    operator const T*() const { return fPtr.get(); }
+    operator const T*() const {
+        return fPtr;
+    }
 
-    T& operator[](int index) { return fPtr.get()[index]; }
+    T& operator[](int index) {
+        return fPtr[index];
+    }
 
-    const T& operator[](int index) const { return fPtr.get()[index]; }
+    const T& operator[](int index) const {
+        return fPtr[index];
+    }
+
+    SkAutoTMalloc& operator=(SkAutoTMalloc<T>&& that) {
+        if (this != &that) {
+            sk_free(fPtr);
+            fPtr = that.release();
+        }
+        return *this;
+    }
 
     /**
      *  Transfer ownership of the ptr to the caller, setting the internal
      *  pointer to NULL. Note that this differs from get(), which also returns
      *  the pointer, but it does not transfer ownership.
      */
-    T* release() { return fPtr.release(); }
+    T* release() {
+        T* ptr = fPtr;
+        fPtr = nullptr;
+        return ptr;
+    }
 
 private:
-    std::unique_ptr<T, SkFunctionWrapper<void, void, sk_free>> fPtr;
+    T* fPtr;
 };
 
 template <size_t kCountRequested, typename T> class SkAutoSTMalloc : SkNoncopyable {
@@ -386,11 +425,21 @@ template <typename T> void SkInPlaceDeleteCheck(T* obj, void* storage) {
  *      ...
  *      SkInPlaceDeleteCheck(obj, storage);
  */
-template<typename T, typename... Args>
-T* SkInPlaceNewCheck(void* storage, size_t size, Args&&... args) {
-    return (sizeof(T) <= size) ? new (storage) T(std::forward<Args>(args)...)
-                               : new T(std::forward<Args>(args)...);
+template <typename T> T* SkInPlaceNewCheck(void* storage, size_t size) {
+    return (sizeof(T) <= size) ? new (storage) T : new T;
 }
+
+template <typename T, typename A1, typename A2, typename A3>
+T* SkInPlaceNewCheck(void* storage, size_t size, const A1& a1, const A2& a2, const A3& a3) {
+    return (sizeof(T) <= size) ? new (storage) T(a1, a2, a3) : new T(a1, a2, a3);
+}
+
+template <typename T, typename A1, typename A2, typename A3, typename A4>
+T* SkInPlaceNewCheck(void* storage, size_t size,
+                     const A1& a1, const A2& a2, const A3& a3, const A4& a4) {
+    return (sizeof(T) <= size) ? new (storage) T(a1, a2, a3, a4) : new T(a1, a2, a3, a4);
+}
+
 /**
  * Reserves memory that is aligned on double and pointer boundaries.
  * Hopefully this is sufficient for all practical purposes.

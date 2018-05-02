@@ -53,8 +53,6 @@ public:
     SkAnalyticEdge** analyticEdgeList() { return (SkAnalyticEdge**)fEdgeList; }
     SkBezier** bezierList() { return (SkBezier**)fEdgeList; }
 
-    bool isFinite() const { return fIsFinite; }
-
 private:
     enum Combine {
         kNo_Combine,
@@ -82,7 +80,6 @@ private:
 
     int         fShiftUp;
     EdgeType    fEdgeType;
-    bool        fIsFinite = true;
 
 public:
     void addLine(const SkPoint pts[]);

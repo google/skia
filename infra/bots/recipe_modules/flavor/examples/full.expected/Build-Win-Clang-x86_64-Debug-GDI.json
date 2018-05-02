@@ -7,7 +7,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_win/VERSION",
+      "[CUSTOM_C:\\_B_WORK]/skia/infra/bots/assets/clang_win/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -17,31 +17,31 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+      "[CUSTOM_C:\\_B_WORK]/skia/bin/fetch-gn"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Debug-GDI"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GDI"
     },
     "infra_step": true,
     "name": "fetch-gn"
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/skia/bin/gn.exe",
+      "[CUSTOM_C:\\_B_WORK]/skia/bin/gn.exe",
       "gen",
-      "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Debug-GDI/Debug_x64",
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GDI/Debug_x64",
       "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"-DDUMMY_clang_win_version=42\"] target_cpu=\"x86_64\" win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Debug-GDI"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GDI"
     },
     "name": "gn gen"
   },
@@ -51,14 +51,14 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Debug-GDI/Debug_x64"
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GDI/Debug_x64"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Debug-GDI"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GDI"
     },
     "name": "ninja"
   },

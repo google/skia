@@ -377,6 +377,12 @@ uint16_t SkScalerContext_DW::generateCharToGlyph(SkUnichar uni) {
 }
 
 void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
+    //Delta is the difference between the right/left side bearing metric
+    //and where the right/left side bearing ends up after hinting.
+    //DirectWrite does not provide this information.
+    glyph->fRsbDelta = 0;
+    glyph->fLsbDelta = 0;
+
     glyph->fAdvanceX = 0;
     glyph->fAdvanceY = 0;
 
@@ -961,20 +967,20 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     }
 }
 
-bool SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
+void SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
 
     path->reset();
 
     SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
-    HRBM(SkDWriteGeometrySink::Create(path, &geometryToPath),
+    HRVM(SkDWriteGeometrySink::Create(path, &geometryToPath),
          "Could not create geometry to path converter.");
     UINT16 glyphId = SkTo<UINT16>(glyph);
     {
         SkAutoExclusive l(DWriteFactoryMutex);
         //TODO: convert to<->from DIUs? This would make a difference if hinting.
         //It may not be needed, it appears that DirectWrite only hints at em size.
-        HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
+        HRVM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
              SkScalarToFloat(fTextSizeRender),
              &glyphId,
              nullptr, //advances
@@ -987,7 +993,6 @@ bool SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
     }
 
     path->transform(fSkXform);
-    return true;
 }
 
 #endif//defined(SK_BUILD_FOR_WIN)
