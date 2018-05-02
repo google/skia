@@ -246,7 +246,7 @@ private:
     void drawProducerNine(GrTextureProducer*, const SkIRect& center,
                           const SkRect& dst, const SkPaint&);
 
-    void drawProducerLattice(GrTextureProducer*, const SkCanvas::Lattice& lattice,
+    void drawProducerLattice(GrTextureProducer*, std::unique_ptr<SkLatticeIter>,
                              const SkRect& dst, const SkPaint&);
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);

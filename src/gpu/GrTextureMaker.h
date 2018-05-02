@@ -18,17 +18,10 @@ class GrTextureMaker : public GrTextureProducer {
 public:
     enum class AllowedTexGenType : bool { kCheap, kAny };
 
-    /**
-     *  Returns a texture that is safe for use with the params. If the size of the returned texture
-     *  does not match width()/height() then the contents of the original must be scaled to fit
-     *  the texture. Additionally, the 'scaleAdjust' must be applied to the texture matrix
-     *  in order to correct the absolute texture coordinates.
-     *  Places the color space of the texture in (*texColorSpace).
-     */
     sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
                                                    SkColorSpace* dstColorSpace,
                                                    sk_sp<SkColorSpace>* texColorSpace,
-                                                   SkScalar scaleAdjust[2]);
+                                                   SkScalar scaleAdjust[2]) override;
 
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
             const SkMatrix& textureMatrix,

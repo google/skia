@@ -20,11 +20,6 @@
  */
 class GrTextureAdjuster : public GrTextureProducer {
 public:
-    /** Makes the subset of the texture safe to use with the given texture parameters. If the copy's
-        size does not match subset's dimensions then the contents are scaled to fit the copy.*/
-    sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerState&,
-                                                       SkScalar scaleAdjust[2]);
-
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
             const SkMatrix& textureMatrix,
             const SkRect& constraintRect,
@@ -32,6 +27,11 @@ public:
             bool coordsLimitedToConstraintRect,
             const GrSamplerState::Filter* filterOrNullForBicubic,
             SkColorSpace* dstColorSpace) override;
+
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* texColorSpace,
+                                                   SkScalar scaleAdjust[2]) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
