@@ -5,17 +5,29 @@
  * found in the LICENSE file.
  */
 
+#include <functional>
+#include <iterator>
+
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkEndian.h"
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
+#include "SkGlyph.h"
 #include "SkMakeUnique.h"
 #include "SkMutex.h"
 #include "SkOTTable_OS_2.h"
 #include "SkOnce.h"
+#include "SkSharedMutex.h"
 #include "SkStream.h"
+#include "SkTHash.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
+#include "SkUtils.h"
+
+class SkTypeface::UnicharCache {
+    mutable SkSharedMutex            fMapMutex;
+    mutable SkTHashMap<SkUnichar, SkPackedGlyphID> fUnicharToGlyphMap;
+};
 
 SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
     : fUniqueID(SkTypefaceCache::NewFontID()), fStyle(style), fIsFixedPitch(isFixedPitch) { }
@@ -257,6 +269,75 @@ int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
         return 0;
     }
     return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
+}
+
+size_t SkTypeface::charsToGlyphs(const void* text,
+                              size_t bytes,
+                              Encoding encoding,
+                              SkPackedID glyphs[]) const {
+    if (bytes <= 0 || nullptr == text || (unsigned)encoding > kUTF32_Encoding) {
+        return 0;
+    }
+
+    size_t glyphCount = 0;
+
+    // The first missingRange glyphs have at least one cache miss.
+    size_t missingRange = 0;
+
+    // Can release the lock early for first time.
+    fMapMutex.acquireShared();
+    if (fUnicharToGlyphMap.count() > 0) {
+        auto convert = [&missingRange, &glyphs, this](size_t i, SkUnichar c) {
+            if (auto answer = fUnicharToGlyphMap.find(c)) {
+                glyphs[i] = *answer;
+            } else {
+                glyphs[i] = SkPackedID(c, true);
+                missingRange = i + 1;
+            }
+        };
+        glyphCount = SkParseUnicode(text, bytes, encoding, convert);
+        fMapMutex.releaseShared();
+    } else {
+        fMapMutex.releaseShared();
+        auto convert = [&glyphs](size_t i, SkUnichar c) {
+            glyphs[i] = SkPackedID(c, true);
+        };
+        glyphCount = SkParseUnicode(text, bytes, encoding, convert);
+        missingRange = glyphCount;
+    }
+
+    if (missingRange == 0) {
+        return glyphCount;
+    } else {
+        std::vector<SkUnichar> missingUnichar;
+        for (size_t i = 0; i < missingRange; i++) {
+            if (glyphs[i].isMarked()) {
+                missingUnichar.push_back(glyphs[i].code());
+            }
+        }
+        std::sort(missingUnichar.begin(), missingUnichar.end());
+        auto uniqueEnd = std::unique(missingUnichar.begin(), missingUnichar.end());
+        missingUnichar.erase(uniqueEnd, missingUnichar.end());
+        auto uniqueSize = missingUnichar.size();
+        auto uniqueGlyphs = skstd::make_unique_default<SkGlyphID[]>(missingUnichar.size());
+        this->onCharsToGlyphs(
+                missingUnichar.data(), kUTF32_Encoding, uniqueGlyphs.get(), uniqueSize);
+
+        // This may be setting glyphs that some other thread set, but it's idempotent.
+        SkAutoMutexAcquire l(fMapMutex);
+        for (size_t i = 0; i < uniqueSize; i++) {
+            fUnicharToGlyphMap.set(missingUnichar[i], uniqueGlyphs[i]);
+        }
+    }
+
+    SkAutoSharedMutexShared l(fMapMutex);
+    for (size_t i = 0; i < missingRange; i++) {
+        if (glyphs[i].isMarked()) {
+            glyphs[i] = *fUnicharToGlyphMap.find(glyphs[i].code());
+        }
+    }
+
+    return glyphCount;
 }
 
 int SkTypeface::countGlyphs() const {
