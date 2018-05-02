@@ -697,3 +697,67 @@ void skcms_EnsureUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile,
     *profile = result;
     assert_usable_as_destination(profile);
 }
+
+bool skcms_MakeUsableAsDestination(skcms_ICCProfile* profile) {
+    skcms_Matrix3x3 fromXYZD50;
+    if (!profile->has_trc || !profile->has_toXYZD50
+        || !skcms_Matrix3x3_invert(&profile->toXYZD50, &fromXYZD50)) {
+        return false;
+    }
+
+    skcms_TransferFunction tf[3];
+    for (int i = 0; i < 3; i++) {
+        skcms_TransferFunction inv;
+        if (profile->trc[i].table_entries == 0
+            && skcms_TransferFunction_invert(&profile->trc[i].parametric, &inv)) {
+            tf[i] = profile->trc[i].parametric;
+            continue;
+        }
+
+        float max_error;
+        // Parametric curves from skcms_ApproximateCurve() are guaranteed to be invertible.
+        if (!skcms_ApproximateCurve(&profile->trc[i], &tf[i], &max_error)) {
+            return false;
+        }
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        profile->trc[i].table_entries = 0;
+        profile->trc[i].parametric = tf[i];
+    }
+
+    assert_usable_as_destination(profile);
+    return true;
+}
+
+bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile) {
+    // Operate on a copy of profile, so we can choose the best TF for the original curves
+    skcms_ICCProfile result = *profile;
+    if (!skcms_MakeUsableAsDestination(&result)) {
+        return false;
+    }
+
+    int best_tf = 0;
+    float min_max_error = INFINITY_;
+    for (int i = 0; i < 3; i++) {
+        skcms_TransferFunction inv;
+        skcms_TransferFunction_invert(&result.trc[i].parametric, &inv);
+
+        float err = 0;
+        for (int j = 0; j < 3; ++j) {
+            err = fmaxf_(err, max_roundtrip_error(&inv, &profile->trc[j]));
+        }
+        if (min_max_error > err) {
+            min_max_error = err;
+            best_tf = i;
+        }
+    }
+
+    for (int i = 0; i < 3; i++) {
+        result.trc[i].parametric = result.trc[best_tf].parametric;
+    }
+
+    *profile = result;
+    assert_usable_as_destination(profile);
+    return true;
+}
