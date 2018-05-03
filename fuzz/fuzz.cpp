@@ -18,6 +18,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPicture.h"
+#include "Skottie.h"
 #include "SkPipe.h"
 #include "SkReadBuffer.h"
 #include "SkStream.h"
@@ -58,6 +59,7 @@ DEFINE_string2(type, t, "", "How to interpret --bytes, one of:\n"
                             "region_set_path\n"
                             "skp\n"
                             "sksl2glsl\n"
+                            "skottie_json\n"
                             "textblob");
 
 static int fuzz_file(SkString path, SkString type);
@@ -74,6 +76,7 @@ static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_region_set_path(sk_sp<SkData>);
+static void fuzz_skottie_json(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
 static void fuzz_skpipe(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
@@ -158,6 +161,10 @@ static int fuzz_file(SkString path, SkString type) {
         fuzz_img(bytes, 0, option);
         return 0;
     }
+    if (type.equals("filter_fuzz")) {
+        fuzz_filter_fuzz(bytes);
+        return 0;
+    }
     if (type.equals("path_deserialize")) {
         fuzz_path_deserialize(bytes);
         return 0;
@@ -174,12 +181,12 @@ static int fuzz_file(SkString path, SkString type) {
         fuzz_skpipe(bytes);
         return 0;
     }
-    if (type.equals("skp")) {
-        fuzz_skp(bytes);
+    if (type.equals("skottie_json")) {
+        fuzz_skottie_json(bytes);
         return 0;
     }
-    if (type.equals("filter_fuzz")) {
-        fuzz_filter_fuzz(bytes);
+    if (type.equals("skp")) {
+        fuzz_skp(bytes);
         return 0;
     }
     if (type.equals("textblob")) {
@@ -255,6 +262,13 @@ static SkString try_auto_detect(SkString path, SkString* name) {
     }
 
     return SkString("");
+}
+
+void FuzzSkottieJSON(sk_sp<SkData> bytes);
+
+static void fuzz_skottie_json(sk_sp<SkData> bytes){
+    FuzzSkottieJSON(bytes);
+    SkDebugf("[terminated] Done animating!\n");
 }
 
 // This adds up the first 1024 bytes and returns it as an 8 bit integer.  This allows afl-fuzz to

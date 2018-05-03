@@ -1838,6 +1838,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzPathDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+      "fuzz/oss_fuzz/FuzzSkottieJSON.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/SkDebugCanvas.cpp",
@@ -1846,6 +1847,7 @@ if (skia_enable_tools) {
       "tools/picture_utils.cpp",
     ]
     deps = [
+      ":experimental_skottie",
       ":flags",
       ":gpu_tool_utils",
       ":skia",
