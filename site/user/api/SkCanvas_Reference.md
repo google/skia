@@ -388,11 +388,11 @@ canvas is empty
 
 ---
 
-<a name="SkCanvas_copy_SkBaseDevice_star"></a>
+<a name="SkCanvas_copy_SkBaseDevice"></a>
 ## SkCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-explicit SkCanvas(SkBaseDevice* device)
+explicit SkCanvas(sk_sp&lt;SkBaseDevice&gt; device)
 </pre>
 
 soon
@@ -1027,7 +1027,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="2964297993747769b0760874c19e0168"><div>A black circle drawn on a blue background provides an image to copy.
+<div><fiddle-embed name="102d014d7f753db2a9b9ee08893aaf11"><div>A black circle drawn on a blue background provides an image to copy.
 <a href="#SkCanvas_readPixels">readPixels</a> copies one quarter of the canvas into each of the four corners.
 The copied quarter circles overdraw the original circle.
 </div></fiddle-embed></div>
@@ -1350,7 +1350,7 @@ save state and return the depth of the stack.
 
 ### Example
 
-<div><fiddle-embed name="a4548baa133302e933b4d3442c06f5b3"><div><a href="#Draw">Draw</a> to ever smaller clips; then restore drawing to full canvas.
+<div><fiddle-embed name="bb1dbfdca3aedf716beb6f07e2aab065"><div><a href="#Draw">Draw</a> to ever smaller clips; then restore drawing to full canvas.
 Note that the second <a href="#SkCanvas_clipRect">clipRect</a> is not permitted to enlarge <a href="#Clip">Clip</a>.
 </div></fiddle-embed></div>
 
@@ -1626,6 +1626,7 @@ and draws <a href="#Layer">Layer</a>.
 <a href="#Matrix">Matrix</a> may be changed by <a href="#SkCanvas_translate">translate</a>, <a href="#SkCanvas_scale">scale</a>, <a href="#SkCanvas_rotate">rotate</a>, <a href="#SkCanvas_skew">skew</a>, <a href="#SkCanvas_concat">concat</a>,
 <a href="#SkCanvas_setMatrix">setMatrix</a>, and <a href="#SkCanvas_resetMatrix">resetMatrix</a>. <a href="#Clip">Clip</a> may be changed by <a href="#SkCanvas_clipRect">clipRect</a>, <a href="#SkCanvas_clipRRect">clipRRect</a>,
 <a href="#SkCanvas_clipPath">clipPath</a>, <a href="#SkCanvas_clipRegion">clipRegion</a>.
+
 <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_saveLayerPreserveLCDTextRequests_bounds">bounds</a> suggests but does not define the <a href="#Layer">Layer</a> size. To clip drawing to
 a specific rectangle, use <a href="#SkCanvas_clipRect">clipRect</a>.
 
@@ -1746,7 +1747,7 @@ defining how <a href="#Layer">Layer</a> allocated by <a href="#SkCanvas_saveLaye
 
 ### Example
 
-<div><fiddle-embed name="d314c688925d2c549d4762f5cc6e6a1a"><div><a href="#Canvas">Canvas</a> <a href="#Layer">Layer</a> captures red and blue circles scaled up by four.
+<div><fiddle-embed name="05db6a937225e8e31ae3481173d25dae"><div><a href="#Canvas">Canvas</a> <a href="#Layer">Layer</a> captures red and blue circles scaled up by four.
 scalePaint blends <a href="#Layer">Layer</a> back with transparency.
 </div></fiddle-embed></div>
 
@@ -1808,7 +1809,7 @@ contents of the previous <a href="#Layer">Layer</a>.
 
 ### Example
 
-<div><fiddle-embed name="7b18146582fc2440656b839a173ed500"><div><a href="#Canvas">Canvas</a> <a href="#Layer">Layer</a> captures a red Anti-aliased circle and a blue <a href="undocumented#Alias">Aliased</a> circle scaled
+<div><fiddle-embed name="ee8c0b120234e27364f8c9a786cf8f89"><div><a href="#Canvas">Canvas</a> <a href="#Layer">Layer</a> captures a red Anti-aliased circle and a blue <a href="undocumented#Alias">Aliased</a> circle scaled
 up by four. After drawing another red circle without scaling on top, the <a href="#Layer">Layer</a> is
 transferred to the main canvas.
 </div></fiddle-embed></div>
@@ -2120,7 +2121,7 @@ amount to rotate, in <a href="#SkCanvas_rotate_degrees">degrees</a></td>
 
 ### Example
 
-<div><fiddle-embed name="caafb205771b714948e00dcd58ccaf1f"><div><a href="#Draw">Draw</a> clock hands at time 5:10. The hour hand and minute hand point up and
+<div><fiddle-embed name="963789ac8498d4e505748ab3b15cdaa5"><div><a href="#Draw">Draw</a> clock hands at time 5:10. The hour hand and minute hand point up and
 are rotated clockwise.
 </div></fiddle-embed></div>
 
@@ -2346,7 +2347,7 @@ and is unaffected by <a href="#Matrix">Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="d2e60e5171f26ff9ddefae48387f889b"><div><a href="#Draw">Draw</a> a red circle with an <a href="undocumented#Alias">Aliased</a> clip and an Anti-aliased clip.
+<div><fiddle-embed name="862cc026601a41a58df49c0b9f0d7777"><div><a href="#Draw">Draw</a> a red circle with an <a href="undocumented#Alias">Aliased</a> clip and an Anti-aliased clip.
 Use an image filter to zoom into the pixels drawn.
 The edge of the <a href="undocumented#Alias">Aliased</a> clip fully draws pixels in the red circle.
 The edge of the Anti-aliased clip partially draws pixels in the red circle.
@@ -2740,7 +2741,7 @@ true if <a href="#SkCanvas_quickReject_rect">rect</a>, transformed by <a href="#
 
 ### Example
 
-<div><fiddle-embed name="c15e39862d5f07b0fed44c71e86f7cc9">
+<div><fiddle-embed name="cfe4016241074477809dd45435be9cf4">
 
 #### Example Output
 
@@ -2781,7 +2782,7 @@ true if <a href="#SkCanvas_quickReject_2_path">path</a>, transformed by <a href=
 
 ### Example
 
-<div><fiddle-embed name="64723a541c40073157abf2ca67907e15">
+<div><fiddle-embed name="56dcd14f943aea6f7d7aafe0de7e6c25">
 
 #### Example Output
 
@@ -2817,7 +2818,7 @@ bounds of <a href="#Clip">Clip</a> in local coordinates
 
 ### Example
 
-<div><fiddle-embed name="0b36ff64daf88c046b4ae6ed4ee64db9"><div>Initial bounds is device bounds outset by 1 on all sides.
+<div><fiddle-embed name="7f60cb030d3f9b2473adbe3e34b19d91"><div>Initial bounds is device bounds outset by 1 on all sides.
 Clipped bounds is <a href="#SkCanvas_clipPath">clipPath</a> bounds outset by 1 on all sides.
 Scaling the canvas by two in x and y scales the local bounds by 1/2 in x and y.
 </div>
@@ -2898,7 +2899,7 @@ bounds of <a href="#Clip">Clip</a> in <a href="undocumented#Device">Device</a> c
 
 ### Example
 
-<div><fiddle-embed name="5f4c910afa4a5a61702e5119eab2cac9"><div>Initial bounds is device bounds, not outset.
+<div><fiddle-embed name="556832ac5711af662a98c21c547185e9"><div>Initial bounds is device bounds, not outset.
 Clipped bounds is <a href="#SkCanvas_clipPath">clipPath</a> bounds, not outset.
 Scaling the canvas by 1/2 in x and y scales the device bounds by 1/2 in x and y.
 </div>
@@ -3057,7 +3058,7 @@ This has the effect of replacing all pixels contained by <a href="#Clip">Clip</a
 
 ### Example
 
-<div><fiddle-embed name="d97750e04989d42dc879406127b22c0b"></fiddle-embed></div>
+<div><fiddle-embed name="8c4499e322f10153dcd9b0b9806233b9"></fiddle-embed></div>
 
 ### See Also
 
@@ -3208,7 +3209,7 @@ stroke, blend, color, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="f1dfbb0d5a17c8beab19af29f2aaba8c"><div>
+<div><fiddle-embed name="635d54b4716e226e93dfbc21ad40e77d"><div>
 
 <table>  <tr>
     <td>The first column draws points.</td>  </tr>  <tr>
@@ -3516,7 +3517,7 @@ may have any combination of positive non-square radii for the four corners.
 
 ### Example
 
-<div><fiddle-embed name="369cdbfb2a200d5bb8ae40f7cc1025c3"></fiddle-embed></div>
+<div><fiddle-embed name="90fed1bb11efb43aada94113338c63d8"></fiddle-embed></div>
 
 ### See Also
 
@@ -3760,7 +3761,7 @@ stroke, blend, color, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="d489555a878cb2ab08eea5faf516f54e"><div>Top rows draw stroked <a href="#SkCanvas_drawPath_path">path</a> with combinations of joins and caps. The open contour
+<div><fiddle-embed name="fe2294131f422b8d6752f6a880f98ad9"><div>Top rows draw stroked <a href="#SkCanvas_drawPath_path">path</a> with combinations of joins and caps. The open contour
 is affected by caps; the closed contour is affected by joins.
 Bottom row draws fill the same for open and closed contour.
 First bottom column shows winding fills overlap.
@@ -3949,7 +3950,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_src">src</a> or draw fas
 
 ### Example
 
-<div><fiddle-embed name="2b01c707ef8b5ce3023b7a1d55fce059"><div>The left bitmap draws with <a href="SkPaint_Reference#Paint">Paint</a> default <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, and stays within
+<div><fiddle-embed name="bfd18e9cac896cdf94c9f154ccf94be8"><div>The left bitmap draws with <a href="SkPaint_Reference#Paint">Paint</a> default <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, and stays within
 its bounds; there is no bleeding with <a href="#SkCanvas_kFast_SrcRectConstraint">kFast SrcRectConstraint</a>.
 the middle and right bitmaps draw with <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a>; with
 <a href="#SkCanvas_kStrict_SrcRectConstraint">kStrict SrcRectConstraint</a>, the filter remains within the checkerboard, and
@@ -4004,7 +4005,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_2_isrc">isrc</a> or draw
 
 ### Example
 
-<div><fiddle-embed name="b63b8f9f587b8d918973dc065ce4a593"></fiddle-embed></div>
+<div><fiddle-embed name="7f92cd5c9b9f4b1ac3cd933b08037bfe"></fiddle-embed></div>
 
 ### See Also
 
@@ -4098,7 +4099,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_4_src">src</a> or draw f
 
 ### Example
 
-<div><fiddle-embed name="589999454db90c573f7facfb007253a7"><div><a href="#Canvas">Canvas</a> scales and translates; transformation from <a href="#SkCanvas_drawImageRect_4_src">src</a> to <a href="#SkCanvas_drawImageRect_4_dst">dst</a> also scales.
+<div><fiddle-embed name="d4b35a9d24c32c042bd1f529b8de3c0d"><div><a href="#Canvas">Canvas</a> scales and translates; transformation from <a href="#SkCanvas_drawImageRect_4_src">src</a> to <a href="#SkCanvas_drawImageRect_4_dst">dst</a> also scales.
 The two matrices are concatenated to create the final transformation.
 </div></fiddle-embed></div>
 
@@ -4149,7 +4150,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_5_image">image</a> or dr
 
 ### Example
 
-<div><fiddle-embed name="249fadde5d0d0fc515e9f53f188af48b"></fiddle-embed></div>
+<div><fiddle-embed name="d307e7e1237f39fb54d80723e5449857"></fiddle-embed></div>
 
 ### See Also
 
@@ -4195,7 +4196,7 @@ filter strictly within <a href="#SkCanvas_drawImageRect_6_image">image</a> or dr
 
 ### Example
 
-<div><fiddle-embed name="37a85bd2247487c7af584e42c1cabe4a"></fiddle-embed></div>
+<div><fiddle-embed name="3a47ef94cb70144455f80333d8653e6c"></fiddle-embed></div>
 
 ### See Also
 
@@ -4242,7 +4243,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="47f78f3f70ccd9e6c40ee3203a5c71dd"><div>The leftmost <a href="#SkCanvas_drawImageNine_image">image</a> is smaller than <a href="#SkCanvas_drawImageNine_center">center</a>; only corners are drawn, all scaled to fit.
+<div><fiddle-embed name="4f153cf1d0dbe1a95acf5badeec14dae"><div>The leftmost <a href="#SkCanvas_drawImageNine_image">image</a> is smaller than <a href="#SkCanvas_drawImageNine_center">center</a>; only corners are drawn, all scaled to fit.
 The second <a href="#SkCanvas_drawImageNine_image">image</a> equals the size of <a href="#SkCanvas_drawImageNine_center">center</a>; only corners are drawn without scaling.
 The remaining images are larger than <a href="#SkCanvas_drawImageNine_center">center</a>. All corners draw without scaling.
 The sides and <a href="#SkCanvas_drawImageNine_center">center</a> are scaled if needed to take up the remaining space.
@@ -4292,7 +4293,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="e941e553970569d1ffb03a42f7fcd6d9"><div>The two leftmost images has four corners and sides to the left and right of <a href="#SkCanvas_drawImageNine_2_center">center</a>.
+<div><fiddle-embed name="d597d9af8d17fd93e634dd12017058e2"><div>The two leftmost images has four corners and sides to the left and right of <a href="#SkCanvas_drawImageNine_2_center">center</a>.
 The leftmost <a href="#SkCanvas_drawImageNine_2_image">image</a> scales the width of corners proportionately to fit.
 The third and fourth <a href="#SkCanvas_drawImageNine_2_image">image</a> corners are not scaled; the sides and <a href="#SkCanvas_drawImageNine_2_center">center</a> are scaled to
 fill the remaining space.
@@ -4341,7 +4342,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="70d7fbf7de82264dd66a526d98d31def"></fiddle-embed></div>
+<div><fiddle-embed name="4a521be1f850058541e136a808c65e78"></fiddle-embed></div>
 
 ### See Also
 
@@ -4391,7 +4392,7 @@ filter strictly within <a href="#SkCanvas_drawBitmapRect_src">src</a> or draw fa
 
 ### Example
 
-<div><fiddle-embed name="4be3c8406a350bc3429a69e5c1daa8cd"></fiddle-embed></div>
+<div><fiddle-embed name="7d04932f2a259cc70d6e45cd25a6feb6"></fiddle-embed></div>
 
 ### See Also
 
@@ -4441,7 +4442,7 @@ sample strictly within <a href="#SkCanvas_drawBitmapRect_2_isrc">isrc</a>, or dr
 
 ### Example
 
-<div><fiddle-embed name="69b028ef1f95c355672fbdcbf47550f2"></fiddle-embed></div>
+<div><fiddle-embed name="0a3c6d2459566e58cee7d4910655ee21"></fiddle-embed></div>
 
 ### See Also
 
@@ -4489,7 +4490,7 @@ filter strictly within <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> or
 
 ### Example
 
-<div><fiddle-embed name="76b74b826e43b4a595d18115564e88c7"></fiddle-embed></div>
+<div><fiddle-embed name="bdbeac3c97f60a63987b1cc8e1f1e91e"></fiddle-embed></div>
 
 ### See Also
 
@@ -4538,7 +4539,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="a4a30aa10e566a85fe6f6cad2ff9935b"><div>The two leftmost <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> draws has four corners and sides to the left and right of <a href="#SkCanvas_drawBitmapNine_center">center</a>.
+<div><fiddle-embed name="e99e7be0d8f67dfacbecf85df585433d"><div>The two leftmost <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> draws has four corners and sides to the left and right of <a href="#SkCanvas_drawBitmapNine_center">center</a>.
 The leftmost <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> draw scales the width of corners proportionately to fit.
 The third and fourth draw corners are not scaled; the sides and <a href="#SkCanvas_drawBitmapNine_center">center</a> are scaled to
 fill the remaining space.
@@ -4701,7 +4702,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="7a02b16a4cc8158d88858a76907c9d89"><div>The two leftmost <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> draws has four corners and sides to the left and right of center.
+<div><fiddle-embed name="c5bfa944e17ba4a4400dc799f032069c"><div>The two leftmost <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> draws has four corners and sides to the left and right of center.
 The leftmost <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> draw scales the width of corners proportionately to fit.
 The third and fourth draw corners are not scaled; the sides are scaled to
 fill the remaining space; the center is transparent.
@@ -4758,7 +4759,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="47f78f3f70ccd9e6c40ee3203a5c71dd"><div>The leftmost <a href="#SkCanvas_drawImageLattice_image">image</a> is smaller than center; only corners are drawn, all scaled to fit.
+<div><fiddle-embed name="4f153cf1d0dbe1a95acf5badeec14dae"><div>The leftmost <a href="#SkCanvas_drawImageLattice_image">image</a> is smaller than center; only corners are drawn, all scaled to fit.
 The second <a href="#SkCanvas_drawImageLattice_image">image</a> equals the size of center; only corners are drawn without scaling.
 The remaining images are larger than center. All corners draw without scaling. The sides
 are scaled if needed to take up the remaining space; the center is transparent.
@@ -4824,7 +4825,7 @@ start of <a href="#SkCanvas_drawText_text">text</a> on <a href="#SkCanvas_drawTe
 
 ### Example
 
-<div><fiddle-embed name="a3365bd3044b13e8e0318ee8aefbdf91"><div>The same <a href="#SkCanvas_drawText_text">text</a> is drawn varying <a href="SkPaint_Reference#Text_Size">Paint Text Size</a> and varying
+<div><fiddle-embed name="55f5e59350622c5e2834d1c85789f732"><div>The same <a href="#SkCanvas_drawText_text">text</a> is drawn varying <a href="SkPaint_Reference#Text_Size">Paint Text Size</a> and varying
 <a href="#Matrix">Matrix</a>.
 </div></fiddle-embed></div>
 
@@ -5068,7 +5069,7 @@ offset of <a href="#SkCanvas_drawTextOnPathHV_text">text</a> above (if negative)
 
 ### Example
 
-<div><fiddle-embed name="25cc5452156d7f06e85f514913d46b5c"></fiddle-embed></div>
+<div><fiddle-embed name="b2f22d1d5041e55d6913aab52f73a7d3"></fiddle-embed></div>
 
 ### See Also
 
@@ -5119,7 +5120,7 @@ to use identity <a href="#Matrix">Matrix</a></td>
 
 ### Example
 
-<div><fiddle-embed name="0f60797fbdce3d3c71c46b800e6bd6f8"></fiddle-embed></div>
+<div><fiddle-embed name="236e680b27960ca22641586dba0599c9"></fiddle-embed></div>
 
 ### See Also
 
@@ -5165,7 +5166,7 @@ byte length of <a href="#SkCanvas_drawTextRSXform_text">text</a> array</td>
 
 ### Example
 
-<div><fiddle-embed name="55c84c39890c7516f7c835c46b1b8fc9"></fiddle-embed></div>
+<div><fiddle-embed name="3ce367af833428b08e75d8a22fe67808"></fiddle-embed></div>
 
 ### See Also
 
@@ -5208,7 +5209,7 @@ blend, color, stroking, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="2254beaa675e3b329dccddca4eeea735"></fiddle-embed></div>
+<div><fiddle-embed name="5f823814ec9df1f912a2ea943bedfca1"></fiddle-embed></div>
 
 ### See Also
 
@@ -5250,7 +5251,7 @@ blend, color, stroking, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="d88b17d85fa68c56b3c1ad02b69068bf"><div><a href="SkPaint_Reference#Paint">Paint</a> attributes unrelated to text, like color, have no effect on <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> in allocated <a href="undocumented#Text_Blob">Text Blob</a>.
+<div><fiddle-embed name="af4c69fbbd165c8b0eb0c9bd49ccbd8d"><div><a href="SkPaint_Reference#Paint">Paint</a> attributes unrelated to text, like color, have no effect on <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> in allocated <a href="undocumented#Text_Blob">Text Blob</a>.
 <a href="SkPaint_Reference#Paint">Paint</a> attributes related to text, like text size, have no effect on <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> passed to <a href="#SkCanvas_drawTextBlob">drawTextBlob</a>.
 </div></fiddle-embed></div>
 
@@ -5282,7 +5283,7 @@ recorded drawing commands to play</td>
 
 ### Example
 
-<div><fiddle-embed name="a7373b01354dda73dafe8718f4fd0cfc"></fiddle-embed></div>
+<div><fiddle-embed name="83918a23fcffd47f59a1ef662c85a24c"></fiddle-embed></div>
 
 ### See Also
 
@@ -5311,7 +5312,7 @@ recorded drawing commands to play</td>
 
 ### Example
 
-<div><fiddle-embed name="a7373b01354dda73dafe8718f4fd0cfc"></fiddle-embed></div>
+<div><fiddle-embed name="83918a23fcffd47f59a1ef662c85a24c"></fiddle-embed></div>
 
 ### See Also
 
@@ -5345,7 +5346,7 @@ recorded drawing commands to play</td>
 
 ### Example
 
-<div><fiddle-embed name="4ec028d8ffa0a6ae1a99ff8d094b02bc"></fiddle-embed></div>
+<div><fiddle-embed name="759e4e5bac680838added8f70884dcdc"></fiddle-embed></div>
 
 ### See Also
 
@@ -5379,7 +5380,7 @@ recorded drawing commands to play</td>
 
 ### Example
 
-<div><fiddle-embed name="7295eb14091e98565cec0353661a6a7d"></fiddle-embed></div>
+<div><fiddle-embed name="c4ff59439dd2fc871925d4eeb0c84ca1"></fiddle-embed></div>
 
 ### See Also
 
