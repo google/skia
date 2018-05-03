@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11035ad9_96a68d30",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2018-05-03T00:31:26Z",
+      "side": 1,
+      "message": "You should mark the old one as deprecated.",
+      "revId": "ed17bcd07f3ecf32bba3426e52391d7e2d103beb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
