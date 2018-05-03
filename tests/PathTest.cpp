@@ -4373,7 +4373,6 @@ static void test_fuzz_crbug_662730(skiatest::Reporter* reporter) {
     test_draw_AA_path(100, 100, path);
 }
 
-#if !defined(SK_SUPPORT_LEGACY_DELTA_AA)
 static void test_skbug_6947() {
     SkPath path;
     SkPoint points[] =
@@ -4432,8 +4431,6 @@ static void test_skbug_7051() {
     path.close();
     test_draw_AA_path(100, 100, path);
 }
-
-#endif
 
 static void test_interp(skiatest::Reporter* reporter) {
     SkPath p1, p2, out;

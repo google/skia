@@ -1287,12 +1287,7 @@ static inline bool edges_too_close(SkAnalyticEdge* prev, SkAnalyticEdge* next, S
     // even if prev->fX and next->fX are close and within one pixel (e.g., prev->fX == 0.1,
     // next->fX == 0.9). Adding SLACK = 1 to the formula would guarantee it to be true if two
     // edges prev and next are within one pixel.
-    constexpr SkFixed SLACK =
-#ifdef SK_SUPPORT_LEGACY_AA_BEHAVIOR
-    0;
-#else
-    SK_Fixed1;
-#endif
+    constexpr SkFixed SLACK = SK_Fixed1;
 
     // Note that even if the following test failed, the edges might still be very close to each
     // other at some point within the current pixel row because of prev->fDX and next->fDX.
@@ -1480,17 +1475,10 @@ static void aaa_walk_edges(SkAnalyticEdge* prevHead, SkAnalyticEdge* nextTail,
                 } else {
                     SkFixed rite = currE->fX;
                     currE->goY(nextY, yShift);
-#ifdef SK_SUPPORT_LEGACY_DELTA_AA
-                    leftE->fX = SkTMax(leftClip, leftE->fX);
-                    rite = SkTMin(rightClip, rite);
-                    currE->fX = SkTMin(rightClip, currE->fX);
-                    blit_trapezoid_row(blitter, y >> 16, left, rite, leftE->fX, currE->fX,
-#else
                     SkFixed nextLeft = SkTMax(leftClip, leftE->fX);
                     rite = SkTMin(rightClip, rite);
                     SkFixed nextRite = SkTMin(rightClip, currE->fX);
                     blit_trapezoid_row(blitter, y >> 16, left, rite, nextLeft, nextRite,
-#endif
                             leftDY, currE->fDY, fullAlpha, maskRow, isUsingMask,
                             noRealBlitter || (fullAlpha == 0xFF && (
                                     edges_too_close(prevRite, left, leftE->fX) ||
