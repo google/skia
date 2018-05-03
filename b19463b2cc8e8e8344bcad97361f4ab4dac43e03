@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12515559_00574fe7",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-03T19:24:40Z",
+      "side": 1,
+      "message": "why not just ASSERT(type.columns() \u003e 0) and remove this branch?",
+      "range": {
+        "startLine": 503,
+        "startChar": 20,
+        "endLine": 503,
+        "endChar": 33
+      },
+      "revId": "b19463b2cc8e8e8344bcad97361f4ab4dac43e03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
