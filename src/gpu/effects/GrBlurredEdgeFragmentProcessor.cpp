@@ -26,13 +26,12 @@ public:
         auto mode = _outer.mode();
         (void)mode;
         fragBuilder->codeAppendf(
-                "half factor = half(1.0 - float(%s.w));\n@switch (%d) {\n    case 0:\n        "
-                "factor = half(exp(float(float(-factor * factor) * 4.0)) - "
-                "0.017999999999999999);\n        break;\n    case 1:\n        factor = "
-                "half(smoothstep(1.0, 0.0, float(factor)));\n        break;\n}\n%s = "
+                "half x = half(%s.w);\nhalf factor;\n@switch (%d) {\n    case 0:\n        "
+                "factor = x*x*x*mix(1, 4.0 - 3.0*x, %s.x);\n        break;\n    case 1:\n        factor = "
+                "half(smoothstep(0.0, 1.0, x));\n        break;\n}\n%s = "
                 "half4(factor);\n",
                 args.fInputColor ? args.fInputColor : "half4(1)", (int)_outer.mode(),
-                args.fOutputColor);
+                args.fInputColor ? args.fInputColor : "half4(1)", args.fOutputColor);
     }
 
 private:

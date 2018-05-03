@@ -26,8 +26,10 @@ public:
 
         // emit attributes
         varyingHandler->emitAttributes(rsgp);
-        fragBuilder->codeAppend("half4 shadowParams;");
+        fragBuilder->codeAppend("half3 shadowParams;");
         varyingHandler->addPassThroughAttribute(rsgp.inShadowParams(), "shadowParams");
+        fragBuilder->codeAppend("half2 shadowParams2;");
+        varyingHandler->addPassThroughAttribute(rsgp.inShadowParams2(), "shadowParams2");
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(rsgp.inColor(), args.fOutputColor);
@@ -45,8 +47,8 @@ public:
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
         fragBuilder->codeAppend("half distance = shadowParams.z * (1.0 - d);");
 
-        fragBuilder->codeAppend("half factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
-        fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
+        fragBuilder->codeAppend("half x = clamp(distance, 0.0, shadowParams2.x);");
+        fragBuilder->codeAppend("half factor = x*x*x*mix(1, 4 - 3*x, shadowParams2.y);");
         fragBuilder->codeAppendf("%s = half4(factor);",
                                  args.fOutputCoverage);
     }
@@ -66,7 +68,8 @@ GrRRectShadowGeoProc::GrRRectShadowGeoProc()
 : INHERITED(kGrRRectShadowGeoProc_ClassID) {
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
-    fInShadowParams = &this->addVertexAttrib("inShadowParams", kHalf4_GrVertexAttribType);
+    fInShadowParams = &this->addVertexAttrib("inShadowParams", kHalf3_GrVertexAttribType);
+    fInShadowParams2 = &this->addVertexAttrib("inShadowParams2", kUShort2_norm_GrVertexAttribType);
 }
 
 GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
