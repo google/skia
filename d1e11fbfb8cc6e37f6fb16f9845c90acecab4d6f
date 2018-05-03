@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cc4c57c_ef1a6cce",
+        "filename": "DEPS",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-03T19:45:01Z",
+      "side": 1,
+      "message": "TODO: jsoncpp go away?",
+      "revId": "d1e11fbfb8cc6e37f6fb16f9845c90acecab4d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfcd61f5_cdd9e4f2",
+        "filename": "DEPS",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-03T19:45:01Z",
+      "side": 1,
+      "message": "Ask to get this mirrored at https://skia.googlesource.com/external/github.com/...",
+      "revId": "d1e11fbfb8cc6e37f6fb16f9845c90acecab4d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
