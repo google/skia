@@ -1,3 +1,8 @@
+<style>
+.td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }
+.tr_const tr:nth-child(even) { background-color: #ddffdd; }
+.td2_const td:first-child + td { text-align: center; }
+</style>
 undocumented
 ===
 
@@ -21,16 +26,24 @@ undocumented
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkBlendMode_kSrc"> <code><strong>SkBlendMode::kSrc </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="SkBlendMode_kSrc"> <code><strong>SkBlendMode::kSrc </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkBlendMode_kSrcOver"> <code><strong>SkBlendMode::kSrcOver </strong></code> </a></td><td>3</td><td></td>
+    <td><a name="SkBlendMode_kSrcOver"> <code><strong>SkBlendMode::kSrcOver </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkBlendMode_kPlus"> <code><strong>SkBlendMode::kPlus </strong></code> </a></td><td>12</td><td></td>
+    <td><a name="SkBlendMode_kPlus"> <code><strong>SkBlendMode::kPlus </strong></code> </a></td>
+    <td>12</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -42,13 +55,19 @@ undocumented
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkClipOp_kDifference"> <code><strong>SkClipOp::kDifference </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="SkClipOp_kDifference"> <code><strong>SkClipOp::kDifference </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkClipOp_kIntersect"> <code><strong>SkClipOp::kIntersect </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="SkClipOp_kIntersect"> <code><strong>SkClipOp::kIntersect </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -100,13 +119,19 @@ static bool Equals(const SkColorSpace* src, const SkColorSpace* dst)
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkTransferFunctionBehavior_kRespect"> <code><strong>SkTransferFunctionBehavior::kRespect </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="SkTransferFunctionBehavior_kRespect"> <code><strong>SkTransferFunctionBehavior::kRespect </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkTransferFunctionBehavior_kIgnore"> <code><strong>SkTransferFunctionBehavior::kIgnore </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="SkTransferFunctionBehavior_kIgnore"> <code><strong>SkTransferFunctionBehavior::kIgnore </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -203,46 +228,74 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kUnknown"> <code><strong>SkEncodedImageFormat::kUnknown </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="SkEncodedImageFormat_kUnknown"> <code><strong>SkEncodedImageFormat::kUnknown </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kBMP"> <code><strong>SkEncodedImageFormat::kBMP </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="SkEncodedImageFormat_kBMP"> <code><strong>SkEncodedImageFormat::kBMP </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kGIF"> <code><strong>SkEncodedImageFormat::kGIF </strong></code> </a></td><td>2</td><td></td>
+    <td><a name="SkEncodedImageFormat_kGIF"> <code><strong>SkEncodedImageFormat::kGIF </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kICO"> <code><strong>SkEncodedImageFormat::kICO </strong></code> </a></td><td>3</td><td></td>
+    <td><a name="SkEncodedImageFormat_kICO"> <code><strong>SkEncodedImageFormat::kICO </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kJPEG"> <code><strong>SkEncodedImageFormat::kJPEG </strong></code> </a></td><td>4</td><td></td>
+    <td><a name="SkEncodedImageFormat_kJPEG"> <code><strong>SkEncodedImageFormat::kJPEG </strong></code> </a></td>
+    <td>4</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kPNG"> <code><strong>SkEncodedImageFormat::kPNG </strong></code> </a></td><td>5</td><td></td>
+    <td><a name="SkEncodedImageFormat_kPNG"> <code><strong>SkEncodedImageFormat::kPNG </strong></code> </a></td>
+    <td>5</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kWBMP"> <code><strong>SkEncodedImageFormat::kWBMP </strong></code> </a></td><td>6</td><td></td>
+    <td><a name="SkEncodedImageFormat_kWBMP"> <code><strong>SkEncodedImageFormat::kWBMP </strong></code> </a></td>
+    <td>6</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kWEBP"> <code><strong>SkEncodedImageFormat::kWEBP </strong></code> </a></td><td>7</td><td></td>
+    <td><a name="SkEncodedImageFormat_kWEBP"> <code><strong>SkEncodedImageFormat::kWEBP </strong></code> </a></td>
+    <td>7</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kPKM"> <code><strong>SkEncodedImageFormat::kPKM </strong></code> </a></td><td>8</td><td></td>
+    <td><a name="SkEncodedImageFormat_kPKM"> <code><strong>SkEncodedImageFormat::kPKM </strong></code> </a></td>
+    <td>8</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kKTX"> <code><strong>SkEncodedImageFormat::kKTX </strong></code> </a></td><td>9</td><td></td>
+    <td><a name="SkEncodedImageFormat_kKTX"> <code><strong>SkEncodedImageFormat::kKTX </strong></code> </a></td>
+    <td>9</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kASTC"> <code><strong>SkEncodedImageFormat::kASTC </strong></code> </a></td><td>10</td><td></td>
+    <td><a name="SkEncodedImageFormat_kASTC"> <code><strong>SkEncodedImageFormat::kASTC </strong></code> </a></td>
+    <td>10</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kDNG"> <code><strong>SkEncodedImageFormat::kDNG </strong></code> </a></td><td>11</td><td></td>
+    <td><a name="SkEncodedImageFormat_kDNG"> <code><strong>SkEncodedImageFormat::kDNG </strong></code> </a></td>
+    <td>11</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkEncodedImageFormat_kHEIF"> <code><strong>SkEncodedImageFormat::kHEIF </strong></code> </a></td><td>12</td><td></td>
+    <td><a name="SkEncodedImageFormat_kHEIF"> <code><strong>SkEncodedImageFormat::kHEIF </strong></code> </a></td>
+    <td>12</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -252,19 +305,29 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="kNone_SkFilterQuality"> <code><strong>kNone_SkFilterQuality </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="kNone_SkFilterQuality"> <code><strong>kNone_SkFilterQuality </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="kLow_SkFilterQuality"> <code><strong>kLow_SkFilterQuality </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="kLow_SkFilterQuality"> <code><strong>kLow_SkFilterQuality </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="kMedium_SkFilterQuality"> <code><strong>kMedium_SkFilterQuality </strong></code> </a></td><td>2</td><td></td>
+    <td><a name="kMedium_SkFilterQuality"> <code><strong>kMedium_SkFilterQuality </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="kHigh_SkFilterQuality"> <code><strong>kHigh_SkFilterQuality </strong></code> </a></td><td>3</td><td></td>
+    <td><a name="kHigh_SkFilterQuality"> <code><strong>kHigh_SkFilterQuality </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -477,36 +540,57 @@ template &lt;typename D, typename S&gt; inline bool SkTFitsIn(S s)
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SK_MinS32FitsInFloat"> <code><strong>SK_MinS32FitsInFloat </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_MinS32FitsInFloat"> <code><strong>SK_MinS32FitsInFloat </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SK_MaxS32FitsInFloat"> <code><strong>SK_MaxS32FitsInFloat </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_MaxS32FitsInFloat"> <code><strong>SK_MaxS32FitsInFloat </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SK_ScalarMin"> <code><strong>SK_ScalarMin </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_ScalarMin"> <code><strong>SK_ScalarMin </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SK_ScalarMax"> <code><strong>SK_ScalarMax </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_ScalarMax"> <code><strong>SK_ScalarMax </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SK_ScalarInfinity"> <code><strong>SK_ScalarInfinity </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_ScalarInfinity"> <code><strong>SK_ScalarInfinity </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SK_ScalarNegativeInfinity"> <code><strong>SK_ScalarNegativeInfinity </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_ScalarNegativeInfinity"> <code><strong>SK_ScalarNegativeInfinity </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SK_ScalarNaN"> <code><strong>SK_ScalarNaN </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_ScalarNaN"> <code><strong>SK_ScalarNaN </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SK_MinS32"> <code><strong>SK_MinS32 </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_MinS32"> <code><strong>SK_MinS32 </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SK_MaxS32"> <code><strong>SK_MaxS32 </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_MaxS32"> <code><strong>SK_MaxS32 </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SK_MaxSizeT"> <code><strong>SK_MaxSizeT </strong></code> </a></td><td>to be written</td><td></td>
+    <td><a name="SK_MaxSizeT"> <code><strong>SK_MaxSizeT </strong></code> </a></td>
+    <td>to be written</td>
+    <td></td>    <td></td>
   </tr>
 </table>
 
@@ -518,19 +602,29 @@ template &lt;typename D, typename S&gt; inline bool SkTFitsIn(S s)
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaintDefaults_Flags"> <code><strong>SkPaintDefaults_Flags </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="SkPaintDefaults_Flags"> <code><strong>SkPaintDefaults_Flags </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaintDefaults_Hinting"> <code><strong>SkPaintDefaults_Hinting </strong></code> </a></td><td>2</td><td></td>
+    <td><a name="SkPaintDefaults_Hinting"> <code><strong>SkPaintDefaults_Hinting </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaintDefaults_TextSize"> <code><strong>SkPaintDefaults_TextSize </strong></code> </a></td><td>12</td><td></td>
+    <td><a name="SkPaintDefaults_TextSize"> <code><strong>SkPaintDefaults_TextSize </strong></code> </a></td>
+    <td>12</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaintDefaults_MiterLimit"> <code><strong>SkPaintDefaults_MiterLimit </strong></code> </a></td><td>4</td><td></td>
+    <td><a name="SkPaintDefaults_MiterLimit"> <code><strong>SkPaintDefaults_MiterLimit </strong></code> </a></td>
+    <td>4</td>
+    <td></td>    <td></td>
   </tr>
+
 
 # <a name="Patch"></a> Patch
 
@@ -753,16 +847,24 @@ void dumpHex() const
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkShader_kClamp_TileMode"> <code><strong>SkShader::kClamp_TileMode </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="SkShader_kClamp_TileMode"> <code><strong>SkShader::kClamp_TileMode </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkShader_kRepeat_TileMode"> <code><strong>SkShader::kRepeat_TileMode </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="SkShader_kRepeat_TileMode"> <code><strong>SkShader::kRepeat_TileMode </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkShader_kMirror_TileMode"> <code><strong>SkShader::kMirror_TileMode </strong></code> </a></td><td>2</td><td></td>
+    <td><a name="SkShader_kMirror_TileMode"> <code><strong>SkShader::kMirror_TileMode </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -808,10 +910,14 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkSurfaceProps_kLegacyFontHost_InitType"> <code><strong>SkSurfaceProps::kLegacyFontHost_InitType </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="SkSurfaceProps_kLegacyFontHost_InitType"> <code><strong>SkSurfaceProps::kLegacyFontHost_InitType </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
+
 
 #
 Topic
@@ -847,13 +953,19 @@ bool isValid() const
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="kBottomLeft_GrSurfaceOrigin"> <code><strong>kBottomLeft_GrSurfaceOrigin </strong></code> </a></td><td>0 </td><td></td>
+    <td><a name="kBottomLeft_GrSurfaceOrigin"> <code><strong>kBottomLeft_GrSurfaceOrigin </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="kTopLeft_GrSurfaceOrigin"> <code><strong>kTopLeft_GrSurfaceOrigin </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="kTopLeft_GrSurfaceOrigin"> <code><strong>kTopLeft_GrSurfaceOrigin </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -863,13 +975,19 @@ bool isValid() const
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkBudgeted_kNo"> <code><strong>SkBudgeted::kNo </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="SkBudgeted_kNo"> <code><strong>SkBudgeted::kNo </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkBudgeted_kYes"> <code><strong>SkBudgeted::kYes </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="SkBudgeted_kYes"> <code><strong>SkBudgeted::kYes </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -877,13 +995,19 @@ bool isValid() const
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="GrSemaphoresSubmitted_kNo"> <code><strong>GrSemaphoresSubmitted::kNo </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="GrSemaphoresSubmitted_kNo"> <code><strong>GrSemaphoresSubmitted::kNo </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="GrSemaphoresSubmitted_kYes"> <code><strong>GrSemaphoresSubmitted::kYes </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="GrSemaphoresSubmitted_kYes"> <code><strong>GrSemaphoresSubmitted::kYes </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
