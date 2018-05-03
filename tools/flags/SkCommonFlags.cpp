@@ -91,7 +91,7 @@ DEFINE_bool(forceAnalyticAA, false, "Force analytic anti-aliasing even if the pa
                                     "whether it's concave or convex, we consider a path complicated"
                                     "if its number of points is comparable to its resolution.");
 
-#if defined(SK_SUPPORT_LEGACY_DELTA_AA) || (defined(_MSC_VER) && !defined(__clang__))
+#if (defined(_MSC_VER) && !defined(__clang__))
 constexpr bool kDefaultDeltaAA = false;
 #else
 constexpr bool kDefaultDeltaAA = true;

@@ -13,12 +13,7 @@
 std::atomic<bool> gSkUseAnalyticAA{true};
 std::atomic<bool> gSkForceAnalyticAA{false};
 
-#if defined(SK_SUPPORT_LEGACY_DELTA_AA)
-    std::atomic<bool> gSkUseDeltaAA{false};
-#else
-    std::atomic<bool> gSkUseDeltaAA{true};
-#endif
-
+std::atomic<bool> gSkUseDeltaAA{true};
 std::atomic<bool> gSkForceDeltaAA{false};
 
 static inline void blitrect(SkBlitter* blitter, const SkIRect& r) {
