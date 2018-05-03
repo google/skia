@@ -162,46 +162,6 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
-GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
-                                                GrSurfaceOrigin* origin) const {
-    SkASSERT(fProxy);
-
-    if (!fContext->contextPriv().resourceProvider() && !fProxy->priv().isInstantiated()) {
-        // This image was created with a DDL context and cannot be instantiated. Thus we return 0
-        // here which is considered invalid for all backends.
-        return 0;
-    }
-
-    if (GrSurfaceProxy::LazyState::kNot != fProxy->lazyInstantiationState()) {
-        SkASSERT(fContext->contextPriv().resourceProvider());
-        fProxy->priv().doLazyInstantiation(fContext->contextPriv().resourceProvider());
-        if (!fProxy->priv().isInstantiated()) {
-            // We failed to instantiate the lazy proxy. Thus we return 0 here which is considered
-            // invalid for all backends.
-            return 0;
-        }
-    }
-
-    if (!fProxy->instantiate(fContext->contextPriv().resourceProvider())) {
-        return 0;
-    }
-
-    GrTexture* texture = fProxy->priv().peekTexture();
-
-    if (texture) {
-        if (flushPendingGrContextIO) {
-            fContext->contextPriv().prepareSurfaceForExternalIO(fProxy.get());
-        }
-        if (origin) {
-            *origin = fProxy->origin();
-        }
-        return texture->getTextureHandle();
-    }
-    return 0;
-}
-#endif
-
 GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
                                                   GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
