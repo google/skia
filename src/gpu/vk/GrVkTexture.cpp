@@ -161,12 +161,6 @@ void GrVkTexture::onAbandon() {
     INHERITED::onAbandon();
 }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
-GrBackendObject GrVkTexture::getTextureHandle() const {
-    return (GrBackendObject)&fInfo;
-}
-#endif
-
 GrBackendTexture GrVkTexture::getBackendTexture() const {
     return GrBackendTexture(this->width(), this->height(), fInfo, this->grVkImageLayout());
 }

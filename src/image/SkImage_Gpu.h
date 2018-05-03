@@ -50,10 +50,6 @@ public:
         return fProxy;
     }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
-    GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
-                                       GrSurfaceOrigin* origin) const override;
-#endif
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const override;
 
