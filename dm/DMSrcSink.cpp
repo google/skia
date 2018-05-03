@@ -2217,6 +2217,8 @@ public:
             }
         }
 
+        SkDebugf("tile clip: %d %d %d %d\n", fClip.fLeft, fClip.fTop, fClip.fRight, fClip.fBottom);
+
         subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
         subCanvas->translate(-fClip.fLeft, -fClip.fTop);
 
@@ -2239,7 +2241,14 @@ public:
         dst->save();
         dst->clipRect(SkRect::Make(fClip));
         dst->drawImage(std::move(img), fClip.fLeft, fClip.fTop);
+
         dst->restore();
+
+        SkPaint strokePaint;
+        strokePaint.setColor(SK_ColorRED);
+        strokePaint.setStyle(SkPaint::kStroke_Style);
+        dst->drawRect(SkRect::Make(fClip), strokePaint);
+
     }
 
 private:
@@ -2343,6 +2352,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
 
     return draw_to_canvas(fSink.get(), bitmap, stream, log, size,
                 [&](SkCanvas* canvas) -> Error {
+                    SkDebugf("DDL\n");
                     GrContext* context = canvas->getGrContext();
                     if (!context || !context->contextPriv().getGpu()) {
                         return SkStringPrintf("DDLs are GPU only");
@@ -2374,10 +2384,19 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         }
                     }
 
+#if 0
                     // Second, run the cpu pre-processing in threads
                     SkTaskGroup().batch(tileData.count(), [&](int i) {
                         tileData[i].preprocess(compressedPictureData.get(), helper);
                     });
+#else
+                    for (int i = 0; i < tileData.count(); ++i) {
+                        if (i == 4)
+                        {
+                            tileData[i].preprocess(compressedPictureData.get(), helper);
+                        }
+                    }
+#endif
 
                     // This drops the helper's refs on all the promise images
                     helper.reset();
@@ -2386,14 +2405,20 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                     // TODO: it would be cool to not wait until all the tiles are drawn to begin
                     // drawing to the GPU and composing to the final surface
                     for (int i = 0; i < tileData.count(); ++i) {
-                        tileData[i].draw();
+                        if (i == 4)
+                        {
+                            tileData[i].draw();
+                        }
                     }
 
                     // Finally, compose the drawn tiles into the result
                     // Note: the separation between the tiles and the final composition better
                     // matches Chrome but costs us a copy
                     for (int i = 0; i < tileData.count(); ++i) {
-                        tileData[i].compose(canvas);
+                        if (i == 4)
+                        {
+                            tileData[i].compose(canvas);
+                        }
                     }
 
                     context->flush();
