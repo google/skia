@@ -1782,17 +1782,6 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_app("colorspaceinfo") {
-    sources = [
-      "tools/colorspaceinfo.cpp",
-    ]
-    deps = [
-      ":flags",
-      ":skia",
-      ":tool_utils",
-    ]
-  }
-
   if (!is_ios && target_cpu != "wasm") {
     test_app("skiaserve") {
       sources = [
