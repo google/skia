@@ -1,3 +1,8 @@
+<style>
+.td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }
+.tr_const tr:nth-child(even) { background-color: #ddffdd; }
+.td2_const td:first-child + td { text-align: center; }
+</style>
 SkIRect Reference
 ===
 
@@ -16,7 +21,7 @@ SkIRect Reference
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkIRect"></a> Struct SkIRect
-<a href="#SkIRect">SkIRect</a> holds four 32 bit integer coordinates describing the upper and
+<a href="#SkIRect">SkIRect</a> holds four 32-bit integer coordinates describing the upper and
 lower bounds of a rectangle. <a href="#SkIRect">SkIRect</a> may be created from outer bounds or
 from position, width, and height. <a href="#SkIRect">SkIRect</a> describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
@@ -27,8 +32,8 @@ its top, it is considered empty.
 | name | description |
 | --- | --- |
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
-| <a href="#Intersection">Intersection</a> | set to shared bounds |
-| <a href="#Join">Join</a> | set to union of bounds |
+| <a href="#Intersection">Intersection</a> | sets to shared bounds |
+| <a href="#Join">Join</a> | sets to union of bounds |
 | <a href="#Property">Property</a> | member values, center, validity |
 | <a href="#Set">Set</a> | replaces all values |
 | <a href="#Sorting">Sorting</a> | orders sides |
@@ -60,7 +65,7 @@ its top, it is considered empty.
 | <a href="#SkIRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkIRect_makeOffset">makeOffset</a> | constructs from translated sides |
 | <a href="#SkIRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs <a href="#IRect">IRect</a>, ordering sides from smaller to larger |
 | <a href="#SkIRect_offset">offset</a> | translates sides without changing width and height |
 | <a href="#SkIRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
 | <a href="#SkIRect_outset">outset</a> | moves the sides symmetrically about the center |
@@ -119,7 +124,7 @@ When equal to or less than <a href="#SkIRect_fTop">fTop</a>, <a href="#IRect">IR
 | <a href="#SkIRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkIRect_makeOffset">makeOffset</a> | constructs from translated sides |
 | <a href="#SkIRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs <a href="#IRect">IRect</a>, ordering sides from smaller to larger |
 
 <a name="SkIRect_MakeEmpty"></a>
 ## MakeEmpty
@@ -170,10 +175,11 @@ may be negative.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_MakeWH_w"> <code><strong>w </strong></code> </a></td> <td>
-width of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_MakeWH_h"> <code><strong>h </strong></code> </a></td> <td>
-height of constructed <a href="#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkIRect_MakeWH_w"> <code><strong>w </strong></code> </a></td>
+    <td>width of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_MakeWH_h"> <code><strong>h </strong></code> </a></td>
+    <td>height of constructed <a href="#IRect">IRect</a></td>
   </tr>
 </table>
 
@@ -211,8 +217,8 @@ Does not validate input; size.<a href="#SkIRect_width">width</a> or size.<a href
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_MakeSize_size"> <code><strong>size </strong></code> </a></td> <td>
-values for <a href="#IRect">IRect</a> width and height</td>
+<table>  <tr>    <td><a name="SkIRect_MakeSize_size"> <code><strong>size </strong></code> </a></td>
+    <td>values for <a href="#IRect">IRect</a> width and height</td>
   </tr>
 </table>
 
@@ -251,14 +257,17 @@ result in <a href="#SkIRect_fLeft">fLeft</a> greater than <a href="#SkIRect_fRig
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_MakeLTRB_l"> <code><strong>l </strong></code> </a></td> <td>
-integer stored in <a href="#SkIRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_MakeLTRB_t"> <code><strong>t </strong></code> </a></td> <td>
-integer stored in <a href="#SkIRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_MakeLTRB_r"> <code><strong>r </strong></code> </a></td> <td>
-integer stored in <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_MakeLTRB_b"> <code><strong>b </strong></code> </a></td> <td>
-integer stored in <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_MakeLTRB_l"> <code><strong>l </strong></code> </a></td>
+    <td>integer stored in <a href="#SkIRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_MakeLTRB_t"> <code><strong>t </strong></code> </a></td>
+    <td>integer stored in <a href="#SkIRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_MakeLTRB_r"> <code><strong>r </strong></code> </a></td>
+    <td>integer stored in <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_MakeLTRB_b"> <code><strong>b </strong></code> </a></td>
+    <td>integer stored in <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -300,14 +309,17 @@ Does not validate input;
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_MakeXYWH_x"> <code><strong>x </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_MakeXYWH_y"> <code><strong>y </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_MakeXYWH_w"> <code><strong>w </strong></code> </a></td> <td>
-added to x and stored in <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_MakeXYWH_h"> <code><strong>h </strong></code> </a></td> <td>
-added to y and stored in <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_MakeXYWH_x"> <code><strong>x </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_MakeXYWH_y"> <code><strong>y </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_MakeXYWH_w"> <code><strong>w </strong></code> </a></td>
+    <td>added to x and stored in <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_MakeXYWH_h"> <code><strong>h </strong></code> </a></td>
+    <td>added to y and stored in <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -805,10 +817,11 @@ identical to corresponding members in <a href="#SkIRect_equal_operator_b">b</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkIRect_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to compare</td>
+<table>  <tr>    <td><a name="SkIRect_equal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkIRect_equal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to compare</td>
   </tr>
 </table>
 
@@ -846,10 +859,11 @@ identical to the corresponding member in <a href="#SkIRect_notequal_operator_b">
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_notequal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkIRect_notequal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to compare</td>
+<table>  <tr>    <td><a name="SkIRect_notequal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkIRect_notequal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to compare</td>
   </tr>
 </table>
 
@@ -929,14 +943,17 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_set_left"> <code><strong>left </strong></code> </a></td> <td>
-assigned to <a href="#SkIRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_set_top"> <code><strong>top </strong></code> </a></td> <td>
-assigned to <a href="#SkIRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_set_right"> <code><strong>right </strong></code> </a></td> <td>
-assigned to <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_set_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-assigned to <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_set_left"> <code><strong>left </strong></code> </a></td>
+    <td>assigned to <a href="#SkIRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_set_top"> <code><strong>top </strong></code> </a></td>
+    <td>assigned to <a href="#SkIRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_set_right"> <code><strong>right </strong></code> </a></td>
+    <td>assigned to <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_set_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>assigned to <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -972,14 +989,17 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_setLTRB_left"> <code><strong>left </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_setLTRB_top"> <code><strong>top </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_setLTRB_right"> <code><strong>right </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_setLTRB_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_setLTRB_left"> <code><strong>left </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_setLTRB_top"> <code><strong>top </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_setLTRB_right"> <code><strong>right </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_setLTRB_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1017,14 +1037,17 @@ width or height may be negative.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_setXYWH_x"> <code><strong>x </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_setXYWH_y"> <code><strong>y </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_setXYWH_width"> <code><strong>width </strong></code> </a></td> <td>
-added to x and stored in <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_setXYWH_height"> <code><strong>height </strong></code> </a></td> <td>
-added to y and stored in <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_setXYWH_x"> <code><strong>x </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_setXYWH_y"> <code><strong>y </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_setXYWH_width"> <code><strong>width </strong></code> </a></td>
+    <td>added to x and stored in <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_setXYWH_height"> <code><strong>height </strong></code> </a></td>
+    <td>added to y and stored in <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1073,10 +1096,11 @@ If <a href="#SkIRect_makeOffset_dy">dy</a> is positive, <a href="#IRect">IRect</
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_makeOffset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset added to <a href="#SkIRect_fLeft">fLeft</a> and <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_makeOffset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset added to <a href="#SkIRect_fTop">fTop</a> and <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_makeOffset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset added to <a href="#SkIRect_fLeft">fLeft</a> and <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_makeOffset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset added to <a href="#SkIRect_fTop">fTop</a> and <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1119,10 +1143,11 @@ If <a href="#SkIRect_makeInset_dy">dy</a> is positive, <a href="#IRect">IRect</a
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_makeInset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset added to <a href="#SkIRect_fLeft">fLeft</a> and subtracted from <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_makeInset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset added to <a href="#SkIRect_fTop">fTop</a> and subtracted from <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_makeInset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset added to <a href="#SkIRect_fLeft">fLeft</a> and subtracted from <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_makeInset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset added to <a href="#SkIRect_fTop">fTop</a> and subtracted from <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1165,10 +1190,11 @@ If <a href="#SkIRect_makeOutset_dy">dy</a> is positive, <a href="#IRect">IRect</
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_makeOutset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset subtracted to <a href="#SkIRect_fLeft">fLeft</a> and added from <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_makeOutset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset subtracted to <a href="#SkIRect_fTop">fTop</a> and added from <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_makeOutset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset subtracted to <a href="#SkIRect_fLeft">fLeft</a> and added from <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_makeOutset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset subtracted to <a href="#SkIRect_fTop">fTop</a> and added from <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1211,10 +1237,11 @@ If <a href="#SkIRect_offset_dy">dy</a> is positive, moves <a href="#IRect">IRect
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_offset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset added to <a href="#SkIRect_fLeft">fLeft</a> and <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_offset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset added to <a href="#SkIRect_fTop">fTop</a> and <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_offset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset added to <a href="#SkIRect_fLeft">fLeft</a> and <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_offset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset added to <a href="#SkIRect_fTop">fTop</a> and <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1252,8 +1279,8 @@ If <a href="#SkIRect_offset_2_delta">delta</a>.fY is positive, moves <a href="#I
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_offset_2_delta"> <code><strong>delta </strong></code> </a></td> <td>
-offset added to <a href="#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkIRect_offset_2_delta"> <code><strong>delta </strong></code> </a></td>
+    <td>offset added to <a href="#IRect">IRect</a></td>
   </tr>
 </table>
 
@@ -1287,10 +1314,11 @@ are unchanged.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_offsetTo_newX"> <code><strong>newX </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fLeft">fLeft</a>, preserving <a href="#SkIRect_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_offsetTo_newY"> <code><strong>newY </strong></code> </a></td> <td>
-stored in <a href="#SkIRect_fTop">fTop</a>, preserving <a href="#SkIRect_height">height</a></td>
+<table>  <tr>    <td><a name="SkIRect_offsetTo_newX"> <code><strong>newX </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fLeft">fLeft</a>, preserving <a href="#SkIRect_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_offsetTo_newY"> <code><strong>newY </strong></code> </a></td>
+    <td>stored in <a href="#SkIRect_fTop">fTop</a>, preserving <a href="#SkIRect_height">height</a></td>
   </tr>
 </table>
 
@@ -1328,10 +1356,11 @@ If <a href="#SkIRect_inset_dy">dy</a> is negative, makes <a href="#IRect">IRect<
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_inset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset added to <a href="#SkIRect_fLeft">fLeft</a> and subtracted from <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_inset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset added to <a href="#SkIRect_fTop">fTop</a> and subtracted from <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_inset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset added to <a href="#SkIRect_fLeft">fLeft</a> and subtracted from <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_inset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset added to <a href="#SkIRect_fTop">fTop</a> and subtracted from <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1369,10 +1398,11 @@ If <a href="#SkIRect_outset_dy">dy</a> is negative, makes <a href="#IRect">IRect
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_outset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-subtracted to <a href="#SkIRect_fLeft">fLeft</a> and added from <a href="#SkIRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_outset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-subtracted to <a href="#SkIRect_fTop">fTop</a> and added from <a href="#SkIRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkIRect_outset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>subtracted to <a href="#SkIRect_fLeft">fLeft</a> and added from <a href="#SkIRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_outset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>subtracted to <a href="#SkIRect_fTop">fTop</a> and added from <a href="#SkIRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1438,10 +1468,11 @@ returns true if constructed area is completely enclosed by <a href="#IRect">IRec
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_contains_x"> <code><strong>x </strong></code> </a></td> <td>
-test <a href="SkIPoint_Reference#IPoint">IPoint</a> x-coordinate</td>
-  </tr>  <tr>    <td><a name="SkIRect_contains_y"> <code><strong>y </strong></code> </a></td> <td>
-test <a href="SkIPoint_Reference#IPoint">IPoint</a> y-coordinate</td>
+<table>  <tr>    <td><a name="SkIRect_contains_x"> <code><strong>x </strong></code> </a></td>
+    <td>test <a href="SkIPoint_Reference#IPoint">IPoint</a> x-coordinate</td>
+  </tr>
+  <tr>    <td><a name="SkIRect_contains_y"> <code><strong>y </strong></code> </a></td>
+    <td>test <a href="SkIPoint_Reference#IPoint">IPoint</a> y-coordinate</td>
   </tr>
 </table>
 
@@ -1483,14 +1514,17 @@ Returns false if <a href="#IRect">IRect</a> is empty or construction is empty.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_contains_2_left"> <code><strong>left </strong></code> </a></td> <td>
-x minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_contains_2_top"> <code><strong>top </strong></code> </a></td> <td>
-y minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_contains_2_right"> <code><strong>right </strong></code> </a></td> <td>
-x maximum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_contains_2_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-y maximum of constructed <a href="#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkIRect_contains_2_left"> <code><strong>left </strong></code> </a></td>
+    <td>x minimum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_contains_2_top"> <code><strong>top </strong></code> </a></td>
+    <td>y minimum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_contains_2_right"> <code><strong>right </strong></code> </a></td>
+    <td>x maximum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_contains_2_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>y maximum of constructed <a href="#IRect">IRect</a></td>
   </tr>
 </table>
 
@@ -1531,8 +1565,8 @@ Returns false if <a href="#IRect">IRect</a> is empty or <a href="#SkIRect_contai
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_contains_3_r"> <code><strong>r </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> contained</td>
+<table>  <tr>    <td><a name="SkIRect_contains_3_r"> <code><strong>r </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> contained</td>
   </tr>
 </table>
 
@@ -1573,8 +1607,8 @@ Returns false if <a href="#IRect">IRect</a> is empty or <a href="#SkIRect_contai
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_contains_4_r"> <code><strong>r </strong></code> </a></td> <td>
-<a href="SkRect_Reference#Rect">Rect</a> contained</td>
+<table>  <tr>    <td><a name="SkIRect_contains_4_r"> <code><strong>r </strong></code> </a></td>
+    <td><a href="SkRect_Reference#Rect">Rect</a> contained</td>
   </tr>
 </table>
 
@@ -1619,14 +1653,17 @@ Return is undefined if <a href="#IRect">IRect</a> is empty or construction is em
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_left"> <code><strong>left </strong></code> </a></td> <td>
-x minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_top"> <code><strong>top </strong></code> </a></td> <td>
-y minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_right"> <code><strong>right </strong></code> </a></td> <td>
-x maximum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-y maximum of constructed <a href="#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_left"> <code><strong>left </strong></code> </a></td>
+    <td>x minimum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_top"> <code><strong>top </strong></code> </a></td>
+    <td>y minimum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_right"> <code><strong>right </strong></code> </a></td>
+    <td>x maximum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>y maximum of constructed <a href="#IRect">IRect</a></td>
   </tr>
 </table>
 
@@ -1667,8 +1704,8 @@ Return is undefined if <a href="#IRect">IRect</a> is empty or construction is em
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_2_r"> <code><strong>r </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> contained</td>
+<table>  <tr>    <td><a name="SkIRect_containsNoEmptyCheck_2_r"> <code><strong>r </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> contained</td>
   </tr>
 </table>
 
@@ -1710,8 +1747,8 @@ Returns false if either <a href="#SkIRect_intersect_r">r</a> or <a href="#IRect"
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_intersect_r"> <code><strong>r </strong></code> </a></td> <td>
-limit of result</td>
+<table>  <tr>    <td><a name="SkIRect_intersect_r"> <code><strong>r </strong></code> </a></td>
+    <td>limit of result</td>
   </tr>
 </table>
 
@@ -1721,7 +1758,7 @@ true if <a href="#SkIRect_intersect_r">r</a> and <a href="#IRect">IRect</a> have
 
 ### Example
 
-<div><fiddle-embed name="2be1302480e54a767e25cbeed5d41b41"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="ea233f5d5d1ae0e76fc6f2eb371c927a"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -1753,10 +1790,11 @@ Returns false if either <a href="#SkIRect_intersect_2_a">a</a> or <a href="#SkIR
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_intersect_2_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to intersect</td>
-  </tr>  <tr>    <td><a name="SkIRect_intersect_2_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to intersect</td>
+<table>  <tr>    <td><a name="SkIRect_intersect_2_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to intersect</td>
+  </tr>
+  <tr>    <td><a name="SkIRect_intersect_2_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to intersect</td>
   </tr>
 </table>
 
@@ -1796,10 +1834,11 @@ Asserts if either <a href="#SkIRect_intersectNoEmptyCheck_a">a</a> or <a href="#
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_intersectNoEmptyCheck_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to intersect</td>
-  </tr>  <tr>    <td><a name="SkIRect_intersectNoEmptyCheck_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to intersect</td>
+<table>  <tr>    <td><a name="SkIRect_intersectNoEmptyCheck_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to intersect</td>
+  </tr>
+  <tr>    <td><a name="SkIRect_intersectNoEmptyCheck_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to intersect</td>
   </tr>
 </table>
 
@@ -1841,14 +1880,17 @@ Returns false if either construction or <a href="#IRect">IRect</a> is empty, lea
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_intersect_3_left"> <code><strong>left </strong></code> </a></td> <td>
-x minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_intersect_3_top"> <code><strong>top </strong></code> </a></td> <td>
-y minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_intersect_3_right"> <code><strong>right </strong></code> </a></td> <td>
-x maximum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_intersect_3_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-y maximum of constructed <a href="#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkIRect_intersect_3_left"> <code><strong>left </strong></code> </a></td>
+    <td>x minimum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_intersect_3_top"> <code><strong>top </strong></code> </a></td>
+    <td>y minimum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_intersect_3_right"> <code><strong>right </strong></code> </a></td>
+    <td>x maximum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_intersect_3_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>y maximum of constructed <a href="#IRect">IRect</a></td>
   </tr>
 </table>
 
@@ -1858,7 +1900,7 @@ true if construction and <a href="#IRect">IRect</a> have area in common
 
 ### Example
 
-<div><fiddle-embed name="4e6f580a3906c08a5faee524f7e72334"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="200422990eded2f754ab9893118f2645"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -1889,10 +1931,11 @@ Returns false if either <a href="#SkIRect_Intersects_a">a</a> or <a href="#SkIRe
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_Intersects_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to intersect</td>
-  </tr>  <tr>    <td><a name="SkIRect_Intersects_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to intersect</td>
+<table>  <tr>    <td><a name="SkIRect_Intersects_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to intersect</td>
+  </tr>
+  <tr>    <td><a name="SkIRect_Intersects_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to intersect</td>
   </tr>
 </table>
 
@@ -1930,10 +1973,11 @@ Asserts if either <a href="#SkIRect_IntersectsNoEmptyCheck_a">a</a> or <a href="
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_IntersectsNoEmptyCheck_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to intersect</td>
-  </tr>  <tr>    <td><a name="SkIRect_IntersectsNoEmptyCheck_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IRect">IRect</a> to intersect</td>
+<table>  <tr>    <td><a name="SkIRect_IntersectsNoEmptyCheck_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to intersect</td>
+  </tr>
+  <tr>    <td><a name="SkIRect_IntersectsNoEmptyCheck_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IRect">IRect</a> to intersect</td>
   </tr>
 </table>
 
@@ -1984,14 +2028,17 @@ Has no effect if construction is empty. Otherwise, if <a href="#IRect">IRect</a>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_join_left"> <code><strong>left </strong></code> </a></td> <td>
-x minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_join_top"> <code><strong>top </strong></code> </a></td> <td>
-y minimum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_join_right"> <code><strong>right </strong></code> </a></td> <td>
-x maximum of constructed <a href="#IRect">IRect</a></td>
-  </tr>  <tr>    <td><a name="SkIRect_join_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-y maximum of constructed <a href="#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkIRect_join_left"> <code><strong>left </strong></code> </a></td>
+    <td>x minimum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_join_top"> <code><strong>top </strong></code> </a></td>
+    <td>y minimum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_join_right"> <code><strong>right </strong></code> </a></td>
+    <td>x maximum of constructed <a href="#IRect">IRect</a></td>
+  </tr>
+  <tr>    <td><a name="SkIRect_join_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>y maximum of constructed <a href="#IRect">IRect</a></td>
   </tr>
 </table>
 
@@ -2025,8 +2072,8 @@ Has no effect if <a href="#SkIRect_join_2_r">r</a> is empty. Otherwise, if <a hr
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_join_2_r"> <code><strong>r </strong></code> </a></td> <td>
-expansion <a href="#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkIRect_join_2_r"> <code><strong>r </strong></code> </a></td>
+    <td>expansion <a href="#IRect">IRect</a></td>
   </tr>
 </table>
 

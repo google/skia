@@ -31,16 +31,12 @@ DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)
 // v is reserved for verbose
 DEFINE_bool2(skip, z, false, "Skip degenerate missed in legacy preprocessor.");
 
-/*  recipe for generating timestamps for existing doxygen comments
-find include/core -type f -name '*.h' -print -exec git blame {} \; > ~/all.blame.txt
+/* todos:
 
-todos:
-add new markup to associate typedef SaveLayerFlags with Enum so that, for
-      documentation purposes, this enum is named rather than anonymous
-check column 1 of subtopic tables to see that they start lowercase and don't have a trailing period
+add new markup to associate enum SaveLayerFlagsSet with typedef SaveLayerFlags, if needed.
+
 space table better for Constants
 should Return be on same line as 'Return Value'?
-remove anonymous header, e.g. Enum SkPaint::::anonymous_2
 #Member lost all formatting
 #List needs '# content ##', formatting
 consts like enum members need fully qualfied refs to make a valid link
@@ -53,6 +49,45 @@ deprecated methods should be sorted down in md out, and show include "Deprecated
 rewrap text to fit in some number of columns
 #Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
      would rather keep links for boby above #Literal, and/or make it a block and not a one-liner
+add check to require #Const to contain #Code block if defining const or constexpr (enum consts have
+     #Code blocks inside the #Enum def
+add spelling rule to look for x-bit but allow x bits
+
+There are a number of formatting bugs with ad hoc patches where a substitution doesn't keep
+the space before or after, or the linefeeds before or after. The rules are not very good either.
+Linefeeds in the bmh file are intended to be respected, but #Formula tends to start on a new line
+even if the contents is intended to be inlined. Probably need to require it to be, e.g.:
+
+    array length must be #Formula # (fXCount + 1) * (fYCount + 1) ##.
+
+where there is always a space between prior words and formula (i.e., between "be" and "(fXCount";
+and, an absense of a space after ## denotes no space between "+ 1)" and ".". These rules preserve
+that # commands are always preceded by a whitespace character. Similarly, #PhraseDef/Ref
+need to be inline or create new paragraphs. #phrase_ref# is sufficiently flexible that it can be
+treated as a word without trailing whitespace, adapting the whitespace of its context. It also must
+always have leading whitespace.
+
+It's awkward that phrase param is a child of the phrase def. Since phrase refs may also be children,
+there is special case code to skip phrase def when looking for additional substitutions in the
+phrase def. Could put it in the token list instead I guess, or make a definition subclass used
+by phrase def with an additional slot...
+
+
+
+#Deprecated soon
+##
+should emit the text "To be deprecated soon." (right now you get just "soon")
+
+SkCanvas_ColorBehavior_kLegacy missing </table> in md out
+
+rearrange const out for md so that const / value / short description comes first in a table,
+followed by more elaborate descriptions, examples, seealso. In md.cpp, look to see if #Subtopic
+has #Const children. If so, generate a summary table first.
+Or, only allow #Line and moderate text description in #Const. Put more verbose text, example,
+seealso, in subsequent #SubTopic. Alpha_Type does this and it looks good.
+
+more spelling: x-value y-value
+
 see head of selfCheck.cpp for additional todos
  */
 
@@ -67,6 +102,7 @@ see head of selfCheck.cpp for additional todos
 #define M(mt) (1LL << (int) MarkType::k##mt)
 #define M_D M(Description)
 #define M_CS M(Class) | M(Struct)
+#define M_MCD M(Method) | M(Const) | M(Define) | M(Member)
 #define M_ST M(Subtopic) | M(Topic)
 #define M_CSST M_CS | M_ST
 #ifdef M_E
@@ -89,30 +125,31 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 // fill in other names once they're actually used
   { "",             MarkType::kNone,         R_Y, E_N, 0 }
 , { "A",            MarkType::kAnchor,       R_N, E_N, 0 }
-, { "Alias",        MarkType::kAlias,        R_N, E_N, 0 }
+, { "Alias",        MarkType::kAlias,        R_N, E_N, M_ST }
 , { "Bug",          MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",        MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
-, { "Code",         MarkType::kCode,         R_F, E_N, M_CSST | M_E | M(Method) | M(Define) | M(Typedef) }
+, { "Code",         MarkType::kCode,         R_F, E_N, M_CSST | M_E | M_MCD | M(Typedef) }
 , { "",             MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",             MarkType::kComment,      R_N, E_N, 0 }
 , { "Const",        MarkType::kConst,        R_Y, E_O, M_E | M_ST  }
 , { "Define",       MarkType::kDefine,       R_O, E_Y, M_ST }
 , { "DefinedBy",    MarkType::kDefinedBy,    R_N, E_N, M(Method) }
-, { "Deprecated",   MarkType::kDeprecated,   R_Y, E_N, 0 }
+, { "Deprecated",   MarkType::kDeprecated,   R_Y, E_N, M_CS | M_MCD | M_E }
 , { "Description",  MarkType::kDescription,  R_Y, E_N, M(Example) | M(NoExample) }
+, { "Details",      MarkType::kDetails,      R_N, E_N, M(Const) }
 , { "Doxygen",      MarkType::kDoxygen,      R_Y, E_N, 0 }
 , { "Duration",     MarkType::kDuration,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Enum",         MarkType::kEnum,         R_Y, E_O, M_CSST | M(Root) }
 , { "EnumClass",    MarkType::kEnumClass,    R_Y, E_O, M_CSST | M(Root) }
-, { "Example",      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M(Method) | M(Const) | M(Define) }
-, { "Experimental", MarkType::kExperimental, R_Y, E_N, 0 }
+, { "Example",      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M_MCD }
+, { "Experimental", MarkType::kExperimental, R_Y, E_N, M_CS | M_MCD | M_E }
 , { "External",     MarkType::kExternal,     R_Y, E_N, M(Root) }
 , { "File",         MarkType::kFile,         R_N, E_N, M(Track) }
-, { "Formula",      MarkType::kFormula,      R_F, E_N,
-                                              M(Column) | M_E | M_ST | M(Member) | M(Method) | M_D }
+, { "Formula",      MarkType::kFormula,      R_F, E_N, M(Column) | M(Description)
+                                                     | M_E | M_ST | M_MCD }
 , { "Function",     MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
 , { "Height",       MarkType::kHeight,       R_N, E_N, M(Example) | M(NoExample) }
-, { "Illustration", MarkType::kIllustration, R_N, E_N, M(Subtopic) }
+, { "Illustration", MarkType::kIllustration, R_N, E_N, M_CSST | M_MCD }
 , { "Image",        MarkType::kImage,        R_N, E_N, M(Example) | M(NoExample) }
 , { "In",           MarkType::kIn,           R_N, E_N, M_CSST | M_E | M(Method) | M(Typedef) }
 , { "Legend",       MarkType::kLegend,       R_Y, E_N, M(Table) }
@@ -123,18 +160,20 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "",             MarkType::kMarkChar,     R_N, E_N, 0 }
 , { "Member",       MarkType::kMember,       R_Y, E_N, M_CSST }
 , { "Method",       MarkType::kMethod,       R_Y, E_Y, M_CSST }
-, { "NoExample",    MarkType::kNoExample,    R_N, E_N, M_CSST | M_E | M(Method) | M(Const) | M(Define) }
+, { "NoExample",    MarkType::kNoExample,    R_N, E_N, M_CSST | M_E | M_MCD }
+, { "NoJustify",    MarkType::kNoJustify,    R_N, E_N, M(Const) | M(Member) }
 , { "Outdent",      MarkType::kOutdent,      R_N, E_N, M(Code) }
 , { "Param",        MarkType::kParam,        R_Y, E_N, M(Method) | M(Define) }
 , { "PhraseDef",    MarkType::kPhraseDef,    R_Y, E_N, M(Subtopic) }
-, { "",             MarkType::kPhraseRef,    R_Y, E_N, 0 }
+, { "",             MarkType::kPhraseParam,  R_Y, E_N, 0 }
+, { "",             MarkType::kPhraseRef,    R_N, E_N, 0 }
 , { "Platform",     MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Populate",     MarkType::kPopulate,     R_N, E_N, M(Subtopic) }
 , { "Private",      MarkType::kPrivate,      R_N, E_N, 0 }
 , { "Return",       MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",             MarkType::kRoot,         R_Y, E_N, 0 }
 , { "",             MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
-, { "SeeAlso",      MarkType::kSeeAlso,      R_C, E_N, M_CSST | M_E | M(Method) | M(Define) | M(Typedef) }
+, { "SeeAlso",      MarkType::kSeeAlso,      R_C, E_N, M_CSST | M_E | M_MCD | M(Typedef) }
 , { "Set",          MarkType::kSet,          R_N, E_N, M(Example) | M(NoExample) }
 , { "StdOut",       MarkType::kStdOut,       R_N, E_N, M(Example) | M(NoExample) }
 , { "Struct",       MarkType::kStruct,       R_Y, E_O, M(Class) | M(Root) | M_ST }
@@ -163,6 +202,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 #undef M_CSST
 #undef M_ST
 #undef M_CS
+#undef M_MCD
 #undef M_D
 #undef M
 
@@ -394,6 +434,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kPhraseDef:
         case MarkType::kReturn:
         case MarkType::kToDo:
+            if (MarkType::kPhraseDef == markType) {
+                SkDebugf("");
+            }
             if (hasEnd) {
                 if (markType == fParent->fMarkType) {
                     definition = fParent;
@@ -437,6 +480,36 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     }
                     fParent->fChildren.push_back(definition);
                 }
+                break;
+            } else if (MarkType::kPhraseDef == markType) {
+                bool hasParams = '(' == this->next();
+                fMarkup.emplace_front(markType, defStart, fLineCount, fParent, fMC);
+                definition = &fMarkup.front();
+                definition->fName = typeNameBuilder[0];
+                definition->fFiddle = fParent->fFiddle;
+                definition->fContentStart = fChar;
+                if (hasParams) {
+                    char lastChar;
+                    do {
+                        const char* subEnd = this->anyOf(",)\n");
+                        if (!subEnd || '\n' == *subEnd) {
+                            return this->reportError<bool>("unexpected phrase list end");
+                        }
+                        fMarkup.emplace_front(MarkType::kPhraseParam, fChar, fLineCount, fParent,
+                                fMC);
+                        Definition* phraseParam = &fMarkup.front();
+                        phraseParam->fContentStart = fChar;
+                        phraseParam->fContentEnd = subEnd;
+                        phraseParam->fName = string(fChar, subEnd - fChar);
+                        definition->fChildren.push_back(phraseParam);
+                        this->skipTo(subEnd);
+                        lastChar = this->next();
+                        phraseParam->fTerminator = fChar;
+                    } while (')' != lastChar);
+                    this->skipWhiteSpace();
+                    definition->fContentStart = fChar;
+                }
+                this->setAsParent(definition);
                 break;
             }
         // not one-liners
@@ -502,6 +575,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kAnchor:
         case MarkType::kBug:
         case MarkType::kDeprecated:
+        case MarkType::kDetails:
         case MarkType::kDuration:
         case MarkType::kFile:
         case MarkType::kHeight:
@@ -510,6 +584,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
 		case MarkType::kIn:
 		case MarkType::kLine:
 		case MarkType::kLiteral:
+        case MarkType::kNoJustify:
         case MarkType::kOutdent:
         case MarkType::kPlatform:
         case MarkType::kPopulate:
@@ -569,6 +644,22 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
 				}
 				fMarkup.emplace_front(MarkType::kText, start, fLineCount, definition, fMC);
 				Definition* text = &fMarkup.front();
+                if (!islower(start[0]) && (!isdigit(start[0])
+                        || MarkType::kConst != definition->fParent->fMarkType)) {
+                    return this->reportError<bool>("expect lower case start");
+                }
+                string contents = string(start, end - start);
+                if (string::npos != contents.find('.')) {
+                    return this->reportError<bool>("expect phrase, not sentence");
+                }
+                size_t firstSpace = contents.find(' ');
+                if (string::npos == firstSpace || 0 == firstSpace || 's' != start[firstSpace - 1]) {
+                    if (MarkType::kMethod == fParent->fMarkType && "experimental" != contents
+                             && "incomplete" != contents) {
+                        return this->reportError<bool>( "expect phrase in third person present"
+                                " tense (1st word should end in 's'");
+                    }
+                }
 				text->fContentStart = start;
 				text->fContentEnd = end;
 				text->fTerminator = fChar;
@@ -1298,8 +1389,24 @@ bool BmhParser::findDefinitions() {
                 const char* phraseNameStart = fChar;
                 this->skipPhraseName();
                 string phraseKey = string(phraseNameStart, fChar - phraseNameStart);
-                if (fMC != this->next()) {
-                    return this->reportError<bool>("expect # after phrase-name");
+                char delimiter = this->next();
+                vector<string> params;
+                vector<const char*> paramsLoc;
+                if (fMC != delimiter) {
+                    if ('(' != delimiter) {
+                        return this->reportError<bool>("expect # after phrase name");
+                    }
+                    // phrase may take comma delimited parameter list
+                    do {
+                        const char* subEnd = this->anyOf(",)\n");
+                        if (!subEnd || '\n' == *subEnd) {
+                            return this->reportError<bool>("unexpected phrase list end");
+                        }
+                        params.push_back(string(fChar, subEnd - fChar));
+                        paramsLoc.push_back(fChar);
+                        this->skipTo(subEnd);
+
+                    } while (')' != this->next());
                 }
                 const char* start = phraseNameStart;
                 SkASSERT('#' == start[-1]);
@@ -1309,12 +1416,24 @@ bool BmhParser::findDefinitions() {
                 }
                 fMarkup.emplace_front(MarkType::kPhraseRef, start, fLineCount, fParent, fMC);
                 Definition* markChar = &fMarkup.front();
+                this->skipExact("#");
                 markChar->fContentStart = fChar;
-                this->skipToEndBracket('\n');
                 markChar->fContentEnd = fChar;
                 markChar->fTerminator = fChar;
                 markChar->fName = phraseKey;
                 fParent->fChildren.push_back(markChar);
+                int paramLocIndex = 0;
+                for (auto param : params) {
+                    const char* paramLoc = paramsLoc[paramLocIndex++];
+                    fMarkup.emplace_front(MarkType::kPhraseParam, paramLoc, fLineCount, fParent,
+                            fMC);
+                    Definition* phraseParam = &fMarkup.front();
+                    phraseParam->fContentStart = paramLoc;
+                    phraseParam->fContentEnd = paramLoc + param.length();
+                    phraseParam->fTerminator = paramLoc + param.length();
+                    phraseParam->fName = param;
+                    markChar->fChildren.push_back(phraseParam);
+                }
             }
         }
         char nextChar = this->next();
@@ -1822,6 +1941,7 @@ void TextParser::reportError(const char* errorStr) const {
 }
 
 void TextParser::reportWarning(const char* errorStr) const {
+    SkASSERT(fLine < fEnd);
     TextParser err(fFileName, fLine, fEnd, fLineCount);
     size_t lineLen = this->lineLength();
     ptrdiff_t spaces = fChar - fLine;
@@ -2071,6 +2191,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kBug:  // fixme: expect number
         case MarkType::kDefinedBy:
         case MarkType::kDeprecated:
+        case MarkType::kDetails:
         case MarkType::kDuration:
         case MarkType::kFile:
         case MarkType::kHeight:
@@ -2078,6 +2199,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kImage:
 		case MarkType::kIn:
         case MarkType::kLiteral:
+        case MarkType::kNoJustify:
         case MarkType::kOutdent:
         case MarkType::kPlatform:
         case MarkType::kPopulate:
@@ -2104,12 +2226,22 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
             builder = this->typedefName();
             break;
         case MarkType::kParam:
-        case MarkType::kPhraseDef:
             // fixme: expect camelCase for param
             builder = this->word("", "");
             this->skipSpace();
             *checkEnd = false;
             break;
+        case MarkType::kPhraseDef: {
+            const char* nameEnd = this->anyOf("(\n");
+            builder = string(fChar, nameEnd - fChar);
+            this->skipLower();
+            if (fChar != nameEnd) {
+                this->reportError("expect lower case only");
+                break;
+            }
+            this->skipTo(nameEnd);
+            *checkEnd = false;
+            } break;
         case MarkType::kTable:
             this->skipNoName();
             break;  // unnamed
