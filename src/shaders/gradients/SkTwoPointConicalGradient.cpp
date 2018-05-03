@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkTwoPointConicalGradient.h"
-
+#include "SkFloatingPoint.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
+#include "SkTwoPointConicalGradient.h"
 #include "SkWriteBuffer.h"
 #include "../../jumper/SkJumper.h"
 
@@ -57,7 +57,7 @@ sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0
 
     if (SkScalarNearlyZero((c0 - c1).length())) {
         // Concentric case: we can pretend we're radial (with a tiny twist).
-        const SkScalar scale = 1.0f / SkTMax(r0, r1);
+        const SkScalar scale = sk_ieee_float_divide(1, SkTMax(r0, r1));
         gradientMatrix = SkMatrix::MakeTrans(-c1.x(), -c1.y());
         gradientMatrix.postScale(scale, scale);
 
