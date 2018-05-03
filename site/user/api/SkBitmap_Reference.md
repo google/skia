@@ -1,3 +1,8 @@
+<style>
+.td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }
+.tr_const tr:nth-child(even) { background-color: #ddffdd; }
+.td2_const td:first-child + td { text-align: center; }
+</style>
 SkBitmap Reference
 ===
 
@@ -50,7 +55,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | name | description |
 | --- | --- |
 | <a href="#Allocate">Allocate</a> | allocates storage for pixels |
-| <a href="#Draw">Draw</a> | set pixels to <a href="SkColor_Reference#Color">Color</a> |
+| <a href="#Draw">Draw</a> | sets pixels to <a href="SkColor_Reference#Color">Color</a> |
 | <a href="#Pixels">Pixels</a> | read and write pixel values |
 | <a href="#Property">Property</a> | metrics and attributes |
 | <a href="#Row_Bytes">Row Bytes</a> | interval from one row to the next |
@@ -183,8 +188,8 @@ or <a href="#SkBitmap_setPixelRef">setPixelRef</a> was called.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_Allocator_allocPixelRef_bitmap"> <code><strong>bitmap </strong></code> </a></td> <td>
-<a href="#Bitmap">Bitmap</a> containing <a href="SkImageInfo_Reference#Image_Info">Image Info</a> as input, and <a href="undocumented#Pixel_Ref">Pixel Ref</a> as output</td>
+<table>  <tr>    <td><a name="SkBitmap_Allocator_allocPixelRef_bitmap"> <code><strong>bitmap </strong></code> </a></td>
+    <td><a href="#Bitmap">Bitmap</a> containing <a href="SkImageInfo_Reference#Image_Info">Image Info</a> as input, and <a href="undocumented#Pixel_Ref">Pixel Ref</a> as output</td>
   </tr>
 </table>
 
@@ -224,8 +229,8 @@ or <a href="#SkBitmap_setPixelRef">setPixelRef</a> was called.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_HeapAllocator_allocPixelRef_bitmap"> <code><strong>bitmap </strong></code> </a></td> <td>
-<a href="#Bitmap">Bitmap</a> containing <a href="SkImageInfo_Reference#Image_Info">Image Info</a> as input, and <a href="undocumented#Pixel_Ref">Pixel Ref</a> as output</td>
+<table>  <tr>    <td><a name="SkBitmap_HeapAllocator_allocPixelRef_bitmap"> <code><strong>bitmap </strong></code> </a></td>
+    <td><a href="#Bitmap">Bitmap</a> containing <a href="SkImageInfo_Reference#Image_Info">Image Info</a> as input, and <a href="undocumented#Pixel_Ref">Pixel Ref</a> as output</td>
   </tr>
 </table>
 
@@ -302,8 +307,8 @@ allocated, so both bitmaps reference the same pixels.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_copy_const_SkBitmap_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Bitmap">Bitmap</a> to copy <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, and share <a href="undocumented#Pixel_Ref">Pixel Ref</a></td>
+<table>  <tr>    <td><a name="SkBitmap_copy_const_SkBitmap_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="#Bitmap">Bitmap</a> to copy <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, and share <a href="undocumented#Pixel_Ref">Pixel Ref</a></td>
   </tr>
 </table>
 
@@ -313,7 +318,7 @@ copy of <a href="#SkBitmap_copy_const_SkBitmap_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="f12c2af14b0fffd094d632b5f766aa1d">
+<div><fiddle-embed name="bbbae7a181bfd128a4484e8e9f454db1">
 
 #### Example Output
 
@@ -343,8 +348,8 @@ Copies settings from <a href="#SkBitmap_move_SkBitmap_src">src</a> to returned <
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_move_SkBitmap_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Bitmap">Bitmap</a> to copy <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, and reassign <a href="undocumented#Pixel_Ref">Pixel Ref</a></td>
+<table>  <tr>    <td><a name="SkBitmap_move_SkBitmap_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="#Bitmap">Bitmap</a> to copy <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, and reassign <a href="undocumented#Pixel_Ref">Pixel Ref</a></td>
   </tr>
 </table>
 
@@ -354,7 +359,7 @@ copy of <a href="#SkBitmap_move_SkBitmap_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="a137b2027d2ac098a21d68d93391f5bb">
+<div><fiddle-embed name="40afd4f1fa69e02d69d92b38252088ef">
 
 #### Example Output
 
@@ -399,8 +404,8 @@ allocated, so both bitmaps reference the same pixels.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_copy_operator_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Bitmap">Bitmap</a> to copy <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, and share <a href="undocumented#Pixel_Ref">Pixel Ref</a></td>
+<table>  <tr>    <td><a name="SkBitmap_copy_operator_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="#Bitmap">Bitmap</a> to copy <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, and share <a href="undocumented#Pixel_Ref">Pixel Ref</a></td>
   </tr>
 </table>
 
@@ -410,7 +415,7 @@ copy of <a href="#SkBitmap_copy_operator_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="98d5866308756c21c8f8b639bc4e033a">
+<div><fiddle-embed name="45279c519ae808f78bd30e9d84bdfdde">
 
 #### Example Output
 
@@ -440,8 +445,8 @@ Copies settings from <a href="#SkBitmap_move_operator_src">src</a> to returned <
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_move_operator_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Bitmap">Bitmap</a> to copy <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, and reassign <a href="undocumented#Pixel_Ref">Pixel Ref</a></td>
+<table>  <tr>    <td><a name="SkBitmap_move_operator_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="#Bitmap">Bitmap</a> to copy <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, and reassign <a href="undocumented#Pixel_Ref">Pixel Ref</a></td>
   </tr>
 </table>
 
@@ -451,7 +456,7 @@ copy of <a href="#SkBitmap_move_operator_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="02836d36fa714d553c32f0d8ea11da73">
+<div><fiddle-embed name="35ea3fed27d8db22dc00f48670de64de">
 
 #### Example Output
 
@@ -480,8 +485,8 @@ Swaps the fields of the two bitmaps.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_swap_other"> <code><strong>other </strong></code> </a></td> <td>
-<a href="#Bitmap">Bitmap</a> exchanged with original</td>
+<table>  <tr>    <td><a name="SkBitmap_swap_other"> <code><strong>other </strong></code> </a></td>
+    <td><a href="#Bitmap">Bitmap</a> exchanged with original</td>
   </tr>
 </table>
 
@@ -770,7 +775,7 @@ immutable.
 
 ### Example
 
-<div><fiddle-embed name="7ade8a1a21ea5197e565c86740b47b73"><div><a href="undocumented#SkColorSpace_MakeSRGBLinear">SkColorSpace::MakeSRGBLinear</a> creates <a href="undocumented#Color_Space">Color Space</a> with linear gamma
+<div><fiddle-embed name="817f95879fadba44baf87ea60e9b595a"><div><a href="undocumented#SkColorSpace_MakeSRGBLinear">SkColorSpace::MakeSRGBLinear</a> creates <a href="undocumented#Color_Space">Color Space</a> with linear gamma
 and an sRGB gamut. This <a href="undocumented#Color_Space">Color Space</a> gamma is not close to sRGB gamma.
 </div>
 
@@ -807,7 +812,7 @@ The returned <a href="undocumented#Color_Space">Color Space</a> is immutable.
 
 ### Example
 
-<div><fiddle-embed name="972e9bb22c1ce94bb97b2d106168280e">
+<div><fiddle-embed name="cb028b7931da85b949ad0953b9711f9f">
 
 #### Example Output
 
@@ -1125,8 +1130,8 @@ are affected.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_setAlphaType_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<table>  <tr>    <td><a name="SkBitmap_setAlphaType_alphaType"> <code><strong>alphaType </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
 <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>
 </table>
@@ -1137,7 +1142,7 @@ true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set
 
 ### Example
 
-<div><fiddle-embed name="be21305f5654a1d8ed765710813a1f14"><a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<div><fiddle-embed name="dd73f0f927a049b17982c8cf06dd2d00"><a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
 <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
 <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
@@ -1241,7 +1246,7 @@ true if pixels are immutable
 
 ### Example
 
-<div><fiddle-embed name="cca4f94232e5e1fcee9a841b13df9d9c">
+<div><fiddle-embed name="db61fdcd382342ee88ea1b4f27c27b95">
 
 #### Example Output
 
@@ -1340,7 +1345,7 @@ true if marked volatile
 
 ### Example
 
-<div><fiddle-embed name="4f3e4d39cf34ea52fcd933dbafc46dfa">
+<div><fiddle-embed name="23c4543ac6cdd0e8fe762816a0dc2e03">
 
 #### Example Output
 
@@ -1373,14 +1378,14 @@ consumption on <a href="undocumented#Device">Device</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_setIsVolatile_isVolatile"> <code><strong>isVolatile </strong></code> </a></td> <td>
-true if backing pixels are temporary</td>
+<table>  <tr>    <td><a name="SkBitmap_setIsVolatile_isVolatile"> <code><strong>isVolatile </strong></code> </a></td>
+    <td>true if backing pixels are temporary</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="9443ada07e6123fc895be4c958244218"></fiddle-embed></div>
+<div><fiddle-embed name="e8627a4df659b896402f89a91326618f"></fiddle-embed></div>
 
 ### See Also
 
@@ -1406,7 +1411,7 @@ its memory if <a href="#Bitmap">Bitmap</a> is the sole owner.
 
 ### Example
 
-<div><fiddle-embed name="458f838acf38302abec477cec3102f0f">
+<div><fiddle-embed name="52ccaeda67924373c5b55a2b89fe314d">
 
 #### Example Output
 
@@ -1446,8 +1451,8 @@ Returns false for <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_ComputeIsOpaque_bm"> <code><strong>bm </strong></code> </a></td> <td>
-<a href="#Bitmap">Bitmap</a> to check</td>
+<table>  <tr>    <td><a name="SkBitmap_ComputeIsOpaque_bm"> <code><strong>bm </strong></code> </a></td>
+    <td><a href="#Bitmap">Bitmap</a> to check</td>
   </tr>
 </table>
 
@@ -1487,8 +1492,8 @@ Returns <a href="SkRect_Reference#Rect">Rect</a> { 0, 0, <a href="#SkBitmap_widt
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_getBounds_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
-container for floating point rectangle</td>
+<table>  <tr>    <td><a name="SkBitmap_getBounds_bounds"> <code><strong>bounds </strong></code> </a></td>
+    <td>container for floating point rectangle</td>
   </tr>
 </table>
 
@@ -1512,8 +1517,8 @@ Returns <a href="SkIRect_Reference#IRect">IRect</a> { 0, 0, <a href="#SkBitmap_w
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_getBounds_2_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
-container for integral rectangle</td>
+<table>  <tr>    <td><a name="SkBitmap_getBounds_2_bounds"> <code><strong>bounds </strong></code> </a></td>
+    <td>container for integral rectangle</td>
   </tr>
 </table>
 
@@ -1633,18 +1638,23 @@ unchanged.
 Calls <a href="#SkBitmap_reset">reset</a> and returns false if:
 
 <table>  <tr>
-    <td><a href="#SkBitmap_rowBytes">rowBytes</a> exceeds 31 bits</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_width">width</a> is negative</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_height">height</a> is negative</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_rowBytes">rowBytes</a> is positive and less than <a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_width">width</a> times <a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a></td>  </tr>
+    <td><a href="#SkBitmap_rowBytes">rowBytes</a> exceeds 31 bits</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_width">width</a> is negative</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_height">height</a> is negative</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_rowBytes">rowBytes</a> is positive and less than <a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_width">width</a> times <a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a></td>
+  </tr>
 </table>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_setInfo_imageInfo"> <code><strong>imageInfo </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_setInfo_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
-<a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">minRowBytes</a> or larger; or zero</td>
+<table>  <tr>    <td><a name="SkBitmap_setInfo_imageInfo"> <code><strong>imageInfo </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_setInfo_rowBytes"> <code><strong>rowBytes </strong></code> </a></td>
+    <td><a href="#SkBitmap_setInfo_imageInfo">imageInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">minRowBytes</a> or larger; or zero</td>
   </tr>
 </table>
 
@@ -1674,9 +1684,12 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> set successful
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse; width: 62.5em' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkBitmap_kZeroPixels_AllocFlag"> <code><strong>SkBitmap::kZeroPixels_AllocFlag </strong></code> </a></td><td>1</td><td>Instructs <a href="#SkBitmap_tryAllocPixelsFlags">tryAllocPixelsFlags</a> and <a href="#SkBitmap_allocPixelsFlags">allocPixelsFlags</a> to zero pixel memory.
+    <td><a name="SkBitmap_kZeroPixels_AllocFlag"> <code><strong>SkBitmap::kZeroPixels_AllocFlag </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td>Instructs <a href="#SkBitmap_tryAllocPixelsFlags">tryAllocPixelsFlags</a> and <a href="#SkBitmap_allocPixelsFlags">allocPixelsFlags</a> to zero pixel memory.
 </td>
   </tr>
 </table>
@@ -1734,10 +1747,11 @@ subsequently calling <a href="#SkBitmap_eraseColor">eraseColor</a> with <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_tryAllocPixelsFlags_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_tryAllocPixelsFlags_flags"> <code><strong>flags </strong></code> </a></td> <td>
-<a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>, or zero</td>
+<table>  <tr>    <td><a name="SkBitmap_tryAllocPixelsFlags_info"> <code><strong>info </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_tryAllocPixelsFlags_flags"> <code><strong>flags </strong></code> </a></td>
+    <td><a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>, or zero</td>
   </tr>
 </table>
 
@@ -1747,7 +1761,7 @@ true if pixels allocation is successful
 
 ### Example
 
-<div><fiddle-embed name="4fff5f5034ced615ad5a1d50c40aeff3">
+<div><fiddle-embed name="f1d1880d38e0aea4cefd3e11745e8a09">
 
 #### Example Output
 
@@ -1789,16 +1803,17 @@ subsequently calling <a href="#SkBitmap_eraseColor">eraseColor</a> with <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_allocPixelsFlags_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_allocPixelsFlags_flags"> <code><strong>flags </strong></code> </a></td> <td>
-<a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>, or zero</td>
+<table>  <tr>    <td><a name="SkBitmap_allocPixelsFlags_info"> <code><strong>info </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_allocPixelsFlags_flags"> <code><strong>flags </strong></code> </a></td>
+    <td><a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>, or zero</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="f21b8965a88c94a32393a8890c4672af"><div><a href="undocumented#Text">Text</a> is drawn on a transparent background; drawing the bitmap a second time
+<div><fiddle-embed name="737e721c7d9e0f367d25521a1b823b9d"><div><a href="undocumented#Text">Text</a> is drawn on a transparent background; drawing the bitmap a second time
 lets the first draw show through.
 </div></fiddle-embed></div>
 
@@ -1829,10 +1844,11 @@ implementation of malloc().
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_tryAllocPixels_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_tryAllocPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
-size of pixel row or larger; may be zero</td>
+<table>  <tr>    <td><a name="SkBitmap_tryAllocPixels_info"> <code><strong>info </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_tryAllocPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td>
+    <td>size of pixel row or larger; may be zero</td>
   </tr>
 </table>
 
@@ -1872,10 +1888,11 @@ implementation of malloc().
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_allocPixels_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_allocPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
-size of pixel row or larger; may be zero</td>
+<table>  <tr>    <td><a name="SkBitmap_allocPixels_info"> <code><strong>info </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_allocPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td>
+    <td>size of pixel row or larger; may be zero</td>
   </tr>
 </table>
 
@@ -1908,8 +1925,8 @@ implementation of malloc().
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_tryAllocPixels_2_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+<table>  <tr>    <td><a name="SkBitmap_tryAllocPixels_2_info"> <code><strong>info </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>
 </table>
 
@@ -1947,8 +1964,8 @@ implementation of malloc().
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_allocPixels_2_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+<table>  <tr>    <td><a name="SkBitmap_allocPixels_2_info"> <code><strong>info </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>
 </table>
 
@@ -1983,12 +2000,14 @@ the platform. <a href="#Bitmap">Bitmap</a> drawn to output device skips converti
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_tryAllocN32Pixels_width"> <code><strong>width </strong></code> </a></td> <td>
-pixel column count; must be zero or greater</td>
-  </tr>  <tr>    <td><a name="SkBitmap_tryAllocN32Pixels_height"> <code><strong>height </strong></code> </a></td> <td>
-pixel row count; must be zero or greater</td>
-  </tr>  <tr>    <td><a name="SkBitmap_tryAllocN32Pixels_isOpaque"> <code><strong>isOpaque </strong></code> </a></td> <td>
-true if pixels do not have transparency</td>
+<table>  <tr>    <td><a name="SkBitmap_tryAllocN32Pixels_width"> <code><strong>width </strong></code> </a></td>
+    <td>pixel column count; must be zero or greater</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_tryAllocN32Pixels_height"> <code><strong>height </strong></code> </a></td>
+    <td>pixel row count; must be zero or greater</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_tryAllocN32Pixels_isOpaque"> <code><strong>isOpaque </strong></code> </a></td>
+    <td>true if pixels do not have transparency</td>
   </tr>
 </table>
 
@@ -2026,12 +2045,14 @@ the platform. <a href="#Bitmap">Bitmap</a> drawn to output device skips converti
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_allocN32Pixels_width"> <code><strong>width </strong></code> </a></td> <td>
-pixel column count; must be zero or greater</td>
-  </tr>  <tr>    <td><a name="SkBitmap_allocN32Pixels_height"> <code><strong>height </strong></code> </a></td> <td>
-pixel row count; must be zero or greater</td>
-  </tr>  <tr>    <td><a name="SkBitmap_allocN32Pixels_isOpaque"> <code><strong>isOpaque </strong></code> </a></td> <td>
-true if pixels do not have transparency</td>
+<table>  <tr>    <td><a name="SkBitmap_allocN32Pixels_width"> <code><strong>width </strong></code> </a></td>
+    <td>pixel column count; must be zero or greater</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_allocN32Pixels_height"> <code><strong>height </strong></code> </a></td>
+    <td>pixel row count; must be zero or greater</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_allocN32Pixels_isOpaque"> <code><strong>isOpaque </strong></code> </a></td>
+    <td>true if pixels do not have transparency</td>
   </tr>
 </table>
 
@@ -2070,16 +2091,20 @@ as parameters.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_installPixels_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_installPixels_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
-address or pixel storage; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkBitmap_installPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
-size of pixel row or larger</td>
-  </tr>  <tr>    <td><a name="SkBitmap_installPixels_releaseProc"> <code><strong>releaseProc </strong></code> </a></td> <td>
-function called when <a href="#SkBitmap_installPixels_pixels">pixels</a> can be deleted; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkBitmap_installPixels_context"> <code><strong>context </strong></code> </a></td> <td>
-caller state passed to <a href="#SkBitmap_installPixels_releaseProc">releaseProc</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkBitmap_installPixels_info"> <code><strong>info </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_installPixels_pixels"> <code><strong>pixels </strong></code> </a></td>
+    <td>address or pixel storage; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_installPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td>
+    <td>size of pixel row or larger</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_installPixels_releaseProc"> <code><strong>releaseProc </strong></code> </a></td>
+    <td>function called when <a href="#SkBitmap_installPixels_pixels">pixels</a> can be deleted; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_installPixels_context"> <code><strong>context </strong></code> </a></td>
+    <td>caller state passed to <a href="#SkBitmap_installPixels_releaseProc">releaseProc</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -2089,7 +2114,7 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> is set to info
 
 ### Example
 
-<div><fiddle-embed name="ff5b5c349efb5d929ff5dff07b7727e6"><div><a href="#SkBitmap_installPixels_releaseProc">releaseProc</a> is called immediately because <a href="#SkBitmap_rowBytes">rowBytes</a> is too small for <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
+<div><fiddle-embed name="8c4f7bf73fffa1a812ee8e88e44e639c"><div><a href="#SkBitmap_installPixels_releaseProc">releaseProc</a> is called immediately because <a href="#SkBitmap_rowBytes">rowBytes</a> is too small for <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
 </div>
 
 #### Example Output
@@ -2126,12 +2151,14 @@ Caller must ensure that <a href="#SkBitmap_installPixels_2_pixels">pixels</a> ar
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_installPixels_2_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_installPixels_2_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
-address or pixel storage; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkBitmap_installPixels_2_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
-size of pixel row or larger</td>
+<table>  <tr>    <td><a name="SkBitmap_installPixels_2_info"> <code><strong>info </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_installPixels_2_pixels"> <code><strong>pixels </strong></code> </a></td>
+    <td>address or pixel storage; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_installPixels_2_rowBytes"> <code><strong>rowBytes </strong></code> </a></td>
+    <td>size of pixel row or larger</td>
   </tr>
 </table>
 
@@ -2168,8 +2195,8 @@ Caller must ensure that pixmap is valid for the lifetime of <a href="#Bitmap">Bi
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_installPixels_3_pixmap"> <code><strong>pixmap </strong></code> </a></td> <td>
-<a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixel address, and <a href="#SkBitmap_rowBytes">rowBytes</a></td>
+<table>  <tr>    <td><a name="SkBitmap_installPixels_3_pixmap"> <code><strong>pixmap </strong></code> </a></td>
+    <td><a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixel address, and <a href="#SkBitmap_rowBytes">rowBytes</a></td>
   </tr>
 </table>
 
@@ -2234,8 +2261,8 @@ of <a href="#Bitmap">Bitmap</a> and <a href="undocumented#Pixel_Ref">Pixel Ref</
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_setPixels_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
-address of pixel storage, managed by caller</td>
+<table>  <tr>    <td><a name="SkBitmap_setPixels_pixels"> <code><strong>pixels </strong></code> </a></td>
+    <td>address of pixel storage, managed by caller</td>
   </tr>
 </table>
 
@@ -2317,8 +2344,8 @@ Returns false if <a href="#SkBitmap_Allocator_allocPixelRef">Allocator::allocPix
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_tryAllocPixels_4_allocator"> <code><strong>allocator </strong></code> </a></td> <td>
-instance of <a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> instantiation</td>
+<table>  <tr>    <td><a name="SkBitmap_tryAllocPixels_4_allocator"> <code><strong>allocator </strong></code> </a></td>
+    <td>instance of <a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> instantiation</td>
   </tr>
 </table>
 
@@ -2330,7 +2357,7 @@ true if custom <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a> repo
 
 <div><fiddle-embed name="eb6f861ca1839146d26e40d56c2a001c"><div><a href="#SkBitmap_HeapAllocator">HeapAllocator</a> limits the maximum size of <a href="#Bitmap">Bitmap</a> to two gigabytes. Using
 a custom <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a>, this limitation may be relaxed. This example can be
-modified to allocate an eight gigabyte <a href="#Bitmap">Bitmap</a> on a 64 bit platform with
+modified to allocate an eight gigabyte <a href="#Bitmap">Bitmap</a> on a 64-bit platform with
 sufficient memory.
 </div></fiddle-embed></div>
 
@@ -2355,8 +2382,8 @@ the user at compile time by defining SK_ABORT.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_allocPixels_4_allocator"> <code><strong>allocator </strong></code> </a></td> <td>
-instance of <a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> instantiation</td>
+<table>  <tr>    <td><a name="SkBitmap_allocPixels_4_allocator"> <code><strong>allocator </strong></code> </a></td>
+    <td>instance of <a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> instantiation</td>
   </tr>
 </table>
 
@@ -2464,18 +2491,20 @@ The caller is responsible for ensuring that the pixels match the
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_setPixelRef_pixelRef"> <code><strong>pixelRef </strong></code> </a></td> <td>
-<a href="undocumented#Pixel_Ref">Pixel Ref</a> describing pixel address and <a href="#SkBitmap_rowBytes">rowBytes</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_setPixelRef_dx"> <code><strong>dx </strong></code> </a></td> <td>
-column offset in <a href="undocumented#Pixel_Ref">Pixel Ref</a> for bitmap origin</td>
-  </tr>  <tr>    <td><a name="SkBitmap_setPixelRef_dy"> <code><strong>dy </strong></code> </a></td> <td>
-row offset in <a href="undocumented#Pixel_Ref">Pixel Ref</a> for bitmap origin</td>
+<table>  <tr>    <td><a name="SkBitmap_setPixelRef_pixelRef"> <code><strong>pixelRef </strong></code> </a></td>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> describing pixel address and <a href="#SkBitmap_rowBytes">rowBytes</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_setPixelRef_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>column offset in <a href="undocumented#Pixel_Ref">Pixel Ref</a> for bitmap origin</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_setPixelRef_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>row offset in <a href="undocumented#Pixel_Ref">Pixel Ref</a> for bitmap origin</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="13df9e5b1adcec33d11e4b0f8a91ecb8"><div>Treating 32 bit data as 8 bit data is unlikely to produce useful results.
+<div><fiddle-embed name="f98cc0451c6e77a8833d261c9a484c5f"><div>Treating 32-bit data as 8-bit data is unlikely to produce useful results.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -2557,7 +2586,7 @@ Marks that pixels in <a href="undocumented#Pixel_Ref">Pixel Ref</a> have changed
 
 ### Example
 
-<div><fiddle-embed name="706e6409c8364e7786d6c69db7242c76"></fiddle-embed></div>
+<div><fiddle-embed name="8f463ed17b0ed4fb9c503a0ec71706f9"></fiddle-embed></div>
 
 ### See Also
 
@@ -2587,14 +2616,14 @@ then <a href="SkColor_Reference#RGB">Color RGB</a> is ignored.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_eraseColor_c"> <code><strong>c </strong></code> </a></td> <td>
-<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#Color">Color</a></td>
+<table>  <tr>    <td><a name="SkBitmap_eraseColor_c"> <code><strong>c </strong></code> </a></td>
+    <td><a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#Color">Color</a></td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="22804faa423192f96a29578b1d396ace"></fiddle-embed></div>
+<div><fiddle-embed name="418928dbfffa9eb00c8225530f44baf5"></fiddle-embed></div>
 
 ### See Also
 
@@ -2617,20 +2646,23 @@ then <a href="#SkBitmap_eraseARGB_r">r</a>, <a href="#SkBitmap_eraseARGB_g">g</a
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_eraseARGB_a"> <code><strong>a </strong></code> </a></td> <td>
-amount of <a href="SkColor_Reference#Alpha">Color Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
-  </tr>  <tr>    <td><a name="SkBitmap_eraseARGB_r"> <code><strong>r </strong></code> </a></td> <td>
-amount of <a href="SkColor_Reference#RGB_Red">Color RGB Red</a>, from no red (0) to full red (255)</td>
-  </tr>  <tr>    <td><a name="SkBitmap_eraseARGB_g"> <code><strong>g </strong></code> </a></td> <td>
-amount of <a href="SkColor_Reference#RGB_Green">Color RGB Green</a>, from no green (0) to full green (255)</td>
-  </tr>  <tr>    <td><a name="SkBitmap_eraseARGB_b"> <code><strong>b </strong></code> </a></td> <td>
-amount of <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a>, from no blue (0) to full blue (255)</td>
+<table>  <tr>    <td><a name="SkBitmap_eraseARGB_a"> <code><strong>a </strong></code> </a></td>
+    <td>amount of <a href="SkColor_Reference#Alpha">Color Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_eraseARGB_r"> <code><strong>r </strong></code> </a></td>
+    <td>amount of <a href="SkColor_Reference#RGB_Red">Color RGB Red</a>, from no red (0) to full red (255)</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_eraseARGB_g"> <code><strong>g </strong></code> </a></td>
+    <td>amount of <a href="SkColor_Reference#RGB_Green">Color RGB Green</a>, from no green (0) to full green (255)</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_eraseARGB_b"> <code><strong>b </strong></code> </a></td>
+    <td>amount of <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a>, from no blue (0) to full blue (255)</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="ebaa436565ce9c0f883bef871d099654"></fiddle-embed></div>
+<div><fiddle-embed name="67277b0a1003f340473a35982533561c"></fiddle-embed></div>
 
 ### See Also
 
@@ -2663,16 +2695,17 @@ then <a href="SkColor_Reference#RGB">Color RGB</a> is ignored.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_erase_c"> <code><strong>c </strong></code> </a></td> <td>
-<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#Color">Color</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_erase_area"> <code><strong>area </strong></code> </a></td> <td>
-rectangle to fill</td>
+<table>  <tr>    <td><a name="SkBitmap_erase_c"> <code><strong>c </strong></code> </a></td>
+    <td><a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#Color">Color</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_erase_area"> <code><strong>area </strong></code> </a></td>
+    <td>rectangle to fill</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="116baaa35348b5c0a353fb6d4917d574"></fiddle-embed></div>
+<div><fiddle-embed name="2c5c4230ccd2861a5d15b7cd2764ab6e"></fiddle-embed></div>
 
 ### See Also
 
@@ -2710,10 +2743,11 @@ precision.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_getColor_x"> <code><strong>x </strong></code> </a></td> <td>
-column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_getColor_y"> <code><strong>y </strong></code> </a></td> <td>
-row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
+<table>  <tr>    <td><a name="SkBitmap_getColor_x"> <code><strong>x </strong></code> </a></td>
+    <td>column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_getColor_y"> <code><strong>y </strong></code> </a></td>
+    <td>row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
   </tr>
 </table>
 
@@ -2723,7 +2757,7 @@ pixel converted to <a href="undocumented#Unpremultiply">Unpremultiplied</a> <a h
 
 ### Example
 
-<div><fiddle-embed name="2e49fa71dd4be95470248ea6eb35468b">
+<div><fiddle-embed name="0f05970f0ce47f462e8c0a3aa146575f">
 
 #### Example Output
 
@@ -2766,10 +2800,11 @@ one of: <a href="#SkBitmap_getAddr8">getAddr8</a>, <a href="#SkBitmap_getAddr16"
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_getAddr_x"> <code><strong>x </strong></code> </a></td> <td>
-column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_getAddr_y"> <code><strong>y </strong></code> </a></td> <td>
-row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
+<table>  <tr>    <td><a name="SkBitmap_getAddr_x"> <code><strong>x </strong></code> </a></td>
+    <td>column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_getAddr_y"> <code><strong>y </strong></code> </a></td>
+    <td>row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
   </tr>
 </table>
 
@@ -2807,18 +2842,23 @@ Returns address at (<a href="#SkBitmap_getAddr32_x">x</a>, <a href="#SkBitmap_ge
 Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 
 <table>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> is not four</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_getAddr32_x">x</a> is negative, or not less than <a href="#SkBitmap_width">width</a></td>  </tr>  <tr>
-    <td><a href="#SkBitmap_getAddr32_y">y</a> is negative, or not less than <a href="#SkBitmap_height">height</a></td>  </tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> is not four</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_getAddr32_x">x</a> is negative, or not less than <a href="#SkBitmap_width">width</a></td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_getAddr32_y">y</a> is negative, or not less than <a href="#SkBitmap_height">height</a></td>
+  </tr>
 </table>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_getAddr32_x"> <code><strong>x </strong></code> </a></td> <td>
-column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_getAddr32_y"> <code><strong>y </strong></code> </a></td> <td>
-row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
+<table>  <tr>    <td><a name="SkBitmap_getAddr32_x"> <code><strong>x </strong></code> </a></td>
+    <td>column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_getAddr32_y"> <code><strong>y </strong></code> </a></td>
+    <td>row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
   </tr>
 </table>
 
@@ -2856,18 +2896,23 @@ Returns address at (<a href="#SkBitmap_getAddr16_x">x</a>, <a href="#SkBitmap_ge
 Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 
 <table>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> is not two</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_getAddr16_x">x</a> is negative, or not less than <a href="#SkBitmap_width">width</a></td>  </tr>  <tr>
-    <td><a href="#SkBitmap_getAddr16_y">y</a> is negative, or not less than <a href="#SkBitmap_height">height</a></td>  </tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> is not two</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_getAddr16_x">x</a> is negative, or not less than <a href="#SkBitmap_width">width</a></td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_getAddr16_y">y</a> is negative, or not less than <a href="#SkBitmap_height">height</a></td>
+  </tr>
 </table>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_getAddr16_x"> <code><strong>x </strong></code> </a></td> <td>
-column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_getAddr16_y"> <code><strong>y </strong></code> </a></td> <td>
-row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
+<table>  <tr>    <td><a name="SkBitmap_getAddr16_x"> <code><strong>x </strong></code> </a></td>
+    <td>column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_getAddr16_y"> <code><strong>y </strong></code> </a></td>
+    <td>row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
   </tr>
 </table>
 
@@ -2877,7 +2922,7 @@ unsigned 16-bit pointer to pixel at (<a href="#SkBitmap_getAddr16_x">x</a>, <a h
 
 ### Example
 
-<div><fiddle-embed name="3d7e49d428c9a4812558b39cf505baa6">
+<div><fiddle-embed name="53e00899ef2e00e2096daf7a07d9b059">
 
 #### Example Output
 
@@ -2905,18 +2950,23 @@ Returns address at (<a href="#SkBitmap_getAddr8_x">x</a>, <a href="#SkBitmap_get
 Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 
 <table>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> is not one</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_getAddr8_x">x</a> is negative, or not less than <a href="#SkBitmap_width">width</a></td>  </tr>  <tr>
-    <td><a href="#SkBitmap_getAddr8_y">y</a> is negative, or not less than <a href="#SkBitmap_height">height</a></td>  </tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> is not one</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_getAddr8_x">x</a> is negative, or not less than <a href="#SkBitmap_width">width</a></td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_getAddr8_y">y</a> is negative, or not less than <a href="#SkBitmap_height">height</a></td>
+  </tr>
 </table>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_getAddr8_x"> <code><strong>x </strong></code> </a></td> <td>
-column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_getAddr8_y"> <code><strong>y </strong></code> </a></td> <td>
-row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
+<table>  <tr>    <td><a name="SkBitmap_getAddr8_x"> <code><strong>x </strong></code> </a></td>
+    <td>column index, zero or greater, and less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_getAddr8_y"> <code><strong>y </strong></code> </a></td>
+    <td>row index, zero or greater, and less than <a href="#SkBitmap_height">height</a></td>
   </tr>
 </table>
 
@@ -2961,17 +3011,21 @@ Any contents of <a href="#SkBitmap_extractSubset_dst">dst</a> are discarded. <a 
 Return false if:
 
 <table>  <tr>
-    <td><a href="#SkBitmap_extractSubset_dst">dst</a> is nullptr</td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_extractSubset_subset">subset</a> does not intersect <a href="#SkBitmap_bounds">bounds</a></td>  </tr>
+    <td><a href="#SkBitmap_extractSubset_dst">dst</a> is nullptr</td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_extractSubset_subset">subset</a> does not intersect <a href="#SkBitmap_bounds">bounds</a></td>
+  </tr>
 </table>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_extractSubset_dst"> <code><strong>dst </strong></code> </a></td> <td>
-<a href="#Bitmap">Bitmap</a> set to <a href="#SkBitmap_extractSubset_subset">subset</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_extractSubset_subset"> <code><strong>subset </strong></code> </a></td> <td>
-rectangle of pixels to reference</td>
+<table>  <tr>    <td><a name="SkBitmap_extractSubset_dst"> <code><strong>dst </strong></code> </a></td>
+    <td><a href="#Bitmap">Bitmap</a> set to <a href="#SkBitmap_extractSubset_subset">subset</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_extractSubset_subset"> <code><strong>subset </strong></code> </a></td>
+    <td>rectangle of pixels to reference</td>
   </tr>
 </table>
 
@@ -2981,7 +3035,7 @@ true if <a href="#SkBitmap_extractSubset_dst">dst</a> is replaced by <a href="#S
 
 ### Example
 
-<div><fiddle-embed name="3ad80d8fcb13344612f361812658b696">
+<div><fiddle-embed name="304148c50c91490bfd58e9222342419c">
 
 #### Example Output
 
@@ -3025,9 +3079,12 @@ and does not exceed <a href="#Bitmap">Bitmap</a> (<a href="#SkBitmap_width">widt
 row to the next. Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.addr() equals nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_readPixels_dstRowBytes">dstRowBytes</a> is less than <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">minRowBytes</a></td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+    <td><a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.addr() equals nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_readPixels_dstRowBytes">dstRowBytes</a> is less than <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">minRowBytes</a></td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
@@ -3036,6 +3093,7 @@ If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_alphaType">alphaType</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkBitmap_readPixels_srcX">srcX</a> and <a href="#SkBitmap_readPixels_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
 Returns false ifabs(srcX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
@@ -3048,18 +3106,23 @@ pixels are treated as if they are linear, regardless of how they are encoded.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_readPixels_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-destination width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
-destination pixel storage</td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
-destination row length</td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_srcX"> <code><strong>srcX </strong></code> </a></td> <td>
-column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_srcY"> <code><strong>srcY </strong></code> </a></td> <td>
-row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_behavior"> <code><strong>behavior </strong></code> </a></td> <td>
-one of: <a href="undocumented#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>,
+<table>  <tr>    <td><a name="SkBitmap_readPixels_dstInfo"> <code><strong>dstInfo </strong></code> </a></td>
+    <td>destination width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_dstPixels"> <code><strong>dstPixels </strong></code> </a></td>
+    <td>destination pixel storage</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td>
+    <td>destination row length</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_srcX"> <code><strong>srcX </strong></code> </a></td>
+    <td>column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_srcY"> <code><strong>srcY </strong></code> </a></td>
+    <td>row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_behavior"> <code><strong>behavior </strong></code> </a></td>
+    <td>one of: <a href="undocumented#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>,
 <a href="undocumented#SkTransferFunctionBehavior_kIgnore">SkTransferFunctionBehavior::kIgnore</a></td>
   </tr>
 </table>
@@ -3092,9 +3155,12 @@ destination. <a href="#SkBitmap_readPixels_2_dstRowBytes">dstRowBytes</a> specif
 Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.addr() equals nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_readPixels_2_dstRowBytes">dstRowBytes</a> is less than <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">minRowBytes</a></td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+    <td><a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.addr() equals nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_readPixels_2_dstRowBytes">dstRowBytes</a> is less than <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">minRowBytes</a></td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
@@ -3103,6 +3169,7 @@ If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_alphaType">alphaType</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkBitmap_readPixels_2_srcX">srcX</a> and <a href="#SkBitmap_readPixels_2_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
 Returns false ifabs(srcX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
@@ -3110,16 +3177,20 @@ or ifabs(srcY) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_height">height
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_readPixels_2_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-destination width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_2_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
-destination pixel storage</td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_2_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
-destination row length</td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_2_srcX"> <code><strong>srcX </strong></code> </a></td> <td>
-column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_2_srcY"> <code><strong>srcY </strong></code> </a></td> <td>
-row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
+<table>  <tr>    <td><a name="SkBitmap_readPixels_2_dstInfo"> <code><strong>dstInfo </strong></code> </a></td>
+    <td>destination width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_2_dstPixels"> <code><strong>dstPixels </strong></code> </a></td>
+    <td>destination pixel storage</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_2_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td>
+    <td>destination row length</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_2_srcX"> <code><strong>srcX </strong></code> </a></td>
+    <td>column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_2_srcY"> <code><strong>srcY </strong></code> </a></td>
+    <td>row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
   </tr>
 </table>
 
@@ -3153,9 +3224,12 @@ and row bytes of destination. <a href="#SkBitmap_readPixels_3_dst">dst</a>.<a hr
 row to the next. Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href="#SkBitmap_readPixels_3_dst">dst</a> pixel storage equals nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_readPixels_3_dst">dst</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+    <td><a href="#SkBitmap_readPixels_3_dst">dst</a> pixel storage equals nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_readPixels_3_dst">dst</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
@@ -3164,6 +3238,7 @@ If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkBitmap_readPixels_3_srcX">srcX</a> and <a href="#SkBitmap_readPixels_3_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
 Returns false ifabs(srcX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
@@ -3171,12 +3246,14 @@ or ifabs(srcY) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_height">height
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_readPixels_3_dst"> <code><strong>dst </strong></code> </a></td> <td>
-destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_3_srcX"> <code><strong>srcX </strong></code> </a></td> <td>
-column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_readPixels_3_srcY"> <code><strong>srcY </strong></code> </a></td> <td>
-row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
+<table>  <tr>    <td><a name="SkBitmap_readPixels_3_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_3_srcX"> <code><strong>srcX </strong></code> </a></td>
+    <td>column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_readPixels_3_srcY"> <code><strong>srcY </strong></code> </a></td>
+    <td>row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
   </tr>
 </table>
 
@@ -3208,9 +3285,12 @@ and row bytes of destination. <a href="#SkBitmap_readPixels_4_dst">dst</a>.<a hr
 row to the next. Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href="#SkBitmap_readPixels_4_dst">dst</a> pixel storage equals nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_readPixels_4_dst">dst</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+    <td><a href="#SkBitmap_readPixels_4_dst">dst</a> pixel storage equals nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_readPixels_4_dst">dst</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
@@ -3222,8 +3302,8 @@ false if pixel conversion is not possible.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_readPixels_4_dst"> <code><strong>dst </strong></code> </a></td> <td>
-destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
+<table>  <tr>    <td><a name="SkBitmap_readPixels_4_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
   </tr>
 </table>
 
@@ -3233,7 +3313,7 @@ true if pixels are copied to <a href="#SkBitmap_readPixels_4_dst">dst</a>
 
 ### Example
 
-<div><fiddle-embed name="2260ff6d04708699b6223b4f73fd268e"></fiddle-embed></div>
+<div><fiddle-embed name="4590fbf052659d6e629fbfd827081ae5"></fiddle-embed></div>
 
 ### See Also
 
@@ -3256,9 +3336,12 @@ and row bytes of source. <a href="#SkBitmap_writePixels_src">src</a>.<a href="#S
 row to the next. Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href="#SkBitmap_writePixels_src">src</a> pixel storage equals nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_writePixels_src">src</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+    <td><a href="#SkBitmap_writePixels_src">src</a> pixel storage equals nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_writePixels_src">src</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
@@ -3267,6 +3350,7 @@ If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <
 If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkBitmap_writePixels_src">src</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> must
 match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkBitmap_writePixels_dstX">dstX</a> and <a href="#SkBitmap_writePixels_dstY">dstY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
 Returns false ifabs(dstX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
@@ -3274,12 +3358,14 @@ or ifabs(dstY) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_height">height
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_writePixels_src"> <code><strong>src </strong></code> </a></td> <td>
-source <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
-  </tr>  <tr>    <td><a name="SkBitmap_writePixels_dstX"> <code><strong>dstX </strong></code> </a></td> <td>
-column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_writePixels_dstY"> <code><strong>dstY </strong></code> </a></td> <td>
-row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
+<table>  <tr>    <td><a name="SkBitmap_writePixels_src"> <code><strong>src </strong></code> </a></td>
+    <td>source <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_writePixels_dstX"> <code><strong>dstX </strong></code> </a></td>
+    <td>column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_writePixels_dstY"> <code><strong>dstY </strong></code> </a></td>
+    <td>row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
   </tr>
 </table>
 
@@ -3311,9 +3397,12 @@ and row bytes of source. <a href="#SkBitmap_writePixels_2_src">src</a>.<a href="
 row to the next. Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href="#SkBitmap_writePixels_2_src">src</a> pixel storage equals nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_writePixels_2_src">src</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+    <td><a href="#SkBitmap_writePixels_2_src">src</a> pixel storage equals nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_writePixels_2_src">src</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
@@ -3325,8 +3414,8 @@ false if pixel conversion is not possible.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_writePixels_2_src"> <code><strong>src </strong></code> </a></td> <td>
-source <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
+<table>  <tr>    <td><a name="SkBitmap_writePixels_2_src"> <code><strong>src </strong></code> </a></td>
+    <td>source <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
   </tr>
 </table>
 
@@ -3358,9 +3447,12 @@ and row bytes of source. <a href="#SkBitmap_writePixels_3_src">src</a>.<a href="
 row to the next. Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href="#SkBitmap_writePixels_3_src">src</a> pixel storage equals nullptr</td>  </tr>  <tr>
-    <td><a href="#SkBitmap_writePixels_3_src">src</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+    <td><a href="#SkBitmap_writePixels_3_src">src</a> pixel storage equals nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkBitmap_writePixels_3_src">src</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
@@ -3378,14 +3470,17 @@ pixels are treated as if they are linear, regardless of how they are encoded.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_writePixels_3_src"> <code><strong>src </strong></code> </a></td> <td>
-source <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
-  </tr>  <tr>    <td><a name="SkBitmap_writePixels_3_x"> <code><strong>x </strong></code> </a></td> <td>
-column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_writePixels_3_y"> <code><strong>y </strong></code> </a></td> <td>
-row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
-  </tr>  <tr>    <td><a name="SkBitmap_writePixels_3_behavior"> <code><strong>behavior </strong></code> </a></td> <td>
-one of: <a href="undocumented#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>,
+<table>  <tr>    <td><a name="SkBitmap_writePixels_3_src"> <code><strong>src </strong></code> </a></td>
+    <td>source <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_writePixels_3_x"> <code><strong>x </strong></code> </a></td>
+    <td>column index whose absolute value is less than <a href="#SkBitmap_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_writePixels_3_y"> <code><strong>y </strong></code> </a></td>
+    <td>row index whose absolute value is less than <a href="#SkBitmap_height">height</a></td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_writePixels_3_behavior"> <code><strong>behavior </strong></code> </a></td>
+    <td>one of: <a href="undocumented#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>,
 <a href="undocumented#SkTransferFunctionBehavior_kIgnore">SkTransferFunctionBehavior::kIgnore</a></td>
   </tr>
 </table>
@@ -3430,8 +3525,8 @@ void setHasHardwareMipMap(bool hasHardwareMipMap)
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_setHasHardwareMipMap_hasHardwareMipMap"> <code><strong>hasHardwareMipMap </strong></code> </a></td> <td>
-sets state</td>
+<table>  <tr>    <td><a name="SkBitmap_setHasHardwareMipMap_hasHardwareMipMap"> <code><strong>hasHardwareMipMap </strong></code> </a></td>
+    <td>sets state</td>
   </tr>
 </table>
 
@@ -3455,8 +3550,8 @@ Uses <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> to reserve memory for <
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_extractAlpha_dst"> <code><strong>dst </strong></code> </a></td> <td>
-holds <a href="undocumented#Pixel_Ref">Pixel Ref</a> to fill with alpha layer</td>
+<table>  <tr>    <td><a name="SkBitmap_extractAlpha_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>holds <a href="undocumented#Pixel_Ref">Pixel Ref</a> to fill with alpha layer</td>
   </tr>
 </table>
 
@@ -3490,12 +3585,14 @@ generates <a href="undocumented#Mask_Alpha">Mask Alpha</a> from <a href="#Bitmap
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_extractAlpha_2_dst"> <code><strong>dst </strong></code> </a></td> <td>
-holds <a href="undocumented#Pixel_Ref">Pixel Ref</a> to fill with alpha layer</td>
-  </tr>  <tr>    <td><a name="SkBitmap_extractAlpha_2_paint"> <code><strong>paint </strong></code> </a></td> <td>
-holds optional <a href="undocumented#Mask_Filter">Mask Filter</a>; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkBitmap_extractAlpha_2_offset"> <code><strong>offset </strong></code> </a></td> <td>
-top-left position for <a href="#SkBitmap_extractAlpha_2_dst">dst</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkBitmap_extractAlpha_2_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>holds <a href="undocumented#Pixel_Ref">Pixel Ref</a> to fill with alpha layer</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_extractAlpha_2_paint"> <code><strong>paint </strong></code> </a></td>
+    <td>holds optional <a href="undocumented#Mask_Filter">Mask Filter</a>; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_extractAlpha_2_offset"> <code><strong>offset </strong></code> </a></td>
+    <td>top-left position for <a href="#SkBitmap_extractAlpha_2_dst">dst</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -3530,14 +3627,17 @@ mask.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_extractAlpha_3_dst"> <code><strong>dst </strong></code> </a></td> <td>
-holds <a href="undocumented#Pixel_Ref">Pixel Ref</a> to fill with alpha layer</td>
-  </tr>  <tr>    <td><a name="SkBitmap_extractAlpha_3_paint"> <code><strong>paint </strong></code> </a></td> <td>
-holds optional <a href="undocumented#Mask_Filter">Mask Filter</a>; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkBitmap_extractAlpha_3_allocator"> <code><strong>allocator </strong></code> </a></td> <td>
-method to reserve memory for <a href="undocumented#Pixel_Ref">Pixel Ref</a>; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkBitmap_extractAlpha_3_offset"> <code><strong>offset </strong></code> </a></td> <td>
-top-left position for <a href="#SkBitmap_extractAlpha_3_dst">dst</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkBitmap_extractAlpha_3_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>holds <a href="undocumented#Pixel_Ref">Pixel Ref</a> to fill with alpha layer</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_extractAlpha_3_paint"> <code><strong>paint </strong></code> </a></td>
+    <td>holds optional <a href="undocumented#Mask_Filter">Mask Filter</a>; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_extractAlpha_3_allocator"> <code><strong>allocator </strong></code> </a></td>
+    <td>method to reserve memory for <a href="undocumented#Pixel_Ref">Pixel Ref</a>; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkBitmap_extractAlpha_3_offset"> <code><strong>offset </strong></code> </a></td>
+    <td>top-left position for <a href="#SkBitmap_extractAlpha_3_dst">dst</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -3570,8 +3670,8 @@ pixmap contents become invalid on any future change to <a href="#Bitmap">Bitmap<
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_peekPixels_pixmap"> <code><strong>pixmap </strong></code> </a></td> <td>
-storage for pixel state if pixels are readable; otherwise, ignored</td>
+<table>  <tr>    <td><a name="SkBitmap_peekPixels_pixmap"> <code><strong>pixmap </strong></code> </a></td>
+    <td>storage for pixel state if pixels are readable; otherwise, ignored</td>
   </tr>
 </table>
 
@@ -3647,8 +3747,8 @@ internal debugging tools.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkBitmap_toString_str"> <code><strong>str </strong></code> </a></td> <td>
-storage for string representation</td>
+<table>  <tr>    <td><a name="SkBitmap_toString_str"> <code><strong>str </strong></code> </a></td>
+    <td>storage for string representation</td>
   </tr>
 </table>
 
