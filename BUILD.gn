@@ -44,6 +44,7 @@ declare_args() {
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_header = ""
   skia_vulkan_sdk = getenv("VULKAN_SDK")
+  skia_moltenvk_path = ""
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
   skia_generate_workarounds = false
@@ -69,7 +70,7 @@ declare_args() {
   } else if (is_fuchsia) {
     skia_use_vulkan = fuchsia_use_vulkan
   } else {
-    skia_use_vulkan = skia_vulkan_sdk != ""
+    skia_use_vulkan = skia_vulkan_sdk != "" || skia_moltenvk_path != ""
   }
 
   if (is_ios) {
@@ -223,6 +224,32 @@ config("skia_library") {
   defines = [ "SKIA_IMPLEMENTATION=1" ]
 }
 
+config("moltenvk") {
+  if (is_ios) {
+    moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/iOS"
+  } else {
+    moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/macOS"
+  }
+  cflags = [
+    "-F$moltenvk_framework_path",
+    "-isystem$skia_moltenvk_path/MoltenVK/include",  # for <vulkan/vulkan.h>
+  ]
+  ldflags = [ "-F$moltenvk_framework_path" ]
+  libs = [
+    "MoltenVK.framework",
+    "Metal.framework",
+    "IOSurface.framework",
+    "QuartzCore.framework",
+    "Foundation.framework",
+  ]
+  if (is_ios) {
+    libs += [ "UIKit.framework" ]
+  } else {
+    libs += [ "IOKit.framework" ]
+  }
+  defines = [ "SK_MOLTENVK" ]
+}
+
 skia_library_configs = [
   ":skia_public",
   ":skia_private",
@@ -349,6 +376,9 @@ template("optional") {
     config(target_name + "_public") {
       if (defined(invoker.public_defines)) {
         defines = invoker.public_defines
+      }
+      if (defined(invoker.public_configs)) {
+        configs = invoker.public_configs
       }
     }
     source_set(target_name) {
@@ -591,6 +621,7 @@ optional("gpu") {
     deps += [ ":workaround_list" ]
   }
   public_defines = []
+  public_configs = []
 
   sources = skia_gpu_sources + skia_sksl_sources + skia_gpu_processor_outputs
 
@@ -633,10 +664,13 @@ optional("gpu") {
     }
     if (skia_vulkan_header != "") {
       public_defines += [ "SK_VULKAN_HEADER=\"$skia_vulkan_header\"" ]
-    } else {
-      if (is_skia_dev_build) {
-        public_defines += [ "SK_VULKAN_HEADER=\"GrVulkanDefines.h\"" ]
-      }
+    } else if (skia_moltenvk_path != "") {
+      public_defines += [ "SK_VULKAN_HEADER=<MoltenVK/mvk_vulkan.h>" ]
+    } else if (is_skia_dev_build) {
+      public_defines += [ "SK_VULKAN_HEADER=\"GrVulkanDefines.h\"" ]
+    }
+    if (skia_moltenvk_path != "") {
+      public_configs += [ ":moltenvk" ]
     }
   }
   if (skia_use_legacy_gpu_pixel_ops) {
