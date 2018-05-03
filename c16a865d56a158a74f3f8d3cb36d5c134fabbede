@@ -175,6 +175,30 @@
       "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6caa776d_1ffb9a88",
+        "filename": "src/core/SkLatticeIter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-03T18:11:53Z",
+      "side": 1,
+      "message": "\u003e I hadn\u0027t realized that Android used this as it\u0027s in src/core.\nAlas, Android uses a number of our internal classes :(\n\n\u003e Every current internal caller (N \u003d\u003d 8) would convert the SkIRect to SkRect. When I fix the GPU bleed I\u0027ll delete one and move one to the int version. So it seemed like a useful helper just for internal reasons.\n\nOk, good to know. Thanks!",
+      "parentUuid": "a20418db_8ce97984",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 44
+      },
+      "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
