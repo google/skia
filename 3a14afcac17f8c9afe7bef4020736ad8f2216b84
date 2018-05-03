@@ -118,6 +118,30 @@
       "revId": "3a14afcac17f8c9afe7bef4020736ad8f2216b84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7690e48_2da2ce56",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-03T15:36:10Z",
+      "side": 1,
+      "message": "Another idea: all interesting shader paths call SkShaderBase::computeTotalInverse() and bail if that fails.\n\nCan we make sure that computeTotalInverse() fails for infinite matrices?  Maybe even in SkMatrix::invertNonIdentity()?  That should cover a bunch of cases.",
+      "parentUuid": "08b73726_cab9bae5",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 5
+      },
+      "revId": "3a14afcac17f8c9afe7bef4020736ad8f2216b84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
