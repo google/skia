@@ -62,7 +62,8 @@ static inline GrMaskFormat get_packed_glyph_mask_format(const SkGlyph& glyph) {
     SkMask::Format format = static_cast<SkMask::Format>(glyph.fMaskFormat);
     switch (format) {
         case SkMask::kBW_Format:
-            // fall through to kA8 -- we store BW glyphs in our 8-bit cache
+        case SkMask::kSDF_Format:
+            // fall through to kA8 -- we store BW and SDF glyphs in our 8-bit cache
         case SkMask::kA8_Format:
             return kA8_GrMaskFormat;
         case SkMask::k3D_Format:
@@ -85,19 +86,6 @@ static inline bool get_packed_glyph_bounds(SkGlyphCache* cache, const SkGlyph& g
     cache->findImage(glyph);
 #endif
     bounds->setXYWH(glyph.fLeft, glyph.fTop, glyph.fWidth, glyph.fHeight);
-
-    return true;
-}
-
-static inline bool get_packed_glyph_df_bounds(SkGlyphCache* cache, const SkGlyph& glyph,
-                                              SkIRect* bounds) {
-#if 1
-    // crbug:510931
-    // Retrieving the image from the cache can actually change the mask format.
-    cache->findImage(glyph);
-#endif
-    bounds->setXYWH(glyph.fLeft, glyph.fTop, glyph.fWidth, glyph.fHeight);
-    bounds->outset(SK_DistanceFieldPad, SK_DistanceFieldPad);
 
     return true;
 }
@@ -182,64 +170,6 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
     return true;
 }
 
-static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
-                                      int width, int height, void* dst) {
-    SkASSERT(glyph.fWidth + 2*SK_DistanceFieldPad == width);
-    SkASSERT(glyph.fHeight + 2*SK_DistanceFieldPad == height);
-
-#ifndef SK_USE_LEGACY_DISTANCE_FIELDS
-    const SkPath* path = cache->findPath(glyph);
-    if (nullptr == path) {
-        return false;
-    }
-
-    SkDEBUGCODE(SkRect glyphBounds = SkRect::MakeXYWH(glyph.fLeft,
-                                                      glyph.fTop,
-                                                      glyph.fWidth,
-                                                      glyph.fHeight));
-    SkASSERT(glyphBounds.contains(path->getBounds()));
-
-    // now generate the distance field
-    SkASSERT(dst);
-    SkMatrix drawMatrix;
-    drawMatrix.setTranslate((SkScalar)-glyph.fLeft, (SkScalar)-glyph.fTop);
-
-    // Generate signed distance field directly from SkPath
-    bool succeed = GrGenerateDistanceFieldFromPath((unsigned char*)dst,
-                                           *path, drawMatrix,
-                                           width, height, width * sizeof(unsigned char));
-
-    if (!succeed) {
-#endif
-        const void* image = cache->findImage(glyph);
-        if (nullptr == image) {
-            return false;
-        }
-
-        // now generate the distance field
-        SkASSERT(dst);
-        SkMask::Format maskFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
-        if (SkMask::kA8_Format == maskFormat) {
-            // make the distance field from the image
-            SkGenerateDistanceFieldFromA8Image((unsigned char*)dst,
-                                               (unsigned char*)image,
-                                               glyph.fWidth, glyph.fHeight,
-                                               glyph.rowBytes());
-        } else if (SkMask::kBW_Format == maskFormat) {
-            // make the distance field from the image
-            SkGenerateDistanceFieldFromBWImage((unsigned char*)dst,
-                                               (unsigned char*)image,
-                                               glyph.fWidth, glyph.fHeight,
-                                               glyph.rowBytes());
-        } else {
-            return false;
-        }
-#ifndef SK_USE_LEGACY_DISTANCE_FIELDS
-    }
-#endif
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -267,14 +197,8 @@ GrTextStrike::~GrTextStrike() {
 GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                                      SkGlyphCache* cache) {
     SkIRect bounds;
-    if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(packed)) {
-        if (!get_packed_glyph_df_bounds(cache, skGlyph, &bounds)) {
-            return nullptr;
-        }
-    } else {
-        if (!get_packed_glyph_bounds(cache, skGlyph, &bounds)) {
-            return nullptr;
-        }
+    if (!get_packed_glyph_bounds(cache, skGlyph, &bounds)) {
+        return nullptr;
     }
     GrMaskFormat format = get_packed_glyph_mask_format(skGlyph);
 
@@ -327,22 +251,15 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     SkAutoSMalloc<1024> storage(size);
 
     const SkGlyph& skGlyph = GrToSkGlyph(cache, glyph->fPackedID);
-    if (isSDFGlyph) {
-        if (!get_packed_glyph_df_image(cache, skGlyph, width, height,
-                                       storage.get())) {
-            return GrDrawOpAtlas::ErrorCode::kError;
-        }
-    } else {
-        void* dataPtr = storage.get();
-        if (addPad) {
-            sk_bzero(dataPtr, size);
-            dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
-        }
-        if (!get_packed_glyph_image(cache, skGlyph, glyph->width(), glyph->height(),
-                                    rowBytes, expectedMaskFormat,
-                                    dataPtr)) {
-            return GrDrawOpAtlas::ErrorCode::kError;
-        }
+    void* dataPtr = storage.get();
+    if (addPad) {
+        sk_bzero(dataPtr, size);
+        dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
+    }
+    if (!get_packed_glyph_image(cache, skGlyph, glyph->width(), glyph->height(),
+                                rowBytes, expectedMaskFormat,
+                                dataPtr)) {
+        return GrDrawOpAtlas::ErrorCode::kError;
     }
 
     GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(

@@ -10,7 +10,6 @@
 #include "SkMalloc.h"
 #include "SkMaskBlurFilter.h"
 #include "SkNx.h"
-#include "SkSafeMath.h"
 
 #include <cmath>
 #include <climits>
@@ -254,32 +253,6 @@ SkMaskBlurFilter::SkMaskBlurFilter(double sigmaW, double sigmaH)
 
 bool SkMaskBlurFilter::hasNoBlur() const {
     return (3 * fSigmaW <= 1) && (3 * fSigmaH <= 1);
-}
-
-static SkMask prepare_destination(int radiusX, int radiusY, const SkMask& src) {
-    SkSafeMath safe;
-
-    SkMask dst;
-    // dstW = srcW + 2 * radiusX;
-    size_t dstW = safe.add(src.fBounds.width(), safe.add(radiusX, radiusX));
-    // dstH = srcH + 2 * radiusY;
-    size_t dstH = safe.add(src.fBounds.height(), safe.add(radiusY, radiusY));
-
-    dst.fBounds.set(0, 0, SkTo<int>(dstW), SkTo<int>(dstH));
-    dst.fBounds.offset(src.fBounds.x(), src.fBounds.y());
-    dst.fBounds.offset(-radiusX, -radiusY);
-
-    dst.fImage = nullptr;
-    dst.fRowBytes = SkTo<uint32_t>(dstW);
-    dst.fFormat = SkMask::kA8_Format;
-
-    size_t toAlloc = safe.mul(dstW, dstH);
-
-    if (safe && src.fImage != nullptr) {
-        dst.fImage = SkMask::AllocImage(toAlloc);
-    }
-
-    return dst;
 }
 
 static constexpr uint16_t _____ = 0u;
@@ -878,7 +851,7 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
     prepareGauss(filterX, gaussFactorsX);
     prepareGauss(filterY, gaussFactorsY);
 
-    *dst = prepare_destination(radiusX, radiusY, src);
+    *dst = SkMask::PrepareDestination(radiusX, radiusY, src);
     if (src.fImage == nullptr) {
         return {SkTo<int32_t>(radiusX), SkTo<int32_t>(radiusY)};
     }
@@ -936,7 +909,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         borderH = planH.border();
     SkASSERT(borderH >= 0 && borderW >= 0);
 
-    *dst = prepare_destination(borderW, borderH, src);
+    *dst = SkMask::PrepareDestination(borderW, borderH, src);
     if (src.fImage == nullptr) {
         return {SkTo<int32_t>(borderW), SkTo<int32_t>(borderH)};
     }

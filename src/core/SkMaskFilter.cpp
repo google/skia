@@ -23,6 +23,7 @@
 #include "GrTextureProxy.h"
 #include "GrFragmentProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
+#include "text/GrSDFMaskFilter.h"
 #endif
 
 SkMaskFilterBase::NinePatch::~NinePatch() {
@@ -734,5 +735,7 @@ void SkMaskFilter::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeMF)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCombineMF)
     sk_register_blur_maskfilter_createproc();
+#if SK_SUPPORT_GPU
+    gr_register_sdf_maskfilter_createproc();
+#endif
 }
-

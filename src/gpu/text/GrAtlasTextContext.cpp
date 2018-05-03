@@ -7,6 +7,7 @@
 #include "GrAtlasTextContext.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrSDFMaskFilter.h"
 #include "GrTextBlobCache.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
@@ -661,6 +662,8 @@ void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
     skPaint->setAutohinted(false);
     skPaint->setHinting(SkPaint::kNormal_Hinting);
     skPaint->setSubpixelText(true);
+
+    skPaint->setMaskFilter(GrSDFMaskFilter::Make());
 }
 
 void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
@@ -793,13 +796,11 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                 glyphPos.fY += (2 == scalarsPerPosition ? pos[1] : 0) -
                                SkFloatToScalar(glyph.fAdvanceY) * alignMul * textRatio;
 
-                if (glyph.fMaskFormat == SkMask::kA8_Format ||
-                    glyph.fMaskFormat == SkMask::kBW_Format)
-                {
+                if (glyph.fMaskFormat == SkMask::kSDF_Format) {
                     DfAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph, glyphPos.fX,
                                   glyphPos.fY, paint.filteredPremulColor(), cache.get(), textRatio);
                 } else {
-                    // can't append color glyph to SDF batch, send to fallback
+                    // can't append non-SDF glyph to SDF batch, send to fallback
                     fallbackTextHelper.appendText(glyph, SkToInt(text - lastText), lastText,
                                                   glyphPos);
                 }
@@ -877,6 +878,11 @@ void GrAtlasTextContext::FallbackTextHelper::drawText(GrAtlasTextBlob* blob, int
                                                       const GrTextUtils::Paint& paint,
                                                       SkScalerContextFlags scalerContextFlags) {
     if (fFallbackTxt.count()) {
+        if (fViewMatrix.hasPerspective()) {
+            // TODO: handle perspective
+            return;
+        }
+
         blob->initOverride(runIndex);
         blob->setHasBitmap();
         SkExclusiveStrikePtr cache;
