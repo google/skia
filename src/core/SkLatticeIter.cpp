@@ -76,10 +76,9 @@ static int count_scalable_pixels(const int32_t* divs, int numDivs, bool firstIsS
 /**
  *  Set points for the src and dst rects on subsequent draw calls.
  */
-static void set_points(float* dst, float* src, const int* divs, int divCount, int srcFixed,
-                       int srcScalable, float srcStart, float srcEnd, float dstStart, float dstEnd,
+static void set_points(float* dst, int* src, const int* divs, int divCount, int srcFixed,
+                       int srcScalable, int srcStart, int srcEnd, float dstStart, float dstEnd,
                        bool isScalable) {
-
     float dstLen = dstEnd - dstStart;
     float scale;
     if (srcFixed <= dstLen) {
@@ -254,7 +253,7 @@ SkLatticeIter::SkLatticeIter(int w, int h, const SkIRect& c, const SkRect& dst) 
     fNumRectsToDraw = 9;
 }
 
-bool SkLatticeIter::next(SkRect* src, SkRect* dst, bool* isFixedColor, SkColor* fixedColor) {
+bool SkLatticeIter::next(SkIRect* src, SkRect* dst, bool* isFixedColor, SkColor* fixedColor) {
     int currRect = fCurrX + fCurrY * (fSrcX.count() - 1);
     if (currRect == fNumRectsInLattice) {
         return false;
