@@ -46,6 +46,30 @@
       "revId": "3a14afcac17f8c9afe7bef4020736ad8f2216b84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e579528_3c74471a",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-03T15:21:48Z",
+      "side": 1,
+      "message": "Is the fuzzer exception local to this routine also (I don\u0027t have permission to view)?\n\nI\u0027m fine with checking here, but if the exception is down the pipeline (in e.g. makeContext) I don\u0027t think passing the check here offers any strong guarantees.",
+      "parentUuid": "3322ef7b_d767b2a9",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 5
+      },
+      "revId": "3a14afcac17f8c9afe7bef4020736ad8f2216b84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
