@@ -668,7 +668,7 @@ sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
     auto newTypeface = sk_make_sp<SkTypefaceProxy>(wire.typefaceID, wire.glyphCount, wire.style,
                                                    wire.isFixed, this);
     fRemoteFontIdToTypeface.set(wire.typefaceID, newTypeface);
-    return newTypeface;
+    return std::move(newTypeface);
 }
 
 void SkStrikeClient::generateFontMetrics(const SkTypefaceProxy& typefaceProxy,
