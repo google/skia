@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f8940d0_c73b938a",
+        "filename": "include/core/SkMatrix44.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-03T15:15:37Z",
+      "side": 1,
+      "message": "TypeMask?",
+      "range": {
+        "startLine": 460,
+        "startChar": 24,
+        "endLine": 460,
+        "endChar": 31
+      },
+      "revId": "7a5a47e38f4920519c2912bdd688a8ed11a6dce5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
