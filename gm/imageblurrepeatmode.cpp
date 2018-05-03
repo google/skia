@@ -77,19 +77,20 @@ protected:
 
     bool runAsBench() const override { return true; }
 
-    void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkImage> image[] =
-                { make_image(canvas, 1), make_image(canvas, 2), make_image(canvas, 3) };
+    void foo(SkCanvas* canvas, sk_sp<SkImage> image[3]) {
+        sk_sp<SkImageFilter> filter;
 
         canvas->translate(0, 30);
         // Test different kernel size, including the one to launch 2d Gaussian
         // blur.
         for (auto sigma: { 0.6f, 3.0f, 8.0f, 20.0f }) {
+          if (sigma == 8.0f) {
+
             canvas->save();
-            sk_sp<SkImageFilter> filter(
-                  SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
-                                          SkBlurImageFilter::kRepeat_TileMode));
-            draw_image(canvas, image[0], std::move(filter));
+
+            filter = SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
+                                             SkBlurImageFilter::kRepeat_TileMode);
+//            draw_image(canvas, image[0], std::move(filter));
             canvas->translate(image[0]->width() + 20, 0);
 
             filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr, nullptr,
@@ -99,12 +100,23 @@ protected:
 
             filter = SkBlurImageFilter::Make(sigma, sigma, nullptr, nullptr,
                                              SkBlurImageFilter::kRepeat_TileMode);
-            draw_image(canvas, image[2], std::move(filter));
+//            draw_image(canvas, image[2], std::move(filter));
             canvas->translate(image[2]->width() + 20, 0);
 
             canvas->restore();
-            canvas->translate(0, image[0]->height() + 20);
+          }
+          canvas->translate(0, image[0]->height() + 20);
         }
+    }
+
+
+    void onDraw(SkCanvas* canvas) override {
+        sk_sp<SkImage> image[] =
+                { make_image(canvas, 1), make_image(canvas, 2), make_image(canvas, 3) };
+
+//        canvas->saveLayer(SkRect::MakeLTRB(283, 306, 566, 612), nullptr);
+        this->foo(canvas, image);
+//        canvas->restore();
     }
 
 private:

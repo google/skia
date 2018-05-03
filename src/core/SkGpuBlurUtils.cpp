@@ -154,6 +154,14 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrContext* context,
     return renderTargetContext;
 }
 
+static void print_ipoint(const SkIPoint& p, const char*name) {
+    SkDebugf("%s: [ %d, %d ]\n", name, p.fX, p.fY);
+}
+
+static void print_irect(const SkIRect& r, const char* name) {
+    SkDebugf("%s: [ %d, %d, %d, %d ]\n", name, r.fLeft, r.fTop, r.fRight, r.fBottom);
+}
+
 static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
                                                       sk_sp<GrTextureProxy> proxy,
                                                       const SkIRect& srcRect,
@@ -166,6 +174,10 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
                                                       const SkImageInfo& dstII,
                                                       SkBackingFit fit) {
     SkASSERT(srcRect.width() <= dstII.width() && srcRect.height() <= dstII.height());
+
+    SkDebugf("convolve_gaussian\n");
+    print_irect(srcRect, "srcRect");
+    print_irect(*contentRect, "contentRect on entry");
 
     GrPixelConfig config = get_blur_config(proxy.get(), dstII.colorSpace());
 
@@ -241,6 +253,12 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, srcOffset,
                              std::move(proxy), direction, radius, sigma, mode, bounds);
     } else {
+        print_irect(leftRect, "left");
+        print_irect(rightRect, "right");
+        print_irect(midRect, "mid");
+        SkDebugf("radius %d sigma %f offset %d %d\n", radius, sigma, srcOffset.fX, srcOffset.fY);
+        SkDebugf("bounds %d %d\n", bounds[0], bounds[1]);
+
         // Draw right and left margins with bounds; middle without.
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, leftRect, srcOffset,
                              proxy, direction, radius, sigma, mode, bounds);
@@ -251,7 +269,37 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
                              GrTextureDomain::kIgnore_Mode, bounds);
     }
 
+    print_irect(*contentRect, "contentRect on exit");
+
     return dstRenderTargetContext;
+}
+
+void write_to_png(GrSurfaceContext* c, const char* name) {
+
+    SkDebugf("%s: %d x %d\n", name, c->width(), c->height());
+
+    SkImageInfo ii = SkImageInfo::Make(c->width(), c->height(),
+                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkBitmap bm;
+    SkAssertResult(bm.tryAllocPixels(ii));
+
+    SkAssertResult(c->readPixels(ii, bm.getPixels(), bm.rowBytes(), 0, 0));
+
+    static int sID = 0;
+    char filename[256];
+    _snprintf(filename, 256, "c:\\src\\bugs\\%s-%d.png", name, sID++);
+    filename[255] = '\0';
+
+    SkFILEWStream file(filename);
+    SkAssertResult(file.isValid());
+
+    SkAssertResult(SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100));
+}
+
+void write_to_png(GrContext* context, sk_sp<GrSurfaceProxy> proxy, const char* name) {
+    sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
+                                                                            std::move(proxy)));
+    write_to_png(sContext.get(), name);
 }
 
 static sk_sp<GrTextureProxy> decimate(GrContext* context,
@@ -265,6 +313,8 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
                                       const SkImageInfo& dstII) {
     SkASSERT(SkIsPow2(scaleFactorX) && SkIsPow2(scaleFactorY));
     SkASSERT(scaleFactorX > 1 || scaleFactorY > 1);
+
+    SkDebugf("downsizing: %d x %x\n", scaleFactorX, scaleFactorY);
 
     GrPixelConfig config = get_blur_config(src.get(), dstII.colorSpace());
 
@@ -444,6 +494,9 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                           SkBackingFit fit) {
     SkASSERT(context);
 
+    SkDebugf("--------------------------------------------------------------------------------\n");
+    write_to_png(context, srcProxy, "initial");
+
     const GrPixelConfig config = get_blur_config(srcProxy.get(), colorSpace.get());
     SkColorType ct;
     if (!GrPixelConfigToColorType(config, &ct)) {
@@ -461,6 +514,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     SkASSERT(sigmaX || sigmaY);
 
     SkIPoint srcOffset = SkIPoint::Make(-dstBounds.x(), -dstBounds.y());
+    SkDebugf("srcOffset: %d %d\n", srcOffset.fX, srcOffset.fY);
 
     // For really small blurs (certainly no wider than 5x5 on desktop gpus) it is faster to just
     // launch a single non separable kernel vs two launches
@@ -491,6 +545,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         if (!srcProxy) {
             return nullptr;
         }
+
+        write_to_png(context, srcProxy, "decimated");
     }
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
@@ -518,6 +574,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             return nullptr;
         }
 
+        write_to_png(context, srcProxy, "postX");
+
         srcRect.offsetTo(0, 0);
         srcOffset.set(0, 0);
     }
@@ -535,6 +593,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             return nullptr;
         }
 
+        write_to_png(context, srcProxy, "postY");
+
         srcRect.offsetTo(0, 0);
         srcOffset.set(0, 0);
     }
@@ -546,6 +606,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         dstRenderTargetContext = reexpand(context, std::move(dstRenderTargetContext),
                                           localSrcBounds, scaleFactorX, scaleFactorY,
                                           mode, finalDestII, fit);
+        write_to_png(dstRenderTargetContext.get(), "reinflated");
     }
 
     return dstRenderTargetContext;
