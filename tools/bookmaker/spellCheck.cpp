@@ -42,12 +42,17 @@ private:
         kColumn,
     };
 
+    enum class PrintCheck {
+        kWordsOnly,
+        kAllowNumbers,
+    };
+
     bool check(Definition* );
     bool checkable(MarkType markType);
     void childCheck(const Definition* def, const char* start);
     void leafCheck(const char* start, const char* end);
     bool parseFromFile(const char* path) override { return true; }
-    void printCheck(string str);
+    void printCheck(string str, PrintCheck);
 
     void reset() override {
         INHERITED::resetCommon();
@@ -223,6 +228,8 @@ bool SpellCheck::check(Definition* def) {
             } break;
         case MarkType::kNoExample:
             break;
+        case MarkType::kNoJustify:
+            break;
         case MarkType::kOutdent:
             break;
         case MarkType::kParam: {
@@ -238,7 +245,13 @@ bool SpellCheck::check(Definition* def) {
             fInCode = true;
             this->wordCheck(paramParser.fChar - paramName, paramName);
             fInCode = false;
-       } break;
+        } break;
+        case MarkType::kPhraseDef:
+            break;
+        case MarkType::kPhraseParam:
+            break;
+        case MarkType::kPhraseRef:
+            break;
         case MarkType::kPlatform:
             break;
         case MarkType::kPopulate:
@@ -271,7 +284,10 @@ bool SpellCheck::check(Definition* def) {
         case MarkType::kSubstitute:
             break;
         case MarkType::kSubtopic:
-            this->printCheck(printable);
+            // TODO: add a tag that allows subtopic labels in illustrations to skip spellcheck?
+            if (string::npos == fFileName.find("illustrations.bmh")) {
+                this->printCheck(printable, PrintCheck::kAllowNumbers);
+            }
             break;
         case MarkType::kTable:
             break;
@@ -284,7 +300,7 @@ bool SpellCheck::check(Definition* def) {
         case MarkType::kToDo:
             break;
         case MarkType::kTopic:
-            this->printCheck(printable);
+            this->printCheck(printable, PrintCheck::kWordsOnly);
             break;
         case MarkType::kTrack:
             // don't output children
@@ -459,9 +475,16 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
     } while (++chPtr <= end);
 }
 
-void SpellCheck::printCheck(string str) {
+void SpellCheck::printCheck(string str, PrintCheck allowed) {
     string word;
     for (std::stringstream stream(str); stream >> word; ) {
+        if (PrintCheck::kAllowNumbers == allowed && (std::isdigit(word.back()) || 'x' == word.back())) {
+            // allow ###x for RGB_888x
+            if ((size_t) std::count_if(word.begin(), word.end() - 1,
+                    [](unsigned char c){ return std::isdigit(c); } ) == word.length() - 1) {
+                continue;
+            }
+        }
         wordCheck(word);
     }
 }

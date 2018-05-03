@@ -1,3 +1,8 @@
+<style>
+.td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }
+.tr_const tr:nth-child(even) { background-color: #ddffdd; }
+.td2_const td:first-child + td { text-align: center; }
+</style>
 SkPaint Reference
 ===
 
@@ -179,7 +184,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_glyphsToUnichars">glyphsToUnichars</a> | converts <a href="undocumented#Glyph">Glyphs</a> into text |
 | <a href="#SkPaint_isAntiAlias">isAntiAlias</a> | returns true if Anti-alias is set |
 | <a href="#SkPaint_isAutohinted">isAutohinted</a> | returns true if <a href="undocumented#Glyph">Glyphs</a> are always hinted |
-| <a href="#SkPaint_isDevKernText">isDevKernText</a> | returns true if <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a> is set |
 | <a href="#SkPaint_isDither">isDither</a> | returns true if <a href="#Dither">Dither</a> is set |
 | <a href="#SkPaint_isEmbeddedBitmapText">isEmbeddedBitmapText</a> | returns true if <a href="#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a> is set |
 | <a href="#SkPaint_isFakeBoldText">isFakeBoldText</a> | returns true if <a href="#Fake_Bold">Fake Bold</a> is set |
@@ -205,7 +209,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_setBlendMode">setBlendMode</a> | sets <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with destination |
 | <a href="#SkPaint_setColor">setColor</a> | sets <a href="SkColor_Reference#Alpha">Color Alpha</a> and <a href="SkColor_Reference#RGB">Color RGB</a>, one drawing color |
 | <a href="#SkPaint_setColorFilter">setColorFilter</a> | sets <a href="undocumented#Color_Filter">Color Filter</a>, alters color |
-| <a href="#SkPaint_setDevKernText">setDevKernText</a> | sets or clears <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a> |
 | <a href="#SkPaint_setDither">setDither</a> | sets or clears <a href="#Dither">Dither</a> |
 | <a href="#SkPaint_setDrawLooper">setDrawLooper</a> | sets <a href="undocumented#Draw_Looper">Draw Looper</a>, multiple layers |
 | <a href="#SkPaint_setEmbeddedBitmapText">setEmbeddedBitmapText</a> | sets or clears <a href="#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a> |
@@ -313,8 +316,8 @@ This prevents objects with <a href="undocumented#Reference_Count">Reference Coun
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_copy_const_SkPaint_paint"> <code><strong>paint </strong></code> </a></td> <td>
-original to copy</td>
+<table>  <tr>    <td><a name="SkPaint_copy_const_SkPaint_paint"> <code><strong>paint </strong></code> </a></td>
+    <td>original to copy</td>
   </tr>
 </table>
 
@@ -351,8 +354,8 @@ After the call, <a href="#SkPaint_move_SkPaint_paint">paint</a> is undefined, an
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_move_SkPaint_paint"> <code><strong>paint </strong></code> </a></td> <td>
-original to move</td>
+<table>  <tr>    <td><a name="SkPaint_move_SkPaint_paint"> <code><strong>paint </strong></code> </a></td>
+    <td>original to move</td>
   </tr>
 </table>
 
@@ -429,8 +432,8 @@ are increased by one. <a href="#SkPaint_copy_operator_paint">paint</a> is unmodi
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_copy_operator_paint"> <code><strong>paint </strong></code> </a></td> <td>
-original to copy</td>
+<table>  <tr>    <td><a name="SkPaint_copy_operator_paint"> <code><strong>paint </strong></code> </a></td>
+    <td>original to copy</td>
   </tr>
 </table>
 
@@ -469,8 +472,8 @@ After the call, <a href="#SkPaint_move_operator_paint">paint</a> is undefined, a
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_move_operator_paint"> <code><strong>paint </strong></code> </a></td> <td>
-original to move</td>
+<table>  <tr>    <td><a name="SkPaint_move_operator_paint"> <code><strong>paint </strong></code> </a></td>
+    <td>original to move</td>
   </tr>
 </table>
 
@@ -505,10 +508,11 @@ if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effe
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#Paint">Paint</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkPaint_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#Paint">Paint</a> to compare</td>
+<table>  <tr>    <td><a name="SkPaint_equal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#Paint">Paint</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_equal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#Paint">Paint</a> to compare</td>
   </tr>
 </table>
 
@@ -548,10 +552,11 @@ if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effe
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_notequal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#Paint">Paint</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkPaint_notequal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#Paint">Paint</a> to compare</td>
+<table>  <tr>    <td><a name="SkPaint_notequal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#Paint">Paint</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_notequal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#Paint">Paint</a> to compare</td>
   </tr>
 </table>
 
@@ -636,9 +641,12 @@ as the <a href="undocumented#Engine">Font Engine</a>.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaint_kNo_Hinting"> <code><strong>SkPaint::kNo_Hinting </strong></code> </a></td><td>0</td><td>Leaves glyph outlines unchanged from their native representation.
+    <td><a name="SkPaint_kNo_Hinting"> <code><strong>SkPaint::kNo_Hinting </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td>Leaves glyph outlines unchanged from their native representation.
 With FreeType, this is equivalent to the FT_LOAD_NO_HINTING
 bit-field constant supplied to FT_Load_Glyph, which indicates that the vector
 outline being loaded should not be fitted to the pixel grid but simply scaled
@@ -646,7 +654,9 @@ to 26.6 fractional pixels.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kSlight_Hinting"> <code><strong>SkPaint::kSlight_Hinting </strong></code> </a></td><td>1</td><td>Modifies glyph outlines minimally to improve constrast.
+    <td><a name="SkPaint_kSlight_Hinting"> <code><strong>SkPaint::kSlight_Hinting </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td>Modifies glyph outlines minimally to improve constrast.
 With FreeType, this is equivalent in spirit to the
 FT_LOAD_TARGET_LIGHT value supplied to FT_Load_Glyph. It chooses a
 lighter hinting algorithm for non-monochrome modes.
@@ -654,14 +664,18 @@ Generated <a href="undocumented#Glyph">Glyphs</a> may be fuzzy but better resemb
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kNormal_Hinting"> <code><strong>SkPaint::kNormal_Hinting </strong></code> </a></td><td>2</td><td>Modifies glyph outlines to improve constrast. This is the default.
+    <td><a name="SkPaint_kNormal_Hinting"> <code><strong>SkPaint::kNormal_Hinting </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td>Modifies glyph outlines to improve constrast. This is the default.
 With FreeType, this supplies FT_LOAD_TARGET_NORMAL to FT_Load_Glyph,
 choosing the default hinting algorithm, which is optimized for standard
 gray-level rendering.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kFull_Hinting"> <code><strong>SkPaint::kFull_Hinting </strong></code> </a></td><td>3</td><td>Modifies glyph outlines for maxiumum constrast. With FreeType, this selects
+    <td><a name="SkPaint_kFull_Hinting"> <code><strong>SkPaint::kFull_Hinting </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td>Modifies glyph outlines for maxiumum constrast. With FreeType, this selects
 FT_LOAD_TARGET_LCD or FT_LOAD_TARGET_LCD_V if <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> is set.
 FT_LOAD_TARGET_LCD is a variant of FT_LOAD_TARGET_NORMAL optimized for
 horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a
@@ -723,8 +737,8 @@ Does not check for valid values of <a href="#SkPaint_setHinting_hintingLevel">hi
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setHinting_hintingLevel"> <code><strong>hintingLevel </strong></code> </a></td> <td>
-one of: <a href="#SkPaint_kNo_Hinting">kNo Hinting</a>, <a href="#SkPaint_kSlight_Hinting">kSlight Hinting</a>, <a href="#SkPaint_kNormal_Hinting">kNormal Hinting</a>, <a href="#SkPaint_kFull_Hinting">kFull Hinting</a></td>
+<table>  <tr>    <td><a name="SkPaint_setHinting_hintingLevel"> <code><strong>hintingLevel </strong></code> </a></td>
+    <td>one of: <a href="#SkPaint_kNo_Hinting">kNo Hinting</a>, <a href="#SkPaint_kSlight_Hinting">kSlight Hinting</a>, <a href="#SkPaint_kNormal_Hinting">kNormal Hinting</a>, <a href="#SkPaint_kFull_Hinting">kFull Hinting</a></td>
   </tr>
 </table>
 
@@ -772,39 +786,62 @@ multiple settings at once.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaint_kAntiAlias_Flag"> <code><strong>SkPaint::kAntiAlias_Flag </strong></code> </a></td><td>0x0001 </td><td>mask for setting Anti-alias</td>
+    <td><a name="SkPaint_kAntiAlias_Flag"> <code><strong>SkPaint::kAntiAlias_Flag </strong></code> </a></td>
+    <td>0x0001</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kDither_Flag"> <code><strong>SkPaint::kDither_Flag </strong></code> </a></td><td>0x0004</td><td>mask for setting <a href="#Dither">Dither</a></td>
+    <td><a name="SkPaint_kDither_Flag"> <code><strong>SkPaint::kDither_Flag </strong></code> </a></td>
+    <td>0x0004</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kFakeBoldText_Flag"> <code><strong>SkPaint::kFakeBoldText_Flag </strong></code> </a></td><td>0x0020</td><td>mask for setting <a href="#Fake_Bold">Fake Bold</a></td>
+    <td><a name="SkPaint_kFakeBoldText_Flag"> <code><strong>SkPaint::kFakeBoldText_Flag </strong></code> </a></td>
+    <td>0x0020</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kLinearText_Flag"> <code><strong>SkPaint::kLinearText_Flag </strong></code> </a></td><td>0x0040</td><td>mask for setting <a href="#Linear_Text">Linear Text</a></td>
+    <td><a name="SkPaint_kLinearText_Flag"> <code><strong>SkPaint::kLinearText_Flag </strong></code> </a></td>
+    <td>0x0040</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kSubpixelText_Flag"> <code><strong>SkPaint::kSubpixelText_Flag </strong></code> </a></td><td>0x0080</td><td>mask for setting <a href="#Subpixel_Text">Subpixel Text</a></td>
+    <td><a name="SkPaint_kSubpixelText_Flag"> <code><strong>SkPaint::kSubpixelText_Flag </strong></code> </a></td>
+    <td>0x0080</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kDevKernText_Flag"> <code><strong>SkPaint::kDevKernText_Flag </strong></code> </a></td><td>0x0100</td><td>mask for setting <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a></td>
+    <td><a name="SkPaint_kDevKernText_Flag"> <code><strong>SkPaint::kDevKernText_Flag </strong></code> </a></td>
+    <td>0x0100</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kLCDRenderText_Flag"> <code><strong>SkPaint::kLCDRenderText_Flag </strong></code> </a></td><td>0x0200</td><td>mask for setting <a href="#LCD_Text">LCD Text</a></td>
+    <td><a name="SkPaint_kLCDRenderText_Flag"> <code><strong>SkPaint::kLCDRenderText_Flag </strong></code> </a></td>
+    <td>0x0200</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kEmbeddedBitmapText_Flag"> <code><strong>SkPaint::kEmbeddedBitmapText_Flag </strong></code> </a></td><td>0x0400</td><td>mask for setting <a href="#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a></td>
+    <td><a name="SkPaint_kEmbeddedBitmapText_Flag"> <code><strong>SkPaint::kEmbeddedBitmapText_Flag </strong></code> </a></td>
+    <td>0x0400</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kAutoHinting_Flag"> <code><strong>SkPaint::kAutoHinting_Flag </strong></code> </a></td><td>0x0800</td><td>mask for setting <a href="#Automatic_Hinting">Automatic Hinting</a></td>
+    <td><a name="SkPaint_kAutoHinting_Flag"> <code><strong>SkPaint::kAutoHinting_Flag </strong></code> </a></td>
+    <td>0x0800</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kVerticalText_Flag"> <code><strong>SkPaint::kVerticalText_Flag </strong></code> </a></td><td>0x1000</td><td>mask for setting <a href="#Vertical_Text">Vertical Text</a></td>
+    <td><a name="SkPaint_kVerticalText_Flag"> <code><strong>SkPaint::kVerticalText_Flag </strong></code> </a></td>
+    <td>0x1000</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kAllFlags"> <code><strong>SkPaint::kAllFlags </strong></code> </a></td><td>0xFFFF</td><td>mask of all <a href="#Flags">Flags</a>, including private flags and flags reserved for future use</td>
+    <td><a name="SkPaint_kAllFlags"> <code><strong>SkPaint::kAllFlags </strong></code> </a></td>
+    <td>0xFFFF</td>
+    <td></td>    <td>mask of all <a href="#Flags">Flags</a>, including private flags and flags reserved for future use</td>
   </tr>
 <a href="#Flags">Flags</a> default to all flags clear, disabling the associated feature.
 
@@ -823,13 +860,19 @@ soonOnly valid for Android framework.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaint_kUnderlineText_ReserveFlag"> <code><strong>SkPaint::kUnderlineText_ReserveFlag </strong></code> </a></td><td>0x0008</td><td>soon</td>
+    <td><a name="SkPaint_kUnderlineText_ReserveFlag"> <code><strong>SkPaint::kUnderlineText_ReserveFlag </strong></code> </a></td>
+    <td>0x0008</td>
+    <td></td>    <td>soon</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kStrikeThruText_ReserveFlag"> <code><strong>SkPaint::kStrikeThruText_ReserveFlag </strong></code> </a></td><td>0x0010</td><td>soon</td>
+    <td><a name="SkPaint_kStrikeThruText_ReserveFlag"> <code><strong>SkPaint::kStrikeThruText_ReserveFlag </strong></code> </a></td>
+    <td>0x0010</td>
+    <td></td>    <td>soon</td>
   </tr>
+
 
 
 
@@ -873,8 +916,8 @@ All <a href="#Flags">Flags</a> members may be cleared, or one or more may be set
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setFlags_flags"> <code><strong>flags </strong></code> </a></td> <td>
-union of <a href="#Flags">Flags</a> for <a href="#Paint">Paint</a></td>
+<table>  <tr>    <td><a name="SkPaint_setFlags_flags"> <code><strong>flags </strong></code> </a></td>
+    <td>union of <a href="#Flags">Flags</a> for <a href="#Paint">Paint</a></td>
   </tr>
 </table>
 
@@ -968,8 +1011,8 @@ Clears <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a> if <a href="#SkPai
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setAntiAlias_aa"> <code><strong>aa </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a></td>
+<table>  <tr>    <td><a name="SkPaint_setAntiAlias_aa"> <code><strong>aa </strong></code> </a></td>
+    <td>setting for <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a></td>
   </tr>
 </table>
 
@@ -1027,6 +1070,7 @@ bool isDither() const
 </pre>
 
 If true, color error may be distributed to smooth color transition.
+
 Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kDither_Flag">kDither Flag</a>.
 
 ### Return Value
@@ -1062,8 +1106,8 @@ Clears <a href="#SkPaint_kDither_Flag">kDither Flag</a> if <a href="#SkPaint_set
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setDither_dither"> <code><strong>dither </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_kDither_Flag">kDither Flag</a></td>
+<table>  <tr>    <td><a name="SkPaint_setDither_dither"> <code><strong>dither </strong></code> </a></td>
+    <td>setting for <a href="#SkPaint_kDither_Flag">kDither Flag</a></td>
   </tr>
 </table>
 
@@ -1161,8 +1205,8 @@ Clears <a href="#SkPaint_kLinearText_Flag">kLinearText Flag</a> if <a href="#SkP
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setLinearText_linearText"> <code><strong>linearText </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_kLinearText_Flag">kLinearText Flag</a></td>
+<table>  <tr>    <td><a name="SkPaint_setLinearText_linearText"> <code><strong>linearText </strong></code> </a></td>
+    <td>setting for <a href="#SkPaint_kLinearText_Flag">kLinearText Flag</a></td>
   </tr>
 </table>
 
@@ -1226,8 +1270,8 @@ Clears <a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a> if <a href="
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setSubpixelText_subpixelText"> <code><strong>subpixelText </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a></td>
+<table>  <tr>    <td><a name="SkPaint_setSubpixelText_subpixelText"> <code><strong>subpixelText </strong></code> </a></td>
+    <td>setting for <a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a></td>
   </tr>
 </table>
 
@@ -1297,8 +1341,8 @@ Clears <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> if <a href
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setLCDRenderText_lcdText"> <code><strong>lcdText </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a></td>
+<table>  <tr>    <td><a name="SkPaint_setLCDRenderText_lcdText"> <code><strong>lcdText </strong></code> </a></td>
+    <td>setting for <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a></td>
   </tr>
 </table>
 
@@ -1400,8 +1444,8 @@ Clears <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a> 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setEmbeddedBitmapText_useEmbeddedBitmapText"> <code><strong>useEmbeddedBitmapText </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a></td>
+<table>  <tr>    <td><a name="SkPaint_setEmbeddedBitmapText_useEmbeddedBitmapText"> <code><strong>useEmbeddedBitmapText </strong></code> </a></td>
+    <td>setting for <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a></td>
   </tr>
 </table>
 
@@ -1483,8 +1527,8 @@ Clears <a href="#SkPaint_kAutoHinting_Flag">kAutoHinting Flag</a> if <a href="#S
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setAutohinted_useAutohinter"> <code><strong>useAutohinter </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_kAutoHinting_Flag">kAutoHinting Flag</a></td>
+<table>  <tr>    <td><a name="SkPaint_setAutohinted_useAutohinter"> <code><strong>useAutohinter </strong></code> </a></td>
+    <td>setting for <a href="#SkPaint_kAutoHinting_Flag">kAutoHinting Flag</a></td>
   </tr>
 </table>
 
@@ -1569,8 +1613,8 @@ Clears <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> if vertical 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setVerticalText_verticalText"> <code><strong>verticalText </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a></td>
+<table>  <tr>    <td><a name="SkPaint_setVerticalText_verticalText"> <code><strong>verticalText </strong></code> </a></td>
+    <td>setting for <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a></td>
   </tr>
 </table>
 
@@ -1652,8 +1696,8 @@ Clears <a href="#SkPaint_kFakeBoldText_Flag">kFakeBoldText Flag</a> if <a href="
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setFakeBoldText_fakeBoldText"> <code><strong>fakeBoldText </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_kFakeBoldText_Flag">kFakeBoldText Flag</a></td>
+<table>  <tr>    <td><a name="SkPaint_setFakeBoldText_fakeBoldText"> <code><strong>fakeBoldText </strong></code> </a></td>
+    <td>setting for <a href="#SkPaint_kFakeBoldText_Flag">kFakeBoldText Flag</a></td>
   </tr>
 </table>
 
@@ -1688,50 +1732,14 @@ a specific pair of characters is adjusted using data in the font Kerning tables.
 bool isDevKernText() const
 </pre>
 
-Returns if character spacing may be adjusted by the hinting difference.
-
-Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a>.
-
-### Return Value
-
-<a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a> state
-
-### Example
-
-<div><fiddle-embed name="4f69a84b2505b12809c30b0cc09c5157"></fiddle-embed></div>
-
 ---
 
 <a name="SkPaint_setDevKernText"></a>
 ## setDevKernText
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void setDevKernText(bool devKernText)
+void setDevKernText(bool)
 </pre>
-
-Requests, but does not require, to use hinting to adjust glyph spacing.
-
-Sets <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a> if <a href="#SkPaint_setDevKernText_devKernText">devKernText</a> is true.
-Clears <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a> if <a href="#SkPaint_setDevKernText_devKernText">devKernText</a> is false.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkPaint_setDevKernText_devKernText"> <code><strong>devKernText </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_setDevKernText_devKernText">devKernText</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="2b718a059072908bf68942503f264797">
-
-#### Example Output
-
-~~~~
-paint1 == paint2
-~~~~
-
-</fiddle-embed></div>
 
 ---
 
@@ -1746,10 +1754,14 @@ in a noticeable difference.
 <a href="undocumented#Filter_Quality">Filter Quality</a> is used in <a href="#Paint">Paint</a> passed as a parameter to
 
 <table>  <tr>
-    <td><a href="SkCanvas_Reference#SkCanvas_drawBitmap">SkCanvas::drawBitmap</a></td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#SkCanvas_drawBitmapRect">SkCanvas::drawBitmapRect</a></td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#SkCanvas_drawImage">SkCanvas::drawImage</a></td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#SkCanvas_drawImageRect">SkCanvas::drawImageRect</a></td>  </tr>
+    <td><a href="SkCanvas_Reference#SkCanvas_drawBitmap">SkCanvas::drawBitmap</a></td>
+  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#SkCanvas_drawBitmapRect">SkCanvas::drawBitmapRect</a></td>
+  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#SkCanvas_drawImage">SkCanvas::drawImage</a></td>
+  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#SkCanvas_drawImageRect">SkCanvas::drawImageRect</a></td>
+  </tr>
 </table>
 
 and when <a href="#Paint">Paint</a> has a <a href="undocumented#Shader">Shader</a> specialization that uses <a href="SkImage_Reference#Image">Image</a> or <a href="SkBitmap_Reference#Bitmap">Bitmap</a>.
@@ -1758,7 +1770,7 @@ and when <a href="#Paint">Paint</a> has a <a href="undocumented#Shader">Shader</
 
 ### Example
 
-<div><fiddle-embed name="ee77f83f7291e07ae0d89f1380c7d67c"></fiddle-embed></div>
+<div><fiddle-embed name="69369cff2f5b145a6f616092513266a0"></fiddle-embed></div>
 
 <a name="SkPaint_getFilterQuality"></a>
 ## getFilterQuality
@@ -1802,8 +1814,8 @@ Does not check to see if <a href="#SkPaint_setFilterQuality_quality">quality</a>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setFilterQuality_quality"> <code><strong>quality </strong></code> </a></td> <td>
-one of: <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a>,
+<table>  <tr>    <td><a name="SkPaint_setFilterQuality_quality"> <code><strong>quality </strong></code> </a></td>
+    <td>one of: <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a>,
 <a href="undocumented#kMedium_SkFilterQuality">kMedium_SkFilterQuality</a>, <a href="undocumented#kHigh_SkFilterQuality">kHigh_SkFilterQuality</a></td>
   </tr>
 </table>
@@ -1898,8 +1910,8 @@ Sets <a href="SkColor_Reference#Alpha">Alpha</a> and <a href="SkColor_Reference#
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setColor_color"> <code><strong>color </strong></code> </a></td> <td>
-<a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#ARGB">Color ARGB</a></td>
+<table>  <tr>    <td><a name="SkPaint_setColor_color"> <code><strong>color </strong></code> </a></td>
+    <td><a href="undocumented#Unpremultiply">Unpremultiplied</a> <a href="SkColor_Reference#ARGB">Color ARGB</a></td>
   </tr>
 </table>
 
@@ -1967,8 +1979,8 @@ fully opaque.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setAlpha_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="SkColor_Reference#Alpha">Alpha</a> component of <a href="SkColor_Reference#Color">Color</a></td>
+<table>  <tr>    <td><a name="SkPaint_setAlpha_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="SkColor_Reference#Alpha">Alpha</a> component of <a href="SkColor_Reference#Color">Color</a></td>
   </tr>
 </table>
 
@@ -1998,14 +2010,17 @@ The color is <a href="undocumented#Unpremultiply">Unpremultiplied</a>; <a href="
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setARGB_a"> <code><strong>a </strong></code> </a></td> <td>
-amount of <a href="SkColor_Reference#Alpha">Color Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
-  </tr>  <tr>    <td><a name="SkPaint_setARGB_r"> <code><strong>r </strong></code> </a></td> <td>
-amount of <a href="SkColor_Reference#RGB_Red">Color RGB Red</a>, from no red (0) to full red (255)</td>
-  </tr>  <tr>    <td><a name="SkPaint_setARGB_g"> <code><strong>g </strong></code> </a></td> <td>
-amount of <a href="SkColor_Reference#RGB_Green">Color RGB Green</a>, from no green (0) to full green (255)</td>
-  </tr>  <tr>    <td><a name="SkPaint_setARGB_b"> <code><strong>b </strong></code> </a></td> <td>
-amount of <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a>, from no blue (0) to full blue (255)</td>
+<table>  <tr>    <td><a name="SkPaint_setARGB_a"> <code><strong>a </strong></code> </a></td>
+    <td>amount of <a href="SkColor_Reference#Alpha">Color Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_setARGB_r"> <code><strong>r </strong></code> </a></td>
+    <td>amount of <a href="SkColor_Reference#RGB_Red">Color RGB Red</a>, from no red (0) to full red (255)</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_setARGB_g"> <code><strong>g </strong></code> </a></td>
+    <td>amount of <a href="SkColor_Reference#RGB_Green">Color RGB Green</a>, from no green (0) to full green (255)</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_setARGB_b"> <code><strong>b </strong></code> </a></td>
+    <td>amount of <a href="SkColor_Reference#RGB_Blue">Color RGB Blue</a>, from no blue (0) to full blue (255)</td>
   </tr>
 </table>
 
@@ -2086,10 +2101,12 @@ a fill draw.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaint_kFill_Style"> <code><strong>SkPaint::kFill_Style </strong></code> </a></td><td>0</td><td>Set to fill geometry.
-Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Circle">Circles</a>, <a href="undocumented#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
+    <td><a name="SkPaint_kFill_Style"> <code><strong>SkPaint::kFill_Style </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td>Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Circle">Circles</a>, <a href="undocumented#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
 <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="SkImage_Reference#Image">Image</a>, <a href="undocumented#Patch">Patches</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Sprite">Sprites</a>, and <a href="undocumented#Vertices">Vertices</a> are painted as if
 <a href="#SkPaint_kFill_Style">kFill Style</a> is set, and ignore the set <a href="#SkPaint_Style">Style</a>.
 The <a href="SkPath_Reference#Fill_Type">Path Fill Type</a> specifies additional rules to fill the area outside the path edge,
@@ -2098,25 +2115,29 @@ and to create an unfilled hole inside the shape.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kStroke_Style"> <code><strong>SkPaint::kStroke_Style </strong></code> </a></td><td>1</td><td>Set to stroke geometry.
-Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Arc">Arcs</a>, <a href="undocumented#Circle">Circles</a>, <a href="undocumented#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
+    <td><a name="SkPaint_kStroke_Style"> <code><strong>SkPaint::kStroke_Style </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td>Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Arc">Arcs</a>, <a href="undocumented#Circle">Circles</a>, <a href="undocumented#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
 <a href="undocumented#Arc">Arcs</a>, <a href="undocumented#Line">Lines</a>, and points, are always drawn as if <a href="#SkPaint_kStroke_Style">kStroke Style</a> is set,
 and ignore the set <a href="#SkPaint_Style">Style</a>.
 The stroke construction is unaffected by the <a href="SkPath_Reference#Fill_Type">Path Fill Type</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kStrokeAndFill_Style"> <code><strong>SkPaint::kStrokeAndFill_Style </strong></code> </a></td><td>2</td><td>Set to stroke and fill geometry.
-Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Circle">Circles</a>, <a href="undocumented#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
+    <td><a name="SkPaint_kStrokeAndFill_Style"> <code><strong>SkPaint::kStrokeAndFill_Style </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td>Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Circle">Circles</a>, <a href="undocumented#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
 <a href="SkPath_Reference#Path">Path</a> is treated as if it is set to <a href="SkPath_Reference#SkPath_kWinding_FillType">SkPath::kWinding FillType</a>,
 and the set <a href="SkPath_Reference#Fill_Type">Path Fill Type</a> is ignored.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kStyleCount"> <code><strong>SkPaint::kStyleCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#SkPaint_Style">Style</a> values defined.
-May be used to verify that <a href="#SkPaint_Style">Style</a> is a legal value.
+    <td><a name="SkPaint_kStyleCount"> <code><strong>SkPaint::kStyleCount </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td>May be used to verify that <a href="#SkPaint_Style">Style</a> is a legal value.
 </td>
   </tr>
+
 
 
 
@@ -2163,8 +2184,8 @@ Has no effect if <a href="#SkPaint_setStyle_style">style</a> is not a legal <a h
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setStyle_style"> <code><strong>style </strong></code> </a></td> <td>
-one of: <a href="#SkPaint_kFill_Style">kFill Style</a>, <a href="#SkPaint_kStroke_Style">kStroke Style</a>, <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a></td>
+<table>  <tr>    <td><a name="SkPaint_setStyle_style"> <code><strong>style </strong></code> </a></td>
+    <td>one of: <a href="#SkPaint_kFill_Style">kFill Style</a>, <a href="#SkPaint_kStroke_Style">kStroke Style</a>, <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a></td>
   </tr>
 </table>
 
@@ -2199,7 +2220,7 @@ The default width for the paint is zero.
 
 ### Example
 
-<div><fiddle-embed name="01e3e08a3022a351628ff54e84887756" gpu="true"><div>The pixels hit to represent thin lines vary with the angle of the
+<div><fiddle-embed name="5112c7209a19e035c61cef33a624a652" gpu="true"><div>The pixels hit to represent thin lines vary with the angle of the
 line and the platform implementation.
 </div></fiddle-embed></div>
 
@@ -2244,8 +2265,8 @@ Has no effect if <a href="#SkPaint_setStrokeWidth_width">width</a> is less than 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setStrokeWidth_width"> <code><strong>width </strong></code> </a></td> <td>
-zero thickness for <a href="#Style_Hairline">Hairline</a>; greater than zero for pen thickness</td>
+<table>  <tr>    <td><a name="SkPaint_setStrokeWidth_width"> <code><strong>width </strong></code> </a></td>
+    <td>zero thickness for <a href="#Style_Hairline">Hairline</a>; greater than zero for pen thickness</td>
   </tr>
 </table>
 
@@ -2347,8 +2368,8 @@ Has no effect if <a href="#SkPaint_setStrokeMiter_miter">miter</a> is less than 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setStrokeMiter_miter"> <code><strong>miter </strong></code> </a></td> <td>
-zero and greater <a href="#Miter_Limit">Miter Limit</a></td>
+<table>  <tr>    <td><a name="SkPaint_setStrokeMiter_miter"> <code><strong>miter </strong></code> </a></td>
+    <td>zero and greater <a href="#Miter_Limit">Miter Limit</a></td>
   </tr>
 </table>
 
@@ -2391,36 +2412,48 @@ default miter limit == 8
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaint_kButt_Cap"> <code><strong>SkPaint::kButt_Cap </strong></code> </a></td><td>0</td><td>Does not extend the stroke past the beginning or the end.
+    <td><a name="SkPaint_kButt_Cap"> <code><strong>SkPaint::kButt_Cap </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td>Does not extend the stroke past the beginning or the end.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kRound_Cap"> <code><strong>SkPaint::kRound_Cap </strong></code> </a></td><td>1</td><td>Adds a circle with a diameter equal to <a href="#Stroke_Width">Stroke Width</a> at the beginning
+    <td><a name="SkPaint_kRound_Cap"> <code><strong>SkPaint::kRound_Cap </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td>Adds a circle with a diameter equal to <a href="#Stroke_Width">Stroke Width</a> at the beginning
 and end.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kSquare_Cap"> <code><strong>SkPaint::kSquare_Cap </strong></code> </a></td><td>2</td><td>Adds a square with sides equal to <a href="#Stroke_Width">Stroke Width</a> at the beginning
+    <td><a name="SkPaint_kSquare_Cap"> <code><strong>SkPaint::kSquare_Cap </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td>Adds a square with sides equal to <a href="#Stroke_Width">Stroke Width</a> at the beginning
 and end. The square sides are parallel to the initial and final direction
 of the stroke.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kLast_Cap"> <code><strong>SkPaint::kLast_Cap </strong></code> </a></td><td>2</td><td>Equivalent to the largest value for <a href="#Stroke_Cap">Stroke Cap</a>.
+    <td><a name="SkPaint_kLast_Cap"> <code><strong>SkPaint::kLast_Cap </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td>Equivalent to the largest value for <a href="#Stroke_Cap">Stroke Cap</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kDefault_Cap"> <code><strong>SkPaint::kDefault_Cap </strong></code> </a></td><td>0</td><td>Equivalent to <a href="#SkPaint_kButt_Cap">kButt Cap</a>.
-<a href="#Stroke_Cap">Stroke Cap</a> is set to <a href="#SkPaint_kButt_Cap">kButt Cap</a> by default.
+    <td><a name="SkPaint_kDefault_Cap"> <code><strong>SkPaint::kDefault_Cap </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td><a href="#Stroke_Cap">Stroke Cap</a> is set to <a href="#SkPaint_kButt_Cap">kButt Cap</a> by default.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kCapCount"> <code><strong>SkPaint::kCapCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#Stroke_Cap">Stroke Cap</a> values defined.
-May be used to verify that <a href="#Stroke_Cap">Stroke Cap</a> is a legal value.
+    <td><a name="SkPaint_kCapCount"> <code><strong>SkPaint::kCapCount </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td>May be used to verify that <a href="#Stroke_Cap">Stroke Cap</a> is a legal value.
 </td>
   </tr>
+
 
 Stroke describes the area covered by a pen of <a href="#Stroke_Width">Stroke Width</a> as it
 follows the <a href="SkPath_Reference#Contour">Path Contour</a>, moving parallel to the contour direction.
@@ -2484,8 +2517,8 @@ The geometry drawn at the beginning and end of strokes.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setStrokeCap_cap"> <code><strong>cap </strong></code> </a></td> <td>
-one of: <a href="#SkPaint_kButt_Cap">kButt Cap</a>, <a href="#SkPaint_kRound_Cap">kRound Cap</a>, <a href="#SkPaint_kSquare_Cap">kSquare Cap</a>;
+<table>  <tr>    <td><a name="SkPaint_setStrokeCap_cap"> <code><strong>cap </strong></code> </a></td>
+    <td>one of: <a href="#SkPaint_kButt_Cap">kButt Cap</a>, <a href="#SkPaint_kRound_Cap">kRound Cap</a>, <a href="#SkPaint_kSquare_Cap">kSquare Cap</a>;
 has no effect if <a href="#SkPaint_setStrokeCap_cap">cap</a> is not valid</td>
   </tr>
 </table>
@@ -2552,32 +2585,42 @@ not necessarily include circles at each connected segment.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaint_kMiter_Join"> <code><strong>SkPaint::kMiter_Join </strong></code> </a></td><td>0</td><td>Extends the outside corner to the extent allowed by <a href="#Miter_Limit">Miter Limit</a>.
+    <td><a name="SkPaint_kMiter_Join"> <code><strong>SkPaint::kMiter_Join </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td>Extends the outside corner to the extent allowed by <a href="#Miter_Limit">Miter Limit</a>.
 If the extension exceeds <a href="#Miter_Limit">Miter Limit</a>, <a href="#SkPaint_kBevel_Join">kBevel Join</a> is used instead.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kRound_Join"> <code><strong>SkPaint::kRound_Join </strong></code> </a></td><td>1</td><td>Adds a circle with a diameter of <a href="#Stroke_Width">Stroke Width</a> at the sharp corner.
+    <td><a name="SkPaint_kRound_Join"> <code><strong>SkPaint::kRound_Join </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td>Adds a circle with a diameter of <a href="#Stroke_Width">Stroke Width</a> at the sharp corner.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kBevel_Join"> <code><strong>SkPaint::kBevel_Join </strong></code> </a></td><td>2</td><td>Connects the outside edges of the sharp corner.
+    <td><a name="SkPaint_kBevel_Join"> <code><strong>SkPaint::kBevel_Join </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td>Connects the outside edges of the sharp corner.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kLast_Join"> <code><strong>SkPaint::kLast_Join </strong></code> </a></td><td>2</td><td>Equivalent to the largest value for <a href="#Stroke_Join">Stroke Join</a>.
+    <td><a name="SkPaint_kLast_Join"> <code><strong>SkPaint::kLast_Join </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td></td>
+  </tr>
+  <tr>
+    <td><a name="SkPaint_kDefault_Join"> <code><strong>SkPaint::kDefault_Join </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td><a href="#Stroke_Join">Stroke Join</a> is set to <a href="#SkPaint_kMiter_Join">kMiter Join</a> by default.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kDefault_Join"> <code><strong>SkPaint::kDefault_Join </strong></code> </a></td><td>1</td><td>Equivalent to <a href="#SkPaint_kMiter_Join">kMiter Join</a>.
-<a href="#Stroke_Join">Stroke Join</a> is set to <a href="#SkPaint_kMiter_Join">kMiter Join</a> by default.
-</td>
-  </tr>
-  <tr>
-    <td><a name="SkPaint_kJoinCount"> <code><strong>SkPaint::kJoinCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#Stroke_Join">Stroke Join</a> values defined.
-May be used to verify that <a href="#Stroke_Join">Stroke Join</a> is a legal value.
+    <td><a name="SkPaint_kJoinCount"> <code><strong>SkPaint::kJoinCount </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td>May be used to verify that <a href="#Stroke_Join">Stroke Join</a> is a legal value.
 </td>
   </tr>
 </table>
@@ -2634,8 +2677,8 @@ The geometry drawn at the corners of strokes.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setStrokeJoin_join"> <code><strong>join </strong></code> </a></td> <td>
-one of: <a href="#SkPaint_kMiter_Join">kMiter Join</a>, <a href="#SkPaint_kRound_Join">kRound Join</a>, <a href="#SkPaint_kBevel_Join">kBevel Join</a>;
+<table>  <tr>    <td><a name="SkPaint_setStrokeJoin_join"> <code><strong>join </strong></code> </a></td>
+    <td>one of: <a href="#SkPaint_kMiter_Join">kMiter Join</a>, <a href="#SkPaint_kRound_Join">kRound Join</a>, <a href="#SkPaint_kBevel_Join">kBevel Join</a>;
 otherwise, has no effect</td>
   </tr>
 </table>
@@ -2693,14 +2736,17 @@ The filled equivalent of the stroked path.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getFillPath_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="SkPath_Reference#Path">Path</a> read to create a filled version</td>
-  </tr>  <tr>    <td><a name="SkPaint_getFillPath_dst"> <code><strong>dst </strong></code> </a></td> <td>
-resulting <a href="SkPath_Reference#Path">Path</a>; may be the same as <a href="#SkPaint_getFillPath_src">src</a>, but may not be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPaint_getFillPath_cullRect"> <code><strong>cullRect </strong></code> </a></td> <td>
-optional limit passed to <a href="undocumented#Path_Effect">Path Effect</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getFillPath_resScale"> <code><strong>resScale </strong></code> </a></td> <td>
-if > 1, increase precision, else if (0 < res < 1) reduce precision
+<table>  <tr>    <td><a name="SkPaint_getFillPath_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="SkPath_Reference#Path">Path</a> read to create a filled version</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getFillPath_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>resulting <a href="SkPath_Reference#Path">Path</a>; may be the same as <a href="#SkPaint_getFillPath_src">src</a>, but may not be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getFillPath_cullRect"> <code><strong>cullRect </strong></code> </a></td>
+    <td>optional limit passed to <a href="undocumented#Path_Effect">Path Effect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getFillPath_resScale"> <code><strong>resScale </strong></code> </a></td>
+    <td>if > 1, increase precision, else if (0 < res < 1) reduce precision
 to favor speed and size</td>
   </tr>
 </table>
@@ -2731,10 +2777,11 @@ Replaces <a href="#SkPaint_getFillPath_2_dst">dst</a> with the <a href="#SkPaint
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getFillPath_2_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="SkPath_Reference#Path">Path</a> read to create a filled version</td>
-  </tr>  <tr>    <td><a name="SkPaint_getFillPath_2_dst"> <code><strong>dst </strong></code> </a></td> <td>
-resulting <a href="SkPath_Reference#Path">Path</a> <a href="#SkPaint_getFillPath_2_dst">dst</a> may be the same as <a href="#SkPaint_getFillPath_2_src">src</a>, but may not be nullptr</td>
+<table>  <tr>    <td><a name="SkPaint_getFillPath_2_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="SkPath_Reference#Path">Path</a> read to create a filled version</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getFillPath_2_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>resulting <a href="SkPath_Reference#Path">Path</a> <a href="#SkPaint_getFillPath_2_dst">dst</a> may be the same as <a href="#SkPaint_getFillPath_2_src">src</a>, but may not be nullptr</td>
   </tr>
 </table>
 
@@ -2772,7 +2819,7 @@ If <a href="undocumented#Shader">Shader</a> generates only <a href="SkColor_Refe
 
 ### Example
 
-<div><fiddle-embed name="9673be7720ba3adcdae42ddc1565b588"></fiddle-embed></div>
+<div><fiddle-embed name="fe80fd80b98a20823db7fb9a077243c7"></fiddle-embed></div>
 
 <a name="SkPaint_getShader"></a>
 ## getShader
@@ -2848,8 +2895,8 @@ Increments <a href="#SkPaint_setShader_shader">shader</a> <a href="undocumented#
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setShader_shader"> <code><strong>shader </strong></code> </a></td> <td>
-how geometry is filled with color; if nullptr, <a href="SkColor_Reference#Color">Color</a> is used instead</td>
+<table>  <tr>    <td><a name="SkPaint_setShader_shader"> <code><strong>shader </strong></code> </a></td>
+    <td>how geometry is filled with color; if nullptr, <a href="SkColor_Reference#Color">Color</a> is used instead</td>
   </tr>
 </table>
 
@@ -2943,8 +2990,8 @@ Increments filter <a href="undocumented#Reference_Count">Reference Count</a> by 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setColorFilter_colorFilter"> <code><strong>colorFilter </strong></code> </a></td> <td>
-<a href="undocumented#Color_Filter">Color Filter</a> to apply to subsequent draw</td>
+<table>  <tr>    <td><a name="SkPaint_setColorFilter_colorFilter"> <code><strong>colorFilter </strong></code> </a></td>
+    <td><a href="undocumented#Color_Filter">Color Filter</a> to apply to subsequent draw</td>
   </tr>
 </table>
 
@@ -2984,7 +3031,7 @@ mode used to combine source color with destination color
 
 ### Example
 
-<div><fiddle-embed name="4ec1864b8203d52c0810e8605092f45c">
+<div><fiddle-embed name="a1e059c8f6740fa2044cc64152b39dda">
 
 #### Example Output
 
@@ -3037,8 +3084,8 @@ Does not check for valid input.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setBlendMode_mode"> <code><strong>mode </strong></code> </a></td> <td>
-<a href="undocumented#SkBlendMode">SkBlendMode</a> used to combine source color and destination</td>
+<table>  <tr>    <td><a name="SkPaint_setBlendMode_mode"> <code><strong>mode </strong></code> </a></td>
+    <td><a href="undocumented#SkBlendMode">SkBlendMode</a> used to combine source color and destination</td>
   </tr>
 </table>
 
@@ -3143,8 +3190,8 @@ Increments <a href="#SkPaint_setPathEffect_pathEffect">pathEffect</a> <a href="u
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setPathEffect_pathEffect"> <code><strong>pathEffect </strong></code> </a></td> <td>
-replace <a href="SkPath_Reference#Path">Path</a> with a modification when drawn</td>
+<table>  <tr>    <td><a name="SkPaint_setPathEffect_pathEffect"> <code><strong>pathEffect </strong></code> </a></td>
+    <td>replace <a href="SkPath_Reference#Path">Path</a> with a modification when drawn</td>
   </tr>
 </table>
 
@@ -3241,8 +3288,8 @@ Increments <a href="#SkPaint_setMaskFilter_maskFilter">maskFilter</a> <a href="u
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setMaskFilter_maskFilter"> <code><strong>maskFilter </strong></code> </a></td> <td>
-modifies clipping mask generated from drawn geometry</td>
+<table>  <tr>    <td><a name="SkPaint_setMaskFilter_maskFilter"> <code><strong>maskFilter </strong></code> </a></td>
+    <td>modifies clipping mask generated from drawn geometry</td>
   </tr>
 </table>
 
@@ -3307,7 +3354,7 @@ Increases <a href="undocumented#Typeface">Typeface</a> <a href="undocumented#Ref
 
 ### Example
 
-<div><fiddle-embed name="4bf8ed109c4b46d8a05c8b7763c1982c">
+<div><fiddle-embed name="8b5aa7e555a0dc31be69db7cadf471a1">
 
 #### Example Output
 
@@ -3333,8 +3380,8 @@ Pass nullptr to clear <a href="undocumented#Typeface">Typeface</a> and use the d
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setTypeface_typeface"> <code><strong>typeface </strong></code> </a></td> <td>
-font and style used to draw text</td>
+<table>  <tr>    <td><a name="SkPaint_setTypeface_typeface"> <code><strong>typeface </strong></code> </a></td>
+    <td>font and style used to draw text</td>
   </tr>
 </table>
 
@@ -3432,8 +3479,8 @@ Increments <a href="#SkPaint_setImageFilter_imageFilter">imageFilter</a> <a href
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setImageFilter_imageFilter"> <code><strong>imageFilter </strong></code> </a></td> <td>
-how <a href="SkImage_Reference#Image">Image</a> is sampled when transformed</td>
+<table>  <tr>    <td><a name="SkPaint_setImageFilter_imageFilter"> <code><strong>imageFilter </strong></code> </a></td>
+    <td>how <a href="SkImage_Reference#Image">Image</a> is sampled when transformed</td>
   </tr>
 </table>
 
@@ -3538,8 +3585,8 @@ Increments <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a> <a href="u
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setDrawLooper_drawLooper"> <code><strong>drawLooper </strong></code> </a></td> <td>
-iterates through drawing one or more time, altering <a href="#Paint">Paint</a></td>
+<table>  <tr>    <td><a name="SkPaint_setDrawLooper_drawLooper"> <code><strong>drawLooper </strong></code> </a></td>
+    <td>iterates through drawing one or more time, altering <a href="#Paint">Paint</a></td>
   </tr>
 </table>
 
@@ -3591,25 +3638,34 @@ using the metrics returned by the font.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaint_kLeft_Align"> <code><strong>SkPaint::kLeft_Align </strong></code> </a></td><td>0</td><td>Leaves the glyph at the position computed by the font offset by the text position.
+    <td><a name="SkPaint_kLeft_Align"> <code><strong>SkPaint::kLeft_Align </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td>Leaves the glyph at the position computed by the font offset by the text position.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kCenter_Align"> <code><strong>SkPaint::kCenter_Align </strong></code> </a></td><td>1</td><td>Moves the glyph half its width if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> clear, and
+    <td><a name="SkPaint_kCenter_Align"> <code><strong>SkPaint::kCenter_Align </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td>Moves the glyph half its width if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> clear, and
 half its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> set.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kRight_Align"> <code><strong>SkPaint::kRight_Align </strong></code> </a></td><td>2</td><td>Moves the glyph by its width if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> clear,
+    <td><a name="SkPaint_kRight_Align"> <code><strong>SkPaint::kRight_Align </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td>Moves the glyph by its width if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> clear,
 and by its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> set.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kAlignCount"> <code><strong>SkPaint::kAlignCount </strong></code> </a></td><td>3</td><td>The number of different <a href="#Text_Align">Text Align</a> values defined.
-</td>
+    <td><a name="SkPaint_kAlignCount"> <code><strong>SkPaint::kAlignCount </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -3663,8 +3719,8 @@ Has no effect if <a href="#SkPaint_setTextAlign_align">align</a> is an invalid v
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setTextAlign_align"> <code><strong>align </strong></code> </a></td> <td>
-text placement relative to position</td>
+<table>  <tr>    <td><a name="SkPaint_setTextAlign_align"> <code><strong>align </strong></code> </a></td>
+    <td>text placement relative to position</td>
   </tr>
 </table>
 
@@ -3718,8 +3774,8 @@ Has no effect if <a href="#SkPaint_setTextSize_textSize">textSize</a> is not gre
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setTextSize_textSize"> <code><strong>textSize </strong></code> </a></td> <td>
-typographic height of text</td>
+<table>  <tr>    <td><a name="SkPaint_setTextSize_textSize"> <code><strong>textSize </strong></code> </a></td>
+    <td>typographic height of text</td>
   </tr>
 </table>
 
@@ -3773,8 +3829,8 @@ Default value is 1.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setTextScaleX_scaleX"> <code><strong>scaleX </strong></code> </a></td> <td>
-text horizontal scale</td>
+<table>  <tr>    <td><a name="SkPaint_setTextScaleX_scaleX"> <code><strong>scaleX </strong></code> </a></td>
+    <td>text horizontal scale</td>
   </tr>
 </table>
 
@@ -3828,8 +3884,8 @@ Default value is zero.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setTextSkewX_skewX"> <code><strong>skewX </strong></code> </a></td> <td>
-additional shear in x-axis relative to y-axis</td>
+<table>  <tr>    <td><a name="SkPaint_setTextSkewX_skewX"> <code><strong>skewX </strong></code> </a></td>
+    <td>additional shear in x-axis relative to y-axis</td>
   </tr>
 </table>
 
@@ -3872,23 +3928,29 @@ A glyph index is a 16-bit word.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaint_kUTF8_TextEncoding"> <code><strong>SkPaint::kUTF8_TextEncoding </strong></code> </a></td><td>0</td><td>Uses bytes to represent UTF-8 or ASCII.
-</td>
+    <td><a name="SkPaint_kUTF8_TextEncoding"> <code><strong>SkPaint::kUTF8_TextEncoding </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kUTF16_TextEncoding"> <code><strong>SkPaint::kUTF16_TextEncoding </strong></code> </a></td><td>1</td><td>Uses two byte words to represent most of Unicode.
-</td>
+    <td><a name="SkPaint_kUTF16_TextEncoding"> <code><strong>SkPaint::kUTF16_TextEncoding </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kUTF32_TextEncoding"> <code><strong>SkPaint::kUTF32_TextEncoding </strong></code> </a></td><td>2</td><td>Uses four byte words to represent all of Unicode.
-</td>
+    <td><a name="SkPaint_kUTF32_TextEncoding"> <code><strong>SkPaint::kUTF32_TextEncoding </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kGlyphID_TextEncoding"> <code><strong>SkPaint::kGlyphID_TextEncoding </strong></code> </a></td><td>3</td><td>Uses two byte words to represent glyph indices.
-</td>
+    <td><a name="SkPaint_kGlyphID_TextEncoding"> <code><strong>SkPaint::kGlyphID_TextEncoding </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -3897,7 +3959,7 @@ A glyph index is a 16-bit word.
 <div><fiddle-embed name="b29294e7f29d160a1b46abf2dcec9d2a"><div>First line is encoded in UTF-8.
 Second line is encoded in UTF-16.
 Third line is encoded in UTF-32.
-Fourth line has 16 bit glyph indices.
+Fourth line has 16-bit glyph indices.
 </div></fiddle-embed></div>
 
 <a name="SkPaint_getTextEncoding"></a>
@@ -3917,7 +3979,7 @@ one of: <a href="#SkPaint_kUTF8_TextEncoding">kUTF8 TextEncoding</a>, <a href="#
 
 ### Example
 
-<div><fiddle-embed name="70ad28bbf7668b38474d7f225e3540bc">
+<div><fiddle-embed name="c6cc2780a9828b3af8c4621c12b29a1b">
 
 #### Example Output
 
@@ -3943,8 +4005,8 @@ Invalid values for <a href="#SkPaint_setTextEncoding_encoding">encoding</a> are 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_setTextEncoding_encoding"> <code><strong>encoding </strong></code> </a></td> <td>
-one of: <a href="#SkPaint_kUTF8_TextEncoding">kUTF8 TextEncoding</a>, <a href="#SkPaint_kUTF16_TextEncoding">kUTF16 TextEncoding</a>, <a href="#SkPaint_kUTF32_TextEncoding">kUTF32 TextEncoding</a>, or
+<table>  <tr>    <td><a name="SkPaint_setTextEncoding_encoding"> <code><strong>encoding </strong></code> </a></td>
+    <td>one of: <a href="#SkPaint_kUTF8_TextEncoding">kUTF8 TextEncoding</a>, <a href="#SkPaint_kUTF16_TextEncoding">kUTF16 TextEncoding</a>, <a href="#SkPaint_kUTF32_TextEncoding">kUTF32 TextEncoding</a>, or
 <a href="#SkPaint_kGlyphID_TextEncoding">kGlyphID TextEncoding</a></td>
   </tr>
 #
@@ -4046,29 +4108,33 @@ Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag </strong></code> </a></td><td>0x0001</td><td>Set if <a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a> is valid.
-</td>
+    <td><a name="SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag </strong></code> </a></td>
+    <td>0x0001</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag </strong></code> </a></td><td>0x0002</td><td>Set if <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a> is valid.
-</td>
+    <td><a name="SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag </strong></code> </a></td>
+    <td>0x0002</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kStrikeoutThicknessIsValid_Flag </strong></code> </a></td><td>0x0004</td><td>Set if <a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a> is valid.
-</td>
+    <td><a name="SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kStrikeoutThicknessIsValid_Flag </strong></code> </a></td>
+    <td>0x0004</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag </strong></code> </a></td><td>0x0008</td><td>Set if <a href="#SkPaint_FontMetrics_fStrikeoutPosition">fStrikeoutPosition</a> is valid.
-</td>
+    <td><a name="SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag"> <code><strong>SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag </strong></code> </a></td>
+    <td>0x0008</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
 <a name="SkPaint_FontMetrics_fFlags"> <code><strong>uint32_t    fFlags</strong></code> </a>
-
-<a href="#SkPaint_FontMetrics_fFlags">fFlags</a> is set when underline metrics are valid.
 
 <a name="SkPaint_FontMetrics_fTop"> <code><strong>SkScalar    fTop</strong></code> </a>
 
@@ -4102,11 +4168,9 @@ Zero if no average width is stored in the font.
 
 <a name="SkPaint_FontMetrics_fMaxCharWidth"> <code><strong>SkScalar    fMaxCharWidth</strong></code> </a>
 
-Maximum character width.
-
 <a name="SkPaint_FontMetrics_fXMin"> <code><strong>SkScalar    fXMin</strong></code> </a>
 
-Minimum bounding box x value for all <a href="undocumented#Glyph">Glyphs</a>.
+Minimum bounding box x-value for all <a href="undocumented#Glyph">Glyphs</a>.
 Typically less than zero.
 
 <a name="SkPaint_FontMetrics_fXMax"> <code><strong>SkScalar    fXMax</strong></code> </a>
@@ -4116,17 +4180,13 @@ Typically greater than zero.
 
 <a name="SkPaint_FontMetrics_fXHeight"> <code><strong>SkScalar    fXHeight</strong></code> </a>
 
-Height of a lower-case 'x'.
 May be zero if no lower-case height is stored in the font.
 
 <a name="SkPaint_FontMetrics_fCapHeight"> <code><strong>SkScalar    fCapHeight</strong></code> </a>
 
-Height of an upper-case letter.
 May be zero if no upper-case height is stored in the font.
 
 <a name="SkPaint_FontMetrics_fUnderlineThickness"> <code><strong>SkScalar    fUnderlineThickness</strong></code> </a>
-
-Underline thickness.
 
 If the metric is valid, the <a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> is set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>.
 If <a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> is clear, <a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a> is zero.
@@ -4140,8 +4200,6 @@ If the metric is valid, the <a href="#SkPaint_FontMetrics_kUnderlinePositionIsVa
 If <a href="#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag">kUnderlinePositionIsValid Flag</a> is clear, <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a> is zero.
 
 <a name="SkPaint_FontMetrics_fStrikeoutThickness"> <code><strong>SkScalar    fStrikeoutThickness</strong></code> </a>
-
-Strikeout thickness.
 
 If the metric is valid, the <a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> is set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>.
 If <a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> is clear, <a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a> is zero.
@@ -4167,8 +4225,8 @@ return false, and ignore <a href="#SkPaint_FontMetrics_hasUnderlineThickness_thi
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_FontMetrics_hasUnderlineThickness_thickness"> <code><strong>thickness </strong></code> </a></td> <td>
-storage for underline width</td>
+<table>  <tr>    <td><a name="SkPaint_FontMetrics_hasUnderlineThickness_thickness"> <code><strong>thickness </strong></code> </a></td>
+    <td>storage for underline width</td>
   </tr>
 </table>
 
@@ -4191,8 +4249,8 @@ return false, and ignore <a href="#SkPaint_FontMetrics_hasUnderlinePosition_posi
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_FontMetrics_hasUnderlinePosition_position"> <code><strong>position </strong></code> </a></td> <td>
-storage for underline <a href="#SkPaint_FontMetrics_hasUnderlinePosition_position">position</a></td>
+<table>  <tr>    <td><a name="SkPaint_FontMetrics_hasUnderlinePosition_position"> <code><strong>position </strong></code> </a></td>
+    <td>storage for underline <a href="#SkPaint_FontMetrics_hasUnderlinePosition_position">position</a></td>
   </tr>
 </table>
 
@@ -4215,8 +4273,8 @@ return false, and ignore <a href="#SkPaint_FontMetrics_hasStrikeoutThickness_thi
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_FontMetrics_hasStrikeoutThickness_thickness"> <code><strong>thickness </strong></code> </a></td> <td>
-storage for strikeout width</td>
+<table>  <tr>    <td><a name="SkPaint_FontMetrics_hasStrikeoutThickness_thickness"> <code><strong>thickness </strong></code> </a></td>
+    <td>storage for strikeout width</td>
   </tr>
 </table>
 
@@ -4239,8 +4297,8 @@ return false, and ignore <a href="#SkPaint_FontMetrics_hasStrikeoutPosition_posi
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_FontMetrics_hasStrikeoutPosition_position"> <code><strong>position </strong></code> </a></td> <td>
-storage for strikeout <a href="#SkPaint_FontMetrics_hasStrikeoutPosition_position">position</a></td>
+<table>  <tr>    <td><a name="SkPaint_FontMetrics_hasStrikeoutPosition_position"> <code><strong>position </strong></code> </a></td>
+    <td>storage for strikeout <a href="#SkPaint_FontMetrics_hasStrikeoutPosition_position">position</a></td>
   </tr>
 </table>
 
@@ -4269,10 +4327,11 @@ is ignored.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getFontMetrics_metrics"> <code><strong>metrics </strong></code> </a></td> <td>
-storage for <a href="#Font_Metrics">Font Metrics</a> from <a href="undocumented#Typeface">Typeface</a>; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPaint_getFontMetrics_scale"> <code><strong>scale </strong></code> </a></td> <td>
-additional multiplier for returned values</td>
+<table>  <tr>    <td><a name="SkPaint_getFontMetrics_metrics"> <code><strong>metrics </strong></code> </a></td>
+    <td>storage for <a href="#Font_Metrics">Font Metrics</a> from <a href="undocumented#Typeface">Typeface</a>; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getFontMetrics_scale"> <code><strong>scale </strong></code> </a></td>
+    <td>additional multiplier for returned values</td>
   </tr>
 </table>
 
@@ -4381,12 +4440,14 @@ If <a href="#Text_Encoding">Text Encoding</a> is <a href="#SkPaint_kUTF8_TextEnc
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_textToGlyphs_text"> <code><strong>text </strong></code> </a></td> <td>
-character storage encoded with <a href="#Text_Encoding">Text Encoding</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_textToGlyphs_byteLength"> <code><strong>byteLength </strong></code> </a></td> <td>
-length of character storage in bytes</td>
-  </tr>  <tr>    <td><a name="SkPaint_textToGlyphs_glyphs"> <code><strong>glyphs </strong></code> </a></td> <td>
-storage for glyph indices; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPaint_textToGlyphs_text"> <code><strong>text </strong></code> </a></td>
+    <td>character storage encoded with <a href="#Text_Encoding">Text Encoding</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_textToGlyphs_byteLength"> <code><strong>byteLength </strong></code> </a></td>
+    <td>length of character storage in bytes</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_textToGlyphs_glyphs"> <code><strong>glyphs </strong></code> </a></td>
+    <td>storage for glyph indices; may be nullptr</td>
   </tr>
 </table>
 
@@ -4413,10 +4474,11 @@ Returns the same result as <a href="#SkPaint_textToGlyphs">textToGlyphs</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_countText_text"> <code><strong>text </strong></code> </a></td> <td>
-character storage encoded with <a href="#Text_Encoding">Text Encoding</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_countText_byteLength"> <code><strong>byteLength </strong></code> </a></td> <td>
-length of character storage in bytes</td>
+<table>  <tr>    <td><a name="SkPaint_countText_text"> <code><strong>text </strong></code> </a></td>
+    <td>character storage encoded with <a href="#Text_Encoding">Text Encoding</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_countText_byteLength"> <code><strong>byteLength </strong></code> </a></td>
+    <td>length of character storage in bytes</td>
   </tr>
 </table>
 
@@ -4457,10 +4519,11 @@ Returns true if <a href="#SkPaint_containsText_byteLength">byteLength</a> is zer
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_containsText_text"> <code><strong>text </strong></code> </a></td> <td>
-array of characters or <a href="undocumented#Glyph">Glyphs</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_containsText_byteLength"> <code><strong>byteLength </strong></code> </a></td> <td>
-number of bytes in <a href="#SkPaint_containsText_text">text</a> array</td>
+<table>  <tr>    <td><a name="SkPaint_containsText_text"> <code><strong>text </strong></code> </a></td>
+    <td>array of characters or <a href="undocumented#Glyph">Glyphs</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_containsText_byteLength"> <code><strong>byteLength </strong></code> </a></td>
+    <td>number of bytes in <a href="#SkPaint_containsText_text">text</a> array</td>
   </tr>
 </table>
 
@@ -4470,7 +4533,7 @@ true if all <a href="#SkPaint_containsText_text">text</a> corresponds to a non-z
 
 ### Example
 
-<div><fiddle-embed name="9202369019552f09cd4bec7f3046fee4"><div><a href="#SkPaint_containsText">containsText</a> succeeds for degree symbol, but cannot find a glyph index
+<div><fiddle-embed name="71b417d6651cbcecae1a05067c94ab3e"><div><a href="#SkPaint_containsText">containsText</a> succeeds for degree symbol, but cannot find a glyph index
 corresponding to the Unicode surrogate code point.
 </div>
 
@@ -4485,7 +4548,7 @@ corresponding to the Unicode surrogate code point.
 
 ### Example
 
-<div><fiddle-embed name="904227febfd1c2e264955da0ef66da73"><div><a href="#SkPaint_containsText">containsText</a> returns true that glyph index is greater than zero, not
+<div><fiddle-embed name="083557b6f653d6fc00a34e01f87b74ff"><div><a href="#SkPaint_containsText">containsText</a> returns true that glyph index is greater than zero, not
 that it corresponds to an entry in <a href="undocumented#Typeface">Typeface</a>.
 </div>
 
@@ -4521,12 +4584,14 @@ Only supported on platforms that use FreeType as the <a href="undocumented#Engin
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_glyphsToUnichars_glyphs"> <code><strong>glyphs </strong></code> </a></td> <td>
-array of indices into font</td>
-  </tr>  <tr>    <td><a name="SkPaint_glyphsToUnichars_count"> <code><strong>count </strong></code> </a></td> <td>
-length of glyph array</td>
-  </tr>  <tr>    <td><a name="SkPaint_glyphsToUnichars_text"> <code><strong>text </strong></code> </a></td> <td>
-storage for character codes, one per glyph</td>
+<table>  <tr>    <td><a name="SkPaint_glyphsToUnichars_glyphs"> <code><strong>glyphs </strong></code> </a></td>
+    <td>array of indices into font</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_glyphsToUnichars_count"> <code><strong>count </strong></code> </a></td>
+    <td>length of glyph array</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_glyphsToUnichars_text"> <code><strong>text </strong></code> </a></td>
+    <td>storage for character codes, one per glyph</td>
   </tr>
 </table>
 
@@ -4557,12 +4622,14 @@ The bounding box is computed as if the <a href="#SkPaint_measureText_text">text<
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_measureText_text"> <code><strong>text </strong></code> </a></td> <td>
-character codes or glyph indices to be measured</td>
-  </tr>  <tr>    <td><a name="SkPaint_measureText_length"> <code><strong>length </strong></code> </a></td> <td>
-number of bytes of <a href="#SkPaint_measureText_text">text</a> to measure</td>
-  </tr>  <tr>    <td><a name="SkPaint_measureText_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
-returns bounding box relative to (0, 0) if not nullptr</td>
+<table>  <tr>    <td><a name="SkPaint_measureText_text"> <code><strong>text </strong></code> </a></td>
+    <td>character codes or glyph indices to be measured</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_measureText_length"> <code><strong>length </strong></code> </a></td>
+    <td>number of bytes of <a href="#SkPaint_measureText_text">text</a> to measure</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_measureText_bounds"> <code><strong>bounds </strong></code> </a></td>
+    <td>returns bounding box relative to (0, 0) if not nullptr</td>
   </tr>
 </table>
 
@@ -4591,10 +4658,11 @@ Does not scale the advance or bounds by <a href="#Fake_Bold">Fake Bold</a> or <a
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_measureText_2_text"> <code><strong>text </strong></code> </a></td> <td>
-character codes or glyph indices to be measured</td>
-  </tr>  <tr>    <td><a name="SkPaint_measureText_2_length"> <code><strong>length </strong></code> </a></td> <td>
-number of bytes of <a href="#SkPaint_measureText_2_text">text</a> to measure</td>
+<table>  <tr>    <td><a name="SkPaint_measureText_2_text"> <code><strong>text </strong></code> </a></td>
+    <td>character codes or glyph indices to be measured</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_measureText_2_length"> <code><strong>length </strong></code> </a></td>
+    <td>number of bytes of <a href="#SkPaint_measureText_2_text">text</a> to measure</td>
   </tr>
 </table>
 
@@ -4638,14 +4706,17 @@ Does not scale the advance or bounds by <a href="#Fake_Bold">Fake Bold</a> or <a
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_breakText_text"> <code><strong>text </strong></code> </a></td> <td>
-character codes or glyph indices to be measured</td>
-  </tr>  <tr>    <td><a name="SkPaint_breakText_length"> <code><strong>length </strong></code> </a></td> <td>
-number of bytes of <a href="#SkPaint_breakText_text">text</a> to measure</td>
-  </tr>  <tr>    <td><a name="SkPaint_breakText_maxWidth"> <code><strong>maxWidth </strong></code> </a></td> <td>
-advance limit; <a href="#SkPaint_breakText_text">text</a> is measured while advance is less than <a href="#SkPaint_breakText_maxWidth">maxWidth</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_breakText_measuredWidth"> <code><strong>measuredWidth </strong></code> </a></td> <td>
-returns the width of the <a href="#SkPaint_breakText_text">text</a> less than or equal to <a href="#SkPaint_breakText_maxWidth">maxWidth</a></td>
+<table>  <tr>    <td><a name="SkPaint_breakText_text"> <code><strong>text </strong></code> </a></td>
+    <td>character codes or glyph indices to be measured</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_breakText_length"> <code><strong>length </strong></code> </a></td>
+    <td>number of bytes of <a href="#SkPaint_breakText_text">text</a> to measure</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_breakText_maxWidth"> <code><strong>maxWidth </strong></code> </a></td>
+    <td>advance limit; <a href="#SkPaint_breakText_text">text</a> is measured while advance is less than <a href="#SkPaint_breakText_maxWidth">maxWidth</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_breakText_measuredWidth"> <code><strong>measuredWidth </strong></code> </a></td>
+    <td>returns the width of the <a href="#SkPaint_breakText_text">text</a> less than or equal to <a href="#SkPaint_breakText_maxWidth">maxWidth</a></td>
   </tr>
 </table>
 
@@ -4682,14 +4753,17 @@ Does include <a href="#Fake_Bold">Fake Bold</a> and <a href="undocumented#Path_E
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getTextWidths_text"> <code><strong>text </strong></code> </a></td> <td>
-character codes or glyph indices to be measured</td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextWidths_byteLength"> <code><strong>byteLength </strong></code> </a></td> <td>
-number of bytes of <a href="#SkPaint_getTextWidths_text">text</a> to measure</td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextWidths_widths"> <code><strong>widths </strong></code> </a></td> <td>
-returns <a href="#SkPaint_getTextWidths_text">text</a> advances for each glyph; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextWidths_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
-returns <a href="#SkPaint_getTextWidths_bounds">bounds</a> for each glyph relative to (0, 0); may be nullptr</td>
+<table>  <tr>    <td><a name="SkPaint_getTextWidths_text"> <code><strong>text </strong></code> </a></td>
+    <td>character codes or glyph indices to be measured</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextWidths_byteLength"> <code><strong>byteLength </strong></code> </a></td>
+    <td>number of bytes of <a href="#SkPaint_getTextWidths_text">text</a> to measure</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextWidths_widths"> <code><strong>widths </strong></code> </a></td>
+    <td>returns <a href="#SkPaint_getTextWidths_text">text</a> advances for each glyph; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextWidths_bounds"> <code><strong>bounds </strong></code> </a></td>
+    <td>returns <a href="#SkPaint_getTextWidths_bounds">bounds</a> for each glyph relative to (0, 0); may be nullptr</td>
   </tr>
 </table>
 
@@ -4724,16 +4798,20 @@ Uses <a href="#SkPaint_getTextPath_x">x</a>, <a href="#SkPaint_getTextPath_y">y<
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getTextPath_text"> <code><strong>text </strong></code> </a></td> <td>
-character codes or glyph indices</td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextPath_length"> <code><strong>length </strong></code> </a></td> <td>
-number of bytes of <a href="#SkPaint_getTextPath_text">text</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextPath_x"> <code><strong>x </strong></code> </a></td> <td>
-<a href="#SkPaint_getTextPath_x">x</a>-coordinate of the origin of the <a href="#SkPaint_getTextPath_text">text</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextPath_y"> <code><strong>y </strong></code> </a></td> <td>
-<a href="#SkPaint_getTextPath_y">y</a>-coordinate of the origin of the <a href="#SkPaint_getTextPath_text">text</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextPath_path"> <code><strong>path </strong></code> </a></td> <td>
-geometry of the <a href="undocumented#Glyph">Glyphs</a></td>
+<table>  <tr>    <td><a name="SkPaint_getTextPath_text"> <code><strong>text </strong></code> </a></td>
+    <td>character codes or glyph indices</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextPath_length"> <code><strong>length </strong></code> </a></td>
+    <td>number of bytes of <a href="#SkPaint_getTextPath_text">text</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextPath_x"> <code><strong>x </strong></code> </a></td>
+    <td><a href="#SkPaint_getTextPath_x">x</a>-coordinate of the origin of the <a href="#SkPaint_getTextPath_text">text</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextPath_y"> <code><strong>y </strong></code> </a></td>
+    <td><a href="#SkPaint_getTextPath_y">y</a>-coordinate of the origin of the <a href="#SkPaint_getTextPath_text">text</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextPath_path"> <code><strong>path </strong></code> </a></td>
+    <td>geometry of the <a href="undocumented#Glyph">Glyphs</a></td>
   </tr>
 </table>
 
@@ -4761,14 +4839,17 @@ Uses <a href="#SkPaint_getPosTextPath_pos">pos</a> array and <a href="#Text_Alig
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getPosTextPath_text"> <code><strong>text </strong></code> </a></td> <td>
-character codes or glyph indices</td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextPath_length"> <code><strong>length </strong></code> </a></td> <td>
-number of bytes of <a href="#SkPaint_getPosTextPath_text">text</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextPath_pos"> <code><strong>pos </strong></code> </a></td> <td>
-positions of each glyph</td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextPath_path"> <code><strong>path </strong></code> </a></td> <td>
-geometry of the <a href="undocumented#Glyph">Glyphs</a></td>
+<table>  <tr>    <td><a name="SkPaint_getPosTextPath_text"> <code><strong>text </strong></code> </a></td>
+    <td>character codes or glyph indices</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextPath_length"> <code><strong>length </strong></code> </a></td>
+    <td>number of bytes of <a href="#SkPaint_getPosTextPath_text">text</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextPath_pos"> <code><strong>pos </strong></code> </a></td>
+    <td>positions of each glyph</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextPath_path"> <code><strong>path </strong></code> </a></td>
+    <td>geometry of the <a href="undocumented#Glyph">Glyphs</a></td>
   </tr>
 </table>
 
@@ -4800,23 +4881,30 @@ the string.
 Uses <a href="#Text_Encoding">Text Encoding</a> to decode <a href="#SkPaint_getTextIntercepts_text">text</a>, <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 Uses <a href="#SkPaint_getTextIntercepts_x">x</a>, <a href="#SkPaint_getTextIntercepts_y">y</a>, and <a href="#Text_Align">Text Align</a> to position <a href="#SkPaint_getTextIntercepts_intervals">intervals</a>.
+
 Pass nullptr for <a href="#SkPaint_getTextIntercepts_intervals">intervals</a> to determine the size of the interval array.
+
 <a href="#SkPaint_getTextIntercepts_intervals">intervals</a> are cached to improve performance for multiple calls.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getTextIntercepts_text"> <code><strong>text </strong></code> </a></td> <td>
-character codes or glyph indices</td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextIntercepts_length"> <code><strong>length </strong></code> </a></td> <td>
-number of bytes of <a href="#SkPaint_getTextIntercepts_text">text</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextIntercepts_x"> <code><strong>x </strong></code> </a></td> <td>
-<a href="#SkPaint_getTextIntercepts_x">x</a>-coordinate of the origin of the <a href="#SkPaint_getTextIntercepts_text">text</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextIntercepts_y"> <code><strong>y </strong></code> </a></td> <td>
-<a href="#SkPaint_getTextIntercepts_y">y</a>-coordinate of the origin of the <a href="#SkPaint_getTextIntercepts_text">text</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextIntercepts_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
-lower and upper line parallel to the advance</td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextIntercepts_intervals"> <code><strong>intervals </strong></code> </a></td> <td>
-returned intersections; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPaint_getTextIntercepts_text"> <code><strong>text </strong></code> </a></td>
+    <td>character codes or glyph indices</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextIntercepts_length"> <code><strong>length </strong></code> </a></td>
+    <td>number of bytes of <a href="#SkPaint_getTextIntercepts_text">text</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextIntercepts_x"> <code><strong>x </strong></code> </a></td>
+    <td><a href="#SkPaint_getTextIntercepts_x">x</a>-coordinate of the origin of the <a href="#SkPaint_getTextIntercepts_text">text</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextIntercepts_y"> <code><strong>y </strong></code> </a></td>
+    <td><a href="#SkPaint_getTextIntercepts_y">y</a>-coordinate of the origin of the <a href="#SkPaint_getTextIntercepts_text">text</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextIntercepts_bounds"> <code><strong>bounds </strong></code> </a></td>
+    <td>lower and upper line parallel to the advance</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextIntercepts_intervals"> <code><strong>intervals </strong></code> </a></td>
+    <td>returned intersections; may be nullptr</td>
   </tr>
 </table>
 
@@ -4846,21 +4934,27 @@ the string.
 Uses <a href="#Text_Encoding">Text Encoding</a> to decode <a href="#SkPaint_getPosTextIntercepts_text">text</a>, <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 Uses <a href="#SkPaint_getPosTextIntercepts_pos">pos</a> array and <a href="#Text_Align">Text Align</a> to position <a href="#SkPaint_getPosTextIntercepts_intervals">intervals</a>.
+
 Pass nullptr for <a href="#SkPaint_getPosTextIntercepts_intervals">intervals</a> to determine the size of the interval array.
+
 <a href="#SkPaint_getPosTextIntercepts_intervals">intervals</a> are cached to improve performance for multiple calls.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getPosTextIntercepts_text"> <code><strong>text </strong></code> </a></td> <td>
-character codes or glyph indices</td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextIntercepts_length"> <code><strong>length </strong></code> </a></td> <td>
-number of bytes of <a href="#SkPaint_getPosTextIntercepts_text">text</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextIntercepts_pos"> <code><strong>pos </strong></code> </a></td> <td>
-positions of each glyph</td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextIntercepts_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
-lower and upper line parallel to the advance</td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextIntercepts_intervals"> <code><strong>intervals </strong></code> </a></td> <td>
-returned intersections; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPaint_getPosTextIntercepts_text"> <code><strong>text </strong></code> </a></td>
+    <td>character codes or glyph indices</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextIntercepts_length"> <code><strong>length </strong></code> </a></td>
+    <td>number of bytes of <a href="#SkPaint_getPosTextIntercepts_text">text</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextIntercepts_pos"> <code><strong>pos </strong></code> </a></td>
+    <td>positions of each glyph</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextIntercepts_bounds"> <code><strong>bounds </strong></code> </a></td>
+    <td>lower and upper line parallel to the advance</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextIntercepts_intervals"> <code><strong>intervals </strong></code> </a></td>
+    <td>returned intersections; may be nullptr</td>
   </tr>
 </table>
 
@@ -4890,23 +4984,30 @@ the string.
 Uses <a href="#Text_Encoding">Text Encoding</a> to decode <a href="#SkPaint_getPosTextHIntercepts_text">text</a>, <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 Uses <a href="#SkPaint_getPosTextHIntercepts_xpos">xpos</a> array, <a href="#SkPaint_getPosTextHIntercepts_constY">constY</a>, and <a href="#Text_Align">Text Align</a> to position <a href="#SkPaint_getPosTextHIntercepts_intervals">intervals</a>.
+
 Pass nullptr for <a href="#SkPaint_getPosTextHIntercepts_intervals">intervals</a> to determine the size of the interval array.
+
 <a href="#SkPaint_getPosTextHIntercepts_intervals">intervals</a> are cached to improve performance for multiple calls.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_text"> <code><strong>text </strong></code> </a></td> <td>
-character codes or glyph indices</td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_length"> <code><strong>length </strong></code> </a></td> <td>
-number of bytes of <a href="#SkPaint_getPosTextHIntercepts_text">text</a></td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_xpos"> <code><strong>xpos </strong></code> </a></td> <td>
-positions of each glyph in x</td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_constY"> <code><strong>constY </strong></code> </a></td> <td>
-position of each glyph in y</td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
-lower and upper line parallel to the advance</td>
-  </tr>  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_intervals"> <code><strong>intervals </strong></code> </a></td> <td>
-returned intersections; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_text"> <code><strong>text </strong></code> </a></td>
+    <td>character codes or glyph indices</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_length"> <code><strong>length </strong></code> </a></td>
+    <td>number of bytes of <a href="#SkPaint_getPosTextHIntercepts_text">text</a></td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_xpos"> <code><strong>xpos </strong></code> </a></td>
+    <td>positions of each glyph in x</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_constY"> <code><strong>constY </strong></code> </a></td>
+    <td>position of each glyph in y</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_bounds"> <code><strong>bounds </strong></code> </a></td>
+    <td>lower and upper line parallel to the advance</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getPosTextHIntercepts_intervals"> <code><strong>intervals </strong></code> </a></td>
+    <td>returned intersections; may be nullptr</td>
   </tr>
 </table>
 
@@ -4935,19 +5036,23 @@ the string.
 Uses <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 Uses run array and <a href="#Text_Align">Text Align</a> to position <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a>.
+
 <a href="#Text_Encoding">Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
 
 Pass nullptr for <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a> to determine the size of the interval array.
+
 <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a> are cached to improve performance for multiple calls.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_getTextBlobIntercepts_blob"> <code><strong>blob </strong></code> </a></td> <td>
-<a href="undocumented#Glyph">Glyphs</a>, positions, and text paint attributes</td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextBlobIntercepts_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
-lower and upper line parallel to the advance</td>
-  </tr>  <tr>    <td><a name="SkPaint_getTextBlobIntercepts_intervals"> <code><strong>intervals </strong></code> </a></td> <td>
-returned intersections; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPaint_getTextBlobIntercepts_blob"> <code><strong>blob </strong></code> </a></td>
+    <td><a href="undocumented#Glyph">Glyphs</a>, positions, and text paint attributes</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextBlobIntercepts_bounds"> <code><strong>bounds </strong></code> </a></td>
+    <td>lower and upper line parallel to the advance</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_getTextBlobIntercepts_intervals"> <code><strong>intervals </strong></code> </a></td>
+    <td>returned intersections; may be nullptr</td>
   </tr>
 </table>
 
@@ -4957,7 +5062,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="71959a66b2290d70003887c0de339266"></fiddle-embed></div>
+<div><fiddle-embed name="f2229dd5c8e76f9e12fafe59b61353c8"></fiddle-embed></div>
 
 ---
 
@@ -4980,7 +5085,7 @@ true if <a href="#Paint">Paint</a> prevents all drawing
 
 ### Example
 
-<div><fiddle-embed name="fc5a771b915ac341f56554f01d282831">
+<div><fiddle-embed name="2973b05bfbb6b4c29332c8ac4fcf3995">
 
 #### Example Output
 
@@ -5037,10 +5142,11 @@ use the returned value. It is legal for <a href="#SkPaint_computeFastBounds_orig
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_computeFastBounds_orig"> <code><strong>orig </strong></code> </a></td> <td>
-geometry modified by <a href="#Paint">Paint</a> when drawn</td>
-  </tr>  <tr>    <td><a name="SkPaint_computeFastBounds_storage"> <code><strong>storage </strong></code> </a></td> <td>
-computed bounds of geometry; may not be nullptr</td>
+<table>  <tr>    <td><a name="SkPaint_computeFastBounds_orig"> <code><strong>orig </strong></code> </a></td>
+    <td>geometry modified by <a href="#Paint">Paint</a> when drawn</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_computeFastBounds_storage"> <code><strong>storage </strong></code> </a></td>
+    <td>computed bounds of geometry; may not be nullptr</td>
   </tr>
 </table>
 
@@ -5059,10 +5165,11 @@ const SkRect& computeFastStrokeBounds(const SkRect& orig, SkRect* storage) const
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_computeFastStrokeBounds_orig"> <code><strong>orig </strong></code> </a></td> <td>
-geometry modified by <a href="#Paint">Paint</a> when drawn</td>
-  </tr>  <tr>    <td><a name="SkPaint_computeFastStrokeBounds_storage"> <code><strong>storage </strong></code> </a></td> <td>
-computed bounds of geometry</td>
+<table>  <tr>    <td><a name="SkPaint_computeFastStrokeBounds_orig"> <code><strong>orig </strong></code> </a></td>
+    <td>geometry modified by <a href="#Paint">Paint</a> when drawn</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_computeFastStrokeBounds_storage"> <code><strong>storage </strong></code> </a></td>
+    <td>computed bounds of geometry</td>
   </tr>
 </table>
 
@@ -5085,12 +5192,14 @@ altering <a href="#SkPaint_Style">Style</a> set to fill.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_doComputeFastBounds_orig"> <code><strong>orig </strong></code> </a></td> <td>
-geometry modified by <a href="#Paint">Paint</a> when drawn</td>
-  </tr>  <tr>    <td><a name="SkPaint_doComputeFastBounds_storage"> <code><strong>storage </strong></code> </a></td> <td>
-computed bounds of geometry</td>
-  </tr>  <tr>    <td><a name="SkPaint_doComputeFastBounds_style"> <code><strong>style </strong></code> </a></td> <td>
-overrides <a href="#SkPaint_Style">Style</a></td>
+<table>  <tr>    <td><a name="SkPaint_doComputeFastBounds_orig"> <code><strong>orig </strong></code> </a></td>
+    <td>geometry modified by <a href="#Paint">Paint</a> when drawn</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_doComputeFastBounds_storage"> <code><strong>storage </strong></code> </a></td>
+    <td>computed bounds of geometry</td>
+  </tr>
+  <tr>    <td><a name="SkPaint_doComputeFastBounds_style"> <code><strong>style </strong></code> </a></td>
+    <td>overrides <a href="#SkPaint_Style">Style</a></td>
   </tr>
 </table>
 
@@ -5123,8 +5232,8 @@ internal debugging tools.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_toString_str"> <code><strong>str </strong></code> </a></td> <td>
-storage for string representation of <a href="#Paint">Paint</a></td>
+<table>  <tr>    <td><a name="SkPaint_toString_str"> <code><strong>str </strong></code> </a></td>
+    <td>storage for string representation of <a href="#Paint">Paint</a></td>
   </tr>
 </table>
 

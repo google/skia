@@ -1,3 +1,8 @@
+<style>
+.td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }
+.tr_const tr:nth-child(even) { background-color: #ddffdd; }
+.td2_const td:first-child + td { text-align: center; }
+</style>
 SkPath Reference
 ===
 
@@ -116,15 +121,15 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#Conic">Conic</a> | conic section defined by three points and a weight |
 | <a href="#Conic_Weight">Conic Weight</a> | strength of <a href="#Conic">Conic</a> control <a href="SkPoint_Reference#Point">Point</a> |
 | <a href="#SkPath_Convexity">Convexity</a> | if <a href="#Path">Path</a> is concave or convex |
-| <a href="#Cubic">Cubic</a> | Bezier_Curve described by third-order polynomial |
-| <a href="#SkPath_Direction">Direction</a> | <a href="#Path">Path</a> contour orientation |
-| <a href="#Fill_Type">Fill Type</a> | <a href="#Path">Path</a> fill rule, normal and inverted |
+| <a href="#Cubic">Cubic</a> | curve described by third-order polynomial |
+| <a href="#SkPath_Direction">Direction</a> | contour orientation, clockwise or counterclockwise |
+| <a href="#Fill_Type">Fill Type</a> | fill rule, normal and inverted |
 | <a href="#Generation_ID">Generation ID</a> | value reflecting contents change |
 | <a href="#Interpolate">Interpolate</a> | weighted average of <a href="#Path">Path</a> pair |
 | <a href="#Last_Point">Last Point</a> | final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Contour">Contour</a> |
 | <a href="#Point_Array">Point Array</a> | end points and control points for lines and curves |
 | <a href="#Property">Property</a> | metrics and attributes |
-| <a href="#Quad">Quad</a> | Bezier_Curve described by second-order polynomial |
+| <a href="#Quad">Quad</a> | curve described by second-order polynomial |
 | <a href="#Transform">Transform</a> | modify all points |
 | <a href="#Utility">Utility</a> | rarely called management functions |
 | <a href="#SkPath_Verb">Verb</a> | line and curve type |
@@ -147,8 +152,8 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_Iter">Iter</a> | <a href="#Path">Path</a> data iterator |
-| <a href="#SkPath_RawIter">RawIter</a> | <a href="#Path">Path</a> raw data iterator |
+| <a href="#SkPath_Iter">Iter</a> | data iterator |
+| <a href="#SkPath_RawIter">RawIter</a> | raw data iterator |
 
 ## <a name="Constructor"></a> Constructor
 
@@ -233,7 +238,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_rLineTo">rLineTo</a> | appends <a href="undocumented#Line">Line</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_rMoveTo">rMoveTo</a> | starts <a href="#Contour">Contour</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_rQuadTo">rQuadTo</a> | appends <a href="#Quad">Quad</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_readFromMemory">readFromMemory</a> | Initializes from buffer |
+| <a href="#SkPath_readFromMemory">readFromMemory</a> | initializes from buffer |
 | <a href="#SkPath_reset">reset</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>; frees memory |
 | <a href="#SkPath_reverseAddPath">reverseAddPath</a> | adds contents of <a href="#Path">Path</a> back to front |
 | <a href="#SkPath_rewind">rewind</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Weights</a>, keeping memory |
@@ -269,24 +274,39 @@ manage <a href="#Contour">Contour</a>, and terminate <a href="#Path">Path</a>.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPath_kMove_Verb"> <code><strong>SkPath::kMove_Verb </strong></code> </a></td><td>0</td><td>Starts new <a href="#Contour">Contour</a> at next <a href="SkPoint_Reference#Point">Point</a>.
+    <td><a name="SkPath_kMove_Verb"> <code><strong>SkPath::kMove_Verb </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td>Consecutive <a href="#SkPath_kMove_Verb">kMove Verb</a> are preserved but all but the last <a href="#SkPath_kMove_Verb">kMove Verb</a> is
+ignored. <a href="#SkPath_kMove_Verb">kMove Verb</a> after other <a href="#Verb">Verbs</a> implicitly closes the previous <a href="#Contour">Contour</a>
+if <a href="SkPaint_Reference#SkPaint_kFill_Style">SkPaint::kFill Style</a> is set when drawn; otherwise, stroke is drawn open.
+<a href="#SkPath_kMove_Verb">kMove Verb</a> as the last <a href="#Verb">Verb</a> is preserved but ignored.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kLine_Verb"> <code><strong>SkPath::kLine_Verb </strong></code> </a></td><td>1</td><td>Adds <a href="undocumented#Line">Line</a> from <a href="#Last_Point">Last Point</a> to next <a href="SkPoint_Reference#Point">Point</a>.
-<a href="undocumented#Line">Line</a> is a straight segment from <a href="SkPoint_Reference#Point">Point</a> to <a href="SkPoint_Reference#Point">Point</a>.
+    <td><a name="SkPath_kLine_Verb"> <code><strong>SkPath::kLine_Verb </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td><a href="undocumented#Line">Line</a> is a straight segment from <a href="SkPoint_Reference#Point">Point</a> to <a href="SkPoint_Reference#Point">Point</a>. Consecutive <a href="#SkPath_kLine_Verb">kLine Verb</a>
+extend <a href="#Contour">Contour</a>. <a href="#SkPath_kLine_Verb">kLine Verb</a> at same position as prior <a href="#SkPath_kMove_Verb">kMove Verb</a> is
+preserved, and draws <a href="SkPoint_Reference#Point">Point</a> if <a href="SkPaint_Reference#SkPaint_kStroke_Style">SkPaint::kStroke Style</a> is set, and
+<a href="SkPaint_Reference#SkPaint_Cap">SkPaint::Cap</a> is <a href="SkPaint_Reference#SkPaint_kSquare_Cap">SkPaint::kSquare Cap</a> or <a href="SkPaint_Reference#SkPaint_kRound_Cap">SkPaint::kRound Cap</a>. <a href="#SkPath_kLine_Verb">kLine Verb</a>
+at same position as prior line or curve <a href="#Verb">Verb</a> is preserved but is ignored.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kQuad_Verb"> <code><strong>SkPath::kQuad_Verb </strong></code> </a></td><td>2</td><td>Adds <a href="#Quad">Quad</a> from <a href="#Last_Point">Last Point</a>, using control <a href="SkPoint_Reference#Point">Point</a>, and end <a href="SkPoint_Reference#Point">Point</a>.
+    <td><a name="SkPath_kQuad_Verb"> <code><strong>SkPath::kQuad_Verb </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td>Adds <a href="#Quad">Quad</a> from <a href="#Last_Point">Last Point</a>, using control <a href="SkPoint_Reference#Point">Point</a>, and end <a href="SkPoint_Reference#Point">Point</a>.
 <a href="#Quad">Quad</a> is a parabolic section within tangents from <a href="#Last_Point">Last Point</a> to control <a href="SkPoint_Reference#Point">Point</a>,
 and control <a href="SkPoint_Reference#Point">Point</a> to end <a href="SkPoint_Reference#Point">Point</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kConic_Verb"> <code><strong>SkPath::kConic_Verb </strong></code> </a></td><td>3</td><td>Adds <a href="#Conic">Conic</a> from <a href="#Last_Point">Last Point</a>, using control <a href="SkPoint_Reference#Point">Point</a>, end <a href="SkPoint_Reference#Point">Point</a>, and <a href="#Conic_Weight">Conic Weight</a>.
+    <td><a name="SkPath_kConic_Verb"> <code><strong>SkPath::kConic_Verb </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td>Adds <a href="#Conic">Conic</a> from <a href="#Last_Point">Last Point</a>, using control <a href="SkPoint_Reference#Point">Point</a>, end <a href="SkPoint_Reference#Point">Point</a>, and <a href="#Conic_Weight">Conic Weight</a>.
 <a href="#Conic">Conic</a> is a elliptical, parabolic, or hyperbolic section within tangents
 from <a href="#Last_Point">Last Point</a> to control <a href="SkPoint_Reference#Point">Point</a>, and control <a href="SkPoint_Reference#Point">Point</a> to end <a href="SkPoint_Reference#Point">Point</a>, constrained
 by <a href="#Conic_Weight">Conic Weight</a>. <a href="#Conic_Weight">Conic Weight</a> less than one is elliptical; equal to one is
@@ -294,17 +314,25 @@ parabolic (and identical to <a href="#Quad">Quad</a>); greater than one hyperbol
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kCubic_Verb"> <code><strong>SkPath::kCubic_Verb </strong></code> </a></td><td>4</td><td>Adds <a href="#Cubic">Cubic</a> from <a href="#Last_Point">Last Point</a>, using two control <a href="SkPoint_Reference#Point">Points</a>, and end <a href="SkPoint_Reference#Point">Point</a>.
+    <td><a name="SkPath_kCubic_Verb"> <code><strong>SkPath::kCubic_Verb </strong></code> </a></td>
+    <td>4</td>
+    <td></td>    <td>Adds <a href="#Cubic">Cubic</a> from <a href="#Last_Point">Last Point</a>, using two control <a href="SkPoint_Reference#Point">Points</a>, and end <a href="SkPoint_Reference#Point">Point</a>.
 <a href="#Cubic">Cubic</a> is a third-order Bezier_Curve section within tangents from <a href="#Last_Point">Last Point</a>
 to first control <a href="SkPoint_Reference#Point">Point</a>, and from second control <a href="SkPoint_Reference#Point">Point</a> to end <a href="SkPoint_Reference#Point">Point</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kClose_Verb"> <code><strong>SkPath::kClose_Verb </strong></code> </a></td><td>5</td><td>Closes <a href="#Contour">Contour</a>, connecting <a href="#Last_Point">Last Point</a> to <a href="#SkPath_kMove_Verb">kMove Verb</a> <a href="SkPoint_Reference#Point">Point</a>.
+    <td><a name="SkPath_kClose_Verb"> <code><strong>SkPath::kClose_Verb </strong></code> </a></td>
+    <td>5</td>
+    <td></td>    <td>Closes <a href="#Contour">Contour</a>, connecting <a href="#Last_Point">Last Point</a> to <a href="#SkPath_kMove_Verb">kMove Verb</a> <a href="SkPoint_Reference#Point">Point</a>. Consecutive
+<a href="#SkPath_kClose_Verb">kClose Verb</a> are preserved but only first has an effect. <a href="#SkPath_kClose_Verb">kClose Verb</a> after
+<a href="#SkPath_kMove_Verb">kMove Verb</a> has no effect.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kDone_Verb"> <code><strong>SkPath::kDone_Verb </strong></code> </a></td><td>6</td><td>Terminates <a href="#Path">Path</a>. Not in <a href="#Verb_Array">Verb Array</a>, but returned by <a href="#Path">Path</a> iterator.
+    <td><a name="SkPath_kDone_Verb"> <code><strong>SkPath::kDone_Verb </strong></code> </a></td>
+    <td>6</td>
+    <td></td>    <td>Not in <a href="#Verb_Array">Verb Array</a>, but returned by <a href="#Path">Path</a> iterator.
 </td>
   </tr>
 Each <a href="#Verb">Verb</a> has zero or more <a href="SkPoint_Reference#Point">Points</a> stored in <a href="#Path">Path</a>.
@@ -363,12 +391,17 @@ travel counterclockwise.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPath_kCW_Direction"> <code><strong>SkPath::kCW_Direction </strong></code> </a></td><td>0</td><td><a href="#Contour">Contour</a> travels in a clockwise direction</td>
+    <td><a name="SkPath_kCW_Direction"> <code><strong>SkPath::kCW_Direction </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPath_kCCW_Direction"> <code><strong>SkPath::kCCW_Direction </strong></code> </a></td><td>1</td><td><a href="#Contour">Contour</a> travels in a counterclockwise direction</td>
+    <td><a name="SkPath_kCCW_Direction"> <code><strong>SkPath::kCCW_Direction </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
 </table>
 
@@ -431,8 +464,8 @@ pointers are not exposed.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_copy_const_SkPath_path"> <code><strong>path </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to copy by value</td>
+<table>  <tr>    <td><a name="SkPath_copy_const_SkPath_path"> <code><strong>path </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to copy by value</td>
   </tr>
 </table>
 
@@ -501,8 +534,8 @@ pointers are not exposed.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_copy_operator_path"> <code><strong>path </strong></code> </a></td> <td>
-<a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, <a href="#Conic_Weight">Weights</a>, and <a href="#Fill_Type">Fill Type</a> to copy</td>
+<table>  <tr>    <td><a name="SkPath_copy_operator_path"> <code><strong>path </strong></code> </a></td>
+    <td><a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, <a href="#Conic_Weight">Weights</a>, and <a href="#Fill_Type">Fill Type</a> to copy</td>
   </tr>
 </table>
 
@@ -541,10 +574,11 @@ are equivalent.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkPath_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to compare</td>
+<table>  <tr>    <td><a name="SkPath_equal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkPath_equal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to compare</td>
   </tr>
 </table>
 
@@ -583,10 +617,11 @@ are not equivalent.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_notequal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkPath_notequal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to compare</td>
+<table>  <tr>    <td><a name="SkPath_notequal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkPath_notequal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to compare</td>
   </tr>
 </table>
 
@@ -653,8 +688,8 @@ trivial to interpolate a pair of <a href="#Path">Paths</a> containing <a href="#
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_isInterpolatable_compare"> <code><strong>compare </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to <a href="#SkPath_isInterpolatable_compare">compare</a></td>
+<table>  <tr>    <td><a name="SkPath_isInterpolatable_compare"> <code><strong>compare </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to <a href="#SkPath_isInterpolatable_compare">compare</a></td>
   </tr>
 </table>
 
@@ -709,13 +744,15 @@ compatibility prior to calling <a href="#SkPath_interpolate">interpolate</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_interpolate_ending"> <code><strong>ending </strong></code> </a></td> <td>
-<a href="#Point_Array">Point Array</a> averaged with this <a href="#Point_Array">Point Array</a></td>
-  </tr>  <tr>    <td><a name="SkPath_interpolate_weight"> <code><strong>weight </strong></code> </a></td> <td>
-contribution of this <a href="#Point_Array">Point Array</a>, and
+<table>  <tr>    <td><a name="SkPath_interpolate_ending"> <code><strong>ending </strong></code> </a></td>
+    <td><a href="#Point_Array">Point Array</a> averaged with this <a href="#Point_Array">Point Array</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_interpolate_weight"> <code><strong>weight </strong></code> </a></td>
+    <td>contribution of this <a href="#Point_Array">Point Array</a>, and
 one minus contribution of <a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a></td>
-  </tr>  <tr>    <td><a name="SkPath_interpolate_out"> <code><strong>out </strong></code> </a></td> <td>
-<a href="#Path">Path</a> replaced by interpolated averages</td>
+  </tr>
+  <tr>    <td><a name="SkPath_interpolate_out"> <code><strong>out </strong></code> </a></td>
+    <td><a href="#Path">Path</a> replaced by interpolated averages</td>
   </tr>
 </table>
 
@@ -767,7 +804,7 @@ reverses the rule:
 
 ### Example
 
-<div><fiddle-embed name="525ed591c31960de23068dba8ea11a75"><div>The top row has two clockwise rectangles. The second row has one clockwise and
+<div><fiddle-embed name="71fc6c069c377d808799f2453edabaf5"><div>The top row has two clockwise rectangles. The second row has one clockwise and
 one counterclockwise rectangle. The even-odd variants draw the same. The
 winding variants draw the top rectangle overlap, which has a winding of 2, the
 same as the outer parts of the top rectangles, which have a winding of 1.
@@ -775,28 +812,33 @@ same as the outer parts of the top rectangles, which have a winding of 1.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPath_kWinding_FillType"> <code><strong>SkPath::kWinding_FillType </strong></code> </a></td><td>0</td><td>Specifies fill as area is enclosed by a non-zero sum of <a href="#Contour">Contour</a> <a href="#Direction">Directions</a>.
-</td>
+    <td><a name="SkPath_kWinding_FillType"> <code><strong>SkPath::kWinding_FillType </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPath_kEvenOdd_FillType"> <code><strong>SkPath::kEvenOdd_FillType </strong></code> </a></td><td>1</td><td>Specifies fill as area enclosed by an odd number of <a href="#Contour">Contours</a>.
-</td>
+    <td><a name="SkPath_kEvenOdd_FillType"> <code><strong>SkPath::kEvenOdd_FillType </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPath_kInverseWinding_FillType"> <code><strong>SkPath::kInverseWinding_FillType </strong></code> </a></td><td>2</td><td>Specifies fill as area is enclosed by a zero sum of <a href="#Contour">Contour</a> <a href="#Direction">Directions</a>.
-</td>
+    <td><a name="SkPath_kInverseWinding_FillType"> <code><strong>SkPath::kInverseWinding_FillType </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPath_kInverseEvenOdd_FillType"> <code><strong>SkPath::kInverseEvenOdd_FillType </strong></code> </a></td><td>3</td><td>Specifies fill as area enclosed by an even number of <a href="#Contour">Contours</a>.
-</td>
+    <td><a name="SkPath_kInverseEvenOdd_FillType"> <code><strong>SkPath::kInverseEvenOdd_FillType </strong></code> </a></td>
+    <td>3</td>
+    <td></td>    <td></td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="0ebf978b234a00e2c2573cfa7b04e776"></fiddle-embed></div>
+<div><fiddle-embed name="d84cd32b0bfd9ad2714f753120ed0ee1"></fiddle-embed></div>
 
 ### See Also
 
@@ -821,7 +863,7 @@ one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkP
 
 ### Example
 
-<div><fiddle-embed name="2eb8f985d1e263e70b5c0aa4a8b68d8e">
+<div><fiddle-embed name="019af90e778914e8a109d6305ede4fc4">
 
 #### Example Output
 
@@ -849,8 +891,8 @@ that <a href="#SkPath_setFillType_ft">ft</a> is legal, values outside of <a href
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_setFillType_ft"> <code><strong>ft </strong></code> </a></td> <td>
-one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>,  <a href="#SkPath_kInverseWinding_FillType">kInverseWinding FillType</a>,
+<table>  <tr>    <td><a name="SkPath_setFillType_ft"> <code><strong>ft </strong></code> </a></td>
+    <td>one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>,  <a href="#SkPath_kInverseWinding_FillType">kInverseWinding FillType</a>,
 <a href="#SkPath_kInverseEvenOdd_FillType">kInverseEvenOdd FillType</a></td>
   </tr>
 </table>
@@ -951,24 +993,28 @@ if needed by destination <a href="SkSurface_Reference#Surface">Surface</a>.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPath_kUnknown_Convexity"> <code><strong>SkPath::kUnknown_Convexity </strong></code> </a></td><td>0</td><td>Indicates <a href="#Convexity">Convexity</a> has not been determined.
-</td>
+    <td><a name="SkPath_kUnknown_Convexity"> <code><strong>SkPath::kUnknown_Convexity </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPath_kConvex_Convexity"> <code><strong>SkPath::kConvex_Convexity </strong></code> </a></td><td>1</td><td><a href="#Path">Path</a> has one <a href="#Contour">Contour</a> made of a simple geometry without indentations.
-</td>
+    <td><a name="SkPath_kConvex_Convexity"> <code><strong>SkPath::kConvex_Convexity </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPath_kConcave_Convexity"> <code><strong>SkPath::kConcave_Convexity </strong></code> </a></td><td>2</td><td><a href="#Path">Path</a> has more than one <a href="#Contour">Contour</a>, or a geometry with indentations.
-</td>
+    <td><a name="SkPath_kConcave_Convexity"> <code><strong>SkPath::kConcave_Convexity </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td></td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="b7d0c0732411db76fa37b05fc18712b3"></fiddle-embed></div>
+<div><fiddle-embed name="ac49e8b810bd6ed5d84b4f5a3b40a0ec"></fiddle-embed></div>
 
 ### See Also
 
@@ -993,7 +1039,7 @@ computed or stored <a href="#Convexity">Convexity</a>
 
 ### Example
 
-<div><fiddle-embed name="c8f5ac4040cb5026d234bf99e3f01e8e"></fiddle-embed></div>
+<div><fiddle-embed name="a8f36f2fa90003e3691fd0da0bb0c243"></fiddle-embed></div>
 
 ### See Also
 
@@ -1017,7 +1063,7 @@ stored <a href="#Convexity">Convexity</a>
 
 ### Example
 
-<div><fiddle-embed name="bc19da9de880e3f339707247686efc0a"><div><a href="#Convexity">Convexity</a> is unknown unless <a href="#SkPath_getConvexity">getConvexity</a> is called without a subsequent call
+<div><fiddle-embed name="111c59e9afadb940ab8f41bdc25378a4"><div><a href="#Convexity">Convexity</a> is unknown unless <a href="#SkPath_getConvexity">getConvexity</a> is called without a subsequent call
 that alters the path.
 </div></fiddle-embed></div>
 
@@ -1047,14 +1093,14 @@ altered.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_setConvexity_convexity"> <code><strong>convexity </strong></code> </a></td> <td>
-one of: <a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>, <a href="#SkPath_kConvex_Convexity">kConvex Convexity</a>, or <a href="#SkPath_kConcave_Convexity">kConcave Convexity</a></td>
+<table>  <tr>    <td><a name="SkPath_setConvexity_convexity"> <code><strong>convexity </strong></code> </a></td>
+    <td>one of: <a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>, <a href="#SkPath_kConvex_Convexity">kConvex Convexity</a>, or <a href="#SkPath_kConcave_Convexity">kConcave Convexity</a></td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="6fe0d520507eeafe118b80f7f1d9b588"></fiddle-embed></div>
+<div><fiddle-embed name="875e32b4b1cb48d739325705fc0fa42c"></fiddle-embed></div>
 
 ### See Also
 
@@ -1079,7 +1125,7 @@ true if <a href="#Convexity">Convexity</a> stored or computed is <a href="#SkPat
 
 ### Example
 
-<div><fiddle-embed name="dfd2c40e1c2a7b539a94aec8d040d349"><div>Concave shape is erroneously considered convex after a forced call to
+<div><fiddle-embed name="d8be8b6e59de244e4cbf58ec9554557b"><div>Concave shape is erroneously considered convex after a forced call to
 <a href="#SkPath_setConvexity">setConvexity</a>.
 </div></fiddle-embed></div>
 
@@ -1104,8 +1150,8 @@ Returns true if this path is recognized as an oval or circle.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_isOval_bounds"> <code><strong>bounds </strong></code> </a></td> <td>
-storage for bounding <a href="SkRect_Reference#Rect">Rect</a> of <a href="undocumented#Oval">Oval</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPath_isOval_bounds"> <code><strong>bounds </strong></code> </a></td>
+    <td>storage for bounding <a href="SkRect_Reference#Rect">Rect</a> of <a href="undocumented#Oval">Oval</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -1138,8 +1184,8 @@ Returns true if this path is recognized as a <a href="undocumented#SkRRect">SkRR
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_isRRect_rrect"> <code><strong>rrect </strong></code> </a></td> <td>
-storage for bounding <a href="SkRect_Reference#Rect">Rect</a> of <a href="undocumented#Round_Rect">Round Rect</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPath_isRRect_rrect"> <code><strong>rrect </strong></code> </a></td>
+    <td>storage for bounding <a href="SkRect_Reference#Rect">Rect</a> of <a href="undocumented#Round_Rect">Round Rect</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -1375,8 +1421,8 @@ Mark unchanging <a href="#Path">Path</a> non-volatile to improve repeated render
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_setIsVolatile_isVolatile"> <code><strong>isVolatile </strong></code> </a></td> <td>
-true if caller will alter <a href="#Path">Path</a> after drawing</td>
+<table>  <tr>    <td><a name="SkPath_setIsVolatile_isVolatile"> <code><strong>isVolatile </strong></code> </a></td>
+    <td>true if caller will alter <a href="#Path">Path</a> after drawing</td>
   </tr>
 </table>
 
@@ -1406,12 +1452,14 @@ If false, returns true if <a href="#SkPath_IsLineDegenerate_p1">p1</a> equals or
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_IsLineDegenerate_p1"> <code><strong>p1 </strong></code> </a></td> <td>
-line start point</td>
-  </tr>  <tr>    <td><a name="SkPath_IsLineDegenerate_p2"> <code><strong>p2 </strong></code> </a></td> <td>
-line end point</td>
-  </tr>  <tr>    <td><a name="SkPath_IsLineDegenerate_exact"> <code><strong>exact </strong></code> </a></td> <td>
-if false, allow nearly equals</td>
+<table>  <tr>    <td><a name="SkPath_IsLineDegenerate_p1"> <code><strong>p1 </strong></code> </a></td>
+    <td>line start point</td>
+  </tr>
+  <tr>    <td><a name="SkPath_IsLineDegenerate_p2"> <code><strong>p2 </strong></code> </a></td>
+    <td>line end point</td>
+  </tr>
+  <tr>    <td><a name="SkPath_IsLineDegenerate_exact"> <code><strong>exact </strong></code> </a></td>
+    <td>if false, allow nearly equals</td>
   </tr>
 </table>
 
@@ -1456,14 +1504,17 @@ treated as a point.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_IsQuadDegenerate_p1"> <code><strong>p1 </strong></code> </a></td> <td>
-<a href="#Quad">Quad</a> start point</td>
-  </tr>  <tr>    <td><a name="SkPath_IsQuadDegenerate_p2"> <code><strong>p2 </strong></code> </a></td> <td>
-<a href="#Quad">Quad</a> control point</td>
-  </tr>  <tr>    <td><a name="SkPath_IsQuadDegenerate_p3"> <code><strong>p3 </strong></code> </a></td> <td>
-<a href="#Quad">Quad</a> end point</td>
-  </tr>  <tr>    <td><a name="SkPath_IsQuadDegenerate_exact"> <code><strong>exact </strong></code> </a></td> <td>
-if true, returns true only if <a href="#SkPath_IsQuadDegenerate_p1">p1</a>, <a href="#SkPath_IsQuadDegenerate_p2">p2</a>, and <a href="#SkPath_IsQuadDegenerate_p3">p3</a> are equal;
+<table>  <tr>    <td><a name="SkPath_IsQuadDegenerate_p1"> <code><strong>p1 </strong></code> </a></td>
+    <td><a href="#Quad">Quad</a> start point</td>
+  </tr>
+  <tr>    <td><a name="SkPath_IsQuadDegenerate_p2"> <code><strong>p2 </strong></code> </a></td>
+    <td><a href="#Quad">Quad</a> control point</td>
+  </tr>
+  <tr>    <td><a name="SkPath_IsQuadDegenerate_p3"> <code><strong>p3 </strong></code> </a></td>
+    <td><a href="#Quad">Quad</a> end point</td>
+  </tr>
+  <tr>    <td><a name="SkPath_IsQuadDegenerate_exact"> <code><strong>exact </strong></code> </a></td>
+    <td>if true, returns true only if <a href="#SkPath_IsQuadDegenerate_p1">p1</a>, <a href="#SkPath_IsQuadDegenerate_p2">p2</a>, and <a href="#SkPath_IsQuadDegenerate_p3">p3</a> are equal;
 if false, returns true if <a href="#SkPath_IsQuadDegenerate_p1">p1</a>, <a href="#SkPath_IsQuadDegenerate_p2">p2</a>, and <a href="#SkPath_IsQuadDegenerate_p3">p3</a> are equal or nearly equal</td>
   </tr>
 </table>
@@ -1474,7 +1525,7 @@ true if <a href="#Quad">Quad</a> is degenerate; its length is effectively zero
 
 ### Example
 
-<div><fiddle-embed name="1d50896c528cd4581966646b7d96acff"><div>As single precision floats: 100, 100.00001, and 100.00002 have different bit representations
+<div><fiddle-embed name="a2b255a7dac1926cc3a247d318d63c62"><div>As single precision floats: 100, 100.00001, and 100.00002 have different bit representations
 but nearly the same value. Translating all three by 1000 gives them the same bit representation;
 the fractional portion of the number can not be represented by the float and is lost.
 </div>
@@ -1510,16 +1561,20 @@ treated as a point.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_IsCubicDegenerate_p1"> <code><strong>p1 </strong></code> </a></td> <td>
-<a href="#Cubic">Cubic</a> start point</td>
-  </tr>  <tr>    <td><a name="SkPath_IsCubicDegenerate_p2"> <code><strong>p2 </strong></code> </a></td> <td>
-<a href="#Cubic">Cubic</a> control point 1</td>
-  </tr>  <tr>    <td><a name="SkPath_IsCubicDegenerate_p3"> <code><strong>p3 </strong></code> </a></td> <td>
-<a href="#Cubic">Cubic</a> control point 2</td>
-  </tr>  <tr>    <td><a name="SkPath_IsCubicDegenerate_p4"> <code><strong>p4 </strong></code> </a></td> <td>
-<a href="#Cubic">Cubic</a> end point</td>
-  </tr>  <tr>    <td><a name="SkPath_IsCubicDegenerate_exact"> <code><strong>exact </strong></code> </a></td> <td>
-if true, returns true only if <a href="#SkPath_IsCubicDegenerate_p1">p1</a>, <a href="#SkPath_IsCubicDegenerate_p2">p2</a>, <a href="#SkPath_IsCubicDegenerate_p3">p3</a>, and <a href="#SkPath_IsCubicDegenerate_p4">p4</a> are equal;
+<table>  <tr>    <td><a name="SkPath_IsCubicDegenerate_p1"> <code><strong>p1 </strong></code> </a></td>
+    <td><a href="#Cubic">Cubic</a> start point</td>
+  </tr>
+  <tr>    <td><a name="SkPath_IsCubicDegenerate_p2"> <code><strong>p2 </strong></code> </a></td>
+    <td><a href="#Cubic">Cubic</a> control point 1</td>
+  </tr>
+  <tr>    <td><a name="SkPath_IsCubicDegenerate_p3"> <code><strong>p3 </strong></code> </a></td>
+    <td><a href="#Cubic">Cubic</a> control point 2</td>
+  </tr>
+  <tr>    <td><a name="SkPath_IsCubicDegenerate_p4"> <code><strong>p4 </strong></code> </a></td>
+    <td><a href="#Cubic">Cubic</a> end point</td>
+  </tr>
+  <tr>    <td><a name="SkPath_IsCubicDegenerate_exact"> <code><strong>exact </strong></code> </a></td>
+    <td>if true, returns true only if <a href="#SkPath_IsCubicDegenerate_p1">p1</a>, <a href="#SkPath_IsCubicDegenerate_p2">p2</a>, <a href="#SkPath_IsCubicDegenerate_p3">p3</a>, and <a href="#SkPath_IsCubicDegenerate_p4">p4</a> are equal;
 if false, returns true if <a href="#SkPath_IsCubicDegenerate_p1">p1</a>, <a href="#SkPath_IsCubicDegenerate_p2">p2</a>, <a href="#SkPath_IsCubicDegenerate_p3">p3</a>, and <a href="#SkPath_IsCubicDegenerate_p4">p4</a> are equal or nearly equal</td>
   </tr>
 </table>
@@ -1558,8 +1613,8 @@ Returns false if <a href="#Path">Path</a> is not one <a href="undocumented#Line"
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_isLine_line"> <code><strong>line </strong></code> </a></td> <td>
-storage for <a href="undocumented#Line">Line</a>. May be nullptr</td>
+<table>  <tr>    <td><a name="SkPath_isLine_line"> <code><strong>line </strong></code> </a></td>
+    <td>storage for <a href="undocumented#Line">Line</a>. May be nullptr</td>
   </tr>
 </table>
 
@@ -1607,10 +1662,11 @@ If <a href="#SkPath_getPoints_max">max</a> is greater than number of <a href="#S
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_getPoints_points"> <code><strong>points </strong></code> </a></td> <td>
-storage for <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> array. May be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_getPoints_max"> <code><strong>max </strong></code> </a></td> <td>
-maximum to copy; must be greater than or equal to zero</td>
+<table>  <tr>    <td><a name="SkPath_getPoints_points"> <code><strong>points </strong></code> </a></td>
+    <td>storage for <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> array. May be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkPath_getPoints_max"> <code><strong>max </strong></code> </a></td>
+    <td>maximum to copy; must be greater than or equal to zero</td>
   </tr>
 </table>
 
@@ -1687,8 +1743,8 @@ Returns (0, 0) if <a href="#SkPath_getPoint_index">index</a> is out of range.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_getPoint_index"> <code><strong>index </strong></code> </a></td> <td>
-<a href="SkPoint_Reference#Point">Point</a> array element selector</td>
+<table>  <tr>    <td><a name="SkPath_getPoint_index"> <code><strong>index </strong></code> </a></td>
+    <td><a href="SkPoint_Reference#Point">Point</a> array element selector</td>
   </tr>
 </table>
 
@@ -1698,7 +1754,7 @@ Returns (0, 0) if <a href="#SkPath_getPoint_index">index</a> is out of range.
 
 ### Example
 
-<div><fiddle-embed name="abd6796f0e15bc7b4fe6f52f6cd2d1a5">
+<div><fiddle-embed name="42885f1df13de109adccc5d531f62111">
 
 #### Example Output
 
@@ -1771,10 +1827,11 @@ Returns the number of <a href="#SkPath_getVerbs_verbs">verbs</a> in the path. Up
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_getVerbs_verbs"> <code><strong>verbs </strong></code> </a></td> <td>
-storage for <a href="#SkPath_getVerbs_verbs">verbs</a>, may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_getVerbs_max"> <code><strong>max </strong></code> </a></td> <td>
-maximum number to copy into <a href="#SkPath_getVerbs_verbs">verbs</a></td>
+<table>  <tr>    <td><a name="SkPath_getVerbs_verbs"> <code><strong>verbs </strong></code> </a></td>
+    <td>storage for <a href="#SkPath_getVerbs_verbs">verbs</a>, may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkPath_getVerbs_max"> <code><strong>max </strong></code> </a></td>
+    <td>maximum number to copy into <a href="#SkPath_getVerbs_verbs">verbs</a></td>
   </tr>
 </table>
 
@@ -1820,8 +1877,8 @@ making assignment as efficient as <a href="#SkPath_swap">swap</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_swap_other"> <code><strong>other </strong></code> </a></td> <td>
-<a href="#Path">Path</a> exchanged by value</td>
+<table>  <tr>    <td><a name="SkPath_swap_other"> <code><strong>other </strong></code> </a></td>
+    <td><a href="#Path">Path</a> exchanged by value</td>
   </tr>
 </table>
 
@@ -1864,7 +1921,7 @@ bounds of all <a href="SkPoint_Reference#Point">Points</a> in <a href="#Point_Ar
 
 ### Example
 
-<div><fiddle-embed name="9160aa6d1476bd87d927cfc8a4bf25e7"><div>Bounds of upright <a href="undocumented#Circle">Circle</a> can be predicted from center and radius.
+<div><fiddle-embed name="45c0fc3acb74fab99d544b80eadd10ad"><div>Bounds of upright <a href="undocumented#Circle">Circle</a> can be predicted from center and radius.
 Bounds of rotated <a href="undocumented#Circle">Circle</a> includes control <a href="SkPoint_Reference#Point">Points</a> outside of filled area.
 </div>
 
@@ -1896,7 +1953,7 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 | <a href="#SkPath_dumpHex">dumpHex</a> | sends text representation using hexadecimal to standard output |
 | <a href="#SkPath_getSegmentMasks">getSegmentMasks</a> | returns types in <a href="#Verb_Array">Verb Array</a> |
 | <a href="#SkPath_incReserve">incReserve</a> | reserves space for additional data |
-| <a href="#SkPath_readFromMemory">readFromMemory</a> | Initializes from buffer |
+| <a href="#SkPath_readFromMemory">readFromMemory</a> | initializes from buffer |
 | <a href="#SkPath_serialize">serialize</a> | copies data to buffer |
 | <a href="#SkPath_setLastPt">setLastPt</a> | replaces <a href="#Last_Point">Last Point</a> |
 |  | <a href="#SkPath_setLastPt">setLastPt(SkScalar x, SkScalar y)</a> |
@@ -1964,7 +2021,7 @@ tight bounds of curves in <a href="#Path">Path</a>
 
 ### Example
 
-<div><fiddle-embed name="da34f02e69ec98d5681300aea9a2d0bf">
+<div><fiddle-embed name="9a39c56e95b19a657133b7ad1fe0cf03">
 
 #### Example Output
 
@@ -1999,8 +2056,8 @@ the <a href="SkPoint_Reference#Point">Point</a> or <a href="undocumented#Line">L
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_conservativelyContainsRect_rect"> <code><strong>rect </strong></code> </a></td> <td>
-<a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Line">Line</a>, or <a href="SkPoint_Reference#Point">Point</a> checked for containment</td>
+<table>  <tr>    <td><a name="SkPath_conservativelyContainsRect_rect"> <code><strong>rect </strong></code> </a></td>
+    <td><a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Line">Line</a>, or <a href="SkPoint_Reference#Point">Point</a> checked for containment</td>
   </tr>
 </table>
 
@@ -2032,8 +2089,8 @@ reducing the number and size of allocations when creating <a href="#Path">Path</
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_incReserve_extraPtCount"> <code><strong>extraPtCount </strong></code> </a></td> <td>
-number of additional <a href="SkPoint_Reference#Point">Points</a> to allocate</td>
+<table>  <tr>    <td><a name="SkPath_incReserve_extraPtCount"> <code><strong>extraPtCount </strong></code> </a></td>
+    <td>number of additional <a href="SkPoint_Reference#Point">Points</a> to allocate</td>
   </tr>
 </table>
 
@@ -2101,10 +2158,11 @@ Adds beginning of <a href="#Contour">Contour</a> at <a href="SkPoint_Reference#P
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_moveTo_x"> <code><strong>x </strong></code> </a></td> <td>
-<a href="#SkPath_moveTo_x">x</a>-coordinate of <a href="#Contour">Contour</a> start</td>
-  </tr>  <tr>    <td><a name="SkPath_moveTo_y"> <code><strong>y </strong></code> </a></td> <td>
-<a href="#SkPath_moveTo_y">y</a>-coordinate of <a href="#Contour">Contour</a> start</td>
+<table>  <tr>    <td><a name="SkPath_moveTo_x"> <code><strong>x </strong></code> </a></td>
+    <td><a href="#SkPath_moveTo_x">x</a>-coordinate of <a href="#Contour">Contour</a> start</td>
+  </tr>
+  <tr>    <td><a name="SkPath_moveTo_y"> <code><strong>y </strong></code> </a></td>
+    <td><a href="#SkPath_moveTo_y">y</a>-coordinate of <a href="#Contour">Contour</a> start</td>
   </tr>
 </table>
 
@@ -2128,14 +2186,14 @@ Adds beginning of <a href="#Contour">Contour</a> at <a href="SkPoint_Reference#P
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_moveTo_2_p"> <code><strong>p </strong></code> </a></td> <td>
-contour start</td>
+<table>  <tr>    <td><a name="SkPath_moveTo_2_p"> <code><strong>p </strong></code> </a></td>
+    <td>contour start</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="53b351d3fac667a4803418238e44a593"></fiddle-embed></div>
+<div><fiddle-embed name="cb8d37990f6e7df3bcc85e7240c81274"></fiddle-embed></div>
 
 ### See Also
 
@@ -2157,10 +2215,11 @@ Function name stands for "relative move to".
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_rMoveTo_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Contour">Contour</a> start x</td>
-  </tr>  <tr>    <td><a name="SkPath_rMoveTo_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> y to <a href="#Contour">Contour</a> start y</td>
+<table>  <tr>    <td><a name="SkPath_rMoveTo_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Contour">Contour</a> start x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rMoveTo_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> y to <a href="#Contour">Contour</a> start y</td>
   </tr>
 </table>
 
@@ -2189,10 +2248,11 @@ Adds <a href="undocumented#Line">Line</a> from <a href="#Last_Point">Last Point<
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_lineTo_x"> <code><strong>x </strong></code> </a></td> <td>
-end of added <a href="undocumented#Line">Line</a> in <a href="#SkPath_lineTo_x">x</a></td>
-  </tr>  <tr>    <td><a name="SkPath_lineTo_y"> <code><strong>y </strong></code> </a></td> <td>
-end of added <a href="undocumented#Line">Line</a> in <a href="#SkPath_lineTo_y">y</a></td>
+<table>  <tr>    <td><a name="SkPath_lineTo_x"> <code><strong>x </strong></code> </a></td>
+    <td>end of added <a href="undocumented#Line">Line</a> in <a href="#SkPath_lineTo_x">x</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_lineTo_y"> <code><strong>y </strong></code> </a></td>
+    <td>end of added <a href="undocumented#Line">Line</a> in <a href="#SkPath_lineTo_y">y</a></td>
   </tr>
 </table>
 
@@ -2220,8 +2280,8 @@ Adds <a href="undocumented#Line">Line</a> from <a href="#Last_Point">Last Point<
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_lineTo_2_p"> <code><strong>p </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of added <a href="undocumented#Line">Line</a></td>
+<table>  <tr>    <td><a name="SkPath_lineTo_2_p"> <code><strong>p </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of added <a href="undocumented#Line">Line</a></td>
   </tr>
 </table>
 
@@ -2252,10 +2312,11 @@ Function name stands for "relative line to".
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_rLineTo_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="undocumented#Line">Line</a> end x</td>
-  </tr>  <tr>    <td><a name="SkPath_rLineTo_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> y to <a href="undocumented#Line">Line</a> end y</td>
+<table>  <tr>    <td><a name="SkPath_rLineTo_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="undocumented#Line">Line</a> end x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rLineTo_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> y to <a href="undocumented#Line">Line</a> end y</td>
   </tr>
 </table>
 
@@ -2306,14 +2367,17 @@ to <a href="#Point_Array">Point Array</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_quadTo_x1"> <code><strong>x1 </strong></code> </a></td> <td>
-control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Quad">Quad</a> in x</td>
-  </tr>  <tr>    <td><a name="SkPath_quadTo_y1"> <code><strong>y1 </strong></code> </a></td> <td>
-control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Quad">Quad</a> in y</td>
-  </tr>  <tr>    <td><a name="SkPath_quadTo_x2"> <code><strong>x2 </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Quad">Quad</a> in x</td>
-  </tr>  <tr>    <td><a name="SkPath_quadTo_y2"> <code><strong>y2 </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Quad">Quad</a> in y</td>
+<table>  <tr>    <td><a name="SkPath_quadTo_x1"> <code><strong>x1 </strong></code> </a></td>
+    <td>control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Quad">Quad</a> in x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_quadTo_y1"> <code><strong>y1 </strong></code> </a></td>
+    <td>control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Quad">Quad</a> in y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_quadTo_x2"> <code><strong>x2 </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Quad">Quad</a> in x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_quadTo_y2"> <code><strong>y2 </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Quad">Quad</a> in y</td>
   </tr>
 </table>
 
@@ -2343,10 +2407,11 @@ to <a href="#Point_Array">Point Array</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_quadTo_2_p1"> <code><strong>p1 </strong></code> </a></td> <td>
-control <a href="SkPoint_Reference#Point">Point</a> of added <a href="#Quad">Quad</a></td>
-  </tr>  <tr>    <td><a name="SkPath_quadTo_2_p2"> <code><strong>p2 </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of added <a href="#Quad">Quad</a></td>
+<table>  <tr>    <td><a name="SkPath_quadTo_2_p1"> <code><strong>p1 </strong></code> </a></td>
+    <td>control <a href="SkPoint_Reference#Point">Point</a> of added <a href="#Quad">Quad</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_quadTo_2_p2"> <code><strong>p2 </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of added <a href="#Quad">Quad</a></td>
   </tr>
 </table>
 
@@ -2380,14 +2445,17 @@ Function name stands for "relative quad to".
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_rQuadTo_dx1"> <code><strong>dx1 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> control x</td>
-  </tr>  <tr>    <td><a name="SkPath_rQuadTo_dy1"> <code><strong>dy1 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> control y</td>
-  </tr>  <tr>    <td><a name="SkPath_rQuadTo_dx2"> <code><strong>dx2 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> end x</td>
-  </tr>  <tr>    <td><a name="SkPath_rQuadTo_dy2"> <code><strong>dy2 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> end y</td>
+<table>  <tr>    <td><a name="SkPath_rQuadTo_dx1"> <code><strong>dx1 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> control x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rQuadTo_dy1"> <code><strong>dy1 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> control y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rQuadTo_dx2"> <code><strong>dx2 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> end x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rQuadTo_dy2"> <code><strong>dy2 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> end y</td>
   </tr>
 </table>
 
@@ -2492,16 +2560,20 @@ If <a href="#SkPath_conicTo_w">w</a> is not finite, appends <a href="#SkPath_kLi
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_conicTo_x1"> <code><strong>x1 </strong></code> </a></td> <td>
-control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Conic">Conic</a> in x</td>
-  </tr>  <tr>    <td><a name="SkPath_conicTo_y1"> <code><strong>y1 </strong></code> </a></td> <td>
-control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Conic">Conic</a> in y</td>
-  </tr>  <tr>    <td><a name="SkPath_conicTo_x2"> <code><strong>x2 </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Conic">Conic</a> in x</td>
-  </tr>  <tr>    <td><a name="SkPath_conicTo_y2"> <code><strong>y2 </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Conic">Conic</a> in y</td>
-  </tr>  <tr>    <td><a name="SkPath_conicTo_w"> <code><strong>w </strong></code> </a></td> <td>
-weight of added <a href="#Conic">Conic</a></td>
+<table>  <tr>    <td><a name="SkPath_conicTo_x1"> <code><strong>x1 </strong></code> </a></td>
+    <td>control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Conic">Conic</a> in x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_conicTo_y1"> <code><strong>y1 </strong></code> </a></td>
+    <td>control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Conic">Conic</a> in y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_conicTo_x2"> <code><strong>x2 </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Conic">Conic</a> in x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_conicTo_y2"> <code><strong>y2 </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Conic">Conic</a> in y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_conicTo_w"> <code><strong>w </strong></code> </a></td>
+    <td>weight of added <a href="#Conic">Conic</a></td>
   </tr>
 </table>
 
@@ -2541,12 +2613,14 @@ If <a href="#SkPath_conicTo_2_w">w</a> is not finite, appends <a href="#SkPath_k
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_conicTo_2_p1"> <code><strong>p1 </strong></code> </a></td> <td>
-control <a href="SkPoint_Reference#Point">Point</a> of added <a href="#Conic">Conic</a></td>
-  </tr>  <tr>    <td><a name="SkPath_conicTo_2_p2"> <code><strong>p2 </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of added <a href="#Conic">Conic</a></td>
-  </tr>  <tr>    <td><a name="SkPath_conicTo_2_w"> <code><strong>w </strong></code> </a></td> <td>
-weight of added <a href="#Conic">Conic</a></td>
+<table>  <tr>    <td><a name="SkPath_conicTo_2_p1"> <code><strong>p1 </strong></code> </a></td>
+    <td>control <a href="SkPoint_Reference#Point">Point</a> of added <a href="#Conic">Conic</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_conicTo_2_p2"> <code><strong>p2 </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of added <a href="#Conic">Conic</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_conicTo_2_w"> <code><strong>w </strong></code> </a></td>
+    <td>weight of added <a href="#Conic">Conic</a></td>
   </tr>
 </table>
 
@@ -2575,6 +2649,7 @@ is <a href="#SkPath_kClose_Verb">kClose Verb</a>, <a href="#Last_Point">Last Poi
 
 Appends <a href="#SkPath_kMove_Verb">kMove Verb</a> to <a href="#Verb_Array">Verb Array</a> and (0, 0) to <a href="#Point_Array">Point Array</a>,
 if needed.
+
 If <a href="#SkPath_rConicTo_w">w</a> is finite and not one, next appends <a href="#SkPath_kConic_Verb">kConic Verb</a> to <a href="#Verb_Array">Verb Array</a>,
 and <a href="#SkPath_rConicTo_w">w</a> is recorded as <a href="#Conic_Weight">Conic Weight</a>; otherwise, if <a href="#SkPath_rConicTo_w">w</a> is one, appends
 <a href="#SkPath_kQuad_Verb">kQuad Verb</a> to <a href="#Verb_Array">Verb Array</a>; or if <a href="#SkPath_rConicTo_w">w</a> is not finite, appends <a href="#SkPath_kLine_Verb">kLine Verb</a>
@@ -2588,16 +2663,20 @@ Function name stands for "relative conic to".
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_rConicTo_dx1"> <code><strong>dx1 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Conic">Conic</a> control x</td>
-  </tr>  <tr>    <td><a name="SkPath_rConicTo_dy1"> <code><strong>dy1 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Conic">Conic</a> control y</td>
-  </tr>  <tr>    <td><a name="SkPath_rConicTo_dx2"> <code><strong>dx2 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Conic">Conic</a> end x</td>
-  </tr>  <tr>    <td><a name="SkPath_rConicTo_dy2"> <code><strong>dy2 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Conic">Conic</a> end y</td>
-  </tr>  <tr>    <td><a name="SkPath_rConicTo_w"> <code><strong>w </strong></code> </a></td> <td>
-weight of added <a href="#Conic">Conic</a></td>
+<table>  <tr>    <td><a name="SkPath_rConicTo_dx1"> <code><strong>dx1 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Conic">Conic</a> control x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rConicTo_dy1"> <code><strong>dy1 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Conic">Conic</a> control y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rConicTo_dx2"> <code><strong>dx2 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Conic">Conic</a> end x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rConicTo_dy2"> <code><strong>dy2 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Conic">Conic</a> end y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rConicTo_w"> <code><strong>w </strong></code> </a></td>
+    <td>weight of added <a href="#Conic">Conic</a></td>
   </tr>
 </table>
 
@@ -2638,18 +2717,23 @@ to <a href="#Point_Array">Point Array</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_cubicTo_x1"> <code><strong>x1 </strong></code> </a></td> <td>
-first control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in x</td>
-  </tr>  <tr>    <td><a name="SkPath_cubicTo_y1"> <code><strong>y1 </strong></code> </a></td> <td>
-first control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in y</td>
-  </tr>  <tr>    <td><a name="SkPath_cubicTo_x2"> <code><strong>x2 </strong></code> </a></td> <td>
-second control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in x</td>
-  </tr>  <tr>    <td><a name="SkPath_cubicTo_y2"> <code><strong>y2 </strong></code> </a></td> <td>
-second control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in y</td>
-  </tr>  <tr>    <td><a name="SkPath_cubicTo_x3"> <code><strong>x3 </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in x</td>
-  </tr>  <tr>    <td><a name="SkPath_cubicTo_y3"> <code><strong>y3 </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in y</td>
+<table>  <tr>    <td><a name="SkPath_cubicTo_x1"> <code><strong>x1 </strong></code> </a></td>
+    <td>first control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_cubicTo_y1"> <code><strong>y1 </strong></code> </a></td>
+    <td>first control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_cubicTo_x2"> <code><strong>x2 </strong></code> </a></td>
+    <td>second control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_cubicTo_y2"> <code><strong>y2 </strong></code> </a></td>
+    <td>second control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_cubicTo_x3"> <code><strong>x3 </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_cubicTo_y3"> <code><strong>y3 </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a> in y</td>
   </tr>
 </table>
 
@@ -2679,12 +2763,14 @@ to <a href="#Point_Array">Point Array</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_cubicTo_2_p1"> <code><strong>p1 </strong></code> </a></td> <td>
-first control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a></td>
-  </tr>  <tr>    <td><a name="SkPath_cubicTo_2_p2"> <code><strong>p2 </strong></code> </a></td> <td>
-second control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a></td>
-  </tr>  <tr>    <td><a name="SkPath_cubicTo_2_p3"> <code><strong>p3 </strong></code> </a></td> <td>
-end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a></td>
+<table>  <tr>    <td><a name="SkPath_cubicTo_2_p1"> <code><strong>p1 </strong></code> </a></td>
+    <td>first control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_cubicTo_2_p2"> <code><strong>p2 </strong></code> </a></td>
+    <td>second control <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_cubicTo_2_p3"> <code><strong>p3 </strong></code> </a></td>
+    <td>end <a href="SkPoint_Reference#Point">Point</a> of <a href="#Cubic">Cubic</a></td>
   </tr>
 </table>
 
@@ -2719,18 +2805,23 @@ Function name stands for "relative cubic to".
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_rCubicTo_x1"> <code><strong>x1 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to first <a href="#Cubic">Cubic</a> control x</td>
-  </tr>  <tr>    <td><a name="SkPath_rCubicTo_y1"> <code><strong>y1 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to first <a href="#Cubic">Cubic</a> control y</td>
-  </tr>  <tr>    <td><a name="SkPath_rCubicTo_x2"> <code><strong>x2 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to second <a href="#Cubic">Cubic</a> control x</td>
-  </tr>  <tr>    <td><a name="SkPath_rCubicTo_y2"> <code><strong>y2 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to second <a href="#Cubic">Cubic</a> control y</td>
-  </tr>  <tr>    <td><a name="SkPath_rCubicTo_x3"> <code><strong>x3 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Cubic">Cubic</a> end x</td>
-  </tr>  <tr>    <td><a name="SkPath_rCubicTo_y3"> <code><strong>y3 </strong></code> </a></td> <td>
-offset from <a href="#Last_Point">Last Point</a> x to <a href="#Cubic">Cubic</a> end y</td>
+<table>  <tr>    <td><a name="SkPath_rCubicTo_x1"> <code><strong>x1 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to first <a href="#Cubic">Cubic</a> control x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rCubicTo_y1"> <code><strong>y1 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to first <a href="#Cubic">Cubic</a> control y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rCubicTo_x2"> <code><strong>x2 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to second <a href="#Cubic">Cubic</a> control x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rCubicTo_y2"> <code><strong>y2 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to second <a href="#Cubic">Cubic</a> control y</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rCubicTo_x3"> <code><strong>x3 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Cubic">Cubic</a> end x</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rCubicTo_y3"> <code><strong>y3 </strong></code> </a></td>
+    <td>offset from <a href="#Last_Point">Last Point</a> x to <a href="#Cubic">Cubic</a> end y</td>
   </tr>
 </table>
 
@@ -2779,12 +2870,17 @@ constructions are converted to <a href="#Conic">Conic</a> data when added to <a 
 <div><fiddle-embed name="891ac93abd0cdb27c4156685d3b1bb4c"><div>
 
 <table>  <tr>
-    <td><sup>1</sup> <a href="#SkPath_arcTo">arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a></td>  </tr>  <tr>
-    <td><sup>2</sup> parameter sets force MoveTo</td>  </tr>  <tr>
-    <td><sup>3</sup> start angle must be multiple of 90 degrees</td>  </tr>  <tr>
-    <td><sup>4</sup> <a href="#SkPath_arcTo_2">arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius)</a></td>  </tr>  <tr>
+    <td><sup>1</sup> <a href="#SkPath_arcTo">arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a></td>
+  </tr>  <tr>
+    <td><sup>2</sup> parameter sets force MoveTo</td>
+  </tr>  <tr>
+    <td><sup>3</sup> start angle must be multiple of 90 degrees</td>
+  </tr>  <tr>
+    <td><sup>4</sup> <a href="#SkPath_arcTo_2">arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius)</a></td>
+  </tr>  <tr>
     <td><sup>5</sup> <a href="#SkPath_arcTo_4">arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
-Direction sweep, SkScalar x, SkScalar y)</a></td>  </tr>
+Direction sweep, SkScalar x, SkScalar y)</a></td>
+  </tr>
 </table>
 
 </div></fiddle-embed></div>
@@ -2817,14 +2913,17 @@ of <a href="#Arc">Arc</a>. Angles greater than -360 and less than 360 are treate
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_arcTo_oval"> <code><strong>oval </strong></code> </a></td> <td>
-bounds of ellipse containing <a href="#Arc">Arc</a></td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_startAngle"> <code><strong>startAngle </strong></code> </a></td> <td>
-starting angle of <a href="#Arc">Arc</a> in degrees</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_sweepAngle"> <code><strong>sweepAngle </strong></code> </a></td> <td>
-sweep, in degrees. Positive is clockwise; treated modulo 360</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_forceMoveTo"> <code><strong>forceMoveTo </strong></code> </a></td> <td>
-true to start a new contour with <a href="#Arc">Arc</a></td>
+<table>  <tr>    <td><a name="SkPath_arcTo_oval"> <code><strong>oval </strong></code> </a></td>
+    <td>bounds of ellipse containing <a href="#Arc">Arc</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_startAngle"> <code><strong>startAngle </strong></code> </a></td>
+    <td>starting angle of <a href="#Arc">Arc</a> in degrees</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_sweepAngle"> <code><strong>sweepAngle </strong></code> </a></td>
+    <td>sweep, in degrees. Positive is clockwise; treated modulo 360</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_forceMoveTo"> <code><strong>forceMoveTo </strong></code> </a></td>
+    <td>true to start a new contour with <a href="#Arc">Arc</a></td>
   </tr>
 </table>
 
@@ -2870,16 +2969,20 @@ tangents are nearly parallel, <a href="#SkPath_arcTo">arcTo</a> appends <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_arcTo_2_x1"> <code><strong>x1 </strong></code> </a></td> <td>
-x common to pair of tangents</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_2_y1"> <code><strong>y1 </strong></code> </a></td> <td>
-y common to pair of tangents</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_2_x2"> <code><strong>x2 </strong></code> </a></td> <td>
-x end of second tangent</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_2_y2"> <code><strong>y2 </strong></code> </a></td> <td>
-y end of second tangent</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_2_radius"> <code><strong>radius </strong></code> </a></td> <td>
-distance from <a href="#Arc">Arc</a> to <a href="undocumented#Circle">Circle</a> center</td>
+<table>  <tr>    <td><a name="SkPath_arcTo_2_x1"> <code><strong>x1 </strong></code> </a></td>
+    <td>x common to pair of tangents</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_2_y1"> <code><strong>y1 </strong></code> </a></td>
+    <td>y common to pair of tangents</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_2_x2"> <code><strong>x2 </strong></code> </a></td>
+    <td>x end of second tangent</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_2_y2"> <code><strong>y2 </strong></code> </a></td>
+    <td>y end of second tangent</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_2_radius"> <code><strong>radius </strong></code> </a></td>
+    <td>distance from <a href="#Arc">Arc</a> to <a href="undocumented#Circle">Circle</a> center</td>
   </tr>
 </table>
 
@@ -2926,12 +3029,14 @@ tangents are nearly parallel, <a href="#SkPath_arcTo">arcTo</a> appends <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_arcTo_3_p1"> <code><strong>p1 </strong></code> </a></td> <td>
-<a href="SkPoint_Reference#Point">Point</a> common to pair of tangents</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_3_p2"> <code><strong>p2 </strong></code> </a></td> <td>
-end of second tangent</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_3_radius"> <code><strong>radius </strong></code> </a></td> <td>
-distance from <a href="#Arc">Arc</a> to <a href="undocumented#Circle">Circle</a> center</td>
+<table>  <tr>    <td><a name="SkPath_arcTo_3_p1"> <code><strong>p1 </strong></code> </a></td>
+    <td><a href="SkPoint_Reference#Point">Point</a> common to pair of tangents</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_3_p2"> <code><strong>p2 </strong></code> </a></td>
+    <td>end of second tangent</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_3_radius"> <code><strong>radius </strong></code> </a></td>
+    <td>distance from <a href="#Arc">Arc</a> to <a href="undocumented#Circle">Circle</a> center</td>
   </tr>
 </table>
 
@@ -2970,12 +3075,17 @@ Four <a href="undocumented#Oval">Oval</a> parts with radii (rx, ry) start at las
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPath_kSmall_ArcSize"> <code><strong>SkPath::kSmall_ArcSize </strong></code> </a></td><td>0</td><td>smaller of <a href="#Arc">Arc</a> pair</td>
+    <td><a name="SkPath_kSmall_ArcSize"> <code><strong>SkPath::kSmall_ArcSize </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkPath_kLarge_ArcSize"> <code><strong>SkPath::kLarge_ArcSize </strong></code> </a></td><td>1</td><td>larger of <a href="#Arc">Arc</a> pair</td>
+    <td><a name="SkPath_kLarge_ArcSize"> <code><strong>SkPath::kLarge_ArcSize </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
 </table>
 
@@ -3016,20 +3126,26 @@ while <a href="#SkPath_kCW_Direction">kCW Direction</a>  cast to int is zero.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_arcTo_4_rx"> <code><strong>rx </strong></code> </a></td> <td>
-radius in <a href="#SkPath_arcTo_4_x">x</a> before <a href="#SkPath_arcTo_4_x">x</a>-axis rotation</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_4_ry"> <code><strong>ry </strong></code> </a></td> <td>
-radius in <a href="#SkPath_arcTo_4_y">y</a> before <a href="#SkPath_arcTo_4_x">x</a>-axis rotation</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_4_xAxisRotate"> <code><strong>xAxisRotate </strong></code> </a></td> <td>
-<a href="#SkPath_arcTo_4_x">x</a>-axis rotation in degrees; positive values are clockwise</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_4_largeArc"> <code><strong>largeArc </strong></code> </a></td> <td>
-chooses smaller or larger <a href="#Arc">Arc</a></td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_4_sweep"> <code><strong>sweep </strong></code> </a></td> <td>
-chooses clockwise or counterclockwise <a href="#Arc">Arc</a></td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_4_x"> <code><strong>x </strong></code> </a></td> <td>
-end of <a href="#Arc">Arc</a></td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_4_y"> <code><strong>y </strong></code> </a></td> <td>
-end of <a href="#Arc">Arc</a></td>
+<table>  <tr>    <td><a name="SkPath_arcTo_4_rx"> <code><strong>rx </strong></code> </a></td>
+    <td>radius in <a href="#SkPath_arcTo_4_x">x</a> before <a href="#SkPath_arcTo_4_x">x</a>-axis rotation</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_4_ry"> <code><strong>ry </strong></code> </a></td>
+    <td>radius in <a href="#SkPath_arcTo_4_y">y</a> before <a href="#SkPath_arcTo_4_x">x</a>-axis rotation</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_4_xAxisRotate"> <code><strong>xAxisRotate </strong></code> </a></td>
+    <td><a href="#SkPath_arcTo_4_x">x</a>-axis rotation in degrees; positive values are clockwise</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_4_largeArc"> <code><strong>largeArc </strong></code> </a></td>
+    <td>chooses smaller or larger <a href="#Arc">Arc</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_4_sweep"> <code><strong>sweep </strong></code> </a></td>
+    <td>chooses clockwise or counterclockwise <a href="#Arc">Arc</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_4_x"> <code><strong>x </strong></code> </a></td>
+    <td>end of <a href="#Arc">Arc</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_4_y"> <code><strong>y </strong></code> </a></td>
+    <td>end of <a href="#Arc">Arc</a></td>
   </tr>
 </table>
 
@@ -3065,16 +3181,20 @@ opposite the integer value of <a href="#SkPath_arcTo_5_sweep">sweep</a>; <a href
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_arcTo_5_r"> <code><strong>r </strong></code> </a></td> <td>
-radii in x and y before x-axis rotation</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_5_xAxisRotate"> <code><strong>xAxisRotate </strong></code> </a></td> <td>
-x-axis rotation in degrees; positive values are clockwise</td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_5_largeArc"> <code><strong>largeArc </strong></code> </a></td> <td>
-chooses smaller or larger <a href="#Arc">Arc</a></td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_5_sweep"> <code><strong>sweep </strong></code> </a></td> <td>
-chooses clockwise or counterclockwise <a href="#Arc">Arc</a></td>
-  </tr>  <tr>    <td><a name="SkPath_arcTo_5_xy"> <code><strong>xy </strong></code> </a></td> <td>
-end of <a href="#Arc">Arc</a></td>
+<table>  <tr>    <td><a name="SkPath_arcTo_5_r"> <code><strong>r </strong></code> </a></td>
+    <td>radii in x and y before x-axis rotation</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_5_xAxisRotate"> <code><strong>xAxisRotate </strong></code> </a></td>
+    <td>x-axis rotation in degrees; positive values are clockwise</td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_5_largeArc"> <code><strong>largeArc </strong></code> </a></td>
+    <td>chooses smaller or larger <a href="#Arc">Arc</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_5_sweep"> <code><strong>sweep </strong></code> </a></td>
+    <td>chooses clockwise or counterclockwise <a href="#Arc">Arc</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_arcTo_5_xy"> <code><strong>xy </strong></code> </a></td>
+    <td>end of <a href="#Arc">Arc</a></td>
   </tr>
 </table>
 
@@ -3118,20 +3238,26 @@ opposite the integer value of <a href="#SkPath_rArcTo_sweep">sweep</a>; <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_rArcTo_rx"> <code><strong>rx </strong></code> </a></td> <td>
-radius in x before x-axis rotation</td>
-  </tr>  <tr>    <td><a name="SkPath_rArcTo_ry"> <code><strong>ry </strong></code> </a></td> <td>
-radius in y before x-axis rotation</td>
-  </tr>  <tr>    <td><a name="SkPath_rArcTo_xAxisRotate"> <code><strong>xAxisRotate </strong></code> </a></td> <td>
-x-axis rotation in degrees; positive values are clockwise</td>
-  </tr>  <tr>    <td><a name="SkPath_rArcTo_largeArc"> <code><strong>largeArc </strong></code> </a></td> <td>
-chooses smaller or larger <a href="#Arc">Arc</a></td>
-  </tr>  <tr>    <td><a name="SkPath_rArcTo_sweep"> <code><strong>sweep </strong></code> </a></td> <td>
-chooses clockwise or counterclockwise <a href="#Arc">Arc</a></td>
-  </tr>  <tr>    <td><a name="SkPath_rArcTo_dx"> <code><strong>dx </strong></code> </a></td> <td>
-x offset end of <a href="#Arc">Arc</a> from last <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a></td>
-  </tr>  <tr>    <td><a name="SkPath_rArcTo_dy"> <code><strong>dy </strong></code> </a></td> <td>
-y offset end of <a href="#Arc">Arc</a> from last <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a></td>
+<table>  <tr>    <td><a name="SkPath_rArcTo_rx"> <code><strong>rx </strong></code> </a></td>
+    <td>radius in x before x-axis rotation</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rArcTo_ry"> <code><strong>ry </strong></code> </a></td>
+    <td>radius in y before x-axis rotation</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rArcTo_xAxisRotate"> <code><strong>xAxisRotate </strong></code> </a></td>
+    <td>x-axis rotation in degrees; positive values are clockwise</td>
+  </tr>
+  <tr>    <td><a name="SkPath_rArcTo_largeArc"> <code><strong>largeArc </strong></code> </a></td>
+    <td>chooses smaller or larger <a href="#Arc">Arc</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_rArcTo_sweep"> <code><strong>sweep </strong></code> </a></td>
+    <td>chooses clockwise or counterclockwise <a href="#Arc">Arc</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_rArcTo_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>x offset end of <a href="#Arc">Arc</a> from last <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_rArcTo_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>y offset end of <a href="#Arc">Arc</a> from last <a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a></td>
   </tr>
 </table>
 
@@ -3187,8 +3313,8 @@ of its geometric bounds.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_IsInverseFillType_fill"> <code><strong>fill </strong></code> </a></td> <td>
-one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>,
+<table>  <tr>    <td><a name="SkPath_IsInverseFillType_fill"> <code><strong>fill </strong></code> </a></td>
+    <td>one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>,
 <a href="#SkPath_kInverseWinding_FillType">kInverseWinding FillType</a>, <a href="#SkPath_kInverseEvenOdd_FillType">kInverseEvenOdd FillType</a></td>
   </tr>
 </table>
@@ -3237,8 +3363,8 @@ Returns equivalent <a href="#Fill_Type">Fill Type</a> representing <a href="#Pat
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_ConvertToNonInverseFillType_fill"> <code><strong>fill </strong></code> </a></td> <td>
-one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>,
+<table>  <tr>    <td><a name="SkPath_ConvertToNonInverseFillType_fill"> <code><strong>fill </strong></code> </a></td>
+    <td>one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>,
 <a href="#SkPath_kInverseWinding_FillType">kInverseWinding FillType</a>, <a href="#SkPath_kInverseEvenOdd_FillType">kInverseEvenOdd FillType</a></td>
   </tr>
 </table>
@@ -3249,7 +3375,7 @@ one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkP
 
 ### Example
 
-<div><fiddle-embed name="adfae398bbe9e37495f8220ad544c8f8">
+<div><fiddle-embed name="319f6b124458dcc0f9ce4d7bbde65810">
 
 #### Example Output
 
@@ -3286,6 +3412,7 @@ next <a href="#Quad">Quad</a>. Maximum <a href="#SkPath_ConvertConicToQuads_pts"
 
 Returns <a href="#Quad">Quad</a> count used the approximation, which may be smaller
 than the number requested.
+
 <a href="#Conic_Weight">Conic Weight</a> determines the amount of influence <a href="#Conic">Conic</a> control point has on the curve.
 <a href="#SkPath_ConvertConicToQuads_w">w</a> less than one represents an elliptical section. <a href="#SkPath_ConvertConicToQuads_w">w</a> greater than one represents
 a hyperbolic section. <a href="#SkPath_ConvertConicToQuads_w">w</a> equal to one represents a parabolic section.
@@ -3295,18 +3422,23 @@ of up to 90 degrees; in this case, set <a href="#SkPath_ConvertConicToQuads_pow2
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_ConvertConicToQuads_p0"> <code><strong>p0 </strong></code> </a></td> <td>
-<a href="#Conic">Conic</a> start <a href="SkPoint_Reference#Point">Point</a></td>
-  </tr>  <tr>    <td><a name="SkPath_ConvertConicToQuads_p1"> <code><strong>p1 </strong></code> </a></td> <td>
-<a href="#Conic">Conic</a> control <a href="SkPoint_Reference#Point">Point</a></td>
-  </tr>  <tr>    <td><a name="SkPath_ConvertConicToQuads_p2"> <code><strong>p2 </strong></code> </a></td> <td>
-<a href="#Conic">Conic</a> end <a href="SkPoint_Reference#Point">Point</a></td>
-  </tr>  <tr>    <td><a name="SkPath_ConvertConicToQuads_w"> <code><strong>w </strong></code> </a></td> <td>
-<a href="#Conic">Conic</a> weight</td>
-  </tr>  <tr>    <td><a name="SkPath_ConvertConicToQuads_pts"> <code><strong>pts </strong></code> </a></td> <td>
-storage for <a href="#Quad">Quad</a> array</td>
-  </tr>  <tr>    <td><a name="SkPath_ConvertConicToQuads_pow2"> <code><strong>pow2 </strong></code> </a></td> <td>
-<a href="#Quad">Quad</a> count, as power of two, normally 0 to 5 (1 to 32 <a href="#Quad">Quad</a> curves)</td>
+<table>  <tr>    <td><a name="SkPath_ConvertConicToQuads_p0"> <code><strong>p0 </strong></code> </a></td>
+    <td><a href="#Conic">Conic</a> start <a href="SkPoint_Reference#Point">Point</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_ConvertConicToQuads_p1"> <code><strong>p1 </strong></code> </a></td>
+    <td><a href="#Conic">Conic</a> control <a href="SkPoint_Reference#Point">Point</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_ConvertConicToQuads_p2"> <code><strong>p2 </strong></code> </a></td>
+    <td><a href="#Conic">Conic</a> end <a href="SkPoint_Reference#Point">Point</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_ConvertConicToQuads_w"> <code><strong>w </strong></code> </a></td>
+    <td><a href="#Conic">Conic</a> weight</td>
+  </tr>
+  <tr>    <td><a name="SkPath_ConvertConicToQuads_pts"> <code><strong>pts </strong></code> </a></td>
+    <td>storage for <a href="#Quad">Quad</a> array</td>
+  </tr>
+  <tr>    <td><a name="SkPath_ConvertConicToQuads_pow2"> <code><strong>pow2 </strong></code> </a></td>
+    <td><a href="#Quad">Quad</a> count, as power of two, normally 0 to 5 (1 to 32 <a href="#Quad">Quad</a> curves)</td>
   </tr>
 </table>
 
@@ -3343,12 +3475,14 @@ that do not alter the area drawn by the returned <a href="#SkPath_isRect_rect">r
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_isRect_rect"> <code><strong>rect </strong></code> </a></td> <td>
-storage for bounds of <a href="SkRect_Reference#Rect">Rect</a>; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_isRect_isClosed"> <code><strong>isClosed </strong></code> </a></td> <td>
-storage set to true if <a href="#Path">Path</a> is closed; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_isRect_direction"> <code><strong>direction </strong></code> </a></td> <td>
-storage set to <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkPath_isRect_direction">direction</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPath_isRect_rect"> <code><strong>rect </strong></code> </a></td>
+    <td>storage for bounds of <a href="SkRect_Reference#Rect">Rect</a>; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkPath_isRect_isClosed"> <code><strong>isClosed </strong></code> </a></td>
+    <td>storage set to true if <a href="#Path">Path</a> is closed; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkPath_isRect_direction"> <code><strong>direction </strong></code> </a></td>
+    <td>storage set to <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkPath_isRect_direction">direction</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -3358,7 +3492,7 @@ true if <a href="#Path">Path</a> contains <a href="SkRect_Reference#Rect">Rect</
 
 ### Example
 
-<div><fiddle-embed name="063a5f0a8de1fe998d227393e0866557"><div>After <a href="#SkPath_addRect">addRect</a>, <a href="#SkPath_isRect">isRect</a> returns true. Following <a href="#SkPath_moveTo">moveTo</a> permits <a href="#SkPath_isRect">isRect</a> to return true, but
+<div><fiddle-embed name="81a2aac1b8f0ff3d4c8d35ccb9149b16"><div>After <a href="#SkPath_addRect">addRect</a>, <a href="#SkPath_isRect">isRect</a> returns true. Following <a href="#SkPath_moveTo">moveTo</a> permits <a href="#SkPath_isRect">isRect</a> to return true, but
 following <a href="#SkPath_lineTo">lineTo</a> does not. <a href="#SkPath_addPoly">addPoly</a> returns true even though <a href="#SkPath_isRect_rect">rect</a> is not closed, and one
 side of <a href="#SkPath_isRect_rect">rect</a> is made up of consecutive line segments.
 </div>
@@ -3397,10 +3531,11 @@ setting <a href="#SkPath_isNestedFillRects_dirs">dirs</a>[0] to <a href="#SkPath
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_isNestedFillRects_rect"> <code><strong>rect </strong></code> </a></td> <td>
-storage for <a href="SkRect_Reference#Rect">Rect</a> pair; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_isNestedFillRects_dirs"> <code><strong>dirs </strong></code> </a></td> <td>
-storage for <a href="#SkPath_Direction">Direction</a> pair; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPath_isNestedFillRects_rect"> <code><strong>rect </strong></code> </a></td>
+    <td>storage for <a href="SkRect_Reference#Rect">Rect</a> pair; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkPath_isNestedFillRects_dirs"> <code><strong>dirs </strong></code> </a></td>
+    <td>storage for <a href="#SkPath_Direction">Direction</a> pair; may be nullptr</td>
   </tr>
 </table>
 
@@ -3441,10 +3576,11 @@ bottom-right, and top-right if <a href="#SkPath_addRect_dir">dir</a> is <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addRect_rect"> <code><strong>rect </strong></code> </a></td> <td>
-<a href="SkRect_Reference#Rect">Rect</a> to add as a closed contour</td>
-  </tr>  <tr>    <td><a name="SkPath_addRect_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind added contour</td>
+<table>  <tr>    <td><a name="SkPath_addRect_rect"> <code><strong>rect </strong></code> </a></td>
+    <td><a href="SkRect_Reference#Rect">Rect</a> to add as a closed contour</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRect_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind added contour</td>
   </tr>
 </table>
 
@@ -3480,12 +3616,14 @@ If <a href="#SkPath_addRect_2_dir">dir</a> is <a href="#SkPath_kCW_Direction">kC
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addRect_2_rect"> <code><strong>rect </strong></code> </a></td> <td>
-<a href="SkRect_Reference#Rect">Rect</a> to add as a closed contour</td>
-  </tr>  <tr>    <td><a name="SkPath_addRect_2_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind added contour</td>
-  </tr>  <tr>    <td><a name="SkPath_addRect_2_start"> <code><strong>start </strong></code> </a></td> <td>
-initial corner of <a href="SkRect_Reference#Rect">Rect</a> to add</td>
+<table>  <tr>    <td><a name="SkPath_addRect_2_rect"> <code><strong>rect </strong></code> </a></td>
+    <td><a href="SkRect_Reference#Rect">Rect</a> to add as a closed contour</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRect_2_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind added contour</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRect_2_start"> <code><strong>start </strong></code> </a></td>
+    <td>initial corner of <a href="SkRect_Reference#Rect">Rect</a> to add</td>
   </tr>
 </table>
 
@@ -3516,16 +3654,20 @@ and <a href="#SkPath_addRect_3_bottom">bottom</a>-<a href="#SkPath_addRect_3_lef
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addRect_3_left"> <code><strong>left </strong></code> </a></td> <td>
-smaller x of <a href="SkRect_Reference#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addRect_3_top"> <code><strong>top </strong></code> </a></td> <td>
-smaller y of <a href="SkRect_Reference#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addRect_3_right"> <code><strong>right </strong></code> </a></td> <td>
-larger x of <a href="SkRect_Reference#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addRect_3_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-larger y of <a href="SkRect_Reference#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addRect_3_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind added contour</td>
+<table>  <tr>    <td><a name="SkPath_addRect_3_left"> <code><strong>left </strong></code> </a></td>
+    <td>smaller x of <a href="SkRect_Reference#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRect_3_top"> <code><strong>top </strong></code> </a></td>
+    <td>smaller y of <a href="SkRect_Reference#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRect_3_right"> <code><strong>right </strong></code> </a></td>
+    <td>larger x of <a href="SkRect_Reference#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRect_3_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>larger y of <a href="SkRect_Reference#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRect_3_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind added contour</td>
   </tr>
 </table>
 
@@ -3555,10 +3697,11 @@ clockwise if <a href="#SkPath_addOval_dir">dir</a> is <a href="#SkPath_kCW_Direc
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addOval_oval"> <code><strong>oval </strong></code> </a></td> <td>
-bounds of ellipse added</td>
-  </tr>  <tr>    <td><a name="SkPath_addOval_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind ellipse</td>
+<table>  <tr>    <td><a name="SkPath_addOval_oval"> <code><strong>oval </strong></code> </a></td>
+    <td>bounds of ellipse added</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addOval_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind ellipse</td>
   </tr>
 </table>
 
@@ -3592,12 +3735,14 @@ clockwise if <a href="#SkPath_addOval_2_dir">dir</a> is <a href="#SkPath_kCW_Dir
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addOval_2_oval"> <code><strong>oval </strong></code> </a></td> <td>
-bounds of ellipse added</td>
-  </tr>  <tr>    <td><a name="SkPath_addOval_2_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind ellipse</td>
-  </tr>  <tr>    <td><a name="SkPath_addOval_2_start"> <code><strong>start </strong></code> </a></td> <td>
-index of initial point of ellipse</td>
+<table>  <tr>    <td><a name="SkPath_addOval_2_oval"> <code><strong>oval </strong></code> </a></td>
+    <td>bounds of ellipse added</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addOval_2_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind ellipse</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addOval_2_start"> <code><strong>start </strong></code> </a></td>
+    <td>index of initial point of ellipse</td>
   </tr>
 </table>
 
@@ -3629,14 +3774,17 @@ Has no effect if <a href="#SkPath_addCircle_radius">radius</a> is zero or negati
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addCircle_x"> <code><strong>x </strong></code> </a></td> <td>
-center of <a href="undocumented#Circle">Circle</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addCircle_y"> <code><strong>y </strong></code> </a></td> <td>
-center of <a href="undocumented#Circle">Circle</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addCircle_radius"> <code><strong>radius </strong></code> </a></td> <td>
-distance from center to edge</td>
-  </tr>  <tr>    <td><a name="SkPath_addCircle_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Circle">Circle</a></td>
+<table>  <tr>    <td><a name="SkPath_addCircle_x"> <code><strong>x </strong></code> </a></td>
+    <td>center of <a href="undocumented#Circle">Circle</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addCircle_y"> <code><strong>y </strong></code> </a></td>
+    <td>center of <a href="undocumented#Circle">Circle</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addCircle_radius"> <code><strong>radius </strong></code> </a></td>
+    <td>distance from center to edge</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addCircle_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Circle">Circle</a></td>
   </tr>
 </table>
 
@@ -3668,12 +3816,14 @@ modulo 360, and <a href="#Arc">Arc</a> may or may not draw depending on numeric 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addArc_oval"> <code><strong>oval </strong></code> </a></td> <td>
-bounds of ellipse containing <a href="#Arc">Arc</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addArc_startAngle"> <code><strong>startAngle </strong></code> </a></td> <td>
-starting angle of <a href="#Arc">Arc</a> in degrees</td>
-  </tr>  <tr>    <td><a name="SkPath_addArc_sweepAngle"> <code><strong>sweepAngle </strong></code> </a></td> <td>
-sweep, in degrees. Positive is clockwise; treated modulo 360</td>
+<table>  <tr>    <td><a name="SkPath_addArc_oval"> <code><strong>oval </strong></code> </a></td>
+    <td>bounds of ellipse containing <a href="#Arc">Arc</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addArc_startAngle"> <code><strong>startAngle </strong></code> </a></td>
+    <td>starting angle of <a href="#Arc">Arc</a> in degrees</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addArc_sweepAngle"> <code><strong>sweepAngle </strong></code> </a></td>
+    <td>sweep, in degrees. Positive is clockwise; treated modulo 360</td>
   </tr>
 </table>
 
@@ -3711,14 +3861,17 @@ After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addRoundRect_rect"> <code><strong>rect </strong></code> </a></td> <td>
-bounds of <a href="undocumented#Round_Rect">Round Rect</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addRoundRect_rx"> <code><strong>rx </strong></code> </a></td> <td>
-x-radius of rounded corners on the <a href="undocumented#Round_Rect">Round Rect</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addRoundRect_ry"> <code><strong>ry </strong></code> </a></td> <td>
-y-radius of rounded corners on the <a href="undocumented#Round_Rect">Round Rect</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addRoundRect_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Round_Rect">Round Rect</a></td>
+<table>  <tr>    <td><a name="SkPath_addRoundRect_rect"> <code><strong>rect </strong></code> </a></td>
+    <td>bounds of <a href="undocumented#Round_Rect">Round Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRoundRect_rx"> <code><strong>rx </strong></code> </a></td>
+    <td>x-radius of rounded corners on the <a href="undocumented#Round_Rect">Round Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRoundRect_ry"> <code><strong>ry </strong></code> </a></td>
+    <td>y-radius of rounded corners on the <a href="undocumented#Round_Rect">Round Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRoundRect_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Round_Rect">Round Rect</a></td>
   </tr>
 </table>
 
@@ -3770,12 +3923,14 @@ After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addRoundRect_2_rect"> <code><strong>rect </strong></code> </a></td> <td>
-bounds of <a href="undocumented#Round_Rect">Round Rect</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addRoundRect_2_radii"> <code><strong>radii </strong></code> </a></td> <td>
-array of 8 <a href="undocumented#SkScalar">SkScalar</a> values, a radius pair for each corner</td>
-  </tr>  <tr>    <td><a name="SkPath_addRoundRect_2_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Round_Rect">Round Rect</a></td>
+<table>  <tr>    <td><a name="SkPath_addRoundRect_2_rect"> <code><strong>rect </strong></code> </a></td>
+    <td>bounds of <a href="undocumented#Round_Rect">Round Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRoundRect_2_radii"> <code><strong>radii </strong></code> </a></td>
+    <td>array of 8 <a href="undocumented#SkScalar">SkScalar</a> values, a radius pair for each corner</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRoundRect_2_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Round_Rect">Round Rect</a></td>
   </tr>
 </table>
 
@@ -3805,10 +3960,11 @@ After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addRRect_rrect"> <code><strong>rrect </strong></code> </a></td> <td>
-bounds and radii of rounded rectangle</td>
-  </tr>  <tr>    <td><a name="SkPath_addRRect_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Round_Rect">Round Rect</a></td>
+<table>  <tr>    <td><a name="SkPath_addRRect_rrect"> <code><strong>rrect </strong></code> </a></td>
+    <td>bounds and radii of rounded rectangle</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRRect_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Round_Rect">Round Rect</a></td>
   </tr>
 </table>
 
@@ -3847,12 +4003,14 @@ After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addRRect_2_rrect"> <code><strong>rrect </strong></code> </a></td> <td>
-bounds and radii of rounded rectangle</td>
-  </tr>  <tr>    <td><a name="SkPath_addRRect_2_dir"> <code><strong>dir </strong></code> </a></td> <td>
-<a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Round_Rect">Round Rect</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addRRect_2_start"> <code><strong>start </strong></code> </a></td> <td>
-index of initial point of <a href="undocumented#Round_Rect">Round Rect</a></td>
+<table>  <tr>    <td><a name="SkPath_addRRect_2_rrect"> <code><strong>rrect </strong></code> </a></td>
+    <td>bounds and radii of rounded rectangle</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRRect_2_dir"> <code><strong>dir </strong></code> </a></td>
+    <td><a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Round_Rect">Round Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addRRect_2_start"> <code><strong>start </strong></code> </a></td>
+    <td>index of initial point of <a href="undocumented#Round_Rect">Round Rect</a></td>
   </tr>
 </table>
 
@@ -3883,12 +4041,14 @@ Has no effect if <a href="#SkPath_addPoly_count">count</a> is less than one.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addPoly_pts"> <code><strong>pts </strong></code> </a></td> <td>
-array of <a href="undocumented#Line">Line</a> sharing end and start <a href="SkPoint_Reference#Point">Point</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addPoly_count"> <code><strong>count </strong></code> </a></td> <td>
-length of <a href="SkPoint_Reference#Point">Point</a> array</td>
-  </tr>  <tr>    <td><a name="SkPath_addPoly_close"> <code><strong>close </strong></code> </a></td> <td>
-true to add <a href="undocumented#Line">Line</a> connecting <a href="#Contour">Contour</a> end and start</td>
+<table>  <tr>    <td><a name="SkPath_addPoly_pts"> <code><strong>pts </strong></code> </a></td>
+    <td>array of <a href="undocumented#Line">Line</a> sharing end and start <a href="SkPoint_Reference#Point">Point</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addPoly_count"> <code><strong>count </strong></code> </a></td>
+    <td>length of <a href="SkPoint_Reference#Point">Point</a> array</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addPoly_close"> <code><strong>close </strong></code> </a></td>
+    <td>true to add <a href="undocumented#Line">Line</a> connecting <a href="#Contour">Contour</a> end and start</td>
   </tr>
 </table>
 
@@ -3916,14 +4076,21 @@ the last <a href="#Contour">Contour</a> or start a new <a href="#Contour">Contou
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPath_kAppend_AddPathMode"> <code><strong>SkPath::kAppend_AddPathMode </strong></code> </a></td><td>Path Verbs, Points, and Conic_Weights are appended to destination unaltered.</td><td>Since <a href="#Path">Path</a> <a href="#Verb_Array">Verb Array</a> begins with <a href="#SkPath_kMove_Verb">kMove Verb</a> if src is not empty, this
+    <td><a name="SkPath_kAppend_AddPathMode"> <code><strong>SkPath::kAppend_AddPathMode </strong></code> </a></td>
+    <td>#Line # appended to destination unaltered ##</td>
+    <td></td>    <td><a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> are appended to destination unaltered.
+Since <a href="#Path">Path</a> <a href="#Verb_Array">Verb Array</a> begins with <a href="#SkPath_kMove_Verb">kMove Verb</a> if src is not empty, this
 starts a new <a href="#Contour">Contour</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kExtend_AddPathMode"> <code><strong>SkPath::kExtend_AddPathMode </strong></code> </a></td><td>If destination is closed or empty, start a new Contour. If destination</td><td>is not empty, add <a href="undocumented#Line">Line</a> from <a href="#Last_Point">Last Point</a> to added <a href="#Path">Path</a> first <a href="SkPoint_Reference#Point">Point</a>. Skip added
+    <td><a name="SkPath_kExtend_AddPathMode"> <code><strong>SkPath::kExtend_AddPathMode </strong></code> </a></td>
+    <td>#Line # add line if prior Contour is not closed ##</td>
+    <td></td>    <td>If destination is closed or empty, start a new <a href="#Contour">Contour</a>. If destination
+is not empty, add <a href="undocumented#Line">Line</a> from <a href="#Last_Point">Last Point</a> to added <a href="#Path">Path</a> first <a href="SkPoint_Reference#Point">Point</a>. Skip added
 <a href="#Path">Path</a> initial <a href="#SkPath_kMove_Verb">kMove Verb</a>, then append remining <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a>.
 </td>
   </tr>
@@ -3957,14 +4124,17 @@ added unaltered. If <a href="#SkPath_addPath_mode">mode</a> is <a href="#SkPath_
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addPath_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
-  </tr>  <tr>    <td><a name="SkPath_addPath_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset added to <a href="#SkPath_addPath_src">src</a> <a href="#Point_Array">Point Array</a> x coordinates</td>
-  </tr>  <tr>    <td><a name="SkPath_addPath_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset added to <a href="#SkPath_addPath_src">src</a> <a href="#Point_Array">Point Array</a> y coordinates</td>
-  </tr>  <tr>    <td><a name="SkPath_addPath_mode"> <code><strong>mode </strong></code> </a></td> <td>
-<a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a> or <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a></td>
+<table>  <tr>    <td><a name="SkPath_addPath_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addPath_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset added to <a href="#SkPath_addPath_src">src</a> <a href="#Point_Array">Point Array</a> x coordinates</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addPath_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset added to <a href="#SkPath_addPath_src">src</a> <a href="#Point_Array">Point Array</a> y coordinates</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addPath_mode"> <code><strong>mode </strong></code> </a></td>
+    <td><a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a> or <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a></td>
   </tr>
 </table>
 
@@ -3992,10 +4162,11 @@ added unaltered. If <a href="#SkPath_addPath_2_mode">mode</a> is <a href="#SkPat
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addPath_2_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
-  </tr>  <tr>    <td><a name="SkPath_addPath_2_mode"> <code><strong>mode </strong></code> </a></td> <td>
-<a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a> or <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a></td>
+<table>  <tr>    <td><a name="SkPath_addPath_2_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addPath_2_mode"> <code><strong>mode </strong></code> </a></td>
+    <td><a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a> or <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a></td>
   </tr>
 </table>
 
@@ -4024,12 +4195,14 @@ added unaltered. If <a href="#SkPath_addPath_3_mode">mode</a> is <a href="#SkPat
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_addPath_3_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
-  </tr>  <tr>    <td><a name="SkPath_addPath_3_matrix"> <code><strong>matrix </strong></code> </a></td> <td>
-transform applied to <a href="#SkPath_addPath_3_src">src</a></td>
-  </tr>  <tr>    <td><a name="SkPath_addPath_3_mode"> <code><strong>mode </strong></code> </a></td> <td>
-<a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a> or <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a></td>
+<table>  <tr>    <td><a name="SkPath_addPath_3_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
+  </tr>
+  <tr>    <td><a name="SkPath_addPath_3_matrix"> <code><strong>matrix </strong></code> </a></td>
+    <td>transform applied to <a href="#SkPath_addPath_3_src">src</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_addPath_3_mode"> <code><strong>mode </strong></code> </a></td>
+    <td><a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a> or <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a></td>
   </tr>
 </table>
 
@@ -4055,8 +4228,8 @@ Reversed <a href="#SkPath_reverseAddPath_src">src</a> always appends a new <a hr
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_reverseAddPath_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
+<table>  <tr>    <td><a name="SkPath_reverseAddPath_src"> <code><strong>src </strong></code> </a></td>
+    <td><a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="SkPoint_Reference#Point">Points</a>, and <a href="#Conic_Weight">Conic Weights</a> to add</td>
   </tr>
 </table>
 
@@ -4082,12 +4255,14 @@ If <a href="#SkPath_offset_dst">dst</a> is nullptr, <a href="#Path">Path</a> is 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_offset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset added to <a href="#Point_Array">Point Array</a> x coordinates</td>
-  </tr>  <tr>    <td><a name="SkPath_offset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset added to <a href="#Point_Array">Point Array</a> y coordinates</td>
-  </tr>  <tr>    <td><a name="SkPath_offset_dst"> <code><strong>dst </strong></code> </a></td> <td>
-overwritten, translated copy of <a href="#Path">Path</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPath_offset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset added to <a href="#Point_Array">Point Array</a> x coordinates</td>
+  </tr>
+  <tr>    <td><a name="SkPath_offset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset added to <a href="#Point_Array">Point Array</a> y coordinates</td>
+  </tr>
+  <tr>    <td><a name="SkPath_offset_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>overwritten, translated copy of <a href="#Path">Path</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -4122,10 +4297,11 @@ Offset <a href="#Point_Array">Point Array</a> by (<a href="#SkPath_offset_2_dx">
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_offset_2_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset added to <a href="#Point_Array">Point Array</a> x coordinates</td>
-  </tr>  <tr>    <td><a name="SkPath_offset_2_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset added to <a href="#Point_Array">Point Array</a> y coordinates</td>
+<table>  <tr>    <td><a name="SkPath_offset_2_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset added to <a href="#Point_Array">Point Array</a> x coordinates</td>
+  </tr>
+  <tr>    <td><a name="SkPath_offset_2_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset added to <a href="#Point_Array">Point Array</a> y coordinates</td>
   </tr>
 </table>
 
@@ -4153,10 +4329,11 @@ is replaced.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_transform_matrix"> <code><strong>matrix </strong></code> </a></td> <td>
-<a href="SkMatrix_Reference#Matrix">Matrix</a> to apply to <a href="#Path">Path</a></td>
-  </tr>  <tr>    <td><a name="SkPath_transform_dst"> <code><strong>dst </strong></code> </a></td> <td>
-overwritten, transformed copy of <a href="#Path">Path</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPath_transform_matrix"> <code><strong>matrix </strong></code> </a></td>
+    <td><a href="SkMatrix_Reference#Matrix">Matrix</a> to apply to <a href="#Path">Path</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_transform_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>overwritten, transformed copy of <a href="#Path">Path</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -4182,8 +4359,8 @@ transform may change <a href="#Verb">Verbs</a> and increase their number.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_transform_2_matrix"> <code><strong>matrix </strong></code> </a></td> <td>
-<a href="SkMatrix_Reference#Matrix">Matrix</a> to apply to <a href="#Path">Path</a></td>
+<table>  <tr>    <td><a name="SkPath_transform_2_matrix"> <code><strong>matrix </strong></code> </a></td>
+    <td><a href="SkMatrix_Reference#Matrix">Matrix</a> to apply to <a href="#Path">Path</a></td>
   </tr>
 </table>
 
@@ -4215,8 +4392,8 @@ storing (0, 0) if <a href="#SkPath_getLastPt_lastPt">lastPt</a> is not nullptr.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_getLastPt_lastPt"> <code><strong>lastPt </strong></code> </a></td> <td>
-storage for final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Point_Array">Point Array</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPath_getLastPt_lastPt"> <code><strong>lastPt </strong></code> </a></td>
+    <td>storage for final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Point_Array">Point Array</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -4254,10 +4431,11 @@ Set <a href="#Last_Point">Last Point</a> to (<a href="#SkPath_setLastPt_x">x</a>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_setLastPt_x"> <code><strong>x </strong></code> </a></td> <td>
-set <a href="#SkPath_setLastPt_x">x</a>-coordinate of <a href="#Last_Point">Last Point</a></td>
-  </tr>  <tr>    <td><a name="SkPath_setLastPt_y"> <code><strong>y </strong></code> </a></td> <td>
-set <a href="#SkPath_setLastPt_y">y</a>-coordinate of <a href="#Last_Point">Last Point</a></td>
+<table>  <tr>    <td><a name="SkPath_setLastPt_x"> <code><strong>x </strong></code> </a></td>
+    <td>set <a href="#SkPath_setLastPt_x">x</a>-coordinate of <a href="#Last_Point">Last Point</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_setLastPt_y"> <code><strong>y </strong></code> </a></td>
+    <td>set <a href="#SkPath_setLastPt_y">y</a>-coordinate of <a href="#Last_Point">Last Point</a></td>
   </tr>
 </table>
 
@@ -4282,8 +4460,8 @@ Set the last point on the path. If <a href="#Point_Array">Point Array</a> is emp
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_setLastPt_2_p"> <code><strong>p </strong></code> </a></td> <td>
-set value of <a href="#Last_Point">Last Point</a></td>
+<table>  <tr>    <td><a name="SkPath_setLastPt_2_p"> <code><strong>p </strong></code> </a></td>
+    <td>set value of <a href="#Last_Point">Last Point</a></td>
   </tr>
 </table>
 
@@ -4313,28 +4491,37 @@ instance, if <a href="#Path">Path</a> only contains <a href="undocumented#Line">
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkPath_kLine_SegmentMask"> <code><strong>SkPath::kLine_SegmentMask </strong></code> </a></td><td>1</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kLine_Verb">kLine Verb</a>.
+    <td><a name="SkPath_kLine_SegmentMask"> <code><strong>SkPath::kLine_SegmentMask </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kLine_Verb">kLine Verb</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kQuad_SegmentMask"> <code><strong>SkPath::kQuad_SegmentMask </strong></code> </a></td><td>2</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kQuad_Verb">kQuad Verb</a>. Note that <a href="#SkPath_conicTo">conicTo</a> may add a <a href="#Quad">Quad</a>.
+    <td><a name="SkPath_kQuad_SegmentMask"> <code><strong>SkPath::kQuad_SegmentMask </strong></code> </a></td>
+    <td>2</td>
+    <td></td>    <td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kQuad_Verb">kQuad Verb</a>. Note that <a href="#SkPath_conicTo">conicTo</a> may add a <a href="#Quad">Quad</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kConic_SegmentMask"> <code><strong>SkPath::kConic_SegmentMask </strong></code> </a></td><td>4</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kConic_Verb">kConic Verb</a>.
+    <td><a name="SkPath_kConic_SegmentMask"> <code><strong>SkPath::kConic_SegmentMask </strong></code> </a></td>
+    <td>4</td>
+    <td></td>    <td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kConic_Verb">kConic Verb</a>.
 </td>
   </tr>
   <tr>
-    <td><a name="SkPath_kCubic_SegmentMask"> <code><strong>SkPath::kCubic_SegmentMask </strong></code> </a></td><td>8</td><td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kCubic_Verb">kCubic Verb</a>.
+    <td><a name="SkPath_kCubic_SegmentMask"> <code><strong>SkPath::kCubic_SegmentMask </strong></code> </a></td>
+    <td>8</td>
+    <td></td>    <td>Set if <a href="#Verb_Array">Verb Array</a> contains <a href="#SkPath_kCubic_Verb">kCubic Verb</a>.
 </td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="0972a1bd6e012c7519d3998afc32e69f"><div>When <a href="#SkPath_conicTo">conicTo</a> has a weight of one, <a href="#Quad">Quad</a> is added to <a href="#Path">Path</a>.
+<div><fiddle-embed name="a61e5758574e28190ec4ed8c4ae7e7fa"><div>When <a href="#SkPath_conicTo">conicTo</a> has a weight of one, <a href="#Quad">Quad</a> is added to <a href="#Path">Path</a>.
 </div>
 
 #### Example Output
@@ -4371,7 +4558,7 @@ Returns zero if <a href="#Path">Path</a> contains no <a href="undocumented#Line"
 
 ### Example
 
-<div><fiddle-embed name="dd9f620b419c8ca18cd306c881aadb5f">
+<div><fiddle-embed name="657a3f3e11acafea92b84d6bb0c13633">
 
 #### Example Output
 
@@ -4406,10 +4593,11 @@ account <a href="#SkPath_FillType">FillType</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_contains_x"> <code><strong>x </strong></code> </a></td> <td>
-<a href="#SkPath_contains_x">x</a>-coordinate of containment test</td>
-  </tr>  <tr>    <td><a name="SkPath_contains_y"> <code><strong>y </strong></code> </a></td> <td>
-<a href="#SkPath_contains_y">y</a>-coordinate of containment test</td>
+<table>  <tr>    <td><a name="SkPath_contains_x"> <code><strong>x </strong></code> </a></td>
+    <td><a href="#SkPath_contains_x">x</a>-coordinate of containment test</td>
+  </tr>
+  <tr>    <td><a name="SkPath_contains_y"> <code><strong>y </strong></code> </a></td>
+    <td><a href="#SkPath_contains_y">y</a>-coordinate of containment test</td>
   </tr>
 </table>
 
@@ -4441,12 +4629,14 @@ of floating point numbers used in <a href="#Point_Array">Point Array</a> and <a 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_dump_stream"> <code><strong>stream </strong></code> </a></td> <td>
-writable <a href="undocumented#Stream">Stream</a> receiving <a href="#Path">Path</a> text representation; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkPath_dump_forceClose"> <code><strong>forceClose </strong></code> </a></td> <td>
-true if missing <a href="#SkPath_kClose_Verb">kClose Verb</a> is output</td>
-  </tr>  <tr>    <td><a name="SkPath_dump_dumpAsHex"> <code><strong>dumpAsHex </strong></code> </a></td> <td>
-true if <a href="undocumented#SkScalar">SkScalar</a> values are written as hexadecimal</td>
+<table>  <tr>    <td><a name="SkPath_dump_stream"> <code><strong>stream </strong></code> </a></td>
+    <td>writable <a href="undocumented#Stream">Stream</a> receiving <a href="#Path">Path</a> text representation; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkPath_dump_forceClose"> <code><strong>forceClose </strong></code> </a></td>
+    <td>true if missing <a href="#SkPath_kClose_Verb">kClose Verb</a> is output</td>
+  </tr>
+  <tr>    <td><a name="SkPath_dump_dumpAsHex"> <code><strong>dumpAsHex </strong></code> </a></td>
+    <td>true if <a href="undocumented#SkScalar">SkScalar</a> values are written as hexadecimal</td>
   </tr>
 </table>
 
@@ -4568,8 +4758,8 @@ the format used for <a href="#Path">Path</a> in memory is not guaranteed.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_writeToMemory_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
-storage for <a href="#Path">Path</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkPath_writeToMemory_buffer"> <code><strong>buffer </strong></code> </a></td>
+    <td>storage for <a href="#Path">Path</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -4650,10 +4840,11 @@ the format used for <a href="#Path">Path</a> in memory is not guaranteed.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_readFromMemory_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
-storage for <a href="#Path">Path</a></td>
-  </tr>  <tr>    <td><a name="SkPath_readFromMemory_length"> <code><strong>length </strong></code> </a></td> <td>
-<a href="#SkPath_readFromMemory_buffer">buffer</a> size in bytes; must be multiple of 4</td>
+<table>  <tr>    <td><a name="SkPath_readFromMemory_buffer"> <code><strong>buffer </strong></code> </a></td>
+    <td>storage for <a href="#Path">Path</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_readFromMemory_length"> <code><strong>length </strong></code> </a></td>
+    <td><a href="#SkPath_readFromMemory_buffer">buffer</a> size in bytes; must be multiple of 4</td>
   </tr>
 </table>
 
@@ -4777,7 +4968,7 @@ public:
 
 ### Example
 
-<div><fiddle-embed name="3ca8417e2a1466bf5b3ac97780a8070c"><div>Ignoring the actual <a href="#Verb">Verbs</a> and replacing them with <a href="#Quad">Quads</a> rounds the
+<div><fiddle-embed name="2f53df9201769ab7e7c0e164a1334309"><div>Ignoring the actual <a href="#Verb">Verbs</a> and replacing them with <a href="#Quad">Quads</a> rounds the
 path of the glyph.
 </div></fiddle-embed></div>
 
@@ -4830,10 +5021,11 @@ open <a href="#Contour">Contour</a>. <a href="#SkPath_Iter_Iter_2_path">path</a>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_Iter_Iter_2_path"> <code><strong>path </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to iterate</td>
-  </tr>  <tr>    <td><a name="SkPath_Iter_Iter_2_forceClose"> <code><strong>forceClose </strong></code> </a></td> <td>
-true if open <a href="#Contour">Contours</a> generate <a href="#SkPath_kClose_Verb">kClose Verb</a></td>
+<table>  <tr>    <td><a name="SkPath_Iter_Iter_2_path"> <code><strong>path </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to iterate</td>
+  </tr>
+  <tr>    <td><a name="SkPath_Iter_Iter_2_forceClose"> <code><strong>forceClose </strong></code> </a></td>
+    <td>true if open <a href="#Contour">Contours</a> generate <a href="#SkPath_kClose_Verb">kClose Verb</a></td>
   </tr>
 </table>
 
@@ -4881,10 +5073,11 @@ open <a href="#Contour">Contour</a>. <a href="#SkPath_Iter_setPath_path">path</a
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_Iter_setPath_path"> <code><strong>path </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to iterate</td>
-  </tr>  <tr>    <td><a name="SkPath_Iter_setPath_forceClose"> <code><strong>forceClose </strong></code> </a></td> <td>
-true if open <a href="#Contour">Contours</a> generate <a href="#SkPath_kClose_Verb">kClose Verb</a></td>
+<table>  <tr>    <td><a name="SkPath_Iter_setPath_path"> <code><strong>path </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to iterate</td>
+  </tr>
+  <tr>    <td><a name="SkPath_Iter_setPath_forceClose"> <code><strong>forceClose </strong></code> </a></td>
+    <td>true if open <a href="#Contour">Contours</a> generate <a href="#SkPath_kClose_Verb">kClose Verb</a></td>
   </tr>
 </table>
 
@@ -4935,12 +5128,14 @@ if <a href="#SkPath_Iter_next_doConsumeDegenerates">doConsumeDegenerates</a> is 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_Iter_next_pts"> <code><strong>pts </strong></code> </a></td> <td>
-storage for <a href="SkPoint_Reference#Point">Point</a> data describing returned <a href="#SkPath_Verb">Verb</a></td>
-  </tr>  <tr>    <td><a name="SkPath_Iter_next_doConsumeDegenerates"> <code><strong>doConsumeDegenerates </strong></code> </a></td> <td>
-if true, skip degenerate <a href="#Verb">Verbs</a></td>
-  </tr>  <tr>    <td><a name="SkPath_Iter_next_exact"> <code><strong>exact </strong></code> </a></td> <td>
-skip zero length curves</td>
+<table>  <tr>    <td><a name="SkPath_Iter_next_pts"> <code><strong>pts </strong></code> </a></td>
+    <td>storage for <a href="SkPoint_Reference#Point">Point</a> data describing returned <a href="#SkPath_Verb">Verb</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_Iter_next_doConsumeDegenerates"> <code><strong>doConsumeDegenerates </strong></code> </a></td>
+    <td>if true, skip degenerate <a href="#Verb">Verbs</a></td>
+  </tr>
+  <tr>    <td><a name="SkPath_Iter_next_exact"> <code><strong>exact </strong></code> </a></td>
+    <td>skip zero length curves</td>
   </tr>
 </table>
 
@@ -5011,7 +5206,7 @@ result is undefined.
 
 ### Example
 
-<div><fiddle-embed name="f97cc1191cf2eef161d6b97fcba67b02">
+<div><fiddle-embed name="7cdea37741d50f0594c6244eb07fd175">
 
 #### Example Output
 
@@ -5050,7 +5245,7 @@ true if last <a href="#SkPath_kLine_Verb">kLine Verb</a> was generated by <a hre
 
 ### Example
 
-<div><fiddle-embed name="345e0646a010f7dce571078d1321f4df">
+<div><fiddle-embed name="7000b501f49341629bfdd9f80e686103">
 
 #### Example Output
 
@@ -5089,7 +5284,7 @@ true if <a href="#Contour">Contour</a> is closed
 
 ### Example
 
-<div><fiddle-embed name="145ead5d4f5fb9ba0a0320cb6a5bf3e8">
+<div><fiddle-embed name="b0d48a6e949db1cb545216ae9c3c3c70">
 
 #### Example Output
 
@@ -5150,8 +5345,8 @@ Sets <a href="#SkPath_RawIter_RawIter">RawIter</a> to return elements of <a href
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_RawIter_RawIter_2_path"> <code><strong>path </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to iterate</td>
+<table>  <tr>    <td><a name="SkPath_RawIter_RawIter_2_path"> <code><strong>path </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to iterate</td>
   </tr>
 </table>
 
@@ -5172,8 +5367,8 @@ Sets <a href="#SkPath_Iter">SkPath::Iter</a> to return elements of <a href="#Ver
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_RawIter_setPath_path"> <code><strong>path </strong></code> </a></td> <td>
-<a href="#Path">Path</a> to iterate</td>
+<table>  <tr>    <td><a name="SkPath_RawIter_setPath_path"> <code><strong>path </strong></code> </a></td>
+    <td><a href="#Path">Path</a> to iterate</td>
   </tr>
 </table>
 
@@ -5192,8 +5387,8 @@ Zero to four <a href="SkPoint_Reference#Point">Points</a> are stored in <a href=
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPath_RawIter_next_pts"> <code><strong>pts </strong></code> </a></td> <td>
-storage for <a href="SkPoint_Reference#Point">Point</a> data describing returned <a href="#SkPath_Verb">Verb</a></td>
+<table>  <tr>    <td><a name="SkPath_RawIter_next_pts"> <code><strong>pts </strong></code> </a></td>
+    <td>storage for <a href="SkPoint_Reference#Point">Point</a> data describing returned <a href="#SkPath_Verb">Verb</a></td>
   </tr>
 </table>
 
@@ -5257,10 +5452,10 @@ peek Done == verb Done
 
 </fiddle-embed></div>
 
-StdOut isn't really volatile, it just produces the wrong result.
+StdOut is not really volatile, it just produces the wrong result.
 A simple fix changes the output of hairlines and needs to be
 investigated to see if the change is correct or not.
-https://skia-review.googlesource.com/c/21340/
+see change 21340 (abandoned for now)
 
 ### See Also
 
@@ -5286,7 +5481,7 @@ result is undefined.
 
 ### Example
 
-<div><fiddle-embed name="9747e8177a50ea551471ba0b706f544b">
+<div><fiddle-embed name="69f360a0ba8f40c51ef4cd9f972c5893">
 
 #### Example Output
 

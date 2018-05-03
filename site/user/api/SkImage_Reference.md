@@ -1,3 +1,8 @@
+<style>
+.td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }
+.tr_const tr:nth-child(even) { background-color: #ddffdd; }
+.td2_const td:first-child + td { text-align: center; }
+</style>
 SkImage Reference
 ===
 
@@ -144,7 +149,7 @@ drawing.
 | <a href="#SkImage_refEncodedData">refEncodedData</a> | returns <a href="#Image">Image</a> encoded in <a href="undocumented#SkData">SkData</a> if present |
 | <a href="#SkImage_scalePixels">scalePixels</a> | scales and converts one <a href="#Image">Image</a> to another |
 | <a href="#SkImage_toString">toString</a> | converts <a href="#Image">Image</a> to machine readable form |
-| <a href="#SkImage_uniqueID">uniqueID</a> | identifier for <a href="#Image">Image</a> |
+| <a href="#SkImage_uniqueID">uniqueID</a> | returns identifier for <a href="#Image">Image</a> |
 | <a href="#SkImage_width">width</a> | returns pixel column count |
 
 <a name="SkImage_MakeRasterCopy"></a>
@@ -166,8 +171,8 @@ pixel address is not nullptr.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeRasterCopy_pixmap"> <code><strong>pixmap </strong></code> </a></td> <td>
-<a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixel address, and row bytes</td>
+<table>  <tr>    <td><a name="SkImage_MakeRasterCopy_pixmap"> <code><strong>pixmap </strong></code> </a></td>
+    <td><a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixel address, and row bytes</td>
   </tr>
 </table>
 
@@ -206,12 +211,14 @@ each dimension fits in 29 bits;
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeRasterData_info"> <code><strong>info </strong></code> </a></td> <td>
-contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeRasterData_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
-address or pixel storage</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeRasterData_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
-size of pixel row or larger</td>
+<table>  <tr>    <td><a name="SkImage_MakeRasterData_info"> <code><strong>info </strong></code> </a></td>
+    <td>contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeRasterData_pixels"> <code><strong>pixels </strong></code> </a></td>
+    <td>address or pixel storage</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeRasterData_rowBytes"> <code><strong>rowBytes </strong></code> </a></td>
+    <td>size of pixel row or larger</td>
   </tr>
 </table>
 
@@ -221,7 +228,7 @@ size of pixel row or larger</td>
 
 ### Example
 
-<div><fiddle-embed name="367bdf6ee6ef2482eea95d4a9887c9b0"></fiddle-embed></div>
+<div><fiddle-embed name="22e7ce79ab2fe94252d23319f2258127"></fiddle-embed></div>
 
 ### See Also
 
@@ -267,12 +274,14 @@ pixel address is not nullptr.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromRaster_pixmap"> <code><strong>pixmap </strong></code> </a></td> <td>
-<a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixel address, and row bytes</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromRaster_rasterReleaseProc"> <code><strong>rasterReleaseProc </strong></code> </a></td> <td>
-function called when pixels can be released; or nullptr</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromRaster_releaseContext"> <code><strong>releaseContext </strong></code> </a></td> <td>
-state passed to <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a>; or nullptr</td>
+<table>  <tr>    <td><a name="SkImage_MakeFromRaster_pixmap"> <code><strong>pixmap </strong></code> </a></td>
+    <td><a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixel address, and row bytes</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromRaster_rasterReleaseProc"> <code><strong>rasterReleaseProc </strong></code> </a></td>
+    <td>function called when pixels can be released; or nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromRaster_releaseContext"> <code><strong>releaseContext </strong></code> </a></td>
+    <td>state passed to <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a>; or nullptr</td>
   </tr>
 </table>
 
@@ -319,8 +328,8 @@ pixel address is not nullptr.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromBitmap_bitmap"> <code><strong>bitmap </strong></code> </a></td> <td>
-<a href="SkImageInfo_Reference#Image_Info">Image Info</a>, row bytes, and pixels</td>
+<table>  <tr>    <td><a name="SkImage_MakeFromBitmap_bitmap"> <code><strong>bitmap </strong></code> </a></td>
+    <td><a href="SkImageInfo_Reference#Image_Info">Image Info</a>, row bytes, and pixels</td>
   </tr>
 </table>
 
@@ -363,10 +372,11 @@ and platform.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromGenerator_imageGenerator"> <code><strong>imageGenerator </strong></code> </a></td> <td>
-stock or custom routines to retrieve <a href="#Image">Image</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromGenerator_subset"> <code><strong>subset </strong></code> </a></td> <td>
-bounds of returned <a href="#Image">Image</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkImage_MakeFromGenerator_imageGenerator"> <code><strong>imageGenerator </strong></code> </a></td>
+    <td>stock or custom routines to retrieve <a href="#Image">Image</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromGenerator_subset"> <code><strong>subset </strong></code> </a></td>
+    <td>bounds of returned <a href="#Image">Image</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -401,10 +411,11 @@ Recognized formats vary by platform.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromEncoded_encoded"> <code><strong>encoded </strong></code> </a></td> <td>
-data of <a href="#Image">Image</a> to decode</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromEncoded_subset"> <code><strong>subset </strong></code> </a></td> <td>
-bounds of returned <a href="#Image">Image</a>; may be nullptr</td>
+<table>  <tr>    <td><a name="SkImage_MakeFromEncoded_encoded"> <code><strong>encoded </strong></code> </a></td>
+    <td>data of <a href="#Image">Image</a> to decode</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromEncoded_subset"> <code><strong>subset </strong></code> </a></td>
+    <td>bounds of returned <a href="#Image">Image</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -439,22 +450,27 @@ Recognized formats vary by GPU back-end.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromTexture_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-texture residing on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_origin"> <code><strong>origin </strong></code> </a></td> <td>
-one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<table>  <tr>    <td><a name="SkImage_MakeFromTexture_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_backendTexture"> <code><strong>backendTexture </strong></code> </a></td>
+    <td>texture residing on GPU</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_origin"> <code><strong>origin </strong></code> </a></td>
+    <td>one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_colorType"> <code><strong>colorType </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
 <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_alphaType"> <code><strong>alphaType </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
 <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
-range of colors; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_colorSpace"> <code><strong>colorSpace </strong></code> </a></td>
+    <td>range of colors; may be nullptr</td>
   </tr>
 </table>
 
@@ -492,26 +508,33 @@ Recognized formats vary by GPU back-end.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromTexture_2_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-texture residing on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_origin"> <code><strong>origin </strong></code> </a></td> <td>
-one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<table>  <tr>    <td><a name="SkImage_MakeFromTexture_2_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_2_backendTexture"> <code><strong>backendTexture </strong></code> </a></td>
+    <td>texture residing on GPU</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_2_origin"> <code><strong>origin </strong></code> </a></td>
+    <td>one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_2_colorType"> <code><strong>colorType </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
 <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_2_alphaType"> <code><strong>alphaType </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
 <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
-range of colors; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_textureReleaseProc"> <code><strong>textureReleaseProc </strong></code> </a></td> <td>
-function called when texture can be released</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_releaseContext"> <code><strong>releaseContext </strong></code> </a></td> <td>
-state passed to <a href="#SkImage_MakeFromTexture_2_textureReleaseProc">textureReleaseProc</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td>
+    <td>range of colors; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_2_textureReleaseProc"> <code><strong>textureReleaseProc </strong></code> </a></td>
+    <td>function called when texture can be released</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromTexture_2_releaseContext"> <code><strong>releaseContext </strong></code> </a></td>
+    <td>state passed to <a href="#SkImage_MakeFromTexture_2_textureReleaseProc">textureReleaseProc</a></td>
   </tr>
 </table>
 
@@ -558,16 +581,20 @@ moving resources between contexts.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_data"> <code><strong>data </strong></code> </a></td> <td>
-<a href="#Image">Image</a> to decode</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_buildMips"> <code><strong>buildMips </strong></code> </a></td> <td>
-create <a href="#Image">Image</a> as Mip_Map if true</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
-range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_limitToMaxTextureSize"> <code><strong>limitToMaxTextureSize </strong></code> </a></td> <td>
-downscale image to GPU maximum texture size, if necessary</td>
+<table>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_data"> <code><strong>data </strong></code> </a></td>
+    <td><a href="#Image">Image</a> to decode</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_buildMips"> <code><strong>buildMips </strong></code> </a></td>
+    <td>create <a href="#Image">Image</a> as Mip_Map if true</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td>
+    <td>range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_limitToMaxTextureSize"> <code><strong>limitToMaxTextureSize </strong></code> </a></td>
+    <td>downscale image to GPU maximum texture size, if necessary</td>
   </tr>
 </table>
 
@@ -614,16 +641,20 @@ Recognized GPU formats vary by platform and GPU back-end.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_pixmap"> <code><strong>pixmap </strong></code> </a></td> <td>
-<a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixel address, and row bytes</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_buildMips"> <code><strong>buildMips </strong></code> </a></td> <td>
-create <a href="#Image">Image</a> as Mip_Map if true</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
-range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_limitToMaxTextureSize"> <code><strong>limitToMaxTextureSize </strong></code> </a></td> <td>
-downscale image to GPU maximum texture size, if necessary</td>
+<table>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_pixmap"> <code><strong>pixmap </strong></code> </a></td>
+    <td><a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixel address, and row bytes</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_buildMips"> <code><strong>buildMips </strong></code> </a></td>
+    <td>create <a href="#Image">Image</a> as Mip_Map if true</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td>
+    <td>range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_limitToMaxTextureSize"> <code><strong>limitToMaxTextureSize </strong></code> </a></td>
+    <td>downscale image to GPU maximum texture size, if necessary</td>
   </tr>
 </table>
 
@@ -660,22 +691,27 @@ Recognized formats vary by GPU back-end.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-texture residing on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td> <td>
-one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<table>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_backendTexture"> <code><strong>backendTexture </strong></code> </a></td>
+    <td>texture residing on GPU</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td>
+    <td>one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_colorType"> <code><strong>colorType </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
 <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
 <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_alphaType"> <code><strong>alphaType </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
 <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
-range of colors; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_colorSpace"> <code><strong>colorSpace </strong></code> </a></td>
+    <td>range of colors; may be nullptr</td>
   </tr>
 </table>
 
@@ -685,7 +721,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="b07964ec9c5c8a6febba805f1cf4d071" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="b034517e39394b7543f06ec885e36d7d" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -709,17 +745,21 @@ Creates <a href="#Image">Image</a> from copy of <a href="#SkImage_MakeFromYUVTex
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kJPEG_SkYUVColorSpace">kJPEG_SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#kRec601_SkYUVColorSpace">kRec601_SkYUVColorSpace</a>,
+<table>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kJPEG_SkYUVColorSpace">kJPEG_SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#kRec601_SkYUVColorSpace">kRec601_SkYUVColorSpace</a>,
 <a href="SkImageInfo_Reference#kRec709_SkYUVColorSpace">kRec709_SkYUVColorSpace</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvTextures"> <code><strong>yuvTextures </strong></code> </a></td> <td>
-array of YUV textures on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td> <td>
-one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
-range of colors; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvTextures"> <code><strong>yuvTextures </strong></code> </a></td>
+    <td>array of YUV textures on GPU</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td>
+    <td>one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_colorSpace"> <code><strong>colorSpace </strong></code> </a></td>
+    <td>range of colors; may be nullptr</td>
   </tr>
 </table>
 
@@ -752,17 +792,21 @@ Returned <a href="#Image">Image</a> has the dimensions <a href="#SkImage_MakeFro
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kJPEG_SkYUVColorSpace">kJPEG_SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#kRec601_SkYUVColorSpace">kRec601_SkYUVColorSpace</a>,
+<table>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kJPEG_SkYUVColorSpace">kJPEG_SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#kRec601_SkYUVColorSpace">kRec601_SkYUVColorSpace</a>,
 <a href="SkImageInfo_Reference#kRec709_SkYUVColorSpace">kRec709_SkYUVColorSpace</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12Textures"> <code><strong>nv12Textures </strong></code> </a></td> <td>
-array of YUV textures on GPU</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td> <td>
-one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
-range of colors; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12Textures"> <code><strong>nv12Textures </strong></code> </a></td>
+    <td>array of YUV textures on GPU</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td>
+    <td>one of: <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_colorSpace"> <code><strong>colorSpace </strong></code> </a></td>
+    <td>range of colors; may be nullptr</td>
   </tr>
 </table>
 
@@ -787,13 +831,18 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkImage_BitDepth_kU8"> <code><strong>SkImage::BitDepth::kU8 </strong></code> </a></td><td>0</td><td>Use 8 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using unsigned integer format.
+    <td><a name="SkImage_BitDepth_kU8"> <code><strong>SkImage::BitDepth::kU8 </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td>Use 8 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using unsigned integer format.
 </td>
   </tr>
   <tr>
-    <td><a name="SkImage_BitDepth_kF16"> <code><strong>SkImage::BitDepth::kF16 </strong></code> </a></td><td>1</td><td>Use 16 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using half-precision floating point format.
+    <td><a name="SkImage_BitDepth_kF16"> <code><strong>SkImage::BitDepth::kF16 </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td>Use 16 bits per <a href="SkColor_Reference#ARGB">Color ARGB</a> component using half-precision floating point format.
 </td>
   </tr>
 </table>
@@ -821,18 +870,23 @@ with default <a href="SkPaint_Reference#Paint">Paint</a>. <a href="#SkImage_colo
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromPicture_picture"> <code><strong>picture </strong></code> </a></td> <td>
-stream of drawing commands</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_dimensions"> <code><strong>dimensions </strong></code> </a></td> <td>
-width and height</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_matrix"> <code><strong>matrix </strong></code> </a></td> <td>
-<a href="SkMatrix_Reference#Matrix">Matrix</a> to rotate, scale, translate, and so on; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_paint"> <code><strong>paint </strong></code> </a></td> <td>
-<a href="SkPaint_Reference#Paint">Paint</a> to apply transparency, filtering, and so on; may be nullptr</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_bitDepth"> <code><strong>bitDepth </strong></code> </a></td> <td>
-8 bit integer or 16 bit float: per component</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromPicture_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
-range of colors; may be nullptr</td>
+<table>  <tr>    <td><a name="SkImage_MakeFromPicture_picture"> <code><strong>picture </strong></code> </a></td>
+    <td>stream of drawing commands</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromPicture_dimensions"> <code><strong>dimensions </strong></code> </a></td>
+    <td>width and height</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromPicture_matrix"> <code><strong>matrix </strong></code> </a></td>
+    <td><a href="SkMatrix_Reference#Matrix">Matrix</a> to rotate, scale, translate, and so on; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromPicture_paint"> <code><strong>paint </strong></code> </a></td>
+    <td><a href="SkPaint_Reference#Paint">Paint</a> to apply transparency, filtering, and so on; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromPicture_bitDepth"> <code><strong>bitDepth </strong></code> </a></td>
+    <td>8-bit integer or 16-bit float: per component</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromPicture_colorSpace"> <code><strong>colorSpace </strong></code> </a></td>
+    <td>range of colors; may be nullptr</td>
   </tr>
 </table>
 
@@ -866,13 +920,15 @@ Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_hardwareBuffer"> <code><strong>hardwareBuffer </strong></code> </a></td> <td>
-AHardwareBuffer Android hardware buffer</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<table>  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_hardwareBuffer"> <code><strong>hardwareBuffer </strong></code> </a></td>
+    <td>AHardwareBuffer Android hardware buffer</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_alphaType"> <code><strong>alphaType </strong></code> </a></td>
+    <td>one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
 <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
-  </tr>  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
-range of colors; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_colorSpace"> <code><strong>colorSpace </strong></code> </a></td>
+    <td>range of colors; may be nullptr</td>
   </tr>
 </table>
 
@@ -903,7 +959,7 @@ created <a href="#Image">Image</a>, or nullptr
 | <a href="#SkImage_isTextureBacked">isTextureBacked</a> | returns if <a href="#Image">Image</a> was created from <a href="undocumented#GPU_Texture">GPU Texture</a> |
 | <a href="#SkImage_isValid">isValid</a> | returns if <a href="#Image">Image</a> can draw to <a href="undocumented#Raster_Surface">Raster Surface</a> or <a href="undocumented#GPU_Context">GPU Context</a> |
 | <a href="#SkImage_refColorSpace">refColorSpace</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a> |
-| <a href="#SkImage_uniqueID">uniqueID</a> | identifier for <a href="#Image">Image</a> |
+| <a href="#SkImage_uniqueID">uniqueID</a> | returns identifier for <a href="#Image">Image</a> |
 | <a href="#SkImage_width">width</a> | returns pixel column count |
 
 <a name="SkImage_width"></a>
@@ -1039,7 +1095,9 @@ SkAlphaType alphaType() const
 </pre>
 
 Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
+
+<a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
 or was parsed from encoded data.
 
 ### Return Value
@@ -1217,14 +1275,16 @@ transforming <a href="#Image">Image</a> before <a href="SkCanvas_Reference#Matri
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_makeShader_tileMode1"> <code><strong>tileMode1 </strong></code> </a></td> <td>
-tiling in x, one of: <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a>, <a href="undocumented#SkShader_kRepeat_TileMode">SkShader::kRepeat TileMode</a>,
+<table>  <tr>    <td><a name="SkImage_makeShader_tileMode1"> <code><strong>tileMode1 </strong></code> </a></td>
+    <td>tiling in x, one of: <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a>, <a href="undocumented#SkShader_kRepeat_TileMode">SkShader::kRepeat TileMode</a>,
 <a href="undocumented#SkShader_kMirror_TileMode">SkShader::kMirror TileMode</a></td>
-  </tr>  <tr>    <td><a name="SkImage_makeShader_tileMode2"> <code><strong>tileMode2 </strong></code> </a></td> <td>
-tiling in y, one of: <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a>, <a href="undocumented#SkShader_kRepeat_TileMode">SkShader::kRepeat TileMode</a>,
+  </tr>
+  <tr>    <td><a name="SkImage_makeShader_tileMode2"> <code><strong>tileMode2 </strong></code> </a></td>
+    <td>tiling in y, one of: <a href="undocumented#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a>, <a href="undocumented#SkShader_kRepeat_TileMode">SkShader::kRepeat TileMode</a>,
 <a href="undocumented#SkShader_kMirror_TileMode">SkShader::kMirror TileMode</a></td>
-  </tr>  <tr>    <td><a name="SkImage_makeShader_localMatrix"> <code><strong>localMatrix </strong></code> </a></td> <td>
-<a href="#Image">Image</a> transformation, or nullptr</td>
+  </tr>
+  <tr>    <td><a name="SkImage_makeShader_localMatrix"> <code><strong>localMatrix </strong></code> </a></td>
+    <td><a href="#Image">Image</a> transformation, or nullptr</td>
   </tr>
 </table>
 
@@ -1254,8 +1314,8 @@ transforming <a href="#Image">Image</a> before <a href="SkCanvas_Reference#Matri
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_makeShader_2_localMatrix"> <code><strong>localMatrix </strong></code> </a></td> <td>
-<a href="#Image">Image</a> transformation, or nullptr</td>
+<table>  <tr>    <td><a name="SkImage_makeShader_2_localMatrix"> <code><strong>localMatrix </strong></code> </a></td>
+    <td><a href="#Image">Image</a> transformation, or nullptr</td>
   </tr>
 </table>
 
@@ -1296,8 +1356,8 @@ false and leave <a href="#SkImage_peekPixels_pixmap">pixmap</a> unchanged.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_peekPixels_pixmap"> <code><strong>pixmap </strong></code> </a></td> <td>
-storage for pixel state if pixels are readable; otherwise, ignored</td>
+<table>  <tr>    <td><a name="SkImage_peekPixels_pixmap"> <code><strong>pixmap </strong></code> </a></td>
+    <td>storage for pixel state if pixels are readable; otherwise, ignored</td>
   </tr>
 </table>
 
@@ -1383,8 +1443,8 @@ invalid. <a href="#Lazy_Image">Lazy Image</a> may be invalid and may not draw to
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_isValid_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
+<table>  <tr>    <td><a name="SkImage_isValid_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>
 </table>
 
@@ -1418,7 +1478,7 @@ GrBackendObject getTextureHandle(bool flushPendingGrContextIO, GrSurfaceOrigin* 
 GrBackendTexture getBackendTexture(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const
 </pre>
 
-Retrieves the backend texture. If <a href="#Image">Image</a> has no backend texture, an invalid
+Retrieves the back-end texture. If <a href="#Image">Image</a> has no back-end texture, an invalid
 object is returned. Call <a href="undocumented#GrBackendTexture_isValid">GrBackendTexture::isValid</a> to determine if the result
 is valid.
 
@@ -1428,10 +1488,11 @@ If <a href="#SkImage_getBackendTexture_origin">origin</a> in not nullptr, copies
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_getBackendTexture_flushPendingGrContextIO"> <code><strong>flushPendingGrContextIO </strong></code> </a></td> <td>
-flag to flush outstanding requests</td>
-  </tr>  <tr>    <td><a name="SkImage_getBackendTexture_origin"> <code><strong>origin </strong></code> </a></td> <td>
-storage for one of: <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a>,
+<table>  <tr>    <td><a name="SkImage_getBackendTexture_flushPendingGrContextIO"> <code><strong>flushPendingGrContextIO </strong></code> </a></td>
+    <td>flag to flush outstanding requests</td>
+  </tr>
+  <tr>    <td><a name="SkImage_getBackendTexture_origin"> <code><strong>origin </strong></code> </a></td>
+    <td>storage for one of: <a href="undocumented#kTopLeft_GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a>,
 <a href="undocumented#kBottomLeft_GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>; or nullptr</td>
   </tr>
 </table>
@@ -1472,14 +1533,17 @@ pixels are not accessible.
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkImage_kAllow_CachingHint"> <code><strong>SkImage::kAllow_CachingHint </strong></code> </a></td><td>0</td><td>Allows Skia to internally cache decoded and copied pixels.
-</td>
+    <td><a name="SkImage_kAllow_CachingHint"> <code><strong>SkImage::kAllow_CachingHint </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
   <tr>
-    <td><a name="SkImage_kDisallow_CachingHint"> <code><strong>SkImage::kDisallow_CachingHint </strong></code> </a></td><td>1</td><td>Disallows Skia from internally caching decoded and copied pixels.
-</td>
+    <td><a name="SkImage_kDisallow_CachingHint"> <code><strong>SkImage::kDisallow_CachingHint </strong></code> </a></td>
+    <td>1</td>
+    <td></td>    <td></td>
   </tr>
 </table>
 
@@ -1505,9 +1569,12 @@ destination. <a href="#SkImage_readPixels_dstRowBytes">dstRowBytes</a> specifics
 Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href="#SkImage_readPixels_dstInfo">dstInfo</a>.addr() equals nullptr</td>  </tr>  <tr>
-    <td><a href="#SkImage_readPixels_dstRowBytes">dstRowBytes</a> is less than <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">minRowBytes</a></td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+    <td><a href="#SkImage_readPixels_dstInfo">dstInfo</a>.addr() equals nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkImage_readPixels_dstRowBytes">dstRowBytes</a> is less than <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">minRowBytes</a></td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
@@ -1527,18 +1594,23 @@ If <a href="#SkImage_readPixels_cachingHint">cachingHint</a> is <a href="#SkImag
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_readPixels_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-destination width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
-  </tr>  <tr>    <td><a name="SkImage_readPixels_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
-destination pixel storage</td>
-  </tr>  <tr>    <td><a name="SkImage_readPixels_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
-destination row length</td>
-  </tr>  <tr>    <td><a name="SkImage_readPixels_srcX"> <code><strong>srcX </strong></code> </a></td> <td>
-column index whose absolute value is less than <a href="#SkImage_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkImage_readPixels_srcY"> <code><strong>srcY </strong></code> </a></td> <td>
-row index whose absolute value is less than <a href="#SkImage_height">height</a></td>
-  </tr>  <tr>    <td><a name="SkImage_readPixels_cachingHint"> <code><strong>cachingHint </strong></code> </a></td> <td>
-one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
+<table>  <tr>    <td><a name="SkImage_readPixels_dstInfo"> <code><strong>dstInfo </strong></code> </a></td>
+    <td>destination width, height, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_readPixels_dstPixels"> <code><strong>dstPixels </strong></code> </a></td>
+    <td>destination pixel storage</td>
+  </tr>
+  <tr>    <td><a name="SkImage_readPixels_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td>
+    <td>destination row length</td>
+  </tr>
+  <tr>    <td><a name="SkImage_readPixels_srcX"> <code><strong>srcX </strong></code> </a></td>
+    <td>column index whose absolute value is less than <a href="#SkImage_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_readPixels_srcY"> <code><strong>srcY </strong></code> </a></td>
+    <td>row index whose absolute value is less than <a href="#SkImage_height">height</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_readPixels_cachingHint"> <code><strong>cachingHint </strong></code> </a></td>
+    <td>one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
   </tr>
 </table>
 
@@ -1570,9 +1642,12 @@ and row bytes of destination. <a href="#SkImage_readPixels_2_dst">dst</a>.<a hre
 row to the next. Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href="#SkImage_readPixels_2_dst">dst</a> pixel storage equals nullptr</td>  </tr>  <tr>
-    <td><a href="#SkImage_readPixels_2_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>  </tr>  <tr>
-    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+    <td><a href="#SkImage_readPixels_2_dst">dst</a> pixel storage equals nullptr</td>
+  </tr>  <tr>
+    <td><a href="#SkImage_readPixels_2_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">rowBytes</a> is less than <a href="SkImageInfo_Reference#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>
+  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>
+  </tr>
 </table>
 
 <a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
@@ -1581,6 +1656,7 @@ If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color T
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a> must
 match. If <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> is nullptr, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
+
 <a href="#SkImage_readPixels_2_srcX">srcX</a> and <a href="#SkImage_readPixels_2_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkImage_width">width</a> or <a href="#SkImage_height">height</a> is zero or negative.
 Returns false ifabs(srcX) >= <a href="#Image">Image</a> <a href="#SkImage_width">width</a>,
@@ -1591,14 +1667,17 @@ If <a href="#SkImage_readPixels_2_cachingHint">cachingHint</a> is <a href="#SkIm
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_readPixels_2_dst"> <code><strong>dst </strong></code> </a></td> <td>
-destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
-  </tr>  <tr>    <td><a name="SkImage_readPixels_2_srcX"> <code><strong>srcX </strong></code> </a></td> <td>
-column index whose absolute value is less than <a href="#SkImage_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkImage_readPixels_2_srcY"> <code><strong>srcY </strong></code> </a></td> <td>
-row index whose absolute value is less than <a href="#SkImage_height">height</a></td>
-  </tr>  <tr>    <td><a name="SkImage_readPixels_2_cachingHint"> <code><strong>cachingHint </strong></code> </a></td> <td>
-one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
+<table>  <tr>    <td><a name="SkImage_readPixels_2_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
+  </tr>
+  <tr>    <td><a name="SkImage_readPixels_2_srcX"> <code><strong>srcX </strong></code> </a></td>
+    <td>column index whose absolute value is less than <a href="#SkImage_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_readPixels_2_srcY"> <code><strong>srcY </strong></code> </a></td>
+    <td>row index whose absolute value is less than <a href="#SkImage_height">height</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_readPixels_2_cachingHint"> <code><strong>cachingHint </strong></code> </a></td>
+    <td>one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
   </tr>
 </table>
 
@@ -1648,13 +1727,15 @@ If <a href="#SkImage_scalePixels_cachingHint">cachingHint</a> is <a href="#SkIma
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_scalePixels_dst"> <code><strong>dst </strong></code> </a></td> <td>
-destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
-  </tr>  <tr>    <td><a name="SkImage_scalePixels_filterQuality"> <code><strong>filterQuality </strong></code> </a></td> <td>
-one of: <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a>,
+<table>  <tr>    <td><a name="SkImage_scalePixels_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels, row bytes</td>
+  </tr>
+  <tr>    <td><a name="SkImage_scalePixels_filterQuality"> <code><strong>filterQuality </strong></code> </a></td>
+    <td>one of: <a href="undocumented#kNone_SkFilterQuality">kNone_SkFilterQuality</a>, <a href="undocumented#kLow_SkFilterQuality">kLow_SkFilterQuality</a>,
 <a href="undocumented#kMedium_SkFilterQuality">kMedium_SkFilterQuality</a>, <a href="undocumented#kHigh_SkFilterQuality">kHigh_SkFilterQuality</a></td>
-  </tr>  <tr>    <td><a name="SkImage_scalePixels_cachingHint"> <code><strong>cachingHint </strong></code> </a></td> <td>
-one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_scalePixels_cachingHint"> <code><strong>cachingHint </strong></code> </a></td>
+    <td>one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
   </tr>
 </table>
 
@@ -1697,11 +1778,12 @@ be ignored by the encoder.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_encodeToData_encodedImageFormat"> <code><strong>encodedImageFormat </strong></code> </a></td> <td>
-one of: <a href="undocumented#SkEncodedImageFormat_kJPEG">SkEncodedImageFormat::kJPEG</a>, <a href="undocumented#SkEncodedImageFormat_kPNG">SkEncodedImageFormat::kPNG</a>,
+<table>  <tr>    <td><a name="SkImage_encodeToData_encodedImageFormat"> <code><strong>encodedImageFormat </strong></code> </a></td>
+    <td>one of: <a href="undocumented#SkEncodedImageFormat_kJPEG">SkEncodedImageFormat::kJPEG</a>, <a href="undocumented#SkEncodedImageFormat_kPNG">SkEncodedImageFormat::kPNG</a>,
 <a href="undocumented#SkEncodedImageFormat_kWEBP">SkEncodedImageFormat::kWEBP</a></td>
-  </tr>  <tr>    <td><a name="SkImage_encodeToData_quality"> <code><strong>quality </strong></code> </a></td> <td>
-encoder specific metric with 100 equaling best</td>
+  </tr>
+  <tr>    <td><a name="SkImage_encodeToData_quality"> <code><strong>quality </strong></code> </a></td>
+    <td>encoder specific metric with 100 equaling best</td>
   </tr>
 </table>
 
@@ -1795,8 +1877,8 @@ whether the image is opaque.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_toString_string"> <code><strong>string </strong></code> </a></td> <td>
-storage for description; existing content is preserved</td>
+<table>  <tr>    <td><a name="SkImage_toString_string"> <code><strong>string </strong></code> </a></td>
+    <td>storage for description; existing content is preserved</td>
   </tr>
 </table>
 
@@ -1829,8 +1911,8 @@ pixels in <a href="#Image">Image</a> could not be read or copied.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_makeSubset_subset"> <code><strong>subset </strong></code> </a></td> <td>
-bounds of returned <a href="#Image">Image</a></td>
+<table>  <tr>    <td><a name="SkImage_makeSubset_subset"> <code><strong>subset </strong></code> </a></td>
+    <td>bounds of returned <a href="#Image">Image</a></td>
   </tr>
 </table>
 
@@ -1864,10 +1946,11 @@ Returns nullptr if <a href="#SkImage_makeTextureImage_context">context</a> is nu
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_makeTextureImage_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_makeTextureImage_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
-range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
+<table>  <tr>    <td><a name="SkImage_makeTextureImage_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_makeTextureImage_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td>
+    <td>range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
   </tr>
 </table>
 
@@ -1964,16 +2047,20 @@ animation frames aligned with respect to each other.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_makeWithFilter_filter"> <code><strong>filter </strong></code> </a></td> <td>
-how <a href="#Image">Image</a> is sampled when transformed</td>
-  </tr>  <tr>    <td><a name="SkImage_makeWithFilter_subset"> <code><strong>subset </strong></code> </a></td> <td>
-bounds of <a href="#Image">Image</a> processed by <a href="#SkImage_makeWithFilter_filter">filter</a></td>
-  </tr>  <tr>    <td><a name="SkImage_makeWithFilter_clipBounds"> <code><strong>clipBounds </strong></code> </a></td> <td>
-expected bounds of filtered <a href="#Image">Image</a></td>
-  </tr>  <tr>    <td><a name="SkImage_makeWithFilter_outSubset"> <code><strong>outSubset </strong></code> </a></td> <td>
-storage for returned <a href="#Image">Image</a> bounds</td>
-  </tr>  <tr>    <td><a name="SkImage_makeWithFilter_offset"> <code><strong>offset </strong></code> </a></td> <td>
-storage for returned <a href="#Image">Image</a> translation</td>
+<table>  <tr>    <td><a name="SkImage_makeWithFilter_filter"> <code><strong>filter </strong></code> </a></td>
+    <td>how <a href="#Image">Image</a> is sampled when transformed</td>
+  </tr>
+  <tr>    <td><a name="SkImage_makeWithFilter_subset"> <code><strong>subset </strong></code> </a></td>
+    <td>bounds of <a href="#Image">Image</a> processed by <a href="#SkImage_makeWithFilter_filter">filter</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_makeWithFilter_clipBounds"> <code><strong>clipBounds </strong></code> </a></td>
+    <td>expected bounds of filtered <a href="#Image">Image</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_makeWithFilter_outSubset"> <code><strong>outSubset </strong></code> </a></td>
+    <td>storage for returned <a href="#Image">Image</a> bounds</td>
+  </tr>
+  <tr>    <td><a name="SkImage_makeWithFilter_offset"> <code><strong>offset </strong></code> </a></td>
+    <td>storage for returned <a href="#Image">Image</a> translation</td>
   </tr>
 </table>
 
@@ -2021,24 +2108,27 @@ If <a href="#Image">Image</a> is not texture backed, returns texture with <a hre
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_context"> <code><strong>context </strong></code> </a></td> <td>
-<a href="undocumented#GPU_Context">GPU Context</a></td>
-  </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_image"> <code><strong>image </strong></code> </a></td> <td>
-<a href="#Image">Image</a> used for texture</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-storage for backend texture</td>
-  </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTextureReleaseProc"> <code><strong>backendTextureReleaseProc </strong></code> </a></td> <td>
-storage for clean up function</td>
+<table>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_context"> <code><strong>context </strong></code> </a></td>
+    <td><a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_image"> <code><strong>image </strong></code> </a></td>
+    <td><a href="#Image">Image</a> used for texture</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTexture"> <code><strong>backendTexture </strong></code> </a></td>
+    <td>storage for back-end texture</td>
+  </tr>
+  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTextureReleaseProc"> <code><strong>backendTextureReleaseProc </strong></code> </a></td>
+    <td>storage for clean up function</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if backend texture was created
+true if back-end texture was created
 
 ### Example
 
-<div><fiddle-embed name="98e70337c2964abd2624239d28bbecd7" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="06aeb3cf63ffccf7b49fe556e5def351" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2058,11 +2148,14 @@ soon
 
 ### Constants
 
-<table>
+<table style='border-collapse: collapse' class='td_const tr_const td2_const' >
+  <tr><th>Const</th><th>Value</th><th>Details</th><th>Description</th></tr>
   <tr>
-    <td><a name="SkImage_kRO_LegacyBitmapMode"> <code><strong>SkImage::kRO_LegacyBitmapMode </strong></code> </a></td><td>0</td><td>Returned bitmap is read-only and immutable.
-</td>
+    <td><a name="SkImage_kRO_LegacyBitmapMode"> <code><strong>SkImage::kRO_LegacyBitmapMode </strong></code> </a></td>
+    <td>0</td>
+    <td></td>    <td></td>
   </tr>
+
 
 
 
@@ -2080,10 +2173,11 @@ Returns true if <a href="SkBitmap_Reference#Bitmap">Bitmap</a> is stored in <a h
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_asLegacyBitmap_bitmap"> <code><strong>bitmap </strong></code> </a></td> <td>
-storage for legacy <a href="SkBitmap_Reference#Bitmap">Bitmap</a></td>
-  </tr>  <tr>    <td><a name="SkImage_asLegacyBitmap_legacyBitmapMode"> <code><strong>legacyBitmapMode </strong></code> </a></td> <td>
-to be deprecated</td>
+<table>  <tr>    <td><a name="SkImage_asLegacyBitmap_bitmap"> <code><strong>bitmap </strong></code> </a></td>
+    <td>storage for legacy <a href="SkBitmap_Reference#Bitmap">Bitmap</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_asLegacyBitmap_legacyBitmapMode"> <code><strong>legacyBitmapMode </strong></code> </a></td>
+    <td>to be deprecated</td>
   </tr>
 </table>
 
@@ -2155,10 +2249,11 @@ and <a href="undocumented#Color_Space">Color Space</a>, ignoring pixel encoding.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkImage_makeColorSpace_target"> <code><strong>target </strong></code> </a></td> <td>
-<a href="undocumented#Color_Space">Color Space</a> describing color range of returned <a href="#Image">Image</a></td>
-  </tr>  <tr>    <td><a name="SkImage_makeColorSpace_premulBehavior"> <code><strong>premulBehavior </strong></code> </a></td> <td>
-one of: <a href="undocumented#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>,
+<table>  <tr>    <td><a name="SkImage_makeColorSpace_target"> <code><strong>target </strong></code> </a></td>
+    <td><a href="undocumented#Color_Space">Color Space</a> describing color range of returned <a href="#Image">Image</a></td>
+  </tr>
+  <tr>    <td><a name="SkImage_makeColorSpace_premulBehavior"> <code><strong>premulBehavior </strong></code> </a></td>
+    <td>one of: <a href="undocumented#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>,
 <a href="undocumented#SkTransferFunctionBehavior_kIgnore">SkTransferFunctionBehavior::kIgnore</a></td>
   </tr>
 </table>
