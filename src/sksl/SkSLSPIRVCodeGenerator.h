@@ -177,6 +177,8 @@ private:
 
     SpvId writeUIntConstructor(const Constructor& c, OutputStream& out);
 
+    SpvId copyVector(SpvId vector, const Type& type, OutputStream& out);
+
     /**
      * Writes a matrix with the diagonal entries all equal to the provided expression, and all other
      * entries equal to zero.
@@ -340,6 +342,7 @@ private:
     SpvId fRTHeightFieldIndex = (SpvId) -1;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
+    int fSkInCount = 1;
 
     friend class PointerLValue;
     friend class SwizzleLValue;
