@@ -975,14 +975,14 @@ Caller must overwrite the entire back-end object.
     int y = 20;
     SkString str;
     paint.setTextSize(16);
-    for (auto access : { SkSurface::kFlushRead_BackendHandleAccess, 
+    for (auto access : { SkSurface::kFlushRead_BackendHandleAccess,
                          SkSurface::kFlushWrite_BackendHandleAccess,
                          SkSurface::kDiscardWrite_BackendHandleAccess } ) {
         sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
         str.printf("uniqueID=%d", image->uniqueID());
         canvas->drawString(str, 20, y += 20, paint);
-        GrBackendObject backendObject = gpuSurface->getTextureHandle(access);
-        str.printf("backendObject %c= 0", backendObject != 0 ? '!' : '=');
+        GrBackendTexture backendTex = gpuSurface->getBackendTexture(access);
+        str.printf("backendTex is %svalid", backendTex.isValid() ? '' : 'not ');
         canvas->drawString(str, 20, y += 20, paint);
     }
     sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
@@ -993,19 +993,6 @@ Caller must overwrite the entire back-end object.
 #SeeAlso getBackendTexture getBackendRenderTarget
 
 #Enum ##
-
-# ------------------------------------------------------------------------------
-
-#Method GrBackendObject getTextureHandle(BackendHandleAccess backendHandleAccess)
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method bool getRenderTargetHandle(GrBackendObject* backendObject,
-                               BackendHandleAccess backendHandleAccess)
-#Deprecated
-#Method ##
 
 # ------------------------------------------------------------------------------
 
@@ -1592,8 +1579,8 @@ and the client will still own the semaphores.
             context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(64, 64));
     surface->flushAndSignalSemaphores(1, &semaphore);
     sk_sp<SkImage> image = surface->makeImageSnapshot();
-    GrBackendObject backendImage = image->getTextureHandle(false); // unused
-    SkASSERT(backendImage);
+    GrBackendTexture backendTex = image->getBackendTexture(false); // unused
+    SkASSERT(backendTex.isValid());
     const SkImageInfo childImageInfo = SkImageInfo::Make(64, 64,
               kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     sk_sp<SkSurface> childSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo,
