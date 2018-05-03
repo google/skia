@@ -563,6 +563,14 @@ static sk_sp<SkSpecialImage> cpu_blur(
                                           dst, &source->props());
 }
 
+static void print_ipoint(const SkIPoint& p, const char*name) {
+    SkDebugf("%s: [ %d, %d ]\n", name, p.fX, p.fY);
+}
+
+static void print_irect(const SkIRect& r, const char* name) {
+    SkDebugf("%s: [ %d, %d, %d, %d ]\n", name, r.fLeft, r.fTop, r.fRight, r.fBottom);
+}
+
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
                                                            const Context& ctx,
                                                            SkIPoint* offset) const {
@@ -576,14 +584,22 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     SkIRect inputBounds = SkIRect::MakeXYWH(inputOffset.fX, inputOffset.fY,
                                             input->width(), input->height());
 
+
+    print_irect(inputBounds, "initial inputBounds");
+
     // Calculate the destination bounds.
     SkIRect dstBounds;
     if (!this->applyCropRect(this->mapContext(ctx), inputBounds, &dstBounds)) {
         return nullptr;
     }
+
+    print_irect(dstBounds, "dstBounds");
+
     if (!inputBounds.intersect(dstBounds)) {
         return nullptr;
     }
+
+    print_irect(inputBounds, "intersected inputBounds");
 
     // Save the offset in preparation to make all rectangles relative to the inputOffset.
     SkIPoint resultOffset = SkIPoint::Make(dstBounds.fLeft, dstBounds.fTop);
