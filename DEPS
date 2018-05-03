@@ -18,6 +18,7 @@ deps = {
   "third_party/externals/lua"           : "https://skia.googlesource.com/external/github.com/lua/lua.git@v5-3-4",
   "third_party/externals/microhttpd"    : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
   "third_party/externals/piex"          : "https://android.googlesource.com/platform/external/piex.git@bb217acdca1cc0c16b704669dd6f91a1b509c406",
+  "third_party/externals/rapidjson"     : "https://github.com/Tencent/rapidjson.git@b32cd9421c5e3cbe183a99b6537ce11441e50656",
   "third_party/externals/sdl"           : "https://skia.googlesource.com/third_party/sdl@5d7cfcca344034aff9327f77fc181ae3754e7a90",
   "third_party/externals/sfntly"        : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@b18b09b6114b9b7fe6fc2f96d8b15e8a72f66916",
   "third_party/externals/spirv-headers" : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@661ad91124e6af2272afd00f804d8aa276e17107",
