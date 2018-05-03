@@ -225,6 +225,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		"buildbucket_build_id": specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
 		"buildername":          name,
 		"patch_issue":          specs.PLACEHOLDER_ISSUE,
+		"patch_ref":            specs.PLACEHOLDER_PATCH_REF,
 		"patch_repo":           specs.PLACEHOLDER_PATCH_REPO,
 		"patch_set":            specs.PLACEHOLDER_PATCHSET,
 		"patch_storage":        specs.PLACEHOLDER_PATCH_STORAGE,
@@ -1098,7 +1099,7 @@ func presubmit(b *specs.TasksCfgBuilder, name string) string {
 		"category":         "cq",
 		"patch_gerrit_url": "https://skia-review.googlesource.com",
 		"patch_project":    "skia",
-		"patch_ref":        fmt.Sprintf("refs/changes/%s/%s/%s", specs.PLACEHOLDER_ISSUE_SHORT, specs.PLACEHOLDER_ISSUE, specs.PLACEHOLDER_PATCHSET),
+		"patch_ref":        specs.PLACEHOLDER_PATCH_REF,
 		"reason":           "CQ",
 		"repo_name":        "skia",
 	}

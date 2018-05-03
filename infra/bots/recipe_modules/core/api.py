@@ -142,11 +142,13 @@ class SkiaApi(recipe_api.RecipeApi):
       chromium.revision = 'origin/lkcr'
 
     # Run bot_update.
-
-    # Hack the patch ref if necessary.
-    if self.m.bot_update._issue and self.m.bot_update._patchset:
-      self.m.bot_update._gerrit_ref = self.patch_ref(
-          str(self.m.bot_update._issue), str(self.m.bot_update._patchset))
+    if patch_repo != self.m.properties['repository']:
+      # TODO(borenet): bot_update uses the 'repository' property to determine
+      # which repo the patch should come from. This conflicts with our usage of
+      # the same property to determine which root repo to check out, which may
+      # not be the same as the repository the patch comes from, for which we use
+      # the patch_repo property. Remove this hack by refactoring our checkout
+      # code and properties to agree with bot_update.
       self.m.bot_update._repository = patch_repo
 
     if not self.m.vars.is_trybot and is_parent_revision:
