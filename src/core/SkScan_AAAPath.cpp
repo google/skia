@@ -594,10 +594,10 @@ static inline void computeAlphaAboveLine(SkAlpha* alphas, SkFixed l, SkFixed r,
     if (R == 0) {
         return;
     } else if (R == 1) {
-        alphas[0] = getPartialAlpha(((R << 17) - l - r) >> 9, fullAlpha);
+        alphas[0] = getPartialAlpha((SkLeftShift(R, 17) - l - r) >> 9, fullAlpha);
     } else {
         SkFixed first = SK_Fixed1 - l; // horizontal edge length of the left-most triangle
-        SkFixed last = r - ((R - 1) << 16); // horizontal edge length of the right-most triangle
+        SkFixed last = r - SkLeftShift((R - 1), 16); // horizontal edge length of the right-most triangle
         SkFixed firstH = SkFixedMul(first, dY); // vertical edge of the left-most triangle
         alphas[0] = SkFixedMul(first, firstH) >> 9; // triangle alpha
         SkFixed alpha16 = firstH + (dY >> 1); // rectangle plus triangle
@@ -621,7 +621,7 @@ static inline void computeAlphaBelowLine(
         alphas[0] = getPartialAlpha(trapezoidToAlpha(l, r), fullAlpha);
     } else {
         SkFixed first = SK_Fixed1 - l; // horizontal edge length of the left-most triangle
-        SkFixed last = r - ((R - 1) << 16); // horizontal edge length of the right-most triangle
+        SkFixed last = r - SkLeftShift((R - 1), 16); // horizontal edge length of the right-most triangle
         SkFixed lastH = SkFixedMul(last, dY); // vertical edge of the right-most triangle
         alphas[R-1] = SkFixedMul(last, lastH) >> 9; // triangle alpha
         SkFixed alpha16 = lastH + (dY >> 1); // rectangle plus triangle
@@ -972,7 +972,7 @@ static inline bool isSmoothEnough(SkAnalyticEdge* leftE, SkAnalyticEdge* riteE,
 
     // Now both edges are changing, find the second next edge
     SkAnalyticEdge* nextCurrE = currE->fNext;
-    if (nextCurrE->fUpperY >= stop_y << 16) { // Check if we're at the end
+    if (nextCurrE->fUpperY >= SkLeftShift(stop_y, 16)) { // Check if we're at the end
         return false;
     }
     // Ensure that currE is the next left edge and nextCurrE is the next right edge. Swap if not.
