@@ -1,3 +1,8 @@
+<style>
+.td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }
+.tr_const tr:nth-child(even) { background-color: #ddffdd; }
+.td2_const td:first-child + td { text-align: center; }
+</style>
 SkAutoCanvasRestore Reference
 ===
 
@@ -41,10 +46,11 @@ Preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count. Optionally 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_canvas"> <code><strong>canvas </strong></code> </a></td> <td>
-<a href="SkCanvas_Reference#Canvas">Canvas</a> to guard</td>
-  </tr>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_doSave"> <code><strong>doSave </strong></code> </a></td> <td>
-call <a href="SkCanvas_Reference#SkCanvas_save">SkCanvas::save()</a></td>
+<table>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_canvas"> <code><strong>canvas </strong></code> </a></td>
+    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> to guard</td>
+  </tr>
+  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_doSave"> <code><strong>doSave </strong></code> </a></td>
+    <td>call <a href="SkCanvas_Reference#SkCanvas_save">SkCanvas::save()</a></td>
   </tr>
 </table>
 

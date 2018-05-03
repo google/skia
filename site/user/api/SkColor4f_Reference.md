@@ -1,10 +1,15 @@
+<style>
+.td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }
+.tr_const tr:nth-child(even) { background-color: #ddffdd; }
+.td2_const td:first-child + td { text-align: center; }
+</style>
 SkColor4f Reference
 ===
 
 # <a name="Color4f"></a> Color4f
 
 # <a name="SkColor4f"></a> Struct SkColor4f
-The float values are 0...1 unpremultiplied
+The float values are 0...1 <a href="undocumented#Unpremultiply">Unpremultiplied</a>
 
 ## <a name="Overview"></a> Overview
 
@@ -51,8 +56,8 @@ bool operator==(const SkColor4f& other) _const
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkColor4f_equal1_operator_other"> <code><strong>other </strong></code> </a></td> <td>
-incomplete</td>
+<table>  <tr>    <td><a name="SkColor4f_equal1_operator_other"> <code><strong>other </strong></code> </a></td>
+    <td>incomplete</td>
   </tr>
 </table>
 
@@ -79,8 +84,8 @@ bool operator!=(const SkColor4f& other) _const
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkColor4f_notequal1_operator_other"> <code><strong>other </strong></code> </a></td> <td>
-incomplete</td>
+<table>  <tr>    <td><a name="SkColor4f_notequal1_operator_other"> <code><strong>other </strong></code> </a></td>
+    <td>incomplete</td>
   </tr>
 </table>
 
@@ -148,14 +153,17 @@ static SkColor4f Pin(float r, float g, float b, float a)
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkColor4f_Pin_r"> <code><strong>r </strong></code> </a></td> <td>
-incomplete</td>
-  </tr>  <tr>    <td><a name="SkColor4f_Pin_g"> <code><strong>g </strong></code> </a></td> <td>
-incomplete</td>
-  </tr>  <tr>    <td><a name="SkColor4f_Pin_b"> <code><strong>b </strong></code> </a></td> <td>
-incomplete</td>
-  </tr>  <tr>    <td><a name="SkColor4f_Pin_a"> <code><strong>a </strong></code> </a></td> <td>
-incomplete</td>
+<table>  <tr>    <td><a name="SkColor4f_Pin_r"> <code><strong>r </strong></code> </a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name="SkColor4f_Pin_g"> <code><strong>g </strong></code> </a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name="SkColor4f_Pin_b"> <code><strong>b </strong></code> </a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name="SkColor4f_Pin_a"> <code><strong>a </strong></code> </a></td>
+    <td>incomplete</td>
   </tr>
 </table>
 
@@ -184,8 +192,8 @@ Convert to <a href="#SkColor4f">SkColor4f</a>, assuming <a href="SkColor_Referen
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkColor4f_FromColor_SkColor"> <code><strong>SkColor </strong></code> </a></td> <td>
-incomplete</td>
+<table>  <tr>    <td><a name="SkColor4f_FromColor_SkColor"> <code><strong>SkColor </strong></code> </a></td>
+    <td>incomplete</td>
   </tr>
 </table>
 
