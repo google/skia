@@ -161,7 +161,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
                                                       Direction direction,
                                                       int radius,
                                                       float sigma,
-                                                      const SkIRect& srcBounds,
+                                                      SkIRect* contentRect,
                                                       GrTextureDomain::Mode mode,
                                                       const SkImageInfo& dstII,
                                                       SkBackingFit fit) {
@@ -184,18 +184,19 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
     int bounds[2] = { 0, 0 };
     SkIRect dstRect = SkIRect::MakeWH(srcRect.width(), srcRect.height());
     if (GrTextureDomain::kIgnore_Mode == mode) {
+        *contentRect = dstRect;
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, srcOffset,
                              std::move(proxy), direction, radius, sigma,
                              GrTextureDomain::kIgnore_Mode, bounds);
         return dstRenderTargetContext;
     }
 
-    SkIRect midRect = srcBounds, leftRect, rightRect;
+    SkIRect midRect = *contentRect, leftRect, rightRect;
     midRect.offset(srcOffset);
     SkIRect topRect, bottomRect;
     if (Direction::kX == direction) {
-        bounds[0] = srcBounds.left();
-        bounds[1] = srcBounds.right();
+        bounds[0] = contentRect->left();
+        bounds[1] = contentRect->right();
         topRect = SkIRect::MakeLTRB(0, 0, dstRect.right(), midRect.top());
         bottomRect = SkIRect::MakeLTRB(0, midRect.bottom(), dstRect.right(), dstRect.bottom());
         midRect.inset(radius, 0);
@@ -204,9 +205,14 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
             SkIRect::MakeLTRB(midRect.right(), midRect.top(), dstRect.width(), midRect.bottom());
         dstRect.fTop = midRect.top();
         dstRect.fBottom = midRect.bottom();
+
+        contentRect->fLeft = dstRect.fLeft;
+        contentRect->fTop = midRect.fTop;
+        contentRect->fRight = dstRect.fRight;
+        contentRect->fBottom = midRect.fBottom;
     } else {
-        bounds[0] = srcBounds.top();
-        bounds[1] = srcBounds.bottom();
+        bounds[0] = contentRect->top();
+        bounds[1] = contentRect->bottom();
         topRect = SkIRect::MakeLTRB(0, 0, midRect.left(), dstRect.bottom());
         bottomRect = SkIRect::MakeLTRB(midRect.right(), 0, dstRect.right(), dstRect.bottom());
         midRect.inset(0, radius);
@@ -215,6 +221,11 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
             SkIRect::MakeLTRB(midRect.left(), midRect.bottom(), midRect.right(), dstRect.height());
         dstRect.fLeft = midRect.left();
         dstRect.fRight = midRect.right();
+
+        contentRect->fLeft = midRect.fLeft;
+        contentRect->fTop = dstRect.fTop;
+        contentRect->fRight = midRect.fRight;
+        contentRect->fBottom = dstRect.fBottom;
     }
     if (!topRect.isEmpty()) {
         dstRenderTargetContext->clear(&topRect, 0, GrRenderTargetContext::CanClearFullscreen::kNo);
@@ -488,7 +499,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
     if (sigmaX > 0.0f) {
         dstRenderTargetContext = convolve_gaussian(context, std::move(srcProxy), srcRect, srcOffset,
-                                                   Direction::kX, radiusX, sigmaX, localSrcBounds,
+                                                   Direction::kX, radiusX, sigmaX, &localSrcBounds,
                                                    mode, finalDestII, xFit);
         if (!dstRenderTargetContext) {
             return nullptr;
@@ -508,17 +519,12 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         }
 
         srcRect.offsetTo(0, 0);
-        localSrcBounds = srcRect;
-        if (GrTextureDomain::kClamp_Mode == mode) {
-            // We need to adjust bounds because we only fill part of the srcRect in x-pass.
-            localSrcBounds.inset(0, radiusY);
-        }
         srcOffset.set(0, 0);
     }
 
     if (sigmaY > 0.0f) {
         dstRenderTargetContext = convolve_gaussian(context, std::move(srcProxy), srcRect, srcOffset,
-                                                   Direction::kY, radiusY, sigmaY, localSrcBounds,
+                                                   Direction::kY, radiusY, sigmaY, &localSrcBounds,
                                                    mode, finalDestII, yFit);
         if (!dstRenderTargetContext) {
             return nullptr;
