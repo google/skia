@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50725b37_3bb177a9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-03T17:37:53Z",
+      "side": 1,
+      "message": "nit: Please add\n\nBug: b/77917978\n\nAlso, maybe add some version of your comment \"This will make the non-bleed gpu implementation more sane as we will know that the input src rects are at integers and if offset by +/-0.5 we will be at pixel centers\"\n\nJust to make sure I understand - we always create the iterator starting from some integral \"divs\", right? So this won\u0027t really change behavior - we\u0027re just storing the integers as integers now, rather than float. Can you add that to the commit message? Something like \"No change in behavior, since src rects really were integral all along.\"?",
+      "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c51f5103_78023625",
+        "filename": "src/core/SkLatticeIter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-03T17:37:53Z",
+      "side": 1,
+      "message": "I think this is no longer necessary.",
+      "range": {
+        "startLine": 96,
+        "startChar": 21,
+        "endLine": 96,
+        "endChar": 28
+      },
+      "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "227a6550_561d229c",
+        "filename": "src/core/SkLatticeIter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-03T17:37:53Z",
+      "side": 1,
+      "message": "Could be an int?",
+      "range": {
+        "startLine": 97,
+        "startChar": 8,
+        "endLine": 97,
+        "endChar": 13
+      },
+      "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98a77368_5cfa4d6c",
+        "filename": "src/core/SkLatticeIter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-03T17:37:53Z",
+      "side": 1,
+      "message": "We need to keep this version around because of callers in Android. I was thinking perhaps we should deprecate it for simplicity, but SkiaCanvasProxy.cpp passes the SkRect directly to its onDrawImageRect, so maybe that\u0027s worthwhile? (SkiaCanvasProxy subclasses SkCanvas, so it also has an SkIRect version through it.)",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 44
+      },
+      "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
