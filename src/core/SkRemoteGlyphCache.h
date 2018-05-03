@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkRemoteGlyphCachePriv_DEFINED
-#define SkRemoteGlyphCachePriv_DEFINED
+#ifndef SkRemoteGlyphCache_DEFINED
+#define SkRemoteGlyphCache_DEFINED
 
 #include <memory>
 #include <tuple>
@@ -197,4 +197,4 @@ private:
     sk_sp<DiscardableHandleManager> fDiscardableHandleManager;
 };
 
-#endif  // SkRemoteGlyphCachePriv_DEFINED
+#endif  // SkRemoteGlyphCache_DEFINED
