@@ -22,6 +22,30 @@
       "revId": "825e4364272ff0f5340a28e4b44414d6e2c24ddb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eda37923_83d71a2e",
+        "filename": "src/core/SkScan.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-05-03T18:45:03Z",
+      "side": 1,
+      "message": "Here are some reasons that we may not be able to remove it now:\n\n1. skbug.com/6886 is still not fully fixed so some of our clients (e.g., Firefox) may want to use this to turn off DAA completely.\n\n2. This flag (and others like gSkUseAnalyticAA) allow our viewer and DM app to test different AA algorithms. For example, run without DAA, run with forced AAA...",
+      "parentUuid": "d0555eaa_b949b747",
+      "range": {
+        "startLine": 16,
+        "startChar": 18,
+        "endLine": 16,
+        "endChar": 31
+      },
+      "revId": "825e4364272ff0f5340a28e4b44414d6e2c24ddb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
