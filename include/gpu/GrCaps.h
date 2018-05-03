@@ -236,10 +236,8 @@ public:
     /**
      * Returns whether or not we will be able to do a copy given the passed in params
      */
-    virtual bool canCopySurface(const GrSurfaceProxy* /*dst*/, const GrSurfaceProxy* /*src*/,
-                                const SkIRect& /*srcRect*/, const SkIPoint& /*dstPoint*/) const {
-        return true;
-    }
+    virtual bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+                                const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
 
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
