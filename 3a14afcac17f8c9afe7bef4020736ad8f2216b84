@@ -70,6 +70,30 @@
       "revId": "3a14afcac17f8c9afe7bef4020736ad8f2216b84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d49c16b4_cb980a89",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-05-03T15:25:11Z",
+      "side": 1,
+      "message": "good point about having to concat later as well... I will think harder",
+      "parentUuid": "8e579528_3c74471a",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 5
+      },
+      "revId": "3a14afcac17f8c9afe7bef4020736ad8f2216b84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
